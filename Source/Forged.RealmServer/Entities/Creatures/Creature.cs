@@ -331,7 +331,7 @@ public partial class Creature : Unit
 		GameObjectManager.ChooseCreatureFlags(cInfo, out var npcFlags, out var unitFlags, out var unitFlags2, out var unitFlags3, out var dynamicFlags, data);
 
 		if (cInfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Worldevent))
-			npcFlags |= Global.GameEventMgr.GetNPCFlag(this);
+			npcFlags |= _gameEventManager.GetNPCFlag(this);
 
 		ReplaceAllNpcFlags((NPCFlags)(npcFlags & 0xFFFFFFFF));
 		ReplaceAllNpcFlags2((NPCFlags2)(npcFlags >> 32));
@@ -1848,7 +1848,7 @@ public partial class Creature : Unit
 				GameObjectManager.ChooseCreatureFlags(cInfo, out var npcFlags, out var unitFlags, out var unitFlags2, out var unitFlags3, out var dynamicFlags, creatureData);
 
 				if (cInfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Worldevent))
-					npcFlags |= Global.GameEventMgr.GetNPCFlag(this);
+					npcFlags |= _gameEventManager.GetNPCFlag(this);
 
 				ReplaceAllNpcFlags((NPCFlags)(npcFlags & 0xFFFFFFFF));
 				ReplaceAllNpcFlags2((NPCFlags2)(npcFlags >> 32));

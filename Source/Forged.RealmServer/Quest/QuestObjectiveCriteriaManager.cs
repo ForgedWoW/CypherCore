@@ -77,7 +77,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
 
 		if (!criteriaResult.IsEmpty())
 		{
-			var now = GameTime.GetGameTime();
+			var now = _gameTime.CurrentGameTime;
 
 			do
 			{

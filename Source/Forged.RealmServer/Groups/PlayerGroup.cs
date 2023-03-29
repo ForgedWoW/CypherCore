@@ -156,7 +156,7 @@ public class PlayerGroup
 	{
 		var leaderGuid = leader.GUID;
 
-		_guid = ObjectGuid.Create(HighGuid.Party, Global.GroupMgr.GenerateGroupId());
+		_guid = ObjectGuid.Create(HighGuid.Party, _groupManager.GenerateGroupId());
 		_leaderGuid = leaderGuid;
 		_leaderFactionGroup = Player.GetFactionGroupForRace(leader.Race);
 		_leaderName = leader.GetName();
@@ -184,9 +184,9 @@ public class PlayerGroup
 			_raidDifficulty = leader.RaidDifficultyId;
 			_legacyRaidDifficulty = leader.LegacyRaidDifficultyId;
 
-			_dbStoreId = Global.GroupMgr.GenerateNewGroupDbStoreId();
+			_dbStoreId = _groupManager.GenerateNewGroupDbStoreId();
 
-			Global.GroupMgr.RegisterGroupDbStoreId(_dbStoreId, this);
+			_groupManager.RegisterGroupDbStoreId(_dbStoreId, this);
 
 			// Store group in database
 			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_GROUP);
@@ -232,7 +232,7 @@ public class PlayerGroup
 	public void LoadGroupFromDB(SQLFields field)
 	{
 		_dbStoreId = field.Read<uint>(17);
-		_guid = ObjectGuid.Create(HighGuid.Party, Global.GroupMgr.GenerateGroupId());
+		_guid = ObjectGuid.Create(HighGuid.Party, _groupManager.GenerateGroupId());
 		_leaderGuid = ObjectGuid.Create(HighGuid.Player, field.Read<ulong>(0));
 
 		// group leader not exist
@@ -262,7 +262,7 @@ public class PlayerGroup
 		_masterLooterGuid = ObjectGuid.Create(HighGuid.Player, field.Read<ulong>(16));
 
 		if (_groupFlags.HasAnyFlag(GroupFlags.Lfg))
-			Global.LFGMgr._LoadFromDB(field, GUID);
+			_lFGManager._LoadFromDB(field, GUID);
 	}
 
 	public void LoadMemberFromDB(ulong guidLow, byte memberFlags, byte subgroup, LfgRoles roles)
@@ -294,7 +294,7 @@ public class PlayerGroup
 
 		SubGroupCounterIncrease(subgroup);
 
-		Global.LFGMgr.SetupGroupMember(member.Guid, GUID);
+		_lFGManager.SetupGroupMember(member.Guid, GUID);
 	}
 
 	public void ConvertToLFG()
@@ -687,7 +687,7 @@ public class PlayerGroup
 			if (IsLFGGroup && MembersCount == 1)
 			{
 				var leader = Global.ObjAccessor.FindPlayer(LeaderGUID);
-				var mapId = Global.LFGMgr.GetDungeonMapId(GUID);
+				var mapId = _lFGManager.GetDungeonMapId(GUID);
 
 				if (mapId == 0 || leader == null || (leader.IsAlive && leader.Location.MapId != mapId))
 				{
@@ -826,10 +826,10 @@ public class PlayerGroup
 
 			_characterDatabase.CommitTransaction(trans);
 
-			Global.GroupMgr.FreeGroupDbStoreId(this);
+			_groupManager.FreeGroupDbStoreId(this);
 		}
 
-		Global.GroupMgr.RemoveGroup(this);
+		_groupManager.RemoveGroup(this);
 	}
 
 	public void SetTargetIcon(byte symbol, ObjectGuid target, ObjectGuid changedBy, sbyte partyIndex)
@@ -958,18 +958,18 @@ public class PlayerGroup
 		{
 			PartyLFGInfo lfgInfos = new();
 
-			lfgInfos.Slot = Global.LFGMgr.GetLFGDungeonEntry(Global.LFGMgr.GetDungeon(_guid));
+			lfgInfos.Slot = _lFGManager.GetLFGDungeonEntry(_lFGManager.GetDungeon(_guid));
 			lfgInfos.BootCount = 0;
 			lfgInfos.Aborted = false;
 
-			lfgInfos.MyFlags = (byte)(Global.LFGMgr.GetState(_guid) == LfgState.FinishedDungeon ? 2 : 0);
-			lfgInfos.MyRandomSlot = Global.LFGMgr.GetSelectedRandomDungeon(player.GUID);
+			lfgInfos.MyFlags = (byte)(_lFGManager.GetState(_guid) == LfgState.FinishedDungeon ? 2 : 0);
+			lfgInfos.MyRandomSlot = _lFGManager.GetSelectedRandomDungeon(player.GUID);
 
 			lfgInfos.MyPartialClear = 0;
 			lfgInfos.MyGearDiff = 0.0f;
 			lfgInfos.MyFirstReward = false;
 
-			var reward = Global.LFGMgr.GetRandomDungeonReward(partyUpdate.LfgInfos.Value.MyRandomSlot, player.Level);
+			var reward = _lFGManager.GetRandomDungeonReward(partyUpdate.LfgInfos.Value.MyRandomSlot, player.Level);
 
 			if (reward != null)
 			{

@@ -23,6 +23,8 @@ public class CharacterCache
     {
         _worldManager = worldManager;
         _characterDatabase = characterDatabase;
+
+		LoadCharacterCacheStorage();
     }
 
     public void LoadCharacterCacheStorage()

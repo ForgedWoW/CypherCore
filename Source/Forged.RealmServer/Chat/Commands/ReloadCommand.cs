@@ -452,7 +452,7 @@ class ReloadCommand
 	static bool HandleReloadLfgRewardsCommand(CommandHandler handler)
 	{
 		Log.Logger.Information("Re-Loading lfg dungeon rewards...");
-		Global.LFGMgr.LoadRewards();
+		_lFGManager.LoadRewards();
 		handler.SendGlobalGMSysMessage("DB table `lfg_dungeon_rewards` reloaded.");
 
 		return true;

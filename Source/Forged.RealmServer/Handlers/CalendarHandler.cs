@@ -46,7 +46,7 @@ public class CalendarHandler : IWorldSessionHandler
 	{
 		var guid = _player.GUID;
 
-		var currTime = _gameTime.GetGameTime;
+		var currTime = _gameTime.CurrentGameTime;
 
 		CalendarSendCalendar packet = new();
 		packet.ServerTime = currTime;
@@ -120,7 +120,7 @@ public class CalendarHandler : IWorldSessionHandler
 
 		// prevent events in the past
 		// To Do: properly handle timezones and remove the "- time_t(86400L)" hack
-		if (calendarAddEvent.EventInfo.Time < (_gameTime.GetGameTime - 86400L))
+		if (calendarAddEvent.EventInfo.Time < (_gameTime.CurrentGameTime - 86400L))
 		{
 			_calendarManager.SendCalendarCommandResult(guid, CalendarError.EventPassed);
 
@@ -156,14 +156,14 @@ public class CalendarHandler : IWorldSessionHandler
 			}
 		}
 
-		if (_session.CalendarEventCreationCooldown > _gameTime.GetGameTime)
+		if (_session.CalendarEventCreationCooldown > _gameTime.CurrentGameTime)
 		{
 			_calendarManager.SendCalendarCommandResult(guid, CalendarError.Internal);
 
 			return;
 		}
 
-        _session.CalendarEventCreationCooldown = _gameTime.GetGameTime + SharedConst.CalendarCreateEventCooldown;
+        _session.CalendarEventCreationCooldown = _gameTime.CurrentGameTime + SharedConst.CalendarCreateEventCooldown;
 
 		CalendarEvent calendarEvent = new(_calendarManager.GetFreeEventId(),
 										guid,
@@ -224,7 +224,7 @@ public class CalendarHandler : IWorldSessionHandler
 
 		// prevent events in the past
 		// To Do: properly handle timezones and remove the "- time_t(86400L)" hack
-		if (calendarUpdateEvent.EventInfo.Time < (_gameTime.GetGameTime - 86400L))
+		if (calendarUpdateEvent.EventInfo.Time < (_gameTime.CurrentGameTime - 86400L))
 			return;
 
 		var calendarEvent = _calendarManager.GetEvent(calendarUpdateEvent.EventInfo.EventID);
@@ -265,7 +265,7 @@ public class CalendarHandler : IWorldSessionHandler
 
 		// prevent events in the past
 		// To Do: properly handle timezones and remove the "- time_t(86400L)" hack
-		if (calendarCopyEvent.Date < (_gameTime.GetGameTime - 86400L))
+		if (calendarCopyEvent.Date < (_gameTime.CurrentGameTime - 86400L))
 		{
 			_calendarManager.SendCalendarCommandResult(guid, CalendarError.EventPassed);
 
@@ -316,14 +316,14 @@ public class CalendarHandler : IWorldSessionHandler
 				}
 			}
 
-			if (_session.CalendarEventCreationCooldown > _gameTime.GetGameTime)
+			if (_session.CalendarEventCreationCooldown > _gameTime.CurrentGameTime)
 			{
 				_calendarManager.SendCalendarCommandResult(guid, CalendarError.Internal);
 
 				return;
 			}
 
-            _session.CalendarEventCreationCooldown = _gameTime.GetGameTime + SharedConst.CalendarCreateEventCooldown;
+            _session.CalendarEventCreationCooldown = _gameTime.CurrentGameTime + SharedConst.CalendarCreateEventCooldown;
 
 			CalendarEvent newEvent = new(oldEvent, _calendarManager.GetFreeEventId());
 			newEvent.Date = calendarCopyEvent.Date;
@@ -464,7 +464,7 @@ public class CalendarHandler : IWorldSessionHandler
 			}
 
 			var status = calendarEventSignUp.Tentative ? CalendarInviteStatus.Tentative : CalendarInviteStatus.SignedUp;
-			CalendarInvite invite = new(_calendarManager.GetFreeInviteId(), calendarEventSignUp.EventID, guid, guid, _gameTime.GetGameTime, status, CalendarModerationRank.Player, "");
+			CalendarInvite invite = new(_calendarManager.GetFreeInviteId(), calendarEventSignUp.EventID, guid, guid, _gameTime.CurrentGameTime, status, CalendarModerationRank.Player, "");
 			_calendarManager.AddInvite(calendarEvent, invite);
 			_calendarManager.SendCalendarClearPendingAction(guid);
 		}
@@ -496,7 +496,7 @@ public class CalendarHandler : IWorldSessionHandler
 			if (invite != null)
 			{
 				invite.Status = calendarRSVP.Status;
-				invite.ResponseTime = _gameTime.GetGameTime;
+				invite.ResponseTime = _gameTime.CurrentGameTime;
 
 				_calendarManager.UpdateInvite(invite);
 				_calendarManager.SendCalendarEventStatus(calendarEvent, invite);

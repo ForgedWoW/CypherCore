@@ -712,7 +712,7 @@ public class WorldSocket : SocketBase
 		//! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
 		if (mutetime < 0)
 		{
-			mutetime = _gameTime.GetGameTime + mutetime;
+			mutetime = _gameTime.CurrentGameTime + mutetime;
 
 			stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME_LOGIN);
 			stmt.AddValue(0, mutetime);
@@ -912,11 +912,11 @@ public class WorldSocket : SocketBase
 	{
 		if (_LastPingTime == 0)
 		{
-			_LastPingTime = _gameTime.GetGameTime; // for 1st ping
+			_LastPingTime = _gameTime.CurrentGameTime; // for 1st ping
 		}
 		else
 		{
-			var now = _gameTime.GetGameTime;
+			var now = _gameTime.CurrentGameTime;
 			var diff = now - _LastPingTime;
 			_LastPingTime = now;
 

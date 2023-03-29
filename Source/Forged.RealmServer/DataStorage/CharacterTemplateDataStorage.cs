@@ -18,6 +18,8 @@ public class CharacterTemplateDataStorage
     {
         _cliDB = cliDB;
         _worldDatabase = worldDatabase;
+
+		LoadCharacterTemplates();
     }
 
     public void LoadCharacterTemplates()

@@ -20,10 +20,10 @@ namespace Forged.RealmServer;
 
 public class GameEventManager
 {
-	public List<ulong>[] mGameEventCreatureGuids;
-	public List<ulong>[] mGameEventGameobjectGuids;
-	readonly Dictionary<uint, GameEventQuestToEventConditionNum> mQuestToEventConditions = new();
-	readonly List<ushort> m_ActiveEvents = new();
+    private List<ulong>[] _gameEventCreatureGuids;
+    private List<ulong>[] _gameEventGameobjectGuids;
+	readonly Dictionary<uint, GameEventQuestToEventConditionNum> _QuestToEventConditions = new();
+	readonly List<ushort> _activeEvents = new();
     private readonly GameTime _gameTime;
     private readonly WorldManager _worldManager;
     private readonly CliDB _cliDB;
@@ -35,15 +35,15 @@ public class GameEventManager
     private readonly PoolManager _poolManager;
     private readonly BattlegroundManager _battlegroundManager;
     private readonly WorldStateManager _worldStateManager;
-    List<Tuple<uint, uint>>[] mGameEventCreatureQuests;
-	List<Tuple<uint, uint>>[] mGameEventGameObjectQuests;
-	Dictionary<uint, VendorItem>[] mGameEventVendors;
-	List<Tuple<ulong, ModelEquip>>[] mGameEventModelEquip;
-	List<uint>[] mGameEventPoolIds;
-	GameEventData[] mGameEvent;
-	uint[] mGameEventBattlegroundHolidays;
-	List<(ulong guid, ulong npcflag)>[] mGameEventNPCFlags;
-	bool isSystemInit;
+    List<Tuple<uint, uint>>[] _gameEventCreatureQuests;
+	List<Tuple<uint, uint>>[] _gameEventGameObjectQuests;
+	Dictionary<uint, VendorItem>[] _gameEventVendors;
+	List<Tuple<ulong, ModelEquip>>[] _gameEventModelEquip;
+	List<uint>[] _gameEventPoolIds;
+	GameEventData[] _gameEvent;
+	uint[] _gameEventBattlegroundHolidays;
+	List<(ulong guid, ulong npcflag)>[] _gameEventNPCFlags;
+	bool _isSystemInit;
 
 	GameEventManager(GameTime gameTime, WorldManager worldManager, CliDB cliDB, CharacterDatabase characterDatabase, WorldDatabase worldDatabase,
 		GameObjectManager gameObjectManager, IConfiguration configuration, WorldConfig worldConfig, PoolManager poolManager, BattlegroundManager battlegroundManager,
@@ -60,52 +60,55 @@ public class GameEventManager
         _poolManager = poolManager;
         _battlegroundManager = battlegroundManager;
         _worldStateManager = worldStateManager;
+
+		Initialize();
+		LoadFromDB();
     }
 
     public uint NextCheck(ushort entry)
 	{
-		var currenttime = _gameTime.GetGameTime;
+		var currenttime = _gameTime.CurrentGameTime;
 
 		// for NEXTPHASE state world events, return the delay to start the next event, so the followup event will be checked correctly
-		if ((mGameEvent[entry].state == GameEventState.WorldNextPhase || mGameEvent[entry].state == GameEventState.WorldFinished) && mGameEvent[entry].nextstart >= currenttime)
-			return (uint)(mGameEvent[entry].nextstart - currenttime);
+		if ((_gameEvent[entry].state == GameEventState.WorldNextPhase || _gameEvent[entry].state == GameEventState.WorldFinished) && _gameEvent[entry].nextstart >= currenttime)
+			return (uint)(_gameEvent[entry].nextstart - currenttime);
 
 		// for CONDITIONS state world events, return the length of the wait period, so if the conditions are met, this check will be called again to set the timer as NEXTPHASE event
-		if (mGameEvent[entry].state == GameEventState.WorldConditions)
+		if (_gameEvent[entry].state == GameEventState.WorldConditions)
 		{
-			if (mGameEvent[entry].length != 0)
-				return mGameEvent[entry].length * 60;
+			if (_gameEvent[entry].length != 0)
+				return _gameEvent[entry].length * 60;
 			else
 				return Time.Day;
 		}
 
 		// outdated event: we return max
-		if (currenttime > mGameEvent[entry].end)
+		if (currenttime > _gameEvent[entry].end)
 			return Time.Day;
 
 		// never started event, we return delay before start
-		if (mGameEvent[entry].start > currenttime)
-			return (uint)(mGameEvent[entry].start - currenttime);
+		if (_gameEvent[entry].start > currenttime)
+			return (uint)(_gameEvent[entry].start - currenttime);
 
 		uint delay;
 
 		// in event, we return the end of it
-		if ((((currenttime - mGameEvent[entry].start) % (mGameEvent[entry].occurence * 60)) < (mGameEvent[entry].length * 60)))
+		if ((((currenttime - _gameEvent[entry].start) % (_gameEvent[entry].occurence * 60)) < (_gameEvent[entry].length * 60)))
 			// we return the delay before it ends
-			delay = (uint)((mGameEvent[entry].length * Time.Minute) - ((currenttime - mGameEvent[entry].start) % (mGameEvent[entry].occurence * Time.Minute)));
+			delay = (uint)((_gameEvent[entry].length * Time.Minute) - ((currenttime - _gameEvent[entry].start) % (_gameEvent[entry].occurence * Time.Minute)));
 		else // not in window, we return the delay before next start
-			delay = (uint)((mGameEvent[entry].occurence * Time.Minute) - ((currenttime - mGameEvent[entry].start) % (mGameEvent[entry].occurence * Time.Minute)));
+			delay = (uint)((_gameEvent[entry].occurence * Time.Minute) - ((currenttime - _gameEvent[entry].start) % (_gameEvent[entry].occurence * Time.Minute)));
 
 		// In case the end is before next check
-		if (mGameEvent[entry].end < currenttime + delay)
-			return (uint)(mGameEvent[entry].end - currenttime);
+		if (_gameEvent[entry].end < currenttime + delay)
+			return (uint)(_gameEvent[entry].end - currenttime);
 		else
 			return delay;
 	}
 
 	public bool StartEvent(ushort event_id, bool overwrite = false)
 	{
-		var data = mGameEvent[event_id];
+		var data = _gameEvent[event_id];
 
 		if (data.state == GameEventState.Normal || data.state == GameEventState.Internal)
 		{
@@ -114,7 +117,7 @@ public class GameEventManager
 
 			if (overwrite)
 			{
-				mGameEvent[event_id].start = _gameTime.GetGameTime;
+				_gameEvent[event_id].start = _gameTime.CurrentGameTime;
 
 				if (data.end <= data.start)
 					data.end = data.start + data.length;
@@ -150,7 +153,7 @@ public class GameEventManager
 
 	public void StopEvent(ushort event_id, bool overwrite = false)
 	{
-		var data = mGameEvent[event_id];
+		var data = _gameEvent[event_id];
 		var serverwide_evt = data.state != GameEventState.Normal && data.state != GameEventState.Internal;
 
 		RemoveActiveEvent(event_id);
@@ -158,7 +161,7 @@ public class GameEventManager
 
 		if (overwrite && !serverwide_evt)
 		{
-			data.start = _gameTime.GetGameTime - data.length * Time.Minute;
+			data.start = _gameTime.CurrentGameTime - data.length * Time.Minute;
 
 			if (data.end <= data.start)
 				data.end = data.start + data.length;
@@ -198,7 +201,7 @@ public class GameEventManager
 
 			if (result.IsEmpty())
 			{
-				mGameEvent.Clear();
+				_gameEvent.Clear();
 				Log.Logger.Information("Loaded 0 game events. DB table `game_event` is empty.");
 
 				return;
@@ -262,7 +265,7 @@ public class GameEventManager
 					SetHolidayEventTime(pGameEvent);
 				}
 
-				mGameEvent[event_id] = pGameEvent;
+				_gameEvent[event_id] = pGameEvent;
 			} while (result.NextRow());
 
 			Log.Logger.Information("Loaded {0} game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
@@ -288,17 +291,17 @@ public class GameEventManager
 				{
 					var event_id = result.Read<byte>(0);
 
-					if (event_id >= mGameEvent.Length)
+					if (event_id >= _gameEvent.Length)
 					{
 						Log.Logger.Error("`game_event_save` game event entry ({0}) not exist in `game_event`", event_id);
 
 						continue;
 					}
 
-					if (mGameEvent[event_id].state != GameEventState.Normal && mGameEvent[event_id].state != GameEventState.Internal)
+					if (_gameEvent[event_id].state != GameEventState.Normal && _gameEvent[event_id].state != GameEventState.Internal)
 					{
-						mGameEvent[event_id].state = (GameEventState)result.Read<byte>(1);
-						mGameEvent[event_id].nextstart = result.Read<uint>(2);
+						_gameEvent[event_id].state = (GameEventState)result.Read<byte>(1);
+						_gameEvent[event_id].nextstart = result.Read<uint>(2);
 					}
 					else
 					{
@@ -334,25 +337,25 @@ public class GameEventManager
 				{
 					ushort event_id = result.Read<byte>(0);
 
-					if (event_id >= mGameEvent.Length)
+					if (event_id >= _gameEvent.Length)
 					{
 						Log.Logger.Error("`game_event_prerequisite` game event id ({0}) is out of range compared to max event id in `game_event`", event_id);
 
 						continue;
 					}
 
-					if (mGameEvent[event_id].state != GameEventState.Normal && mGameEvent[event_id].state != GameEventState.Internal)
+					if (_gameEvent[event_id].state != GameEventState.Normal && _gameEvent[event_id].state != GameEventState.Internal)
 					{
 						ushort prerequisite_event = result.Read<byte>(1);
 
-						if (prerequisite_event >= mGameEvent.Length)
+						if (prerequisite_event >= _gameEvent.Length)
 						{
 							Log.Logger.Error("`game_event_prerequisite` game event prerequisite id ({0}) not exist in `game_event`", prerequisite_event);
 
 							continue;
 						}
 
-						mGameEvent[event_id].prerequisite_events.Add(prerequisite_event);
+						_gameEvent[event_id].prerequisite_events.Add(prerequisite_event);
 					}
 					else
 					{
@@ -388,7 +391,7 @@ public class GameEventManager
 				{
 					var guid = result.Read<ulong>(0);
 					short event_id = result.Read<sbyte>(1);
-					var internal_event_id = mGameEvent.Length + event_id - 1;
+					var internal_event_id = _gameEvent.Length + event_id - 1;
 
 					var data = _gameObjectManager.GetCreatureData(guid);
 
@@ -402,7 +405,7 @@ public class GameEventManager
 						continue;
 					}
 
-					if (internal_event_id < 0 || internal_event_id >= mGameEventCreatureGuids.Length)
+					if (internal_event_id < 0 || internal_event_id >= _gameEventCreatureGuids.Length)
 					{
 						Log.Logger.Error("`game_event_creature` game event id ({0}) not exist in `game_event`", event_id);
 
@@ -413,7 +416,7 @@ public class GameEventManager
 					if (data.poolId != 0)
 						Log.Logger.Error($"`game_event_creature`: game event id ({event_id}) contains creature ({guid}) which is part of a pool ({data.poolId}). This should be spawned in game_event_pool");
 
-					mGameEventCreatureGuids[internal_event_id].Add(guid);
+					_gameEventCreatureGuids[internal_event_id].Add(guid);
 
 					++count;
 				} while (result.NextRow());
@@ -442,7 +445,7 @@ public class GameEventManager
 				{
 					var guid = result.Read<ulong>(0);
 					short event_id = result.Read<byte>(1);
-					var internal_event_id = mGameEvent.Length + event_id - 1;
+					var internal_event_id = _gameEvent.Length + event_id - 1;
 
 					var data = _gameObjectManager.GetGameObjectData(guid);
 
@@ -453,7 +456,7 @@ public class GameEventManager
 						continue;
 					}
 
-					if (internal_event_id < 0 || internal_event_id >= mGameEventGameobjectGuids.Length)
+					if (internal_event_id < 0 || internal_event_id >= _gameEventGameobjectGuids.Length)
 					{
 						Log.Logger.Error("`game_event_gameobject` game event id ({0}) not exist in `game_event`", event_id);
 
@@ -464,7 +467,7 @@ public class GameEventManager
 					if (data.poolId != 0)
 						Log.Logger.Error($"`game_event_gameobject`: game event id ({event_id}) contains game object ({guid}) which is part of a pool ({data.poolId}). This should be spawned in game_event_pool");
 
-					mGameEventGameobjectGuids[internal_event_id].Add(guid);
+					_gameEventGameobjectGuids[internal_event_id].Add(guid);
 
 					++count;
 				} while (result.NextRow());
@@ -496,7 +499,7 @@ public class GameEventManager
 					var entry = result.Read<uint>(1);
 					ushort event_id = result.Read<byte>(2);
 
-					if (event_id >= mGameEventModelEquip.Length)
+					if (event_id >= _gameEventModelEquip.Length)
 					{
 						Log.Logger.Error("`game_event_model_equip` game event id ({0}) is out of range compared to max event id in `game_event`", event_id);
 
@@ -525,7 +528,7 @@ public class GameEventManager
 						}
 					}
 
-					mGameEventModelEquip[event_id].Add(Tuple.Create(guid, newModelEquipSet));
+					_gameEventModelEquip[event_id].Add(Tuple.Create(guid, newModelEquipSet));
 
 					++count;
 				} while (result.NextRow());
@@ -556,14 +559,14 @@ public class GameEventManager
 					var quest = result.Read<uint>(1);
 					ushort event_id = result.Read<byte>(2);
 
-					if (event_id >= mGameEventCreatureQuests.Length)
+					if (event_id >= _gameEventCreatureQuests.Length)
 					{
 						Log.Logger.Error("`game_event_creature_quest` game event id ({0}) not exist in `game_event`", event_id);
 
 						continue;
 					}
 
-					mGameEventCreatureQuests[event_id].Add(Tuple.Create(id, quest));
+					_gameEventCreatureQuests[event_id].Add(Tuple.Create(id, quest));
 
 					++count;
 				} while (result.NextRow());
@@ -594,14 +597,14 @@ public class GameEventManager
 					var quest = result.Read<uint>(1);
 					ushort event_id = result.Read<byte>(2);
 
-					if (event_id >= mGameEventGameObjectQuests.Length)
+					if (event_id >= _gameEventGameObjectQuests.Length)
 					{
 						Log.Logger.Error("`game_event_gameobject_quest` game event id ({0}) not exist in `game_event`", event_id);
 
 						continue;
 					}
 
-					mGameEventGameObjectQuests[event_id].Add(Tuple.Create(id, quest));
+					_gameEventGameObjectQuests[event_id].Add(Tuple.Create(id, quest));
 
 					++count;
 				} while (result.NextRow());
@@ -633,19 +636,19 @@ public class GameEventManager
 					var condition = result.Read<uint>(2);
 					var num = result.Read<float>(3);
 
-					if (event_id >= mGameEvent.Length)
+					if (event_id >= _gameEvent.Length)
 					{
 						Log.Logger.Error("`game_event_quest_condition` game event id ({0}) is out of range compared to max event id in `game_event`", event_id);
 
 						continue;
 					}
 
-					if (!mQuestToEventConditions.ContainsKey(quest))
-						mQuestToEventConditions[quest] = new GameEventQuestToEventConditionNum();
+					if (!_QuestToEventConditions.ContainsKey(quest))
+						_QuestToEventConditions[quest] = new GameEventQuestToEventConditionNum();
 
-					mQuestToEventConditions[quest].event_id = event_id;
-					mQuestToEventConditions[quest].condition = condition;
-					mQuestToEventConditions[quest].num = num;
+					_QuestToEventConditions[quest].event_id = event_id;
+					_QuestToEventConditions[quest].condition = condition;
+					_QuestToEventConditions[quest].num = num;
 
 					++count;
 				} while (result.NextRow());
@@ -675,17 +678,17 @@ public class GameEventManager
 					ushort event_id = result.Read<byte>(0);
 					var condition = result.Read<uint>(1);
 
-					if (event_id >= mGameEvent.Length)
+					if (event_id >= _gameEvent.Length)
 					{
 						Log.Logger.Error("`game_event_condition` game event id ({0}) is out of range compared to max event id in `game_event`", event_id);
 
 						continue;
 					}
 
-					mGameEvent[event_id].conditions[condition].reqNum = result.Read<float>(2);
-					mGameEvent[event_id].conditions[condition].done = 0;
-					mGameEvent[event_id].conditions[condition].max_world_state = result.Read<ushort>(3);
-					mGameEvent[event_id].conditions[condition].done_world_state = result.Read<ushort>(4);
+					_gameEvent[event_id].conditions[condition].reqNum = result.Read<float>(2);
+					_gameEvent[event_id].conditions[condition].done = 0;
+					_gameEvent[event_id].conditions[condition].max_world_state = result.Read<ushort>(3);
+					_gameEvent[event_id].conditions[condition].done_world_state = result.Read<ushort>(4);
 
 					++count;
 				} while (result.NextRow());
@@ -715,16 +718,16 @@ public class GameEventManager
 					ushort event_id = result.Read<byte>(0);
 					var condition = result.Read<uint>(1);
 
-					if (event_id >= mGameEvent.Length)
+					if (event_id >= _gameEvent.Length)
 					{
 						Log.Logger.Error("`game_event_condition_save` game event id ({0}) is out of range compared to max event id in `game_event`", event_id);
 
 						continue;
 					}
 
-					if (mGameEvent[event_id].conditions.ContainsKey(condition))
+					if (_gameEvent[event_id].conditions.ContainsKey(condition))
 					{
-						mGameEvent[event_id].conditions[condition].done = result.Read<uint>(2);
+						_gameEvent[event_id].conditions[condition].done = result.Read<uint>(2);
 					}
 					else
 					{
@@ -762,14 +765,14 @@ public class GameEventManager
 					ushort event_id = result.Read<byte>(1);
 					var npcflag = result.Read<ulong>(2);
 
-					if (event_id >= mGameEvent.Length)
+					if (event_id >= _gameEvent.Length)
 					{
 						Log.Logger.Error("`game_event_npcflag` game event id ({0}) is out of range compared to max event id in `game_event`", event_id);
 
 						continue;
 					}
 
-					mGameEventNPCFlags[event_id].Add((guid, npcflag));
+					_gameEventNPCFlags[event_id].Add((guid, npcflag));
 
 					++count;
 				} while (result.NextRow());
@@ -808,7 +811,7 @@ public class GameEventManager
 						continue;
 					}
 
-					if (eventEntry >= mGameEvent.Length)
+					if (eventEntry >= _gameEvent.Length)
 					{
 						Log.Logger.Error("`game_event_seasonal_questrelation` event id ({0}) not exist in `game_event`", eventEntry);
 
@@ -844,7 +847,7 @@ public class GameEventManager
 					var event_id = result.Read<byte>(0);
 					var guid = result.Read<ulong>(1);
 
-					if (event_id >= mGameEventVendors.Length)
+					if (event_id >= _gameEventVendors.Length)
 					{
 						Log.Logger.Error("`game_event_npc_vendor` game event id ({0}) not exist in `game_event`", event_id);
 
@@ -853,7 +856,7 @@ public class GameEventManager
 
 					// get the event npc flag for checking if the npc will be vendor during the event or not
 					ulong event_npc_flag = 0;
-					var flist = mGameEventNPCFlags[event_id];
+					var flist = _gameEventNPCFlags[event_id];
 
 					foreach (var pair in flist)
 						if (pair.guid == guid)
@@ -889,7 +892,7 @@ public class GameEventManager
 					if (!_gameObjectManager.IsVendorItemValid(entry, vItem, null, null, event_npc_flag))
 						continue;
 
-					mGameEventVendors[event_id].Add(entry, vItem);
+					_gameEventVendors[event_id].Add(entry, vItem);
 
 					++count;
 				} while (result.NextRow());
@@ -918,14 +921,14 @@ public class GameEventManager
 				{
 					ushort eventId = result.Read<byte>(0);
 
-					if (eventId >= mGameEvent.Length)
+					if (eventId >= _gameEvent.Length)
 					{
 						Log.Logger.Error("`game_event_battleground_holiday` game event id ({0}) not exist in `game_event`", eventId);
 
 						continue;
 					}
 
-					mGameEventBattlegroundHolidays[eventId] = result.Read<uint>(1);
+					_gameEventBattlegroundHolidays[eventId] = result.Read<uint>(1);
 
 					++count;
 				} while (result.NextRow());
@@ -955,9 +958,9 @@ public class GameEventManager
 				{
 					var entry = result.Read<uint>(0);
 					short event_id = result.Read<sbyte>(1);
-					var internal_event_id = mGameEvent.Length + event_id - 1;
+					var internal_event_id = _gameEvent.Length + event_id - 1;
 
-					if (internal_event_id < 0 || internal_event_id >= mGameEventPoolIds.Length)
+					if (internal_event_id < 0 || internal_event_id >= _gameEventPoolIds.Length)
 					{
 						Log.Logger.Error("`game_event_pool` game event id ({0}) not exist in `game_event`", event_id);
 
@@ -972,7 +975,7 @@ public class GameEventManager
 					}
 
 
-					mGameEventPoolIds[internal_event_id].Add(entry);
+					_gameEventPoolIds[internal_event_id].Add(entry);
 
 					++count;
 				} while (result.NextRow());
@@ -987,9 +990,9 @@ public class GameEventManager
 		ulong mask = 0;
 		var guid = cr.SpawnId;
 
-		foreach (var id in m_ActiveEvents)
+		foreach (var id in _activeEvents)
 		{
-			foreach (var pair in mGameEventNPCFlags[id])
+			foreach (var pair in _gameEventNPCFlags[id])
 				if (pair.guid == guid)
 					mask |= pair.npcflag;
 		}
@@ -1008,42 +1011,42 @@ public class GameEventManager
 			// Id starts with 1 and array with 0, thus increment
 			maxEventId++;
 
-			mGameEvent = new GameEventData[maxEventId];
-			mGameEventCreatureGuids = new List<ulong>[maxEventId * 2 - 1];
-			mGameEventGameobjectGuids = new List<ulong>[maxEventId * 2 - 1];
-			mGameEventPoolIds = new List<uint>[maxEventId * 2 - 1];
+			_gameEvent = new GameEventData[maxEventId];
+			_gameEventCreatureGuids = new List<ulong>[maxEventId * 2 - 1];
+			_gameEventGameobjectGuids = new List<ulong>[maxEventId * 2 - 1];
+			_gameEventPoolIds = new List<uint>[maxEventId * 2 - 1];
 
 			for (var i = 0; i < maxEventId * 2 - 1; ++i)
 			{
-				mGameEventCreatureGuids[i] = new List<ulong>();
-				mGameEventGameobjectGuids[i] = new List<ulong>();
-				mGameEventPoolIds[i] = new List<uint>();
+				_gameEventCreatureGuids[i] = new List<ulong>();
+				_gameEventGameobjectGuids[i] = new List<ulong>();
+				_gameEventPoolIds[i] = new List<uint>();
 			}
 
-			mGameEventCreatureQuests = new List<Tuple<uint, uint>>[maxEventId];
-			mGameEventGameObjectQuests = new List<Tuple<uint, uint>>[maxEventId];
-			mGameEventVendors = new Dictionary<uint, VendorItem>[maxEventId];
-			mGameEventBattlegroundHolidays = new uint[maxEventId];
-			mGameEventNPCFlags = new List<(ulong guid, ulong npcflag)>[maxEventId];
-			mGameEventModelEquip = new List<Tuple<ulong, ModelEquip>>[maxEventId];
+			_gameEventCreatureQuests = new List<Tuple<uint, uint>>[maxEventId];
+			_gameEventGameObjectQuests = new List<Tuple<uint, uint>>[maxEventId];
+			_gameEventVendors = new Dictionary<uint, VendorItem>[maxEventId];
+			_gameEventBattlegroundHolidays = new uint[maxEventId];
+			_gameEventNPCFlags = new List<(ulong guid, ulong npcflag)>[maxEventId];
+			_gameEventModelEquip = new List<Tuple<ulong, ModelEquip>>[maxEventId];
 
 			for (var i = 0; i < maxEventId; ++i)
 			{
-				mGameEvent[i] = new GameEventData();
-				mGameEventCreatureQuests[i] = new List<Tuple<uint, uint>>();
-				mGameEventGameObjectQuests[i] = new List<Tuple<uint, uint>>();
-				mGameEventVendors[i] = new Dictionary<uint, VendorItem>();
-				mGameEventNPCFlags[i] = new List<(ulong guid, ulong npcflag)>();
-				mGameEventModelEquip[i] = new List<Tuple<ulong, ModelEquip>>();
+				_gameEvent[i] = new GameEventData();
+				_gameEventCreatureQuests[i] = new List<Tuple<uint, uint>>();
+				_gameEventGameObjectQuests[i] = new List<Tuple<uint, uint>>();
+				_gameEventVendors[i] = new Dictionary<uint, VendorItem>();
+				_gameEventNPCFlags[i] = new List<(ulong guid, ulong npcflag)>();
+				_gameEventModelEquip[i] = new List<Tuple<ulong, ModelEquip>>();
 			}
 		}
 	}
 
 	public uint StartSystem() // return the next event delay in ms
 	{
-		m_ActiveEvents.Clear();
+		_activeEvents.Clear();
 		var delay = Update();
-		isSystemInit = true;
+		_isSystemInit = true;
 
 		return delay;
 	}
@@ -1062,7 +1065,7 @@ public class GameEventManager
 
 		ushort eventId = result.Read<byte>(0);
 
-		if (eventId >= mGameEvent.Length)
+		if (eventId >= _gameEvent.Length)
 		{
 			Log.Logger.Error("EventEntry {0} for ArenaSeason ({1}) does not exists", eventId, season);
 
@@ -1075,24 +1078,24 @@ public class GameEventManager
 
 	public uint Update() // return the next event delay in ms
 	{
-		var currenttime = _gameTime.GetGameTime;
+		var currenttime = _gameTime.CurrentGameTime;
 		uint nextEventDelay = Time.Day; // 1 day
 		uint calcDelay;
 		List<ushort> activate = new();
 		List<ushort> deactivate = new();
 
-		for (ushort id = 1; id < mGameEvent.Length; ++id)
+		for (ushort id = 1; id < _gameEvent.Length; ++id)
 		{
 			// must do the activating first, and after that the deactivating
 			// so first queue it
 			if (CheckOneGameEvent(id))
 			{
 				// if the world event is in NEXTPHASE state, and the time has passed to finish this event, then do so
-				if (mGameEvent[id].state == GameEventState.WorldNextPhase && mGameEvent[id].nextstart <= currenttime)
+				if (_gameEvent[id].state == GameEventState.WorldNextPhase && _gameEvent[id].nextstart <= currenttime)
 				{
 					// set this event to finished, null the nextstart time
-					mGameEvent[id].state = GameEventState.WorldFinished;
-					mGameEvent[id].nextstart = 0;
+					_gameEvent[id].state = GameEventState.WorldFinished;
+					_gameEvent[id].nextstart = 0;
 					// save the state of this gameevent
 					SaveWorldEventStateToDB(id);
 
@@ -1103,7 +1106,7 @@ public class GameEventManager
 					// go to next event, this no longer needs an event update timer
 					continue;
 				}
-				else if (mGameEvent[id].state == GameEventState.WorldConditions && CheckOneGameEventConditions(id))
+				else if (_gameEvent[id].state == GameEventState.WorldConditions && CheckOneGameEventConditions(id))
 					// changed, save to DB the gameevent state, will be updated in next update cycle
 				{
 					SaveWorldEventStateToDB(id);
@@ -1125,7 +1128,7 @@ public class GameEventManager
 				}
 				else
 				{
-					if (!isSystemInit)
+					if (!_isSystemInit)
 					{
 						var event_nid = (short)(-1 * id);
 						// spawn all negative ones for this event
@@ -1161,7 +1164,7 @@ public class GameEventManager
 	public void HandleQuestComplete(uint quest_id)
 	{
 		// translate the quest to event and condition
-		var questToEvent = mQuestToEventConditions.LookupByKey(quest_id);
+		var questToEvent = _QuestToEventConditions.LookupByKey(quest_id);
 
 		// quest is registered
 		if (questToEvent != null)
@@ -1175,10 +1178,10 @@ public class GameEventManager
 				return;
 
 			// not in correct phase, return
-			if (mGameEvent[event_id].state != GameEventState.WorldConditions)
+			if (_gameEvent[event_id].state != GameEventState.WorldConditions)
 				return;
 
-			var eventFinishCond = mGameEvent[event_id].conditions.LookupByKey(condition);
+			var eventFinishCond = _gameEvent[event_id].conditions.LookupByKey(condition);
 
 			// condition is registered
 			if (eventFinishCond != null)
@@ -1242,30 +1245,30 @@ public class GameEventManager
 
 	public List<ushort> GetActiveEventList()
 	{
-		return m_ActiveEvents;
+		return _activeEvents;
 	}
 
 	public GameEventData[] GetEventMap()
 	{
-		return mGameEvent;
+		return _gameEvent;
 	}
 
 	public bool IsActiveEvent(ushort event_id)
 	{
-		return m_ActiveEvents.Contains(event_id);
+		return _activeEvents.Contains(event_id);
 	}
 
 	bool CheckOneGameEvent(ushort entry)
 	{
-		switch (mGameEvent[entry].state)
+		switch (_gameEvent[entry].state)
 		{
 			default:
 			case GameEventState.Normal:
 			{
-				var currenttime = _gameTime.GetGameTime;
+				var currenttime = _gameTime.CurrentGameTime;
 
 				// Get the event information
-				return mGameEvent[entry].start < currenttime && currenttime < mGameEvent[entry].end && (currenttime - mGameEvent[entry].start) % (mGameEvent[entry].occurence * Time.Minute) < mGameEvent[entry].length * Time.Minute;
+				return _gameEvent[entry].start < currenttime && currenttime < _gameEvent[entry].end && (currenttime - _gameEvent[entry].start) % (_gameEvent[entry].occurence * Time.Minute) < _gameEvent[entry].length * Time.Minute;
 			}
 			// if the state is conditions or nextphase, then the event should be active
 			case GameEventState.WorldConditions:
@@ -1278,29 +1281,29 @@ public class GameEventManager
 			// if inactive world event, check the prerequisite events
 			case GameEventState.WorldInactive:
 			{
-				var currenttime = _gameTime.GetGameTime;
+				var currenttime = _gameTime.CurrentGameTime;
 
-				foreach (var gameEventId in mGameEvent[entry].prerequisite_events)
-					if ((mGameEvent[gameEventId].state != GameEventState.WorldNextPhase && mGameEvent[gameEventId].state != GameEventState.WorldFinished) || // if prereq not in nextphase or finished state, then can't start this one
-						mGameEvent[gameEventId].nextstart > currenttime)                                                                                     // if not in nextphase state for long enough, can't start this one
+				foreach (var gameEventId in _gameEvent[entry].prerequisite_events)
+					if ((_gameEvent[gameEventId].state != GameEventState.WorldNextPhase && _gameEvent[gameEventId].state != GameEventState.WorldFinished) || // if prereq not in nextphase or finished state, then can't start this one
+						_gameEvent[gameEventId].nextstart > currenttime)                                                                                     // if not in nextphase state for long enough, can't start this one
 						return false;
 
 				// all prerequisite events are met
 				// but if there are no prerequisites, this can be only activated through gm command
-				return !(mGameEvent[entry].prerequisite_events.Empty());
+				return !(_gameEvent[entry].prerequisite_events.Empty());
 			}
 		}
 	}
 
 	void StartInternalEvent(ushort event_id)
 	{
-		if (event_id < 1 || event_id >= mGameEvent.Length)
+		if (event_id < 1 || event_id >= _gameEvent.Length)
 			return;
 
-		if (!mGameEvent[event_id].IsValid())
+		if (!_gameEvent[event_id].IsValid())
 			return;
 
-		if (m_ActiveEvents.Contains(event_id))
+		if (_activeEvents.Contains(event_id))
 			return;
 
 		StartEvent(event_id);
@@ -1308,7 +1311,7 @@ public class GameEventManager
 
 	void UnApplyEvent(ushort event_id)
 	{
-		Log.Logger.Information("GameEvent {0} \"{1}\" removed.", event_id, mGameEvent[event_id].description);
+		Log.Logger.Information("GameEvent {0} \"{1}\" removed.", event_id, _gameEvent[event_id].description);
 		//! Run SAI scripts with SMART_EVENT_GAME_EVENT_END
 		RunSmartAIScripts(event_id, false);
 		// un-spawn positive event tagged objects
@@ -1331,12 +1334,12 @@ public class GameEventManager
 
 	void ApplyNewEvent(ushort event_id)
 	{
-		var announce = mGameEvent[event_id].announce;
+		var announce = _gameEvent[event_id].announce;
 
 		if (announce == 1) // || (announce == 2 && WorldConfigEventAnnounce))
-			_worldManager.SendWorldText(CypherStrings.Eventmessage, mGameEvent[event_id].description);
+			_worldManager.SendWorldText(CypherStrings.Eventmessage, _gameEvent[event_id].description);
 
-		Log.Logger.Information("GameEvent {0} \"{1}\" started.", event_id, mGameEvent[event_id].description);
+		Log.Logger.Information("GameEvent {0} \"{1}\" started.", event_id, _gameEvent[event_id].description);
 
 		// spawn positive event tagget objects
 		GameEventSpawn((short)event_id);
@@ -1369,13 +1372,13 @@ public class GameEventManager
 	{
         _battlegroundManager.ResetHolidays();
 
-		foreach (var activeEventId in m_ActiveEvents)
-            _battlegroundManager.SetHolidayActive(mGameEventBattlegroundHolidays[activeEventId]);
+		foreach (var activeEventId in _activeEvents)
+            _battlegroundManager.SetHolidayActive(_gameEventBattlegroundHolidays[activeEventId]);
 	}
 
 	void UpdateEventNPCVendor(ushort eventId, bool activate)
 	{
-		foreach (var npcEventVendor in mGameEventVendors[eventId])
+		foreach (var npcEventVendor in _gameEventVendors[eventId])
 			if (activate)
 				_gameObjectManager.AddVendorItem(npcEventVendor.Key, npcEventVendor.Value, false);
 			else
@@ -1399,9 +1402,9 @@ public class GameEventManager
 
     bool HasCreatureQuestActiveEventExcept(uint questId, ushort eventId)
 	{
-		foreach (var activeEventId in m_ActiveEvents)
+		foreach (var activeEventId in _activeEvents)
 			if (activeEventId != eventId)
-				foreach (var pair in mGameEventCreatureQuests[activeEventId])
+				foreach (var pair in _gameEventCreatureQuests[activeEventId])
 					if (pair.Item2 == questId)
 						return true;
 
@@ -1410,9 +1413,9 @@ public class GameEventManager
 
 	bool HasGameObjectQuestActiveEventExcept(uint questId, ushort eventId)
 	{
-		foreach (var activeEventId in m_ActiveEvents)
+		foreach (var activeEventId in _activeEvents)
 			if (activeEventId != eventId)
-				foreach (var pair in mGameEventGameObjectQuests[activeEventId])
+				foreach (var pair in _gameEventGameObjectQuests[activeEventId])
 					if (pair.Item2 == questId)
 						return true;
 
@@ -1421,12 +1424,12 @@ public class GameEventManager
 
 	bool HasCreatureActiveEventExcept(ulong creatureId, ushort eventId)
 	{
-		foreach (var activeEventId in m_ActiveEvents)
+		foreach (var activeEventId in _activeEvents)
 			if (activeEventId != eventId)
 			{
-				var internal_event_id = mGameEvent.Length + activeEventId - 1;
+				var internal_event_id = _gameEvent.Length + activeEventId - 1;
 
-				foreach (var id in mGameEventCreatureGuids[internal_event_id])
+				foreach (var id in _gameEventCreatureGuids[internal_event_id])
 					if (id == creatureId)
 						return true;
 			}
@@ -1436,12 +1439,12 @@ public class GameEventManager
 
 	bool HasGameObjectActiveEventExcept(ulong goId, ushort eventId)
 	{
-		foreach (var activeEventId in m_ActiveEvents)
+		foreach (var activeEventId in _activeEvents)
 			if (activeEventId != eventId)
 			{
-				var internal_event_id = mGameEvent.Length + activeEventId - 1;
+				var internal_event_id = _gameEvent.Length + activeEventId - 1;
 
-				foreach (var id in mGameEventGameobjectGuids[internal_event_id])
+				foreach (var id in _gameEventGameobjectGuids[internal_event_id])
 					if (id == goId)
 						return true;
 			}
@@ -1451,7 +1454,7 @@ public class GameEventManager
 
 	void UpdateEventQuests(ushort eventId, bool activate)
 	{
-		foreach (var pair in mGameEventCreatureQuests[eventId])
+		foreach (var pair in _gameEventCreatureQuests[eventId])
 		{
 			var CreatureQuestMap = _gameObjectManager.GetCreatureQuestRelationMapHACK();
 
@@ -1467,7 +1470,7 @@ public class GameEventManager
 			}
 		}
 
-		foreach (var pair in mGameEventGameObjectQuests[eventId])
+		foreach (var pair in _gameEventGameObjectQuests[eventId])
 		{
 			var GameObjectQuestMap = _gameObjectManager.GetGOQuestRelationMapHACK();
 
@@ -1486,7 +1489,7 @@ public class GameEventManager
 
 	void UpdateWorldStates(ushort event_id, bool Activate)
 	{
-		var Event = mGameEvent[event_id];
+		var Event = _gameEvent[event_id];
 
 		if (Event.holiday_id != HolidayIds.None)
 		{
@@ -1505,19 +1508,19 @@ public class GameEventManager
 
 	bool CheckOneGameEventConditions(ushort event_id)
 	{
-		foreach (var pair in mGameEvent[event_id].conditions)
+		foreach (var pair in _gameEvent[event_id].conditions)
 			if (pair.Value.done < pair.Value.reqNum)
 				// return false if a condition doesn't match
 				return false;
 
 		// set the phase
-		mGameEvent[event_id].state = GameEventState.WorldNextPhase;
+		_gameEvent[event_id].state = GameEventState.WorldNextPhase;
 
 		// set the followup events' start time
-		if (mGameEvent[event_id].nextstart == 0)
+		if (_gameEvent[event_id].nextstart == 0)
 		{
-			var currenttime = _gameTime.GetGameTime;
-			mGameEvent[event_id].nextstart = currenttime + mGameEvent[event_id].length * 60;
+			var currenttime = _gameTime.CurrentGameTime;
+			_gameEvent[event_id].nextstart = currenttime + _gameEvent[event_id].length * 60;
 		}
 
 		return true;
@@ -1533,15 +1536,15 @@ public class GameEventManager
 
 		stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_GAME_EVENT_SAVE);
 		stmt.AddValue(0, event_id);
-		stmt.AddValue(1, (byte)mGameEvent[event_id].state);
-		stmt.AddValue(2, mGameEvent[event_id].nextstart != 0 ? mGameEvent[event_id].nextstart : 0L);
+		stmt.AddValue(1, (byte)_gameEvent[event_id].state);
+		stmt.AddValue(2, _gameEvent[event_id].nextstart != 0 ? _gameEvent[event_id].nextstart : 0L);
 		trans.Append(stmt);
 		_characterDatabase.CommitTransaction(trans);
 	}
 
 	void SendWorldStateUpdate(Player player, ushort event_id)
 	{
-		foreach (var pair in mGameEvent[event_id].conditions)
+		foreach (var pair in _gameEvent[event_id].conditions)
 		{
 			if (pair.Value.done_world_state != 0)
 				player.SendUpdateWorldState(pair.Value.done_world_state, (uint)(pair.Value.done));
@@ -1604,7 +1607,7 @@ public class GameEventManager
 
 		var singleDate = ((holiday.Date[0] >> 24) & 0x1F) == 31; // Events with fixed date within year have - 1
 
-		var curTime = _gameTime.GetGameTime;
+		var curTime = _gameTime.CurrentGameTime;
 
 		for (var i = 0; i < SharedConst.MaxHolidayDates && holiday.Date[i] != 0; ++i)
 		{
@@ -1644,15 +1647,15 @@ public class GameEventManager
 
 	long GetLastStartTime(ushort event_id)
 	{
-		if (event_id >= mGameEvent.Length)
+		if (event_id >= _gameEvent.Length)
 			return 0;
 
-		if (mGameEvent[event_id].state != GameEventState.Normal)
+		if (_gameEvent[event_id].state != GameEventState.Normal)
 			return 0;
 
 		var now = _gameTime.GetSystemTime;
-		var eventInitialStart = Time.UnixTimeToDateTime(mGameEvent[event_id].start);
-		var occurence = TimeSpan.FromMinutes(mGameEvent[event_id].occurence);
+		var eventInitialStart = Time.UnixTimeToDateTime(_gameEvent[event_id].start);
+		var occurence = TimeSpan.FromMinutes(_gameEvent[event_id].occurence);
 		var durationSinceLastStart = TimeSpan.FromTicks((now - eventInitialStart).Ticks % occurence.Ticks);
 
 		return Time.DateTimeToUnixTime(now - durationSinceLastStart);
@@ -1660,12 +1663,12 @@ public class GameEventManager
 
 	void AddActiveEvent(ushort event_id)
 	{
-		m_ActiveEvents.Add(event_id);
+		_activeEvents.Add(event_id);
 	}
 
 	void RemoveActiveEvent(ushort event_id)
 	{
-		m_ActiveEvents.Remove(event_id);
+		_activeEvents.Remove(event_id);
 	}
 }
 

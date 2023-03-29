@@ -351,7 +351,7 @@ public class CriteriaData
 				return true;
 			case CriteriaDataType.GameEvent:
 			{
-				var events = Global.GameEventMgr.GetEventMap();
+				var events = _gameEventManager.GetEventMap();
 
 				if (GameEvent.Id < 1 || GameEvent.Id >= events.Length)
 				{
@@ -559,9 +559,9 @@ public class CriteriaData
 			case CriteriaDataType.SDrunk:
 				return Player.GetDrunkenstateByValue(source.DrunkValue) >= (DrunkenState)Drunk.State;
 			case CriteriaDataType.Holiday:
-				return Global.GameEventMgr.IsHolidayActive((HolidayIds)Holiday.Id);
+				return _gameEventManager.IsHolidayActive((HolidayIds)Holiday.Id);
 			case CriteriaDataType.GameEvent:
-				return Global.GameEventMgr.IsEventActive((ushort)GameEvent.Id);
+				return _gameEventManager.IsEventActive((ushort)GameEvent.Id);
 			case CriteriaDataType.BgLossTeamScore:
 			{
 				var bg = source.Battleground;

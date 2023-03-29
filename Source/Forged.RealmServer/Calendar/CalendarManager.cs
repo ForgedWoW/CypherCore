@@ -24,10 +24,11 @@ public class CalendarManager
     private readonly CharacterCache _characterCache;
     private readonly ObjectAccessor _objectAccessor;
     private readonly GuildManager _guildManager;
+    private readonly GameTime _gameTime;
     ulong _maxEventId;
 	ulong _maxInviteId;
 
-	CalendarManager(CharacterDatabase characterDatabase, CharacterCache characterCache, ObjectAccessor objectAccessor, GuildManager guildManager)
+	CalendarManager(CharacterDatabase characterDatabase, CharacterCache characterCache, ObjectAccessor objectAccessor, GuildManager guildManager, GameTime gameTime)
 	{
 		_events = new List<CalendarEvent>();
 		_invites = new MultiMap<ulong, CalendarInvite>();
@@ -35,6 +36,9 @@ public class CalendarManager
         _characterCache = characterCache;
         _objectAccessor = objectAccessor;
         _guildManager = guildManager;
+        _gameTime = gameTime;
+
+        LoadFromDB();
     }
 
 	public void LoadFromDB()
@@ -301,7 +305,7 @@ public class CalendarManager
 
 	public void DeleteOldEvents()
 	{
-		var oldEventsTime = _gameTime.GetGameTime - SharedConst.CalendarOldEventsDeletionTime;
+		var oldEventsTime = _gameTime.CurrentGameTime - SharedConst.CalendarOldEventsDeletionTime;
 
 		foreach (var calendarEvent in _events)
 			if (calendarEvent.Date < oldEventsTime)

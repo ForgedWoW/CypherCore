@@ -2776,7 +2776,7 @@ public partial class Player
 	public void SendQuestReward(Quest.Quest quest, Creature questGiver, uint xp, bool hideChatMessage)
 	{
 		var questId = quest.Id;
-		Global.GameEventMgr.HandleQuestComplete(questId);
+		_gameEventManager.HandleQuestComplete(questId);
 
 		uint moneyReward;
 

@@ -32,6 +32,11 @@ public class AchievementGlobalMgr
         _characterDatabase = characterDatabase;
         _worldDatabase = worldDatabase;
         _gameObjectManager = gameObjectManager;
+
+		LoadCompletedAchievements();
+        LoadRewards();
+        LoadRewardLocales();
+		LoadAchievementScripts();
     }
 
     public List<AchievementRecord> GetAchievementByReferencedId(uint id)

@@ -7,29 +7,35 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Players;
-using Forged.RealmServer.Networking.Packets.Channel;
+using Forged.RealmServer.Networking.Packets;
+using Serilog;
+using Forged.RealmServer.World;
 
 namespace Forged.RealmServer.Chat;
 
 public class ChannelManager
 {
-	static readonly ChannelManager allianceChannelMgr = new(TeamFaction.Alliance);
-	static readonly ChannelManager hordeChannelMgr = new(TeamFaction.Horde);
+    private readonly TeamFaction _team;
+    private readonly WorldConfig _worldConfig;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly WorldManager _worldManager;
+    private readonly CliDB _cliDB;
 
-	readonly Dictionary<string, Channel> _customChannels = new();
-	readonly Dictionary<ObjectGuid, Channel> _channels = new();
-	readonly TeamFaction _team;
-	readonly ObjectGuidGenerator _guidGenerator;
+    public FactionChannel AllianceChannel { get; }
+    public FactionChannel HordeChannel { get; }
 
-	public ChannelManager(TeamFaction team)
-	{
-		_team = team;
-		_guidGenerator = new ObjectGuidGenerator(HighGuid.ChatChannel);
-	}
+	public ChannelManager(WorldConfig worldConfig, CharacterDatabase characterDatabase, WorldManager worldManager, CliDB cliDB)
+    {
+        _worldConfig = worldConfig;
+        _characterDatabase = characterDatabase;
+        _worldManager = worldManager;
+        _cliDB = cliDB;
 
-	public static void LoadFromDB()
+        AllianceChannel = new FactionChannel(TeamFaction.Alliance, _worldConfig, _characterDatabase, _worldManager, _cliDB);
+        HordeChannel = new FactionChannel(TeamFaction.Horde, _worldConfig, _characterDatabase, _worldManager, _cliDB);
+    }
+
+	public void LoadFromDB()
 	{
 		if (!_worldConfig.GetBoolValue(WorldCfg.PreserveCustomChannels))
 		{
@@ -69,7 +75,7 @@ public class ChannelManager
 			var dbPass = result.Read<string>(4);
 			var dbBanned = result.Read<string>(5);
 
-			var mgr = ForTeam(team);
+            FactionChannel mgr = null;
 
 			if (mgr == null)
 			{
@@ -83,7 +89,7 @@ public class ChannelManager
 			channel.SetAnnounce(dbAnnounce);
 			channel.SetOwnership(dbOwnership);
 			channel.SetPassword(dbPass);
-			mgr._customChannels.Add(dbName, channel);
+			mgr.CustomChannels.TryAdd(dbName, channel);
 
 			++count;
 		} while (result.NextRow());
@@ -99,165 +105,23 @@ public class ChannelManager
 		Log.Logger.Information($"Loaded {count} custom chat channels in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
-	public static ChannelManager ForTeam(TeamFaction team)
+	public FactionChannel ForTeam(TeamFaction team)
 	{
 		if (_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionChannel))
-			return allianceChannelMgr; // cross-faction
+			return AllianceChannel; // cross-faction
 
 		if (team == TeamFaction.Alliance)
-			return allianceChannelMgr;
+			return AllianceChannel;
 
 		if (team == TeamFaction.Horde)
-			return hordeChannelMgr;
-
-		return null;
-	}
-
-	public static Channel GetChannelForPlayerByNamePart(string namePart, Player playerSearcher)
-	{
-		foreach (var channel in playerSearcher.JoinedChannels)
-		{
-			var chanName = channel.GetName(playerSearcher.Session.SessionDbcLocale);
-
-			if (chanName.ToLower().Equals(namePart.ToLower()))
-				return channel;
-		}
+			return HordeChannel;
 
 		return null;
 	}
 
 	public void SaveToDB()
 	{
-		foreach (var pair in _customChannels)
-			pair.Value.UpdateChannelInDB();
-	}
-
-	public static Channel GetChannelForPlayerByGuid(ObjectGuid channelGuid, Player playerSearcher)
-	{
-		foreach (var channel in playerSearcher.JoinedChannels)
-			if (channel.GetGUID() == channelGuid)
-				return channel;
-
-		return null;
-	}
-
-	public Channel GetSystemChannel(uint channelId, AreaTableRecord zoneEntry = null)
-	{
-		var channelGuid = CreateBuiltinChannelGuid(channelId, zoneEntry);
-		var currentChannel = _channels.LookupByKey(channelGuid);
-
-		if (currentChannel != null)
-			return currentChannel;
-
-		var newChannel = new Channel(channelGuid, channelId, _team, zoneEntry);
-		_channels[channelGuid] = newChannel;
-
-		return newChannel;
-	}
-
-	public Channel CreateCustomChannel(string name)
-	{
-		if (_customChannels.ContainsKey(name.ToLower()))
-			return null;
-
-		Channel newChannel = new(CreateCustomChannelGuid(), name, _team);
-		newChannel.SetDirty();
-
-		_customChannels[name.ToLower()] = newChannel;
-
-		return newChannel;
-	}
-
-	public Channel GetCustomChannel(string name)
-	{
-		return _customChannels.LookupByKey(name.ToLower());
-	}
-
-	public Channel GetChannel(uint channelId, string name, Player player, bool notify = true, AreaTableRecord zoneEntry = null)
-	{
-		Channel result = null;
-
-		if (channelId != 0) // builtin
-		{
-			var channel = _channels.LookupByKey(CreateBuiltinChannelGuid(channelId, zoneEntry));
-
-			if (channel != null)
-				result = channel;
-		}
-		else // custom
-		{
-			var channel = _customChannels.LookupByKey(name.ToLower());
-
-			if (channel != null)
-				result = channel;
-		}
-
-		if (result == null && notify)
-		{
-			var channelName = name;
-			Channel.GetChannelName(ref channelName, channelId, player.Session.SessionDbcLocale, zoneEntry);
-
-			SendNotOnChannelNotify(player, channelName);
-		}
-
-		return result;
-	}
-
-	public void LeftChannel(uint channelId, AreaTableRecord zoneEntry)
-	{
-		var guid = CreateBuiltinChannelGuid(channelId, zoneEntry);
-		var channel = _channels.LookupByKey(guid);
-
-		if (channel == null)
-			return;
-
-		if (channel.GetNumPlayers() == 0)
-			_channels.Remove(guid);
-	}
-
-	public static void SendNotOnChannelNotify(Player player, string name)
-	{
-		ChannelNotify notify = new();
-		notify.Type = ChatNotify.NotMemberNotice;
-		notify.Channel = name;
-		player.SendPacket(notify);
-	}
-
-	ObjectGuid CreateCustomChannelGuid()
-	{
-		ulong high = 0;
-		high |= (ulong)HighGuid.ChatChannel << 58;
-		high |= (ulong)_worldManager.RealmId.Index << 42;
-		high |= (ulong)(_team == TeamFaction.Alliance ? 3 : 5) << 4;
-
-		ObjectGuid channelGuid = new();
-		channelGuid.SetRawValue(high, _guidGenerator.Generate());
-
-		return channelGuid;
-	}
-
-	ObjectGuid CreateBuiltinChannelGuid(uint channelId, AreaTableRecord zoneEntry = null)
-	{
-		var channelEntry = CliDB.ChatChannelsStorage.LookupByKey(channelId);
-		var zoneId = zoneEntry != null ? zoneEntry.Id : 0;
-
-		if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Global | ChannelDBCFlags.CityOnly))
-			zoneId = 0;
-
-		ulong high = 0;
-		high |= (ulong)HighGuid.ChatChannel << 58;
-		high |= (ulong)_worldManager.RealmId.Index << 42;
-		high |= 1ul << 25; // built-in
-
-		if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.CityOnly2))
-			high |= 1ul << 24; // trade
-
-		high |= (ulong)(zoneId) << 10;
-		high |= (ulong)(_team == TeamFaction.Alliance ? 3 : 5) << 4;
-
-		ObjectGuid channelGuid = new();
-		channelGuid.SetRawValue(high, channelId);
-
-		return channelGuid;
+		AllianceChannel.SaveToDB();
+		HordeChannel.SaveToDB();
 	}
 }

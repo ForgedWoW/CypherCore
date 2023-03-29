@@ -23,7 +23,7 @@ public class TimeHandler : IWorldSessionHandler
 	void HandleServerTimeOffsetRequest(ServerTimeOffsetRequest packet)
 	{
 		ServerTimeOffset response = new();
-		response.Time = _gameTime.GetGameTime;
+		response.Time = _gameTime.CurrentGameTime;
 		_session.SendPacket(response);
 	}
 }

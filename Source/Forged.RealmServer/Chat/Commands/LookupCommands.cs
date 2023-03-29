@@ -163,8 +163,8 @@ class LookupCommands
 		var found = false;
 		uint count = 0;
 
-		var events = Global.GameEventMgr.GetEventMap();
-		var activeEvents = Global.GameEventMgr.GetActiveEventList();
+		var events = _gameEventManager.GetEventMap();
+		var activeEvents = _gameEventManager.GetActiveEventList();
 
 		for (ushort id = 0; id < events.Length; ++id)
 		{

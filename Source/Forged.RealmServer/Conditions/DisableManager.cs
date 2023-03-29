@@ -5,9 +5,8 @@ using System;
 using System.Collections.Generic;
 using Forged.RealmServer.Achievements;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Globals;
-using Forged.RealmServer.Spells;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
@@ -38,6 +37,8 @@ public class DisableManager
         _db2Manager = db2Manager;
         _criteriaManager = criteriaManager;
         _objectManager = objectManager;
+
+		LoadDisables();
     }
 
 	public void LoadDisables()

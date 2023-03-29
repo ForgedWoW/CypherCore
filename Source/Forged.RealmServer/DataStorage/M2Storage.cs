@@ -12,7 +12,7 @@ public class M2Storage
 {
 	static readonly MultiMap<uint, FlyByCamera> FlyByCameraStorage = new();
 
-	public static void LoadM2Cameras(string dataPath)
+	public void LoadM2Cameras(string dataPath)
 	{
 		FlyByCameraStorage.Clear();
 		Log.Logger.Information("Loading Cinematic Camera files");

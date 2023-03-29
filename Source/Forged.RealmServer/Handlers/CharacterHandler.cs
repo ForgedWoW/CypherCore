@@ -342,7 +342,7 @@ public class CharacterHandler : IWorldSessionHandler
 		stmt.AddValue(0, _session.AccountId);
 		_loginDatabase.Execute(stmt);
 
-		pCurrChar.SetInGameTime(_gameTime.GetGameTimeMS);
+		pCurrChar.SetInGameTime(_gameTime.CurrentGameTimeMS);
 
 		// announce group about member online (must be after add to player list to receive announce to self)
 		var group = pCurrChar.Group;
@@ -2522,7 +2522,7 @@ public class CharacterHandler : IWorldSessionHandler
 		if (!result.IsEmpty())
 		{
 			var lastUndelete = result.Read<uint>(0);
-			var now = (uint)_gameTime.GetGameTime;
+			var now = (uint)_gameTime.CurrentGameTime;
 
 			if (lastUndelete + maxCooldown > now)
 				cooldown = Math.Max(0, lastUndelete + maxCooldown - now);
@@ -2554,7 +2554,7 @@ public class CharacterHandler : IWorldSessionHandler
 											var lastUndelete = result.Read<uint>(0);
 											var maxCooldown = _worldConfig.GetUIntValue(WorldCfg.FeatureSystemCharacterUndeleteCooldown);
 
-											if (lastUndelete != 0 && (lastUndelete + maxCooldown > _gameTime.GetGameTime))
+											if (lastUndelete != 0 && (lastUndelete + maxCooldown > _gameTime.CurrentGameTime))
 											{
 												SendUndeleteCharacterResponse(CharacterUndeleteResult.Cooldown, undeleteInfo);
 
@@ -2730,7 +2730,7 @@ public class CharacterHandler : IWorldSessionHandler
 			return;
 
 		// prevent resurrect before 30-sec delay after body release not finished
-		if ((corpse.GetGhostTime() + _session.Player.GetCorpseReclaimDelay(corpse.GetCorpseType() == CorpseType.ResurrectablePVP)) > _gameTime.GetGameTime)
+		if ((corpse.GetGhostTime() + _session.Player.GetCorpseReclaimDelay(corpse.GetCorpseType() == CorpseType.ResurrectablePVP)) > _gameTime.CurrentGameTime)
 			return;
 
 		if (!corpse.IsWithinDistInMap(_session.Player, 39, true))

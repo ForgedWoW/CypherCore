@@ -77,6 +77,9 @@ public class LFGManager
 
 		new LFGPlayerScript();
 		new LFGGroupScript();
+
+		LoadLFGDungeons();
+		LoadRewards();
     }
 
 	public string ConcatenateDungeons(List<uint> dungeons)
@@ -279,7 +282,7 @@ public class LFGManager
 		if (!IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
 			return;
 
-		var currTime = _gameTime.GetGameTime;
+		var currTime = _gameTime.CurrentGameTime;
 
 		// Remove obsolete role checks
 		foreach (var pairCheck in RoleChecksStore)
@@ -586,7 +589,7 @@ public class LFGManager
 		ticket.RequesterGuid = guid;
 		ticket.Id = GetQueueId(gguid);
 		ticket.Type = RideType.Lfg;
-		ticket.Time = _gameTime.GetGameTime;
+		ticket.Time = _gameTime.CurrentGameTime;
 
 		var debugNames = "";
 
@@ -594,7 +597,7 @@ public class LFGManager
 		{
 			// Create new rolecheck
 			LfgRoleCheck roleCheck = new();
-			roleCheck.cancelTime = _gameTime.GetGameTime + SharedConst.LFGTimeRolecheck;
+			roleCheck.cancelTime = _gameTime.CurrentGameTime + SharedConst.LFGTimeRolecheck;
 			roleCheck.state = LfgRoleCheckState.Initialiting;
 			roleCheck.leader = guid;
 			roleCheck.dungeons = dungeons;
@@ -643,7 +646,7 @@ public class LFGManager
 			Dictionary<ObjectGuid, LfgRoles> rolesMap = new();
 			rolesMap[guid] = roles;
 			var queue = GetQueue(guid);
-			queue.AddQueueData(guid, _gameTime.GetGameTime, dungeons, rolesMap);
+			queue.AddQueueData(guid, _gameTime.CurrentGameTime, dungeons, rolesMap);
 
 			if (!isContinue)
 			{
@@ -867,7 +870,7 @@ public class LFGManager
 		{
 			SetState(gguid, LfgState.Queued);
 			var queue = GetQueue(gguid);
-			queue.AddQueueData(gguid, _gameTime.GetGameTime, roleCheck.dungeons, roleCheck.roles);
+			queue.AddQueueData(gguid, _gameTime.CurrentGameTime, roleCheck.dungeons, roleCheck.roles);
 			RoleChecksStore.Remove(gguid);
 		}
 		else if (roleCheck.state != LfgRoleCheckState.Initialiting)
@@ -1012,7 +1015,7 @@ public class LFGManager
 
 		var sendUpdate = proposal.state != LfgProposalState.Success;
 		proposal.state = LfgProposalState.Success;
-		var joinTime = _gameTime.GetGameTime;
+		var joinTime = _gameTime.CurrentGameTime;
 
 		var queue = GetQueue(guid);
 		LfgUpdateData updateData = new(LfgUpdateType.GroupFound);
@@ -1094,7 +1097,7 @@ public class LFGManager
 
 		var boot = BootsStore[gguid];
 		boot.inProgress = true;
-		boot.cancelTime = _gameTime.GetGameTime + SharedConst.LFGTimeBoot;
+		boot.cancelTime = _gameTime.CurrentGameTime + SharedConst.LFGTimeBoot;
 		boot.reason = reason;
 		boot.victim = victim;
 

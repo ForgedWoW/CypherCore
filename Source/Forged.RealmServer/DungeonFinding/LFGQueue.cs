@@ -295,7 +295,7 @@ public class LFGQueue
 			foreach (var itPlayer in queueinfo.roles)
 			{
 				var pguid = itPlayer.Key;
-				Global.LFGMgr.SendLfgQueueStatus(pguid, queueData);
+				_lFGManager.SendLfgQueueStatus(pguid, queueData);
 			}
 		}
 	}
@@ -324,7 +324,7 @@ public class LFGQueue
 				if (guid.IsParty)
 				{
 					groups++;
-					playersInGroup += Global.LFGMgr.GetPlayerCount(guid);
+					playersInGroup += _lFGManager.GetPlayerCount(guid);
 				}
 				else
 				{
@@ -467,7 +467,7 @@ public class LFGQueue
 		if (compatibles == LfgCompatibility.Pending) // Not previously cached, calculate
 			compatibles = CheckCompatibility(check);
 
-		if (compatibles == LfgCompatibility.BadStates && Global.LFGMgr.AllQueued(check))
+		if (compatibles == LfgCompatibility.BadStates && _lFGManager.AllQueued(check))
 		{
 			Log.Logger.Debug("FindNewGroup: ({0}) compatibles (cached) changed from bad states to match", strGuids);
 			SetCompatibles(strGuids, LfgCompatibility.Match);
@@ -555,7 +555,7 @@ public class LFGQueue
 
 			numPlayers += (byte)itQueue.roles.Count;
 
-			if (Global.LFGMgr.IsLfgGroup(guid))
+			if (_lFGManager.IsLfgGroup(guid))
 			{
 				if (numLfgGroups == 0)
 					proposal.group = guid;
@@ -573,7 +573,7 @@ public class LFGQueue
 
 			LfgCompatibilityData data = new(LfgCompatibility.WithLessPlayers);
 			data.roles = itQueue.roles;
-			Global.LFGMgr.CheckGroupRoles(data.roles);
+			_lFGManager.CheckGroupRoles(data.roles);
 
 			UpdateBestCompatibleInQueue(guid, itQueue, strGuids, data.roles);
 			SetCompatibilityData(strGuids, data);
@@ -614,7 +614,7 @@ public class LFGQueue
 
 						if (rolePair.Key == itPlayer.Key)
 							Log.Logger.Error("CheckCompatibility: ERROR! Player multiple times in queue! [{0}]", rolePair.Key);
-						else if (Global.LFGMgr.HasIgnore(rolePair.Key, itPlayer.Key))
+						else if (_lFGManager.HasIgnore(rolePair.Key, itPlayer.Key))
 							break;
 					}
 
@@ -636,7 +636,7 @@ public class LFGQueue
 			StringBuilder o;
 			var debugRoles = proposalRoles;
 
-			if (!Global.LFGMgr.CheckGroupRoles(proposalRoles))
+			if (!_lFGManager.CheckGroupRoles(proposalRoles))
 			{
 				o = new StringBuilder();
 
@@ -652,7 +652,7 @@ public class LFGQueue
 			var itguid = check.First();
 			proposalDungeons = QueueDataStore[itguid].dungeons;
 			o = new StringBuilder();
-			o.AppendFormat(", {0}: ({1})", itguid, Global.LFGMgr.ConcatenateDungeons(proposalDungeons));
+			o.AppendFormat(", {0}: ({1})", itguid, _lFGManager.ConcatenateDungeons(proposalDungeons));
 
 			foreach (var guid in check)
 			{
@@ -660,7 +660,7 @@ public class LFGQueue
 					continue;
 
 				var dungeons = QueueDataStore[itguid].dungeons;
-				o.AppendFormat(", {0}: ({1})", guid, Global.LFGMgr.ConcatenateDungeons(dungeons));
+				o.AppendFormat(", {0}: ({1})", guid, _lFGManager.ConcatenateDungeons(dungeons));
 				var temporal = proposalDungeons.Intersect(dungeons).ToList();
 				proposalDungeons = temporal;
 			}
@@ -679,7 +679,7 @@ public class LFGQueue
 			var queue = QueueDataStore[gguid];
 			proposalDungeons = queue.dungeons;
 			proposalRoles = queue.roles;
-			Global.LFGMgr.CheckGroupRoles(proposalRoles); // assing new roles
+			_lFGManager.CheckGroupRoles(proposalRoles); // assing new roles
 		}
 
 		// Enough players?
@@ -702,9 +702,9 @@ public class LFGQueue
 
 		var _guid = check.First();
 		proposal.queues = check;
-		proposal.isNew = numLfgGroups != 1 || Global.LFGMgr.GetOldState(_guid) != LfgState.Dungeon;
+		proposal.isNew = numLfgGroups != 1 || _lFGManager.GetOldState(_guid) != LfgState.Dungeon;
 
-		if (!Global.LFGMgr.AllQueued(check))
+		if (!_lFGManager.AllQueued(check))
 		{
 			Log.Logger.Debug("CheckCompatibility: ({0}) Group MATCH but can't create proposal!", strGuids);
 			SetCompatibles(strGuids, LfgCompatibility.BadStates);
@@ -753,7 +753,7 @@ public class LFGQueue
 			RemoveFromCurrentQueue(guid);
 		}
 
-		Global.LFGMgr.AddProposal(proposal);
+		_lFGManager.AddProposal(proposal);
 
 		Log.Logger.Debug("CheckCompatibility: ({0}) MATCH! Group formed", strGuids);
 		SetCompatibles(strGuids, LfgCompatibility.Match);

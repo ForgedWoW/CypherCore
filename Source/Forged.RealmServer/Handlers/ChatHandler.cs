@@ -185,7 +185,7 @@ public class ChatHandler : IWorldSessionHandler
 
 		if (!_session.CanSpeak)
 		{
-			var timeStr = Time.secsToTimeString((ulong)(_session.MuteTime - _gameTime.GetGameTime));
+			var timeStr = Time.secsToTimeString((ulong)(_session.MuteTime - _gameTime.CurrentGameTime));
             _session.SendNotification(CypherStrings.WaitBeforeSpeaking, timeStr);
 
 			return;

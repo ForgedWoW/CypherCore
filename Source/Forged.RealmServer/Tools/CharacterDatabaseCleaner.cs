@@ -7,12 +7,30 @@ using System.Text;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
+using Serilog;
+using Forged.RealmServer.Achievements;
 
 namespace Forged.RealmServer;
 
-class CharacterDatabaseCleaner
+public class CharacterDatabaseCleaner
 {
-	public static void CleanDatabase()
+    private readonly WorldConfig _worldConfig;
+    private readonly WorldManager _worldManager;
+    private readonly CriteriaManager _criteriaManager;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly CliDB _cliDB;
+
+    public CharacterDatabaseCleaner(WorldConfig worldConfig, WorldManager worldManager, CriteriaManager criteriaManager,
+		CharacterDatabase characterDatabase, CliDB cliDB)
+	{
+        _worldConfig = worldConfig;
+        _worldManager = worldManager;
+        _criteriaManager = criteriaManager;
+        _characterDatabase = characterDatabase;
+        _cliDB = cliDB;
+    }
+
+    public void CleanDatabase()
 	{
 		// config to disable
 		if (!_worldConfig.GetBoolValue(WorldCfg.CleanCharacterDb))
@@ -31,9 +49,6 @@ class CharacterDatabaseCleaner
 		if (flags.HasAnyFlag(CleaningFlags.Skills))
 			CleanCharacterSkills();
 
-		if (flags.HasAnyFlag(CleaningFlags.Spells))
-			CleanCharacterSpell();
-
 		if (flags.HasAnyFlag(CleaningFlags.Talents))
 			CleanCharacterTalent();
 
@@ -50,7 +65,7 @@ class CharacterDatabaseCleaner
 		Log.Logger.Information("Cleaned character database in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
-	static void CheckUnique(string column, string table, CheckFor check)
+	void CheckUnique(string column, string table, CheckFor check)
 	{
 		var result = _characterDatabase.Query("SELECT DISTINCT {0} FROM {1}", column, table);
 
@@ -91,55 +106,43 @@ class CharacterDatabaseCleaner
 		}
 	}
 
-	static bool AchievementProgressCheck(uint criteria)
+	bool AchievementProgressCheck(uint criteria)
 	{
-		return Global.CriteriaMgr.GetCriteria(criteria) != null;
+		return _criteriaManager.GetCriteria(criteria) != null;
 	}
 
-	static void CleanCharacterAchievementProgress()
+	void CleanCharacterAchievementProgress()
 	{
 		CheckUnique("criteria", "character_achievement_progress", AchievementProgressCheck);
 	}
 
-	static bool SkillCheck(uint skill)
+	bool SkillCheck(uint skill)
 	{
-		return CliDB.SkillLineStorage.ContainsKey(skill);
+		return _cliDB.SkillLineStorage.ContainsKey(skill);
 	}
 
-	static void CleanCharacterSkills()
+	void CleanCharacterSkills()
 	{
 		CheckUnique("skill", "character_skills", SkillCheck);
 	}
 
-	static bool SpellCheck(uint spell_id)
+	bool TalentCheck(uint talent_id)
 	{
-		var spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, Difficulty.None);
-
-		return spellInfo != null && !spellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
-	}
-
-	static void CleanCharacterSpell()
-	{
-		CheckUnique("spell", "character_spell", SpellCheck);
-	}
-
-	static bool TalentCheck(uint talent_id)
-	{
-		var talentInfo = CliDB.TalentStorage.LookupByKey(talent_id);
+		var talentInfo = _cliDB.TalentStorage.LookupByKey(talent_id);
 
 		if (talentInfo == null)
 			return false;
 
-		return CliDB.ChrSpecializationStorage.ContainsKey(talentInfo.SpecID);
+		return _cliDB.ChrSpecializationStorage.ContainsKey(talentInfo.SpecID);
 	}
 
-	static void CleanCharacterTalent()
+	void CleanCharacterTalent()
 	{
 		_characterDatabase.DirectExecute("DELETE FROM character_talent WHERE talentGroup > {0}", PlayerConst.MaxSpecializations);
 		CheckUnique("talentId", "character_talent", TalentCheck);
 	}
 
-	static void CleanCharacterQuestStatus()
+	void CleanCharacterQuestStatus()
 	{
 		_characterDatabase.DirectExecute("DELETE FROM character_queststatus WHERE status = 0");
 	}

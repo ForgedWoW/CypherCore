@@ -6,12 +6,12 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Maps;
-using Forged.RealmServer.Entities.Creatures;
-using Forged.RealmServer.Entities.GameObjects;
+using Serilog;
+using Forged.RealmServer.Globals;
 
 namespace Forged.RealmServer;
 
-public class PoolManager : Singleton<PoolManager>
+public class PoolManager
 {
 	public enum QuestTypes
 	{
@@ -30,9 +30,19 @@ public class PoolManager : Singleton<PoolManager>
 	readonly Dictionary<ulong, uint> _gameobjectSearchMap = new();
 	readonly Dictionary<ulong, uint> _poolSearchMap = new();
 	readonly MultiMap<uint, uint> _autoSpawnPoolsPerMap = new();
-	PoolManager() { }
+    private readonly WorldDatabase _worldDatabase;
+    private readonly GameObjectManager _gameObjectManager;
 
-	public void Initialize()
+    PoolManager(WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
+    {
+        _worldDatabase = worldDatabase;
+        _gameObjectManager = gameObjectManager;
+
+		Initialize();
+		LoadFromDB();
+    }
+
+    public void Initialize()
 	{
 		_gameobjectSearchMap.Clear();
 		_creatureSearchMap.Clear();
@@ -44,7 +54,7 @@ public class PoolManager : Singleton<PoolManager>
 		{
 			var oldMSTime = Time.MSTime;
 
-			var result = DB.World.Query("SELECT entry, max_limit FROM pool_template");
+			var result = _worldDatabase.Query("SELECT entry, max_limit FROM pool_template");
 
 			if (result.IsEmpty())
 			{
@@ -78,7 +88,7 @@ public class PoolManager : Singleton<PoolManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                         1        2            3
-			var result = DB.World.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 0");
+			var result = _worldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 0");
 
 			if (result.IsEmpty())
 			{
@@ -94,7 +104,7 @@ public class PoolManager : Singleton<PoolManager>
 					var pool_id = result.Read<uint>(1);
 					var chance = result.Read<float>(2);
 
-					var data = Global.ObjectMgr.GetCreatureData(guid);
+					var data = _gameObjectManager.GetCreatureData(guid);
 
 					if (data == null)
 					{
@@ -154,7 +164,7 @@ public class PoolManager : Singleton<PoolManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                         1        2            3
-			var result = DB.World.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 1");
+			var result = _worldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 1");
 
 			if (result.IsEmpty())
 			{
@@ -170,7 +180,7 @@ public class PoolManager : Singleton<PoolManager>
 					var pool_id = result.Read<uint>(1);
 					var chance = result.Read<float>(2);
 
-					var data = Global.ObjectMgr.GetGameObjectData(guid);
+					var data = _gameObjectManager.GetGameObjectData(guid);
 
 					if (data == null)
 					{
@@ -230,7 +240,7 @@ public class PoolManager : Singleton<PoolManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                         1        2            3
-			var result = DB.World.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 2");
+			var result = _worldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 2");
 
 			if (result.IsEmpty())
 			{
@@ -355,7 +365,7 @@ public class PoolManager : Singleton<PoolManager>
 		{
 			var oldMSTime = Time.MSTime;
 
-			var result = DB.World.Query("SELECT DISTINCT pool_template.entry, pool_members.spawnId, pool_members.poolSpawnId FROM pool_template" +
+			var result = _worldDatabase.Query("SELECT DISTINCT pool_template.entry, pool_members.spawnId, pool_members.poolSpawnId FROM pool_template" +
 										" LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry" +
 										" LEFT JOIN pool_members ON pool_members.type = 2 AND pool_template.entry = pool_members.spawnId WHERE game_event_pool.pool_entry IS NULL");
 
@@ -470,18 +480,6 @@ public class PoolManager : Singleton<PoolManager>
 
 				break;
 		}
-	}
-
-	public SpawnedPoolData InitPoolsForMap(Map map)
-	{
-		SpawnedPoolData spawnedPoolData = new(map);
-		var poolIds = _autoSpawnPoolsPerMap.LookupByKey(spawnedPoolData.Map.Id);
-
-		if (poolIds != null)
-			foreach (var poolId in poolIds)
-				SpawnPool(spawnedPoolData, poolId);
-
-		return spawnedPoolData;
 	}
 
 	public PoolTemplateData GetPoolTemplate(uint pool_id)

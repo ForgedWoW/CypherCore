@@ -42,6 +42,10 @@ public class CriteriaManager
         _cliDB = cliDB;
         _gameObjectManager = gameObjectManager;
         _worldDatabase = worldDatabase;
+
+        LoadCriteriaList();
+        LoadCriteriaModifiersTree();
+        LoadCriteriaData();
     }
 
 	public void LoadCriteriaModifiersTree()

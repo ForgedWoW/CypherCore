@@ -5,14 +5,15 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.RealmServer.Networking;
 
-public static class PacketManager
+public class PacketManager
 {
-	static readonly ConcurrentDictionary<ClientOpcodes, PacketHandler> _clientPacketTable = new();
+	readonly ConcurrentDictionary<ClientOpcodes, PacketHandler> _clientPacketTable = new();
 
-	public static void Initialize()
+	public void Initialize()
 	{
 		var currentAsm = Assembly.GetExecutingAssembly();
 
@@ -27,14 +28,14 @@ public static class PacketManager
 
 					if (msgAttr.Opcode == ClientOpcodes.Unknown)
 					{
-						Log.outError(LogFilter.Network, "Opcode {0} does not have a value", msgAttr.Opcode);
+						Log.Logger.Error("Opcode {0} does not have a value", msgAttr.Opcode);
 
 						continue;
 					}
 
 					if (_clientPacketTable.ContainsKey(msgAttr.Opcode))
 					{
-						Log.outError(LogFilter.Network, "Tried to override OpcodeHandler of {0} with {1} (Opcode {2})", _clientPacketTable[msgAttr.Opcode].ToString(), methodInfo.Name, msgAttr.Opcode);
+						Log.Logger.Error("Tried to override OpcodeHandler of {0} with {1} (Opcode {2})", _clientPacketTable[msgAttr.Opcode].ToString(), methodInfo.Name, msgAttr.Opcode);
 
 						continue;
 					}
@@ -43,14 +44,14 @@ public static class PacketManager
 
 					if (parameters.Length == 0)
 					{
-						Log.outError(LogFilter.Network, "Method: {0} Has no paramters", methodInfo.Name);
+						Log.Logger.Error("Method: {0} Has no paramters", methodInfo.Name);
 
 						continue;
 					}
 
 					if (parameters[0].ParameterType.BaseType != typeof(ClientPacket))
 					{
-						Log.outError(LogFilter.Network, "Method: {0} has wrong BaseType", methodInfo.Name);
+						Log.Logger.Error("Method: {0} has wrong BaseType", methodInfo.Name);
 
 						continue;
 					}
@@ -61,17 +62,17 @@ public static class PacketManager
 		}
 	}
 
-	public static PacketHandler GetHandler(ClientOpcodes opcode)
+	public PacketHandler GetHandler(ClientOpcodes opcode)
 	{
 		return _clientPacketTable.LookupByKey(opcode);
 	}
 
-	public static bool ContainsHandler(ClientOpcodes opcode)
+	public bool ContainsHandler(ClientOpcodes opcode)
 	{
 		return _clientPacketTable.ContainsKey(opcode);
 	}
 
-	public static bool IsInstanceOnlyOpcode(ServerOpcodes opcode)
+	public bool IsInstanceOnlyOpcode(ServerOpcodes opcode)
 	{
 		switch (opcode)
 		{

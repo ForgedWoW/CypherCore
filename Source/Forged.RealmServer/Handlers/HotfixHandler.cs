@@ -48,7 +48,7 @@ public class HotfixHandler : IWorldSessionHandler
 			if (store != null && store.HasRecord(record.RecordID))
             {
                 dbReply.Status = HotfixRecord.Status.Valid;
-				dbReply.Timestamp = (uint)_gameTime.GetGameTime;
+				dbReply.Timestamp = (uint)_gameTime.CurrentGameTime;
 				store.WriteRecord(record.RecordID, _session.SessionDbcLocale, dbReply.Data);
 
 				if (_optionalData[(int)_session.SessionDbcLocale].TryGetValue((dbQuery.TableHash, (int)record.RecordID), out var optionalDataEntries))
@@ -61,7 +61,7 @@ public class HotfixHandler : IWorldSessionHandler
 			else
 			{
 				Log.Logger.Verbose("CMSG_DB_QUERY_BULK: {0} requested non-existing entry {1} in datastore: {2}", _session.GetPlayerInfo(), record.RecordID, dbQuery.TableHash);
-				dbReply.Timestamp = (uint)_gameTime.GetGameTime;
+				dbReply.Timestamp = (uint)_gameTime.CurrentGameTime;
 			}
 
             _session.SendPacket(dbReply);

@@ -20,12 +20,12 @@ class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IP
 
 	public void OnLogin(Player player)
 	{
-		if (!Global.LFGMgr.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
+		if (!_lFGManager.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
 			return;
 
 		// Temporal: Trying to determine when group data and LFG data gets desynched
 		var guid = player.GUID;
-		var gguid = Global.LFGMgr.GetGroup(guid);
+		var gguid = _lFGManager.GetGroup(guid);
 
 		var group = player.Group;
 
@@ -36,31 +36,31 @@ class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IP
 			if (gguid != gguid2)
 			{
 				Log.Logger.Error("{0} on group {1} but LFG has group {2} saved... Fixing.", player.Session.GetPlayerInfo(), gguid2.ToString(), gguid.ToString());
-				Global.LFGMgr.SetupGroupMember(guid, group.GUID);
+				_lFGManager.SetupGroupMember(guid, group.GUID);
 			}
 		}
 
-		Global.LFGMgr.SetTeam(player.GUID, player.Team);
+		_lFGManager.SetTeam(player.GUID, player.Team);
 		// @todo - Restore LfgPlayerData and send proper status to player if it was in a group
 	}
 
 	// Player Hooks
 	public void OnLogout(Player player)
 	{
-		if (!Global.LFGMgr.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
+		if (!_lFGManager.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
 			return;
 
 		if (!player.Group)
-			Global.LFGMgr.LeaveLfg(player.GUID);
+			_lFGManager.LeaveLfg(player.GUID);
 		else if (player.Session.PlayerDisconnected)
-			Global.LFGMgr.LeaveLfg(player.GUID, true);
+			_lFGManager.LeaveLfg(player.GUID, true);
 	}
 
 	public void OnMapChanged(Player player)
 	{
 		var map = player.Map;
 
-		if (Global.LFGMgr.InLfgDungeonMap(player.GUID, map.Id, map.DifficultyID))
+		if (_lFGManager.InLfgDungeonMap(player.GUID, map.Id, map.DifficultyID))
 		{
 			var group = player.Group;
 
@@ -70,7 +70,7 @@ class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IP
 			// crashes or other undefined behaviour
 			if (!group)
 			{
-				Global.LFGMgr.LeaveLfg(player.GUID);
+				_lFGManager.LeaveLfg(player.GUID);
 				player.RemoveAura(SharedConst.LFGSpellLuckOfTheDraw);
 				player.TeleportTo(player.Homebind);
 
@@ -92,7 +92,7 @@ class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IP
 
 			player.SendPacket(response);
 
-			if (Global.LFGMgr.SelectedRandomLfgDungeon(player.GUID))
+			if (_lFGManager.SelectedRandomLfgDungeon(player.GUID))
 				player.CastSpell(player, SharedConst.LFGSpellLuckOfTheDraw, true);
 		}
 		else
@@ -101,7 +101,7 @@ class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IP
 
 			if (group && group.MembersCount == 1)
 			{
-				Global.LFGMgr.LeaveLfg(group.GUID);
+				_lFGManager.LeaveLfg(group.GUID);
 				group.Disband();
 
 				Log.Logger.Debug(
@@ -122,7 +122,7 @@ class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOnRemoveMem
 	// Group Hooks
 	public void OnAddMember(PlayerGroup group, ObjectGuid guid)
 	{
-		if (!Global.LFGMgr.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
+		if (!_lFGManager.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
 			return;
 
 		var gguid = group.GUID;
@@ -131,50 +131,50 @@ class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOnRemoveMem
 		if (leader == guid)
 		{
 			Log.Logger.Debug("LFGScripts.OnAddMember [{0}]: added [{1} leader {2}]", gguid, guid, leader);
-			Global.LFGMgr.SetLeader(gguid, guid);
+			_lFGManager.SetLeader(gguid, guid);
 		}
 		else
 		{
-			var gstate = Global.LFGMgr.GetState(gguid);
-			var state = Global.LFGMgr.GetState(guid);
+			var gstate = _lFGManager.GetState(gguid);
+			var state = _lFGManager.GetState(guid);
 			Log.Logger.Debug("LFGScripts.OnAddMember [{0}]: added [{1} leader {2}] gstate: {3}, state: {4}", gguid, guid, leader, gstate, state);
 
 			if (state == LfgState.Queued)
-				Global.LFGMgr.LeaveLfg(guid);
+				_lFGManager.LeaveLfg(guid);
 
 			if (gstate == LfgState.Queued)
-				Global.LFGMgr.LeaveLfg(gguid);
+				_lFGManager.LeaveLfg(gguid);
 		}
 
-		Global.LFGMgr.SetGroup(guid, gguid);
-		Global.LFGMgr.AddPlayerToGroup(gguid, guid);
+		_lFGManager.SetGroup(guid, gguid);
+		_lFGManager.AddPlayerToGroup(gguid, guid);
 	}
 
 	public void OnChangeLeader(PlayerGroup group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid)
 	{
-		if (!Global.LFGMgr.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
+		if (!_lFGManager.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
 			return;
 
 		var gguid = group.GUID;
 
 		Log.Logger.Debug("LFGScripts.OnChangeLeader {0}: old {0} new {0}", gguid, newLeaderGuid, oldLeaderGuid);
-		Global.LFGMgr.SetLeader(gguid, newLeaderGuid);
+		_lFGManager.SetLeader(gguid, newLeaderGuid);
 	}
 
 	public void OnDisband(PlayerGroup group)
 	{
-		if (!Global.LFGMgr.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
+		if (!_lFGManager.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
 			return;
 
 		var gguid = group.GUID;
 		Log.Logger.Debug("LFGScripts.OnDisband {0}", gguid);
 
-		Global.LFGMgr.RemoveGroupData(gguid);
+		_lFGManager.RemoveGroupData(gguid);
 	}
 
 	public void OnInviteMember(PlayerGroup group, ObjectGuid guid)
 	{
-		if (!Global.LFGMgr.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
+		if (!_lFGManager.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
 			return;
 
 		var gguid = group.GUID;
@@ -185,12 +185,12 @@ class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOnRemoveMem
 		// No leader == after group creation first invite is new leader
 		// leader and no gguid == first invite after leader is added to new group (this is the real invite)
 		if (!leader.IsEmpty && gguid.IsEmpty)
-			Global.LFGMgr.LeaveLfg(leader);
+			_lFGManager.LeaveLfg(leader);
 	}
 
 	public void OnRemoveMember(PlayerGroup group, ObjectGuid guid, RemoveMethod method, ObjectGuid kicker, string reason)
 	{
-		if (!Global.LFGMgr.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
+		if (!_lFGManager.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
 			return;
 
 		var gguid = group.GUID;
@@ -206,26 +206,26 @@ class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOnRemoveMem
 			if (!string.IsNullOrEmpty(reason))
 				str_reason = reason;
 
-			Global.LFGMgr.InitBoot(gguid, kicker, guid, str_reason);
+			_lFGManager.InitBoot(gguid, kicker, guid, str_reason);
 
 			return;
 		}
 
-		var state = Global.LFGMgr.GetState(gguid);
+		var state = _lFGManager.GetState(gguid);
 
 		// If group is being formed after proposal success do nothing more
 		if (state == LfgState.Proposal && method == RemoveMethod.Default)
 		{
 			// LfgData: Remove player from group
-			Global.LFGMgr.SetGroup(guid, ObjectGuid.Empty);
-			Global.LFGMgr.RemovePlayerFromGroup(gguid, guid);
+			_lFGManager.SetGroup(guid, ObjectGuid.Empty);
+			_lFGManager.RemovePlayerFromGroup(gguid, guid);
 
 			return;
 		}
 
-		Global.LFGMgr.LeaveLfg(guid);
-		Global.LFGMgr.SetGroup(guid, ObjectGuid.Empty);
-		var players = Global.LFGMgr.RemovePlayerFromGroup(gguid, guid);
+		_lFGManager.LeaveLfg(guid);
+		_lFGManager.SetGroup(guid, ObjectGuid.Empty);
+		var players = _lFGManager.RemovePlayerFromGroup(gguid, guid);
 
 		var player = Global.ObjAccessor.FindPlayer(guid);
 
@@ -245,15 +245,15 @@ class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOnRemoveMem
 				Session.SendLfgUpdateStatus(new LfgUpdateData(LfgUpdateType.LeaderUnk1), true);
 
 			if (isLFG && player.Map.IsDungeon) // Teleport player out the dungeon
-				Global.LFGMgr.TeleportPlayer(player, true);
+				_lFGManager.TeleportPlayer(player, true);
 		}
 
 		if (isLFG && state != LfgState.FinishedDungeon) // Need more players to finish the dungeon
 		{
-			var leader = Global.ObjAccessor.FindPlayer(Global.LFGMgr.GetLeader(gguid));
+			var leader = Global.ObjAccessor.FindPlayer(_lFGManager.GetLeader(gguid));
 
 			if (leader)
-				leader.Session.SendLfgOfferContinue(Global.LFGMgr.GetDungeon(gguid, false));
+				leader.Session.SendLfgOfferContinue(_lFGManager.GetDungeon(gguid, false));
 		}
 	}
 }

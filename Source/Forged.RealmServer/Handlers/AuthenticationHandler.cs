@@ -46,7 +46,7 @@ public class AuthenticationHandler : IWorldSessionHandler
 			response.SuccessInfo.ActiveExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)_session.Expansion;
 			response.SuccessInfo.AccountExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)_session.AccountExpansion;
 			response.SuccessInfo.VirtualRealmAddress = _realm.Id.GetAddress();
-			response.SuccessInfo.Time = _gameTime.GetGameTime;
+			response.SuccessInfo.Time = _gameTime.CurrentGameTime;
 
             // Send current home realm. Also there is no need to send it later in realm queries.
 			response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(_realm.Id.GetAddress(), true, false, _realm.Name, _realm.NormalizedName));

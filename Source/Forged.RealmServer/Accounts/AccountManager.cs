@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
+using Forged.RealmServer.Entities;
 using Serilog;
 
 namespace Forged.RealmServer.Accounts;
@@ -490,7 +491,7 @@ public sealed class AccountManager
 			return false;
 		}
 
-		RBACData rbac = new(accountId, "", (int)realmId, (byte)GetSecurity(accountId, (int)realmId));
+		RBACData rbac = new(accountId, "", (int)realmId, this, _loginDatabase, (byte)GetSecurity(accountId, (int)realmId));
 		rbac.LoadFromDB();
 		var hasPermission = rbac.HasPermission(permissionId);
 

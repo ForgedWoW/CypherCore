@@ -17,9 +17,9 @@ public class GameTime
 
 	public long StartTime => _startTime;
 
-    public long GetGameTime => _gameTime;
+    public long CurrentGameTime => _gameTime;
 
-	public uint GetGameTimeMS => _gameMSTime;
+	public uint GameTimeMS => _gameMSTime;
 
 	public DateTime GetSystemTime => _gameTimeSystemPoint;
 
