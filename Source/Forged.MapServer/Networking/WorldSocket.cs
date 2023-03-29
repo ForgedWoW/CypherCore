@@ -231,15 +231,7 @@ public class WorldSocket : SocketBase
 		}
 	}
 
-	public void SetWorldSession(WorldSession session)
-	{
-		lock (_worldSessionLock)
-		{
-			_worldSession = session;
-		}
-	}
-
-	public uint CompressPacket(byte[] data, ServerOpcodes opcode, out byte[] outData)
+    public uint CompressPacket(byte[] data, ServerOpcodes opcode, out byte[] outData)
 	{
 		var uncompressedData = BitConverter.GetBytes((ushort)opcode).Combine(data);
 

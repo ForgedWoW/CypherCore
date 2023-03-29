@@ -52,7 +52,7 @@ public class WorldSession : IDisposable
 {
 	public long MuteTime;
 
-    private WorldSocket _socket;
+    public WorldSocket Socket { get; }
 
     private readonly DosProtection _antiDos;
     private readonly AccountData[] _accountData = new AccountData[(int)AccountDataTypes.Max];
@@ -104,7 +104,7 @@ public class WorldSession : IDisposable
     public bool PlayerLogoutWithSave => PlayerLogout && _playerSave;
 	public bool PlayerRecentlyLoggedOut { get; private set; }
 
-    public bool PlayerDisconnected => !(_socket != null && _socket.IsOpen());
+    public bool PlayerDisconnected => !(Socket != null && Socket.IsOpen());
 
 	public AccountTypes Security { get; private set; }
 
@@ -183,7 +183,7 @@ public class WorldSession : IDisposable
 	{
         MuteTime = muteTime;
 		_antiDos = new DosProtection(this);
-		_socket = sock;
+		Socket = sock;
 		Security = sec;
 		AccountId = id;
 		AccountName = name;
@@ -244,10 +244,10 @@ public class WorldSession : IDisposable
 			LogoutPlayer(true);
 
 		// - If have unclosed socket, close it
-		if (_socket != null)
+		if (Socket != null)
 		{
-			_socket.CloseSocket();
-			_socket = null;
+			Socket.CloseSocket();
+			Socket = null;
 		}
 
 		// empty incoming packet queue
@@ -405,10 +405,10 @@ public class WorldSession : IDisposable
 			_characterDatabase.Execute(stmt);
 		}
 
-		if (_socket != null)
+		if (Socket != null)
 		{
-			_socket.CloseSocket();
-			_socket = null;
+			Socket.CloseSocket();
+			Socket = null;
 		}
 
 		PlayerLogout = false;
@@ -443,7 +443,7 @@ public class WorldSession : IDisposable
 		ProcessQueryCallbacks();
 
 
-		if (_socket != null && _socket.IsOpen() && _warden != null)
+		if (Socket != null && Socket.IsOpen() && _warden != null)
 			_warden.Update(diff);
 
 		// If necessary, log the player out
@@ -451,7 +451,7 @@ public class WorldSession : IDisposable
 			LogoutPlayer(true);
 
 		//- Cleanup socket if need
-		if (_socket != null && !_socket.IsOpen())
+		if (Socket != null && !Socket.IsOpen())
 		{
 			if (Player != null && _warden != null)
 				_warden.Update(diff);
@@ -460,15 +460,15 @@ public class WorldSession : IDisposable
 
 			if (_expireTime < diff || _forceExit || !Player)
 			{
-				if (_socket != null)
+				if (Socket != null)
 				{
-					_socket.CloseSocket();
-					_socket = null;
+					Socket.CloseSocket();
+					Socket = null;
 				}
 			}
 		}
 
-		if (_socket == null)
+		if (Socket == null)
 			return false; //Will remove this session from the world session map
 
 
@@ -501,29 +501,24 @@ public class WorldSession : IDisposable
 			return;
 		}
 
-		if (_socket == null)
+		if (Socket == null)
 		{
 			Log.Logger.Verbose("Prevented sending of {0} to non existent socket {1} to {2}", packet.GetOpcode(), conIdx, GetPlayerInfo());
 
 			return;
 		}
 
-		_socket.SendPacket(packet);
-	}
-
-	public void AddInstanceConnection(WorldSocket sock)
-	{
-		_socket = sock;
+		Socket.SendPacket(packet);
 	}
 
 	public void KickPlayer(string reason)
 	{
 		Log.Logger.Information($"Account: {AccountId} Character: '{(Player ? Player.GetName() : "<none>")}' {(Player ? Player.GUID : "")} kicked with reason: {reason}");
 
-        if (_socket == null)
+        if (Socket == null)
             return;
 
-        _socket.CloseSocket();
+        Socket.CloseSocket();
         _forceExit = true;
     }
 
@@ -889,14 +884,14 @@ public class WorldSession : IDisposable
 		// If necessary, kick the player because the client didn't send anything for too long
 		// (or they've been idling in character select)
 		if (IsConnectionIdle && !HasPermission(RBACPermissions.IgnoreIdleConnection))
-			_socket?.CloseSocket();
+			Socket?.CloseSocket();
 
 		WorldPacket firstDelayedPacket = null;
 		uint processedPackets = 0;
 		var currentTime = GameTime.GetGameTime();
 
 		//Check for any packets they was not recived yet.
-		while (_socket != null && !queue.IsEmpty && (queue.TryPeek(out var packet) && packet != firstDelayedPacket) && queue.TryDequeue(out packet))
+		while (Socket != null && !queue.IsEmpty && (queue.TryPeek(out var packet) && packet != firstDelayedPacket) && queue.TryDequeue(out packet))
 		{
 			try
 			{

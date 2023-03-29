@@ -31,7 +31,6 @@ using Forged.MapServer.SupportSystem;
 using Forged.MapServer.Tools;
 using Framework.Constants;
 using Framework.Database;
-using Framework.Realm;
 using Framework.Threading;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
@@ -77,7 +76,6 @@ public class WorldManager
     private readonly List<string> _motd = new();
     private readonly List<WorldSession> _queuedPlayer = new();
     private readonly ConcurrentQueue<WorldSession> _addSessQueue = new();
-    private readonly ConcurrentQueue<Tuple<WorldSocket, ulong>> _linkSocketQueue = new();
     private readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
     private readonly WorldUpdateTime _worldUpdateTime;
     private readonly object _guidAlertLock = new();
@@ -481,11 +479,6 @@ public class WorldManager
 	public void AddSession(WorldSession s)
 	{
 		_addSessQueue.Enqueue(s);
-	}
-
-	public void AddInstanceSocket(WorldSocket sock, ulong connectToKey)
-	{
-		_linkSocketQueue.Enqueue(Tuple.Create(sock, connectToKey));
 	}
 
     public void SetEventInterval(long nextGameEvent)
@@ -1295,9 +1288,6 @@ public class WorldManager
 
 	public void UpdateSessions(uint diff)
 	{
-		while (_linkSocketQueue.TryDequeue(out var linkInfo))
-			ProcessLinkInstanceSocket(linkInfo);
-
 		// Add new sessions
 		while (_addSessQueue.TryDequeue(out var sess))
 			AddSession_(sess);
@@ -1574,11 +1564,11 @@ public class WorldManager
 
     private void AddSession_(WorldSession s)
 	{
-		//NOTE - Still there is race condition in WorldSession* being used in the Sockets
+        //NOTE - Still there is race condition in WorldSession* being used in the Sockets
 
-		// kick already loaded player with same account (if any) and remove session
-		// if player is in loading and want to load again, return
-		if (!RemoveSession(s.AccountId))
+        // kick already loaded player with same account (if any) and remove session
+        // if player is in loading and want to load again, return
+        if (!RemoveSession(s.AccountId))
 		{
 			s.KickPlayer("World::AddSession_ Couldn't remove the other session while on loading screen");
 
@@ -1629,39 +1619,14 @@ public class WorldManager
 
 		UpdateMaxSessionCounters();
 
-		// Updates the population
-		if (pLimit > 0)
+        // Updates the population
+        if (pLimit > 0)
 		{
 			float popu = ActiveSessionCount; // updated number of users on the server
 			popu /= pLimit;
 			popu *= 2;
 			Log.Logger.Information("Server Population ({0}).", popu);
 		}
-	}
-
-    private void ProcessLinkInstanceSocket(Tuple<WorldSocket, ulong> linkInfo)
-	{
-		if (!linkInfo.Item1.IsOpen())
-			return;
-
-		ConnectToKey key = new()
-		{
-			Raw = linkInfo.Item2
-		};
-
-		var session = FindSession(key.AccountId);
-
-		if (!session || session.ConnectToInstanceKey != linkInfo.Item2)
-		{
-			linkInfo.Item1.SendAuthResponseError(BattlenetRpcErrorCode.TimedOut);
-			linkInfo.Item1.CloseSocket();
-
-			return;
-		}
-
-		linkInfo.Item1.SetWorldSession(session);
-		session.AddInstanceConnection(linkInfo.Item1);
-		session.HandleContinuePlayerLogin();
 	}
 
     private bool HasRecentlyDisconnected(WorldSession session)
@@ -2030,16 +1995,6 @@ public class WorldManager
 		_maxQueuedSessionCount = Math.Max(_maxQueuedSessionCount, (uint)_queuedPlayer.Count);
 	}
 
-    private void UpdateAreaDependentAuras()
-	{
-		foreach (var session in _sessions.Values)
-			if (session.Player is { IsInWorld: true })
-			{
-				session.Player.UpdateAreaDependentAuras(session.Player.Area);
-				session.Player.UpdateZoneDependentAuras(session.Player.Zone);
-			}
-	}
-
     private void LoadPersistentWorldVariables()
 	{
 		var oldMSTime = Time.MSTime;
@@ -2058,11 +2013,6 @@ public class WorldManager
     private void ProcessQueryCallbacks()
 	{
 		_queryProcessor.ProcessReadyCallbacks();
-	}
-
-    private long GetNextRandomBGResetTime()
-	{
-		return _nextRandomBgReset;
 	}
 
     private void UpdateWarModeRewardValues()
