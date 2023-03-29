@@ -90,7 +90,7 @@ public class KillRewarder
 		{
 			if (victim.IsDungeonBoss)
 			{
-				var instance = _victim.InstanceScript;
+				var instance = _victim.Location.InstanceScript;
 
 				if (instance != null)
 					instance.UpdateEncounterStateForKilledCreature(_victim.Entry, _victim);

@@ -132,7 +132,7 @@ public class Pet : Guardian
 			// Register the pet for guid lookup
 			base.AddToWorld();
 			InitializeAI();
-			var zoneScript = ZoneScript1 != null ? ZoneScript1 : InstanceScript;
+			var zoneScript = ZoneScript ?? Location.InstanceScript;
 
 			if (zoneScript != null)
 				zoneScript.OnCreatureCreate(this);
@@ -1031,10 +1031,11 @@ public class Pet : Guardian
 
 	public bool Create(ulong guidlow, Map map, uint entry, uint petNumber)
 	{
-		Map = map;
+		Location.Map = map;
+        CheckAddToMap();
 
-		// TODO: counter should be constructed as (summon_count << 32) | petNumber
-		Create(ObjectGuid.Create(HighGuid.Pet, map.Id, entry, guidlow));
+        // TODO: counter should be constructed as (summon_count << 32) | petNumber
+        Create(ObjectGuid.Create(HighGuid.Pet, map.Id, entry, guidlow));
 
 		SpawnId = guidlow;
 		OriginalEntry = entry;

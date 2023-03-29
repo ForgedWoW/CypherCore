@@ -79,7 +79,7 @@ internal class ObjectGridLoaderBase
 		obj.AddToWorld();
 
 		if (obj.IsCreature)
-			if (obj.IsActiveObject)
+			if (obj.IsActive)
 				map.AddToActive(obj);
 
 		++count;

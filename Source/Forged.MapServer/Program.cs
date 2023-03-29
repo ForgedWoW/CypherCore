@@ -420,7 +420,7 @@ void RegisterFactories()
 {
     // Factories
     builder.RegisterType<LootFactory>().SingleInstance();
-    builder.RegisterType<SpellFactory>().SingleInstance();
+    builder.RegisterType<SpellFactory>();
     builder.RegisterType<ChannelManagerFactory>().SingleInstance();
     // We are doing this to inject the container into the class factory. The container is not yet built at this point, so we need to do this after the container is built.
     // ReSharper disable once AccessToModifiedClosure

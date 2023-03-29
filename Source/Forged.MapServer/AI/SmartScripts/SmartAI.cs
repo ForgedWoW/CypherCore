@@ -968,7 +968,7 @@ public class SmartAI : CreatureAI
 
 		if (targets != null)
 		{
-			float checkDist = Me.InstanceScript != null ? SMART_ESCORT_MAX_PLAYER_DIST * 2 : SMART_ESCORT_MAX_PLAYER_DIST;
+			float checkDist = Me.Location.InstanceScript != null ? SMART_ESCORT_MAX_PLAYER_DIST * 2 : SMART_ESCORT_MAX_PLAYER_DIST;
 
 			if (targets.Count == 1 && GetScript().IsPlayer(targets.First()))
 			{

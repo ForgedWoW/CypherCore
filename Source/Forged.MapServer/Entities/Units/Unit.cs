@@ -1858,7 +1858,7 @@ public partial class Unit : WorldObject
 			EmoteState = Emote.OneshotNone;
 
 			// players in instance don't have ZoneScript, but they have InstanceScript
-			var zoneScript = ZoneScript1 != null ? ZoneScript1 : InstanceScript;
+			var zoneScript = ZoneScript1 != null ? ZoneScript1 : Location.InstanceScript;
 
 			if (zoneScript != null)
 				zoneScript.OnUnitDeath(this);

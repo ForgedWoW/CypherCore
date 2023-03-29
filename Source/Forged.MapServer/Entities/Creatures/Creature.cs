@@ -791,9 +791,10 @@ public partial class Creature : Unit
 
 	public bool Create(ulong guidlow, Map map, uint entry, Position pos, CreatureData data = null, uint vehId = 0, bool dynamic = false)
 	{
-		Map = map;
+		Location.Map = map;
+        CheckAddToMap();
 
-		if (data != null)
+        if (data != null)
 		{
 			PhasingHandler.InitDbPhaseShift(PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
 			PhasingHandler.InitDbVisibleMapId(PhaseShift, data.terrainSwapMap);

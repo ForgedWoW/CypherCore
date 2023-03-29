@@ -261,11 +261,10 @@ public class TransportManager
 		PhasingHandler.InitDbPhaseShift(trans.PhaseShift, phaseUseFlags, phaseId, phaseGroupId);
 
 		// use preset map for instances (need to know which instance)
-		trans.
-			// use preset map for instances (need to know which instance)
-			Map = map;
+		trans.Location.Map = map;
+		trans.CheckAddToMap();
 
-		if (instanceMap != null)
+        if (instanceMap != null)
 			trans.ZoneScript = instanceMap.InstanceScript;
 
 		// Passengers will be loaded once a player is near

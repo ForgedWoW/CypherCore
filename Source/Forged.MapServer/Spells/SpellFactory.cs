@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using Autofac;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.LootManagement;
-using Forged.MapServer.Maps;
-using Forged.MapServer.Networking.Packets.Chat;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Serilog;
@@ -18,16 +14,18 @@ namespace Forged.MapServer.Spells
     {
         private readonly ClassFactory _classFactory;
         private readonly SpellManager _spellManager;
+        private readonly WorldObject _caster;
 
-        public SpellFactory(ClassFactory classFactory, SpellManager spellManager)
+        public SpellFactory(ClassFactory classFactory, SpellManager spellManager, WorldObject caster)
         {
             _classFactory = classFactory;
             _spellManager = spellManager;
+            _caster = caster;
         }
 
-        public Spell NewSpell(WorldObject caster, SpellInfo info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
+        public Spell NewSpell(SpellInfo info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
         {
-            return _classFactory.Resolve<Spell>(new PositionalParameter(0, caster), 
+            return _classFactory.Resolve<Spell>(new PositionalParameter(0, _caster), 
                                                 new PositionalParameter(1, info), 
                                                 new PositionalParameter(2, triggerFlags), 
                                                 new NamedParameter(nameof(originalCasterGuid), originalCasterGuid), 
@@ -36,57 +34,57 @@ namespace Forged.MapServer.Spells
         }
 
 
-        public SpellCastResult CastSpell(WorldObject caster, uint spellId, bool triggered = false, byte? empowerStage = null)
+        public SpellCastResult CastSpell(uint spellId, bool triggered = false, byte? empowerStage = null)
         {
-            return CastSpell(caster, null, spellId, triggered, empowerStage);
+            return CastSpell(null, spellId, triggered, empowerStage);
         }
 
-        public SpellCastResult CastSpell<T>(WorldObject caster, WorldObject target, T spellId, bool triggered = false) where T : struct, Enum
+        public SpellCastResult CastSpell<T>(WorldObject target, T spellId, bool triggered = false) where T : struct, Enum
         {
-            return CastSpell(caster, target, Convert.ToUInt32(spellId), triggered);
+            return CastSpell(target, Convert.ToUInt32(spellId), triggered);
         }
 
-        public SpellCastResult CastSpell(WorldObject caster, WorldObject target, uint spellId, Spell triggeringSpell)
+        public SpellCastResult CastSpell(WorldObject target, uint spellId, Spell triggeringSpell)
         {
             CastSpellExtraArgs args = new(true)
             {
                 TriggeringSpell = triggeringSpell
             };
 
-            return CastSpell(caster, target, spellId, args);
+            return CastSpell(target, spellId, args);
         }
 
-        public SpellCastResult CastSpell(WorldObject caster, WorldObject target, uint spellId, AuraEffect triggeringAura)
+        public SpellCastResult CastSpell(WorldObject target, uint spellId, AuraEffect triggeringAura)
         {
             CastSpellExtraArgs args = new(true)
             {
                 TriggeringAura = triggeringAura
             };
 
-            return CastSpell(caster, target, spellId, args);
+            return CastSpell(target, spellId, args);
         }
 
-        public SpellCastResult CastSpell(WorldObject caster, WorldObject target, uint spellId, bool triggered = false, byte? empowerStage = null)
+        public SpellCastResult CastSpell(WorldObject target, uint spellId, bool triggered = false, byte? empowerStage = null)
         {
             CastSpellExtraArgs args = new(triggered)
             {
                 EmpowerStage = empowerStage
             };
 
-            return CastSpell(caster, target, spellId, args);
+            return CastSpell(target, spellId, args);
         }
 
-        public SpellCastResult CastSpell(WorldObject caster, WorldObject target, uint spellId, TriggerCastFlags triggerCastFlags, bool triggered = false)
+        public SpellCastResult CastSpell(WorldObject target, uint spellId, TriggerCastFlags triggerCastFlags, bool triggered = false)
         {
             CastSpellExtraArgs args = new(triggered)
             {
                 TriggerFlags = triggerCastFlags
             };
 
-            return CastSpell(caster, target, spellId, args);
+            return CastSpell(target, spellId, args);
         }
 
-        public SpellCastResult CastSpell(WorldObject caster, WorldObject target, uint spellId, double bp0Val, bool triggered = false)
+        public SpellCastResult CastSpell(WorldObject target, uint spellId, double bp0Val, bool triggered = false)
         {
             CastSpellExtraArgs args = new(triggered)
             {
@@ -96,10 +94,10 @@ namespace Forged.MapServer.Spells
             }
             };
 
-            return CastSpell(caster, target, spellId, args);
+            return CastSpell(target, spellId, args);
         }
 
-        public SpellCastResult CastSpell(WorldObject caster, WorldObject target, uint spellId, SpellValueMod spellValueMod, double bp0Val, bool triggered = false)
+        public SpellCastResult CastSpell(WorldObject target, uint spellId, SpellValueMod spellValueMod, double bp0Val, bool triggered = false)
         {
             CastSpellExtraArgs args = new(triggered)
             {
@@ -109,60 +107,60 @@ namespace Forged.MapServer.Spells
             }
             };
 
-            return CastSpell(caster, target, spellId, args);
+            return CastSpell(target, spellId, args);
         }
 
-        public SpellCastResult CastSpell(WorldObject caster, SpellCastTargets targets, uint spellId, CastSpellExtraArgs args)
+        public SpellCastResult CastSpell(SpellCastTargets targets, uint spellId, CastSpellExtraArgs args)
         {
-            return CastSpell(caster, new CastSpellTargetArg(targets), spellId, args);
+            return CastSpell(new CastSpellTargetArg(targets), spellId, args);
         }
 
-        public SpellCastResult CastSpell(WorldObject caster, WorldObject target, uint spellId, CastSpellExtraArgs args)
+        public SpellCastResult CastSpell(WorldObject target, uint spellId, CastSpellExtraArgs args)
         {
-            return CastSpell(caster, new CastSpellTargetArg(target), spellId, args);
+            return CastSpell(new CastSpellTargetArg(target), spellId, args);
         }
 
-        public SpellCastResult CastSpell(WorldObject caster, float x, float y, float z, uint spellId, bool triggered = false)
+        public SpellCastResult CastSpell(float x, float y, float z, uint spellId, bool triggered = false)
         {
-            return CastSpell(caster, new Position(x, y, z), spellId, triggered);
+            return CastSpell(new Position(x, y, z), spellId, triggered);
         }
 
-        public SpellCastResult CastSpell(WorldObject caster, float x, float y, float z, uint spellId, CastSpellExtraArgs args)
+        public SpellCastResult CastSpell(float x, float y, float z, uint spellId, CastSpellExtraArgs args)
         {
-            return CastSpell(caster, new Position(x, y, z), spellId, args);
+            return CastSpell(new Position(x, y, z), spellId, args);
         }
 
-        public SpellCastResult CastSpell(WorldObject caster, Position dest, uint spellId, bool triggered = false)
+        public SpellCastResult CastSpell(Position dest, uint spellId, bool triggered = false)
         {
             CastSpellExtraArgs args = new(triggered);
 
-            return CastSpell(caster, new CastSpellTargetArg(dest), spellId, args);
+            return CastSpell(new CastSpellTargetArg(dest), spellId, args);
         }
 
-        public SpellCastResult CastSpell(WorldObject caster, Position dest, uint spellId, CastSpellExtraArgs args)
+        public SpellCastResult CastSpell(Position dest, uint spellId, CastSpellExtraArgs args)
         {
-            return CastSpell(caster, new CastSpellTargetArg(dest), spellId, args);
+            return CastSpell(new CastSpellTargetArg(dest), spellId, args);
         }
 
-        public SpellCastResult CastSpell(WorldObject caster, CastSpellTargetArg targets, uint spellId, CastSpellExtraArgs args)
+        public SpellCastResult CastSpell(CastSpellTargetArg targets, uint spellId, CastSpellExtraArgs args)
         {
-            var info = _spellManager.GetSpellInfo(spellId, args.CastDifficulty != Difficulty.None ? args.CastDifficulty : caster.Map.DifficultyID);
+            var info = _spellManager.GetSpellInfo(spellId, args.CastDifficulty != Difficulty.None ? args.CastDifficulty : _caster.Map.DifficultyID);
 
             if (info == null)
             {
-                Log.Logger.Error($"CastSpell: unknown spell {spellId} by caster {caster.GUID}");
+                Log.Logger.Error($"CastSpell: unknown spell {spellId} by caster {_caster.GUID}");
 
                 return SpellCastResult.SpellUnavailable;
             }
 
             if (targets.Targets == null)
             {
-                Log.Logger.Error($"CastSpell: Invalid target passed to spell cast {spellId} by {caster.GUID}");
+                Log.Logger.Error($"CastSpell: Invalid target passed to spell cast {spellId} by {_caster.GUID}");
 
                 return SpellCastResult.BadTargets;
             }
 
-            Spell spell = NewSpell(caster, info, args.TriggerFlags, args.OriginalCaster, args.OriginalCastId, args.EmpowerStage);
+            Spell spell = NewSpell(info, args.TriggerFlags, args.OriginalCaster, args.OriginalCastId, args.EmpowerStage);
 
             foreach (var pair in args.SpellValueOverrides)
                 spell.SetSpellValue(pair.Key, (float)pair.Value);

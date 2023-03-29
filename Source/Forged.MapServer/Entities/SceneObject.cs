@@ -24,15 +24,7 @@ public class SceneObject : WorldObject
 
 	public override uint Faction => 0;
 
-	public override float StationaryX => _stationaryPosition.X;
-
-	public override float StationaryY => _stationaryPosition.Y;
-
-	public override float StationaryZ => _stationaryPosition.Z;
-
-	public override float StationaryO => _stationaryPosition.Orientation;
-
-	public SceneObject() : base(false)
+    public SceneObject() : base(false)
 	{
 		ObjectTypeMask |= TypeMask.SceneObject;
 		ObjectTypeId = TypeId.SceneObject;
@@ -160,9 +152,9 @@ public class SceneObject : WorldObject
 
     private bool Create(ulong lowGuid, SceneType type, uint sceneId, uint scriptPackageId, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner)
 	{
-		Map = map;
-		Location.Relocate(pos);
-		RelocateStationaryPosition(pos);
+		Location.WorldRelocate(map, pos);
+        CheckAddToMap();
+        RelocateStationaryPosition(pos);
 
 		PrivateObjectOwner = privateObjectOwner;
 

@@ -1287,7 +1287,7 @@ public class SmartScript
 				if (obj == null)
 					break;
 
-				var instance = obj.InstanceScript;
+				var instance = obj.Location.InstanceScript;
 
 				if (instance == null)
 				{
@@ -1331,7 +1331,7 @@ public class SmartScript
 				if (obj == null)
 					break;
 
-				var instance = obj.InstanceScript;
+				var instance = obj.Location.InstanceScript;
 
 				if (instance == null)
 				{

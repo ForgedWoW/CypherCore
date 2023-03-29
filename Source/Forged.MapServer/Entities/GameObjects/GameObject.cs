@@ -68,7 +68,6 @@ namespace Forged.MapServer.Entities.GameObjects
         private Player _ritualOwner; // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
         private uint _usetimes;
 
-        private List<ObjectGuid> _tapList = new();
         private LootModes _lootMode; // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
         private long _packedRotation;
         private Quaternion _localRotation;
@@ -104,15 +103,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			set => SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.FactionTemplate), value);
 		}
 
-		public override float StationaryX => StationaryPosition.X;
-
-		public override float StationaryY => StationaryPosition.Y;
-
-		public override float StationaryZ => StationaryPosition.Z;
-
-		public override float StationaryO => StationaryPosition.Orientation;
-
-		public string AiName
+        public string AiName
 		{
 			get
 			{
@@ -318,9 +309,7 @@ namespace Forged.MapServer.Entities.GameObjects
 				UpdateModel();
 			}
 		}
-
-		public Position StationaryPosition1 => StationaryPosition;
-
+		
 		// There's many places not ready for dynamic spawns. This allows them to live on for now.
 		public bool RespawnCompatibilityMode
 		{
@@ -343,13 +332,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         private byte GoAnimProgress => GameObjectFieldData.PercentHealth;
 
-        private List<ObjectGuid> TapList
-		{
-			get => _tapList;
-			set => _tapList = value;
-		}
-
-        private bool HasLootRecipient => !_tapList.Empty();
+        private List<ObjectGuid> TapList { get; } = new();
 
         private GameObjectDestructibleState DestructibleState
 		{
@@ -3287,8 +3270,8 @@ namespace Forged.MapServer.Entities.GameObjects
 					return false;
 			}
 
-			if (HasLootRecipient)
-				return _tapList.Contains(player.GUID); // if go doesnt have group bound it means it was solo killed by someone else
+			if (!TapList.Empty())
+				return TapList.Contains(player.GUID); // if go doesnt have group bound it means it was solo killed by someone else
 
 			return true;
 		}
@@ -3828,10 +3811,9 @@ namespace Forged.MapServer.Entities.GameObjects
 
         private bool Create(uint entry, Map map, Position pos, Quaternion rotation, uint animProgress, GameObjectState goState, uint artKit, bool dynamic, ulong spawnid)
 		{
-			Map = map;
-
-			Location.Relocate(pos);
-			StationaryPosition.Relocate(pos);
+			Location.WorldRelocate(map, pos);
+            CheckAddToMap();
+            StationaryPosition.Relocate(pos);
 
 			if (!Location.IsPositionValid)
 			{

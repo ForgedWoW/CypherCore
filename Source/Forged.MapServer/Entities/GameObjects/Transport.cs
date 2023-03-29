@@ -317,7 +317,7 @@ internal class Transport : GameObjectTypeBase, ITransport
 			}
 
 			dst = pathRotation.Multiply(dst);
-			dst += Owner.StationaryPosition1;
+			dst += Owner.StationaryPosition;
 
 			Owner.Map.GameObjectRelocation(Owner, dst.X, dst.Y, dst.Z, Owner.Location.Orientation);
 		}

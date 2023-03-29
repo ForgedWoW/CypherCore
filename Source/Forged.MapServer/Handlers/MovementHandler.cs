@@ -288,9 +288,10 @@ public class MovementHandler : IWorldSessionHandler
 		player.SetFallInformation(0, player.Location.Z);
 
 		player.ResetMap();
-		player.Map = newMap;
+		player.Location.Map = newMap;
+		player.CheckAddToMap();
 
-		ResumeToken resumeToken = new();
+        ResumeToken resumeToken = new();
 		resumeToken.SequenceIndex = player.MovementCounter;
 		resumeToken.Reason = seamlessTeleport ? 2 : 1u;
 		SendPacket(resumeToken);
@@ -311,7 +312,8 @@ public class MovementHandler : IWorldSessionHandler
 		{
 			Log.Logger.Error($"WORLD: failed to teleport player {player.GetName()} ({player.GUID}) to map {loc.MapId} ({(newMap ? newMap.MapName : "Unknown")}) because of unknown reason!");
 			player.ResetMap();
-			player.Map = oldMap;
+			player.Location.Map = oldMap;
+			player.CheckAddToMap();
 			player.TeleportTo(player.Homebind);
 
 			return;

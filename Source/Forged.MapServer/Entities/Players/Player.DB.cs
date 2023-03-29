@@ -628,10 +628,10 @@ public partial class Player
 				// flight will started later
 			}
 		}
-		else if (mapEntry.IsDungeon() && InstanceId != 0)
+		else if (mapEntry.IsDungeon() && Location.Map?.InstanceId != 0)
 		{
 			// try finding instance by id first
-			map = Global.MapMgr.FindMap(mapId, InstanceId);
+			map = Global.MapMgr.FindMap(mapId, Location.Map?.InstanceId);
 		}
 
 		// Map could be changed before
@@ -700,8 +700,9 @@ public partial class Player
 			}
 		}
 
-		Map = map;
-		UpdatePositionData();
+		Location.Map = map;
+        CheckAddToMap();
+        UpdatePositionData();
 
 		// now that map position is determined, check instance validity
 		if (!CheckInstanceValidity(true) && !IsInstanceLoginGameMasterException())

@@ -636,9 +636,10 @@ public partial class Player : Unit
 
 		Location.Relocate(position.Loc);
 
-		Map = Global.MapMgr.CreateMap(position.Loc.MapId, this);
+		Location.Map = Global.MapMgr.CreateMap(position.Loc.MapId, this);
+        CheckAddToMap();
 
-		if (position.TransportGuid.HasValue)
+        if (position.TransportGuid.HasValue)
 		{
 			var transport = ObjectAccessor.GetTransport(this, ObjectGuid.Create(HighGuid.Transport, position.TransportGuid.Value));
 
@@ -1043,7 +1044,7 @@ public partial class Player : Unit
 			if (_pendingBindTimer <= diff)
 			{
 				// Player left the instance
-				if (_pendingBindId == InstanceId)
+				if (_pendingBindId == Location.Map?.InstanceId)
 					ConfirmPendingBind();
 
 				SetPendingBind(0, 0);
@@ -2175,7 +2176,7 @@ public partial class Player : Unit
 		if (Duel != null && Location.MapId != mapid && Map.GetGameObject(PlayerData.DuelArbiter))
 			DuelComplete(DuelCompleteType.Fled);
 
-		if (Location.MapId == mapid && (!instanceId.HasValue || InstanceId == instanceId))
+		if (Location.MapId == mapid && (!instanceId.HasValue || Location.Map?.InstanceId == instanceId))
 		{
 			//lets reset far teleport flag if it wasn't reset during chained teleports
 			SetSemaphoreTeleportFar(false);
@@ -2585,7 +2586,7 @@ public partial class Player : Unit
 
 		_summonExpire = GameTime.GetGameTime() + PlayerConst.MaxPlayerSummonDelay;
 		_summonLocation = new WorldLocation(summoner.Location);
-		_summonInstanceId = summoner.InstanceId;
+		_summonInstanceId = summoner.Location.Map?.InstanceId;
 
 		SummonRequest summonRequest = new();
 
@@ -5250,7 +5251,7 @@ public partial class Player : Unit
 	public void SaveRecallPosition()
 	{
 		_recallLocation = new WorldLocation(Location);
-		_recallInstanceId = InstanceId;
+		_recallInstanceId = (uint)Location.Map?.InstanceId;
 	}
 
 	public void Recall()

@@ -389,8 +389,9 @@ public class Map : IDisposable
 		EnsureGridLoadedForActiveObject(cell, player);
 		AddToGrid(player, cell);
 
-		player.Map = this;
-		player.AddToWorld();
+		player.Location.Map = this;
+		player.CheckAddToMap();
+        player.AddToWorld();
 
 		if (initPlayer)
 			SendInitSelf(player);
@@ -498,7 +499,7 @@ public class Map : IDisposable
 
 		var cell = new Cell(cellCoord);
 
-		if (obj.IsActiveObject)
+		if (obj.IsActive)
 			EnsureGridLoadedForActiveObject(cell, obj);
 		else
 			EnsureGridCreated(new GridCoord(cell.GetGridX(), cell.GetGridY()));
@@ -510,7 +511,7 @@ public class Map : IDisposable
 
 		InitializeObject(obj);
 
-		if (obj.IsActiveObject)
+		if (obj.IsActive)
 			AddToActive(obj);
 
 		//something, such as vehicle, needs to be update immediately
@@ -862,7 +863,7 @@ public class Map : IDisposable
 		var inWorld = obj.IsInWorld && obj.TypeId is >= TypeId.Unit and <= TypeId.GameObject;
 		obj.RemoveFromWorld();
 
-		if (obj.IsActiveObject)
+		if (obj.IsActive)
 			RemoveFromActive(obj);
 
 		MultiPersonalPhaseTracker.UnregisterTrackedObject(obj);
@@ -2238,9 +2239,9 @@ public class Map : IDisposable
 
 	public void AddCorpse(Corpse corpse)
 	{
-		corpse.Map = this;
-
-		_corpsesByCell.Add(corpse.GetCellCoord().GetId(), corpse);
+		corpse.Location.Map = this;
+		corpse.CheckAddToMap();
+        _corpsesByCell.Add(corpse.GetCellCoord().GetId(), corpse);
 
 		if (corpse.GetCorpseType() != CorpseType.Bones)
 			_corpsesByPlayer[corpse.OwnerGUID] = corpse;
@@ -3542,7 +3543,7 @@ public class Map : IDisposable
 		}
 
 		// in diff. grids but active creature
-		if (obj.IsActiveObject)
+		if (obj.IsActive)
 		{
 			EnsureGridLoadedForActiveObject(new_cell, obj);
 

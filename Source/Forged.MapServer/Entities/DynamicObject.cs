@@ -85,10 +85,10 @@ public class DynamicObject : WorldObject
 
 	public bool CreateDynamicObject(ulong guidlow, Unit caster, SpellInfo spell, Position pos, float radius, DynamicObjectType type, SpellCastVisualField spellVisual)
 	{
-		Map = caster.Map;
-		Location.Relocate(pos);
+		Location.WorldRelocate(caster.Location.Map, pos);
+        CheckAddToMap();
 
-		if (!Location.IsPositionValid)
+        if (!Location.IsPositionValid)
 		{
 			Log.Logger.Error("DynamicObject (spell {0}) not created. Suggested coordinates isn't valid (X: {1} Y: {2})", spell.Id, Location.X, Location.Y);
 

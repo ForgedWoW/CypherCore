@@ -21,7 +21,7 @@ public class Position
 		set => _orientation = NormalizeOrientation(value);
 	}
 
-	public bool IsDefault => X == default && Y == default && Z == default && Orientation == default;
+	public bool IsDefault => X == 0 && Y == 0 && Z == 0 && Orientation == 0;
 
 	public bool IsPositionValid => GridDefines.IsValidMapCoord(X, Y, Z, Orientation);
 
@@ -245,11 +245,11 @@ public class Position
 		var sinVal = Math.Sin(rotation);
 		var cosVal = Math.Cos(rotation);
 
-		var BoxDistX = X - center.X;
-		var BoxDistY = Y - center.Y;
+		var boxDistX = X - center.X;
+		var boxDistY = Y - center.Y;
 
-		var rotX = (float)(center.X + BoxDistX * cosVal - BoxDistY * sinVal);
-		var rotY = (float)(center.Y + BoxDistY * cosVal + BoxDistX * sinVal);
+		var rotX = (float)(center.X + boxDistX * cosVal - boxDistY * sinVal);
+		var rotY = (float)(center.Y + boxDistY * cosVal + boxDistX * sinVal);
 
 		// box edges are parallel to coordiante axis, so we can treat every dimension independently :D
 		var dz = Z - center.Z;
@@ -292,7 +292,7 @@ public class Position
 
 	public bool HasInLine(Position pos, float objSize, float width)
 	{
-		if (!HasInArc(MathFunctions.PI, pos, 2.0f))
+		if (!HasInArc(MathFunctions.PI, pos))
 			return false;
 
 		width += objSize;

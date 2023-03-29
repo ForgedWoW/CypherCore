@@ -903,7 +903,7 @@ public partial class Unit
 			if (creature)
 			{
 				DungeonEncounterRecord dungeonEncounter = null;
-				var instance = creature.InstanceScript;
+				var instance = creature.Location.InstanceScript;
 
 				if (instance != null)
 					dungeonEncounter = instance.GetBossDungeonEncounter(creature);

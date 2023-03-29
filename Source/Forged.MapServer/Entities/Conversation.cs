@@ -33,15 +33,7 @@ public class Conversation : WorldObject
 
 	public override uint Faction => 0;
 
-	public override float StationaryX => _stationaryPosition.X;
-
-	public override float StationaryY => _stationaryPosition.Y;
-
-	public override float StationaryZ => _stationaryPosition.Z;
-
-	public override float StationaryO => _stationaryPosition.Orientation;
-
-	public Conversation() : base(false)
+    public Conversation() : base(false)
 	{
 		ObjectTypeMask |= TypeMask.Conversation;
 		ObjectTypeId = TypeId.Conversation;
@@ -210,9 +202,10 @@ public class Conversation : WorldObject
 		_creatorGuid = creator.GUID;
 		PrivateObjectOwner = privateObjectOwner;
 
-		Map = map;
-		Location.Relocate(pos);
-		RelocateStationaryPosition(pos);
+
+		Location.WorldRelocate(map, pos);
+        CheckAddToMap();
+        RelocateStationaryPosition(pos);
 
 		Create(ObjectGuid.Create(HighGuid.Conversation, Location.MapId, conversationEntry, lowGuid));
 		PhasingHandler.InheritPhaseShift(this, creator);

@@ -18,7 +18,7 @@ public class BossAI : ScriptedAI
 
 	public BossAI(Creature creature, uint bossId) : base(creature)
 	{
-		Instance = creature.InstanceScript;
+		Instance = creature.Location.InstanceScript;
 		Summons = new SummonList(creature);
 		_bossId = bossId;
 

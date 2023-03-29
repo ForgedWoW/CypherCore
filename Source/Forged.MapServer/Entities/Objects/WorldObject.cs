@@ -41,32 +41,23 @@ namespace Forged.MapServer.Entities.Objects;
 
 public abstract class WorldObject : IDisposable
 {
-	public uint LastUsedScriptID;
+    private SpellFactory SpellFactory { get; }
+    public uint LastUsedScriptID;
 	protected CreateObjectBits UpdateFlag;
 	protected bool IsActive;
-    private readonly bool _isWorldObject;
-    private ObjectGuid _guid;
     private bool _isNewObject;
-    private bool _isDestroyedObject;
 
     private bool _objectUpdated;
 
     private uint _zoneId;
     private uint _areaId;
     private float _staticFloorZ;
-    private bool _outdoors;
-    private ZLiquidStatus _liquidStatus;
     private string _name;
-    private bool _isFarVisible;
     private float? _visibilityDistanceOverride;
 
-    private ITransport _transport;
     private Map _currMap;
     private PhaseShift _phaseShift = new();
     private PhaseShift _suppressedPhaseShift = new(); // contains phases for current area but not applied due to conditions
-    private int _dbPhase;
-
-    private NotifyFlags _notifyflags;
 
     private ObjectGuid _privateObjectOwner;
 
@@ -141,13 +132,9 @@ public abstract class WorldObject : IDisposable
 	}
 
 	// if negative it is used as PhaseGroupId
-	public int DBPhase
-	{
-		get => _dbPhase;
-		set => _dbPhase = value;
-	}
+	public int DBPhase { get; set; }
 
-	public virtual float CombatReach => SharedConst.DefaultPlayerCombatReach;
+    public virtual float CombatReach => SharedConst.DefaultPlayerCombatReach;
 
 	public virtual ushort AIAnimKitId => 0;
 
@@ -164,9 +151,9 @@ public abstract class WorldObject : IDisposable
 		set => _privateObjectOwner = value;
 	}
 
-	public ObjectGuid GUID => _guid;
+	public ObjectGuid GUID { get; private set; }
 
-	public uint Entry
+    public uint Entry
 	{
 		get => ObjectData.EntryId;
 		set => SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.EntryId), value);
@@ -180,9 +167,9 @@ public abstract class WorldObject : IDisposable
 
 	public TypeId TypeId => ObjectTypeId;
 
-	public bool IsDestroyedObject => _isDestroyedObject;
+	public bool IsDestroyedObject { get; private set; }
 
-	public bool IsCreature => ObjectTypeId == TypeId.Unit;
+    public bool IsCreature => ObjectTypeId == TypeId.Unit;
 
 	public bool IsPlayer => ObjectTypeId == TypeId.Player;
 
@@ -198,19 +185,12 @@ public abstract class WorldObject : IDisposable
 
 	public bool IsAreaTrigger => ObjectTypeId == TypeId.AreaTrigger;
 
-	public bool IsConversation => ObjectTypeId == TypeId.Conversation;
+	
+	public bool IsPermanentWorldObject { get; }
 
-	public bool IsSceneObject => ObjectTypeId == TypeId.SceneObject;
+    public ITransport Transport { get; private set; }
 
-	public ZoneScript ZoneScript1 => ZoneScript;
-
-	public bool IsActiveObject => IsActive;
-
-	public bool IsPermanentWorldObject => _isWorldObject;
-
-	public ITransport Transport => _transport;
-
-	public float TransOffsetX => MovementInfo.Transport.Pos.X;
+    public float TransOffsetX => MovementInfo.Transport.Pos.X;
 
 	public float TransOffsetY => MovementInfo.Transport.Pos.Y;
 
@@ -222,17 +202,7 @@ public abstract class WorldObject : IDisposable
 
 	public sbyte TransSeat => MovementInfo.Transport.Seat;
 
-	public virtual float StationaryX => Location.X;
-
-	public virtual float StationaryY => Location.Y;
-
-	public virtual float StationaryZ => Location.Z;
-
-	public virtual float StationaryO => Location.Orientation;
-
 	public virtual float CollisionHeight => 0.0f;
-
-	public float MidsectionHeight => CollisionHeight / 2.0f;
 
 	public virtual ObjectGuid OwnerGUID => default;
 
@@ -240,9 +210,7 @@ public abstract class WorldObject : IDisposable
 
 	public virtual uint Faction { get; set; }
 
-    private NotifyFlags NotifyFlags => _notifyflags;
-
-    private Position TransOffset => MovementInfo.Transport.Pos;
+    private NotifyFlags NotifyFlags { get; set; }
 
 	public virtual Unit CharmerOrOwner
 	{
@@ -334,11 +302,11 @@ public abstract class WorldObject : IDisposable
 
 	public uint Area => _areaId;
 
-	public bool IsOutdoors => _outdoors;
+	public bool IsOutdoors { get; private set; }
 
-	public ZLiquidStatus LiquidStatus => _liquidStatus;
+    public ZLiquidStatus LiquidStatus { get; private set; }
 
-	public bool IsInWorldPvpZone
+    public bool IsInWorldPvpZone
 	{
 		get
 		{
@@ -354,21 +322,11 @@ public abstract class WorldObject : IDisposable
 		}
 	}
 
-	public InstanceScript InstanceScript
-	{
-		get
-		{
-			var map = Map;
-
-			return map.IsDungeon ? ((InstanceMap)map).InstanceScript : null;
-		}
-	}
-
 	public float GridActivationRange
 	{
 		get
 		{
-			if (IsActiveObject)
+			if (IsActive)
 			{
 				if (TypeId == TypeId.Player && AsPlayer.CinematicMgr.IsOnCinematic())
 					return Math.Max(SharedConst.DefaultVisibilityInstance, Map.VisibilityRange);
@@ -412,12 +370,17 @@ public abstract class WorldObject : IDisposable
 			Location.MapId = value.Id;
 			InstanceId = value.InstanceId;
 
-			if (IsWorldObject())
-				_currMap.AddWorldObject(this);
+			CheckAddToMap();
 		}
 	}
 
-	public Player SpellModOwner
+    public void CheckAddToMap()
+    {
+        if (IsWorldObject())
+            Location.Map.AddWorldObject(this);
+    }
+
+    public Player SpellModOwner
 	{
 		get
 		{
@@ -462,14 +425,15 @@ public abstract class WorldObject : IDisposable
 		}
 	}
 
-    private bool IsFarVisible => _isFarVisible;
+    private bool IsFarVisible { get; set; }
 
     private bool IsVisibilityOverridden => _visibilityDistanceOverride.HasValue;
 
-	public WorldObject(bool isWorldObject)
+	public WorldObject(bool isWorldObject, SpellFactory spellFactory)
 	{
-		_name = "";
-		_isWorldObject = isWorldObject;
+        SpellFactory = spellFactory;
+        _name = "";
+		IsPermanentWorldObject = isWorldObject;
 
 		ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive | GhostVisibilityType.Ghost);
 		ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
@@ -514,7 +478,7 @@ public abstract class WorldObject : IDisposable
 	public void Create(ObjectGuid guid)
 	{
 		_objectUpdated = false;
-		_guid = guid;
+		GUID = guid;
 	}
 
 	public virtual void AddToWorld()
@@ -558,9 +522,9 @@ public abstract class WorldObject : IDisposable
 			if (area.ParentAreaID != 0)
 				_zoneId = area.ParentAreaID;
 
-		_outdoors = data.Outdoors;
+		IsOutdoors = data.Outdoors;
 		_staticFloorZ = data.FloorZ;
-		_liquidStatus = data.LiquidStatus;
+		LiquidStatus = data.LiquidStatus;
 	}
 
 	public virtual void BuildCreateUpdateBlockForPlayer(UpdateData data, Player target)
@@ -822,10 +786,10 @@ public abstract class WorldObject : IDisposable
 		if (flags.Stationary)
 		{
 			var self = this;
-			data.WriteFloat(self.StationaryX);
-			data.WriteFloat(self.StationaryY);
-			data.WriteFloat(self.StationaryZ);
-			data.WriteFloat(self.StationaryO);
+			data.WriteFloat(self.Location.X);
+			data.WriteFloat(self.Location.Y);
+			data.WriteFloat(self.Location.Z);
+			data.WriteFloat(self.Location.Orientation);
 		}
 
 		if (flags.CombatVictim)
@@ -1398,7 +1362,7 @@ public abstract class WorldObject : IDisposable
 
 	public bool IsWorldObject()
 	{
-		if (_isWorldObject)
+		if (IsPermanentWorldObject)
 			return true;
 
 		if (IsTypeId(TypeId.Unit) && AsCreature.IsTempWorldObject)
@@ -1449,7 +1413,7 @@ public abstract class WorldObject : IDisposable
 		if (IsPlayer)
 			return;
 
-		_isFarVisible = on;
+		IsFarVisible = on;
 	}
 
 	public void SetVisibilityDistanceOverride(VisibilityDistanceType type)
@@ -1529,7 +1493,7 @@ public abstract class WorldObject : IDisposable
 			}
 		}
 
-		if (IsDynObject && IsActiveObject)
+		if (IsDynObject && IsActive)
 			return Map.VisibilityRange;
 
 		return 0.0f;
@@ -3218,7 +3182,7 @@ public abstract class WorldObject : IDisposable
 
 	public void SetDestroyedObject(bool destroyed)
 	{
-		_isDestroyedObject = destroyed;
+		IsDestroyedObject = destroyed;
 	}
 
 	public bool TryGetAsCreature(out Creature creature)
@@ -3298,22 +3262,22 @@ public abstract class WorldObject : IDisposable
 
 	public void AddToNotify(NotifyFlags f)
 	{
-		_notifyflags |= f;
+		NotifyFlags |= f;
 	}
 
 	public bool IsNeedNotify(NotifyFlags f)
 	{
-		return Convert.ToBoolean(_notifyflags & f);
+		return Convert.ToBoolean(NotifyFlags & f);
 	}
 
 	public void ResetAllNotifies()
 	{
-		_notifyflags = 0;
+		NotifyFlags = 0;
 	}
 
 	public T GetTransport<T>() where T : class, ITransport
 	{
-		return _transport as T;
+		return Transport as T;
 	}
 
 	public virtual ObjectGuid GetTransGUID()
@@ -3326,7 +3290,7 @@ public abstract class WorldObject : IDisposable
 
 	public void SetTransport(ITransport t)
 	{
-		_transport = t;
+		Transport = t;
 	}
 
 	public virtual bool IsNeverVisibleFor(WorldObject seer)

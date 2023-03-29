@@ -1,62 +1,84 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Instances;
 
 namespace Forged.MapServer.Entities.Objects;
 
 public class WorldLocation : Position
 {
     private Cell _currentCell;
-
+	private uint _mapId;
+    private uint _instanceId;
 	public ObjectCellMoveState MoveState { get; set; }
 
 	public Position NewPosition { get; set; } = new();
 
-	public uint MapId { get; set; }
+    public uint MapId => Map?.Id ?? _mapId;
 
-	public WorldLocation(uint mapId = 0xFFFFFFFF, float x = 0, float y = 0, float z = 0, float o = 0)
+    public Map Map { get; set; }
+
+	public uint Zone { get; set; }
+    public uint Area { get; set; }
+    public bool IsInWorld { get; set; }
+
+    public uint InstanceId
+    {
+        get => Map?.InstanceId ?? _instanceId;
+        set => _instanceId = value;
+    }
+
+    public InstanceScript InstanceScript => Map is { IsDungeon: true } ? ((InstanceMap)Map).InstanceScript : null;
+
+    public WorldLocation(uint mapId = 0xFFFFFFFF, float x = 0, float y = 0, float z = 0, float o = 0)
 	{
-		MapId = mapId;
+        _mapId = mapId;
 		Relocate(x, y, z, o);
 	}
 
 	public WorldLocation(uint mapId, Position pos)
 	{
-		MapId = mapId;
+        _mapId = mapId;
 		Relocate(pos);
 	}
 
 	public WorldLocation(WorldLocation loc)
 	{
-		MapId = loc.MapId;
+		_mapId = loc.MapId;
+        Map = loc.Map;
 		Relocate(loc);
 	}
 
 	public WorldLocation(Position pos)
 	{
-		MapId = 0xFFFFFFFF;
+		_mapId = 0xFFFFFFFF;
 		Relocate(pos);
 	}
 
 	public void WorldRelocate(uint mapId, Position pos)
 	{
-		MapId = mapId;
+		_mapId = mapId;
 		Relocate(pos);
 	}
 
-	public void WorldRelocate(WorldLocation loc)
+    public void WorldRelocate(Map map, Position pos)
+    {
+        Map = map;
+        Relocate(pos);
+    }
+
+    public void WorldRelocate(WorldLocation loc)
 	{
-		MapId = loc.MapId;
-		Relocate(loc);
+		_mapId = loc.MapId;
+        Map = loc.Map;
+        Relocate(loc);
 	}
 
 	public void WorldRelocate(uint mapId = 0xFFFFFFFF, float x = 0.0f, float y = 0.0f, float z = 0.0f, float o = 0.0f)
 	{
-		MapId = mapId;
+		_mapId = mapId;
 		Relocate(x, y, z, o);
 	}
 
@@ -78,9 +100,7 @@ public class WorldLocation : Position
 
 	public virtual string GetDebugInfo()
 	{
-		var mapEntry = CliDB.MapStorage.LookupByKey(MapId);
-
-		return $"MapID: {MapId} Map name: '{(mapEntry != null ? mapEntry.MapName[Global.WorldMgr.DefaultDbcLocale] : "<not found>")}' {base.ToString()}";
+        return $"MapID: {MapId} {base.ToString()}";
 	}
 
 	public override string ToString()

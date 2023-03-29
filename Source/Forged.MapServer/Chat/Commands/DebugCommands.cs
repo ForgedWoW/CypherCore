@@ -537,7 +537,7 @@ internal class DebugCommands
 
 		var map = player.Map;
 		var mapName = map.MapName;
-		var instance = player.InstanceScript;
+		var instance = player.Location.InstanceScript;
 
 		if (instance == null)
 		{
