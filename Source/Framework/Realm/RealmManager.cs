@@ -17,10 +17,10 @@ using Serilog;
 public class RealmManager
 {
     private readonly LoginDatabase _loginDatabase;
-    readonly List<RealmBuildInfo> _builds = new();
-	readonly ConcurrentDictionary<RealmId, Realm> _realms = new();
-	readonly List<string> _subRegions = new();
-	Timer _updateTimer;
+    private readonly List<RealmBuildInfo> _builds = new();
+    private readonly ConcurrentDictionary<RealmId, Realm> _realms = new();
+    private readonly List<string> _subRegions = new();
+    private Timer _updateTimer;
 
     public RealmManager(LoginDatabase loginDatabase)
     {
@@ -233,7 +233,7 @@ public class RealmManager
 		return _realms.Values;
 	}
 
-	void LoadBuildInfo()
+    private void LoadBuildInfo()
 	{
 		//                                         0             1             2              3              4      5              6
 		var result = _loginDatabase.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, win64AuthSeed, mac64AuthSeed FROM build_info ORDER BY build ASC");
@@ -265,7 +265,7 @@ public class RealmManager
 			} while (result.NextRow());
 	}
 
-	void UpdateRealm(Realm realm)
+    private void UpdateRealm(Realm realm)
 	{
 		var oldRealm = _realms.LookupByKey(realm.Id);
 
@@ -275,7 +275,7 @@ public class RealmManager
 		_realms[realm.Id] = realm;
 	}
 
-	void UpdateRealms(object source, ElapsedEventArgs e)
+    private void UpdateRealms(object source, ElapsedEventArgs e)
 	{
 		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_REALMLIST);
 		var result = _loginDatabase.Query(stmt);
@@ -336,7 +336,7 @@ public class RealmManager
 			Log.Logger.Information("Removed realm \"{0}\".", pair.Value);
 	}
 
-	List<string> GetSubRegions()
+    private List<string> GetSubRegions()
 	{
 		return _subRegions;
 	}

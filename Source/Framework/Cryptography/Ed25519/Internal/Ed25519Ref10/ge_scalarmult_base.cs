@@ -5,7 +5,7 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 {
     internal static partial class GroupOperations
     {
-        static byte equal(byte b, byte c)
+        private static byte equal(byte b, byte c)
         {
 
             byte ub = b;
@@ -17,21 +17,21 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
             return (byte)y;
         }
 
-        static byte negative(sbyte b)
+        private static byte negative(sbyte b)
         {
             var x = unchecked((ulong)b); /* 18446744073709551361..18446744073709551615: yes; 0..255: no */
             x >>= 63; /* 1: yes; 0: no */
             return (byte)x;
         }
 
-        static void cmov(ref GroupElementPreComp t, ref GroupElementPreComp u, byte b)
+        private static void cmov(ref GroupElementPreComp t, ref GroupElementPreComp u, byte b)
         {
             FieldOperations.fe_cmov(ref t.yplusx, ref u.yplusx, b);
             FieldOperations.fe_cmov(ref t.yminusx, ref u.yminusx, b);
             FieldOperations.fe_cmov(ref t.xy2d, ref u.xy2d, b);
         }
 
-        static void select(out GroupElementPreComp t, int pos, sbyte b)
+        private static void select(out GroupElementPreComp t, int pos, sbyte b)
         {
             GroupElementPreComp minust;
             var bnegative = negative(b);

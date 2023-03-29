@@ -55,12 +55,12 @@ public class LinkedListElement
 		INext = pElem;
 	}
 
-	bool HasNext()
+    private bool HasNext()
 	{
 		return (INext != null && INext.INext != null);
 	}
 
-	bool HasPrev()
+    private bool HasPrev()
 	{
 		return (IPrev != null && IPrev.IPrev != null);
 	}
@@ -73,9 +73,9 @@ public class LinkedListElement
 
 public class LinkedListHead
 {
-	readonly LinkedListElement _iFirst = new();
-	readonly LinkedListElement _iLast = new();
-	uint _iSize;
+    private readonly LinkedListElement _iFirst = new();
+    private readonly LinkedListElement _iLast = new();
+    private uint _iSize;
 
 	public LinkedListHead()
 	{

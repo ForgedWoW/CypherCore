@@ -37,7 +37,7 @@ namespace Framework.Cryptography
             }
         }
 
-        void FillUp()
+        private void FillUp()
         {
             sh.Initialize();
             sh.TransformBlock(o1, 0, 32, o1, 0);
@@ -48,11 +48,11 @@ namespace Framework.Cryptography
             taken = 0;
         }
 
-        readonly SHA256 sh;        
-        uint taken;
-        byte[] o0 = new byte[32];
-        readonly byte[] o1 = new byte[32];
-        readonly byte[] o2 = new byte[32];
+        private readonly SHA256 sh;
+        private uint taken;
+        private byte[] o0 = new byte[32];
+        private readonly byte[] o1 = new byte[32];
+        private readonly byte[] o2 = new byte[32];
     }
 
     public class SessionKeyGenerator
@@ -87,7 +87,7 @@ namespace Framework.Cryptography
             }
         }
 
-        void FillUp()
+        private void FillUp()
         {
             sh.Initialize();
             sh.TransformBlock(o1, 0, 20, o1, 0);
@@ -98,10 +98,10 @@ namespace Framework.Cryptography
             taken = 0;
         }
 
-        readonly SHA1 sh;
-        uint taken;
-        byte[] o0 = new byte[32];
-        readonly byte[] o1 = new byte[32];
-        readonly byte[] o2 = new byte[32];
+        private readonly SHA1 sh;
+        private uint taken;
+        private byte[] o0 = new byte[32];
+        private readonly byte[] o1 = new byte[32];
+        private readonly byte[] o2 = new byte[32];
     }
 }

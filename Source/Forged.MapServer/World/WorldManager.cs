@@ -79,7 +79,6 @@ public class WorldManager
     private readonly ConcurrentQueue<WorldSession> _addSessQueue = new();
     private readonly ConcurrentQueue<Tuple<WorldSocket, ulong>> _linkSocketQueue = new();
     private readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
-    private readonly Realm _realm;
     private readonly WorldUpdateTime _worldUpdateTime;
     private readonly object _guidAlertLock = new();
     private readonly LimitedThreadTaskManager _taskManager = new(10);
@@ -235,13 +234,9 @@ public class WorldManager
 
 	public Locale DefaultDbcLocale => _defaultDbcLocale;
 
-	public Realm Realm => _realm;
+	public Realm Realm { get; }
 
-	public RealmId RealmId => _realm.Id;
-
-	public uint VirtualRealmAddress => _realm.Id.GetAddress();
-
-	public float MaxVisibleDistanceOnContinents => _maxVisibleDistanceOnContinents;
+    public float MaxVisibleDistanceOnContinents => _maxVisibleDistanceOnContinents;
 
 	public float MaxVisibleDistanceInInstances => _maxVisibleDistanceInInstances;
 
@@ -282,7 +277,7 @@ public class WorldManager
         _vMapManager = vMapManager;
         _mapManager = mapManager;
         _cliDB = cliDB;
-        _realm = realm;
+        Realm = realm;
 
 
         foreach (WorldTimers timer in Enum.GetValues(typeof(WorldTimers)))
@@ -300,11 +295,17 @@ public class WorldManager
         // Initialize Allowed Security Level
         LoadDBAllowedSecurityLevel();
 
-        if (!TerrainManager.ExistMapAndVMap(0, -6240.32f, 331.033f) || !TerrainManager.ExistMapAndVMap(0, -8949.95f, -132.493f) || !TerrainManager.ExistMapAndVMap(1, -618.518f, -4251.67f) || !TerrainManager.ExistMapAndVMap(0, 1676.35f, 1677.45f) || !TerrainManager.ExistMapAndVMap(1, 10311.3f, 832.463f) || !TerrainManager.ExistMapAndVMap(1, -2917.58f, -257.98f) || (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) != 0 && (!TerrainManager.ExistMapAndVMap(530, 10349.6f, -6357.29f) || !TerrainManager.ExistMapAndVMap(530, -3961.64f, -13931.2f))))
-        {
-            Log.Logger.Error("Unable to load map and vmap data for starting zones - server shutting down!");
-            Environment.Exit(1);
-        }
+        if (TerrainManager.ExistMapAndVMap(0, -6240.32f, 331.033f) &&
+            TerrainManager.ExistMapAndVMap(0, -8949.95f, -132.493f) &&
+            TerrainManager.ExistMapAndVMap(1, -618.518f, -4251.67f) &&
+            TerrainManager.ExistMapAndVMap(0, 1676.35f, 1677.45f) &&
+            TerrainManager.ExistMapAndVMap(1, 10311.3f, 832.463f) &&
+            TerrainManager.ExistMapAndVMap(1, -2917.58f, -257.98f) &&
+            (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) == 0 || (TerrainManager.ExistMapAndVMap(530, 10349.6f, -6357.29f) && TerrainManager.ExistMapAndVMap(530, -3961.64f, -13931.2f))))
+            return;
+
+        Log.Logger.Error("Unable to load map and vmap data for starting zones - server shutting down!");
+        Environment.Exit(1);
     }
 
     public void Initialize(AccountManager accountManager, CharacterCache characterCache, ObjectAccessor objectAccessor,
@@ -324,7 +325,7 @@ public class WorldManager
         var serverType = IsFFAPvPRealm ? RealmType.PVP : (RealmType)_configuration.GetDefaultValue("GameType", 0);
         var realmZone = _configuration.GetDefaultValue("RealmZone", (int)RealmZones.Development);
 
-        _loginDatabase.Execute("UPDATE realmlist SET icon = {0}, timezone = {1} WHERE id = '{2}'", (byte)serverType, realmZone, _realm.Id.Index); // One-time query
+        _loginDatabase.Execute("UPDATE realmlist SET icon = {0}, timezone = {1} WHERE id = '{2}'", (byte)serverType, realmZone, Realm.Id.Index); // One-time query
 
         Log.Logger.Information("Loading GameObject models...");
 
@@ -339,7 +340,7 @@ public class WorldManager
         GameTime.UpdateGameTimers(); // TODO get from Realm
 
 
-        _loginDatabase.Execute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({0}, {1}, 0, '{2}')", _realm.Id.Index, GameTime.GetStartTime(), ""); // One-time query
+        _loginDatabase.Execute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({0}, {1}, 0, '{2}')", Realm.Id.Index, GameTime.GetStartTime(), ""); // One-time query
 
         _timers[WorldTimers.Auctions].Interval = Time.Minute * Time.InMilliseconds;
         _timers[WorldTimers.AuctionsPending].Interval = 250;
@@ -426,7 +427,7 @@ public class WorldManager
 	public void LoadDBAllowedSecurityLevel()
 	{
 		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_REALMLIST_SECURITY_LEVEL);
-		stmt.AddValue(0, (int)_realm.Id.Index);
+		stmt.AddValue(0, (int)Realm.Id.Index);
 		var result = _loginDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
@@ -654,7 +655,7 @@ public class WorldManager
 		_autobroadcasts.Clear();
 
 		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_AUTOBROADCAST);
-		stmt.AddValue(0, _realm.Id.Index);
+		stmt.AddValue(0, Realm.Id.Index);
 
 		var result = _loginDatabase.Query(stmt);
 
@@ -792,7 +793,7 @@ public class WorldManager
 
 				stmt.AddValue(0, tmpDiff);
 				stmt.AddValue(1, maxOnlinePlayers);
-				stmt.AddValue(2, _realm.Id.Index);
+				stmt.AddValue(2, Realm.Id.Index);
 				stmt.AddValue(3, (uint)GameTime.GetStartTime());
 
 				_loginDatabase.Execute(stmt);
@@ -1495,24 +1496,24 @@ public class WorldManager
 
 	public bool LoadRealmInfo()
 	{
-		var result = _loginDatabase.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE id = {0}", _realm.Id.Index);
+		var result = _loginDatabase.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE id = {0}", Realm.Id.Index);
 
 		if (result.IsEmpty())
 			return false;
 
-		_realm.SetName(result.Read<string>(1));
-		_realm.ExternalAddress = System.Net.IPAddress.Parse(result.Read<string>(2));
-		_realm.LocalAddress = System.Net.IPAddress.Parse(result.Read<string>(3));
-		_realm.LocalSubnetMask = System.Net.IPAddress.Parse(result.Read<string>(4));
-		_realm.Port = result.Read<ushort>(5);
-		_realm.Type = result.Read<byte>(6);
-		_realm.Flags = (RealmFlags)result.Read<byte>(7);
-		_realm.Timezone = result.Read<byte>(8);
-		_realm.AllowedSecurityLevel = (AccountTypes)result.Read<byte>(9);
-		_realm.PopulationLevel = result.Read<float>(10);
-		_realm.Id.Region = result.Read<byte>(12);
-		_realm.Id.Site = result.Read<byte>(13);
-		_realm.Build = result.Read<uint>(11);
+		Realm.SetName(result.Read<string>(1));
+		Realm.ExternalAddress = System.Net.IPAddress.Parse(result.Read<string>(2));
+		Realm.LocalAddress = System.Net.IPAddress.Parse(result.Read<string>(3));
+		Realm.LocalSubnetMask = System.Net.IPAddress.Parse(result.Read<string>(4));
+		Realm.Port = result.Read<ushort>(5);
+		Realm.Type = result.Read<byte>(6);
+		Realm.Flags = (RealmFlags)result.Read<byte>(7);
+		Realm.Timezone = result.Read<byte>(8);
+		Realm.AllowedSecurityLevel = (AccountTypes)result.Read<byte>(9);
+		Realm.PopulationLevel = result.Read<float>(10);
+		Realm.Id.Region = result.Read<byte>(12);
+		Realm.Id.Site = result.Read<byte>(13);
+		Realm.Build = result.Read<uint>(11);
 
 		return true;
 	}
@@ -1832,7 +1833,7 @@ public class WorldManager
 			var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.REP_REALM_CHARACTERS);
 			stmt.AddValue(0, charCount);
 			stmt.AddValue(1, id);
-			stmt.AddValue(2, _realm.Id.Index);
+			stmt.AddValue(2, Realm.Id.Index);
 			_loginDatabase.DirectExecute(stmt);
 		}
 	}

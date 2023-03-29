@@ -7,7 +7,7 @@ namespace System.Collections.Generic;
 
 public sealed class ConcurrentMultiMap<TKey, TValue>
 {
-	readonly List<TValue> _emptyList = new();
+    private readonly List<TValue> _emptyList = new();
 
 	private readonly Dictionary<TKey, List<TValue>> _interalStorage = new();
 

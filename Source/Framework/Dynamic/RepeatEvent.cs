@@ -7,8 +7,8 @@ namespace Framework.Dynamic;
 
 public class RepeatEvent : BasicEvent
 {
-	readonly Func<TimeSpan> _event;
-	readonly EventSystem _eventSystem;
+    private readonly Func<TimeSpan> _event;
+    private readonly EventSystem _eventSystem;
 
 	public RepeatEvent(EventSystem eventSystem, Func<TimeSpan> func) : base()
 	{

@@ -11,11 +11,11 @@ namespace Framework.Threading;
 
 public class LimitedThreadTaskManager
 {
-	readonly AutoResetEvent _mapUpdateComplete = new(false);
-	ActionBlock<Action> _actionBlock;
-	readonly ExecutionDataflowBlockOptions _blockOptions;
-    readonly List<Action> _staged = new List<Action>();
-	CancellationTokenSource _cancellationToken;
+    private readonly AutoResetEvent _mapUpdateComplete = new(false);
+    private ActionBlock<Action> _actionBlock;
+    private readonly ExecutionDataflowBlockOptions _blockOptions;
+    private readonly List<Action> _staged = new List<Action>();
+    private CancellationTokenSource _cancellationToken;
 
 	public LimitedThreadTaskManager(int maxDegreeOfParallelism) : this(new ExecutionDataflowBlockOptions()
 	{
@@ -113,7 +113,7 @@ public class LimitedThreadTaskManager
         }
     }
 
-    void ProcessTask(Action a)
+    private void ProcessTask(Action a)
 	{
 		try
 		{

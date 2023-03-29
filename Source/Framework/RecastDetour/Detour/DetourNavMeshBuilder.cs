@@ -46,7 +46,7 @@ public static partial class Detour
     // @ingroup detour
     public const int DT_MAX_AREAS = 64;
 
-    const ushort MESH_NULL_IDX = 0xffff;
+    private const ushort MESH_NULL_IDX = 0xffff;
 
     /// Tile flags used for various functions and fields.
     /// For an example, see dtNavMesh::addTile().
@@ -72,18 +72,18 @@ public static partial class Detour
     };
 
     /// Options for dtNavMeshQuery::initSlicedFindPath and updateSlicedFindPath
-    enum dtFindPathOptions
+    private enum dtFindPathOptions
     {
         DT_FINDPATH_ANY_ANGLE = 0x02,       ///< use raycasts during pathfind to "shortcut" (raycast still consider costs)
     };
 
     /// Options for dtNavMeshQuery::raycast
-    enum dtRaycastOptions
+    private enum dtRaycastOptions
     {
         DT_RAYCAST_USE_COSTS = 0x01,        ///< Raycast should calculate movement cost along the ray and fill RaycastHit::cost
     };
 
-    enum dtDetailTriEdgeFlags
+    private enum dtDetailTriEdgeFlags
     {
         DT_DETAIL_EDGE_BOUNDARY = 0x01,     ///< Detail triangle edge is part of the poly boundary
     };
@@ -822,7 +822,7 @@ public static partial class Detour
         }
     }
 
-    static void calcExtends(BVItem[] items, int nitems, int imin, int imax, ushort[] bmin, ushort[] bmax)
+    private static void calcExtends(BVItem[] items, int nitems, int imin, int imax, ushort[] bmin, ushort[] bmax)
     {
         bmin[0] = items[imin].bmin[0];
         bmin[1] = items[imin].bmin[1];

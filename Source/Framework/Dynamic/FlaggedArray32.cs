@@ -7,8 +7,8 @@ namespace Framework.Dynamic;
 
 public class FlaggedArray32<T> where T : struct
 {
-	readonly int[] m_values;
-	uint m_flags;
+    private readonly int[] m_values;
+    private uint m_flags;
 
 	public FlaggedArray32(byte arraysize)
 	{

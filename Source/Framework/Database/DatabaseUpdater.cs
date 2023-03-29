@@ -15,7 +15,7 @@ namespace Framework.Database;
 
 public class DatabaseUpdater<T>
 {
-	readonly MySqlBase<T> _database;
+    private readonly MySqlBase<T> _database;
     private readonly IConfiguration _configuration;
 
     public DatabaseUpdater(MySqlBase<T> database, IConfiguration configuration)
@@ -259,12 +259,12 @@ public class DatabaseUpdater<T>
 		return true;
 	}
 
-	string GetSourceDirectory()
+    private string GetSourceDirectory()
 	{
 		return _configuration.GetDefaultValue("Updates.SourcePath", "../../../");
 	}
 
-	uint ApplyTimedFile(string path)
+    private uint ApplyTimedFile(string path)
 	{
 		// Benchmark query speed
 		var oldMSTime = Time.MSTime;
@@ -276,17 +276,17 @@ public class DatabaseUpdater<T>
 		return Time.GetMSTimeDiffToNow(oldMSTime);
 	}
 
-	void ApplyFile(string path)
+    private void ApplyFile(string path)
 	{
 		_database.ApplyFile(path);
 	}
 
-	void Apply(string query)
+    private void Apply(string query)
 	{
 		_database.Execute(query);
 	}
 
-	void UpdateEntry(AppliedFileEntry entry, uint speed)
+    private void UpdateEntry(AppliedFileEntry entry, uint speed)
 	{
 		var update = $"REPLACE INTO `updates` (`name`, `hash`, `state`, `speed`) VALUES (\"{entry.Name}\", \"{entry.Hash}\", \'{entry.State}\', {speed})";
 
@@ -294,7 +294,7 @@ public class DatabaseUpdater<T>
 		Apply(update);
 	}
 
-	void RenameEntry(string from, string to)
+    private void RenameEntry(string from, string to)
 	{
 		// Delete target if it exists
 		{
@@ -313,7 +313,7 @@ public class DatabaseUpdater<T>
 		}
 	}
 
-	void CleanUp(Dictionary<string, AppliedFileEntry> storage)
+    private void CleanUp(Dictionary<string, AppliedFileEntry> storage)
 	{
 		if (storage.Empty())
 			return;
@@ -335,7 +335,7 @@ public class DatabaseUpdater<T>
 		Apply(update);
 	}
 
-	void UpdateState(string name, State state)
+    private void UpdateState(string name, State state)
 	{
 		var update = $"UPDATE `updates` SET `state`=\'{state}\' WHERE `name`=\"{name}\"";
 
@@ -343,7 +343,7 @@ public class DatabaseUpdater<T>
 		Apply(update);
 	}
 
-	List<FileEntry> GetFileList()
+    private List<FileEntry> GetFileList()
 	{
 		List<FileEntry> fileList = new();
 
@@ -384,7 +384,7 @@ public class DatabaseUpdater<T>
 		return fileList;
 	}
 
-	Dictionary<string, AppliedFileEntry> ReceiveAppliedFiles()
+    private Dictionary<string, AppliedFileEntry> ReceiveAppliedFiles()
 	{
 		Dictionary<string, AppliedFileEntry> map = new();
 
@@ -402,7 +402,7 @@ public class DatabaseUpdater<T>
 		return map;
 	}
 
-	IEnumerable<FileEntry> GetFilesFromDirectory(string directory, State state)
+    private IEnumerable<FileEntry> GetFilesFromDirectory(string directory, State state)
 	{
 		Queue<string> queue = new();
 		queue.Enqueue(directory);
@@ -428,7 +428,7 @@ public class DatabaseUpdater<T>
 		}
 	}
 
-	string CalculateHash(string fileName)
+    private string CalculateHash(string fileName)
 	{
 		using (var sha1 = SHA1.Create())
 		{

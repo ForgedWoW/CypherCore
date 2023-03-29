@@ -3,7 +3,7 @@
 
 namespace Framework.Database;
 
-enum UpdateMode
+internal enum UpdateMode
 {
 	Apply,
 	Rehash

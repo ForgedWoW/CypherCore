@@ -13,7 +13,7 @@ public class ManyToOneLookup<TKey, TValue>
 	private readonly Dictionary<ulong, TValue> _valuesMap = new();
 	private readonly MultiMap<TKey, ulong> _keys;
 	private readonly MultiMap<ulong, TKey> _keysMap = new();
-	ulong _index;
+    private ulong _index;
 
 	public IEnumerable<TValue> Values
 	{

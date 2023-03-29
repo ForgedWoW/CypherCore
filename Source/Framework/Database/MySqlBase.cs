@@ -15,12 +15,12 @@ namespace Framework.Database;
 public abstract class MySqlBase<T>
 {
     private readonly IConfiguration _configuration;
-    readonly Dictionary<T, string> _preparedQueries = new();
+    private readonly Dictionary<T, string> _preparedQueries = new();
 
-	MySqlConnectionInfo _connectionInfo;
-	DatabaseUpdater<T> _updater;
-	DatabaseWorker<T> _worker;
-	DBVersion version;
+    private MySqlConnectionInfo _connectionInfo;
+    private DatabaseUpdater<T> _updater;
+    private DatabaseWorker<T> _worker;
+    private DBVersion version;
 
 	public MySqlBase(IConfiguration configuration)
     {
@@ -375,7 +375,7 @@ public abstract class MySqlBase<T>
 
 	public abstract void PreparedStatements();
 
-	MySqlErrorCode HandleMySQLException(MySqlException ex, string query = "", Dictionary<int, object> parameters = null)
+    private MySqlErrorCode HandleMySQLException(MySqlException ex, string query = "", Dictionary<int, object> parameters = null)
 	{
 		var code = (MySqlErrorCode)ex.Number;
 

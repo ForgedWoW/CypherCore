@@ -11,7 +11,7 @@ namespace Framework.Database;
 
 public static class DBExecutableUtil
 {
-	static string _mysqlExecutablePath;
+    private static string _mysqlExecutablePath;
 
 	public static string GetMySQLExecutable()
 	{

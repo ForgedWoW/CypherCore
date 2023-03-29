@@ -7,7 +7,7 @@ namespace System.Collections.Generic;
 
 public sealed class MultiMap<TKey, TValue>
 {
-	static readonly List<object> _emptyList = new();
+    private static readonly List<object> _emptyList = new();
 
 	private readonly Dictionary<TKey, List<TValue>> _interalStorage = new();
 

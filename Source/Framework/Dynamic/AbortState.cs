@@ -3,7 +3,7 @@
 
 namespace Framework.Dynamic;
 
-enum AbortState
+internal enum AbortState
 {
 	Running,
 	Scheduled,

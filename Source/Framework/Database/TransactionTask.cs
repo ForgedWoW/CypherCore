@@ -9,7 +9,7 @@ public class TransactionTask : ISqlOperation
 {
 	public static object _deadlockLock = new();
 
-	readonly SQLTransaction m_trans;
+    private readonly SQLTransaction m_trans;
 
 	public TransactionTask(SQLTransaction trans)
 	{

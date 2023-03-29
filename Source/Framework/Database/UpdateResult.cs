@@ -3,7 +3,7 @@
 
 namespace Framework.Database;
 
-struct UpdateResult
+internal struct UpdateResult
 {
 	public int updated;
 	public int recent;

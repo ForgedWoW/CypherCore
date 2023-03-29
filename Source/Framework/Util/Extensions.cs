@@ -303,7 +303,7 @@ public static class Extensions
 		return array.Contains(item);
 	}
 
-	static uint LeftRotate(this uint value, int shiftCount)
+    private static uint LeftRotate(this uint value, int shiftCount)
 	{
 		return (value << shiftCount) | (value >> (0x20 - shiftCount));
 	}

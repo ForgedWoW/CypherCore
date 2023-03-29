@@ -456,7 +456,7 @@ public static class MathFunctions
 							elt.M31 * v.GetAt(0) + elt.M32 * v.GetAt(1) + elt.M33 * v.GetAt(2));
 	}
 
-	static double eps(double a, double b)
+    private static double eps(double a, double b)
 	{
 		var aa = Math.Abs(a) + 1.0f;
 
@@ -467,7 +467,7 @@ public static class MathFunctions
 	}
 
 
-	static double eps(float a, float b)
+    private static double eps(float a, float b)
 	{
 		var aa = Math.Abs(a) + 1.0f;
 

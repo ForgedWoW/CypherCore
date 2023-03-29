@@ -9,10 +9,10 @@ namespace Framework.Dynamic;
 public class TaskContext
 {
 	// Associated task
-	readonly TaskSchedulerTask _task;
+    private readonly TaskSchedulerTask _task;
 
 	// Owner
-	readonly TaskScheduler _owner;
+    private readonly TaskScheduler _owner;
 
 
 	public TaskContext(TaskSchedulerTask task, TaskScheduler owner)
@@ -287,21 +287,21 @@ public class TaskContext
 	/// </summary>
 	/// <param name="apply"> </param>
 	/// <returns> </returns>
-	TaskContext Dispatch(Action apply)
+    private TaskContext Dispatch(Action apply)
 	{
 		apply();
 
 		return this;
 	}
 
-	TaskContext Dispatch(Func<TaskScheduler, TaskScheduler> apply)
+    private TaskContext Dispatch(Func<TaskScheduler, TaskScheduler> apply)
 	{
 		apply(_owner);
 
 		return this;
 	}
 
-	bool IsExpired()
+    private bool IsExpired()
 	{
 		return _owner == null;
 	}
@@ -311,7 +311,7 @@ public class TaskContext
 	/// </summary>
 	/// <param name="group"> </param>
 	/// <returns> </returns>
-	bool IsInGroup(uint group)
+    private bool IsInGroup(uint group)
 	{
 		return _task.IsInGroup(group);
 	}
@@ -321,7 +321,7 @@ public class TaskContext
 	/// </summary>
 	/// <param name="group"> </param>
 	/// <returns> </returns>
-	TaskContext SetGroup(uint group)
+    private TaskContext SetGroup(uint group)
 	{
 		_task._group = group;
 
@@ -332,7 +332,7 @@ public class TaskContext
 	///  Removes the group from the event
 	/// </summary>
 	/// <returns> </returns>
-	TaskContext ClearGroup()
+    private TaskContext ClearGroup()
 	{
 		_task._group = null;
 
@@ -345,7 +345,7 @@ public class TaskContext
 	/// </summary>
 	/// <param name="callable"> </param>
 	/// <returns> </returns>
-	TaskContext Async(Action callable)
+    private TaskContext Async(Action callable)
 	{
 		return Dispatch(() => _owner.Async(callable));
 	}
@@ -353,7 +353,7 @@ public class TaskContext
 	/// <summary>
 	///  Asserts if the task was consumed already.
 	/// </summary>
-	void AssertOnConsumed()
+    private void AssertOnConsumed()
 	{
 		// This was adapted to TC to prevent static analysis tools from complaining.
 		// If you encounter this assertion check if you repeat a TaskContext more then 1 time!

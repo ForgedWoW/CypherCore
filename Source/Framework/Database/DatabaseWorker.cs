@@ -9,12 +9,12 @@ using Serilog;
 
 namespace Framework.Database;
 
-class DatabaseWorker<T>
+internal class DatabaseWorker<T>
 {
-	readonly bool _cancelationToken;
-	readonly AutoResetEvent _resetEvent = new(false);
-	readonly ConcurrentQueue<(ISqlOperation, Action<bool>)> _queue = new();
-	readonly MySqlBase<T> _mySqlBase;
+    private readonly bool _cancelationToken;
+    private readonly AutoResetEvent _resetEvent = new(false);
+    private readonly ConcurrentQueue<(ISqlOperation, Action<bool>)> _queue = new();
+    private readonly MySqlBase<T> _mySqlBase;
 
 	public DatabaseWorker(MySqlBase<T> mySqlBase)
 	{
@@ -29,7 +29,7 @@ class DatabaseWorker<T>
 		_resetEvent.Set();
 	}
 
-	void WorkerThread()
+    private void WorkerThread()
 	{
 		if (_queue == null)
 			return;

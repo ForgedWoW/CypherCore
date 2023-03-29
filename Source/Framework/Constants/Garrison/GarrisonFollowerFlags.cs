@@ -3,7 +3,7 @@
 
 namespace Framework.Constants;
 
-enum GarrisonFollowerFlags
+internal enum GarrisonFollowerFlags
 {
 	Unique = 0x1
 }

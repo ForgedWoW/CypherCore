@@ -7,7 +7,7 @@ namespace Framework.Dynamic;
 
 public class LambdaBasicEvent : BasicEvent
 {
-	readonly Action _callback;
+    private readonly Action _callback;
 
 	public LambdaBasicEvent(Action callback) : base()
 	{

@@ -6,7 +6,7 @@ using System.Numerics;
 
 namespace Framework.GameMath;
 
-class CollisionDetection
+internal class CollisionDetection
 {
 	public static float collisionTimeForMovingPointFixedAABox(Vector3 origin, Vector3 dir, AxisAlignedBox box, ref Vector3 location, out bool Inside)
 	{

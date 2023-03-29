@@ -7,7 +7,7 @@ namespace System.Collections.Generic;
 
 public class MultiMapHashSet<TKey, TValue>
 {
-	static readonly HashSet<object> _emptyList = new();
+    private static readonly HashSet<object> _emptyList = new();
 
 	private readonly Dictionary<TKey, HashSet<TValue>> _interalStorage = new();
 

@@ -10,9 +10,9 @@ namespace Framework.Cryptography
 {
     public class SRP6
     {
-        static readonly SHA1 _sha1;
-        static readonly BigInteger _g;
-        static readonly BigInteger _N;
+        private static readonly SHA1 _sha1;
+        private static readonly BigInteger _g;
+        private static readonly BigInteger _N;
 
         static SRP6()
         {

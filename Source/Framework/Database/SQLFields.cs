@@ -7,7 +7,7 @@ namespace Framework.Database;
 
 public class SQLFields
 {
-	readonly object[] _currentRow;
+    private readonly object[] _currentRow;
 
 	public SQLFields(object[] row)
 	{

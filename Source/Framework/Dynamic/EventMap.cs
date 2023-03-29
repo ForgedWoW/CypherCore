@@ -18,7 +18,7 @@ public class EventMap
 	///  - Bit 24 - 31: Phase
 	///  - Pattern: 0xPPGGEEEE
 	/// </summary>
-	readonly MultiMap<TimeSpan, uint> _eventMap = new();
+    private readonly MultiMap<TimeSpan, uint> _eventMap = new();
 
 	/// <summary>
 	///  Internal timer.
@@ -27,7 +27,7 @@ public class EventMap
 	///  it can be resetted and so on. Events occur when this timer
 	///  has reached their time value. Its value is changed in the Update method.
 	/// </summary>
-	TimeSpan _time;
+    private TimeSpan _time;
 
 	/// <summary>
 	///  Phase mask of the event map.
@@ -35,12 +35,12 @@ public class EventMap
 	///  phases from 1 to 8 can be set with SetPhase or
 	///  AddPhase. RemovePhase deactives a phase.
 	/// </summary>
-	byte _phase;
+    private byte _phase;
 
 	/// <summary>
 	///  Stores information on the most recently executed event
 	/// </summary>
-	uint _lastEvent;
+    private uint _lastEvent;
 
 	/// <summary>
 	///  Removes all scheduled events and resets time and phase.
@@ -283,7 +283,7 @@ public class EventMap
 	///  Updates the timer of the event map.
 	/// </summary>
 	/// <param name="time"> Value in ms to be added to time. </param>
-	void Update(TimeSpan time)
+    private void Update(TimeSpan time)
 	{
 		_time += time;
 	}
@@ -291,7 +291,7 @@ public class EventMap
 	/// <summary>
 	/// </summary>
 	/// <returns> Active phases as mask. </returns>
-	byte GetPhaseMask()
+    private byte GetPhaseMask()
 	{
 		return _phase;
 	}
@@ -300,7 +300,7 @@ public class EventMap
 	///  Activates the given phase (bitwise).
 	/// </summary>
 	/// <param name="phase"> Phase which should be activated. Values: 1 - 8 </param>
-	void AddPhase(byte phase)
+    private void AddPhase(byte phase)
 	{
 		if (phase != 0 && phase <= 8)
 			_phase |= (byte)(1 << (phase - 1));
@@ -310,7 +310,7 @@ public class EventMap
 	///  Deactivates the given phase (bitwise).
 	/// </summary>
 	/// <param name="phase"> Phase which should be deactivated. Values: 1 - 8. </param>
-	void RemovePhase(byte phase)
+    private void RemovePhase(byte phase)
 	{
 		if (phase != 0 && phase <= 8)
 			_phase &= (byte)~(1 << (phase - 1));

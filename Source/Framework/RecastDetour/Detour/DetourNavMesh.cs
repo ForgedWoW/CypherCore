@@ -745,7 +745,7 @@ public static partial class Detour
             }
         }
 
-        void closestPointOnDetailEdges(bool onlyBoundary, dtMeshTile tile, dtPoly poly, float[] pos, float[] closest)
+        private void closestPointOnDetailEdges(bool onlyBoundary, dtMeshTile tile, dtPoly poly, float[] pos, float[] closest)
         {
             int ip = Array.IndexOf(tile.polys, poly);
             dtPolyDetail pd = tile.detailMeshes[ip];

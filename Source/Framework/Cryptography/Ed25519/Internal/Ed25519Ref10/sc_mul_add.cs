@@ -5,7 +5,7 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 {
     internal static partial class ScalarOperations
     {
-        static long load_3(byte[] input, int offset)
+        private static long load_3(byte[] input, int offset)
         {
             long result;
             result = (long)input[offset + 0];
@@ -14,7 +14,7 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
             return result;
         }
 
-        static long load_4(byte[] input, int offset)
+        private static long load_4(byte[] input, int offset)
         {
             long result;
             result = (long)input[offset + 0];

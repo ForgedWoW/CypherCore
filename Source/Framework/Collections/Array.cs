@@ -7,7 +7,7 @@ namespace System.Collections.Generic;
 
 public class Array<T> : List<T>
 {
-	readonly int _limit;
+    private readonly int _limit;
 
 	public new T this[int index]
 	{

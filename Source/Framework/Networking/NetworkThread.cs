@@ -11,12 +11,12 @@ namespace Framework.Networking;
 
 public class NetworkThread<TSocketType> where TSocketType : ISocket
 {
-	readonly List<TSocketType> _sockets = new();
-	readonly List<TSocketType> _newSockets = new();
-	int _connections;
-	volatile bool _stopped;
+    private readonly List<TSocketType> _sockets = new();
+    private readonly List<TSocketType> _newSockets = new();
+    private int _connections;
+    private volatile bool _stopped;
 
-	Task _thread;
+    private Task _thread;
 
 	public void Stop()
 	{
@@ -52,7 +52,7 @@ public class NetworkThread<TSocketType> where TSocketType : ISocket
 		SocketAdded(sock);
 	}
 
-	void AddNewSockets()
+    private void AddNewSockets()
 	{
 		lock (_newSockets)
 		{
@@ -75,7 +75,7 @@ public class NetworkThread<TSocketType> where TSocketType : ISocket
 		}
 	}
 
-	void Run()
+    private void Run()
 	{
 		Log.Logger.Debug("Network Thread Starting");
 

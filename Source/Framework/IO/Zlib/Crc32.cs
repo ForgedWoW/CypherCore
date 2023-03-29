@@ -283,7 +283,7 @@ namespace Framework.IO
 
 		// =========================================================================
 
-		static uint gf2_matrix_times(uint[] mat, uint vec)
+        private static uint gf2_matrix_times(uint[] mat, uint vec)
 		{
 			uint sum=0;
 			int ind=0;
@@ -298,7 +298,7 @@ namespace Framework.IO
 
 		// =========================================================================
 
-		static void gf2_matrix_square(uint[] square, uint[] mat)
+        private static void gf2_matrix_square(uint[] square, uint[] mat)
 		{
 			for(int n=0; n<GF2_DIM; n++) square[n]=gf2_matrix_times(mat, mat[n]);
 		}

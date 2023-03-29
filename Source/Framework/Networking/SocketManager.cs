@@ -10,8 +10,8 @@ namespace Framework.Networking;
 public class SocketManager<TSocketType> where TSocketType : ISocket
 {
 	public AsyncAcceptor Acceptor;
-	NetworkThread<TSocketType>[] _threads;
-	int _threadCount;
+    private NetworkThread<TSocketType>[] _threads;
+    private int _threadCount;
 
 	public virtual bool StartNetwork(string bindIp, int port, int threadCount = 1)
 	{
@@ -73,14 +73,14 @@ public class SocketManager<TSocketType> where TSocketType : ISocket
 		}
 	}
 
-	void Wait()
+    private void Wait()
 	{
 		if (_threadCount != 0)
 			for (var i = 0; i < _threadCount; ++i)
 				_threads[i].Wait();
 	}
 
-	uint SelectThreadWithMinConnections()
+    private uint SelectThreadWithMinConnections()
 	{
 		uint min = 0;
 

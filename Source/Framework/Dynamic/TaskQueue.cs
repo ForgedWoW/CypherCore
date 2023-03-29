@@ -7,9 +7,9 @@ using System.Linq;
 
 namespace Framework.Dynamic;
 
-class TaskQueue
+internal class TaskQueue
 {
-	readonly SortedSet<TaskSchedulerTask> container = new();
+    private readonly SortedSet<TaskSchedulerTask> container = new();
 
 	/// <summary>
 	///  Pushes the task in the container

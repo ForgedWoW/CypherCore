@@ -12,10 +12,10 @@ public abstract class SocketBase : ISocket, IDisposable
 {
 	public delegate void SocketReadCallback(SocketAsyncEventArgs args);
 
-	readonly Socket _socket;
-	readonly IPEndPoint _remoteIpEndPoint;
-	readonly SocketAsyncEventArgs _receiveSocketAsyncEventArgsWithCallback;
-	readonly SocketAsyncEventArgs _receiveSocketAsyncEventArgs;
+    private readonly Socket _socket;
+    private readonly IPEndPoint _remoteIpEndPoint;
+    private readonly SocketAsyncEventArgs _receiveSocketAsyncEventArgsWithCallback;
+    private readonly SocketAsyncEventArgs _receiveSocketAsyncEventArgs;
 
 	protected SocketBase(Socket socket)
 	{
@@ -27,7 +27,7 @@ public abstract class SocketBase : ISocket, IDisposable
 
 		_receiveSocketAsyncEventArgs = new SocketAsyncEventArgs();
 		_receiveSocketAsyncEventArgs.SetBuffer(new byte[0x4000], 0, 0x4000);
-		_receiveSocketAsyncEventArgs.Completed += (sender, args) => ProcessReadAsync(args);
+		_receiveSocketAsyncEventArgs.Completed += (_, args) => ProcessReadAsync(args);
 	}
 
 	public virtual void Dispose()
@@ -44,7 +44,7 @@ public abstract class SocketBase : ISocket, IDisposable
 
 	public void CloseSocket()
 	{
-		if (_socket == null || !_socket.Connected)
+		if (_socket is not { Connected: true })
 			return;
 
 		try
@@ -75,7 +75,7 @@ public abstract class SocketBase : ISocket, IDisposable
 		if (!IsOpen())
 			return;
 
-		_receiveSocketAsyncEventArgsWithCallback.Completed += (sender, args) => callback(args);
+		_receiveSocketAsyncEventArgsWithCallback.Completed += (_, args) => callback(args);
 		_receiveSocketAsyncEventArgsWithCallback.SetBuffer(0, 0x4000);
 
 		if (!_socket.ReceiveAsync(_receiveSocketAsyncEventArgsWithCallback))
@@ -113,7 +113,7 @@ public abstract class SocketBase : ISocket, IDisposable
 		_socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, enable);
 	}
 
-	void ProcessReadAsync(SocketAsyncEventArgs args)
+    private void ProcessReadAsync(SocketAsyncEventArgs args)
 	{
 		if (args.SocketError != SocketError.Success)
 		{

@@ -8,7 +8,7 @@ namespace Framework.Collections;
 
 public class StringArray
 {
-	string[] _str;
+    private string[] _str;
 
 	public string this[int index]
 	{

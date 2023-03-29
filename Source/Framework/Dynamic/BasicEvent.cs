@@ -8,7 +8,7 @@ public class BasicEvent
 	public ulong m_addTime;   // time when the event was added to queue, filled by event handler
 	public double m_execTime; // planned time of next execution, filled by event handler
 
-	AbortState m_abortState; // set by externals when the event is aborted, aborted events don't execute
+    private AbortState m_abortState; // set by externals when the event is aborted, aborted events don't execute
 
 	public virtual bool IsDeletable => true;
 

@@ -48,7 +48,7 @@ namespace Framework.Cryptography
             Digest = sha.Hash;
         }
 
-        readonly SHA256 sha;
+        private readonly SHA256 sha;
         public byte[] Digest { get; private set; }
     }
 

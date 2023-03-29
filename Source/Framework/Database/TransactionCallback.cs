@@ -7,8 +7,8 @@ namespace Framework.Database;
 
 public class TransactionCallback : ISqlCallback
 {
-	readonly TransactionWithResultTask m_future;
-	Action<bool> _callback;
+    private readonly TransactionWithResultTask m_future;
+    private Action<bool> _callback;
 
 	public TransactionCallback(TransactionWithResultTask future)
 	{

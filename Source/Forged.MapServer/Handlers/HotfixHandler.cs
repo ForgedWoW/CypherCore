@@ -50,10 +50,6 @@ public class HotfixHandler : IWorldSessionHandler
 		}
 	}
 
-    private void SendAvailableHotfixes()
-	{
-		SendPacket(new AvailableHotfixes(Global.WorldMgr.RealmId.GetAddress(), Global.DB2Mgr.GetHotfixData()));
-	}
 
 	[WorldPacketHandler(ClientOpcodes.HotfixRequest, Status = SessionStatus.Authed)]
     private void HandleHotfixRequest(HotfixRequest hotfixQuery)

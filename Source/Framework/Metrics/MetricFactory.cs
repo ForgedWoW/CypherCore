@@ -10,7 +10,7 @@ public class MetricFactory
 	private readonly uint _logEvery;
 	private readonly bool _recordlessThanOnems;
 
-	readonly Dictionary<string, MeteredMetric> _meteredMetrics = new();
+    private readonly Dictionary<string, MeteredMetric> _meteredMetrics = new();
 
 	public MetricFactory(uint logEvery, bool recordlessThanOnems)
 	{

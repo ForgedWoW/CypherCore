@@ -8,11 +8,11 @@ namespace Framework.Database;
 
 public class QueryCallback : ISqlCallback
 {
-	readonly PreparedStatementTask _awaitingTask;
-	readonly ConcurrentQueue<Action<QueryCallback, SQLResult>> _callbacks = new();
-	readonly Action<ISqlOperation, Action<bool>> _queueAction;
+    private readonly PreparedStatementTask _awaitingTask;
+    private readonly ConcurrentQueue<Action<QueryCallback, SQLResult>> _callbacks = new();
+    private readonly Action<ISqlOperation, Action<bool>> _queueAction;
 
-	QueryCallback _next;
+    private QueryCallback _next;
 
 	public QueryCallback(PreparedStatementTask task, Action<ISqlOperation, Action<bool>> queueAction)
 	{

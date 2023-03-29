@@ -333,7 +333,7 @@ public static class Time
 
 public class TimeTracker
 {
-	TimeSpan _expiryTime;
+    private TimeSpan _expiryTime;
 
 	public bool Passed => _expiryTime <= TimeSpan.Zero;
 
@@ -372,8 +372,8 @@ public class TimeTracker
 
 public class IntervalTimer
 {
-	long _interval;
-	long _current;
+    private long _interval;
+    private long _current;
 
 	public bool Passed => _current >= _interval;
 
@@ -406,8 +406,8 @@ public class IntervalTimer
 
 public class PeriodicTimer
 {
-	int _period;
-	int _expireTime;
+    private int _period;
+    private int _expireTime;
 
 	public PeriodicTimer(int period, int start_time)
 	{

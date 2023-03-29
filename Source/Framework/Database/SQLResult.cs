@@ -9,7 +9,7 @@ namespace Framework.Database;
 
 public class SQLResult
 {
-	MySqlDataReader _reader;
+    private MySqlDataReader _reader;
 
 	public MySqlDataReader Reader
 	{

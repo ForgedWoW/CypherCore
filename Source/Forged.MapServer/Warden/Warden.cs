@@ -10,7 +10,6 @@ using Framework.Constants;
 using Framework.Cryptography;
 using Framework.IO;
 using Serilog;
-using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.Warden;
 

@@ -3,7 +3,7 @@
 
 namespace Framework.Constants;
 
-enum EquipableSpellSlots
+internal enum EquipableSpellSlots
 {
 	OffensiveSlot1 = 211,
 	OffensiveSlot2 = 212,

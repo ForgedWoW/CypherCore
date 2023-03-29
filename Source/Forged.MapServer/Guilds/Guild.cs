@@ -21,7 +21,6 @@ using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
 using Serilog;
-using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.Guilds;
 

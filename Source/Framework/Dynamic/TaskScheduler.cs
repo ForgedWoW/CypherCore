@@ -16,16 +16,16 @@ public class TaskScheduler
 	public delegate void success_t();
 
 	// The Task Queue which contains all task objects.
-	readonly TaskQueue _task_holder;
+    private readonly TaskQueue _task_holder;
 
 	// Contains all asynchronous tasks which will be invoked at
 	// the next update tick.
-	readonly List<Action> _asyncHolder;
+    private readonly List<Action> _asyncHolder;
 
 	// The current time point (now)
-	DateTime _now;
+    private DateTime _now;
 
-	predicate_t _predicate;
+    private predicate_t _predicate;
 
 	public TaskScheduler()
 	{
@@ -326,7 +326,7 @@ public class TaskScheduler
 	///  Clears the validator which is asked if tasks are allowed to be executed.
 	/// </summary>
 	/// <returns> </returns>
-	TaskScheduler ClearValidator()
+    private TaskScheduler ClearValidator()
 	{
 		_predicate = EmptyValidator;
 
@@ -340,7 +340,7 @@ public class TaskScheduler
 	/// <param name="difftime"> </param>
 	/// <param name="callback"> </param>
 	/// <returns> </returns>
-	TaskScheduler Update(TimeSpan difftime, success_t callback = null)
+    private TaskScheduler Update(TimeSpan difftime, success_t callback = null)
 	{
 		_now += difftime;
 		Dispatch(callback);
@@ -348,7 +348,7 @@ public class TaskScheduler
 		return this;
 	}
 
-	void Dispatch(success_t callback = null)
+    private void Dispatch(success_t callback = null)
 	{
 		// If the validation failed abort the dispatching here.
 		if (!_predicate())
@@ -385,7 +385,7 @@ public class TaskScheduler
 		callback?.Invoke();
 	}
 
-	static bool EmptyValidator()
+    private static bool EmptyValidator()
 	{
 		return true;
 	}

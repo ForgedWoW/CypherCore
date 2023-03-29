@@ -10,8 +10,8 @@ namespace Framework.Networking;
 
 public class AsyncAcceptor
 {
-	TcpListener _listener;
-	volatile bool _closed;
+    private TcpListener _listener;
+    private volatile bool _closed;
 
 	public bool Start(string ip, int port)
 	{

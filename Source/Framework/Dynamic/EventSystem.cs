@@ -9,10 +9,10 @@ namespace Framework.Dynamic;
 
 public class EventSystem
 {
-	readonly List<double> _removeKeys = new();
-	readonly SortedDictionary<double, List<BasicEvent>> m_events = new();
+    private readonly List<double> _removeKeys = new();
+    private readonly SortedDictionary<double, List<BasicEvent>> m_events = new();
 
-	ulong m_time;
+    private ulong m_time;
 
 	public EventSystem()
 	{

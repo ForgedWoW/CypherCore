@@ -69,7 +69,7 @@ public class Box
 		return float.IsFinite(_volume);
 	}
 
-	Vector3 Corner(int i)
+    private Vector3 Corner(int i)
 	{
 		switch (i)
 		{
