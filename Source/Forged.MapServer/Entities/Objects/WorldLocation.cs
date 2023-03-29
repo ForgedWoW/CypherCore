@@ -9,7 +9,6 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
-using Forged.MapServer.Guilds;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
@@ -18,7 +17,6 @@ using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Serilog;
-using static Forged.MapServer.Globals.ScriptNameContainer;
 
 namespace Forged.MapServer.Entities.Objects
 {
