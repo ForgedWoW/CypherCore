@@ -11,7 +11,7 @@ class EventCommands
 	[Command("info", RBACPermissions.CommandEventInfo, true)]
 	static bool HandleEventInfoCommand(CommandHandler handler, ushort eventId)
 	{
-		var events = Global.GameEventMgr.GetEventMap();
+		var events = _gameEventManager.GetEventMap();
 
 		if (eventId >= events.Length)
 		{
@@ -29,14 +29,14 @@ class EventCommands
 			return false;
 		}
 
-		var activeEvents = Global.GameEventMgr.GetActiveEventList();
+		var activeEvents = _gameEventManager.GetActiveEventList();
 		var active = activeEvents.Contains(eventId);
 		var activeStr = active ? Global.ObjectMgr.GetCypherString(CypherStrings.Active) : "";
 
 		var startTimeStr = Time.UnixTimeToDateTime(eventData.start).ToLongDateString();
 		var endTimeStr = Time.UnixTimeToDateTime(eventData.end).ToLongDateString();
 
-		var delay = Global.GameEventMgr.NextCheck(eventId);
+		var delay = _gameEventManager.NextCheck(eventId);
 		var nextTime = _gameTime.GetGameTime + delay;
 		var nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Time.UnixTimeToDateTime(_gameTime.GetGameTime + delay).ToShortTimeString() : "-";
 
@@ -61,8 +61,8 @@ class EventCommands
 	{
 		uint counter = 0;
 
-		var events = Global.GameEventMgr.GetEventMap();
-		var activeEvents = Global.GameEventMgr.GetActiveEventList();
+		var events = _gameEventManager.GetEventMap();
+		var activeEvents = _gameEventManager.GetActiveEventList();
 
 		var active = Global.ObjectMgr.GetCypherString(CypherStrings.Active);
 
@@ -87,7 +87,7 @@ class EventCommands
 	[Command("start", RBACPermissions.CommandEventStart, true)]
 	static bool HandleEventStartCommand(CommandHandler handler, ushort eventId)
 	{
-		var events = Global.GameEventMgr.GetEventMap();
+		var events = _gameEventManager.GetEventMap();
 
 		if (eventId < 1 || eventId >= events.Length)
 		{
@@ -105,7 +105,7 @@ class EventCommands
 			return false;
 		}
 
-		var activeEvents = Global.GameEventMgr.GetActiveEventList();
+		var activeEvents = _gameEventManager.GetActiveEventList();
 
 		if (activeEvents.Contains(eventId))
 		{
@@ -114,7 +114,7 @@ class EventCommands
 			return false;
 		}
 
-		Global.GameEventMgr.StartEvent(eventId, true);
+		_gameEventManager.StartEvent(eventId, true);
 
 		return true;
 	}
@@ -122,7 +122,7 @@ class EventCommands
 	[Command("stop", RBACPermissions.CommandEventStop, true)]
 	static bool HandleEventStopCommand(CommandHandler handler, ushort eventId)
 	{
-		var events = Global.GameEventMgr.GetEventMap();
+		var events = _gameEventManager.GetEventMap();
 
 		if (eventId < 1 || eventId >= events.Length)
 		{
@@ -140,7 +140,7 @@ class EventCommands
 			return false;
 		}
 
-		var activeEvents = Global.GameEventMgr.GetActiveEventList();
+		var activeEvents = _gameEventManager.GetActiveEventList();
 
 		if (!activeEvents.Contains(eventId))
 		{
@@ -149,7 +149,7 @@ class EventCommands
 			return false;
 		}
 
-		Global.GameEventMgr.StopEvent(eventId, true);
+		_gameEventManager.StopEvent(eventId, true);
 
 		return true;
 	}

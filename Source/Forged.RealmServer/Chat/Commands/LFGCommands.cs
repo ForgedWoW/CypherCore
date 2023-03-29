@@ -58,7 +58,7 @@ class LFGCommands
 			var resultGroup = _characterDatabase.Query(stmt);
 
 			if (!resultGroup.IsEmpty())
-				groupTarget = Global.GroupMgr.GetGroupByDbStoreId(resultGroup.Read<uint>(0));
+				groupTarget = _groupManager.GetGroupByDbStoreId(resultGroup.Read<uint>(0));
 		}
 
 		if (!groupTarget)
@@ -69,7 +69,7 @@ class LFGCommands
 		}
 
 		var guid = groupTarget.GUID;
-		handler.SendSysMessage(CypherStrings.LfgGroupInfo, groupTarget.IsLFGGroup, Global.LFGMgr.GetState(guid), Global.LFGMgr.GetDungeon(guid));
+		handler.SendSysMessage(CypherStrings.LfgGroupInfo, groupTarget.IsLFGGroup, _lFGManager.GetState(guid), _lFGManager.GetDungeon(guid));
 
 		foreach (var slot in groupTarget.MemberSlots)
 		{
@@ -89,11 +89,11 @@ class LFGCommands
 	{
 		if (optionsArg.HasValue)
 		{
-			Global.LFGMgr.SetOptions((LfgOptions)optionsArg.Value);
+			_lFGManager.SetOptions((LfgOptions)optionsArg.Value);
 			handler.SendSysMessage(CypherStrings.LfgOptionsChanged);
 		}
 
-		handler.SendSysMessage(CypherStrings.LfgOptions, Global.LFGMgr.GetOptions());
+		handler.SendSysMessage(CypherStrings.LfgOptions, _lFGManager.GetOptions());
 
 		return true;
 	}
@@ -101,7 +101,7 @@ class LFGCommands
 	[Command("queue", RBACPermissions.CommandLfgQueue, true)]
 	static bool HandleLfgQueueInfoCommand(CommandHandler handler, string full)
 	{
-		handler.SendSysMessage(Global.LFGMgr.DumpQueueInfo(!full.IsEmpty()));
+		handler.SendSysMessage(_lFGManager.DumpQueueInfo(!full.IsEmpty()));
 
 		return true;
 	}
@@ -110,7 +110,7 @@ class LFGCommands
 	static bool HandleLfgCleanCommand(CommandHandler handler)
 	{
 		handler.SendSysMessage(CypherStrings.LfgClean);
-		Global.LFGMgr.Clean();
+		_lFGManager.Clean();
 
 		return true;
 	}
@@ -121,13 +121,13 @@ class LFGCommands
 			return;
 
 		var guid = player.GUID;
-		var dungeons = Global.LFGMgr.GetSelectedDungeons(guid);
+		var dungeons = _lFGManager.GetSelectedDungeons(guid);
 
 		handler.SendSysMessage(CypherStrings.LfgPlayerInfo,
 								player.GetName(),
-								Global.LFGMgr.GetState(guid),
+								_lFGManager.GetState(guid),
 								dungeons.Count,
 								LFGQueue.ConcatenateDungeons(dungeons),
-								LFGQueue.GetRolesString(Global.LFGMgr.GetRoles(guid)));
+								LFGQueue.GetRolesString(_lFGManager.GetRoles(guid)));
 	}
 }

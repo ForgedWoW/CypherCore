@@ -15,6 +15,7 @@ using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using Forged.RealmServer.Entities;
+using Forged.RealmServer.World;
 
 namespace Forged.RealmServer.Conditions;
 
@@ -74,6 +75,8 @@ public sealed class ConditionManager
         _worldManager = worldManager;
         _worldStateManager = worldStateManager;
         _objectAccessor = objectAccessor;
+
+		LoadConditions();
     }
 
 	public GridMapTypeMask GetSearcherTypeMaskForConditionList(List<Condition> conditions)
@@ -1099,7 +1102,7 @@ public sealed class ConditionManager
 			var from = Time.GetUnixTimeFromPackedTime(condition.Time[0]);
 			var to = Time.GetUnixTimeFromPackedTime(condition.Time[1]);
 
-			if (GameTime.GetGameTime() < from || GameTime.GetGameTime() > to)
+			if (_gameTime.CurrentGameTime < from || _gameTime.CurrentGameTime > to)
 				return false;
 		}
 
@@ -3296,9 +3299,9 @@ public sealed class ConditionManager
 			case WorldStateExpressionFunctions.HolidayActive:
 				return _gameEventManager.IsHolidayActive((HolidayIds)arg1) ? 1 : 0;
 			case WorldStateExpressionFunctions.TimerCurrentTime:
-				return (int)GameTime.GetGameTime();
+				return (int)_gameTime.CurrentGameTime;
 			case WorldStateExpressionFunctions.WeekNumber:
-				var now = GameTime.GetGameTime();
+				var now = _gameTime.CurrentGameTime;
 				uint raidOrigin = 1135695600;
 				var region = _cliDB.CfgRegionsStorage.LookupByKey(_worldManager.RealmId.Region);
 

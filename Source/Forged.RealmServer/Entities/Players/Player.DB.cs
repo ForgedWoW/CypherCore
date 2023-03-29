@@ -1587,7 +1587,7 @@ public partial class Player
 
 		if (!resultGroup.IsEmpty())
 		{
-			var group = Global.GroupMgr.GetGroupByDbStoreId(resultGroup.Read<uint>(0));
+			var group = _groupManager.GetGroupByDbStoreId(resultGroup.Read<uint>(0));
 
 			if (group)
 				RemoveFromGroup(group, playerGuid);
@@ -2421,8 +2421,8 @@ public partial class Player
 				else if (proto.HolidayID != 0)
 				{
 					remove = true;
-					var events = Global.GameEventMgr.GetEventMap();
-					var activeEventsList = Global.GameEventMgr.GetActiveEventList();
+					var events = _gameEventManager.GetEventMap();
+					var activeEventsList = _gameEventManager.GetActiveEventList();
 
 					foreach (var id in activeEventsList)
 						if (events[id].holiday_id == proto.HolidayID)
@@ -3573,7 +3573,7 @@ public partial class Player
 	{
 		if (!result.IsEmpty())
 		{
-			var group = Global.GroupMgr.GetGroupByDbStoreId(result.Read<uint>(0));
+			var group = _groupManager.GetGroupByDbStoreId(result.Read<uint>(0));
 
 			if (group)
 			{

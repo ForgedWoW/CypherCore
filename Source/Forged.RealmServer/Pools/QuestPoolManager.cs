@@ -3,20 +3,32 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.RealmServer.Globals;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.RealmServer;
 
-public class QuestPoolManager : Singleton<QuestPoolManager>
+public class QuestPoolManager
 {
 	readonly List<QuestPool> _dailyPools = new();
 	readonly List<QuestPool> _weeklyPools = new();
 	readonly List<QuestPool> _monthlyPools = new();
 	readonly Dictionary<uint, QuestPool> _poolLookup = new(); // questId -> pool
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly GameObjectManager _gameObjectManager;
 
-	QuestPoolManager() { }
+    QuestPoolManager(CharacterDatabase characterDatabase, WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
+    {
+        _characterDatabase = characterDatabase;
+        _worldDatabase = worldDatabase;
+        _gameObjectManager = gameObjectManager;
 
-	public static void RegeneratePool(QuestPool pool)
+		LoadFromDB();
+    }
+
+    public void RegeneratePool(QuestPool pool)
 	{
 		var n = pool.Members.Count - 1;
 		pool.ActiveQuests.Clear();
@@ -37,7 +49,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 		}
 	}
 
-	public static void SaveToDB(QuestPool pool, SQLTransaction trans)
+	public void SaveToDB(QuestPool pool, SQLTransaction trans)
 	{
 		var delStmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
 		delStmt.AddValue(0, pool.PoolId);
@@ -64,7 +76,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 		// load template data from world DB
 		{
-			var result = DB.World.Query("SELECT qpm.questId, qpm.poolId, qpm.poolIndex, qpt.numActive FROM quest_pool_members qpm LEFT JOIN quest_pool_template qpt ON qpm.poolId = qpt.poolId");
+			var result = _worldDatabase.Query("SELECT qpm.questId, qpm.poolId, qpm.poolIndex, qpt.numActive FROM quest_pool_members qpm LEFT JOIN quest_pool_template qpt ON qpm.poolId = qpt.poolId");
 
 			if (result.IsEmpty())
 			{
@@ -87,7 +99,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 				var poolIndex = result.Read<uint>(2);
 				var numActive = result.Read<uint>(3);
 
-				var quest = Global.ObjectMgr.GetQuestTemplate(questId);
+				var quest = _gameObjectManager.GetQuestTemplate(questId);
 
 				if (quest == null)
 				{

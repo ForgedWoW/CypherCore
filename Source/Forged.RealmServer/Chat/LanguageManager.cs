@@ -26,6 +26,9 @@ public class LanguageManager
     LanguageManager(CliDB cliDB)
     {
         _cliDB = cliDB;
+
+		LoadLanguages();
+		LoadLanguagesWords();
     }
 
     public void LoadSpellEffectLanguage(SpellEffectRecord spellEffect)

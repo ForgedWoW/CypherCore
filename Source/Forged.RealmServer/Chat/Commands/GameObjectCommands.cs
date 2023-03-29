@@ -357,7 +357,7 @@ class GameObjectCommands
 	{
 		var player = handler.Session.Player;
 		SQLResult result;
-		var activeEventsList = Global.GameEventMgr.GetActiveEventList();
+		var activeEventsList = _gameEventManager.GetActiveEventList();
 
 		if (objectIdStr.IsEmpty())
 		{

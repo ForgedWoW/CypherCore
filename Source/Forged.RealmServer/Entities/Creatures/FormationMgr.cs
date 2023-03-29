@@ -3,16 +3,15 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Framework.Configuration;
 using Framework.Database;
 
 namespace Forged.RealmServer.Entities;
 
 public class FormationMgr
 {
-	static readonly Dictionary<ulong, FormationInfo> CreatureGroupMap = new();
+	readonly Dictionary<ulong, FormationInfo> CreatureGroupMap = new();
 
-	public static void AddCreatureToGroup(ulong leaderSpawnId, Creature creature)
+	public void AddCreatureToGroup(ulong leaderSpawnId, Creature creature)
 	{
 		var map = creature.Map;
 
@@ -48,7 +47,7 @@ public class FormationMgr
 		}
 	}
 
-	public static void RemoveCreatureFromGroup(CreatureGroup group, Creature member)
+	public void RemoveCreatureFromGroup(CreatureGroup group, Creature member)
 	{
 		Log.outDebug(LogFilter.Unit, "Deleting member GUID: {0} from group {1}", group.LeaderSpawnId, member.SpawnId);
 		group.RemoveMember(member);
@@ -62,7 +61,7 @@ public class FormationMgr
 		}
 	}
 
-	public static void LoadCreatureFormations()
+	public void LoadCreatureFormations()
 	{
 		var oldMSTime = Time.MSTime;
 
@@ -142,12 +141,12 @@ public class FormationMgr
 		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} creatures in formations in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
-	public static FormationInfo GetFormationInfo(ulong spawnId)
+	public FormationInfo GetFormationInfo(ulong spawnId)
 	{
 		return CreatureGroupMap.LookupByKey(spawnId);
 	}
 
-	public static void AddFormationMember(ulong spawnId, float followAng, float followDist, ulong leaderSpawnId, uint groupAI)
+	public void AddFormationMember(ulong spawnId, float followAng, float followDist, ulong leaderSpawnId, uint groupAI)
 	{
 		FormationInfo member = new();
 		member.LeaderSpawnId = leaderSpawnId;

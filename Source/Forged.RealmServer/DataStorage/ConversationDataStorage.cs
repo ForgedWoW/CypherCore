@@ -26,6 +26,8 @@ public class ConversationDataStorage
         _cliDB = cliDB;
         _worldDatabase = worldDatabase;
         _gameObjectManager = gameObjectManager;
+
+		LoadConversationTemplates();
     }
 
     public void LoadConversationTemplates()

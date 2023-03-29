@@ -21,9 +21,9 @@ namespace Forged.RealmServer.BattleGrounds;
 
 public class BattlegroundManager
 {
-	readonly Dictionary<BattlegroundQueueTypeId, BattlegroundQueue> m_BattlegroundQueues = new();
-	readonly MultiMap<BattlegroundQueueTypeId, Battleground> m_BGFreeSlotQueue = new();
-	readonly Dictionary<uint, BattlegroundTypeId> mBattleMastersMap = new();
+	readonly Dictionary<BattlegroundQueueTypeId, BattlegroundQueue> _battlegroundQueues = new();
+	readonly MultiMap<BattlegroundQueueTypeId, Battleground> _bGFreeSlotQueue = new();
+	readonly Dictionary<uint, BattlegroundTypeId> _BattleMastersMap = new();
 	readonly Dictionary<BattlegroundTypeId, BattlegroundTemplate> _battlegroundTemplates = new();
 	readonly Dictionary<uint, BattlegroundTemplate> _battlegroundMapTemplates = new();
 	readonly LimitedThreadTaskManager _threadTaskManager;
@@ -54,6 +54,9 @@ public class BattlegroundManager
         _gameEventManager = gameEventManager;
         _nextRatedArenaUpdate = _worldConfig.GetUIntValue(WorldCfg.ArenaRatedUpdateTimer);
         _threadTaskManager = new(_configuration.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+
+		LoadBattlegroundTemplates();
+		LoadBattleMastersEntry();
     }
 
 	public void BuildBattlegroundStatusNone(out BattlefieldStatusNone battlefieldStatus, Player player, uint ticketId, uint joinTime)
@@ -296,7 +299,7 @@ public class BattlegroundManager
 	{
 		var oldMSTime = Time.MSTime;
 
-		mBattleMastersMap.Clear(); // need for reload case
+		_BattleMastersMap.Clear(); // need for reload case
 
 		var result = _worldDatabase.Query("SELECT entry, bg_template FROM battlemaster_entry");
 
@@ -336,7 +339,7 @@ public class BattlegroundManager
 			}
 
 			++count;
-			mBattleMastersMap[entry] = (BattlegroundTypeId)bgTypeId;
+			_BattleMastersMap[entry] = (BattlegroundTypeId)bgTypeId;
 		} while (result.NextRow());
 
 		CheckBattleMasters();
@@ -376,17 +379,17 @@ public class BattlegroundManager
 
 	public List<Battleground> GetBGFreeSlotQueueStore(BattlegroundQueueTypeId bgTypeId)
 	{
-		return m_BGFreeSlotQueue[bgTypeId];
+		return _bGFreeSlotQueue[bgTypeId];
 	}
 
 	public void AddToBGFreeSlotQueue(BattlegroundQueueTypeId bgTypeId, Battleground bg)
 	{
-		m_BGFreeSlotQueue.Add(bgTypeId, bg);
+		_bGFreeSlotQueue.Add(bgTypeId, bg);
 	}
 
 	public void RemoveFromBGFreeSlotQueue(BattlegroundQueueTypeId bgTypeId, uint instanceId)
 	{
-		var queues = m_BGFreeSlotQueue[bgTypeId];
+		var queues = _bGFreeSlotQueue[bgTypeId];
 
 		foreach (var bg in queues)
 			if (bg.GetInstanceID() == instanceId)
@@ -399,10 +402,10 @@ public class BattlegroundManager
 
 	public BattlegroundQueue GetBattlegroundQueue(BattlegroundQueueTypeId bgQueueTypeId)
 	{
-		if (!m_BattlegroundQueues.ContainsKey(bgQueueTypeId))
-			m_BattlegroundQueues[bgQueueTypeId] = new BattlegroundQueue(bgQueueTypeId);
+		if (!_battlegroundQueues.ContainsKey(bgQueueTypeId))
+			_battlegroundQueues[bgQueueTypeId] = new BattlegroundQueue(bgQueueTypeId);
 
-		return m_BattlegroundQueues[bgQueueTypeId];
+		return _battlegroundQueues[bgQueueTypeId];
 	}
 
 	public bool IsArenaTesting()
@@ -417,7 +420,7 @@ public class BattlegroundManager
 
 	public BattlegroundTypeId GetBattleMasterBG(uint entry)
 	{
-		return mBattleMastersMap.LookupByKey(entry);
+		return _BattleMastersMap.LookupByKey(entry);
 	}
 
 	void BuildBattlegroundStatusHeader(BattlefieldStatusHeader header, Battleground bg, Player player, uint ticketId, uint joinTime, BattlegroundQueueTypeId queueId, ArenaTypes arenaType)
@@ -446,7 +449,7 @@ public class BattlegroundManager
 		var templates = _gameObjectManager.GetCreatureTemplates();
 
 		foreach (var creature in templates)
-			if (creature.Value.Npcflag.HasAnyFlag((uint)NPCFlags.BattleMaster) && !mBattleMastersMap.ContainsKey(creature.Value.Entry))
+			if (creature.Value.Npcflag.HasAnyFlag((uint)NPCFlags.BattleMaster) && !_BattleMastersMap.ContainsKey(creature.Value.Entry))
 			{
 				Log.Logger.Error("CreatureTemplate (Entry: {0}) has UNIT_NPC_FLAG_BATTLEMASTER but no data in `battlemaster_entry` table. Removing flag!", creature.Value.Entry);
 				templates[creature.Key].Npcflag &= ~(uint)NPCFlags.BattleMaster;

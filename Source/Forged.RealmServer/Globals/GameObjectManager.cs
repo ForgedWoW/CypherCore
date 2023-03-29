@@ -9,6 +9,7 @@ using Forged.RealmServer.Conditions;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Maps;
+using Forged.RealmServer.Misc;
 using Forged.RealmServer.Quest;
 using Framework.Collections;
 using Framework.Constants;
@@ -5589,7 +5590,7 @@ public sealed class GameObjectManager
                 continue;
             }
 
-            if (lastEncounterDungeon != 0 && Global.LFGMgr.GetLFGDungeonEntry(lastEncounterDungeon) == 0)
+            if (lastEncounterDungeon != 0 && _lFGManager.GetLFGDungeonEntry(lastEncounterDungeon) == 0)
             {
                 Log.Logger.Error("Table `instance_encounters` has an encounter {0} ({1}) marked as final for invalid dungeon id {2}, skipped!",
                                  entry,
@@ -9854,7 +9855,7 @@ public sealed class GameObjectManager
     {
         var oldMSTime = Time.MSTime;
 
-        var curTime = GameTime.GetGameTime();
+        var curTime = _gameTime.CurrentGameTime;
         var lt = Time.UnixTimeToDateTime(curTime).ToLocalTime();
         Log.Logger.Information("Returning mails current time: hour: {0}, minute: {1}, second: {2} ", lt.Hour, lt.Minute, lt.Second);
 

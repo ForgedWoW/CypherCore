@@ -184,7 +184,7 @@ class GroupCommands
 			var resultGroup = _characterDatabase.Query(stmt);
 
 			if (!resultGroup.IsEmpty())
-				groupTarget = Global.GroupMgr.GetGroupByDbStoreId(resultGroup.Read<uint>(0));
+				groupTarget = _groupManager.GetGroupByDbStoreId(resultGroup.Read<uint>(0));
 		}
 
 		// If both fails, players simply has no party. Return false.

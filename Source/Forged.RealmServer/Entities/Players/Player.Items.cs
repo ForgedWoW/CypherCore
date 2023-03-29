@@ -980,7 +980,7 @@ public partial class Player
 			return InventoryResult.CantEquipLevelI;
 
 		// If World Event is not active, prevent using event dependant items
-		if (proto.HolidayID != 0 && !Global.GameEventMgr.IsHolidayActive(proto.HolidayID))
+		if (proto.HolidayID != 0 && !_gameEventManager.IsHolidayActive(proto.HolidayID))
 			return InventoryResult.ClientLockedOut;
 
 		if (proto.RequiredReputationFaction != 0 && (uint)GetReputationRank(proto.RequiredReputationFaction) < proto.RequiredReputationRank)
@@ -2550,7 +2550,7 @@ public partial class Player
 				return InventoryResult.Ok; // not in LFG group
 
 			// check if looted object is inside the lfg dungeon
-			if (!Global.LFGMgr.InLfgDungeonMap(Group.GUID, map.Id, map.DifficultyID))
+			if (!_lFGManager.InLfgDungeonMap(Group.GUID, map.Id, map.DifficultyID))
 				return InventoryResult.Ok;
 		}
 

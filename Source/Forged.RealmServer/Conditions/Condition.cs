@@ -52,7 +52,7 @@ public class Condition
 
 				break;
 			case ConditionTypes.ActiveEvent:
-				condMeets = Global.GameEventMgr.IsActiveEvent((ushort)ConditionValue1);
+				condMeets = _gameEventManager.IsActiveEvent((ushort)ConditionValue1);
 
 				break;
 			case ConditionTypes.InstanceInfo:

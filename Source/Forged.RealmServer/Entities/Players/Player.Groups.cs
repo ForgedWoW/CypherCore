@@ -9,7 +9,7 @@ namespace Forged.RealmServer.Entities;
 
 public partial class Player
 {
-	public bool IsUsingLfg => Global.LFGMgr.GetState(GUID) != LfgState.None;
+	public bool IsUsingLfg => _lFGManager.GetState(GUID) != LfgState.None;
 
 	public PlayerGroup GroupInvite
 	{
@@ -41,11 +41,11 @@ public partial class Player
 	{
 		get
 		{
-			if (Global.LFGMgr.SelectedRandomLfgDungeon(GUID))
+			if (_lFGManager.SelectedRandomLfgDungeon(GUID))
 			{
 				var map = Map;
 
-				return Global.LFGMgr.InLfgDungeonMap(GUID, map.Id, map.DifficultyID);
+				return _lFGManager.InLfgDungeonMap(GUID, map.Id, map.DifficultyID);
 			}
 
 			return false;
@@ -63,12 +63,12 @@ public partial class Player
 		{
 			var gguid = grp.GUID;
 
-			if (Global.LFGMgr.GetKicksLeft(gguid) == 0)
+			if (_lFGManager.GetKicksLeft(gguid) == 0)
 				return PartyResult.PartyLfgBootLimit;
 
-			var state = Global.LFGMgr.GetState(gguid);
+			var state = _lFGManager.GetState(gguid);
 
-			if (Global.LFGMgr.IsVoteKickActive(gguid))
+			if (_lFGManager.IsVoteKickActive(gguid))
 				return PartyResult.PartyLfgBootInProgress;
 
 			if (grp.MembersCount <= SharedConst.LFGKickVotesNeeded)

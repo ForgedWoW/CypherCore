@@ -8,19 +8,34 @@ using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Guilds;
-using Forged.RealmServer.Entities.Objects;
+using Serilog;
+using Forged.RealmServer.Globals;
 
 namespace Forged.RealmServer;
 
-public sealed class GuildManager : Singleton<GuildManager>
+public sealed class GuildManager
 {
 	readonly Dictionary<ulong, Guild> GuildStore = new();
 	readonly List<GuildReward> guildRewards = new();
+    private readonly CliDB _cliDB;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly WorldManager _worldManager;
+    private readonly GameObjectManager _gameObjectManager;
+    uint NextGuildId;
+	GuildManager(CliDB cliDB, CharacterDatabase characterDatabase, WorldDatabase worldDatabase, WorldManager worldManager, GameObjectManager gameObjectManager)
+    {
+        _cliDB = cliDB;
+        _characterDatabase = characterDatabase;
+        _worldDatabase = worldDatabase;
+        _worldManager = worldManager;
+        _gameObjectManager = gameObjectManager;
 
-	uint NextGuildId;
-	GuildManager() { }
+		LoadGuilds();
+		LoadGuildRewards();
+    }
 
-	public void AddGuild(Guild guild)
+    public void AddGuild(Guild guild)
 	{
 		GuildStore[guild.GetId()] = guild;
 	}
@@ -453,7 +468,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                            0      1            2         3
-		var result = DB.World.Query("SELECT ItemID, MinGuildRep, RaceMask, Cost FROM guild_rewards");
+		var result = _worldDatabase.Query("SELECT ItemID, MinGuildRep, RaceMask, Cost FROM guild_rewards");
 
 		if (result.IsEmpty())
 		{
@@ -473,7 +488,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 			reward.RaceMask = result.Read<ulong>(2);
 			reward.Cost = result.Read<ulong>(3);
 
-			if (Global.ObjectMgr.GetItemTemplate(reward.ItemID) == null)
+			if (_gameObjectManager.GetItemTemplate(reward.ItemID) == null)
 			{
 				Log.Logger.Error("Guild rewards constains not existing item entry {0}", reward.ItemID);
 
@@ -487,16 +502,16 @@ public sealed class GuildManager : Singleton<GuildManager>
 				continue;
 			}
 
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_GUILD_REWARDS_REQ_ACHIEVEMENTS);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_GUILD_REWARDS_REQ_ACHIEVEMENTS);
 			stmt.AddValue(0, reward.ItemID);
-			var reqAchievementResult = DB.World.Query(stmt);
+			var reqAchievementResult = _worldDatabase.Query(stmt);
 
 			if (!reqAchievementResult.IsEmpty())
 				do
 				{
 					var requiredAchievementId = reqAchievementResult.Read<uint>(0);
 
-					if (!CliDB.AchievementStorage.ContainsKey(requiredAchievementId))
+					if (!_cliDB.AchievementStorage.ContainsKey(requiredAchievementId))
 					{
 						Log.Logger.Error("Guild rewards constains not existing achievement entry {0}", requiredAchievementId);
 

@@ -20,6 +20,8 @@ public class ArenaTeamManager
 		NextArenaTeamId = 1;
         _worldManager = worldManager;
         _characterDatabase = characterDatabase;
+
+		LoadArenaTeams();
     }
 
 	public ArenaTeam GetArenaTeamById(uint arenaTeamId)
