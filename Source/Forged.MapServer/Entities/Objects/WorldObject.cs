@@ -1797,20 +1797,7 @@ public abstract class WorldObject : IDisposable
 
         return owner != null;
     }
-
-    public double CalculateSpellDamage(Unit target, SpellEffectInfo spellEffectInfo, double? basePoints = null, uint castItemId = 0, int itemLevel = -1)
-    {
-        return CalculateSpellDamage(out _, target, spellEffectInfo, basePoints, castItemId, itemLevel);
-    }
-
-    // function uses real base points (typically value - 1)
-    public double CalculateSpellDamage(out double variance, Unit target, SpellEffectInfo spellEffectInfo, double? basePoints = null, uint castItemId = 0, int itemLevel = -1)
-    {
-        variance = 0.0f;
-
-        return spellEffectInfo != null ? spellEffectInfo.CalcValue(out variance, this, basePoints, target, castItemId, itemLevel) : 0;
-    }
-
+    
     public float GetSpellMaxRangeForTarget(Unit target, SpellInfo spellInfo)
     {
         if (spellInfo.RangeEntry == null)

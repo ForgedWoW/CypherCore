@@ -9131,13 +9131,26 @@ public partial class Spell : IDisposable
                 // this possibly needs fixing
                 var auraBaseAmount = aurEff.BaseAmount;
                 // proc chance is stored in effect amount
-                var chance = unitCaster.CalculateSpellDamage(null, aurEff.GetSpellEffectInfo(), auraBaseAmount);
+                var chance = CalculateSpellDamage(null, aurEff.GetSpellEffectInfo(), auraBaseAmount);
                 chance *= aurEff.Base.StackAmount;
 
                 // build trigger and add to the list
                 _hitTriggerSpells.Add(new HitTriggerSpell(spellInfo, aurEff.SpellInfo, chance));
             }
         }
+    }
+
+    public double CalculateSpellDamage(Unit target, SpellEffectInfo spellEffectInfo, double? basePoints = null, uint castItemId = 0, int itemLevel = -1)
+    {
+        return CalculateSpellDamage(out _, target, spellEffectInfo, basePoints, castItemId, itemLevel);
+    }
+
+    // function uses real base points (typically value - 1)
+    public double CalculateSpellDamage(out double variance, Unit target, SpellEffectInfo spellEffectInfo, double? basePoints = null, uint castItemId = 0, int itemLevel = -1)
+    {
+        variance = 0.0f;
+
+        return spellEffectInfo != null ? spellEffectInfo.CalcValue(out variance, this, basePoints, target, castItemId, itemLevel) : 0;
     }
 
     private bool CanHaveGlobalCooldown(WorldObject caster)
@@ -9262,7 +9275,7 @@ public partial class Spell : IDisposable
     {
         var needRecalculateBasePoints = (SpellValue.CustomBasePointsMask & (1 << spellEffectInfo.EffectIndex)) == 0;
 
-        return _caster.CalculateSpellDamage(out variance, target, spellEffectInfo, needRecalculateBasePoints ? null : SpellValue.EffectBasePoints[spellEffectInfo.EffectIndex], CastItemEntry, CastItemLevel);
+        return CalculateSpellDamage(out variance, target, spellEffectInfo, needRecalculateBasePoints ? null : SpellValue.EffectBasePoints[spellEffectInfo.EffectIndex], CastItemEntry, CastItemLevel);
     }
 
     private void CheckSrc()
