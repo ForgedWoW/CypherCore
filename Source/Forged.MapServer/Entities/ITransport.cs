@@ -27,7 +27,7 @@ public interface ITransport
     public static void UpdatePassengerPosition(ITransport transport, Map map, WorldObject passenger, Position pos, bool setHomePosition)
     {
         // transport teleported but passenger not yet (can happen for players)
-        if (passenger.Map != map)
+        if (passenger.Location.Map != map)
             return;
 
         // Do not use Unit::UpdatePosition here, we don't want to remove auras
@@ -50,7 +50,7 @@ public interface ITransport
             }
             case TypeId.Player:
                 //relocate only passengers in world and skip any player that might be still logging in/teleporting
-                if (passenger.IsInWorld && !passenger.AsPlayer.IsBeingTeleported)
+                if (passenger.Location.IsInWorld && !passenger.AsPlayer.IsBeingTeleported)
                 {
                     map.PlayerRelocation(passenger.AsPlayer, pos);
                     passenger.AsPlayer.SetFallInformation(0, passenger.Location.Z);

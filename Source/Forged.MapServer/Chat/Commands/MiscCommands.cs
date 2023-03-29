@@ -52,7 +52,7 @@ internal class MiscCommands
 
             var chrNameLink = handler.PlayerLink(targetName);
 
-            var map = target.Map;
+            var map = target.Location.Map;
 
             if (map.IsBattlegroundOrArena)
             {
@@ -74,7 +74,7 @@ internal class MiscCommands
                 _player.SetBattlegroundId(target.BattlegroundId, target.BattlegroundTypeId);
 
                 // remember current position as entry point for return at bg end teleportation
-                if (!_player.Map.IsBattlegroundOrArena)
+                if (!_player.Location.Map.IsBattlegroundOrArena)
                     _player.SetBattlegroundEntryPoint();
             }
             else if (map.IsDungeon)
@@ -124,7 +124,7 @@ internal class MiscCommands
 
             // to point to see at target with same orientation
             var pos = new Position();
-            target.GetClosePoint(pos, _player.CombatReach, 1.0f);
+            target.Location.GetClosePoint(pos, _player.CombatReach, 1.0f);
             pos.Orientation = _player.Location.GetAbsoluteAngle(target.Location);
             _player.TeleportTo(target.Location.MapId, pos, TeleportToOptions.GMMode, target.InstanceId);
             PhasingHandler.InheritPhaseShift(_player, target);
@@ -367,7 +367,7 @@ internal class MiscCommands
         if (spellid == 0)
             return false;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellid, attacker.Map.DifficultyID);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(spellid, attacker.Location.Map.DifficultyID);
 
         if (spellInfo == null)
             return false;
@@ -521,7 +521,7 @@ internal class MiscCommands
             }
         }
 
-        handler.SendSysMessage(CypherStrings.Distance, handler.Session.Player.GetDistance(obj), handler.Session.Player.GetDistance2d(obj), handler.Session.Player.Location.GetExactDist(obj.Location), handler.Session.Player.Location.GetExactDist2d(obj.Location));
+        handler.SendSysMessage(CypherStrings.Distance, handler.Session.Player.Location.GetDistance(obj), handler.Session.Player.Location.GetDistance2d(obj), handler.Session.Player.Location.GetExactDist(obj.Location), handler.Session.Player.Location.GetExactDist2d(obj.Location));
 
         return true;
     }
@@ -705,7 +705,7 @@ internal class MiscCommands
 
         Global.DB2Mgr.Map2ZoneCoordinates((int)zoneId, ref zoneX, ref zoneY);
 
-        var map = obj.Map;
+        var map = obj.Location.Map;
         var groundZ = obj.GetMapHeight(obj.Location.X, obj.Location.Y, MapConst.MaxHeight);
         var floorZ = obj.GetMapHeight(obj.Location.X, obj.Location.Y, obj.Location.Z);
 
@@ -721,7 +721,7 @@ internal class MiscCommands
 
         if (haveVMap)
         {
-            if (obj.IsOutdoors)
+            if (obj.Location.IsOutdoors)
                 handler.SendSysMessage(CypherStrings.GpsPositionOutdoors);
             else
                 handler.SendSysMessage(CypherStrings.GpsPositionIndoors);
@@ -767,12 +767,12 @@ internal class MiscCommands
                                zoneY,
                                groundZ,
                                floorZ,
-                               map.GetMinHeight(obj.PhaseShift, obj.Location.X, obj.Location.Y),
+                               map.GetMinHeight(obj.Location.PhaseShift, obj.Location.X, obj.Location.Y),
                                haveMap,
                                haveVMap,
                                haveMMap);
 
-        var status = map.GetLiquidStatus(obj.PhaseShift, obj.Location.X, obj.Location.Y, obj.Location.Z, LiquidHeaderTypeFlags.AllLiquids, out var liquidStatus);
+        var status = map.GetLiquidStatus(obj.Location.PhaseShift, obj.Location.X, obj.Location.Y, obj.Location.Z, LiquidHeaderTypeFlags.AllLiquids, out var liquidStatus);
 
         if (liquidStatus != null)
             handler.SendSysMessage(CypherStrings.LiquidStatus, liquidStatus.level, liquidStatus.depth_level, liquidStatus.entry, liquidStatus.type_flags, status);
@@ -935,7 +935,7 @@ internal class MiscCommands
 
         var player = handler.Session.Player;
 
-        var zoneId = player.Zone;
+        var zoneId = player.Location.Zone;
 
         var areaEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
 
@@ -1244,7 +1244,7 @@ internal class MiscCommands
             return false;
 
         var player = handler.Session.Player;
-        var zoneId = player.Zone;
+        var zoneId = player.Location.Zone;
 
         var graveyard = Global.ObjectMgr.GetClosestGraveYard(player.Location, team, null);
 
@@ -1415,7 +1415,7 @@ internal class MiscCommands
             classid = target.Class;
             muteTime = target.Session.MuteTime;
             mapId = target.Location.MapId;
-            areaId = target.Area;
+            areaId = target.Location.Area;
             alive = target.IsAlive ? handler.GetCypherString(CypherStrings.Yes) : handler.GetCypherString(CypherStrings.No);
             gender = target.NativeGender;
         }
@@ -1800,7 +1800,7 @@ internal class MiscCommands
 
         // Now handle any that had despawned, but had respawn time logged.
         List<RespawnInfo> data = new();
-        player.Map.GetRespawnInfo(data, SpawnObjectTypeMask.All);
+        player.Location.Map.GetRespawnInfo(data, SpawnObjectTypeMask.All);
 
         if (!data.Empty())
         {
@@ -1808,7 +1808,7 @@ internal class MiscCommands
 
             foreach (var info in data)
                 if (info.GridId == gridId)
-                    player.Map.RemoveRespawnTime(info.ObjectType, info.SpawnId);
+                    player.Location.Map.RemoveRespawnTime(info.ObjectType, info.SpawnId);
         }
 
         return true;
@@ -1949,7 +1949,7 @@ internal class MiscCommands
                 return false;
             }
 
-            var map = _player.Map;
+            var map = _player.Location.Map;
 
             if (map.IsBattlegroundOrArena)
             {
@@ -1971,12 +1971,12 @@ internal class MiscCommands
                 target.SetBattlegroundId(_player.BattlegroundId, _player.BattlegroundTypeId);
 
                 // remember current position as entry point for return at bg end teleportation
-                if (!target.Map.IsBattlegroundOrArena)
+                if (!target.Location.Map.IsBattlegroundOrArena)
                     target.SetBattlegroundEntryPoint();
             }
             else if (map.IsDungeon)
             {
-                var targetMap = target.Map;
+                var targetMap = target.Location.Map;
 
                 Player targetGroupLeader = null;
                 var targetGroup = target.Group;
@@ -2015,7 +2015,7 @@ internal class MiscCommands
 
             // before GM
             var pos = new Position();
-            _player.GetClosePoint(pos, target.CombatReach);
+            _player.Location.GetClosePoint(pos, target.CombatReach);
             pos.Orientation = target.Location.Orientation;
             target.TeleportTo(_player.Location.MapId, pos, 0, map.InstanceId);
             PhasingHandler.InheritPhaseShift(target, _player);
@@ -2032,7 +2032,7 @@ internal class MiscCommands
             handler.SendSysMessage(CypherStrings.Summoning, nameLink, handler.GetCypherString(CypherStrings.Offline));
 
             // in point where GM stay
-            Player.SavePositionInDB(new WorldLocation(_player.Location.MapId, _player.Location.X, _player.Location.Y, _player.Location.Z, _player.Location.Orientation), _player.Zone, targetGuid);
+            Player.SavePositionInDB(new WorldLocation(_player.Location.MapId, _player.Location.X, _player.Location.Y, _player.Location.Z, _player.Location.Orientation), _player.Location.Zone, targetGuid);
         }
 
         return true;
@@ -2235,7 +2235,7 @@ internal class MiscCommands
 
             if (caster)
             {
-                var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, player.Location.MapId, SPELL_UNSTUCK_ID, player.Map.GenerateLowGuid(HighGuid.Cast));
+                var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, player.Location.MapId, SPELL_UNSTUCK_ID, player.Location.Map.GenerateLowGuid(HighGuid.Cast));
                 Spell.SendCastResult(caster, spellInfo, new SpellCastVisual(SPELL_UNSTUCK_VISUAL, 0), castId, SpellCastResult.CantDoThatRightNow);
             }
 
@@ -2272,9 +2272,9 @@ internal class MiscCommands
         }
 
         var player = handler.Session.Player;
-        var zoneid = player.Zone;
+        var zoneid = player.Location.Zone;
 
-        var weather = player.Map.GetOrGenerateZoneDefaultWeather(zoneid);
+        var weather = player.Location.Map.GetOrGenerateZoneDefaultWeather(zoneid);
 
         if (weather == null)
         {

@@ -58,7 +58,7 @@ public class FollowMovementGenerator : MovementGenerator
         // our target might have gone away
         var target = _abstractFollower.GetTarget();
 
-        if (target == null || !target.IsInWorld)
+        if (target == null || !target.Location.IsInWorld)
             return false;
 
         if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting())
@@ -126,10 +126,10 @@ public class FollowMovementGenerator : MovementGenerator
                 }
 
                 var newPos = new Position();
-                target.GetNearPoint(owner, newPos, _range, target.Location.ToAbsoluteAngle(tAngle));
+                target.Location.GetNearPoint(owner, newPos, _range, target.Location.ToAbsoluteAngle(tAngle));
 
                 if (owner.IsHovering)
-                    owner.UpdateAllowedPositionZ(newPos);
+                    owner.Location.UpdateAllowedPositionZ(newPos);
 
                 // pets are allowed to "cheat" on pathfinding when following their master
                 var allowShortcut = false;

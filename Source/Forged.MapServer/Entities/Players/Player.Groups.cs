@@ -44,7 +44,7 @@ public partial class Player
         {
             if (Global.LFGMgr.SelectedRandomLfgDungeon(GUID))
             {
-                var map = Map;
+                var map = Location.Map;
 
                 return Global.LFGMgr.InLfgDungeonMap(GUID, map.Id, map.DifficultyID);
             }
@@ -85,7 +85,7 @@ public partial class Player
 
             // @todo Should also be sent when anyone has recently left combat, with an aprox ~5 seconds timer.
             for (var refe = grp.FirstMember; refe != null; refe = refe.Next())
-                if (refe.Source && refe.Source.IsInMap(this) && refe.Source.IsInCombat)
+                if (refe.Source && refe.Source.Location.IsInMap(this) && refe.Source.IsInCombat)
                     return PartyResult.PartyLfgBootInCombat;
 
             /* Missing support for these types
@@ -207,7 +207,7 @@ public partial class Player
 
     public bool IsAtGroupRewardDistance(WorldObject pRewardSource)
     {
-        if (!pRewardSource || !IsInMap(pRewardSource))
+        if (!pRewardSource || !Location.IsInMap(pRewardSource))
             return false;
 
         WorldObject player = GetCorpse();
@@ -215,10 +215,10 @@ public partial class Player
         if (!player || IsAlive)
             player = this;
 
-        if (player.Map.IsDungeon)
+        if (player.Location.Map.IsDungeon)
             return true;
 
-        return pRewardSource.GetDistance(player) <= GetDefaultValue("MaxGroupXPDistance", 74.0f);
+        return pRewardSource.Location.GetDistance(player) <= GetDefaultValue("MaxGroupXPDistance", 74.0f);
     }
 
     public void SetGroupUpdateFlag(GroupUpdateFlags flag)
@@ -309,7 +309,7 @@ public partial class Player
             // IsHostileTo check duel and controlled by enemy
             if (target &&
                 target != this &&
-                IsWithinDistInMap(target, radius) &&
+                Location.IsWithinDistInMap(target, radius) &&
                 !target.HasInvisibilityAura &&
                 !IsHostileTo(target))
                 nearMembers.Add(target);

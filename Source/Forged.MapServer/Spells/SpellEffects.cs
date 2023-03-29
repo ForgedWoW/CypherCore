@@ -315,7 +315,7 @@ public partial class Spell
         else if (UnitTarget)
             player = UnitTarget.AsPlayer;
 
-        if (player == null || player.IsAlive || !player.IsInWorld)
+        if (player == null || player.IsAlive || !player.Location.IsInWorld)
             return;
 
         if (player.IsResurrectRequested) // already have one active request
@@ -442,7 +442,7 @@ public partial class Spell
 
         // normal DB scripted effect
         Log.Logger.Debug("Spell ScriptStart spellid {0} in EffectDummy({1})", SpellInfo.Id, EffectInfo.EffectIndex);
-        _caster.Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), _caster, UnitTarget);
+        _caster.Location.Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), _caster, UnitTarget);
     }
 
     [SpellEffectHandler(SpellEffectName.TriggerSpell)]
@@ -583,7 +583,7 @@ public partial class Spell
                                             args.OriginalCastId = originalCastId;
                                             args.OriginalCastItemLevel = itemLevel;
 
-                                            var triggerSpellInfo = Global.SpellMgr.GetSpellInfo(triggerSpell, caster.Map.DifficultyID);
+                                            var triggerSpellInfo = Global.SpellMgr.GetSpellInfo(triggerSpell, caster.Location.Map.DifficultyID);
 
                                             if (!castItemGuid.IsEmpty && triggerSpellInfo.HasAttribute(SpellAttr2.RetainItemCast))
                                             {
@@ -1326,12 +1326,12 @@ public partial class Spell
         var radius = EffectInfo.CalcRadius(unitCaster);
 
         // Caster not in world, might be spell triggered from aura removal
-        if (!unitCaster.IsInWorld)
+        if (!unitCaster.Location.IsInWorld)
             return;
 
         DynamicObject dynObj = new(false);
 
-        if (!dynObj.CreateDynamicObject(unitCaster.Map.GenerateLowGuid(HighGuid.DynamicObject), unitCaster, SpellInfo, DestTarget, radius, DynamicObjectType.AreaSpell, SpellVisual))
+        if (!dynObj.CreateDynamicObject(unitCaster.Location.Map.GenerateLowGuid(HighGuid.DynamicObject), unitCaster, SpellInfo, DestTarget, radius, DynamicObjectType.AreaSpell, SpellVisual))
         {
             dynObj.Dispose();
 
@@ -1809,7 +1809,7 @@ public partial class Spell
                         if (unitCaster == null)
                             return;
 
-                        summon = unitCaster.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id);
+                        summon = unitCaster.Location.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id);
 
                         break;
                     }
@@ -1819,7 +1819,7 @@ public partial class Spell
                         if (unitCaster == null)
                             return;
 
-                        summon = unitCaster.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
+                        summon = unitCaster.Location.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
 
                         if (summon == null || !summon.IsTotem)
                             return;
@@ -1837,7 +1837,7 @@ public partial class Spell
                         if (unitCaster == null)
                             return;
 
-                        summon = unitCaster.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
+                        summon = unitCaster.Location.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
 
                         if (summon == null || !summon.HasUnitTypeMask(UnitTypeMask.Minion))
                             return;
@@ -1860,9 +1860,9 @@ public partial class Spell
                                 pos = DestTarget;
                             else
                                 // randomize position for multiple summons
-                                pos = caster.GetRandomPoint(DestTarget, radius);
+                                pos = caster.Location.GetRandomPoint(DestTarget, radius);
 
-                            summon = caster.Map.SummonCreature(entry, pos, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
+                            summon = caster.Location.Map.SummonCreature(entry, pos, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
 
                             if (summon == null)
                                 continue;
@@ -1889,7 +1889,7 @@ public partial class Spell
                 if (unitCaster == null)
                     return;
 
-                summon = unitCaster.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
+                summon = unitCaster.Location.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
 
                 break;
             }
@@ -1900,7 +1900,7 @@ public partial class Spell
 
                 // Summoning spells (usually triggered by npc_spellclick) that spawn a vehicle and that cause the clicker
                 // to cast a ride vehicle spell on the summoned unit.
-                summon = unitCaster.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id);
+                summon = unitCaster.Location.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id);
 
                 if (summon == null || !summon.IsVehicle)
                     return;
@@ -2136,7 +2136,7 @@ public partial class Spell
         {
             creature.StartPickPocketRefillTimer();
 
-            creature.Loot = _lootFactory.GenerateLoot(creature.Map, creature.GUID, LootType.Pickpocketing, null);
+            creature.Loot = _lootFactory.GenerateLoot(creature.Location.Map, creature.GUID, LootType.Pickpocketing, null);
             var lootid = creature.Template.PickPocketId;
 
             if (lootid != 0)
@@ -2173,12 +2173,12 @@ public partial class Spell
         var duration = SpellInfo.CalcDuration(_caster);
 
         // Caster not in world, might be spell triggered from aura removal
-        if (!player.IsInWorld)
+        if (!player.Location.IsInWorld)
             return;
 
         DynamicObject dynObj = new(true);
 
-        if (!dynObj.CreateDynamicObject(player.Map.GenerateLowGuid(HighGuid.DynamicObject), player, SpellInfo, DestTarget, radius, DynamicObjectType.FarsightFocus, SpellVisual))
+        if (!dynObj.CreateDynamicObject(player.Location.Map.GenerateLowGuid(HighGuid.DynamicObject), player, SpellInfo, DestTarget, radius, DynamicObjectType.FarsightFocus, SpellVisual))
             return;
 
         dynObj.SetDuration(duration);
@@ -2522,7 +2522,7 @@ public partial class Spell
         pet.SetLevel(level - 1);
 
         // add to world
-        pet.
+        pet.Location.
             // add to world
             Map.AddToMap(pet.AsCreature);
 
@@ -2581,7 +2581,7 @@ public partial class Spell
                     return;
 
                 var newPos = new Position();
-                owner.GetClosePoint(newPos, OldSummon.CombatReach);
+                owner.Location.GetClosePoint(newPos, OldSummon.CombatReach);
                 newPos.Orientation = OldSummon.Location.Orientation;
 
                 OldSummon.NearTeleportTo(newPos);
@@ -2604,7 +2604,7 @@ public partial class Spell
             petSlot = (PetSaveMode)Damage;
 
         var combatPos = new Position();
-        owner.GetClosePoint(combatPos, owner.CombatReach);
+        owner.Location.GetClosePoint(combatPos, owner.CombatReach);
         combatPos.Orientation = owner.Location.Orientation;
         var pet = owner.SummonPet(petentry, petSlot, combatPos, 0, out var isNew);
 
@@ -2949,11 +2949,11 @@ public partial class Spell
         }
         else
         {
-            _caster.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius);
+            _caster.Location.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius);
             pos.Orientation = target.Location.Orientation;
         }
 
-        var map = target.Map;
+        var map = target.Location.Map;
 
         var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
         var go = GameObject.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 255, GameObjectState.Ready);
@@ -3091,7 +3091,7 @@ public partial class Spell
                         //Workaround for Range ... should be global for every ScriptEffect
                         var radius = EffectInfo.CalcRadius();
 
-                        if (UnitTarget != null && UnitTarget.IsTypeId(TypeId.Player) && UnitTarget.GetDistance(_caster) >= radius && !UnitTarget.HasAura(46394) && UnitTarget != _caster)
+                        if (UnitTarget != null && UnitTarget.IsTypeId(TypeId.Player) && UnitTarget.Location.GetDistance(_caster) >= radius && !UnitTarget.HasAura(46394) && UnitTarget != _caster)
                             UnitTarget.CastSpell(UnitTarget, 46394, new CastSpellExtraArgs(this));
 
                         break;
@@ -3115,7 +3115,7 @@ public partial class Spell
                         var radius = EffectInfo.CalcRadius();
 
                         for (byte i = 0; i < 15; ++i)
-                            _caster.CastSpell(_caster.GetRandomPoint(DestTarget, radius), 54522, new CastSpellExtraArgs(this));
+                            _caster.CastSpell(_caster.Location.GetRandomPoint(DestTarget, radius), 54522, new CastSpellExtraArgs(this));
 
                         break;
                     }
@@ -3155,7 +3155,7 @@ public partial class Spell
                                 _originalCaster.CastSpell(UnitTarget, 58692, new CastSpellExtraArgs(true));
                             }
 
-                            if (_originalCaster.Map.DifficultyID == Difficulty.None)
+                            if (_originalCaster.Location.Map.DifficultyID == Difficulty.None)
                             {
                                 _originalCaster.CastSpell(UnitTarget, 58695, new CastSpellExtraArgs(true));
                                 _originalCaster.CastSpell(UnitTarget, 58696, new CastSpellExtraArgs(true));
@@ -3200,7 +3200,7 @@ public partial class Spell
 
         // normal DB scripted effect
         Log.Logger.Debug("Spell ScriptStart spellid {0} in EffectScriptEffect({1})", SpellInfo.Id, EffectInfo.EffectIndex);
-        _caster.Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), _caster, UnitTarget);
+        _caster.Location.Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), _caster, UnitTarget);
     }
 
     [SpellEffectHandler(SpellEffectName.Sanctuary)]
@@ -3213,7 +3213,7 @@ public partial class Spell
         if (UnitTarget == null)
             return;
 
-        if (UnitTarget.IsPlayer && !UnitTarget.Map.IsDungeon)
+        if (UnitTarget.IsPlayer && !UnitTarget.Location.Map.IsDungeon)
             // stop all pve combat for players outside dungeons, suppress pvp combat
             UnitTarget.CombatStop(false, false);
         else
@@ -3242,7 +3242,7 @@ public partial class Spell
             return;
 
         // Players can only fight a duel in zones with this flag
-        var casterAreaEntry = CliDB.AreaTableStorage.LookupByKey(caster.Area);
+        var casterAreaEntry = CliDB.AreaTableStorage.LookupByKey(caster.Location.Area);
 
         if (casterAreaEntry != null && !casterAreaEntry.HasFlag(AreaFlags.AllowDuels))
         {
@@ -3251,7 +3251,7 @@ public partial class Spell
             return;
         }
 
-        var targetAreaEntry = CliDB.AreaTableStorage.LookupByKey(target.Area);
+        var targetAreaEntry = CliDB.AreaTableStorage.LookupByKey(target.Location.Area);
 
         if (targetAreaEntry != null && !targetAreaEntry.HasFlag(AreaFlags.AllowDuels))
         {
@@ -3261,7 +3261,7 @@ public partial class Spell
         }
 
         //CREATE DUEL FLAG OBJECT
-        var map = caster.Map;
+        var map = caster.Location.Map;
 
         Position pos = new()
         {
@@ -3508,7 +3508,7 @@ public partial class Spell
         if (caster != null)
         {
             caster.UpdateCraftSkill(SpellInfo);
-            ItemTarget.Loot = _lootFactory.GenerateLoot(caster.Map, ItemTarget.GUID, LootType.Disenchanting, ItemTarget.GetDisenchantLoot(caster).Id, LootStorageType.Disenchant, caster, true);
+            ItemTarget.Loot = _lootFactory.GenerateLoot(caster.Location.Map, ItemTarget.GUID, LootType.Disenchanting, ItemTarget.GetDisenchantLoot(caster).Id, LootStorageType.Disenchant, caster, true);
             caster.SendLoot(ItemTarget.Loot);
         }
 
@@ -3619,7 +3619,7 @@ public partial class Spell
 
         if (!guid.IsEmpty)
         {
-            var obj = unitCaster.Map.GetGameObject(guid);
+            var obj = unitCaster.Location.Map.GetGameObject(guid);
 
             if (obj != null)
             {
@@ -3643,11 +3643,11 @@ public partial class Spell
         // Summon in random point all other units if location present
         else
         {
-            unitCaster.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius);
+            unitCaster.Location.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius);
             pos.Orientation = unitCaster.Location.Orientation;
         }
 
-        var map = _caster.Map;
+        var map = _caster.Location.Map;
         var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
         var go = GameObject.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 255, GameObjectState.Ready);
 
@@ -3686,7 +3686,7 @@ public partial class Spell
         else if (UnitTarget)
             player = UnitTarget.AsPlayer;
 
-        if (player == null || player.IsAlive || !player.IsInWorld)
+        if (player == null || player.IsAlive || !player.Location.IsInWorld)
             return;
 
         if (player.IsResurrectRequested) // already have one active request
@@ -3863,7 +3863,7 @@ public partial class Spell
 
         var player = _caster.AsPlayer;
 
-        if (player == null || !player.IsInWorld || player.IsAlive)
+        if (player == null || !player.Location.IsInWorld || player.IsAlive)
             return;
 
         uint health;
@@ -3916,7 +3916,7 @@ public partial class Spell
 
         creature.SetUnitFlag3(UnitFlags3.AlreadySkinned);
         creature.SetDynamicFlag(UnitDynFlags.Lootable);
-        Loot loot = new(creature.Map, creature.GUID, LootType.Skinning, null);
+        Loot loot = new(creature.Location.Map, creature.GUID, LootType.Skinning, null);
 
         if (loot != null)
             creature.PersonalLoot[player.GUID] = loot;
@@ -3988,7 +3988,7 @@ public partial class Spell
             // Spell is not using explicit target - no generated path
             if (_preGeneratedPath == null)
             {
-                var pos = UnitTarget.GetFirstCollisionPosition(UnitTarget.CombatReach, UnitTarget.Location.GetRelativeAngle(_caster.Location));
+                var pos = UnitTarget.Location.GetFirstCollisionPosition(UnitTarget.CombatReach, UnitTarget.Location.GetRelativeAngle(_caster.Location));
 
                 if (MathFunctions.fuzzyGt(SpellInfo.Speed, 0.0f) && SpellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
                     speed = pos.GetExactDist(_caster.Location) / speed;
@@ -4037,11 +4037,11 @@ public partial class Spell
         {
             var pos = DestTarget.Copy();
 
-            if (!unitCaster.IsWithinLOS(pos))
+            if (!unitCaster.Location.IsWithinLOS(pos))
             {
                 var angle = unitCaster.Location.GetRelativeAngle(pos.X, pos.Y);
-                var dist = unitCaster.GetDistance(pos);
-                pos = unitCaster.GetFirstCollisionPosition(dist, angle);
+                var dist = unitCaster.Location.GetDistance(pos);
+                pos = unitCaster.Location.GetFirstCollisionPosition(dist, angle);
             }
 
             unitCaster.MotionMaster.MoveCharge(pos.X, pos.Y, pos.Z);
@@ -4201,7 +4201,7 @@ public partial class Spell
         if (!UnitTarget)
             return;
 
-        var pos = _caster.GetFirstCollisionPosition(_caster.CombatReach, _caster.Location.GetRelativeAngle(UnitTarget.Location));
+        var pos = _caster.Location.GetFirstCollisionPosition(_caster.CombatReach, _caster.Location.GetRelativeAngle(UnitTarget.Location));
 
         // This is a blizzlike mistake: this should be 2D distance according to projectile motion formulas, but Blizzard erroneously used 3D distance.
         var distXY = UnitTarget.Location.GetExactDist(pos);
@@ -4353,7 +4353,7 @@ public partial class Spell
             // We can use a different, more accurate version of GetClosePoint() since we have a pet
             // Will be used later to reposition the pet if we have one
             var closePoint = new Position();
-            player.GetClosePoint(closePoint, pet.CombatReach, SharedConst.PetFollowDist, pet.FollowAngle);
+            player.Location.GetClosePoint(closePoint, pet.CombatReach, SharedConst.PetFollowDist, pet.FollowAngle);
             closePoint.Orientation = player.Location.Orientation;
             pet.NearTeleportTo(closePoint);
             pet.Location.Relocate(closePoint); // This is needed so SaveStayPosition() will get the proper coords.
@@ -4401,7 +4401,7 @@ public partial class Spell
             if (unitCaster.SummonSlot[slot].IsEmpty)
                 continue;
 
-            var totem = unitCaster.Map.GetCreature(unitCaster.SummonSlot[slot]);
+            var totem = unitCaster.Location.Map.GetCreature(unitCaster.SummonSlot[slot]);
 
             if (totem is { IsTotem: true })
             {
@@ -4554,7 +4554,7 @@ public partial class Spell
         else if (EffectInfo.HasRadius && SpellInfo.Speed == 0)
         {
             var dis = EffectInfo.CalcRadius(unitCaster);
-            unitCaster.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius, dis);
+            unitCaster.Location.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius, dis);
             pos.Orientation = unitCaster.Location.Orientation;
         }
         else
@@ -4564,11 +4564,11 @@ public partial class Spell
             var max_dis = SpellInfo.GetMaxRange(true);
             var dis = (float)RandomHelper.NextDouble() * (max_dis - min_dis) + min_dis;
 
-            unitCaster.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius, dis);
+            unitCaster.Location.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius, dis);
             pos.Orientation = unitCaster.Location.Orientation;
         }
 
-        var cMap = unitCaster.Map;
+        var cMap = unitCaster.Location.Map;
 
         // if gameobject is summoning object, it should be spawned right on caster's position
         if (goinfo.type == GameObjectTypes.Ritual)
@@ -4686,7 +4686,7 @@ public partial class Spell
             player.UpdateGatherSkill(SkillType.Jewelcrafting, SkillValue, reqSkillValue);
         }
 
-        ItemTarget.Loot = _lootFactory.GenerateLoot(player.Map, ItemTarget.GUID, LootType.Prospecting, ItemTarget.Entry, LootStorageType.Prospecting, player, true);
+        ItemTarget.Loot = _lootFactory.GenerateLoot(player.Location.Map, ItemTarget.GUID, LootType.Prospecting, ItemTarget.Entry, LootStorageType.Prospecting, player, true);
 
         player.SendLoot(ItemTarget.Loot);
     }
@@ -4715,7 +4715,7 @@ public partial class Spell
             player.UpdateGatherSkill(SkillType.Inscription, SkillValue, reqSkillValue);
         }
 
-        ItemTarget.Loot = _lootFactory.GenerateLoot(player.Map, ItemTarget.GUID, LootType.Milling, ItemTarget.Entry, LootStorageType.Milling, player, true);
+        ItemTarget.Loot = _lootFactory.GenerateLoot(player.Location.Map, ItemTarget.GUID, LootType.Milling, ItemTarget.Entry, LootStorageType.Milling, player, true);
 
         player.SendLoot(ItemTarget.Loot);
     }
@@ -4972,12 +4972,12 @@ public partial class Spell
 
         // relocate
         var pos = new Position();
-        UnitTarget.GetClosePoint(pos, pet.CombatReach, SharedConst.PetFollowDist, pet.FollowAngle);
+        UnitTarget.Location.GetClosePoint(pos, pet.CombatReach, SharedConst.PetFollowDist, pet.FollowAngle);
         pos.Orientation = UnitTarget.Location.Orientation;
         pet.Location.Relocate(pos);
 
         // add to world
-        pet.
+        pet.Location.
             // add to world
             Map.AddToMap(pet.AsCreature);
 
@@ -5087,7 +5087,7 @@ public partial class Spell
         var duration = SpellInfo.CalcDuration(_originalCaster);
 
         //TempSummonType summonType = (duration == 0) ? TempSummonType.DeadDespawn : TempSummonType.TimedDespawn;
-        var map = unitCaster.Map;
+        var map = unitCaster.Location.Map;
 
         for (uint count = 0; count < numGuardians; ++count)
         {
@@ -5097,7 +5097,7 @@ public partial class Spell
                 pos = DestTarget;
             else
                 // randomize position for multiple summons
-                pos = unitCaster.GetRandomPoint(DestTarget, radius);
+                pos = unitCaster.Location.GetRandomPoint(DestTarget, radius);
 
             var summon = map.SummonCreature(entry, pos, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
 
@@ -5370,7 +5370,7 @@ public partial class Spell
         var player = UnitTarget.AsPlayer;
 
         WorldLocation homeLoc = new();
-        var areaId = player.Area;
+        var areaId = player.Location.Area;
 
         if (EffectInfo.MiscValue != 0)
             areaId = (uint)EffectInfo.MiscValue;
@@ -5468,11 +5468,11 @@ public partial class Spell
         }
         else
         {
-            _caster.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius);
+            _caster.Location.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius);
             pos.Orientation = _caster.Location.Orientation;
         }
 
-        var map = _caster.Map;
+        var map = _caster.Location.Map;
         var rot = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
         var go = GameObject.CreateGameObject(goId, map, pos, rot, 255, GameObjectState.Ready);
 
@@ -5514,7 +5514,7 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        if (UnitTarget == null || !UnitTarget.IsInWorld)
+        if (UnitTarget == null || !UnitTarget.Location.IsInWorld)
             return;
 
         var target = UnitTarget.AsPlayer;
@@ -5949,7 +5949,7 @@ public partial class Spell
         if (!UnitTarget || !UnitTarget.IsTypeId(TypeId.Player))
             return;
 
-        UnitTarget.AsPlayer.UpdateAreaDependentAuras(UnitTarget.Area);
+        UnitTarget.AsPlayer.UpdateAreaDependentAuras(UnitTarget.Location.Area);
     }
 
     [SpellEffectHandler(SpellEffectName.GiveArtifactPower)]

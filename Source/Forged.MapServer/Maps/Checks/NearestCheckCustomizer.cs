@@ -18,11 +18,11 @@ internal class NearestCheckCustomizer : NoopCheckCustomizer
 
     public override bool Test(WorldObject o)
     {
-        return _obj.IsWithinDist(o, _range);
+        return _obj.Location.IsWithinDist(o, _range);
     }
 
     public override void Update(WorldObject o)
     {
-        _range = _obj.GetDistance(o);
+        _range = _obj.Location.GetDistance(o);
     }
 }

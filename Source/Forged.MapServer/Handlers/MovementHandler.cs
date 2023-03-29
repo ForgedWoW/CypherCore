@@ -108,7 +108,7 @@ public class MovementHandler : IWorldSessionHandler
             {
                 if (plrMover.Transport == null)
                 {
-                    var go = plrMover.Map.GetGameObject(movementInfo.Transport.Guid);
+                    var go = plrMover.Location.Map.GetGameObject(movementInfo.Transport.Guid);
 
                     if (go != null)
                     {
@@ -121,7 +121,7 @@ public class MovementHandler : IWorldSessionHandler
                 else if (plrMover.Transport.GetTransportGUID() != movementInfo.Transport.Guid)
                 {
                     plrMover.Transport.RemovePassenger(plrMover);
-                    var go = plrMover.Map.GetGameObject(movementInfo.Transport.Guid);
+                    var go = plrMover.Location.Map.GetGameObject(movementInfo.Transport.Guid);
 
                     if (go != null)
                     {
@@ -190,7 +190,7 @@ public class MovementHandler : IWorldSessionHandler
 
             plrMover.UpdateFallInformationIfNeed(movementInfo, opcode);
 
-            if (movementInfo.Pos.Z < plrMover.Map.GetMinHeight(plrMover.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y))
+            if (movementInfo.Pos.Z < plrMover.Location.Map.GetMinHeight(plrMover.Location.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y))
             {
                 if (!(plrMover.Battleground && plrMover.Battleground.HandlePlayerUnderMap(Player)))
                     // NOTE: this is actually called many times while falling
@@ -198,7 +198,7 @@ public class MovementHandler : IWorldSessionHandler
                     // @todo discard movement packets after the player is rooted
                     if (plrMover.IsAlive)
                     {
-                        Log.Logger.Debug($"FALLDAMAGE Below map. Map min height: {plrMover.Map.GetMinHeight(plrMover.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y)}, Player debug info:\n{plrMover.GetDebugInfo()}");
+                        Log.Logger.Debug($"FALLDAMAGE Below map. Map min height: {plrMover.Location.Map.GetMinHeight(plrMover.Location.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y)}, Player debug info:\n{plrMover.GetDebugInfo()}");
                         plrMover.SetPlayerFlag(PlayerFlags.IsOutOfBounds);
                         plrMover.EnvironmentalDamage(EnviromentalDamage.FallToVoid, (uint)Player.MaxHealth);
 
@@ -475,7 +475,7 @@ public class MovementHandler : IWorldSessionHandler
 
         plMover.SetSemaphoreTeleportNear(false);
 
-        var old_zone = plMover.Zone;
+        var old_zone = plMover.Location.Zone;
 
         var dest = plMover.TeleportDest;
 
@@ -610,7 +610,7 @@ public class MovementHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.SetActiveMover)]
     private void HandleSetActiveMover(SetActiveMover packet)
     {
-        if (Player.IsInWorld)
+        if (Player.Location.IsInWorld)
             if (_player.UnitBeingMoved.GUID != packet.ActiveMover)
                 Log.Logger.Error("HandleSetActiveMover: incorrect mover guid: mover is {0} and should be {1},", packet.ActiveMover.ToString(), _player.UnitBeingMoved.GUID.ToString());
     }

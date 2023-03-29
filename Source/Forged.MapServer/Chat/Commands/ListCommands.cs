@@ -73,7 +73,7 @@ internal class ListCommands
                 Map thisMap = null;
 
                 if (handler.Session != null)
-                    thisMap = handler.Session.Player.Map;
+                    thisMap = handler.Session.Player.Location.Map;
 
                 // If map found, try to find active version of this creature
                 if (thisMap)
@@ -422,7 +422,7 @@ internal class ListCommands
                 Map thisMap = null;
 
                 if (handler.Session != null)
-                    thisMap = handler.Session.Player.Map;
+                    thisMap = handler.Session.Player.Location.Map;
 
                 // If map found, try to find active version of this object
                 if (thisMap)
@@ -453,12 +453,12 @@ internal class ListCommands
     private static bool HandleListRespawnsCommand(CommandHandler handler, uint? range)
     {
         var player = handler.Session.Player;
-        var map = player.Map;
+        var map = player.Location.Map;
 
         var locale = handler.Session.SessionDbcLocale;
         var stringOverdue = Global.ObjectMgr.GetCypherString(CypherStrings.ListRespawnsOverdue, locale);
 
-        var zoneId = player.Zone;
+        var zoneId = player.Location.Zone;
         var zoneName = GetZoneName(zoneId, locale);
 
         for (SpawnObjectType type = 0; type < SpawnObjectType.NumSpawnTypes; type++)
@@ -538,7 +538,7 @@ internal class ListCommands
     private static bool HandleListSpawnPointsCommand(CommandHandler handler)
     {
         var player = handler.Session.Player;
-        var map = player.Map;
+        var map = player.Location.Map;
         var mapId = map.Id;
         var showAll = map.IsBattlegroundOrArena || map.IsDungeon;
         handler.SendSysMessage($"Listing all spawn points in map {mapId} ({map.MapName}){(showAll ? "" : " within 5000yd")}:");

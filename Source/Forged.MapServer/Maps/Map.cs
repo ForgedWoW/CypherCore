@@ -462,7 +462,7 @@ public class Map : IDisposable
         {
             if (worldStateTemplate != null && !worldStateTemplate.AreaIds.Empty())
             {
-                var isInAllowedArea = worldStateTemplate.AreaIds.Any(requiredAreaId => Global.DB2Mgr.IsInArea(player.Area, requiredAreaId));
+                var isInAllowedArea = worldStateTemplate.AreaIds.Any(requiredAreaId => Global.DB2Mgr.IsInArea(player.Location.Area, requiredAreaId));
 
                 if (!isInAllowedArea)
                     continue;
@@ -475,7 +475,7 @@ public class Map : IDisposable
     public bool AddToMap(WorldObject obj)
     {
         //TODO: Needs clean up. An object should not be added to map twice.
-        if (obj.IsInWorld)
+        if (obj.Location.IsInWorld)
         {
             obj.UpdateObjectVisibility(true);
 
@@ -525,7 +525,7 @@ public class Map : IDisposable
     public bool AddToMap(Transport obj)
     {
         //TODO: Needs clean up. An object should not be added to map twice.
-        if (obj.IsInWorld)
+        if (obj.Location.IsInWorld)
             return true;
 
         var cellCoord = GridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
@@ -550,7 +550,7 @@ public class Map : IDisposable
 
             // Broadcast creation to players
             foreach (var player in Players)
-                if (player.Transport != obj && player.InSamePhase(obj))
+                if (player.Transport != obj && player.Location.InSamePhase(obj))
                 {
                     var data = new UpdateData(Id);
                     obj.BuildCreateUpdateBlockForPlayer(data, player);
@@ -620,7 +620,7 @@ public class Map : IDisposable
         {
             var player = ActivePlayers[i];
 
-            if (player.IsInWorld)
+            if (player.Location.IsInWorld)
             {
                 var session = player.Session;
                 _threadManager.Schedule(() => session.UpdateMap(diff));
@@ -659,7 +659,7 @@ public class Map : IDisposable
         {
             var player = ActivePlayers[i];
 
-            if (!player.IsInWorld)
+            if (!player.Location.IsInWorld)
                 continue;
 
             // update players at tick
@@ -683,7 +683,7 @@ public class Map : IDisposable
                     var unit = pair.Value.GetOther(player).AsCreature;
 
                     if (unit != null)
-                        if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, VisibilityRange, false))
+                        if (unit.Location.MapId == player.Location.MapId && !unit.Location.IsWithinDistInMap(player, VisibilityRange, false))
                             toVisit.Add(unit);
                 }
 
@@ -701,7 +701,7 @@ public class Map : IDisposable
                       var caster = aur.Base.Caster;
 
                       if (caster != null)
-                          if (!caster.IsWithinDistInMap(player, VisibilityRange, false))
+                          if (!caster.Location.IsWithinDistInMap(player, VisibilityRange, false))
                               toVisit.Add(caster);
                   });
 
@@ -718,7 +718,7 @@ public class Map : IDisposable
                     var unit = GetCreature(summonGuid);
 
                     if (unit != null)
-                        if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, VisibilityRange, false))
+                        if (unit.Location.MapId == player.Location.MapId && !unit.Location.IsWithinDistInMap(player, VisibilityRange, false))
                             toVisit.Add(unit);
                 }
 
@@ -730,7 +730,7 @@ public class Map : IDisposable
         {
             var obj = _activeNonPlayers[i];
 
-            if (!obj.IsInWorld)
+            if (!obj.Location.IsInWorld)
                 continue;
 
             _threadManager.Schedule(() => VisitNearbyCellsOf(obj, update));
@@ -841,7 +841,7 @@ public class Map : IDisposable
 
         player.CombatStop();
 
-        var inWorld = player.IsInWorld;
+        var inWorld = player.Location.IsInWorld;
         player.RemoveFromWorld();
         SendRemoveTransports(player);
 
@@ -859,7 +859,7 @@ public class Map : IDisposable
 
     public void RemoveFromMap(WorldObject obj, bool remove)
     {
-        var inWorld = obj.IsInWorld && obj.TypeId is >= TypeId.Unit and <= TypeId.GameObject;
+        var inWorld = obj.Location.IsInWorld && obj.TypeId is >= TypeId.Unit and <= TypeId.GameObject;
         obj.RemoveFromWorld();
 
         if (obj.IsActive)
@@ -881,7 +881,7 @@ public class Map : IDisposable
 
     public void RemoveFromMap(Transport obj, bool remove)
     {
-        if (obj.IsInWorld)
+        if (obj.Location.IsInWorld)
         {
             obj.RemoveFromWorld();
 
@@ -938,7 +938,7 @@ public class Map : IDisposable
             AddToGrid(player, newcell);
         }
 
-        player.UpdatePositionData();
+        player.Location.UpdatePositionData();
         player.UpdateObjectVisibility(false);
     }
 
@@ -970,7 +970,7 @@ public class Map : IDisposable
                 creature.VehicleKit1.RelocatePassengers();
 
             creature.UpdateObjectVisibility(false);
-            creature.UpdatePositionData();
+            creature.Location.UpdatePositionData();
             RemoveCreatureFromMoveList(creature);
         }
     }
@@ -1049,7 +1049,7 @@ public class Map : IDisposable
         else
         {
             dynObj.Location.Relocate(x, y, z, orientation);
-            dynObj.UpdatePositionData();
+            dynObj.Location.UpdatePositionData();
             dynObj.UpdateObjectVisibility(false);
             RemoveDynamicObjectFromMoveList(dynObj);
         }
@@ -1103,7 +1103,7 @@ public class Map : IDisposable
         {
             c.Location.Relocate(respPos);
             c.MotionMaster.Initialize(); // prevent possible problems with default move generators
-            c.UpdatePositionData();
+            c.Location.UpdatePositionData();
             c.UpdateObjectVisibility(false);
 
             return true;
@@ -1133,7 +1133,7 @@ public class Map : IDisposable
         if (GameObjectCellRelocation(go, resp_cell))
         {
             go.Location.Relocate(respawnPos);
-            go.UpdatePositionData();
+            go.Location.UpdatePositionData();
             go.UpdateObjectVisibility(false);
 
             return true;
@@ -1494,12 +1494,12 @@ public class Map : IDisposable
 
         foreach (var transport in _transports)
         {
-            if (!transport.IsInWorld)
+            if (!transport.Location.IsInWorld)
                 continue;
 
             var hasTransport = player.VisibleTransports.Contains(transport.GUID);
 
-            if (player.InSamePhase(transport))
+            if (player.Location.InSamePhase(transport))
             {
                 if (!hasTransport)
                 {
@@ -1599,10 +1599,10 @@ public class Map : IDisposable
         if (!data.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.DynamicSpawnRate))
             return;
 
-        if (!_zonePlayerCountMap.ContainsKey(obj.Zone))
+        if (!_zonePlayerCountMap.ContainsKey(obj.Location.Zone))
             return;
 
-        var playerCount = _zonePlayerCountMap[obj.Zone];
+        var playerCount = _zonePlayerCountMap[obj.Location.Zone];
 
         if (playerCount == 0)
             return;
@@ -2297,8 +2297,8 @@ public class Map : IDisposable
 
             AddCorpse(bones);
 
-            bones.UpdatePositionData();
-            bones.SetZoneScript();
+            bones.Location.UpdatePositionData();
+            bones.Location.SetZoneScript();
 
             // add bones in grid store if grid loaded where corpse placed
             AddToMap(bones);
@@ -2390,7 +2390,7 @@ public class Map : IDisposable
             PlayMusic playMusic = new(musicId);
 
             foreach (var player in players)
-                if (player.Zone == zoneId && !player.HasAuraType(AuraType.ForceWeather))
+                if (player.Location.Zone == zoneId && !player.HasAuraType(AuraType.ForceWeather))
                     player.SendPacket(playMusic);
         }
     }
@@ -2449,7 +2449,7 @@ public class Map : IDisposable
             WeatherPkt weather = new(weatherId, intensity);
 
             foreach (var player in players)
-                if (player.Zone == zoneId)
+                if (player.Location.Zone == zoneId)
                     player.SendPacket(weather);
         }
     }
@@ -2488,7 +2488,7 @@ public class Map : IDisposable
             };
 
             foreach (var player in players)
-                if (player.Zone == zoneId)
+                if (player.Location.Zone == zoneId)
                     player.SendPacket(overrideLight);
         }
     }
@@ -2499,10 +2499,10 @@ public class Map : IDisposable
 
         foreach (var player in players)
             if (player)
-                if (player.IsInWorld)
+                if (player.Location.IsInWorld)
                 {
-                    player.UpdateAreaDependentAuras(player.Area);
-                    player.UpdateZoneDependentAuras(player.Zone);
+                    player.UpdateAreaDependentAuras(player.Location.Area);
+                    player.UpdateZoneDependentAuras(player.Location.Zone);
                 }
     }
 
@@ -2881,7 +2881,7 @@ public class Map : IDisposable
             PhasingHandler.InheritPhaseShift(summon, summoner);
 
         summon.SetCreatedBySpell(spellId);
-        summon.UpdateAllowedPositionZ(pos);
+        summon.Location.UpdateAllowedPositionZ(pos);
         summon.HomePosition = pos;
         summon.InitStats(duration);
         summon.PrivateObjectOwner = privateObjectOwner;
@@ -3049,7 +3049,7 @@ public class Map : IDisposable
         var grid = GetGrid(cell.GetGridX(), cell.GetGridY());
 
         if (obj.IsPlayer)
-            MultiPersonalPhaseTracker.LoadGrid(obj.PhaseShift, grid, this, cell);
+            MultiPersonalPhaseTracker.LoadGrid(obj.Location.PhaseShift, grid, this, cell);
 
         // refresh grid state & timer
         if (grid.GetGridState() != GridState.Active)
@@ -3351,7 +3351,7 @@ public class Map : IDisposable
             {
                 var creature = _creaturesToMove[i];
 
-                if (creature.Map != this) //pet is teleported to another map
+                if (creature.Location.Map != this) //pet is teleported to another map
                     continue;
 
                 if (creature.Location.MoveState != ObjectCellMoveState.Active)
@@ -3363,7 +3363,7 @@ public class Map : IDisposable
 
                 creature.Location.MoveState = ObjectCellMoveState.None;
 
-                if (!creature.IsInWorld)
+                if (!creature.Location.IsInWorld)
                     continue;
 
                 // do move or do move to respawn or remove creature if previous all fail
@@ -3375,7 +3375,7 @@ public class Map : IDisposable
                     if (creature.IsVehicle)
                         creature.VehicleKit1.RelocatePassengers();
 
-                    creature.UpdatePositionData();
+                    creature.Location.UpdatePositionData();
                     creature.UpdateObjectVisibility(false);
                 }
                 else
@@ -3408,7 +3408,7 @@ public class Map : IDisposable
             {
                 var go = _gameObjectsToMove[i];
 
-                if (go.Map != this) //transport is teleported to another map
+                if (go.Location.Map != this) //transport is teleported to another map
                     continue;
 
                 if (go.Location.MoveState != ObjectCellMoveState.Active)
@@ -3420,7 +3420,7 @@ public class Map : IDisposable
 
                 go.Location.MoveState = ObjectCellMoveState.None;
 
-                if (!go.IsInWorld)
+                if (!go.Location.IsInWorld)
                     continue;
 
                 // do move or do move to respawn or remove creature if previous all fail
@@ -3456,7 +3456,7 @@ public class Map : IDisposable
             {
                 var dynObj = _dynamicObjectsToMove[i];
 
-                if (dynObj.Map != this) //transport is teleported to another map
+                if (dynObj.Location.Map != this) //transport is teleported to another map
                     continue;
 
                 if (dynObj.Location.MoveState != ObjectCellMoveState.Active)
@@ -3468,7 +3468,7 @@ public class Map : IDisposable
 
                 dynObj.Location.MoveState = ObjectCellMoveState.None;
 
-                if (!dynObj.IsInWorld)
+                if (!dynObj.Location.IsInWorld)
                     continue;
 
                 // do move or do move to respawn or remove creature if previous all fail
@@ -3476,7 +3476,7 @@ public class Map : IDisposable
                 {
                     // update pos
                     dynObj.Location.Relocate(dynObj.Location.NewPosition);
-                    dynObj.UpdatePositionData();
+                    dynObj.Location.UpdatePositionData();
                     dynObj.UpdateObjectVisibility(false);
                 }
                 else
@@ -3495,7 +3495,7 @@ public class Map : IDisposable
             {
                 var at = _areaTriggersToMove[i];
 
-                if (at.Map != this) //transport is teleported to another map
+                if (at.Location.Map != this) //transport is teleported to another map
                     continue;
 
                 if (at.Location.MoveState != ObjectCellMoveState.Active)
@@ -3507,7 +3507,7 @@ public class Map : IDisposable
 
                 at.Location.MoveState = ObjectCellMoveState.None;
 
-                if (!at.IsInWorld)
+                if (!at.Location.IsInWorld)
                     continue;
 
                 // do move or do move to respawn or remove creature if previous all fail
@@ -3612,7 +3612,7 @@ public class Map : IDisposable
         var transData = new UpdateData(Id);
 
         foreach (var transport in _transports)
-            if (transport.IsInWorld && transport != player.Transport && player.InSamePhase(transport))
+            if (transport.Location.IsInWorld && transport != player.Transport && player.Location.InSamePhase(transport))
             {
                 transport.BuildCreateUpdateBlockForPlayer(transData, player);
                 player.VisibleTransports.Add(transport.GUID);
@@ -4644,7 +4644,7 @@ public class Map : IDisposable
 
     private GameObject FindGameObject(WorldObject searchObject, ulong guid)
     {
-        var bounds = searchObject.Map.GameObjectBySpawnIdStore.LookupByKey(guid);
+        var bounds = searchObject.Location.Map.GameObjectBySpawnIdStore.LookupByKey(guid);
 
         if (bounds.Empty())
             return null;
@@ -4837,9 +4837,9 @@ public class Map : IDisposable
                             if (step.Script.MoveTo.TravelTime != 0)
                             {
                                 var speed =
-                                    unit.GetDistance(step.Script.MoveTo.DestX,
-                                                     step.Script.MoveTo.DestY,
-                                                     step.Script.MoveTo.DestZ) /
+                                    unit.Location.GetDistance(step.Script.MoveTo.DestX,
+                                                               step.Script.MoveTo.DestY,
+                                                               step.Script.MoveTo.DestZ) /
                                     (step.Script.MoveTo.TravelTime * 0.001f);
 
                                 unit.MonsterMoveWithSpeed(step.Script.MoveTo.DestX,
@@ -4956,7 +4956,7 @@ public class Map : IDisposable
                         // quest id and flags checked at script loading
                         if ((!worldObject.IsTypeId(TypeId.Unit) || worldObject.AsUnit.IsAlive) &&
                             (step.Script.QuestExplored.Distance == 0 ||
-                             worldObject.IsWithinDistInMap(player, step.Script.QuestExplored.Distance)))
+                             worldObject.Location.IsWithinDistInMap(player, step.Script.QuestExplored.Distance)))
                             player.AreaExploredOrEventHappens(step.Script.QuestExplored.QuestID);
                         else
                             player.FailQuest(step.Script.QuestExplored.QuestID);
@@ -5022,7 +5022,7 @@ public class Map : IDisposable
                                 pGO.SetLootState(LootState.Ready);
                                 pGO.SetRespawnTime(nTimeToDespawn);
 
-                                pGO.Map.AddToMap(pGO);
+                                pGO.Location.Map.AddToMap(pGO);
                             }
                         }
 
@@ -5141,7 +5141,7 @@ public class Map : IDisposable
                                 break;
                             case eScriptFlags.CastspellSearchCreature: // source . creature with entry
                                 uSource = source;
-                                uTarget = uSource?.FindNearestCreature((uint)Math.Abs(step.Script.CastSpell.CreatureEntry), step.Script.CastSpell.SearchRadius);
+                                uTarget = uSource.Location?.FindNearestCreature((uint)Math.Abs(step.Script.CastSpell.CreatureEntry), step.Script.CastSpell.SearchRadius);
 
                                 break;
                         }

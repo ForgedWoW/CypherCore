@@ -108,7 +108,7 @@ public class HomeMovementGenerator<T> : MovementGeneratorMedium<T> where T : Cre
         * }
         */
 
-        owner.UpdateAllowedPositionZ(destination);
+        owner.Location.UpdateAllowedPositionZ(destination);
         init.MoveTo(destination);
         init.SetFacing(destination.Orientation);
         init.SetWalk(false);

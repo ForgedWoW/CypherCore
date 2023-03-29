@@ -224,7 +224,7 @@ public class SmartAI : CreatureAI
                     {
                         var groupGuy = groupRef.Source;
 
-                        if (!groupGuy.IsInMap(player))
+                        if (!groupGuy.Location.IsInMap(player))
                             continue;
 
                         if (!fail && groupGuy.IsAtGroupRewardDistance(Me) && !groupGuy.GetCorpse())
@@ -974,7 +974,7 @@ public class SmartAI : CreatureAI
             {
                 var player = targets.First().AsPlayer;
 
-                if (Me.GetDistance(player) <= checkDist)
+                if (Me.Location.GetDistance(player) <= checkDist)
                     return true;
 
                 var group = player.Group;
@@ -984,7 +984,7 @@ public class SmartAI : CreatureAI
                     {
                         var groupGuy = groupRef.Source;
 
-                        if (groupGuy.IsInMap(player) && Me.GetDistance(groupGuy) <= checkDist)
+                        if (groupGuy.Location.IsInMap(player) && Me.Location.GetDistance(groupGuy) <= checkDist)
                             return true;
                     }
             }
@@ -992,7 +992,7 @@ public class SmartAI : CreatureAI
             {
                 foreach (var obj in targets)
                     if (GetScript().IsPlayer(obj))
-                        if (Me.GetDistance(obj.AsPlayer) <= checkDist)
+                        if (Me.Location.GetDistance(obj.AsPlayer) <= checkDist)
                             return true;
             }
 
@@ -1038,7 +1038,7 @@ public class SmartAI : CreatureAI
             return false;
 
         //too far away and no free sight
-        if (Me.IsWithinDistInMap(who, SMART_MAX_AID_DIST) && Me.IsWithinLOSInMap(who))
+        if (Me.Location.IsWithinDistInMap(who, SMART_MAX_AID_DIST) && Me.Location.IsWithinLOSInMap(who))
         {
             Me.EngageWithTarget(who);
 
@@ -1146,7 +1146,7 @@ public class SmartAI : CreatureAI
         {
             if (_followArrivedTimer < diff)
             {
-                if (Me.FindNearestCreature(_followArrivedEntry, SharedConst.InteractionDistance, true))
+                if (Me.Location.FindNearestCreature(_followArrivedEntry, SharedConst.InteractionDistance, true))
                 {
                     StopFollow(true);
 

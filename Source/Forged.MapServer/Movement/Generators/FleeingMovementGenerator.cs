@@ -135,7 +135,7 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
         GetPoint(owner, destination);
 
         // Add LOS check for target point
-        if (!owner.IsWithinLOS(destination.X, destination.Y, destination.Z))
+        if (!owner.Location.IsWithinLOS(destination.X, destination.Y, destination.Z))
         {
             _timer.Reset(200);
 

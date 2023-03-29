@@ -47,9 +47,9 @@ public class Conversation : WorldObject
     public override void AddToWorld()
     {
         //- Register the Conversation for guid lookup and for caster
-        if (!IsInWorld)
+        if (!Location.IsInWorld)
         {
-            Map.ObjectsStore.TryAdd(GUID, this);
+            Location.Map.ObjectsStore.TryAdd(GUID, this);
             base.AddToWorld();
         }
     }
@@ -57,10 +57,10 @@ public class Conversation : WorldObject
     public override void RemoveFromWorld()
     {
         //- Remove the Conversation from the accessor and from all lists of objects in world
-        if (IsInWorld)
+        if (Location.IsInWorld)
         {
             base.RemoveFromWorld();
-            Map.ObjectsStore.TryRemove(GUID, out _);
+            Location.Map.ObjectsStore.TryRemove(GUID, out _);
         }
     }
 
@@ -89,7 +89,7 @@ public class Conversation : WorldObject
 
     public void Remove()
     {
-        if (IsInWorld)
+        if (Location.IsInWorld)
             AddObjectToRemoveList(); // calls RemoveFromWorld
     }
 
@@ -100,10 +100,10 @@ public class Conversation : WorldObject
         if (conversationTemplate == null)
             return null;
 
-        var lowGuid = creator.Map.GenerateLowGuid(HighGuid.Conversation);
+        var lowGuid = creator.Location.Map.GenerateLowGuid(HighGuid.Conversation);
 
         Conversation conversation = new();
-        conversation.Create(lowGuid, conversationEntry, creator.Map, creator, pos, privateObjectOwner, spellInfo);
+        conversation.Create(lowGuid, conversationEntry, creator.Location.Map, creator, pos, privateObjectOwner, spellInfo);
 
         if (autoStart && !conversation.Start())
             return null;
@@ -210,8 +210,8 @@ public class Conversation : WorldObject
         Create(ObjectGuid.Create(HighGuid.Conversation, Location.MapId, conversationEntry, lowGuid));
         PhasingHandler.InheritPhaseShift(this, creator);
 
-        UpdatePositionData();
-        SetZoneScript();
+        Location.UpdatePositionData();
+        Location.SetZoneScript();
 
         Entry = conversationEntry;
         ObjectScale = 1.0f;
@@ -285,7 +285,7 @@ public class Conversation : WorldObject
             }
         }
 
-        if (!Map.AddToMap(this))
+        if (!Location.Map.AddToMap(this))
             return false;
 
         return true;

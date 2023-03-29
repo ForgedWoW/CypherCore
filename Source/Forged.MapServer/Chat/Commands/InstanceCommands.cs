@@ -33,7 +33,7 @@ internal class InstanceCommands
             return false;
         }
 
-        var map = player.GetConnectedPlayer().Map.ToInstanceMap;
+        var map = player.GetConnectedPlayer().Location.Map.ToInstanceMap;
 
         if (map == null)
         {
@@ -115,7 +115,7 @@ internal class InstanceCommands
             return false;
         }
 
-        var map = player.GetConnectedPlayer().Map.ToInstanceMap;
+        var map = player.GetConnectedPlayer().Location.Map.ToInstanceMap;
 
         if (map == null)
         {

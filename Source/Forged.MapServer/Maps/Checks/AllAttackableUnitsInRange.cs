@@ -30,10 +30,10 @@ internal class AllAttackableUnitsInRange : ICheck<Unit>
 
         if (_range != 0f)
         {
-            if (_range > 0.0f && !_unit.IsWithinDist(u, _range, false))
+            if (_range > 0.0f && !_unit.Location.IsWithinDist(u, _range, false))
                 return false;
 
-            if (_range < 0.0f && _unit.IsWithinDist(u, _range, false))
+            if (_range < 0.0f && _unit.Location.IsWithinDist(u, _range, false))
                 return false;
         }
 

@@ -90,7 +90,7 @@ public partial class Unit
             if (transformId == 0)
                 return false;
 
-            var spellInfo = Global.SpellMgr.GetSpellInfo(transformId, Map.DifficultyID);
+            var spellInfo = Global.SpellMgr.GetSpellInfo(transformId, Location.Map.DifficultyID);
 
             if (spellInfo == null)
                 return false;
@@ -1049,7 +1049,7 @@ public partial class Unit
 
                 if (matches)
                 {
-                    var info = Global.SpellMgr.GetSpellInfo((uint)auraEffect.Amount, Map.DifficultyID);
+                    var info = Global.SpellMgr.GetSpellInfo((uint)auraEffect.Amount, Location.Map.DifficultyID);
 
                     if (info != null)
                         return info;
@@ -1079,7 +1079,7 @@ public partial class Unit
         foreach (var effect in visualOverrides)
             if (effect.MiscValue == spellInfo.Id)
             {
-                var visualSpell = Global.SpellMgr.GetSpellInfo((uint)effect.MiscValueB, Map.DifficultyID);
+                var visualSpell = Global.SpellMgr.GetSpellInfo((uint)effect.MiscValueB, Location.Map.DifficultyID);
 
                 if (visualSpell != null)
                 {
@@ -1537,7 +1537,7 @@ public partial class Unit
                 if ((pair.Key & schoolMask) == 0)
                     continue;
 
-                var immuneSpellInfo = Global.SpellMgr.GetSpellInfo(pair.Value, Map.DifficultyID);
+                var immuneSpellInfo = Global.SpellMgr.GetSpellInfo(pair.Value, Location.Map.DifficultyID);
 
                 if (requireImmunityPurgesEffectAttribute)
                     if (immuneSpellInfo == null || !immuneSpellInfo.HasAttribute(SpellAttr1.ImmunityPurgesEffect))
@@ -1668,7 +1668,7 @@ public partial class Unit
             var schoolList = _spellImmune[(int)SpellImmunity.School];
 
             foreach (var pair in schoolList.KeyValueList)
-                if (Convert.ToBoolean(pair.Key & schoolMask) && !spellInfo.CanPierceImmuneAura(Global.SpellMgr.GetSpellInfo(pair.Value, Map.DifficultyID)))
+                if (Convert.ToBoolean(pair.Key & schoolMask) && !spellInfo.CanPierceImmuneAura(Global.SpellMgr.GetSpellInfo(pair.Value, Location.Map.DifficultyID)))
                     schoolImmunityMask |= pair.Key;
 
             // // We need to be immune to all types
@@ -2573,7 +2573,7 @@ public partial class Unit
         if (target == null)
             return null;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.DifficultyID);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Location.Map.DifficultyID);
 
         if (spellInfo == null)
             return null;
@@ -2604,9 +2604,9 @@ public partial class Unit
         if (effMask.Count == 0)
             return null;
 
-        var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Map.GenerateLowGuid(HighGuid.Cast));
+        var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Location.Map.GenerateLowGuid(HighGuid.Cast));
 
-        AuraCreateInfo createInfo = new(castId, spellInfo, Map.DifficultyID, effMask, target);
+        AuraCreateInfo createInfo = new(castId, spellInfo, Location.Map.DifficultyID, effMask, target);
         createInfo.SetCaster(this);
 
         var aura = Aura.TryRefreshStackOrCreate(createInfo);
@@ -2644,7 +2644,7 @@ public partial class Unit
             var target = Convert.ToBoolean(clickInfo.castFlags & (byte)SpellClickCastFlags.TargetClicker) ? clicker : this;
             var origCasterGUID = Convert.ToBoolean(clickInfo.castFlags & (byte)SpellClickCastFlags.OrigCasterOwner) ? OwnerGUID : clicker.GUID;
 
-            var spellEntry = Global.SpellMgr.GetSpellInfo(clickInfo.spellId, caster.Map.DifficultyID);
+            var spellEntry = Global.SpellMgr.GetSpellInfo(clickInfo.spellId, caster.Location.Map.DifficultyID);
             // if (!spellEntry) should be checked at npc_spellclick load
 
             if (seatId > -1)
@@ -2671,7 +2671,7 @@ public partial class Unit
                     continue;
                 }
 
-                if (IsInMap(caster))
+                if (Location.IsInMap(caster))
                 {
                     CastSpellExtraArgs args = new(flags)
                     {
@@ -2690,7 +2690,7 @@ public partial class Unit
 
                     bp[i] = seatId;
 
-                    AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Map.DifficultyID, SpellConst.MaxEffects, this);
+                    AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Location.Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Location.Map.DifficultyID, SpellConst.MaxEffects, this);
                     createInfo.SetCaster(clicker);
                     createInfo.SetBaseAmount(bp);
                     createInfo.SetCasterGuid(origCasterGUID);
@@ -2700,13 +2700,13 @@ public partial class Unit
             }
             else
             {
-                if (IsInMap(caster))
+                if (Location.IsInMap(caster))
                 {
                     caster.CastSpell(target, spellEntry.Id, new CastSpellExtraArgs().SetOriginalCaster(origCasterGUID));
                 }
                 else
                 {
-                    AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Map.DifficultyID, SpellConst.MaxEffects, this);
+                    AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Location.Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Location.Map.DifficultyID, SpellConst.MaxEffects, this);
                     createInfo.SetCaster(clicker);
                     createInfo.SetCasterGuid(origCasterGUID);
 
@@ -3131,7 +3131,7 @@ public partial class Unit
             {
                 var caster = aura.Caster;
 
-                if (!caster || !caster.InSamePhase(this))
+                if (!caster || !caster.Location.InSamePhase(this))
                     RemoveOwnedAura(aura.Id, aura);
             }
 
@@ -3140,7 +3140,7 @@ public partial class Unit
         {
             var aura = _scAuras[i];
 
-            if (aura.OwnerAsUnit != this && (!onPhaseChange || !aura.OwnerAsUnit.InSamePhase(this)))
+            if (aura.OwnerAsUnit != this && (!onPhaseChange || !aura.OwnerAsUnit.Location.InSamePhase(this)))
                 aura.Remove();
         }
     }

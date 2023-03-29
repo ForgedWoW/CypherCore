@@ -445,7 +445,7 @@ public class CommandHandler
         if (_session == null)
             return null;
 
-        var bounds = _session.Player.Map.GameObjectBySpawnIdStore.LookupByKey(lowguid);
+        var bounds = _session.Player.Location.Map.GameObjectBySpawnIdStore.LookupByKey(lowguid);
 
         if (!bounds.Empty())
             return Enumerable.First<GameObject>(bounds);
@@ -460,7 +460,7 @@ public class CommandHandler
 
         // Select the first alive creature or a dead one if not found
         Creature creature = null;
-        var bounds = _session.Player.Map.CreatureBySpawnIdStore.LookupByKey(lowguid);
+        var bounds = _session.Player.Location.Map.CreatureBySpawnIdStore.LookupByKey(lowguid);
 
         foreach (var it in bounds)
         {

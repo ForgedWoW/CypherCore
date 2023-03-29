@@ -29,8 +29,8 @@ public class ScriptedAI : CreatureAI
     public ScriptedAI(Creature creature) : base(creature)
     {
         _isCombatMovementAllowed = true;
-        _isHeroic = Me.Map.IsHeroic;
-        _difficulty = Me.Map.DifficultyID;
+        _isHeroic = Me.Location.Map.IsHeroic;
+        _difficulty = Me.Location.Map.DifficultyID;
     }
 
     public void AttackStartNoMove(Unit target)
@@ -214,8 +214,8 @@ public class ScriptedAI : CreatureAI
         //Check if each spell is viable(set it to null if not)
         for (uint i = 0; i < SharedConst.MaxCreatureSpells; i++)
         {
-            var tempSpell = Global.SpellMgr.GetSpellInfo(Me.Spells[i], Me.Map.DifficultyID);
-            var aiSpell = GetAISpellInfo(Me.Spells[i], Me.Map.DifficultyID);
+            var tempSpell = Global.SpellMgr.GetSpellInfo(Me.Spells[i], Me.Location.Map.DifficultyID);
+            var aiSpell = GetAISpellInfo(Me.Spells[i], Me.Location.Map.DifficultyID);
 
             //This spell doesn't exist
             if (tempSpell == null || aiSpell == null)
@@ -260,7 +260,7 @@ public class ScriptedAI : CreatureAI
                 continue;
 
             //Check if our target is in range
-            if (Me.IsWithinDistInMap(target, Me.GetSpellMinRangeForTarget(target, tempSpell)) || !Me.IsWithinDistInMap(target, Me.GetSpellMaxRangeForTarget(target, tempSpell)))
+            if (Me.Location.IsWithinDistInMap(target, Me.GetSpellMinRangeForTarget(target, tempSpell)) || !Me.Location.IsWithinDistInMap(target, Me.GetSpellMaxRangeForTarget(target, tempSpell)))
                 continue;
 
             //All good so lets add it to the spell list
@@ -278,7 +278,7 @@ public class ScriptedAI : CreatureAI
     public void DoTeleportTo(float x, float y, float z, uint time = 0)
     {
         Me.Location.Relocate(x, y, z);
-        var speed = Me.GetDistance(x, y, z) / (time * 0.001f);
+        var speed = Me.Location.GetDistance(x, y, z) / (time * 0.001f);
         Me.MonsterMoveWithSpeed(x, y, z, speed);
     }
 
@@ -303,7 +303,7 @@ public class ScriptedAI : CreatureAI
 
     public void DoTeleportAll(float x, float y, float z, float o)
     {
-        var map = Me.Map;
+        var map = Me.Location.Map;
 
         if (!map.IsDungeon)
             return;
@@ -388,17 +388,17 @@ public class ScriptedAI : CreatureAI
 
     public static Creature GetClosestCreatureWithEntry(WorldObject source, uint entry, float maxSearchRange, bool alive = true)
     {
-        return source.FindNearestCreature(entry, maxSearchRange, alive);
+        return source.Location.FindNearestCreature(entry, maxSearchRange, alive);
     }
 
     public static Creature GetClosestCreatureWithOptions(WorldObject source, float maxSearchRange, FindCreatureOptions options)
     {
-        return source.FindNearestCreatureWithOptions(maxSearchRange, options);
+        return source.Location.FindNearestCreatureWithOptions(maxSearchRange, options);
     }
 
     public static GameObject GetClosestGameObjectWithEntry(WorldObject source, uint entry, float maxSearchRange, bool spawnedOnly = true)
     {
-        return source.FindNearestGameObject(entry, maxSearchRange, spawnedOnly);
+        return source.Location.FindNearestGameObject(entry, maxSearchRange, spawnedOnly);
     }
 
     public bool HealthBelowPct(int pct)

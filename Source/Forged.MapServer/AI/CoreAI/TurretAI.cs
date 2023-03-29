@@ -16,7 +16,7 @@ public class TurretAI : CreatureAI
         if (creature.Spells[0] == 0)
             Log.Logger.Error($"TurretAI set for creature with spell1=0. AI will do nothing ({creature.GUID})");
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(creature.Spells[0], creature.Map.DifficultyID);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(creature.Spells[0], creature.Location.Map.DifficultyID);
         _minRange = spellInfo != null ? spellInfo.GetMinRange(false) : 0;
         creature.CombatDistance = spellInfo != null ? spellInfo.GetMaxRange(false) : 0;
         creature.SightDistance = creature.CombatDistance;

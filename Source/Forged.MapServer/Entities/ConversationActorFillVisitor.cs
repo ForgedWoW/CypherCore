@@ -49,7 +49,7 @@ internal class ConversationActorFillVisitor
             bestFit = creature;
 
             // If creature is in a personal phase then we pick that one specifically
-            if (creature.PhaseShift.PersonalGuid == _creator.GUID)
+            if (creature.Location.PhaseShift.PersonalGuid == _creator.GUID)
                 break;
         }
 

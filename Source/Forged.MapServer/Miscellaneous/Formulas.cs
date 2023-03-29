@@ -170,7 +170,7 @@ public class Formulas
                 if (creature.IsElite)
                 {
                     // Elites in instances have a 2.75x XP bonus instead of the regular 2x world bonus.
-                    if (u.Map.IsDungeon)
+                    if (u.Location.Map.IsDungeon)
                         xpMod *= 2.75f;
                     else
                         xpMod *= 2.0f;

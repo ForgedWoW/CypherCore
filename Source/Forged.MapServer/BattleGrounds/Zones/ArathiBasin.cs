@@ -403,7 +403,7 @@ internal class BgArathiBasin : Battleground
         byte node = ABBattlegroundNodes.NodeStables;
         var obj = GetBgMap().GetGameObject(BgObjects[node * 8 + 7]);
 
-        while ((node < ABBattlegroundNodes.DynamicNodesCount) && ((!obj) || (!source.IsWithinDistInMap(obj, 10))))
+        while ((node < ABBattlegroundNodes.DynamicNodesCount) && ((!obj) || (!source.Location.IsWithinDistInMap(obj, 10))))
         {
             ++node;
             obj = GetBgMap().GetGameObject(BgObjects[node * 8 + ABObjectTypes.AuraContested]);

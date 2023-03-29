@@ -145,7 +145,7 @@ public class OutdoorPvPManager
 
     public void HandlePlayerEnterZone(Player player, uint zoneid)
     {
-        var outdoor = GetOutdoorPvPToZoneId(player.Map, zoneid);
+        var outdoor = GetOutdoorPvPToZoneId(player.Location.Map, zoneid);
 
         if (outdoor == null)
             return;
@@ -159,7 +159,7 @@ public class OutdoorPvPManager
 
     public void HandlePlayerLeaveZone(Player player, uint zoneid)
     {
-        var outdoor = GetOutdoorPvPToZoneId(player.Map, zoneid);
+        var outdoor = GetOutdoorPvPToZoneId(player.Location.Map, zoneid);
 
         if (outdoor == null)
             return;

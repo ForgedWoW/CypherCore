@@ -326,7 +326,7 @@ public partial class Player
             opponent.CastSpell(Duel.Opponent, 52852, true);
 
         //Remove Duel Flag object
-        var obj = Map.GetGameObject(PlayerData.DuelArbiter);
+        var obj = Location.Map.GetGameObject(PlayerData.DuelArbiter);
 
         if (obj)
             Duel.Initiator.RemoveGameObject(obj, true);
@@ -714,14 +714,14 @@ public partial class Player
             return;
 
         ObjectGuid duelFlagGuid = PlayerData.DuelArbiter;
-        var obj = Map.GetGameObject(duelFlagGuid);
+        var obj = Location.Map.GetGameObject(duelFlagGuid);
 
         if (!obj)
             return;
 
         if (Duel.OutOfBoundsTime == 0)
         {
-            if (!IsWithinDistInMap(obj, 50))
+            if (!Location.IsWithinDistInMap(obj, 50))
             {
                 Duel.OutOfBoundsTime = currTime + 10;
                 SendPacket(new DuelOutOfBounds());
@@ -729,7 +729,7 @@ public partial class Player
         }
         else
         {
-            if (IsWithinDistInMap(obj, 40))
+            if (Location.IsWithinDistInMap(obj, 40))
             {
                 Duel.OutOfBoundsTime = 0;
                 SendPacket(new DuelInBounds());

@@ -541,7 +541,7 @@ internal class ModifyCommand
                 return false;
             }
 
-            if (!target.PhaseShift.HasVisibleMapId(visibleMapId))
+            if (!target.Location.PhaseShift.HasVisibleMapId(visibleMapId))
                 PhasingHandler.AddVisibleMapId(target, visibleMapId);
             else
                 PhasingHandler.RemoveVisibleMapId(target, visibleMapId);
@@ -549,7 +549,7 @@ internal class ModifyCommand
 
         if (phaseId != 0)
         {
-            if (!target.PhaseShift.HasPhase(phaseId))
+            if (!target.Location.PhaseShift.HasPhase(phaseId))
                 PhasingHandler.AddPhase(target, phaseId, true);
             else
                 PhasingHandler.RemovePhase(target, phaseId, true);

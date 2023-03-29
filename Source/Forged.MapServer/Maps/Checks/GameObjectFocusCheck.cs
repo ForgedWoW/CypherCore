@@ -28,6 +28,6 @@ internal class GameObjectFocusCheck : ICheck<GameObject>
 
         float dist = go.Template.GetSpellFocusRadius();
 
-        return go.IsWithinDist(_caster, dist);
+        return go.Location.IsWithinDist(_caster, dist);
     }
 }

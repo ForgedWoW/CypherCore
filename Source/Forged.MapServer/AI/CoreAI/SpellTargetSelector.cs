@@ -17,7 +17,7 @@ public class SpellTargetSelector : ICheck<Unit>
     public SpellTargetSelector(Unit caster, uint spellId)
     {
         _caster = caster;
-        _spellInfo = Global.SpellMgr.GetSpellInfo(spellId, caster.Map.DifficultyID);
+        _spellInfo = Global.SpellMgr.GetSpellInfo(spellId, caster.Location.Map.DifficultyID);
     }
 
     public bool Invoke(Unit target)

@@ -137,7 +137,7 @@ public partial class Unit
         if (!CanHaveThreatList)
             return;
 
-        var map = Map;
+        var map = Location.Map;
 
         if (!map.IsDungeon)
         {
@@ -365,7 +365,7 @@ public partial class Unit
             return false;
 
         // dead units can neither attack nor be attacked
-        if (!IsAlive || !victim.IsInWorld || !victim.IsAlive)
+        if (!IsAlive || !victim.Location.IsInWorld || !victim.IsAlive)
             return false;
 
         // player cannot attack in mount state
@@ -624,7 +624,7 @@ public partial class Unit
         if (!victim.IsAlive)
             return;
 
-        if ((attType == WeaponAttackType.BaseAttack || attType == WeaponAttackType.OffAttack) && !IsWithinLOSInMap(victim))
+        if ((attType == WeaponAttackType.BaseAttack || attType == WeaponAttackType.OffAttack) && !Location.IsWithinLOSInMap(victim))
             return;
 
         AtTargetAttacked(victim, true);
@@ -726,7 +726,7 @@ public partial class Unit
             var magnet = i.Caster;
 
             if (magnet != null)
-                if (IsValidAttackTarget(magnet, spellInfo) && magnet.IsWithinLOSInMap(this) && (spellInfo == null || (spellInfo.CheckExplicitTarget(this, magnet) == SpellCastResult.SpellCastOk && spellInfo.CheckTarget(this, magnet, false) == SpellCastResult.SpellCastOk)))
+                if (IsValidAttackTarget(magnet, spellInfo) && magnet.Location.IsWithinLOSInMap(this) && (spellInfo == null || (spellInfo.CheckExplicitTarget(this, magnet) == SpellCastResult.SpellCastOk && spellInfo.CheckTarget(this, magnet, false) == SpellCastResult.SpellCastOk)))
                 {
                     i.Base.DropCharge(AuraRemoveMode.Expire);
 
@@ -822,7 +822,7 @@ public partial class Unit
         if (victim.Health == 0)
             return;
 
-        if (attacker != null && !attacker.IsInMap(victim))
+        if (attacker != null && !attacker.Location.IsInMap(victim))
             attacker = null;
 
         // find player: owner of controlled `this` or `this` itself maybe
@@ -907,7 +907,7 @@ public partial class Unit
                 if (instance != null)
                     dungeonEncounter = instance.GetBossDungeonEncounter(creature);
 
-                if (creature.Map.IsDungeon)
+                if (creature.Location.Map.IsDungeon)
                 {
                     if (dungeonEncounter != null)
                     {
@@ -919,7 +919,7 @@ public partial class Unit
                                                                                                  creature.Template.MinGold,
                                                                                                  creature.Template.MaxGold,
                                                                                                  (ushort)creature.GetLootMode(),
-                                                                                                 creature.Map.GetDifficultyLootItemContext(),
+                                                                                                 creature.Location.Map.GetDifficultyLootItemContext(),
                                                                                                  tappers);
                     }
                     else if (!tappers.Empty())
@@ -927,18 +927,18 @@ public partial class Unit
                         var group = !groups.Empty() ? groups.First() : null;
                         var looter = group ? Global.ObjAccessor.GetPlayer(creature, group.LooterGuid) : tappers[0];
 
-                        Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
+                        Loot loot = new(creature.Location.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
 
                         var lootid = creature.LootId;
 
                         if (lootid != 0)
-                            loot.FillLoot(lootid, LootStorage.Creature, looter, dungeonEncounter != null, false, creature.GetLootMode(), creature.Map.GetDifficultyLootItemContext());
+                            loot.FillLoot(lootid, LootStorage.Creature, looter, dungeonEncounter != null, false, creature.GetLootMode(), creature.Location.Map.GetDifficultyLootItemContext());
 
                         if (creature.GetLootMode() > 0)
                             loot.GenerateMoneyLoot(creature.Template.MinGold, creature.Template.MaxGold);
 
                         if (group)
-                            loot.NotifyLootList(creature.Map);
+                            loot.NotifyLootList(creature.Location.Map);
 
                         if (loot != null)
                             creature.PersonalLoot[looter.GUID] = loot; // trash mob loot is personal, generated with round robin rules
@@ -953,7 +953,7 @@ public partial class Unit
                 {
                     foreach (var tapper in tappers)
                     {
-                        Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, null);
+                        Loot loot = new(creature.Location.Map, creature.GUID, LootType.Corpse, null);
 
                         if (dungeonEncounter != null)
                             loot.SetDungeonEncounterId(dungeonEncounter.Id);
@@ -961,7 +961,7 @@ public partial class Unit
                         var lootid = creature.LootId;
 
                         if (lootid != 0)
-                            loot.FillLoot(lootid, LootStorage.Creature, tapper, true, false, creature.GetLootMode(), creature.Map.GetDifficultyLootItemContext());
+                            loot.FillLoot(lootid, LootStorage.Creature, tapper, true, false, creature.GetLootMode(), creature.Location.Map.GetDifficultyLootItemContext());
 
                         if (creature.GetLootMode() > 0)
                             loot.GenerateMoneyLoot(creature.Template.MinGold, creature.Template.MaxGold);
@@ -1116,7 +1116,7 @@ public partial class Unit
             if (pvp != null)
                 pvp.HandleKill(player, victim);
 
-            var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.Map, player.Zone);
+            var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.Location.Map, player.Location.Zone);
 
             if (bf != null)
                 bf.HandleKill(player, victim);
@@ -1354,7 +1354,7 @@ public partial class Unit
 
     public bool IsWithinMeleeRangeAt(Position pos, Unit obj)
     {
-        if (!obj || !IsInMap(obj) || !InSamePhase(obj))
+        if (!obj || !Location.IsInMap(obj) || !Location.InSamePhase(obj))
             return false;
 
         var dx = pos.X - obj.Location.X;

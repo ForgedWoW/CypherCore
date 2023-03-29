@@ -273,7 +273,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
         {
             Log.Logger.Debug($"Creature movement start script {waypoint.EventId} at point {_currentNode} for {owner.GUID}.");
             owner.ClearUnitState(UnitState.RoamingMove);
-            owner.Map.ScriptsStart(ScriptsType.Waypoint, waypoint.EventId, owner, null);
+            owner.Location.Map.ScriptsStart(ScriptsType.Waypoint, waypoint.EventId, owner, null);
         }
 
         // inform AI

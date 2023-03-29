@@ -112,22 +112,22 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 
     public static Corpse GetCorpse(WorldObject u, ObjectGuid guid)
     {
-        return u.Map.GetCorpse(guid);
+        return u.Location.Map.GetCorpse(guid);
     }
 
     public static GameObject GetGameObject(WorldObject u, ObjectGuid guid)
     {
-        return u.Map.GetGameObject(guid);
+        return u.Location.Map.GetGameObject(guid);
     }
 
     public static Transport GetTransport(WorldObject u, ObjectGuid guid)
     {
-        return u.Map.GetTransport(guid);
+        return u.Location.Map.GetTransport(guid);
     }
 
     public static Conversation GetConversation(WorldObject u, ObjectGuid guid)
     {
-        return u.Map.GetConversation(guid);
+        return u.Location.Map.GetConversation(guid);
     }
 
     public Unit GetUnit(WorldObject u, ObjectGuid guid)
@@ -143,12 +143,12 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 
     public static Creature GetCreature(WorldObject u, ObjectGuid guid)
     {
-        return u.Map.GetCreature(guid);
+        return u.Location.Map.GetCreature(guid);
     }
 
     public static Pet GetPet(WorldObject u, ObjectGuid guid)
     {
-        return u.Map.GetPet(guid);
+        return u.Location.Map.GetPet(guid);
     }
 
     public Player GetPlayer(Map m, ObjectGuid guid)
@@ -156,7 +156,7 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
         var player = _players.LookupByKey(guid);
 
         if (player)
-            if (player.IsInWorld && player.Map == m)
+            if (player.Location.IsInWorld && player.Location.Map == m)
                 return player;
 
         return null;
@@ -164,7 +164,7 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 
     public Player GetPlayer(WorldObject u, ObjectGuid guid)
     {
-        return GetPlayer(u.Map, guid);
+        return GetPlayer(u.Location.Map, guid);
     }
 
     public static Creature GetCreatureOrPetOrVehicle(WorldObject u, ObjectGuid guid)
@@ -184,14 +184,14 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
     {
         var player = FindConnectedPlayer(guid);
 
-        return player && player.IsInWorld ? player : null;
+        return player && player.Location.IsInWorld ? player : null;
     }
 
     public Player FindPlayerByName(string name)
     {
         var player = PlayerNameMapHolder.Find(name);
 
-        if (!player || !player.IsInWorld)
+        if (!player || !player.Location.IsInWorld)
             return null;
 
         return player;
@@ -255,16 +255,16 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 
     private static DynamicObject GetDynamicObject(WorldObject u, ObjectGuid guid)
     {
-        return u.Map.GetDynamicObject(guid);
+        return u.Location.Map.GetDynamicObject(guid);
     }
 
     private static AreaTrigger GetAreaTrigger(WorldObject u, ObjectGuid guid)
     {
-        return u.Map.GetAreaTrigger(guid);
+        return u.Location.Map.GetAreaTrigger(guid);
     }
 
     private static SceneObject GetSceneObject(WorldObject u, ObjectGuid guid)
     {
-        return u.Map.GetSceneObject(guid);
+        return u.Location.Map.GetSceneObject(guid);
     }
 }

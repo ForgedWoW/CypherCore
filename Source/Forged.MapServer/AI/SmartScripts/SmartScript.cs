@@ -1896,7 +1896,7 @@ public class SmartScript
                     var pos = target.Location.Copy();
 
                     if (e.Action.moveToPos.contactDistance > 0)
-                        target.GetContactPoint(_me, pos, e.Action.moveToPos.contactDistance);
+                        target.Location.GetContactPoint(_me, pos, e.Action.moveToPos.contactDistance);
 
                     _me.MotionMaster.MovePoint(e.Action.moveToPos.pointId, pos.X + e.Target.x, pos.Y + e.Target.y, pos.Z + e.Target.z, e.Action.moveToPos.disablePathfinding == 0);
                 }
@@ -2359,7 +2359,7 @@ public class SmartScript
                     var tpos = target.Location.Copy();
 
                     if (e.Action.jump.ContactDistance > 0)
-                        target.GetContactPoint(_me, tpos, e.Action.jump.ContactDistance);
+                        target.Location.GetContactPoint(_me, tpos, e.Action.jump.ContactDistance);
 
                     pos = new Position(tpos.X + e.Target.x, tpos.Y + e.Target.y, tpos.Z + e.Target.z);
                 }
@@ -2607,7 +2607,7 @@ public class SmartScript
 
                                 foreach (var waypoint in path.nodes)
                                 {
-                                    var distToThisPath = creature.GetDistance(waypoint.x, waypoint.y, waypoint.z);
+                                    var distToThisPath = creature.Location.GetDistance(waypoint.x, waypoint.y, waypoint.z);
 
                                     if (distToThisPath < distanceToClosest)
                                     {
@@ -2674,10 +2674,10 @@ public class SmartScript
                     var force = ((e.Action.groupSpawn.spawnflags & (uint)SmartAiSpawnFlags.ForceSpawn) != 0);
 
                     // Instant spawn
-                    GetBaseObject()
-                        .
-                        // Instant spawn
-                        Map.SpawnGroupSpawn(e.Action.groupSpawn.groupId, ignoreRespawn, force);
+                    GetBaseObject().Location
+                                   .
+                                   // Instant spawn
+                                   Map.SpawnGroupSpawn(e.Action.groupSpawn.groupId, ignoreRespawn, force);
                 }
                 else
                 {
@@ -2728,10 +2728,10 @@ public class SmartScript
                     var deleteRespawnTimes = ((e.Action.groupSpawn.spawnflags & (uint)SmartAiSpawnFlags.NosaveRespawn) != 0);
 
                     // Instant spawn
-                    GetBaseObject()
-                        .
-                        // Instant spawn
-                        Map.SpawnGroupSpawn(e.Action.groupSpawn.groupId, deleteRespawnTimes);
+                    GetBaseObject().Location
+                                   .
+                                   // Instant spawn
+                                   Map.SpawnGroupSpawn(e.Action.groupSpawn.groupId, deleteRespawnTimes);
                 }
                 else
                 {
@@ -2824,9 +2824,9 @@ public class SmartScript
                 var obj = GetBaseObject();
 
                 if (obj != null)
-                    map = obj.Map;
+                    map = obj.Location.Map;
                 else if (!targets.Empty())
-                    map = targets.First().Map;
+                    map = targets.First().Location.Map;
 
                 if (map)
                     map.Respawn((SpawnObjectType)e.Action.respawnData.spawnType, e.Action.respawnData.spawnId);
@@ -2940,7 +2940,7 @@ public class SmartScript
 
                 if (obj != null)
                 {
-                    obj.Map.SetZoneOverrideLight(e.Action.overrideLight.zoneId, e.Action.overrideLight.areaLightId, e.Action.overrideLight.overrideLightId, TimeSpan.FromMilliseconds(e.Action.overrideLight.transitionMilliseconds));
+                    obj.Location.Map.SetZoneOverrideLight(e.Action.overrideLight.zoneId, e.Action.overrideLight.areaLightId, e.Action.overrideLight.overrideLightId, TimeSpan.FromMilliseconds(e.Action.overrideLight.transitionMilliseconds));
 
                     Log.Logger.Debug($"SmartScript::ProcessAction: SMART_ACTION_OVERRIDE_LIGHT: {obj.GUID} sets zone override light (zoneId: {e.Action.overrideLight.zoneId}, " +
                                      $"areaLightId: {e.Action.overrideLight.areaLightId}, overrideLightId: {e.Action.overrideLight.overrideLightId}, transitionMilliseconds: {e.Action.overrideLight.transitionMilliseconds})");
@@ -2954,7 +2954,7 @@ public class SmartScript
 
                 if (obj != null)
                 {
-                    obj.Map.SetZoneWeather(e.Action.overrideWeather.zoneId, (WeatherState)e.Action.overrideWeather.weatherId, e.Action.overrideWeather.intensity);
+                    obj.Location.Map.SetZoneWeather(e.Action.overrideWeather.zoneId, (WeatherState)e.Action.overrideWeather.weatherId, e.Action.overrideWeather.intensity);
 
                     Log.Logger.Debug($"SmartScript::ProcessAction: SMART_ACTION_OVERRIDE_WEATHER: {obj.GUID} sets zone weather (zoneId: {e.Action.overrideWeather.zoneId}, " +
                                      $"weatherId: {e.Action.overrideWeather.weatherId}, intensity: {e.Action.overrideWeather.intensity})");
@@ -3350,7 +3350,7 @@ public class SmartScript
                                 var member = groupRef.Source;
 
                                 if (member)
-                                    if (member.IsInMap(player))
+                                    if (member.Location.IsInMap(player))
                                         targets.Add(member);
                             }
                         // We still add the player to the list if there is no group. If we do
@@ -3386,7 +3386,7 @@ public class SmartScript
                     if (_me != null && _me == obj)
                         continue;
 
-                    if ((e.Target.unitRange.creature == 0 || obj.AsCreature.Entry == e.Target.unitRange.creature) && refObj.IsInRange(obj, e.Target.unitRange.minDist, e.Target.unitRange.maxDist))
+                    if ((e.Target.unitRange.creature == 0 || obj.AsCreature.Entry == e.Target.unitRange.creature) && refObj.Location.IsInRange(obj, e.Target.unitRange.minDist, e.Target.unitRange.maxDist))
                         targets.Add(obj);
                 }
 
@@ -3461,7 +3461,7 @@ public class SmartScript
                     if (_go != null && _go == obj)
                         continue;
 
-                    if ((e.Target.goRange.entry == 0 || obj.AsGameObject.Entry == e.Target.goRange.entry) && refObj.IsInRange(obj, e.Target.goRange.minDist, e.Target.goRange.maxDist))
+                    if ((e.Target.goRange.entry == 0 || obj.AsGameObject.Entry == e.Target.goRange.entry) && refObj.Location.IsInRange(obj, e.Target.goRange.minDist, e.Target.goRange.maxDist))
                         targets.Add(obj);
                 }
 
@@ -3510,7 +3510,7 @@ public class SmartScript
 
                 if (!units.Empty() && baseObject != null)
                     foreach (var obj in units)
-                        if (IsPlayer(obj) && baseObject.IsInRange(obj, e.Target.playerRange.minDist, e.Target.playerRange.maxDist))
+                        if (IsPlayer(obj) && baseObject.Location.IsInRange(obj, e.Target.playerRange.minDist, e.Target.playerRange.maxDist))
                             targets.Add(obj);
 
                 break;
@@ -3560,7 +3560,7 @@ public class SmartScript
                     break;
                 }
 
-                var target = refObj.FindNearestCreature(e.Target.unitClosest.entry, e.Target.unitClosest.dist != 0 ? e.Target.unitClosest.dist : 100, e.Target.unitClosest.dead == 0);
+                var target = refObj.Location.FindNearestCreature(e.Target.unitClosest.entry, e.Target.unitClosest.dist != 0 ? e.Target.unitClosest.dist : 100, e.Target.unitClosest.dead == 0);
 
                 if (target)
                     targets.Add(target);
@@ -3581,7 +3581,7 @@ public class SmartScript
                     break;
                 }
 
-                var target = refObj.FindNearestGameObject(e.Target.goClosest.entry, e.Target.goClosest.dist != 0 ? e.Target.goClosest.dist : 100);
+                var target = refObj.Location.FindNearestGameObject(e.Target.goClosest.entry, e.Target.goClosest.dist != 0 ? e.Target.goClosest.dist : 100);
 
                 if (target)
                     targets.Add(target);
@@ -3602,7 +3602,7 @@ public class SmartScript
                     break;
                 }
 
-                var target = refObj.SelectNearestPlayer(e.Target.playerDistance.dist);
+                var target = refObj.Location.SelectNearestPlayer(e.Target.playerDistance.dist);
 
                 if (target)
                     targets.Add(target);
@@ -3720,7 +3720,7 @@ public class SmartScript
             }
             case SmartTargets.ClosestUnspawnedGameobject:
             {
-                var target = baseObject.FindNearestUnspawnedGameObject(e.Target.goClosest.entry, (float)(e.Target.goClosest.dist != 0 ? e.Target.goClosest.dist : 100));
+                var target = baseObject.Location.FindNearestUnspawnedGameObject(e.Target.goClosest.entry, (float)(e.Target.goClosest.dist != 0 ? e.Target.goClosest.dist : 100));
 
                 if (target != null)
                     targets.Add(target);
@@ -3819,7 +3819,7 @@ public class SmartScript
                 if (_me == null || !_me.IsEngaged || _me.Victim == null)
                     return;
 
-                if (_me.IsInRange(_me.Victim, e.Event.minMaxRepeat.min, e.Event.minMaxRepeat.max))
+                if (_me.Location.IsInRange(_me.Victim, e.Event.minMaxRepeat.min, e.Event.minMaxRepeat.max))
                     ProcessTimedAction(e, e.Event.minMaxRepeat.repeatMin, e.Event.minMaxRepeat.repeatMax, _me.Victim);
                 else // make it predictable
                     RecalcTimer(e, 500, 500);
@@ -4039,7 +4039,7 @@ public class SmartScript
                 float range = e.Event.los.maxDist;
 
                 //if range is ok and we are actually in LOS
-                if (_me.IsWithinDistInMap(unit, range) && _me.IsWithinLOSInMap(unit))
+                if (_me.Location.IsWithinDistInMap(unit, range) && _me.Location.IsWithinLOSInMap(unit))
                 {
                     var hostilityMode = (LOSHostilityMode)e.Event.los.hostilityMode;
 
@@ -4065,7 +4065,7 @@ public class SmartScript
                 float range = e.Event.los.maxDist;
 
                 //if range is ok and we are actually in LOS
-                if (_me.IsWithinDistInMap(unit, range) && _me.IsWithinLOSInMap(unit))
+                if (_me.Location.IsWithinDistInMap(unit, range) && _me.Location.IsWithinLOSInMap(unit))
                 {
                     var hostilityMode = (LOSHostilityMode)e.Event.los.hostilityMode;
 
@@ -4090,7 +4090,7 @@ public class SmartScript
                 if (e.Event.respawn.type == (uint)SmartRespawnCondition.Map && GetBaseObject().Location.MapId != e.Event.respawn.map)
                     return;
 
-                if (e.Event.respawn.type == (uint)SmartRespawnCondition.Area && GetBaseObject().Zone != e.Event.respawn.area)
+                if (e.Event.respawn.type == (uint)SmartRespawnCondition.Area && GetBaseObject().Location.Zone != e.Event.respawn.area)
                     return;
 
                 ProcessAction(e);
@@ -4351,12 +4351,12 @@ public class SmartScript
                     if (!creature)
                         return;
 
-                    if (!_me.IsInRange(creature, 0, e.Event.distance.dist))
+                    if (!_me.Location.IsInRange(creature, 0, e.Event.distance.dist))
                         return;
                 }
                 else if (e.Event.distance.entry != 0)
                 {
-                    var list = _me.GetCreatureListWithEntryInGrid(e.Event.distance.entry, e.Event.distance.dist);
+                    var list = _me.Location.GetCreatureListWithEntryInGrid(e.Event.distance.entry, e.Event.distance.dist);
 
                     if (!list.Empty())
                         creature = list.FirstOrDefault();
@@ -4381,12 +4381,12 @@ public class SmartScript
                     if (!gameobject)
                         return;
 
-                    if (!_me.IsInRange(gameobject, 0, e.Event.distance.dist))
+                    if (!_me.Location.IsInRange(gameobject, 0, e.Event.distance.dist))
                         return;
                 }
                 else if (e.Event.distance.entry != 0)
                 {
-                    var list = _me.GetGameObjectListWithEntryInGrid(e.Event.distance.entry, e.Event.distance.dist);
+                    var list = _me.Location.GetGameObjectListWithEntryInGrid(e.Event.distance.entry, e.Event.distance.dist);
 
                     if (!list.Empty())
                         gameobject = list.FirstOrDefault();
@@ -4627,11 +4627,11 @@ public class SmartScript
         {
             if (holder.Event.event_flags.HasAnyFlag(SmartEventFlags.DifficultyAll)) //if has instance flag add only if in it
             {
-                if (!(obj != null && obj.Map.IsDungeon))
+                if (!(obj != null && obj.Location.Map.IsDungeon))
                     continue;
 
                 // TODO: fix it for new maps and difficulties
-                switch (obj.Map.DifficultyID)
+                switch (obj.Location.Map.DifficultyID)
                 {
                     case Difficulty.Normal:
                     case Difficulty.Raid10N:
@@ -4902,7 +4902,7 @@ public class SmartScript
 
     private GameObject FindGameObjectNear(WorldObject searchObject, ulong guid)
     {
-        var bounds = searchObject.Map.GameObjectBySpawnIdStore.LookupByKey(guid);
+        var bounds = searchObject.Location.Map.GameObjectBySpawnIdStore.LookupByKey(guid);
 
         if (bounds.Empty())
             return null;
@@ -4912,7 +4912,7 @@ public class SmartScript
 
     private Creature FindCreatureNear(WorldObject searchObject, ulong guid)
     {
-        var bounds = searchObject.Map.CreatureBySpawnIdStore.LookupByKey(guid);
+        var bounds = searchObject.Location.Map.CreatureBySpawnIdStore.LookupByKey(guid);
 
         if (bounds.Empty())
             return null;

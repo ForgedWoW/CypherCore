@@ -451,8 +451,8 @@ public sealed class CreatureTextManager
         {
             case CreatureTextRange.Area:
             {
-                var areaId = source.Area;
-                var players = source.Map.Players;
+                var areaId = source.Location.Area;
+                var players = source.Location.Map.Players;
 
                 foreach (var pl in players)
                     if (pl.Area == areaId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
@@ -462,8 +462,8 @@ public sealed class CreatureTextManager
             }
             case CreatureTextRange.Zone:
             {
-                var zoneId = source.Zone;
-                var players = source.Map.Players;
+                var zoneId = source.Location.Zone;
+                var players = source.Location.Map.Players;
 
                 foreach (var pl in players)
                     if (pl.Zone == zoneId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
@@ -473,7 +473,7 @@ public sealed class CreatureTextManager
             }
             case CreatureTextRange.Map:
             {
-                var players = source.Map.Players;
+                var players = source.Location.Map.Players;
 
                 foreach (var pl in players)
                     if ((team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
@@ -555,8 +555,8 @@ public sealed class CreatureTextManager
         {
             case CreatureTextRange.Area:
             {
-                var areaId = source.Area;
-                var players = source.Map.Players;
+                var areaId = source.Location.Area;
+                var players = source.Location.Map.Players;
 
                 foreach (var pl in players)
                     if (pl.Area == areaId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
@@ -566,8 +566,8 @@ public sealed class CreatureTextManager
             }
             case CreatureTextRange.Zone:
             {
-                var zoneId = source.Zone;
-                var players = source.Map.Players;
+                var zoneId = source.Location.Zone;
+                var players = source.Location.Map.Players;
 
                 foreach (var pl in players)
                     if (pl.Zone == zoneId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
@@ -577,7 +577,7 @@ public sealed class CreatureTextManager
             }
             case CreatureTextRange.Map:
             {
-                var players = source.Map.Players;
+                var players = source.Location.Map.Players;
 
                 foreach (var pl in players)
                     if ((team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))

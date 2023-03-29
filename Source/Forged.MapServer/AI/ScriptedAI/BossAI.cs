@@ -195,7 +195,7 @@ public class BossAI : ScriptedAI
     {
         Log.Logger.Debug($"BossAI::ForceStopCombatForCreature: called on {Me.GUID}. Debug info: {Me.GetDebugInfo()}");
 
-        var creatures = Me.GetCreatureListWithEntryInGrid(entry, maxSearchRange);
+        var creatures = Me.Location.GetCreatureListWithEntryInGrid(entry, maxSearchRange);
 
         foreach (var creature in creatures)
         {

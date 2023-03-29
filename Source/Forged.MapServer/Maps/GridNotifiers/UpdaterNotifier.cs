@@ -33,7 +33,7 @@ public class UpdaterNotifier : IGridNotifierWorldObject
             if (obj == null || obj.IsTypeId(TypeId.Player) || obj.IsTypeId(TypeId.Corpse))
                 continue;
 
-            if (obj.IsInWorld)
+            if (obj.Location.IsInWorld)
                 _worldObjects.Add(obj);
         }
     }

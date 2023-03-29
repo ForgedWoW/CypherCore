@@ -99,7 +99,7 @@ internal class GameObjectCommands
 
         var player = handler.Session.Player;
 
-        if (!player.Map.SpawnGroupDespawn(groupId, deleteRespawnTimes, out var n))
+        if (!player.Location.Map.SpawnGroupDespawn(groupId, deleteRespawnTimes, out var n))
         {
             handler.SendSysMessage(CypherStrings.SpawngroupBadgroup, groupId);
 
@@ -166,7 +166,7 @@ internal class GameObjectCommands
             if (thisGO.GameObjectData != null && thisGO.GameObjectData.SpawnGroupData.GroupId != 0)
             {
                 var groupData = thisGO.AsGameObject.GameObjectData.SpawnGroupData;
-                handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, thisGO.Map.IsSpawnGroupActive(groupData.GroupId));
+                handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, thisGO.Location.Map.IsSpawnGroupActive(groupData.GroupId));
             }
 
             var goOverride = Global.ObjectMgr.GetGameObjectOverride(spawnId);
@@ -236,7 +236,7 @@ internal class GameObjectCommands
             pos = handler.Session.Player.Location;
         }
 
-        var map = obj.Map;
+        var map = obj.Location.Map;
 
         pos.Orientation = obj.Location.Orientation;
         obj.Location.Relocate(pos);
@@ -339,7 +339,7 @@ internal class GameObjectCommands
 
         List<WorldObject> creatureList = new();
 
-        if (!player.Map.SpawnGroupSpawn(groupId, ignoreRespawn, force, creatureList))
+        if (!player.Location.Map.SpawnGroupSpawn(groupId, ignoreRespawn, force, creatureList))
         {
             handler.SendSysMessage(CypherStrings.SpawngroupBadgroup, groupId);
 
@@ -493,7 +493,7 @@ internal class GameObjectCommands
         if (!oz.HasValue)
             oz = handler.Session.Player.Location.Orientation;
 
-        var map = obj.Map;
+        var map = obj.Location.Map;
 
         obj.Location.Relocate(obj.Location.X, obj.Location.Y, obj.Location.Z, oz.Value);
         obj.SetLocalRotationAngles(oz.Value, oy.GetValueOrDefault(0f), ox.GetValueOrDefault(0f));
@@ -543,7 +543,7 @@ internal class GameObjectCommands
             }
 
             var player = handler.Player;
-            var map = player.Map;
+            var map = player.Location.Map;
 
             var obj = GameObject.CreateGameObject(objectInfo.entry, map, player.Location, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(player.Location.Orientation, 0.0f, 0.0f)), 255, GameObjectState.Ready);
 

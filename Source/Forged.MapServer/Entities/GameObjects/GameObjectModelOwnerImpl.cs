@@ -33,7 +33,7 @@ internal class GameObjectModelOwnerImpl : GameObjectModelOwnerBase
 
     public override bool IsInPhase(PhaseShift phaseShift)
     {
-        return _owner.PhaseShift.CanSee(phaseShift);
+        return _owner.Location.PhaseShift.CanSee(phaseShift);
     }
 
     public override Vector3 GetPosition()

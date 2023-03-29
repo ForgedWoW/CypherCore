@@ -49,7 +49,7 @@ internal class PetCommands
         pet.SetLevel(player.Level - 1);
 
         // add to world
-        pet.
+        pet.Location.
             // add to world
             Map.AddToMap(pet.AsCreature);
 

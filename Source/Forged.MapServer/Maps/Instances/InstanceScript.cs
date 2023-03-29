@@ -564,7 +564,7 @@ public class InstanceScript : ZoneScript
             var controlled = player.Controlled[i];
 
             if (controlled != null)
-                if (controlled.IsInWorld && controlled.IsCreature)
+                if (controlled.Location.IsInWorld && controlled.IsCreature)
                     controlled.RemoveAura(spell);
         }
     }
@@ -606,7 +606,7 @@ public class InstanceScript : ZoneScript
             var controlled = player.Controlled[i];
 
             if (controlled != null)
-                if (controlled.IsInWorld && controlled.IsCreature)
+                if (controlled.Location.IsInWorld && controlled.IsCreature)
                     controlled.CastSpell(player, spell, true);
         }
     }
@@ -794,7 +794,7 @@ public class InstanceScript : ZoneScript
 
     public bool InstanceHasScript(WorldObject obj, string scriptName)
     {
-        var instance = obj.Map.ToInstanceMap;
+        var instance = obj.Location.Map.ToInstanceMap;
 
         if (instance != null)
             return instance.GetScriptName() == scriptName;

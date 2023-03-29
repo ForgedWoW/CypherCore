@@ -725,15 +725,15 @@ public sealed class ConditionManager
         switch (status)
         {
             case PlayerConditionLfgStatus.InLFGDungeon:
-                return _lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.DifficultyID) ? 1 : 0u;
+                return _lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Location.Map.DifficultyID) ? 1 : 0u;
             case PlayerConditionLfgStatus.InLFGRandomDungeon:
-                return _lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.DifficultyID) &&
+                return _lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Location.Map.DifficultyID) &&
                        _lfgManager.SelectedRandomLfgDungeon(player.GUID)
                            ? 1
                            : 0u;
             case PlayerConditionLfgStatus.InLFGFirstRandomDungeon:
             {
-                if (!_lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.DifficultyID))
+                if (!_lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Location.Map.DifficultyID))
                     return 0;
 
                 var selectedRandomDungeon = _lfgManager.GetSelectedRandomDungeon(player.GUID);
@@ -920,7 +920,7 @@ public sealed class ConditionManager
         {
             byte team;
 
-            if (player.Map.IsBattlegroundOrArena)
+            if (player.Location.Map.IsBattlegroundOrArena)
                 team = player.PlayerData.ArenaFaction;
             else
                 team = (byte)player.TeamId;
@@ -1131,7 +1131,7 @@ public sealed class ConditionManager
         }
 
         if (condition.WeatherID != 0)
-            if (player.Map.GetZoneWeather(player.Zone) != (WeatherState)condition.WeatherID)
+            if (player.Location.Map.GetZoneWeather(player.Location.Zone) != (WeatherState)condition.WeatherID)
                 return false;
 
         if (condition.Achievement[0] != 0)
@@ -1175,7 +1175,7 @@ public sealed class ConditionManager
 
             for (var i = 0; i < condition.AreaID.Length; ++i)
                 if (condition.AreaID[i] != 0)
-                    results[i] = player.Area == condition.AreaID[i] || player.Zone == condition.AreaID[i];
+                    results[i] = player.Location.Area == condition.AreaID[i] || player.Location.Zone == condition.AreaID[i];
 
             if (!PlayerConditionLogic(condition.AreaLogic, results))
                 return false;
@@ -3259,7 +3259,7 @@ public sealed class ConditionManager
             case WorldStateExpressionValueType.WorldState:
             {
                 var worldStateId = buffer.ReadUInt32();
-                value = _worldStateManager.GetValue((int)worldStateId, player.Map);
+                value = _worldStateManager.GetValue((int)worldStateId, player.Location.Map);
 
                 break;
             }
@@ -3302,7 +3302,7 @@ public sealed class ConditionManager
 
                 return currentHour <= 12 ? (currentHour != 0 ? currentHour : 12) : currentHour - 12;
             case WorldStateExpressionFunctions.OldDifficultyId:
-                var difficulty = _cliDB.DifficultyStorage.LookupByKey((uint)player.Map.DifficultyID);
+                var difficulty = _cliDB.DifficultyStorage.LookupByKey((uint)player.Location.Map.DifficultyID);
 
                 if (difficulty != null)
                     return difficulty.OldEnumValue;
@@ -3322,7 +3322,7 @@ public sealed class ConditionManager
 
                 return (int)(now - raidOrigin) / Time.Week;
             case WorldStateExpressionFunctions.DifficultyId:
-                return (int)player.Map.DifficultyID;
+                return (int)player.Location.Map.DifficultyID;
             case WorldStateExpressionFunctions.WarModeActive:
                 return player.HasPlayerFlag(PlayerFlags.WarModeActive) ? 1 : 0;
             case WorldStateExpressionFunctions.WorldStateExpression:

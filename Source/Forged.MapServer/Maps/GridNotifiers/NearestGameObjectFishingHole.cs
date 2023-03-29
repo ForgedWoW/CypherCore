@@ -21,9 +21,9 @@ internal class NearestGameObjectFishingHole : ICheck<GameObject>
 
     public bool Invoke(GameObject go)
     {
-        if (go.Template.type == GameObjectTypes.FishingHole && go.IsSpawned && _obj.IsWithinDist(go, _range) && _obj.IsWithinDist(go, go.Template.FishingHole.radius))
+        if (go.Template.type == GameObjectTypes.FishingHole && go.IsSpawned && _obj.Location.IsWithinDist(go, _range) && _obj.Location.IsWithinDist(go, go.Template.FishingHole.radius))
         {
-            _range = _obj.GetDistance(go);
+            _range = _obj.Location.GetDistance(go);
 
             return true;
         }

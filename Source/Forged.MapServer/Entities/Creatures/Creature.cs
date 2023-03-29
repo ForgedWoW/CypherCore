@@ -58,12 +58,12 @@ public partial class Creature : Unit
     public override void AddToWorld()
     {
         // Register the creature for guid lookup
-        if (!IsInWorld)
+        if (!Location.IsInWorld)
         {
-            Map.ObjectsStore.TryAdd(GUID, this);
+            Location.Map.ObjectsStore.TryAdd(GUID, this);
 
             if (SpawnId != 0)
-                Map.CreatureBySpawnIdStore.Add(SpawnId, this);
+                Location.Map.CreatureBySpawnIdStore.Add(SpawnId, this);
 
             base.AddToWorld();
             SearchFormation();
@@ -79,7 +79,7 @@ public partial class Creature : Unit
 
     public override void RemoveFromWorld()
     {
-        if (IsInWorld)
+        if (Location.IsInWorld)
             try
             {
                 if (ZoneScript != null)
@@ -91,9 +91,9 @@ public partial class Creature : Unit
                 base.RemoveFromWorld();
 
                 if (SpawnId != 0)
-                    Map.CreatureBySpawnIdStore.Remove(SpawnId, this);
+                    Location.Map.CreatureBySpawnIdStore.Remove(SpawnId, this);
 
-                Map.ObjectsStore.TryRemove(GUID, out _);
+                Location.Map.ObjectsStore.TryRemove(GUID, out _);
             }
             catch (Exception ex)
             {
@@ -175,9 +175,9 @@ public partial class Creature : Unit
                     transport.CalculatePassengerPosition(respawn);
             }
 
-            respawn.Z = UpdateAllowedPositionZ(respawn.X, respawn.Y, respawn.Z);
+            respawn.Z = Location.UpdateAllowedPositionZ(respawn.X, respawn.Y, respawn.Z);
             HomePosition = respawn;
-            Map.CreatureRelocation(this, respawn);
+            Location.Map.CreatureRelocation(this, respawn);
         }
         else
         {
@@ -219,7 +219,7 @@ public partial class Creature : Unit
 
         // get difficulty 1 mode entry
         CreatureTemplate cInfo = null;
-        var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(Map.DifficultyID);
+        var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(Location.Map.DifficultyID);
 
         while (cInfo == null && difficultyEntry != null)
         {
@@ -474,7 +474,7 @@ public partial class Creature : Unit
                 if (RespawnTime <= now)
                 {
                     // Delay respawn if spawn group is not active
-                    if (CreatureData != null && !Map.IsSpawnGroupActive(CreatureData.SpawnGroupData.GroupId))
+                    if (CreatureData != null && !Location.Map.IsSpawnGroupActive(CreatureData.SpawnGroupData.GroupId))
                     {
                         RespawnTime = now + RandomHelper.LRand(4, 7);
 
@@ -482,7 +482,7 @@ public partial class Creature : Unit
                     }
 
                     var dbtableHighGuid = ObjectGuid.Create(HighGuid.Creature, Location.MapId, Entry, SpawnId);
-                    var linkedRespawnTime = Map.GetLinkedRespawnTime(dbtableHighGuid);
+                    var linkedRespawnTime = Location.Map.GetLinkedRespawnTime(dbtableHighGuid);
 
                     if (linkedRespawnTime == 0) // Can respawn
                     {
@@ -572,7 +572,7 @@ public partial class Creature : Unit
                 }
 
                 // if periodic combat pulse is enabled and we are both in combat and in a dungeon, do this now
-                if (_combatPulseDelay > 0 && IsEngaged && Map.IsDungeon)
+                if (_combatPulseDelay > 0 && IsEngaged && Location.Map.IsDungeon)
                 {
                     if (diff > _combatPulseTime)
                         _combatPulseTime = 0;
@@ -581,7 +581,7 @@ public partial class Creature : Unit
 
                     if (_combatPulseTime == 0)
                     {
-                        var players = Map.Players;
+                        var players = Location.Map.Players;
 
                         foreach (var player in players)
                         {
@@ -622,7 +622,7 @@ public partial class Creature : Unit
                         {
                             // regenerate health if cannot reach the target and the setting is set to do so.
                             // this allows to disable the health regen of raid bosses if pathfinding has issues for whatever reason
-                            if (GetDefaultValue("Creature.RegenHPCannotReachTargetInRaid", true) || !Map.IsRaid)
+                            if (GetDefaultValue("Creature.RegenHPCannotReachTargetInRaid", true) || !Location.Map.IsRaid)
                             {
                                 RegenerateHealth();
                                 Log.Logger.Debug($"RegenerateHealth() enabled because Creature cannot reach the target. Detail: {GetDebugInfo()}");
@@ -642,7 +642,7 @@ public partial class Creature : Unit
                     RegenTimer = SharedConst.CreatureRegenInterval;
                 }
 
-                if (CannotReachTarget && !IsInEvadeMode && !Map.IsRaid)
+                if (CannotReachTarget && !IsInEvadeMode && !Location.Map.IsRaid)
                 {
                     _cannotReachTimer += diff;
 
@@ -795,8 +795,8 @@ public partial class Creature : Unit
 
         if (data != null)
         {
-            PhasingHandler.InitDbPhaseShift(PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
-            PhasingHandler.InitDbVisibleMapId(PhaseShift, data.terrainSwapMap);
+            PhasingHandler.InitDbPhaseShift(Location.PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
+            PhasingHandler.InitDbVisibleMapId(Location.PhaseShift, data.terrainSwapMap);
         }
 
         // Set if this creature can handle dynamic spawns
@@ -828,8 +828,8 @@ public partial class Creature : Unit
         {
             // area/zone id is needed immediately for ZoneScript::GetCreatureEntry hook before it is known which creature template to load (no model/scale available yet)
             PositionFullTerrainStatus positionData = new();
-            Map.GetFullTerrainStatusForPosition(PhaseShift, Location.X, Location.Y, Location.Z, positionData, LiquidHeaderTypeFlags.AllLiquids, MapConst.DefaultCollesionHeight);
-            ProcessPositionDataChanged(positionData);
+            Location.Map.GetFullTerrainStatusForPosition(Location.PhaseShift, Location.X, Location.Y, Location.Z, positionData, LiquidHeaderTypeFlags.AllLiquids, MapConst.DefaultCollesionHeight);
+            Location.ProcessPositionDataChanged(positionData);
         }
 
         // Allow players to see those units while dead, do it here (mayby altered by addon auras)
@@ -1202,7 +1202,7 @@ public partial class Creature : Unit
 
             if (group != null)
                 for (var itr = group.FirstMember; itr != null; itr = itr.Next())
-                    if (Map.IsRaid || group.SameSubGroup(player, itr.Source))
+                    if (Location.Map.IsRaid || group.SameSubGroup(player, itr.Source))
                         TapList.Add(itr.Source.GUID);
         }
 
@@ -1346,8 +1346,8 @@ public partial class Creature : Unit
         if (data.SpawnGroupData == null)
             data.SpawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
 
-        data.PhaseId = DBPhase > 0 ? (uint)DBPhase : data.PhaseId;
-        data.PhaseGroup = DBPhase < 0 ? (uint)-DBPhase : data.PhaseGroup;
+        data.PhaseId = Location.DBPhase > 0 ? (uint)Location.DBPhase : data.PhaseId;
+        data.PhaseGroup = Location.DBPhase < 0 ? (uint)-Location.DBPhase : data.PhaseGroup;
 
         // update in DB
         SQLTransaction trans = new();
@@ -1717,7 +1717,7 @@ public partial class Creature : Unit
         if (who.IsTypeId(TypeId.Unit) && who.CreatureType == CreatureType.NonCombatPet)
             return false;
 
-        if (!CanFly && (GetDistanceZ(who) > SharedConst.CreatureAttackRangeZ + CombatDistance))
+        if (!CanFly && (Location.GetDistanceZ(who) > SharedConst.CreatureAttackRangeZ + CombatDistance))
             return false;
 
         if (!force)
@@ -1725,14 +1725,14 @@ public partial class Creature : Unit
             if (!_IsTargetAcceptable(who))
                 return false;
 
-            if (IsNeutralToAll() || !IsWithinDistInMap(who, (float)GetAttackDistance(who) + CombatDistance))
+            if (IsNeutralToAll() || !Location.IsWithinDistInMap(who, (float)GetAttackDistance(who) + CombatDistance))
                 return false;
         }
 
         if (!CanCreatureAttack(who, force))
             return false;
 
-        return IsWithinLOSInMap(who);
+        return Location.IsWithinLOSInMap(who);
     }
 
     public double GetAttackDistance(Unit player)
@@ -1791,7 +1791,7 @@ public partial class Creature : Unit
             var scalingMode = GetDefaultValue("Respawn.DynamicMode", 0u);
 
             if (scalingMode != 0)
-                Map.ApplyDynamicModeRespawnScaling(this, SpawnId, ref respawnDelay, scalingMode);
+                Location.Map.ApplyDynamicModeRespawnScaling(this, SpawnId, ref respawnDelay, scalingMode);
 
             // @todo remove the boss respawn time hack in a dynspawn follow-up once we have creature groups in instances
             if (RespawnCompatibilityMode)
@@ -1827,7 +1827,7 @@ public partial class Creature : Unit
             if (Formation != null && Formation.Leader == this)
                 Formation.FormationReset(true);
 
-            var needsFalling = (IsFlying || IsHovering) && !IsUnderWater;
+            var needsFalling = (IsFlying || IsHovering) && !Location.IsUnderWater;
             SetHover(false, false);
             SetDisableGravity(false, false);
 
@@ -1932,7 +1932,7 @@ public partial class Creature : Unit
                 var poolid = CreatureData != null ? CreatureData.poolId : 0;
 
                 if (poolid != 0)
-                    Global.PoolMgr.UpdatePool<Creature>(Map.PoolData, poolid, SpawnId);
+                    Global.PoolMgr.UpdatePool<Creature>(Location.Map.PoolData, poolid, SpawnId);
             }
 
             UpdateObjectVisibility();
@@ -1940,7 +1940,7 @@ public partial class Creature : Unit
         else
         {
             if (SpawnId != 0)
-                Map.Respawn(SpawnObjectType.Creature, SpawnId);
+                Location.Map.Respawn(SpawnObjectType.Creature, SpawnId);
         }
 
         Log.Logger.Debug($"Respawning creature {GetName()} ({GUID})");
@@ -1995,7 +1995,7 @@ public partial class Creature : Unit
                 var scalingMode = GetDefaultValue("Respawn.DynamicMode", 0u);
 
                 if (scalingMode != 0)
-                    Map.ApplyDynamicModeRespawnScaling(this, SpawnId, ref respawnDelay, scalingMode);
+                    Location.Map.ApplyDynamicModeRespawnScaling(this, SpawnId, ref respawnDelay, scalingMode);
 
                 RespawnTime = GameTime.GetGameTime() + respawnDelay;
                 SaveRespawnTime();
@@ -2243,18 +2243,18 @@ public partial class Creature : Unit
                 RespawnTime = RespawnTime
             };
 
-            Map.SaveRespawnInfoDB(ri);
+            Location.Map.SaveRespawnInfoDB(ri);
 
             return;
         }
 
         var thisRespawnTime = forceDelay != 0 ? GameTime.GetGameTime() + forceDelay : RespawnTime;
-        Map.SaveRespawnTime(SpawnObjectType.Creature, SpawnId, Entry, thisRespawnTime, GridDefines.ComputeGridCoord(HomePosition.X, HomePosition.Y).GetId());
+        Location.Map.SaveRespawnTime(SpawnObjectType.Creature, SpawnId, Entry, thisRespawnTime, GridDefines.ComputeGridCoord(HomePosition.X, HomePosition.Y).GetId());
     }
 
     public bool CanCreatureAttack(Unit victim, bool force = true)
     {
-        if (!victim.IsInMap(this))
+        if (!victim.Location.IsInMap(this))
             return false;
 
         if (!IsValidAttackTarget(victim))
@@ -2279,7 +2279,7 @@ public partial class Creature : Unit
 
         if (!CharmerOrOwnerGUID.IsPlayer)
         {
-            if (Map.IsDungeon)
+            if (Location.Map.IsDungeon)
                 return true;
 
             // don't check distance to home position if recently damaged, this should include taunt auras
@@ -2288,13 +2288,13 @@ public partial class Creature : Unit
         }
 
         // Map visibility range, but no more than 2*cell size
-        var dist = Math.Min(Map.VisibilityRange, MapConst.SizeofCells * 2);
+        var dist = Math.Min(Location.Map.VisibilityRange, MapConst.SizeofCells * 2);
 
         var unit = CharmerOrOwner;
 
         if (unit != null)
         {
-            return victim.IsWithinDist(unit, dist);
+            return victim.Location.IsWithinDist(unit, dist);
         }
         else
         {
@@ -2356,7 +2356,7 @@ public partial class Creature : Unit
         if (creatureAddon.Auras != null)
             foreach (var id in creatureAddon.Auras)
             {
-                var AdditionalSpellInfo = Global.SpellMgr.GetSpellInfo(id, Map.DifficultyID);
+                var AdditionalSpellInfo = Global.SpellMgr.GetSpellInfo(id, Location.Map.DifficultyID);
 
                 if (AdditionalSpellInfo == null)
                 {
@@ -2383,7 +2383,7 @@ public partial class Creature : Unit
 
         ZoneUnderAttack packet = new()
         {
-            AreaID = (int)Area
+            AreaID = (int)Location.Area
         };
 
         Global.WorldMgr.SendGlobalMessage(packet, null, (enemy_team == TeamFaction.Alliance ? TeamFaction.Horde : TeamFaction.Alliance));
@@ -2421,7 +2421,7 @@ public partial class Creature : Unit
             return;
 
         // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
-        var ground = FloorZ;
+        var ground = Location.FloorZ;
 
         var canHover = CanHover;
         var isInAir = (MathFunctions.fuzzyGt(Location.Z, ground + (canHover ? UnitData.HoverHeight : 0.0f) + MapConst.GroundHeightTolerance) || MathFunctions.fuzzyLt(Location.Z, ground - MapConst.GroundHeightTolerance)); // Can be underground too, prevent the falling
@@ -2448,7 +2448,7 @@ public partial class Creature : Unit
         if (!isInAir)
             SetFall(false);
 
-        SetSwim(CanSwim && IsInWater);
+        SetSwim(CanSwim && Location.IsInWater);
     }
 
     public void RefreshCanSwimFlag(bool recheck = false)
@@ -2496,7 +2496,7 @@ public partial class Creature : Unit
 
     public void ApplyLevelScaling()
     {
-        var scaling = Template.GetLevelScaling(Map.DifficultyID);
+        var scaling = Template.GetLevelScaling(Location.Map.DifficultyID);
         var levels = Global.DB2Mgr.GetContentTuningData(scaling.ContentTuningId, 0);
 
         if (levels.HasValue)
@@ -2534,7 +2534,7 @@ public partial class Creature : Unit
     public float GetBaseDamageForLevel(uint level)
     {
         var cInfo = Template;
-        var scaling = cInfo.GetLevelScaling(Map.DifficultyID);
+        var scaling = cInfo.GetLevelScaling(Location.Map.DifficultyID);
 
         return Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureAutoAttackDps, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (PlayerClass)cInfo.UnitClass);
     }
@@ -2757,7 +2757,7 @@ public partial class Creature : Unit
             if (spellID == 0)
                 continue;
 
-            var spellInfo = Global.SpellMgr.GetSpellInfo(spellID, Map.DifficultyID);
+            var spellInfo = Global.SpellMgr.GetSpellInfo(spellID, Location.Map.DifficultyID);
 
             if (spellInfo != null)
                 if (spellInfo.RecoveryTime1 == 0 && spellInfo.RangeEntry.Id != 1 /*Self*/ && spellInfo.RangeEntry.Id != 2 /*Combat Range*/ && spellInfo.GetMaxRange() > range)
@@ -3065,7 +3065,7 @@ public partial class Creature : Unit
 
         DeathState = DeathState.Alive;
 
-        RespawnTime = Map.GetCreatureRespawnTime(SpawnId);
+        RespawnTime = Location.Map.GetCreatureRespawnTime(SpawnId);
 
         if (RespawnTime == 0 && !map.IsSpawnGroupActive(data.SpawnGroupData.GroupId))
         {
@@ -3101,7 +3101,7 @@ public partial class Creature : Unit
 
             if (CanFly)
             {
-                var tz = map.GetHeight(PhaseShift, data.SpawnPoint, true, MapConst.MaxFallDistance);
+                var tz = map.GetHeight(Location.PhaseShift, data.SpawnPoint, true, MapConst.MaxFallDistance);
 
                 if (data.SpawnPoint.Z - tz > 0.1f && GridDefines.IsValidMapCoord(tz))
                     Location.Relocate(data.SpawnPoint.X, data.SpawnPoint.Y, tz);
@@ -3117,7 +3117,7 @@ public partial class Creature : Unit
 
         StringIds[1] = data.StringId;
 
-        if (addToMap && !Map.AddToMap(this))
+        if (addToMap && !Location.Map.AddToMap(this))
             return false;
 
         return true;
@@ -3279,7 +3279,7 @@ public partial class Creature : Unit
         {
             byte wildBattlePetLevel = 1;
 
-            var areaTable = CliDB.AreaTableStorage.LookupByKey(Zone);
+            var areaTable = CliDB.AreaTableStorage.LookupByKey(Location.Zone);
 
             if (areaTable is { WildBattlePetLevelMin: > 0 })
                 wildBattlePetLevel = (byte)RandomHelper.URand(areaTable.WildBattlePetLevelMin, areaTable.WildBattlePetLevelMax);
@@ -3290,7 +3290,7 @@ public partial class Creature : Unit
 
     private bool CreateFromProto(ulong guidlow, uint entry, CreatureData data = null, uint vehId = 0)
     {
-        SetZoneScript();
+        Location.SetZoneScript();
 
         if (ZoneScript != null && data != null)
         {
@@ -3354,7 +3354,7 @@ public partial class Creature : Unit
     private ulong GetMaxHealthByLevel(uint level)
     {
         var cInfo = Template;
-        var scaling = cInfo.GetLevelScaling(Map.DifficultyID);
+        var scaling = cInfo.GetLevelScaling(Location.Map.DifficultyID);
         var baseHealth = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (PlayerClass)cInfo.UnitClass);
 
         return (ulong)(baseHealth * cInfo.ModHealth * cInfo.ModHealthExtra);
@@ -3363,7 +3363,7 @@ public partial class Creature : Unit
     private float GetBaseArmorForLevel(uint level)
     {
         var cInfo = Template;
-        var scaling = cInfo.GetLevelScaling(Map.DifficultyID);
+        var scaling = cInfo.GetLevelScaling(Location.Map.DifficultyID);
         var baseArmor = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureArmor, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (PlayerClass)cInfo.UnitClass);
 
         return baseArmor * cInfo.ModArmor;

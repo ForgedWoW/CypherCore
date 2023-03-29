@@ -21,7 +21,7 @@ public class PlayerListSearcher : IGridNotifierPlayer
 
     public PlayerListSearcher(WorldObject searcher, List<Unit> objects, ICheck<Player> check, GridType gridType = GridType.World)
     {
-        _phaseShift = searcher.PhaseShift;
+        _phaseShift = searcher.Location.PhaseShift;
         _objects = objects;
         _check = check;
         GridType = gridType;
@@ -41,7 +41,7 @@ public class PlayerListSearcher : IGridNotifierPlayer
         {
             var player = objs[i];
 
-            if (player != null && player.InSamePhase(_phaseShift))
+            if (player != null && player.Location.InSamePhase(_phaseShift))
                 if (_check.Invoke(player))
                     _objects.Add(player);
         }

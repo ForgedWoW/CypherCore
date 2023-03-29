@@ -40,7 +40,7 @@ public class AnyFriendlyUnitInObjectRangeCheck : ICheck<Unit>
         if (_incTargetRadius)
             searchRadius += u.CombatReach;
 
-        if (!u.IsInMap(_obj) || !u.InSamePhase(_obj) || !u.Location.IsWithinDoubleVerticalCylinder(_obj.Location, searchRadius, searchRadius))
+        if (!u.Location.IsInMap(_obj) || !u.Location.InSamePhase(_obj) || !u.Location.IsWithinDoubleVerticalCylinder(_obj.Location, searchRadius, searchRadius))
             return false;
 
         if (!_funit.IsFriendlyTo(u))

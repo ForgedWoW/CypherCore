@@ -23,11 +23,11 @@ public class NearestAttackableUnitInObjectRangeCheck : ICheck<Unit>
     public bool Invoke(Unit u)
     {
         if (u.IsTargetableForAttack() &&
-            _obj.IsWithinDist(u, _range) &&
+            _obj.Location.IsWithinDist(u, _range) &&
             (_funit.IsInCombatWith(u) || _funit.IsHostileTo(u)) &&
             _obj.CanSeeOrDetect(u))
         {
-            _range = _obj.GetDistance(u); // use found unit range as new range limit for next check
+            _range = _obj.Location.GetDistance(u); // use found unit range as new range limit for next check
 
             return true;
         }

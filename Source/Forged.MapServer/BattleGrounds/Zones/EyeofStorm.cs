@@ -435,7 +435,7 @@ internal class BgEyeofStorm : Battleground
 
     public override void EventPlayerClickedOnFlag(Player player, GameObject target_obj)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress || IsFlagPickedup() || !player.IsWithinDistInMap(target_obj, 10))
+        if (GetStatus() != BattlegroundStatus.InProgress || IsFlagPickedup() || !player.Location.IsWithinDistInMap(target_obj, 10))
             return;
 
         if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)

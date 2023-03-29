@@ -20,7 +20,7 @@ public class GameObjectListSearcher : IGridNotifierGameObject
 
     public GameObjectListSearcher(WorldObject searcher, List<GameObject> objects, ICheck<GameObject> check, GridType gridType)
     {
-        _phaseShift = searcher.PhaseShift;
+        _phaseShift = searcher.Location.PhaseShift;
         _objects = objects;
         _check = check;
         GridType = gridType;
@@ -32,7 +32,7 @@ public class GameObjectListSearcher : IGridNotifierGameObject
         {
             var gameObject = objs[i];
 
-            if (gameObject.InSamePhase(_phaseShift))
+            if (gameObject.Location.InSamePhase(_phaseShift))
                 if (_check.Invoke(gameObject))
                     _objects.Add(gameObject);
         }

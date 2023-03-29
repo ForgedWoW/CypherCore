@@ -27,7 +27,7 @@ public class Puppet : Minion
         base.Update(diff);
 
         //check if caster is channelling?
-        if (IsInWorld)
+        if (Location.IsInWorld)
             if (!IsAlive)
                 UnSummon();
         // @todo why long distance .die does not remove it

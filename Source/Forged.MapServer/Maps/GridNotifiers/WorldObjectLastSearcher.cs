@@ -28,7 +28,7 @@ public class WorldObjectLastSearcher : IGridNotifierPlayer, IGridNotifierCreatur
     public WorldObjectLastSearcher(WorldObject searcher, ICheck<WorldObject> check, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
     {
         Mask = mapTypeMask;
-        _phaseShift = searcher.PhaseShift;
+        _phaseShift = searcher.Location.PhaseShift;
         _check = check;
         GridType = gridType;
     }
@@ -42,7 +42,7 @@ public class WorldObjectLastSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var areaTrigger = objs[i];
 
-            if (!areaTrigger.InSamePhase(_phaseShift))
+            if (!areaTrigger.Location.InSamePhase(_phaseShift))
                 continue;
 
             if (_check.Invoke(areaTrigger))
@@ -59,7 +59,7 @@ public class WorldObjectLastSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var conversation = objs[i];
 
-            if (!conversation.InSamePhase(_phaseShift))
+            if (!conversation.Location.InSamePhase(_phaseShift))
                 continue;
 
             if (_check.Invoke(conversation))
@@ -76,7 +76,7 @@ public class WorldObjectLastSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var corpse = objs[i];
 
-            if (!corpse.InSamePhase(_phaseShift))
+            if (!corpse.Location.InSamePhase(_phaseShift))
                 continue;
 
             if (_check.Invoke(corpse))
@@ -93,7 +93,7 @@ public class WorldObjectLastSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var creature = objs[i];
 
-            if (!creature.InSamePhase(_phaseShift))
+            if (!creature.Location.InSamePhase(_phaseShift))
                 continue;
 
             if (_check.Invoke(creature))
@@ -110,7 +110,7 @@ public class WorldObjectLastSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var dynamicObject = objs[i];
 
-            if (!dynamicObject.InSamePhase(_phaseShift))
+            if (!dynamicObject.Location.InSamePhase(_phaseShift))
                 continue;
 
             if (_check.Invoke(dynamicObject))
@@ -127,7 +127,7 @@ public class WorldObjectLastSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var gameObject = objs[i];
 
-            if (!gameObject.InSamePhase(_phaseShift))
+            if (!gameObject.Location.InSamePhase(_phaseShift))
                 continue;
 
             if (_check.Invoke(gameObject))
@@ -144,7 +144,7 @@ public class WorldObjectLastSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var player = objs[i];
 
-            if (!player.InSamePhase(_phaseShift))
+            if (!player.Location.InSamePhase(_phaseShift))
                 continue;
 
             if (_check.Invoke(player))
@@ -161,7 +161,7 @@ public class WorldObjectLastSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var sceneObject = objs[i];
 
-            if (!sceneObject.InSamePhase(_phaseShift))
+            if (!sceneObject.Location.InSamePhase(_phaseShift))
                 continue;
 
             if (_check.Invoke(sceneObject))

@@ -397,15 +397,15 @@ namespace Forged.MapServer.Entities.GameObjects
         public override void AddToWorld()
         {
             //- Register the gameobject for guid lookup
-            if (!IsInWorld)
+            if (!Location.IsInWorld)
             {
                 if (ZoneScript != null)
                     ZoneScript.OnGameObjectCreate(this);
 
-                Map.ObjectsStore.TryAdd(GUID, this);
+                Location.Map.ObjectsStore.TryAdd(GUID, this);
 
                 if (_spawnId != 0)
-                    Map.GameObjectBySpawnIdStore.Add(_spawnId, this);
+                    Location.Map.GameObjectBySpawnIdStore.Add(_spawnId, this);
 
                 // The state can be changed after GameObject.Create but before GameObject.AddToWorld
                 var toggledState = GoType == GameObjectTypes.Chest ? LootState == LootState.Ready : (GoState == GameObjectState.Ready || IsTransport);
@@ -417,7 +417,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     if (trans)
                         trans.SetDelayedAddModelToMap();
                     else
-                        Map.InsertGameObjectModel(Model);
+                        Location.Map.InsertGameObjectModel(Model);
                 }
 
                 EnableCollision(toggledState);
@@ -428,7 +428,7 @@ namespace Forged.MapServer.Entities.GameObjects
         public override void RemoveFromWorld()
         {
             //- Remove the gameobject from the accessor
-            if (IsInWorld)
+            if (Location.IsInWorld)
                 try
                 {
                     if (ZoneScript != null)
@@ -437,8 +437,8 @@ namespace Forged.MapServer.Entities.GameObjects
                     RemoveFromOwner();
 
                     if (Model != null)
-                        if (Map.ContainsGameObjectModel(Model))
-                            Map.RemoveGameObjectModel(Model);
+                        if (Location.Map.ContainsGameObjectModel(Model))
+                            Location.Map.RemoveGameObjectModel(Model);
 
                     // If linked trap exists, despawn it
                     var linkedTrap = LinkedTrap;
@@ -449,9 +449,9 @@ namespace Forged.MapServer.Entities.GameObjects
                     base.RemoveFromWorld();
 
                     if (_spawnId != 0)
-                        Map.GameObjectBySpawnIdStore.Remove(_spawnId, this);
+                        Location.Map.GameObjectBySpawnIdStore.Remove(_spawnId, this);
 
-                    Map.ObjectsStore.TryRemove(GUID, out _);
+                    Location.Map.ObjectsStore.TryRemove(GUID, out _);
                 }
                 catch (Exception ex)
                 {
@@ -610,7 +610,7 @@ namespace Forged.MapServer.Entities.GameObjects
                             if (_respawnTime <= now) // timer expired
                             {
                                 var dbtableHighGuid = ObjectGuid.Create(HighGuid.GameObject, Location.MapId, Entry, _spawnId);
-                                var linkedRespawntime = Map.GetLinkedRespawnTime(dbtableHighGuid);
+                                var linkedRespawntime = Location.Map.GetLinkedRespawnTime(dbtableHighGuid);
 
                                 if (linkedRespawntime != 0) // Can't respawn, the master is dead
                                 {
@@ -679,9 +679,9 @@ namespace Forged.MapServer.Entities.GameObjects
                                 var poolid = GameObjectData != null ? GameObjectData.poolId : 0;
 
                                 if (poolid != 0)
-                                    Global.PoolMgr.UpdatePool<GameObject>(Map.PoolData, poolid, SpawnId);
+                                    Global.PoolMgr.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
                                 else
-                                    Map.AddToMap(this);
+                                    Location.Map.AddToMap(this);
                             }
                         }
 
@@ -761,7 +761,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                     if (hordeCapturing)
                                     {
                                         GoValueProtected.CapturePoint.State = BattlegroundCapturePointState.HordeCaptured;
-                                        var map = Map.ToBattlegroundMap;
+                                        var map = Location.Map.ToBattlegroundMap;
 
                                         if (map != null)
                                         {
@@ -779,7 +779,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                     else
                                     {
                                         GoValueProtected.CapturePoint.State = BattlegroundCapturePointState.AllianceCaptured;
-                                        var map = Map.ToBattlegroundMap;
+                                        var map = Location.Map.ToBattlegroundMap;
 
                                         if (map != null)
                                         {
@@ -1005,7 +1005,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     var scalingMode = GetDefaultValue("Respawn.DynamicMode", 0u);
 
                     if (scalingMode != 0)
-                        Map.ApplyDynamicModeRespawnScaling(this, _spawnId, ref respawnDelay, scalingMode);
+                        Location.Map.ApplyDynamicModeRespawnScaling(this, _spawnId, ref respawnDelay, scalingMode);
 
                     _respawnTime = GameTime.GetGameTime() + respawnDelay;
 
@@ -1030,7 +1030,7 @@ namespace Forged.MapServer.Entities.GameObjects
                 return;
 
             if (IsSpawned)
-                Map.AddToMap(this);
+                Location.Map.AddToMap(this);
         }
 
         public void AddUniqueUse(Player player)
@@ -1082,7 +1082,7 @@ namespace Forged.MapServer.Entities.GameObjects
             var poolid = GameObjectData != null ? GameObjectData.poolId : 0;
 
             if (_respawnCompatibilityMode && poolid != 0)
-                Global.PoolMgr.UpdatePool<GameObject>(Map.PoolData, poolid, SpawnId);
+                Global.PoolMgr.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
             else
                 AddObjectToRemoveList();
         }
@@ -1101,9 +1101,9 @@ namespace Forged.MapServer.Entities.GameObjects
         {
             uint defaultzone = 1;
 
-            Loot fishLoot = new(Map, GUID, LootType.Fishing, null);
+            Loot fishLoot = new(Location.Map, GUID, LootType.Fishing, null);
 
-            var areaId = Area;
+            var areaId = Location.Area;
             AreaTableRecord areaEntry;
 
             while ((areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId)) != null)
@@ -1126,9 +1126,9 @@ namespace Forged.MapServer.Entities.GameObjects
         {
             uint defaultzone = 1;
 
-            Loot fishLoot = new(Map, GUID, LootType.FishingJunk, null);
+            Loot fishLoot = new(Location.Map, GUID, LootType.FishingJunk, null);
 
-            var areaId = Area;
+            var areaId = Location.Area;
             AreaTableRecord areaEntry;
 
             while ((areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId)) != null)
@@ -1199,8 +1199,8 @@ namespace Forged.MapServer.Entities.GameObjects
             if (data.SpawnGroupData == null)
                 data.SpawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
 
-            data.PhaseId = DBPhase > 0 ? (uint)DBPhase : data.PhaseId;
-            data.PhaseGroup = DBPhase < 0 ? (uint)-DBPhase : data.PhaseGroup;
+            data.PhaseId = Location.DBPhase > 0 ? (uint)Location.DBPhase : data.PhaseId;
+            data.PhaseGroup = Location.DBPhase < 0 ? (uint)-Location.DBPhase : data.PhaseGroup;
 
             // Update in DB
             byte index = 0;
@@ -1252,8 +1252,8 @@ namespace Forged.MapServer.Entities.GameObjects
             if (!Create(entry, map, data.SpawnPoint, data.Rotation, animprogress, go_state, artKit, !_respawnCompatibilityMode, spawnId))
                 return false;
 
-            PhasingHandler.InitDbPhaseShift(PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
-            PhasingHandler.InitDbVisibleMapId(PhaseShift, data.terrainSwapMap);
+            PhasingHandler.InitDbPhaseShift(Location.PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
+            PhasingHandler.InitDbVisibleMapId(Location.PhaseShift, data.terrainSwapMap);
 
             if (data.spawntimesecs >= 0)
             {
@@ -1268,13 +1268,13 @@ namespace Forged.MapServer.Entities.GameObjects
                 else
                 {
                     _respawnDelayTime = (uint)data.spawntimesecs;
-                    _respawnTime = Map.GetGORespawnTime(_spawnId);
+                    _respawnTime = Location.Map.GetGORespawnTime(_spawnId);
 
                     // ready to respawn
                     if (_respawnTime != 0 && _respawnTime <= GameTime.GetGameTime())
                     {
                         _respawnTime = 0;
-                        Map.RemoveRespawnTime(SpawnObjectType.GameObject, _spawnId);
+                        Location.Map.RemoveRespawnTime(SpawnObjectType.GameObject, _spawnId);
                     }
                 }
             }
@@ -1293,7 +1293,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
             _goData = data;
 
-            if (addToMap && !Map.AddToMap(this))
+            if (addToMap && !Location.Map.AddToMap(this))
                 return false;
 
             return true;
@@ -1389,13 +1389,13 @@ namespace Forged.MapServer.Entities.GameObjects
                         RespawnTime = _respawnTime
                     };
 
-                    Map.SaveRespawnInfoDB(ri);
+                    Location.Map.SaveRespawnInfoDB(ri);
 
                     return;
                 }
 
                 var thisRespawnTime = forceDelay != 0 ? GameTime.GetGameTime() + forceDelay : _respawnTime;
-                Map.SaveRespawnTime(SpawnObjectType.GameObject, _spawnId, Entry, thisRespawnTime, GridDefines.ComputeGridCoord(Location.X, Location.Y).GetId());
+                Location.Map.SaveRespawnTime(SpawnObjectType.GameObject, _spawnId, Entry, thisRespawnTime, GridDefines.ComputeGridCoord(Location.X, Location.Y).GetId());
             }
         }
 
@@ -1466,7 +1466,7 @@ namespace Forged.MapServer.Entities.GameObjects
             if (_spawnedByDefault && _respawnTime > 0)
             {
                 _respawnTime = GameTime.GetGameTime();
-                Map.Respawn(SpawnObjectType.GameObject, _spawnId);
+                Location.Map.Respawn(SpawnObjectType.GameObject, _spawnId);
             }
         }
 
@@ -1534,7 +1534,7 @@ namespace Forged.MapServer.Entities.GameObjects
             if (trapInfo == null || trapInfo.type != GameObjectTypes.Trap)
                 return;
 
-            var trapSpell = Global.SpellMgr.GetSpellInfo(trapInfo.Trap.spell, Map.DifficultyID);
+            var trapSpell = Global.SpellMgr.GetSpellInfo(trapInfo.Trap.spell, Location.Map.DifficultyID);
 
             if (trapSpell == null) // checked at load already
                 return;
@@ -1831,7 +1831,7 @@ namespace Forged.MapServer.Entities.GameObjects
                             var group = player.Group;
                             var groupRules = group != null && info.Chest.usegrouplootrules != 0;
 
-                            Loot = _lootFactory.GenerateLoot(Map, GUID, LootType.Chest, groupRules ? group : null, info.Chest.DungeonEncounter, info.GetLootId(), LootStorageType.Gameobject, player, !groupRules, false, LootMode, Map.GetDifficultyLootItemContext());
+                            Loot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest, groupRules ? group : null, info.Chest.DungeonEncounter, info.GetLootId(), LootStorageType.Gameobject, player, !groupRules, false, LootMode, Location.Map.GetDifficultyLootItemContext());
 
                             if (LootMode > 0)
                             {
@@ -1881,16 +1881,16 @@ namespace Forged.MapServer.Entities.GameObjects
                                                                                                  addon != null ? addon.Mingold : 0,
                                                                                                  addon != null ? addon.Maxgold : 0,
                                                                                                  (ushort)LootMode,
-                                                                                                 Map.GetDifficultyLootItemContext(),
+                                                                                                 Location.Map.GetDifficultyLootItemContext(),
                                                                                                  tappers);
                             }
                             else
                             {
-                                Loot loot = new(Map, GUID, LootType.Chest, null);
+                                Loot loot = new(Location.Map, GUID, LootType.Chest, null);
                                 _personalLoot[player.GUID] = loot;
 
                                 loot.SetDungeonEncounterId(info.Chest.DungeonEncounter);
-                                loot.FillLoot(info.Chest.chestPersonalLoot, LootStorage.Gameobject, player, true, false, LootMode, Map.GetDifficultyLootItemContext());
+                                loot.FillLoot(info.Chest.chestPersonalLoot, LootStorage.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
 
                                 if (LootMode > 0 && addon != null)
                                     loot.GenerateMoneyLoot(addon.Mingold, addon.Maxgold);
@@ -1902,8 +1902,8 @@ namespace Forged.MapServer.Entities.GameObjects
                     {
                         if (info.Chest.chestPushLoot != 0)
                         {
-                            Loot pushLoot = new(Map, GUID, LootType.Chest, null);
-                            pushLoot.FillLoot(info.Chest.chestPushLoot, LootStorage.Gameobject, player, true, false, LootMode, Map.GetDifficultyLootItemContext());
+                            Loot pushLoot = new(Location.Map, GUID, LootType.Chest, null);
+                            pushLoot.FillLoot(info.Chest.chestPushLoot, LootStorage.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
                             pushLoot.AutoStore(player, ItemConst.NullBag, ItemConst.NullSlot);
                         }
 
@@ -1999,7 +1999,7 @@ namespace Forged.MapServer.Entities.GameObjects
                         found_free_slot = true;
 
                         // calculate the distance between the player and this slot
-                        var thisDistance = user.GetDistance2d(x_i, y_i);
+                        var thisDistance = user.Location.GetDistance2d(x_i, y_i);
 
                         if (thisDistance <= lowestDist)
                         {
@@ -2451,7 +2451,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                     var player = user.AsPlayer;
 
-                    var loot = _lootFactory.GenerateLoot(Map, GUID, LootType.Fishinghole, Template.GetLootId(), LootStorageType.Gameobject, player, true);
+                    var loot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Fishinghole, Template.GetLootId(), LootStorageType.Gameobject, player, true);
 
                     _personalLoot[player.GUID] = loot;
 
@@ -2667,10 +2667,10 @@ namespace Forged.MapServer.Entities.GameObjects
                     {
                         if (info.GatheringNode.chestLoot != 0)
                         {
-                            Loot newLoot = new(Map, GUID, LootType.Chest, null);
+                            Loot newLoot = new(Location.Map, GUID, LootType.Chest, null);
                             _personalLoot[player.GUID] = newLoot;
 
-                            newLoot.FillLoot(info.GatheringNode.chestLoot, LootStorage.Gameobject, player, true, false, LootMode, Map.GetDifficultyLootItemContext());
+                            newLoot.FillLoot(info.GatheringNode.chestLoot, LootStorage.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
                         }
 
                         if (info.GatheringNode.triggeredEvent != 0)
@@ -2737,7 +2737,7 @@ namespace Forged.MapServer.Entities.GameObjects
             if (spellId == 0)
                 return;
 
-            if (!Global.SpellMgr.HasSpellInfo(spellId, Map.DifficultyID))
+            if (!Global.SpellMgr.HasSpellInfo(spellId, Location.Map.DifficultyID))
             {
                 if (!user.IsTypeId(TypeId.Player) || !Global.OutdoorPvPMgr.HandleCustomSpell(user.AsPlayer, spellId, this))
                     Log.Logger.Error("WORLD: unknown spell id {0} at use action for gameobject (Entry: {1} GoType: {2})", spellId, Entry, GoType);
@@ -2774,7 +2774,7 @@ namespace Forged.MapServer.Entities.GameObjects
             var info = CliDB.GameObjectDisplayInfoStorage.LookupByKey(GoInfoProtected.displayId);
 
             if (info == null)
-                return IsWithinDist3d(x, y, z, radius);
+                return Location.IsWithinDist3d(x, y, z, radius);
 
             var sinA = (float)Math.Sin(Location.Orientation);
             var cosA = (float)Math.Cos(Location.Orientation);
@@ -2892,7 +2892,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public bool IsWithinDistInMap(Player player)
         {
-            return IsInMap(player) && InSamePhase(player) && IsAtInteractDistance(player);
+            return Location.IsInMap(player) && Location.InSamePhase(player) && IsAtInteractDistance(player);
         }
 
         public SpellInfo GetSpellForLock(Player player)
@@ -2917,7 +2917,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                 if (lockEntry.LockType[i] == (byte)LockKeyType.Spell)
                 {
-                    var spell = Global.SpellMgr.GetSpellInfo((uint)lockEntry.Index[i], Map.DifficultyID);
+                    var spell = Global.SpellMgr.GetSpellInfo((uint)lockEntry.Index[i], Location.Map.DifficultyID);
 
                     if (spell != null)
                         return spell;
@@ -2928,7 +2928,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                 foreach (var playerSpell in player.GetSpellMap())
                 {
-                    var spell = Global.SpellMgr.GetSpellInfo(playerSpell.Key, Map.DifficultyID);
+                    var spell = Global.SpellMgr.GetSpellInfo(playerSpell.Key, Location.Map.DifficultyID);
 
                     if (spell != null)
                         foreach (var effect in spell.Effects)
@@ -3194,7 +3194,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
             if (Model != null && !IsTransport)
             {
-                if (!IsInWorld)
+                if (!Location.IsInWorld)
                     return;
 
                 // startOpen determines whether we are going to add or remove the LoS on activation
@@ -3401,7 +3401,7 @@ namespace Forged.MapServer.Entities.GameObjects
         public void AfterRelocation()
         {
             UpdateModelPosition();
-            UpdatePositionData();
+            Location.UpdatePositionData();
 
             if (_goTypeImpl != null)
                 _goTypeImpl.OnRelocated();
@@ -3453,11 +3453,11 @@ namespace Forged.MapServer.Entities.GameObjects
             if (Model == null)
                 return;
 
-            if (Map.ContainsGameObjectModel(Model))
+            if (Location.Map.ContainsGameObjectModel(Model))
             {
-                Map.RemoveGameObjectModel(Model);
+                Location.Map.RemoveGameObjectModel(Model);
                 Model.UpdatePosition();
-                Map.InsertGameObjectModel(Model);
+                Location.Map.InsertGameObjectModel(Model);
             }
         }
 
@@ -3511,7 +3511,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
             // only supported in battlegrounds
             Battleground battleground = null;
-            var map = Map.ToBattlegroundMap;
+            var map = Location.Map.ToBattlegroundMap;
 
             if (map != null)
             {
@@ -3825,9 +3825,9 @@ namespace Forged.MapServer.Entities.GameObjects
             if (!dynamic)
                 RespawnCompatibilityMode = true;
 
-            UpdatePositionData();
+            Location.UpdatePositionData();
 
-            SetZoneScript();
+            Location.SetZoneScript();
 
             if (ZoneScript != null)
             {
@@ -4137,19 +4137,19 @@ namespace Forged.MapServer.Entities.GameObjects
 
         private void UpdateModel()
         {
-            if (!IsInWorld)
+            if (!Location.IsInWorld)
                 return;
 
             if (Model != null)
-                if (Map.ContainsGameObjectModel(Model))
-                    Map.RemoveGameObjectModel(Model);
+                if (Location.Map.ContainsGameObjectModel(Model))
+                    Location.Map.RemoveGameObjectModel(Model);
 
             RemoveFlag(GameObjectFlags.MapObject);
             Model = null;
             CreateModel();
 
             if (Model != null)
-                Map.InsertGameObjectModel(Model);
+                Location.Map.InsertGameObjectModel(Model);
         }
 
         private void UpdateCapturePoint()
@@ -4202,7 +4202,7 @@ namespace Forged.MapServer.Entities.GameObjects
             SetSpellVisualId(spellVisualId);
             UpdateDynamicFlagsForNearbyPlayers();
 
-            var map = Map.ToBattlegroundMap;
+            var map = Location.Map.ToBattlegroundMap;
 
             if (map != null)
             {
@@ -4227,7 +4227,7 @@ namespace Forged.MapServer.Entities.GameObjects
                 }
             }
 
-            Map.UpdateSpawnGroupConditions();
+            Location.Map.UpdateSpawnGroupConditions();
         }
 
         private PerPlayerState GetOrCreatePerPlayerStates(ObjectGuid guid)

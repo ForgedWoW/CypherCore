@@ -255,7 +255,7 @@ public class TempSummon : Creature
             {
                 if (!owner.SummonSlot[slot].IsEmpty && owner.SummonSlot[slot] != GUID)
                 {
-                    var oldSummon = Map.GetCreature(owner.SummonSlot[slot]);
+                    var oldSummon = Location.Map.GetCreature(owner.SummonSlot[slot]);
 
                     if (oldSummon is { IsSummon: true })
                         oldSummon.ToTempSummon().UnSummon();
@@ -402,7 +402,7 @@ public class TempSummon : Creature
 
     public override void RemoveFromWorld()
     {
-        if (!IsInWorld)
+        if (!Location.IsInWorld)
             return;
 
         if (SummonPropertiesRecord != null)

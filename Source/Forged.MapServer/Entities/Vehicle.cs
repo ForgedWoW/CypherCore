@@ -105,7 +105,7 @@ public class Vehicle : ITransport
         if (_me.IsTypeId(TypeId.Unit) && unit.IsTypeId(TypeId.Player) && seat.Value.SeatInfo.HasFlag(VehicleSeatFlags.CanControl))
             _me.RemoveCharmedBy(unit);
 
-        if (_me.IsInWorld)
+        if (_me.Location.IsInWorld)
             unit.MovementInfo.ResetTransport();
 
         // only for flyable vehicles
@@ -408,7 +408,7 @@ public class Vehicle : ITransport
         }
 
         foreach (var (passenger, position) in seatRelocation)
-            ITransport.UpdatePassengerPosition(this, _me.Map, passenger, position, false);
+            ITransport.UpdatePassengerPosition(this, _me.Location.Map, passenger, position, false);
     }
 
     public bool IsVehicleInUse()

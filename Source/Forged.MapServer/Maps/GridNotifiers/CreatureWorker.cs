@@ -19,7 +19,7 @@ public class CreatureWorker : IGridNotifierCreature
 
     public CreatureWorker(WorldObject searcher, IDoWork<Creature> work, GridType gridType)
     {
-        _phaseShift = searcher.PhaseShift;
+        _phaseShift = searcher.Location.PhaseShift;
         _doWork = work;
         GridType = gridType;
     }
@@ -30,7 +30,7 @@ public class CreatureWorker : IGridNotifierCreature
         {
             var creature = objs[i];
 
-            if (creature.InSamePhase(_phaseShift))
+            if (creature.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(creature);
         }
     }

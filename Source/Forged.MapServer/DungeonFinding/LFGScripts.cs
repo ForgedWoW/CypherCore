@@ -58,7 +58,7 @@ internal class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOn
 
     public void OnMapChanged(Player player)
     {
-        var map = player.Map;
+        var map = player.Location.Map;
 
         if (Global.LFGMgr.InLfgDungeonMap(player.GUID, map.Id, map.DifficultyID))
         {

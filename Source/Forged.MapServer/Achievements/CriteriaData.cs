@@ -526,7 +526,7 @@ public class CriteriaData
                 return Global.ScriptMgr.RunScriptRet<IAchievementCriteriaOnCheck>(p => p.OnCheck(source.AsPlayer, unitTarget.AsUnit), ScriptId);
             }
             case CriteriaDataType.MapPlayerCount:
-                return source.Map.GetPlayersCountExceptGMs() <= MapPlayers.MaxCount;
+                return source.Location.Map.GetPlayersCountExceptGMs() <= MapPlayers.MaxCount;
             case CriteriaDataType.TTeam:
                 if (target == null || !target.IsTypeId(TypeId.Player))
                     return false;
@@ -551,10 +551,10 @@ public class CriteriaData
             }
             case CriteriaDataType.InstanceScript:
             {
-                if (!source.IsInWorld)
+                if (!source.Location.IsInWorld)
                     return false;
 
-                var map = source.Map;
+                var map = source.Location.Map;
 
                 if (!map.IsDungeon)
                 {

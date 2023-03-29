@@ -38,19 +38,19 @@ public class SceneObject : WorldObject
 
     public override void AddToWorld()
     {
-        if (!IsInWorld)
+        if (!Location.IsInWorld)
         {
-            Map.ObjectsStore.TryAdd(GUID, this);
+            Location.Map.ObjectsStore.TryAdd(GUID, this);
             base.AddToWorld();
         }
     }
 
     public override void RemoveFromWorld()
     {
-        if (IsInWorld)
+        if (Location.IsInWorld)
         {
             base.RemoveFromWorld();
-            Map.ObjectsStore.TryRemove(GUID, out _);
+            Location.Map.ObjectsStore.TryRemove(GUID, out _);
         }
     }
 
@@ -69,11 +69,11 @@ public class SceneObject : WorldObject
         if (sceneTemplate == null)
             return null;
 
-        var lowGuid = creator.Map.GenerateLowGuid(HighGuid.SceneObject);
+        var lowGuid = creator.Location.Map.GenerateLowGuid(HighGuid.SceneObject);
 
         SceneObject sceneObject = new();
 
-        if (!sceneObject.Create(lowGuid, SceneType.Normal, sceneId, sceneTemplate != null ? sceneTemplate.ScenePackageId : 0, creator.Map, creator, pos, privateObjectOwner))
+        if (!sceneObject.Create(lowGuid, SceneType.Normal, sceneId, sceneTemplate != null ? sceneTemplate.ScenePackageId : 0, creator.Location.Map, creator, pos, privateObjectOwner))
         {
             sceneObject.Dispose();
 
@@ -126,7 +126,7 @@ public class SceneObject : WorldObject
 
     private void Remove()
     {
-        if (IsInWorld)
+        if (Location.IsInWorld)
             AddObjectToRemoveList();
     }
 
@@ -169,7 +169,7 @@ public class SceneObject : WorldObject
         SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.CreatedBy), creator.GUID);
         SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.SceneType), (uint)type);
 
-        if (!Map.AddToMap(this))
+        if (!Location.Map.AddToMap(this))
             return false;
 
         return true;

@@ -73,7 +73,7 @@ internal class PartyMemberFullState : ServerPacket
         MemberStats.MaxPower = (ushort)player.GetMaxPower(player.DisplayPowerType);
 
         // Position
-        MemberStats.ZoneID = (ushort)player.Zone;
+        MemberStats.ZoneID = (ushort)player.Location.Zone;
         MemberStats.PositionX = (short)player.Location.X;
         MemberStats.PositionY = (short)(player.Location.Y);
         MemberStats.PositionZ = (short)(player.Location.Z);
@@ -114,7 +114,7 @@ internal class PartyMemberFullState : ServerPacket
         }
 
         // Phases
-        PhasingHandler.FillPartyMemberPhase(MemberStats.Phases, player.PhaseShift);
+        PhasingHandler.FillPartyMemberPhase(MemberStats.Phases, player.Location.PhaseShift);
 
         // Pet
         if (player.CurrentPet)

@@ -748,7 +748,7 @@ public partial class Unit
 
         SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.Power, (int)powerIndex), val);
 
-        if (IsInWorld && withPowerUpdate)
+        if (Location.IsInWorld && withPowerUpdate)
         {
             PowerUpdate packet = new()
             {

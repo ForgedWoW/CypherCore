@@ -83,7 +83,7 @@ public class UnitAura : Aura
                 continue;
 
             // skip area update if owner is not in world!
-            if (!OwnerAsUnit.IsInWorld)
+            if (!OwnerAsUnit.Location.IsInWorld)
                 continue;
 
             if (OwnerAsUnit.HasUnitState(UnitState.Isolated))
@@ -128,7 +128,7 @@ public class UnitAura : Aura
                     var owner = OwnerAsUnit.CharmerOrOwner;
 
                     if (owner != null)
-                        if (OwnerAsUnit.IsWithinDistInMap(owner, radius))
+                        if (OwnerAsUnit.Location.IsWithinDistInMap(owner, radius))
                             if (condList == null || Global.ConditionMgr.IsObjectMeetToConditions(owner, refe, condList))
                                 units.Add(owner);
 
@@ -162,7 +162,7 @@ public class UnitAura : Aura
                 Cell.VisitGrid(OwnerAsUnit, searcher, radius + extraSearchRadius);
 
                 // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
-                units.RemoveAll(unit => !unit.IsSelfOrInSameMap(OwnerAsUnit));
+                units.RemoveAll(unit => !unit.Location.IsSelfOrInSameMap(OwnerAsUnit));
             }
 
             foreach (var unit in units)

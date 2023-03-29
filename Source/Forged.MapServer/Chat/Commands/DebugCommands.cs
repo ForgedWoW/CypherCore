@@ -534,7 +534,7 @@ internal class DebugCommands
             return false;
         }
 
-        var map = player.Map;
+        var map = player.Location.Map;
         var mapName = map.MapName;
         var instance = player.Location.InstanceScript;
 
@@ -669,7 +669,7 @@ internal class DebugCommands
 
         if (player != null)
             // Fallback to player's map if no map has been specified
-            return HandleDebugLoadCellsCommandHelper(handler, player.Map, tileX, tileY);
+            return HandleDebugLoadCellsCommandHelper(handler, player.Location.Map, tileX, tileY);
 
         return false;
     }
@@ -731,9 +731,9 @@ internal class DebugCommands
         {
             var player = handler.Player;
             handler.SendSysMessage($"Checking LoS {player.GetName()} . {unit.GetName()}:");
-            handler.SendSysMessage($"    VMAP LoS: {(player.IsWithinLOSInMap(unit, LineOfSightChecks.Vmap) ? "clear" : "obstructed")}");
-            handler.SendSysMessage($"    GObj LoS: {(player.IsWithinLOSInMap(unit, LineOfSightChecks.Gobject) ? "clear" : "obstructed")}");
-            handler.SendSysMessage($"{unit.GetName()} is {(player.IsWithinLOSInMap(unit) ? "" : "not ")}in line of sight of {player.GetName()}.");
+            handler.SendSysMessage($"    VMAP LoS: {(player.Location.IsWithinLOSInMap(unit, LineOfSightChecks.Vmap) ? "clear" : "obstructed")}");
+            handler.SendSysMessage($"    GObj LoS: {(player.Location.IsWithinLOSInMap(unit, LineOfSightChecks.Gobject) ? "clear" : "obstructed")}");
+            handler.SendSysMessage($"{unit.GetName()} is {(player.Location.IsWithinLOSInMap(unit) ? "" : "not ")}in line of sight of {player.GetName()}.");
 
             return true;
         }
@@ -799,7 +799,7 @@ internal class DebugCommands
             }
             else
             {
-                var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.Map, player.Zone);
+                var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.Location.Map, player.Location.Zone);
 
                 if (bf != null)
                     nearestLoc = bf.GetClosestGraveYard(player);
@@ -885,10 +885,10 @@ internal class DebugCommands
             return false;
         }
 
-        if (target.DBPhase > 0)
-            handler.SendSysMessage($"Target creature's PhaseId in DB: {target.DBPhase}");
-        else if (target.DBPhase < 0)
-            handler.SendSysMessage($"Target creature's PhaseGroup in DB: {Math.Abs(target.DBPhase)}");
+        if (target.Location.DBPhase > 0)
+            handler.SendSysMessage($"Target creature's PhaseId in DB: {target.Location.DBPhase}");
+        else if (target.Location.DBPhase < 0)
+            handler.SendSysMessage($"Target creature's PhaseGroup in DB: {Math.Abs(target.Location.DBPhase)}");
 
         PhasingHandler.PrintToChat(handler, target);
 
@@ -1039,7 +1039,7 @@ internal class DebugCommands
             Orientation = handler.Player.Location.Orientation
         };
 
-        handler.Player.GetClosePoint(pos, handler.Player.CombatReach);
+        handler.Player.Location.GetClosePoint(pos, handler.Player.CombatReach);
 
         if (id == 0)
             return handler.Player.SummonCreature(entry, pos);
@@ -1054,7 +1054,7 @@ internal class DebugCommands
         if (vehicleRecord == null)
             return false;
 
-        var map = handler.Player.Map;
+        var map = handler.Player.Location.Map;
 
         var creature = Creature.CreateCreature(entry, map, pos, id);
 

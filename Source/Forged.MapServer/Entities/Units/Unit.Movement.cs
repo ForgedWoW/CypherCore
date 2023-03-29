@@ -70,10 +70,6 @@ public partial class Unit
 
     public bool IsFalling => MovementInfo.HasMovementFlag(MovementFlag.Falling | MovementFlag.FallingFar) || MoveSpline.IsFalling();
 
-    public bool IsInWater => LiquidStatus.HasAnyFlag(ZLiquidStatus.InWater | ZLiquidStatus.UnderWater);
-
-    public bool IsUnderWater => LiquidStatus.HasFlag(ZLiquidStatus.UnderWater);
-
     public MovementForces MovementForces => _movementForces;
 
     public bool IsPlayingHoverAnim => _playHoverAnim;
@@ -203,7 +199,7 @@ public partial class Unit
         ClearUnitState(UnitState.Moving);
 
         // not need send any packets if not in world or not moving
-        if (!IsInWorld || MoveSpline.Finalized())
+        if (!Location.IsInWorld || MoveSpline.Finalized())
             return;
 
         // Update position now since Stop does not start a new movement that can be updated later
@@ -503,7 +499,7 @@ public partial class Unit
     public void JumpTo(WorldObject obj, float speedZ, bool withOrientation = false)
     {
         var pos = new Position();
-        obj.GetContactPoint(this, pos);
+        obj.Location.GetContactPoint(this, pos);
         var speedXY = Location.GetExactDist2d(pos.X, pos.Y) * 10.0f / speedZ;
         pos.Orientation = Location.GetAbsoluteAngle(obj.Location);
         MotionMaster.MoveJump(pos, speedXY, speedZ, EventId.Jump, withOrientation);
@@ -659,10 +655,10 @@ public partial class Unit
                     {
                         var ownerSpeed = followed.GetSpeedRate(mtype);
 
-                        if (speed < ownerSpeed || creature.IsWithinDist3d(followed.Location, 10.0f))
+                        if (speed < ownerSpeed || creature.Location.IsWithinDist3d(followed.Location, 10.0f))
                             speed = ownerSpeed;
 
-                        speed *= Math.Min(Math.Max(1.0f, 0.75f + (GetDistance(followed) - SharedConst.PetFollowDist) * 0.05f), 1.3f);
+                        speed *= Math.Min(Math.Max(1.0f, 0.75f + (Location.GetDistance(followed) - SharedConst.PetFollowDist) * 0.05f), 1.3f);
                     }
                 }
 
@@ -717,9 +713,9 @@ public partial class Unit
         {
             // move and update visible state if need
             if (IsTypeId(TypeId.Player))
-                Map.PlayerRelocation(AsPlayer, x, y, z, orientation);
+                Location.Map.PlayerRelocation(AsPlayer, x, y, z, orientation);
             else
-                Map.CreatureRelocation(AsCreature, x, y, z, orientation);
+                Location.Map.CreatureRelocation(AsCreature, x, y, z, orientation);
         }
         else if (turn)
         {
@@ -729,7 +725,7 @@ public partial class Unit
         _positionUpdateInfo.Relocated = relocated;
         _positionUpdateInfo.Turned = turn;
 
-        var isInWater = IsInWater;
+        var isInWater = Location.IsInWater;
 
         if (!IsFalling || isInWater || IsFlying)
             RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2.Ground);
@@ -742,7 +738,7 @@ public partial class Unit
 
     public bool IsWithinBoundaryRadius(Unit obj)
     {
-        if (!obj || !IsInMap(obj) || !InSamePhase(obj))
+        if (!obj || !Location.IsInMap(obj) || !Location.InSamePhase(obj))
             return false;
 
         var objBoundaryRadius = Math.Max(obj.BoundingRadius, SharedConst.MinMeleeReach);
@@ -818,7 +814,7 @@ public partial class Unit
         if (capabilities == null)
             return null;
 
-        var areaId = Area;
+        var areaId = Location.Area;
         uint ridingSkill = 5000;
         AreaMountFlags mountFlags = 0;
         bool isSubmerged;
@@ -840,7 +836,7 @@ public partial class Unit
                 mountFlags = (AreaMountFlags)areaTable.MountFlags;
         }
 
-        var liquidStatus = Map.GetLiquidStatus(PhaseShift, Location.X, Location.Y, Location.Z, LiquidHeaderTypeFlags.AllLiquids);
+        var liquidStatus = Location.Map.GetLiquidStatus(Location.PhaseShift, Location.X, Location.Y, Location.Z, LiquidHeaderTypeFlags.AllLiquids);
         isSubmerged = liquidStatus.HasAnyFlag(ZLiquidStatus.UnderWater) || HasUnitMovementFlag(MovementFlag.Swimming);
         isInWater = liquidStatus.HasAnyFlag(ZLiquidStatus.InWater | ZLiquidStatus.UnderWater);
 
@@ -895,8 +891,8 @@ public partial class Unit
 
             if (mountCapability.ReqMapID != -1 &&
                 Location.MapId != mountCapability.ReqMapID &&
-                Map.Entry.CosmeticParentMapID != mountCapability.ReqMapID &&
-                Map.Entry.ParentMapID != mountCapability.ReqMapID)
+                Location.Map.Entry.CosmeticParentMapID != mountCapability.ReqMapID &&
+                Location.Map.Entry.ParentMapID != mountCapability.ReqMapID)
                 continue;
 
             if (mountCapability.ReqAreaID != 0 && !Global.DB2Mgr.IsInArea(areaId, mountCapability.ReqAreaID))
@@ -943,15 +939,15 @@ public partial class Unit
 
                 if (capability != null) // aura may get removed by interrupt flag, reapply
                     if (!HasAura(capability.ModSpellAuraID))
-                        CastSpell(this, capability.ModSpellAuraID, new CastSpellExtraArgs(aurEff));
+                        SpellFactory.CastSpell(this, capability.ModSpellAuraID, new CastSpellExtraArgs(aurEff));
             }
         }
     }
 
-    public override void ProcessPositionDataChanged(PositionFullTerrainStatus data)
+    public void ProcessPositionDataChanged(PositionFullTerrainStatus data)
     {
-        var oldLiquidStatus = LiquidStatus;
-        base.ProcessPositionDataChanged(data);
+        var oldLiquidStatus = Location.LiquidStatus;
+        Location.ProcessPositionDataChanged(data);
         ProcessTerrainStatusUpdate(oldLiquidStatus, data.LiquidInfo);
     }
 
@@ -961,7 +957,7 @@ public partial class Unit
             return;
 
         // remove appropriate auras if we are swimming/not swimming respectively
-        if (IsInWater)
+        if (Location.IsInWater)
             RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.UnderWater);
         else
             RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.AboveWater);
@@ -969,7 +965,7 @@ public partial class Unit
         // liquid aura handling
         LiquidTypeRecord curLiquid = null;
 
-        if (IsInWater && newLiquidData != null)
+        if (Location.IsInWater && newLiquidData != null)
             curLiquid = CliDB.LiquidTypeStorage.LookupByKey(newLiquidData.entry);
 
         if (curLiquid != LastLiquid)
@@ -983,11 +979,11 @@ public partial class Unit
             LastLiquid = curLiquid;
 
             if (curLiquid != null && curLiquid.SpellID != 0 && (!player || !player.IsGameMaster))
-                CastSpell(this, curLiquid.SpellID, true);
+                SpellFactory.CastSpell(this, curLiquid.SpellID, true);
         }
 
         // mount capability depends on liquid state change
-        if (oldLiquidStatus != LiquidStatus)
+        if (oldLiquidStatus != Location.LiquidStatus)
             UpdateMountCapability();
     }
 
@@ -1198,7 +1194,7 @@ public partial class Unit
             //! No need to check height on ascent
             AddUnitMovementFlag(MovementFlag.Hover);
 
-            if (hoverHeight != 0 && Location.Z - FloorZ < hoverHeight)
+            if (hoverHeight != 0 && Location.Z - Location.FloorZ < hoverHeight)
                 UpdateHeight(Location.Z + hoverHeight);
         }
         else
@@ -1208,8 +1204,8 @@ public partial class Unit
             //! Dying creatures will MoveFall from setDeathState
             if (hoverHeight != 0 && (!IsDying || !IsUnit))
             {
-                var newZ = Math.Max(FloorZ, Location.Z - hoverHeight);
-                newZ = UpdateAllowedPositionZ(Location.X, Location.Y, newZ);
+                var newZ = Math.Max(Location.FloorZ, Location.Z - hoverHeight);
+                newZ = Location.UpdateAllowedPositionZ(Location.X, Location.Y, newZ);
                 UpdateHeight(newZ);
             }
         }
@@ -1258,7 +1254,7 @@ public partial class Unit
 
     public bool IsWithinCombatRange(Unit obj, float dist2compare)
     {
-        if (!obj || !IsInMap(obj) || !InSamePhase(obj))
+        if (!obj || !Location.IsInMap(obj) || !Location.InSamePhase(obj))
             return false;
 
         var dx = Location.X - obj.Location.X;
@@ -1274,17 +1270,17 @@ public partial class Unit
 
     public bool IsInFrontInMap(Unit target, float distance, float arc = MathFunctions.PI)
     {
-        return IsWithinDistInMap(target, distance) && Location.HasInArc(arc, target.Location);
+        return Location.IsWithinDistInMap(target, distance) && Location.HasInArc(arc, target.Location);
     }
 
     public bool IsInBackInMap(Unit target, float distance, float arc = MathFunctions.PI)
     {
-        return IsWithinDistInMap(target, distance) && !Location.HasInArc(MathFunctions.TwoPi - arc, target.Location);
+        return Location.IsWithinDistInMap(target, distance) && !Location.HasInArc(MathFunctions.TWO_PI - arc, target.Location);
     }
 
     public bool IsInAccessiblePlaceFor(Creature c)
     {
-        if (IsInWater)
+        if (Location.IsInWater)
             return c.CanEnterWater;
         else
             return c.CanWalk || c.CanFly;

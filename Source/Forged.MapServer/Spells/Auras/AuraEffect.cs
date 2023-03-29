@@ -141,7 +141,7 @@ public class AuraEffect
                 break;
             case AuraType.ShowConfirmationPromptWithDifficulty:
                 if (caster)
-                    amount = (int)caster.Map.DifficultyID;
+                    amount = (int)caster.Location.Map.DifficultyID;
 
                 _canBeRecalculated = false;
 
@@ -1220,7 +1220,7 @@ public class AuraEffect
         }
 
         // call functions which may have additional effects after changing state of unit
-        if (target.IsInWorld)
+        if (target.Location.IsInWorld)
             target.UpdateObjectVisibility();
     }
 
@@ -1290,7 +1290,7 @@ public class AuraEffect
             // drop flag at invisibiliy in bg
             target.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.StealthOrInvis);
 
-        if (target.IsInWorld)
+        if (target.Location.IsInWorld)
             target.UpdateObjectVisibility();
     }
 
@@ -1317,7 +1317,7 @@ public class AuraEffect
         }
 
         // call functions which may have additional effects after changing state of unit
-        if (target.IsInWorld)
+        if (target.Location.IsInWorld)
             target.UpdateObjectVisibility();
     }
 
@@ -1361,7 +1361,7 @@ public class AuraEffect
             // drop flag at stealth in bg
             target.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.StealthOrInvis);
 
-        if (target.IsInWorld)
+        if (target.Location.IsInWorld)
             target.UpdateObjectVisibility();
     }
 
@@ -1380,7 +1380,7 @@ public class AuraEffect
             target.Stealth.AddValue(type, -Amount);
 
         // call functions which may have additional effects after changing state of unit
-        if (target.IsInWorld)
+        if (target.Location.IsInWorld)
             target.UpdateObjectVisibility();
     }
 
@@ -1984,10 +1984,10 @@ public class AuraEffect
         if (apply)
         {
             List<Unit> targets = new();
-            var u_check = new AnyUnfriendlyUnitInObjectRangeCheck(target, target, target.Map.VisibilityRange, u => u.HasUnitState(UnitState.Casting));
+            var u_check = new AnyUnfriendlyUnitInObjectRangeCheck(target, target, target.Location.Map.VisibilityRange, u => u.HasUnitState(UnitState.Casting));
             var searcher = new UnitListSearcher(target, targets, u_check, GridType.All);
 
-            Cell.VisitGrid(target, searcher, target.Map.VisibilityRange);
+            Cell.VisitGrid(target, searcher, target.Location.Map.VisibilityRange);
 
             foreach (var unit in targets)
                 for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)
@@ -1997,7 +1997,7 @@ public class AuraEffect
             foreach (var pair in target.GetThreatManager().ThreatenedByMeList)
                 pair.Value.ScaleThreat(0.0f);
 
-            if (target.Map.IsDungeon) // feign death does not remove combat in dungeons
+            if (target.Location.Map.IsDungeon) // feign death does not remove combat in dungeons
             {
                 target.AttackStop();
                 var targetPlayer = target.AsPlayer;
@@ -2064,7 +2064,7 @@ public class AuraEffect
         // call functions which may have additional effects after changing state of unit
         if (apply && mode.HasAnyFlag(AuraEffectHandleModes.Real))
         {
-            if (target.Map.IsDungeon)
+            if (target.Location.Map.IsDungeon)
             {
                 target.AttackStop();
                 var targetPlayer = target.AsPlayer;
@@ -2347,7 +2347,7 @@ public class AuraEffect
         }
 
         // call functions which may have additional effects after changing state of unit
-        if (target.IsInWorld)
+        if (target.Location.IsInWorld)
             target.UpdateObjectVisibility();
     }
 
@@ -2909,7 +2909,7 @@ public class AuraEffect
         {
             pet.RemoveCharmedBy(caster);
 
-            if (!pet.IsWithinDistInMap(caster, pet.Map.VisibilityRange))
+            if (!pet.Location.IsWithinDistInMap(caster, pet.Location.Map.VisibilityRange))
             {
                 pet.Remove(PetSaveMode.NotInSlot, true);
             }
@@ -4773,7 +4773,7 @@ public class AuraEffect
                                     if (bg)
                                         bg.RemovePlayerFromResurrectQueue(target.GUID);
 
-                                    var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(target.Map, target.Zone);
+                                    var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(target.Location.Map, target.Location.Zone);
 
                                     if (bf != null)
                                         bf.RemovePlayerFromResurrectQueue(target.GUID);
@@ -4789,7 +4789,7 @@ public class AuraEffect
                                 if (!target.IsTypeId(TypeId.Player) || aurApp.RemoveMode != AuraRemoveMode.Expire)
                                     return;
 
-                                if (target.Map.IsBattleground)
+                                if (target.Location.Map.IsBattleground)
                                     target.AsPlayer.LeaveBattleground();
 
                                 break;
@@ -5303,7 +5303,7 @@ public class AuraEffect
 
         var target = aurApp.Target;
 
-        if (!target.IsTypeId(TypeId.Player) || !target.IsInWorld)
+        if (!target.IsTypeId(TypeId.Player) || !target.Location.IsInWorld)
             return;
 
         if (apply)
@@ -5351,7 +5351,7 @@ public class AuraEffect
         }
 
         // call functions which may have additional effects after changing state of unit
-        if (target.IsInWorld)
+        if (target.Location.IsInWorld)
             target.UpdateObjectVisibility();
     }
 
@@ -5363,7 +5363,7 @@ public class AuraEffect
 
         var target = aurApp.Target.AsPlayer;
 
-        if (target == null || !target.IsInWorld)
+        if (target == null || !target.Location.IsInWorld)
             return;
 
         var overrideId = (uint)MiscValue;
@@ -5406,7 +5406,7 @@ public class AuraEffect
 
         var target = aurApp.Target;
 
-        if (!target.IsInWorld)
+        if (!target.Location.IsInWorld)
             return;
 
         var vehicleId = MiscValue;
@@ -5441,7 +5441,7 @@ public class AuraEffect
 
         if (apply)
             target.RemovePlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
-        else if (!target.Map.Instanceable)
+        else if (!target.Location.Map.Instanceable)
             target.SetPlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
     }
 
@@ -6171,7 +6171,7 @@ public class AuraEffect
         if (apply)
             target.SendPacket(new WeatherPkt((WeatherState)MiscValue, 1.0f));
         else
-            target.Map.SendZoneWeather(target.Zone, target);
+            target.Location.Map.SendZoneWeather(target.Location.Zone, target);
     }
 
     [AuraEffectHandler(AuraType.EnableAltPower)]
@@ -6361,7 +6361,7 @@ public class AuraEffect
             // most of the spells have multiple effects with the same summon spell id for multiple spawns, so right now it's safe to assume there's only 1 spawn per effect
             foreach (var summonEntry in summonedEntries)
             {
-                var nearbyEntries = target.GetCreatureListWithEntryInGrid(summonEntry);
+                var nearbyEntries = target.Location.GetCreatureListWithEntryInGrid(summonEntry);
 
                 foreach (var creature in nearbyEntries)
                     if (creature.OwnerUnit == target)
@@ -6418,7 +6418,7 @@ public class AuraEffect
         else
             target.OverrideZonePvpType = ZonePVPTypeOverride.None;
 
-        target.UpdateHostileAreaState(CliDB.AreaTableStorage.LookupByKey(target.Zone));
+        target.UpdateHostileAreaState(CliDB.AreaTableStorage.LookupByKey(target.Location.Zone));
         target.UpdatePvPState();
     }
 
@@ -6434,7 +6434,7 @@ public class AuraEffect
         if (target == null)
             return;
 
-        var battlegroundMap = target.Map.ToBattlegroundMap;
+        var battlegroundMap = target.Location.Map.ToBattlegroundMap;
 
         if (battlegroundMap == null)
             return;
@@ -6534,7 +6534,7 @@ public class AuraEffect
         if (playerTarget == null)
             return;
 
-        playerTarget.UpdatePositionData();
+        playerTarget.Location.UpdatePositionData();
     }
 
     #endregion

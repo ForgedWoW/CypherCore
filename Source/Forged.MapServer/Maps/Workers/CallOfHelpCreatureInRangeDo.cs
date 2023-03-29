@@ -30,11 +30,11 @@ public class CallOfHelpCreatureInRangeDo : IDoWork<Creature>
 
         // too far
         // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
-        if (!u.IsWithinDist(_funit, _range, true, false, false))
+        if (!u.Location.IsWithinDist(_funit, _range, true, false, false))
             return;
 
         // only if see assisted creature's enemy
-        if (!u.IsWithinLOSInMap(_enemy))
+        if (!u.Location.IsWithinLOSInMap(_enemy))
             return;
 
         u.EngageWithTarget(_enemy);

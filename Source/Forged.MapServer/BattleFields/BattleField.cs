@@ -909,7 +909,7 @@ public class BattleField : ZoneScript
 
     private bool AddOrSetPlayerToCorrectBfGroup(Player player)
     {
-        if (!player.IsInWorld)
+        if (!player.Location.IsInWorld)
             return false;
 
         var oldgroup = player.Group;
@@ -997,7 +997,7 @@ public class BfGraveyard
     {
         var safeLoc = Global.ObjectMgr.GetWorldSafeLoc(m_GraveyardId);
 
-        return player.GetDistance2d(safeLoc.Loc.X, safeLoc.Loc.Y);
+        return player.Location.GetDistance2d(safeLoc.Loc.X, safeLoc.Loc.Y);
     }
 
     public void AddPlayer(ObjectGuid playerGuid)
@@ -1279,7 +1279,7 @@ public class BfCapturePoint
                     var player = Global.ObjAccessor.FindPlayer(guid);
 
                     if (player)
-                        if (!capturePoint.IsWithinDistInMap(player, radius) || !player.IsOutdoorPvPActive())
+                        if (!capturePoint.Location.IsWithinDistInMap(player, radius) || !player.IsOutdoorPvPActive())
                             HandlePlayerLeave(player);
                 }
 

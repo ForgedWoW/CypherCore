@@ -310,7 +310,7 @@ public class ChatCommandNode
 
         var player = session.Player;
         var targetGuid = player.Target;
-        var areaId = player.Area;
+        var areaId = player.Location.Area;
         var areaName = "Unknown";
         var zoneName = "Unknown";
 
@@ -328,7 +328,7 @@ public class ChatCommandNode
 
         Log.outCommand(session.AccountId,
                        $"Command: {cmdStr} [Player: {player.GetName()} ({player.GUID}) (Account: {session.AccountId}) " +
-                       $"X: {player.Location.X} Y: {player.Location.Y} Z: {player.Location.Z} Map: {player.Location.MapId} ({(player.Map ? player.Map.MapName : "Unknown")}) " +
+                       $"X: {player.Location.X} Y: {player.Location.Y} Z: {player.Location.Z} Map: {player.Location.MapId} ({(player.Location.Map ? player.Location.Map.MapName : "Unknown")}) " +
                        $"Area: {areaId} ({areaName}) Zone: {zoneName} Selected: {(player.SelectedUnit ? player.SelectedUnit.GetName() : "")} ({targetGuid})]");
     }
 

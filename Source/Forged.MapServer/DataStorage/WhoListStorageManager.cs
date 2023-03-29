@@ -30,7 +30,7 @@ public class WhoListStorageManager
 
         foreach (var player in players)
         {
-            if (player.Map == null || player.Session.PlayerLoading)
+            if (player.Location.Map == null || player.Session.PlayerLoading)
                 continue;
 
             var playerName = player.GetName();
@@ -48,7 +48,7 @@ public class WhoListStorageManager
                                                       player.Level,
                                                       player.Class,
                                                       player.Race,
-                                                      player.Zone,
+                                                      player.Location.Zone,
                                                       (byte)player.NativeGender,
                                                       player.IsVisible(),
                                                       player.IsGameMaster,

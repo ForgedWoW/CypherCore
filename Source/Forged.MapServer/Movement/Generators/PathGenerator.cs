@@ -44,7 +44,7 @@ public class PathGenerator
         _navMeshQuery = null;
         Log.Logger.Debug("PathGenerator:PathGenerator for {0}", _source.GUID.ToString());
 
-        var mapId = PhasingHandler.GetTerrainMapId(_source.PhaseShift, _source.Location.MapId, _source.Map.Terrain, _source.Location.X, _source.Location.Y);
+        var mapId = PhasingHandler.GetTerrainMapId(_source.Location.PhaseShift, _source.Location.MapId, _source.Location.Map.Terrain, _source.Location.X, _source.Location.Y);
 
         if (Global.DisableMgr.IsPathfindingEnabled(_source.Location.MapId))
         {
@@ -114,7 +114,7 @@ public class PathGenerator
             return;
 
         var i = _pathPoints.Length - 1;
-        var collisionHeight = _source.CollisionHeight;
+        var collisionHeight = _source.Location.CollisionHeight;
 
         // find the first i s.t.:
         //  - _pathPoints[i] is still too close
@@ -130,9 +130,9 @@ public class PathGenerator
 
             // check if the shortened path is still in LoS with the target
             var hitPos = new Position();
-            _source.GetHitSpherePointFor(new Position(point.X, point.Y, point.Z + collisionHeight), hitPos);
+            _source.Location.GetHitSpherePointFor(new Position(point.X, point.Y, point.Z + collisionHeight), hitPos);
 
-            if (!_source.Map.IsInLineOfSight(_source.PhaseShift, hitPos, point.X, point.Y, point.Z + collisionHeight, LineOfSightChecks.All, ModelIgnoreFlags.Nothing))
+            if (!_source.Location.Map.IsInLineOfSight(_source.Location.PhaseShift, hitPos, point.X, point.Y, point.Z + collisionHeight, LineOfSightChecks.All, ModelIgnoreFlags.Nothing))
             {
                 // whenver we find a point that is not in LoS anymore, simply use last valid path
                 Array.Resize(ref _pathPoints, i + 1);
@@ -319,7 +319,7 @@ public class PathGenerator
                 // Check both start and end points, if they're both in water, then we can *safely* let the creature move
                 for (uint i = 0; i < _pathPoints.Length; ++i)
                 {
-                    var status = _source.Map.GetLiquidStatus(_source.PhaseShift, _pathPoints[i].X, _pathPoints[i].Y, _pathPoints[i].Z, LiquidHeaderTypeFlags.AllLiquids, _source.CollisionHeight);
+                    var status = _source.Location.Map.GetLiquidStatus(_source.Location.PhaseShift, _pathPoints[i].X, _pathPoints[i].Y, _pathPoints[i].Z, LiquidHeaderTypeFlags.AllLiquids, _source.Location.CollisionHeight);
 
                     // One of the points is not in the water, cancel movement.
                     if (status == ZLiquidStatus.NoWater)
@@ -357,7 +357,7 @@ public class PathGenerator
             var buildShotrcut = false;
             var p = (distToStartPoly > 7.0f) ? startPos : endPos;
 
-            if (_source.Map.IsUnderWater(_source.PhaseShift, p.X, p.Y, p.Z))
+            if (_source.Location.Map.IsUnderWater(_source.Location.PhaseShift, p.X, p.Y, p.Z))
             {
                 Log.Logger.Debug("++ BuildPolyPath :: underWater case");
                 var _sourceUnit = _source.AsUnit;
@@ -1025,7 +1025,7 @@ public class PathGenerator
         for (uint i = 0; i < _pathPoints.Length; ++i)
         {
             var point = _pathPoints[i];
-            point.Z = _source.UpdateAllowedPositionZ(point.X, point.Y, point.Z);
+            point.Z = _source.Location.UpdateAllowedPositionZ(point.X, point.Y, point.Z);
         }
     }
 
@@ -1078,11 +1078,11 @@ public class PathGenerator
     {
         // allow creatures to cheat and use different movement types if they are moved
         // forcefully into terrain they can't normally move in
-        var _sourceUnit = _source.AsUnit;
+        var sourceUnit = _source.AsUnit;
 
-        if (_sourceUnit != null)
+        if (sourceUnit != null)
         {
-            if (_sourceUnit.IsInWater || _sourceUnit.IsUnderWater)
+            if (sourceUnit.Location.IsInWater || sourceUnit.Location.IsUnderWater)
             {
                 var includedFlags = (NavTerrainFlag)_filter.getIncludeFlags();
                 includedFlags |= GetNavTerrain(_source.Location.X, _source.Location.Y, _source.Location.Z);
@@ -1090,17 +1090,17 @@ public class PathGenerator
                 _filter.setIncludeFlags((ushort)includedFlags);
             }
 
-            var _sourceCreature = _source.AsCreature;
+            var sourceCreature = _source.AsCreature;
 
-            if (_sourceCreature != null)
-                if (_sourceCreature.IsInCombat || _sourceCreature.IsInEvadeMode)
+            if (sourceCreature != null)
+                if (sourceCreature.IsInCombat || sourceCreature.IsInEvadeMode)
                     _filter.setIncludeFlags((ushort)(_filter.getIncludeFlags() | (ushort)NavTerrainFlag.GroundSteep));
         }
     }
 
     private NavTerrainFlag GetNavTerrain(float x, float y, float z)
     {
-        var liquidStatus = _source.Map.GetLiquidStatus(_source.PhaseShift, x, y, z, LiquidHeaderTypeFlags.AllLiquids, out var data, _source.CollisionHeight);
+        var liquidStatus = _source.Location.Map.GetLiquidStatus(_source.Location.PhaseShift, x, y, z, LiquidHeaderTypeFlags.AllLiquids, out var data, _source.Location.CollisionHeight);
 
         if (liquidStatus == ZLiquidStatus.NoWater)
             return NavTerrainFlag.Ground;
@@ -1223,6 +1223,7 @@ public enum NavArea
     // ground is the highest value to make recast choose ground over water when merging surfaces very close to each other (shallow water would be walkable) 
 }
 
+[Flags]
 public enum NavTerrainFlag
 {
     Empty = 0x00,

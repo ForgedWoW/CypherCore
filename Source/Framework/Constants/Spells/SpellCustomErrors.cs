@@ -113,7 +113,7 @@ public enum SpellCustomErrors
     AboveEnslavedPearlMiner = 106,                                                      // You Must Be Above The Enslaved Pearl Miner.
     MustTargetCorpseSpecial1 = 107,                                                     // You Must Target The Corpse Of A Seabrush Terrapin, Scourgut Remora, Or Spinescale Hammerhead.
     SlaghammerAlreadyPrisoner = 108,                                                    // Ambassador Slaghammer Is Already Your Prisoner.
-    RequireAttunedLocation1 = 109,                                                      // Requires A Location That Is Attuned With The Naz'Jar Battlemaiden.
+    RequireAttunedLocation = 109,                                                      // Requires A Location That Is Attuned With The Naz'Jar Battlemaiden.
     NeedToFreeDrakeFirst = 110,                                                         // Free The Drake From The Net First!
     DragonmawAlliesAlreadyFollow = 111,                                                 // You Already Have Three Dragonmaw Allies Following You.
     RequireOpposableThumbs = 112,                                                       // Requires Opposable Thumbs.

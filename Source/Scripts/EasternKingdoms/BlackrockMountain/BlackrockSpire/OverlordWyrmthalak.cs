@@ -22,7 +22,7 @@ internal struct MiscConst
     public const uint NpcSpirestoneWarlord = 9216;
     public const uint NpcSmolderthornBerserker = 9268;
 
-    public static Position SummonLocation1 = new(-39.355f, -513.456f, 88.472f, 4.679f);
+    public static Position SummonLocation = new(-39.355f, -513.456f, 88.472f, 4.679f);
     public static Position SummonLocation2 = new(-49.875f, -511.896f, 88.195f, 4.613f);
 }
 
@@ -92,7 +92,7 @@ internal class boss_overlord_wyrmthalak : BossAI
 
             if (target)
             {
-                Creature warlord = Me.SummonCreature(MiscConst.NpcSpirestoneWarlord, MiscConst.SummonLocation1, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
+                Creature warlord = Me.SummonCreature(MiscConst.NpcSpirestoneWarlord, MiscConst.SummonLocation, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
 
                 if (warlord)
                     warlord.AI.AttackStart(target);

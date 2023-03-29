@@ -46,20 +46,14 @@ public abstract class WorldObject : IDisposable
 
     private bool _objectUpdated;
 
-    private uint _zoneId;
-    private uint _areaId;
-    private float _staticFloorZ;
+    
     private string _name;
     private float? _visibilityDistanceOverride;
-
-    private Map _currMap;
-    private PhaseShift _phaseShift = new();
-    private PhaseShift _suppressedPhaseShift = new(); // contains phases for current area but not applied due to conditions
 
     private ObjectGuid _privateObjectOwner;
 
     private SmoothPhasing _smoothPhasing;
-    private SpellFactory SpellFactory { get; }
+    public SpellFactory SpellFactory { get; }
 
     public VariableStore VariableStorage { get; } = new();
 
@@ -75,7 +69,6 @@ public abstract class WorldObject : IDisposable
     public MovementInfo MovementInfo { get; set; }
     public ZoneScript ZoneScript { get; set; }
     public uint InstanceId { get; set; }
-    public bool IsInWorld { get; set; }
 
     public FlaggedArray32<StealthType> Stealth { get; set; } = new(2);
     public FlaggedArray32<StealthType> StealthDetect { get; set; } = new(2);
@@ -92,9 +85,9 @@ public abstract class WorldObject : IDisposable
     {
         get
         {
-            if (IsInWorld)
+            if (Location.IsInWorld)
             {
-                var instanceMap = Map.ToInstanceMap;
+                var instanceMap = Location.Map.ToInstanceMap;
 
                 if (instanceMap != null)
                     return instanceMap.InstanceScenario;
@@ -117,20 +110,7 @@ public abstract class WorldObject : IDisposable
         }
     }
 
-    public PhaseShift PhaseShift
-    {
-        get => _phaseShift;
-        set => _phaseShift = new PhaseShift(value);
-    }
-
-    public PhaseShift SuppressedPhaseShift
-    {
-        get => _suppressedPhaseShift;
-        set => _suppressedPhaseShift = new PhaseShift(value);
-    }
-
     // if negative it is used as PhaseGroupId
-    public int DBPhase { get; set; }
 
     public virtual float CombatReach => SharedConst.DefaultPlayerCombatReach;
 
@@ -199,8 +179,6 @@ public abstract class WorldObject : IDisposable
     public uint TransTime => MovementInfo.Transport.Time;
 
     public sbyte TransSeat => MovementInfo.Transport.Seat;
-
-    public virtual float CollisionHeight => 0.0f;
 
     public virtual ObjectGuid OwnerGUID => default;
 
@@ -296,19 +274,13 @@ public abstract class WorldObject : IDisposable
         }
     }
 
-    public uint Zone => _zoneId;
-
-    public uint Area => _areaId;
-
-    public bool IsOutdoors { get; private set; }
-
     public ZLiquidStatus LiquidStatus { get; private set; }
 
     public bool IsInWorldPvpZone
     {
         get
         {
-            switch (Zone)
+            switch (Location.Zone)
             {
                 case 4197: // Wintergrasp
                 case 5095: // Tol Barad
@@ -327,9 +299,9 @@ public abstract class WorldObject : IDisposable
             if (IsActive)
             {
                 if (TypeId == TypeId.Player && AsPlayer.CinematicMgr.IsOnCinematic())
-                    return Math.Max(SharedConst.DefaultVisibilityInstance, Map.VisibilityRange);
+                    return Math.Max(SharedConst.DefaultVisibilityInstance, Location.Map.VisibilityRange);
 
-                return Map.VisibilityRange;
+                return Location.Map.VisibilityRange;
             }
 
             var thisCreature = AsCreature;
@@ -349,26 +321,10 @@ public abstract class WorldObject : IDisposable
                 return _visibilityDistanceOverride.Value;
             else if (IsFarVisible && !IsPlayer)
                 return SharedConst.MaxVisibilityDistance;
-            else if (Map != null)
-                return Map.VisibilityRange;
+            else if (Location.Map != null)
+                return Location.Map.VisibilityRange;
 
             return SharedConst.MaxVisibilityDistance;
-        }
-    }
-
-    public Map Map
-    {
-        get => _currMap;
-        set
-        {
-            if (_currMap == value)
-                return;
-
-            _currMap = value;
-            Location.MapId = value.Id;
-            InstanceId = value.InstanceId;
-
-            CheckAddToMap();
         }
     }
 
@@ -406,20 +362,9 @@ public abstract class WorldObject : IDisposable
         }
     }
 
-    public float FloorZ
-    {
-        get
-        {
-            if (!IsInWorld)
-                return _staticFloorZ;
-
-            return Math.Max(_staticFloorZ, Map.GetGameObjectFloor(PhaseShift, Location.X, Location.Y, Location.Z + MapConst.ZOffsetFindHeight));
-        }
-    }
-
     private bool IsFarVisible { get; set; }
 
-    private bool IsVisibilityOverridden => _visibilityDistanceOverride.HasValue;
+    private bool IsVisibilityOverridden => _visibilityDistanceOverride.HasValue
 
     public WorldObject(bool isWorldObject, SpellFactory spellFactory)
     {
@@ -439,15 +384,13 @@ public abstract class WorldObject : IDisposable
         UpdateFlag.Clear();
 
         ObjectData = new ObjectFieldData();
-
-        _staticFloorZ = MapConst.VMAPInvalidHeightValue;
-        Location = new WorldLocation();
+        Location = new WorldLocation(this);
     }
 
     public virtual void Dispose()
     {
         // this may happen because there are many !create/delete
-        if (IsWorldObject() && _currMap)
+        if (IsWorldObject() && Location.Map)
         {
             if (IsTypeId(TypeId.Corpse))
                 Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
@@ -455,7 +398,7 @@ public abstract class WorldObject : IDisposable
                 ResetMap();
         }
 
-        if (IsInWorld)
+        if (Location.IsInWorld)
         {
             Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
 
@@ -481,50 +424,33 @@ public abstract class WorldObject : IDisposable
 
     public virtual void AddToWorld()
     {
-        if (IsInWorld)
+        if (Location.IsInWorld)
             return;
 
-        IsInWorld = true;
+        Location.IsInWorld = true;
         ClearUpdateMask(true);
 
-        if (Map != null)
-            Map.GetZoneAndAreaId(_phaseShift, out _zoneId, out _areaId, Location.X, Location.Y, Location.Z);
+        if (Location.Map == null)
+            return;
+
+        Location.Map.GetZoneAndAreaId(Location.PhaseShift, out var zoneid, out var areaid, Location.X, Location.Y, Location.Z);
+        Location.Zone = zoneid;
+        Location.Area = areaid;
     }
 
     public virtual void RemoveFromWorld()
     {
-        if (!IsInWorld)
+        if (!Location.IsInWorld)
             return;
 
         if (!ObjectTypeMask.HasAnyFlag(TypeMask.Item | TypeMask.Container))
             UpdateObjectVisibilityOnDestroy();
 
-        IsInWorld = false;
+        Location.IsInWorld = false;
         ClearUpdateMask(true);
     }
 
-    public void UpdatePositionData()
-    {
-        PositionFullTerrainStatus data = new();
-        Map.GetFullTerrainStatusForPosition(_phaseShift, Location.X, Location.Y, Location.Z, data, LiquidHeaderTypeFlags.AllLiquids, CollisionHeight);
-        ProcessPositionDataChanged(data);
-    }
-
-    public virtual void ProcessPositionDataChanged(PositionFullTerrainStatus data)
-    {
-        _zoneId = _areaId = data.AreaId;
-
-        var area = CliDB.AreaTableStorage.LookupByKey(_areaId);
-
-        if (area != null)
-            if (area.ParentAreaID != 0)
-                _zoneId = area.ParentAreaID;
-
-        IsOutdoors = data.Outdoors;
-        _staticFloorZ = data.FloorZ;
-        LiquidStatus = data.LiquidStatus;
-    }
-
+  
     public virtual void BuildCreateUpdateBlockForPlayer(UpdateData data, Player target)
     {
         if (!target)
@@ -1181,7 +1107,7 @@ public abstract class WorldObject : IDisposable
 
     public void AddToObjectUpdateIfNeeded()
     {
-        if (IsInWorld && !_objectUpdated)
+        if (Location.IsInWorld && !_objectUpdated)
             _objectUpdated = AddToObjectUpdate();
     }
 
@@ -1376,10 +1302,10 @@ public abstract class WorldObject : IDisposable
 
     public void SetWorldObject(bool on)
     {
-        if (!IsInWorld)
+        if (!Location.IsInWorld)
             return;
 
-        Map.AddObjectToSwitchList(this, on);
+        Location.Map.AddObjectToSwitchList(this, on);
     }
 
     public void SetActive(bool on)
@@ -1392,10 +1318,10 @@ public abstract class WorldObject : IDisposable
 
         IsActive = on;
 
-        if (on && !IsInWorld)
+        if (on && !Location.IsInWorld)
             return;
 
-        var map = Map;
+        var map = Location.Map;
 
         if (map == null)
             return;
@@ -1449,7 +1375,7 @@ public abstract class WorldObject : IDisposable
 
     public virtual void CleanupsBeforeDelete(bool finalCleanup = true)
     {
-        if (IsInWorld)
+        if (Location.IsInWorld)
             RemoveFromWorld();
 
         var transport = Transport;
@@ -1462,8 +1388,8 @@ public abstract class WorldObject : IDisposable
 
     public void GetZoneAndAreaId(out uint zoneid, out uint areaid)
     {
-        zoneid = _zoneId;
-        areaid = _areaId;
+        zoneid = Location.Zone;
+        areaid = Location.Area;
     }
 
     public float GetSightRange(WorldObject target = null)
@@ -1479,7 +1405,7 @@ public abstract class WorldObject : IDisposable
                 else if (AsPlayer.CinematicMgr.IsOnCinematic())
                     return SharedConst.DefaultVisibilityInstance;
                 else
-                    return Map.VisibilityRange;
+                    return Location.Map.VisibilityRange;
             }
             else if (IsCreature)
             {
@@ -1492,7 +1418,7 @@ public abstract class WorldObject : IDisposable
         }
 
         if (IsDynObject && IsActive)
-            return Map.VisibilityRange;
+            return Location.Map.VisibilityRange;
 
         return 0.0f;
     }
@@ -1573,8 +1499,8 @@ public abstract class WorldObject : IDisposable
                     {
                         corpseCheck = true;
 
-                        if (corpse.IsWithinDist(thisPlayer, GetSightRange(obj), false))
-                            if (corpse.IsWithinDist(obj, GetSightRange(obj), false))
+                        if (corpse.Location.IsWithinDist(thisPlayer, GetSightRange(obj), false))
+                            if (corpse.Location.IsWithinDist(obj, GetSightRange(obj), false))
                                 corpseVisibility = true;
                     }
                 }
@@ -1601,7 +1527,7 @@ public abstract class WorldObject : IDisposable
             if (viewpoint == null)
                 viewpoint = this;
 
-            if (!corpseCheck && !viewpoint.IsWithinDist(obj, GetSightRange(obj), false))
+            if (!corpseCheck && !viewpoint.Location.IsWithinDist(obj, GetSightRange(obj), false))
                 return false;
         }
 
@@ -1654,7 +1580,7 @@ public abstract class WorldObject : IDisposable
 
     public virtual bool CanNeverSee(WorldObject obj)
     {
-        return Map != obj.Map || !InSamePhase(obj);
+        return Location.Map != obj.Location.Map || !Location.InSamePhase(obj);
     }
 
     public virtual bool CanAlwaysSee(WorldObject obj)
@@ -1664,7 +1590,7 @@ public abstract class WorldObject : IDisposable
 
     public virtual void SendMessageToSet(ServerPacket packet, bool self)
     {
-        if (IsInWorld)
+        if (Location.IsInWorld)
             SendMessageToSetInRange(packet, VisibilityRange, self);
     }
 
@@ -1697,18 +1623,18 @@ public abstract class WorldObject : IDisposable
 
     public virtual void ResetMap()
     {
-        if (_currMap == null)
+        if (Location.Map == null)
             return;
 
         if (IsWorldObject())
-            _currMap.RemoveWorldObject(this);
+            Location.Map.RemoveWorldObject(this);
 
-        _currMap = null;
+        Location.Map = null;
     }
 
     public void AddObjectToRemoveList()
     {
-        var map = Map;
+        var map = Location.Map;
 
         if (map == null)
         {
@@ -1720,41 +1646,6 @@ public abstract class WorldObject : IDisposable
         map.AddObjectToRemoveList(this);
     }
 
-    public ZoneScript FindZoneScript()
-    {
-        var map = Map;
-
-        if (map != null)
-        {
-            var instanceMap = map.ToInstanceMap;
-
-            if (instanceMap != null)
-                return (ZoneScript)instanceMap.InstanceScript;
-
-            var bgMap = map.ToBattlegroundMap;
-
-            if (bgMap != null)
-                return (ZoneScript)bgMap.GetBG();
-
-            if (!map.IsBattlegroundOrArena)
-            {
-                var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(map, Zone);
-
-                if (bf != null)
-                    return bf;
-
-                return Global.OutdoorPvPMgr.GetOutdoorPvPToZoneId(map, Zone);
-            }
-        }
-
-        return null;
-    }
-
-    public void SetZoneScript()
-    {
-        ZoneScript = FindZoneScript();
-    }
-
     public TempSummon SummonCreature(uint entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TempSummonType.ManualDespawn, TimeSpan despawnTime = default, uint vehId = 0, uint spellId = 0, ObjectGuid privateObjectOwner = default)
     {
         return SummonCreature(entry, new Position(x, y, z, o), despawnType, despawnTime, vehId, spellId, privateObjectOwner);
@@ -1763,12 +1654,12 @@ public abstract class WorldObject : IDisposable
     public TempSummon SummonCreature(uint entry, Position pos, TempSummonType despawnType = TempSummonType.ManualDespawn, TimeSpan despawnTime = default, uint vehId = 0, uint spellId = 0, ObjectGuid privateObjectOwner = default)
     {
         if (pos.IsDefault)
-            GetClosePoint(pos, CombatReach);
+            Location.GetClosePoint(pos, CombatReach);
 
         if (pos.Orientation == 0.0f)
             pos.Orientation = Location.Orientation;
 
-        var map = Map;
+        var map = Location.Map;
 
         if (map != null)
         {
@@ -1787,7 +1678,7 @@ public abstract class WorldObject : IDisposable
 
     public TempSummon SummonPersonalClone(Position pos, TempSummonType despawnType = TempSummonType.ManualDespawn, TimeSpan despawnTime = default, uint vehId = 0, uint spellId = 0, Player privateObjectOwner = null)
     {
-        var map = Map;
+        var map = Location.Map;
 
         if (map != null)
         {
@@ -1813,11 +1704,11 @@ public abstract class WorldObject : IDisposable
     {
         if (pos.IsDefault)
         {
-            GetClosePoint(pos, CombatReach);
+            Location.GetClosePoint(pos, CombatReach);
             pos.Orientation = Location.Orientation;
         }
 
-        if (!IsInWorld)
+        if (!Location.IsInWorld)
             return null;
 
         var goinfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
@@ -1829,7 +1720,7 @@ public abstract class WorldObject : IDisposable
             return null;
         }
 
-        var map = Map;
+        var map = Location.Map;
         var go = GameObject.CreateGameObject(entry, map, pos, rotation, 255, GameObjectState.Ready);
 
         if (!go)
@@ -1893,117 +1784,6 @@ public abstract class WorldObject : IDisposable
             if (summon)
                 list.Add(summon);
         }
-    }
-
-    public void GetCreatureListInGrid(List<Creature> creatureList, float maxSearchRange)
-    {
-        var pair = new CellCoord((uint)Location.X, (uint)Location.Y);
-        var cell = new Cell(pair);
-        cell.SetNoCreate();
-
-        var check = new AllCreaturesWithinRange(this, maxSearchRange);
-        var searcher = new CreatureListSearcher(this, creatureList, check, GridType.All);
-
-        cell.Visit(pair, searcher, Map, this, maxSearchRange);
-    }
-
-    public void GetAlliesWithinRange(List<Unit> unitList, float maxSearchRange, bool includeSelf = true)
-    {
-        var pair = new CellCoord((uint)Location.X, (uint)Location.Y);
-        var cell = new Cell(pair);
-        cell.SetNoCreate();
-
-        var check = new AnyFriendlyUnitInObjectRangeCheck(this, AsUnit, maxSearchRange);
-        var searcher = new UnitListSearcher(this, unitList, check, GridType.All);
-
-        cell.Visit(pair, searcher, Map, this, maxSearchRange);
-
-        if (!includeSelf)
-            unitList.Remove(AsUnit);
-    }
-
-    public void GetAlliesWithinRangeWithOwnedAura(List<Unit> unitList, float maxSearchRange, uint auraId, bool includeSelf = true)
-    {
-        GetAlliesWithinRange(unitList, maxSearchRange, includeSelf);
-
-        unitList.RemoveIf((creature) => { return !creature.HasAura(auraId, GUID); });
-    }
-
-    public void GetEnemiesWithinRange(List<Unit> unitList, float maxSearchRange)
-    {
-        var u_check = new AnyUnfriendlyUnitInObjectRangeCheck(this, AsUnit, maxSearchRange);
-        var searcher = new UnitListSearcher(this, unitList, u_check, GridType.All);
-        Cell.VisitGrid(this, searcher, maxSearchRange);
-    }
-
-    public void GetEnemiesWithinRangeWithOwnedAura(List<Unit> unitList, float maxSearchRange, uint auraId)
-    {
-        GetEnemiesWithinRange(unitList, maxSearchRange);
-
-        unitList.RemoveIf((unit) => { return !unit.HasAura(auraId, GUID); });
-    }
-
-    public Creature FindNearestCreature(uint entry, float range, bool alive = true)
-    {
-        var checker = new NearestCreatureEntryWithLiveStateInObjectRangeCheck(this, entry, alive, range);
-        var searcher = new CreatureLastSearcher(this, checker, GridType.All);
-
-        Cell.VisitGrid(this, searcher, range);
-
-        return searcher.GetTarget();
-    }
-
-    public Creature FindNearestCreatureWithOptions(float range, FindCreatureOptions options)
-    {
-        NearestCheckCustomizer checkCustomizer = new(this, range);
-        CreatureWithOptionsInObjectRangeCheck<NearestCheckCustomizer> checker = new(this, checkCustomizer, options);
-        CreatureLastSearcher searcher = new(this, checker, GridType.All);
-
-        if (options.IgnorePhases)
-            searcher._phaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
-
-        Cell.VisitGrid(this, searcher, range);
-
-        return searcher.GetTarget();
-    }
-
-    public GameObject FindNearestGameObject(uint entry, float range, bool spawnedOnly = true)
-    {
-        var checker = new NearestGameObjectEntryInObjectRangeCheck(this, entry, range, spawnedOnly);
-        var searcher = new GameObjectLastSearcher(this, checker, GridType.Grid);
-
-        Cell.VisitGrid(this, searcher, range);
-
-        return searcher.GetTarget();
-    }
-
-    public GameObject FindNearestUnspawnedGameObject(uint entry, float range)
-    {
-        NearestUnspawnedGameObjectEntryInObjectRangeCheck checker = new(this, entry, range);
-        GameObjectLastSearcher searcher = new(this, checker, GridType.Grid);
-
-        Cell.VisitGrid(this, searcher, range);
-
-        return searcher.GetTarget();
-    }
-
-    public GameObject FindNearestGameObjectOfType(GameObjectTypes type, float range)
-    {
-        var checker = new NearestGameObjectTypeInObjectRangeCheck(this, type, range);
-        var searcher = new GameObjectLastSearcher(this, checker, GridType.Grid);
-
-        Cell.VisitGrid(this, searcher, range);
-
-        return searcher.GetTarget();
-    }
-
-    public Player SelectNearestPlayer(float distance)
-    {
-        var checker = new NearestPlayerInObjectRangeCheck(this, distance);
-        var searcher = new PlayerLastSearcher(this, checker, GridType.All);
-        Cell.VisitGrid(this, searcher, distance);
-
-        return searcher.GetTarget();
     }
 
     public bool TryGetOwner(out Unit owner)
@@ -2944,7 +2724,7 @@ public abstract class WorldObject : IDisposable
                         if (spellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
                             hitDelay += spellInfo.Speed;
                         else if (spellInfo.Speed > 0.0f)
-                            hitDelay += Math.Max(victim.GetDistance(this), 5.0f) / spellInfo.Speed;
+                            hitDelay += Math.Max(victim.Location.GetDistance(this), 5.0f) / spellInfo.Speed;
 
                         var delay = (uint)Math.Floor(hitDelay * 1000.0f);
                         // Schedule charge drop
@@ -2967,80 +2747,6 @@ public abstract class WorldObject : IDisposable
         return spellInfo.GetSpellXSpellVisualId(this);
     }
 
-    public List<GameObject> GetGameObjectListWithEntryInGrid(uint entry = 0, float maxSearchRange = 250.0f)
-    {
-        List<GameObject> gameobjectList = new();
-        var check = new AllGameObjectsWithEntryInRange(this, entry, maxSearchRange);
-        var searcher = new GameObjectListSearcher(this, gameobjectList, check, GridType.Grid);
-
-        Cell.VisitGrid(this, searcher, maxSearchRange, true);
-
-        return gameobjectList;
-    }
-
-    public List<Creature> GetCreatureListWithEntryInGrid(uint entry = 0, float maxSearchRange = 250.0f)
-    {
-        List<Creature> creatureList = new();
-        var check = new AllCreaturesOfEntryInRange(this, entry, maxSearchRange);
-        var searcher = new CreatureListSearcher(this, creatureList, check, GridType.Grid);
-
-        Cell.VisitGrid(this, searcher, maxSearchRange, true);
-
-        return creatureList;
-    }
-
-    public List<Creature> GetCreatureListWithEntryInGrid(uint[] entry, float maxSearchRange = 250.0f)
-    {
-        List<Creature> creatureList = new();
-        var check = new AllCreaturesOfEntriesInRange(this, entry, maxSearchRange);
-        var searcher = new CreatureListSearcher(this, creatureList, check, GridType.Grid);
-
-        Cell.VisitGrid(this, searcher, maxSearchRange, true);
-
-        return creatureList;
-    }
-
-    public List<Creature> GetCreatureListWithOptionsInGrid(float maxSearchRange, FindCreatureOptions options)
-    {
-        List<Creature> creatureList = new();
-        NoopCheckCustomizer checkCustomizer = new();
-        CreatureWithOptionsInObjectRangeCheck<NoopCheckCustomizer> check = new(this, checkCustomizer, options);
-        CreatureListSearcher searcher = new(this, creatureList, check, GridType.Grid);
-
-        if (options.IgnorePhases)
-            searcher._phaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
-
-        Cell.VisitGrid(this, searcher, maxSearchRange, true);
-
-        return creatureList;
-    }
-
-
-    public List<Unit> GetPlayerListInGrid(float maxSearchRange, bool alive = true)
-    {
-        List<Unit> playerList = new();
-        var checker = new AnyPlayerInObjectRangeCheck(this, maxSearchRange, alive);
-        var searcher = new PlayerListSearcher(this, playerList, checker);
-
-        Cell.VisitGrid(this, searcher, maxSearchRange);
-
-        return playerList;
-    }
-
-    public bool InSamePhase(PhaseShift phaseShift)
-    {
-        return PhaseShift.CanSee(phaseShift);
-    }
-
-    public bool InSamePhase(WorldObject obj)
-    {
-        return PhaseShift.CanSee(obj.PhaseShift);
-    }
-
-    public static bool InSamePhase(WorldObject a, WorldObject b)
-    {
-        return a != null && b != null && a.InSamePhase(b);
-    }
 
     public void PlayDistanceSound(uint soundId, Player target = null)
     {
@@ -3072,7 +2778,7 @@ public abstract class WorldObject : IDisposable
 
     public void DestroyForNearbyPlayers()
     {
-        if (!IsInWorld)
+        if (!Location.IsInWorld)
             return;
 
         List<Unit> targets = new();
@@ -3133,14 +2839,14 @@ public abstract class WorldObject : IDisposable
 
     public virtual bool AddToObjectUpdate()
     {
-        Map.AddUpdateObject(this);
+        Location.Map.AddUpdateObject(this);
 
         return true;
     }
 
     public virtual void RemoveFromObjectUpdate()
     {
-        Map.RemoveUpdateObject(this);
+        Location.Map.RemoveUpdateObject(this);
     }
 
     public virtual string GetName(Locale locale = Locale.enUS)
@@ -3293,7 +2999,7 @@ public abstract class WorldObject : IDisposable
 
     public virtual bool IsNeverVisibleFor(WorldObject seer)
     {
-        return !IsInWorld || IsDestroyedObject;
+        return !Location.IsInWorld || IsDestroyedObject;
     }
 
     public virtual bool IsAlwaysVisibleFor(WorldObject seer)
@@ -3318,509 +3024,9 @@ public abstract class WorldObject : IDisposable
 
     //Position
 
-    public float GetDistanceZ(WorldObject obj)
-    {
-        var dz = Math.Abs(Location.Z - obj.Location.Z);
-        var sizefactor = CombatReach + obj.CombatReach;
-        var dist = dz - sizefactor;
-
-        return (dist > 0 ? dist : 0);
-    }
-
     public virtual bool _IsWithinDist(WorldObject obj, float dist2compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
     {
-        float sizefactor = 0;
-        sizefactor += incOwnRadius ? CombatReach : 0.0f;
-        sizefactor += incTargetRadius ? obj.CombatReach : 0.0f;
-        var maxdist = dist2compare + sizefactor;
-
-        Position thisOrTransport = Location;
-        Position objOrObjTransport = obj.Location;
-
-        if (Transport != null && obj.Transport != null && obj.Transport.GetTransportGUID() == Transport.GetTransportGUID())
-        {
-            thisOrTransport = MovementInfo.Transport.Pos;
-            objOrObjTransport = obj.MovementInfo.Transport.Pos;
-        }
-
-
-        if (is3D)
-            return thisOrTransport.IsInDist(objOrObjTransport, maxdist);
-        else
-            return thisOrTransport.IsInDist2d(objOrObjTransport, maxdist);
-    }
-
-    public float GetDistance(WorldObject obj)
-    {
-        var d = Location.GetExactDist(obj.Location) - CombatReach - obj.CombatReach;
-
-        return d > 0.0f ? d : 0.0f;
-    }
-
-    public float GetDistance(Position pos)
-    {
-        var d = Location.GetExactDist(pos) - CombatReach;
-
-        return d > 0.0f ? d : 0.0f;
-    }
-
-    public float GetDistance(float x, float y, float z)
-    {
-        var d = Location.GetExactDist(x, y, z) - CombatReach;
-
-        return d > 0.0f ? d : 0.0f;
-    }
-
-    public float GetDistance2d(WorldObject obj)
-    {
-        var d = Location.GetExactDist2d(obj.Location) - CombatReach - obj.CombatReach;
-
-        return d > 0.0f ? d : 0.0f;
-    }
-
-    public float GetDistance2d(float x, float y)
-    {
-        var d = Location.GetExactDist2d(x, y) - CombatReach;
-
-        return d > 0.0f ? d : 0.0f;
-    }
-
-    public bool IsSelfOrInSameMap(WorldObject obj)
-    {
-        if (this == obj)
-            return true;
-
-        return IsInMap(obj);
-    }
-
-    public bool IsInMap(WorldObject obj)
-    {
-        if (obj != null)
-            return IsInWorld && obj.IsInWorld && Map.Id == obj.Map.Id;
-
-        return false;
-    }
-
-    public bool IsWithinDist3d(float x, float y, float z, float dist)
-    {
-        return Location.IsInDist(x, y, z, dist + CombatReach);
-    }
-
-    public bool IsWithinDist3d(Position pos, float dist)
-    {
-        return Location.IsInDist(pos, dist + CombatReach);
-    }
-
-    public bool IsWithinDist2d(float x, float y, float dist)
-    {
-        return Location.IsInDist2d(x, y, dist + CombatReach);
-    }
-
-    public bool IsWithinDist2d(Position pos, float dist)
-    {
-        return Location.IsInDist2d(pos, dist + CombatReach);
-    }
-
-    public bool IsWithinDist(WorldObject obj, float dist2compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true)
-    {
-        return obj != null && _IsWithinDist(obj, dist2compare, is3D, incOwnRadius, incTargetRadius);
-    }
-
-    public bool IsWithinDistInMap(WorldObject obj, float dist2compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true)
-    {
-        return obj && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2compare, is3D, incOwnRadius, incTargetRadius);
-    }
-
-    public bool IsWithinLOS(Position pos, LineOfSightChecks checks = LineOfSightChecks.All, ModelIgnoreFlags ignoreFlags = ModelIgnoreFlags.Nothing)
-    {
-        return IsWithinLOS(pos.X, pos.Y, pos.Z, checks, ignoreFlags);
-    }
-
-    public bool IsWithinLOS(float ox, float oy, float oz, LineOfSightChecks checks = LineOfSightChecks.All, ModelIgnoreFlags ignoreFlags = ModelIgnoreFlags.Nothing)
-    {
-        if (IsInWorld)
-        {
-            oz += CollisionHeight;
-            var pos = new Position();
-
-            if (IsTypeId(TypeId.Player))
-            {
-                pos = Location.Copy();
-                pos.Z += CollisionHeight;
-            }
-            else
-            {
-                GetHitSpherePointFor(new Position(ox, oy, oz), pos);
-            }
-
-            return Map.IsInLineOfSight(PhaseShift, pos, ox, oy, oz, checks, ignoreFlags);
-        }
-
-        return true;
-    }
-
-    public bool IsWithinLOSInMap(WorldObject obj, LineOfSightChecks checks = LineOfSightChecks.All, ModelIgnoreFlags ignoreFlags = ModelIgnoreFlags.Nothing)
-    {
-        if (!IsInMap(obj))
-            return false;
-
-        var pos = new Position();
-
-        if (obj.IsTypeId(TypeId.Player))
-        {
-            pos = obj.Location.Copy();
-            pos.Z += CollisionHeight;
-        }
-        else
-        {
-            obj.GetHitSpherePointFor(new Position(Location.X, Location.Y, Location.Z + CollisionHeight), pos);
-        }
-
-        var pos2 = new Position();
-
-        if (IsPlayer)
-        {
-            pos2 = Location.Copy();
-            pos2.Z += CollisionHeight;
-        }
-        else
-        {
-            GetHitSpherePointFor(new Position(obj.Location.X, obj.Location.Y, obj.Location.Z + obj.CollisionHeight), pos2);
-        }
-
-        return Map.IsInLineOfSight(PhaseShift, pos2, pos, checks, ignoreFlags);
-    }
-
-    public Position GetHitSpherePointFor(Position dest)
-    {
-        Vector3 vThis = new(Location.X, Location.Y, Location.Z + CollisionHeight);
-        Vector3 vObj = new(dest.X, dest.Y, dest.Z);
-        var contactPoint = vThis + (vObj - vThis).directionOrZero() * Math.Min(dest.GetExactDist(Location), CombatReach);
-
-        return new Position(contactPoint.X, contactPoint.Y, contactPoint.Z, Location.GetAbsoluteAngle(contactPoint.X, contactPoint.Y));
-    }
-
-    public void GetHitSpherePointFor(Position dest, Position refDest)
-    {
-        var pos = GetHitSpherePointFor(dest);
-        refDest.X = pos.X;
-        refDest.Y = pos.Y;
-        refDest.Z = pos.Z;
-    }
-
-    public bool GetDistanceOrder(WorldObject obj1, WorldObject obj2, bool is3D = true)
-    {
-        var dx1 = Location.X - obj1.Location.X;
-        var dy1 = Location.Y - obj1.Location.Y;
-        var distsq1 = dx1 * dx1 + dy1 * dy1;
-
-        if (is3D)
-        {
-            var dz1 = Location.Z - obj1.Location.Z;
-            distsq1 += dz1 * dz1;
-        }
-
-        var dx2 = Location.X - obj2.Location.X;
-        var dy2 = Location.Y - obj2.Location.Y;
-        var distsq2 = dx2 * dx2 + dy2 * dy2;
-
-        if (is3D)
-        {
-            var dz2 = Location.Z - obj2.Location.Z;
-            distsq2 += dz2 * dz2;
-        }
-
-        return distsq1 < distsq2;
-    }
-
-    public bool IsInRange(WorldObject obj, float minRange, float maxRange, bool is3D = true)
-    {
-        var dx = Location.X - obj.Location.X;
-        var dy = Location.Y - obj.Location.Y;
-        var distsq = dx * dx + dy * dy;
-
-        if (is3D)
-        {
-            var dz = Location.Z - obj.Location.Z;
-            distsq += dz * dz;
-        }
-
-        var sizefactor = CombatReach + obj.CombatReach;
-
-        // check only for real range
-        if (minRange > 0.0f)
-        {
-            var mindist = minRange + sizefactor;
-
-            if (distsq < mindist * mindist)
-                return false;
-        }
-
-        var maxdist = maxRange + sizefactor;
-
-        return distsq < maxdist * maxdist;
-    }
-
-    public bool IsInBetween(WorldObject obj1, WorldObject obj2, float size = 0)
-    {
-        return obj1 && obj2 && IsInBetween(obj1.Location, obj2.Location, size);
-    }
-
-    public bool IsInFront(WorldObject target, float arc = MathFunctions.PI)
-    {
-        return Location.HasInArc(arc, target.Location);
-    }
-
-    public bool IsInBack(WorldObject target, float arc = MathFunctions.PI)
-    {
-        return !Location.HasInArc(2 * MathFunctions.PI - arc, target.Location);
-    }
-
-    public void GetRandomPoint(Position pos, float distance, out float rand_x, out float rand_y, out float rand_z)
-    {
-        if (distance == 0)
-        {
-            rand_x = pos.X;
-            rand_y = pos.Y;
-            rand_z = pos.Z;
-
-            return;
-        }
-
-        // angle to face `obj` to `this`
-        var angle = (float)RandomHelper.NextDouble() * (2 * MathFunctions.PI);
-        var new_dist = (float)RandomHelper.NextDouble() + (float)RandomHelper.NextDouble();
-        new_dist = distance * (new_dist > 1 ? new_dist - 2 : new_dist);
-
-        rand_x = (float)(pos.X + new_dist * Math.Cos(angle));
-        rand_y = (float)(pos.Y + new_dist * Math.Sin(angle));
-        rand_z = pos.Z;
-
-        rand_x = GridDefines.NormalizeMapCoord(rand_x);
-        rand_y = GridDefines.NormalizeMapCoord(rand_y);
-        rand_z = UpdateGroundPositionZ(rand_x, rand_y, rand_z); // update to LOS height if available
-    }
-
-    public Position GetRandomPoint(Position srcPos, float distance)
-    {
-        GetRandomPoint(srcPos, distance, out var x, out var y, out var z);
-
-        return new Position(x, y, z, Location.Orientation);
-    }
-
-    public float UpdateGroundPositionZ(float x, float y, float z)
-    {
-        var newZ = GetMapHeight(x, y, z);
-
-        if (newZ > MapConst.InvalidHeight)
-            z = newZ + (IsUnit ? AsUnit.HoverOffset : 0.0f);
-
-        return z;
-    }
-
-    public void UpdateAllowedPositionZ(Position pos, ref float groundZ)
-    {
-        pos.Z = UpdateAllowedPositionZ(pos.X, pos.Y, pos.Z, ref groundZ);
-    }
-
-    public void UpdateAllowedPositionZ(Position pos)
-    {
-        pos.Z = UpdateAllowedPositionZ(pos.X, pos.Y, pos.Z);
-    }
-
-    public float UpdateAllowedPositionZ(float x, float y, float z)
-    {
-        var unused = 0f;
-
-        return UpdateAllowedPositionZ(x, y, z, ref unused);
-    }
-
-    public float UpdateAllowedPositionZ(float x, float y, float z, ref float groundZ)
-    {
-        // TODO: Allow transports to be part of dynamic vmap tree
-        if (Transport != null)
-        {
-            groundZ = z;
-
-            return z;
-        }
-
-        var unit = AsUnit;
-
-        if (unit != null)
-        {
-            if (!unit.CanFly)
-            {
-                var canSwim = unit.CanSwim;
-                var ground_z = z;
-                float max_z;
-
-                if (canSwim)
-                    max_z = GetMapWaterOrGroundLevel(x, y, z, ref ground_z);
-                else
-                    max_z = ground_z = GetMapHeight(x, y, z);
-
-                if (max_z > MapConst.InvalidHeight)
-                {
-                    // hovering units cannot go below their hover height
-                    var hoverOffset = unit.HoverOffset;
-                    max_z += hoverOffset;
-                    ground_z += hoverOffset;
-
-                    if (z > max_z)
-                        z = max_z;
-                    else if (z < ground_z)
-                        z = ground_z;
-                }
-
-                groundZ = ground_z;
-            }
-            else
-            {
-                var ground_z = GetMapHeight(x, y, z) + unit.HoverOffset;
-
-                if (z < ground_z)
-                    z = ground_z;
-
-                groundZ = ground_z;
-            }
-        }
-        else
-        {
-            var ground_z = GetMapHeight(x, y, z);
-
-            if (ground_z > MapConst.InvalidHeight)
-                z = ground_z;
-
-            groundZ = ground_z;
-        }
-
-        return z;
-    }
-
-    public void GetNearPoint2D(WorldObject searcher, out float x, out float y, float distance2d, float absAngle)
-    {
-        var effectiveReach = CombatReach;
-
-        if (searcher)
-        {
-            effectiveReach += searcher.CombatReach;
-
-            if (this != searcher)
-            {
-                var myHover = 0.0f;
-                var searcherHover = 0.0f;
-
-                var unit = AsUnit;
-
-                if (unit != null)
-                    myHover = unit.HoverOffset;
-
-                var searchUnit = searcher.AsUnit;
-
-                if (searchUnit != null)
-                    searcherHover = searchUnit.HoverOffset;
-
-                var hoverDelta = myHover - searcherHover;
-
-                if (hoverDelta != 0.0f)
-                    effectiveReach = MathF.Sqrt(Math.Max(effectiveReach * effectiveReach - hoverDelta * hoverDelta, 0.0f));
-            }
-        }
-
-        x = Location.X + (effectiveReach + distance2d) * MathF.Cos(absAngle);
-        y = Location.Y + (effectiveReach + distance2d) * MathF.Sin(absAngle);
-
-        x = GridDefines.NormalizeMapCoord(x);
-        y = GridDefines.NormalizeMapCoord(y);
-    }
-
-    public float GetNearPoint(WorldObject searcher, Position pos, float distance2d, float absAngle)
-    {
-        var x = pos.X;
-        var y = pos.Y;
-        float floor = 0;
-        GetNearPoint2D(searcher, out x, out y, distance2d, absAngle);
-        pos.Z = Location.Z;
-        pos.Z = (searcher ?? this).UpdateAllowedPositionZ(x, y, pos.Z, ref floor);
-        pos.X = x;
-        pos.Y = y;
-
-        // if detection disabled, return first point
-        if (!GetDefaultValue("DetectPosCollision", true))
-            return floor;
-
-        // return if the point is already in LoS
-        if (IsWithinLOS(pos.X, pos.Y, pos.Z))
-            return floor;
-
-        // remember first point
-        var first_x = pos.X;
-        var first_y = pos.Y;
-
-        // loop in a circle to look for a point in LoS using small steps
-        for (var angle = MathFunctions.PI / 8; angle < Math.PI * 2; angle += MathFunctions.PI / 8)
-        {
-            GetNearPoint2D(searcher, out x, out y, distance2d, absAngle + angle);
-            pos.Z = Location.Z;
-            pos.Z = (searcher ?? this).UpdateAllowedPositionZ(x, y, pos.Z);
-            pos.X = x;
-            pos.Y = y;
-
-            if (IsWithinLOS(pos.X, pos.Y, pos.Z))
-                return floor;
-        }
-
-        // still not in LoS, give up and return first position found
-        pos.X = first_x;
-        pos.Y = first_y;
-
-        return floor;
-    }
-
-    public void GetClosePoint(Position pos, float size, float distance2d = 0, float relAngle = 0)
-    {
-        // angle calculated from current orientation
-        GetNearPoint(null, pos, distance2d + size, Location.Orientation + relAngle);
-    }
-
-    public Position GetNearPosition(float dist, float angle)
-    {
-        var pos = Location;
-        MovePosition(pos, dist, angle);
-
-        return pos;
-    }
-
-    public Position GetFirstCollisionPosition(float dist, float angle)
-    {
-        var pos = new Position(Location);
-        MovePositionToFirstCollision(pos, dist, angle);
-
-        return pos;
-    }
-
-    public Position GetRandomNearPosition(float radius)
-    {
-        var pos = Location;
-        MovePosition(pos, radius * (float)RandomHelper.NextDouble(), (float)RandomHelper.NextDouble() * MathFunctions.PI * 2);
-
-        return pos;
-    }
-
-    public Player FindNearestPlayer(float range, bool alive = true)
-    {
-        var check = new AnyPlayerInObjectRangeCheck(this, VisibilityRange);
-        var searcher = new PlayerSearcher(this, check, GridType.Grid);
-        Cell.VisitGrid(this, searcher, range);
-
-        return searcher.GetTarget();
-    }
-
-    public void GetContactPoint(WorldObject obj, Position pos, float distance2d = 0.5f)
-    {
-        // angle to face `obj` to `this` using distance includes size of `obj`
-        GetNearPoint(obj, pos, distance2d, Location.GetAbsoluteAngle(obj.Location));
+        return Location._IsWithinDist(obj, dist2compare, is3D, incOwnRadius, incTargetRadius);
     }
 
     public void MovePosition(Position pos, float dist, float angle)
@@ -3837,8 +3043,8 @@ public abstract class WorldObject : IDisposable
             return;
         }
 
-        var ground = GetMapHeight(destx, desty, MapConst.MaxHeight);
-        var floor = GetMapHeight(destx, desty, pos.Z);
+        var ground = Location.GetMapHeight(destx, desty, MapConst.MaxHeight);
+        var floor = Location.GetMapHeight(destx, desty, pos.Z);
         var destz = Math.Abs(ground - pos.Z) <= Math.Abs(floor - pos.Z) ? ground : floor;
 
         var step = dist / 10.0f;
@@ -3849,8 +3055,8 @@ public abstract class WorldObject : IDisposable
             {
                 destx -= step * (float)Math.Cos(angle);
                 desty -= step * (float)Math.Sin(angle);
-                ground = Map.GetHeight(PhaseShift, destx, desty, MapConst.MaxHeight, true);
-                floor = Map.GetHeight(PhaseShift, destx, desty, pos.Z, true);
+                ground = Location.Map.GetHeight(Location.PhaseShift, destx, desty, MapConst.MaxHeight, true);
+                floor = Location.Map.GetHeight(Location.PhaseShift, destx, desty, pos.Z, true);
                 destz = Math.Abs(ground - pos.Z) <= Math.Abs(floor - pos.Z) ? ground : floor;
             }
             // we have correct destz now
@@ -3863,7 +3069,7 @@ public abstract class WorldObject : IDisposable
 
         pos.X = GridDefines.NormalizeMapCoord(pos.X);
         pos.Y = GridDefines.NormalizeMapCoord(pos.Y);
-        pos.Z = UpdateGroundPositionZ(pos.X, pos.Y, pos.Z);
+        pos.Z = Location.UpdateGroundPositionZ(pos.X, pos.Y, pos.Z);
         pos.Orientation = Location.Orientation;
     }
 
@@ -3898,13 +3104,13 @@ public abstract class WorldObject : IDisposable
         destz = result.Z;
 
         // check static LOS
-        var halfHeight = CollisionHeight * 0.5f;
+        var halfHeight = Location.CollisionHeight * 0.5f;
         var col = false;
 
         // Unit is flying, check for potential collision via vmaps
         if (path.GetPathType().HasFlag(PathType.NotUsingPath))
         {
-            col = Global.VMapMgr.GetObjectHitPos(PhasingHandler.GetTerrainMapId(PhaseShift, Location.MapId, Map.Terrain, pos.X, pos.Y),
+            col = Global.VMapMgr.GetObjectHitPos(PhasingHandler.GetTerrainMapId(Location.PhaseShift, Location.MapId, Location.Map.Terrain, pos.X, pos.Y),
                                                  pos.X,
                                                  pos.Y,
                                                  pos.Z + halfHeight,
@@ -3928,7 +3134,7 @@ public abstract class WorldObject : IDisposable
         }
 
         // check dynamic collision
-        col = Map.GetObjectHitPos(PhaseShift, pos.X, pos.Y, pos.Z + halfHeight, destx, desty, destz + halfHeight, out destx, out desty, out destz, -0.5f);
+        col = Location.Map.GetObjectHitPos(Location.PhaseShift, pos.X, pos.Y, pos.Z + halfHeight, destx, desty, destz + halfHeight, out destx, out desty, out destz, -0.5f);
 
         destz -= halfHeight;
 
@@ -3943,7 +3149,7 @@ public abstract class WorldObject : IDisposable
         var groundZ = MapConst.VMAPInvalidHeightValue;
         pos.X = GridDefines.NormalizeMapCoord(pos.X);
         pos.Y = GridDefines.NormalizeMapCoord(pos.Y);
-        destz = UpdateAllowedPositionZ(destx, desty, destz, ref groundZ);
+        destz = Location.UpdateAllowedPositionZ(destx, desty, destz, ref groundZ);
 
         pos.Orientation = Location.Orientation;
         pos.Relocate(destx, desty, destz);
@@ -3960,42 +3166,12 @@ public abstract class WorldObject : IDisposable
                     return;
 
                 // fall back to gridHeight if any
-                var gridHeight = Map.GetGridHeight(PhaseShift, pos.X, pos.Y);
+                var gridHeight = Location.Map.GetGridHeight(Location.PhaseShift, pos.X, pos.Y);
 
                 if (gridHeight > MapConst.InvalidHeight)
                     pos.Z = gridHeight + unit.HoverOffset;
             }
         }
-    }
-
-    public float GetMapWaterOrGroundLevel(float x, float y, float z)
-    {
-        float groundLevel = 0;
-
-        return GetMapWaterOrGroundLevel(x, y, z, ref groundLevel);
-    }
-
-    public float GetMapWaterOrGroundLevel(float x, float y, float z, ref float ground)
-    {
-        return Map.GetWaterOrGroundLevel(PhaseShift, x, y, z, ref ground, IsTypeMask(TypeMask.Unit) ? !AsUnit.HasAuraType(AuraType.WaterWalk) : false, CollisionHeight);
-    }
-
-    public float GetMapHeight(Position pos, bool vmap = true, float distanceToSearch = MapConst.DefaultHeightSearch)
-    {
-        return GetMapHeight(pos.X, pos.Y, pos.Z, vmap, distanceToSearch);
-    }
-
-    public float GetMapHeight(float x, float y, float z, bool vmap = true, float distanceToSearch = MapConst.DefaultHeightSearch)
-    {
-        if (z != MapConst.MaxHeight)
-            z += MapConst.ZOffsetFindHeight;
-
-        return Map.GetHeight(PhaseShift, x, y, z, vmap, distanceToSearch);
-    }
-
-    public void SetLocationInstanceId(uint _instanceId)
-    {
-        InstanceId = _instanceId;
     }
 
 
@@ -4344,22 +3520,5 @@ public abstract class WorldObject : IDisposable
         };
 
         SendMessageToSet(cancelSpellVisualKit, true);
-    }
-
-    private bool IsInBetween(Position pos1, Position pos2, float size)
-    {
-        var dist = Location.GetExactDist2d(pos1);
-
-        // not using sqrt() for performance
-        if ((dist * dist) >= pos1.GetExactDist2dSq(pos2))
-            return false;
-
-        if (size == 0)
-            size = CombatReach / 2;
-
-        var angle = pos1.GetAbsoluteAngle(pos2);
-
-        // not using sqrt() for performance
-        return (size * size) >= Location.GetExactDist2dSq(pos1.X + (float)Math.Cos(angle) * dist, pos1.Y + (float)Math.Sin(angle) * dist);
     }
 }

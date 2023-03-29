@@ -24,7 +24,7 @@ public class NearestHostileUnitCheck : ICheck<Unit>
 
     public bool Invoke(Unit u)
     {
-        if (!_me.IsWithinDist(u, _range))
+        if (!_me.Location.IsWithinDist(u, _range))
             return false;
 
         if (!_me.IsValidAttackTarget(u))
@@ -33,7 +33,7 @@ public class NearestHostileUnitCheck : ICheck<Unit>
         if (_playerOnly && !u.IsTypeId(TypeId.Player))
             return false;
 
-        _range = _me.GetDistance(u); // use found unit range as new range limit for next check
+        _range = _me.Location.GetDistance(u); // use found unit range as new range limit for next check
 
         return true;
     }

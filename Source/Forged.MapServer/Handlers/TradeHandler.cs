@@ -290,7 +290,7 @@ public class TradeHandler : IWorldSessionHandler
             return;
         }
 
-        if (!Player.IsWithinDistInMap(trader, 11.11f, false))
+        if (!Player.Location.IsWithinDistInMap(trader, 11.11f, false))
         {
             info.Status = TradeStatus.TooFarAway;
             SendTradeStatus(info);
@@ -434,7 +434,7 @@ public class TradeHandler : IWorldSessionHandler
 
             if (his_spell_id != 0)
             {
-                var spellEntry = Global.SpellMgr.GetSpellInfo(his_spell_id, trader.Map.DifficultyID);
+                var spellEntry = Global.SpellMgr.GetSpellInfo(his_spell_id, trader.Location.Map.DifficultyID);
                 var castItem = his_trade.GetSpellCastItem();
 
                 if (spellEntry == null || !my_trade.GetItem(TradeSlots.NonTraded) || (his_trade.HasSpellCastItem() && !castItem))

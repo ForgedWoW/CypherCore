@@ -83,7 +83,7 @@ public class EscortAI : ScriptedAI
                     var member = groupRef.Source;
 
                     if (member)
-                        if (member.IsInMap(player))
+                        if (member.Location.IsInMap(player))
                             member.FailQuest(_escortQuest.Id);
                 }
             else
@@ -216,7 +216,7 @@ public class EscortAI : ScriptedAI
                         if (!isEscort)
                             Me.DespawnOrUnsummon(TimeSpan.Zero, TimeSpan.FromSeconds(1));
                         else
-                            Me.Map.Respawn(SpawnObjectType.Creature, Me.SpawnId);
+                            Me.Location.Map.Respawn(SpawnObjectType.Creature, Me.SpawnId);
                     }
                     else
                     {
@@ -467,7 +467,7 @@ public class EscortAI : ScriptedAI
             return false;
 
         //too far away and no free sight?
-        if (Me.IsWithinDistInMap(who, GetMaxPlayerDistance()) && Me.IsWithinLOSInMap(who))
+        if (Me.Location.IsWithinDistInMap(who, GetMaxPlayerDistance()) && Me.Location.IsWithinLOSInMap(who))
         {
             Me.EngageWithTarget(who);
 
@@ -496,10 +496,10 @@ public class EscortAI : ScriptedAI
                     var member = groupRef.Source;
 
                     if (member)
-                        if (Me.IsWithinDistInMap(member, GetMaxPlayerDistance()))
+                        if (Me.Location.IsWithinDistInMap(member, GetMaxPlayerDistance()))
                             return true;
                 }
-            else if (Me.IsWithinDistInMap(player, GetMaxPlayerDistance()))
+            else if (Me.Location.IsWithinDistInMap(player, GetMaxPlayerDistance()))
                 return true;
         }
 

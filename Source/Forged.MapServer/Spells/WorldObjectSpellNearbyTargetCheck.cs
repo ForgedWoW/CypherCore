@@ -22,7 +22,7 @@ public class WorldObjectSpellNearbyTargetCheck : WorldObjectSpellTargetCheck
 
     public override bool Invoke(WorldObject target)
     {
-        var dist = target.GetDistance(_position);
+        var dist = target.Location.GetDistance(_position);
 
         if (dist < _range && base.Invoke(target))
         {

@@ -172,7 +172,7 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
         owner.MovePositionToFirstCollision(position, distance, angle);
 
         // Check if the destination is in LOS
-        if (!owner.IsWithinLOS(position.X, position.Y, position.Z))
+        if (!owner.Location.IsWithinLOS(position.X, position.Y, position.Z))
         {
             // Retry later on
             _timer.Reset(200);

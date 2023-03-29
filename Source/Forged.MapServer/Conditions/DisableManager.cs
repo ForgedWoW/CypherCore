@@ -357,7 +357,7 @@ public class DisableManager
                     {
                         if (spellFlags.HasAnyFlag(DisableFlags.SpellArenas | DisableFlags.SpellBattleGrounds))
                         {
-                            var map = refe.Map;
+                            var map = refe.Location.Map;
 
                             if (map != null)
                             {
@@ -386,7 +386,7 @@ public class DisableManager
                         {
                             var areaIds = data.Param1;
 
-                            if (areaIds.Contains(refe.Area))
+                            if (areaIds.Contains(refe.Location.Area))
                                 return true; // Spell is disabled in this area
 
                             return false; // Spell is disabled in another area, but not this one, return false

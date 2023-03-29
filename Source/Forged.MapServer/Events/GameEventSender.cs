@@ -17,12 +17,12 @@ internal class GameEvents
         var zoneScript = refForMapAndZoneScript.ZoneScript1;
 
         if (zoneScript == null && refForMapAndZoneScript.IsPlayer)
-            zoneScript = refForMapAndZoneScript.FindZoneScript();
+            zoneScript = refForMapAndZoneScript.Location.FindZoneScript();
 
         if (zoneScript != null)
             zoneScript.ProcessEvent(target, gameEventId, source);
 
-        var map = refForMapAndZoneScript.Map;
+        var map = refForMapAndZoneScript.Location.Map;
         var goTarget = target?.AsGameObject;
 
         if (goTarget != null)
@@ -43,7 +43,7 @@ internal class GameEvents
 
     public static void TriggerForPlayer(uint gameEventId, Player source)
     {
-        var map = source.Map;
+        var map = source.Location.Map;
 
         if (map.Instanceable)
         {

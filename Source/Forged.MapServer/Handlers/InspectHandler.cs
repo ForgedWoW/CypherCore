@@ -25,7 +25,7 @@ public class InspectHandler : IWorldSessionHandler
             return;
         }
 
-        if (!Player.IsWithinDistInMap(player, SharedConst.InspectDistance, false))
+        if (!Player.Location.IsWithinDistInMap(player, SharedConst.InspectDistance, false))
             return;
 
         if (Player.IsValidAttackTarget(player))
@@ -98,7 +98,7 @@ public class InspectHandler : IWorldSessionHandler
             return;
         }
 
-        if (!Player.IsWithinDistInMap(player, SharedConst.InspectDistance, false))
+        if (!Player.Location.IsWithinDistInMap(player, SharedConst.InspectDistance, false))
             return;
 
         if (Player.IsValidAttackTarget(player))

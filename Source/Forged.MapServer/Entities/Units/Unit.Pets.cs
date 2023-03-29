@@ -101,7 +101,7 @@ public partial class Unit
                 return;
             }
 
-            if (!IsInWorld)
+            if (!Location.IsInWorld)
             {
                 Log.Logger.Fatal($"SetMinion: Minion being added to owner not in world. Minion: {minion.GUID}, Owner: {GetDebugInfo()}");
 
@@ -327,7 +327,7 @@ public partial class Unit
         }
 
         // StopCastingCharm may remove a possessed pet?
-        if (!IsInWorld)
+        if (!Location.IsInWorld)
         {
             Log.Logger.Fatal("Unit:SetCharmedBy: {0} (GUID {1}) is not in world but {2} (GUID {3}) is trying to charm it!", Entry, GUID.ToString(), charmer.Entry, charmer.GUID.ToString());
 

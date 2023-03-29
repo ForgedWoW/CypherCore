@@ -22,10 +22,10 @@ public class AllCreaturesWithinRange : ICheck<Creature>
     {
         if (_fRange != 0f)
         {
-            if (_fRange > 0.0f && !_pObject.IsWithinDist(creature, _fRange, false))
+            if (_fRange > 0.0f && !_pObject.Location.IsWithinDist(creature, _fRange, false))
                 return false;
 
-            if (_fRange < 0.0f && _pObject.IsWithinDist(creature, _fRange, false))
+            if (_fRange < 0.0f && _pObject.Location.IsWithinDist(creature, _fRange, false))
                 return false;
         }
 

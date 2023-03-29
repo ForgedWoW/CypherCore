@@ -408,7 +408,7 @@ public class WorldManager
             if (player == null)
                 continue;
 
-            if (player.IsInWorld && player.Zone == zone)
+            if (player.Location.IsInWorld && player.Location.Zone == zone)
                 // Used by the weather system. We return the player to broadcast the change weather message to him and all players in the zone.
                 return player;
         }
@@ -898,7 +898,7 @@ public class WorldManager
     {
         foreach (var session in _sessions.Values)
             if (session.Player != null &&
-                session.Player.IsInWorld &&
+                session.Player.Location.IsInWorld &&
                 session != self &&
                 (team == 0 || session.Player.Team == team))
                 session.SendPacket(packet);
@@ -915,7 +915,7 @@ public class WorldManager
             // Player should be in world
             var player = session.Player;
 
-            if (player == null || !player.IsInWorld)
+            if (player == null || !player.Location.IsInWorld)
                 continue;
 
             // Send only to same team, if team is given
@@ -932,7 +932,7 @@ public class WorldManager
 
         foreach (var session in _sessions.Values)
         {
-            if (session == null || !session.Player || !session.Player.IsInWorld)
+            if (session == null || !session.Player || !session.Player.Location.IsInWorld)
                 continue;
 
             wtDo.Invoke(session.Player);
@@ -954,7 +954,7 @@ public class WorldManager
             // Player should be in world
             var player = session.Player;
 
-            if (!player || !player.IsInWorld)
+            if (!player || !player.Location.IsInWorld)
                 continue;
 
             wtDo.Invoke(player);
@@ -969,8 +969,8 @@ public class WorldManager
         foreach (var session in _sessions.Values)
             if (session != null &&
                 session.Player &&
-                session.Player.IsInWorld &&
-                session.Player.Zone == zone &&
+                session.Player.Location.IsInWorld &&
+                session.Player.Location.Zone == zone &&
                 session != self &&
                 (team == 0 || (uint)session.Player.Team == team))
             {

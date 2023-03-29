@@ -64,7 +64,7 @@ internal class ObjectGridLoaderBase
 
             if (phaseOwner.HasValue)
             {
-                PhasingHandler.InitDbPersonalOwnership(obj.PhaseShift, phaseOwner.Value);
+                PhasingHandler.InitDbPersonalOwnership(obj.Location.PhaseShift, phaseOwner.Value);
                 map.MultiPersonalPhaseTracker.RegisterTrackedObject(phaseId, phaseOwner.Value, obj);
             }
 

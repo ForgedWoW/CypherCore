@@ -305,7 +305,7 @@ public class WorldSession : IDisposable
             if (!Player.InstanceValid && !Player.IsGameMaster)
                 Player.TeleportTo(Player.Homebind);
 
-            _outdoorPvPManager.HandlePlayerLeaveZone(Player, Player.Zone);
+            _outdoorPvPManager.HandlePlayerLeaveZone(Player, Player.Location.Zone);
 
             for (uint i = 0; i < SharedConst.MaxPlayerBGQueues; ++i)
             {
@@ -387,7 +387,7 @@ public class WorldSession : IDisposable
             Player.CleanupsBeforeDelete();
             Log.Logger.Information($"Account: {AccountId} (IP: {RemoteAddress}) Logout Character:[{Player.GetName()}] ({Player.GUID}) Level: {Player.Level}, XP: {Player.XP}/{Player.XPForNextLevel} ({Player.XPForNextLevel - Player.XP} left)");
 
-            var map = Player.Map;
+            var map = Player.Location.Map;
 
             if (map != null)
                 map.RemovePlayerFromMap(Player, true);
@@ -928,12 +928,12 @@ public class WorldSession : IDisposable
         if (player.GetAELootView().Empty())
             player.RemoveUnitFlag(UnitFlags.Looting);
 
-        if (!player.IsInWorld)
+        if (!player.Location.IsInWorld)
             return;
 
         if (lguid.IsGameObject)
         {
-            var go = player.Map.GetGameObject(lguid);
+            var go = player.Location.Map.GetGameObject(lguid);
 
             // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
             if (!go || ((go.OwnerGUID != player.GUID && go.GoType != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
@@ -972,7 +972,7 @@ public class WorldSession : IDisposable
         {
             var corpse = ObjectAccessor.GetCorpse(player, lguid);
 
-            if (!corpse || !corpse.IsWithinDistInMap(player, SharedConst.InteractionDistance))
+            if (!corpse || !corpse.Location.IsWithinDistInMap(player, SharedConst.InteractionDistance))
                 return;
 
             if (loot.IsLooted())
@@ -1013,7 +1013,7 @@ public class WorldSession : IDisposable
         }
         else
         {
-            var creature = player.Map.GetCreature(lguid);
+            var creature = player.Location.Map.GetCreature(lguid);
 
             if (creature == null)
                 return;
@@ -1035,7 +1035,7 @@ public class WorldSession : IDisposable
                 if (player.GUID == loot.RoundRobinPlayer)
                 {
                     loot.RoundRobinPlayer.Clear();
-                    loot.NotifyLootList(creature.Map);
+                    loot.NotifyLootList(creature.Location.Map);
                 }
             }
 
@@ -1120,7 +1120,7 @@ public class WorldSession : IDisposable
                             break;
                         }
 
-                        if (Player.IsInWorld && _antiDos.EvaluateOpcode(packet, currentTime))
+                        if (Player.Location.IsInWorld && _antiDos.EvaluateOpcode(packet, currentTime))
                             handler.Invoke(this, packet);
 
                         break;
@@ -1134,7 +1134,7 @@ public class WorldSession : IDisposable
                     case SessionStatus.Transfer:
                         if (!Player)
                             LogUnexpectedOpcode(packet, handler.SessionStatus, "the player has not logged in yet");
-                        else if (Player.IsInWorld)
+                        else if (Player.Location.IsInWorld)
                             LogUnexpectedOpcode(packet, handler.SessionStatus, "the player is still in world");
                         else if (_antiDos.EvaluateOpcode(packet, currentTime))
                             handler.Invoke(this, packet);
@@ -1327,7 +1327,7 @@ public class WorldSession : IDisposable
         if (!player.InstanceValid && !mapEntry.IsDungeon())
             player.InstanceValid = true;
 
-        var oldMap = player.Map;
+        var oldMap = player.Location.Map;
         var newMap = Player.TeleportDestInstanceId.HasValue ? _mapManager.FindMap(loc.MapId, Player.TeleportDestInstanceId.Value) : _mapManager.CreateMap(loc.MapId, Player);
 
         var transportInfo = player.MovementInfo.Transport;
@@ -1336,7 +1336,7 @@ public class WorldSession : IDisposable
         if (transport != null)
             transport.RemovePassenger(player);
 
-        if (player.IsInWorld)
+        if (player.Location.IsInWorld)
         {
             Log.Logger.Error($"Player (Name {player.GetName()}) is still in world when teleported from map {oldMap.Id} to new map {loc.MapId}");
             oldMap.RemovePlayerFromMap(player, false);
@@ -1358,7 +1358,7 @@ public class WorldSession : IDisposable
         player.SetFallInformation(0, player.Location.Z);
 
         player.ResetMap();
-        player.Map = newMap;
+        player.Location.Map = newMap;
 
         ResumeToken resumeToken = new();
         resumeToken.SequenceIndex = player.MovementCounter;
@@ -1377,11 +1377,11 @@ public class WorldSession : IDisposable
             newTransport.AddPassenger(player);
         }
 
-        if (!player.Map.AddPlayerToMap(player, !seamlessTeleport))
+        if (!player.Location.Map.AddPlayerToMap(player, !seamlessTeleport))
         {
             Log.Logger.Error($"WORLD: failed to teleport player {player.GetName()} ({player.GUID}) to map {loc.MapId} ({(newMap ? newMap.MapName : "Unknown")}) because of unknown reason!");
             player.ResetMap();
-            player.Map = oldMap;
+            player.Location.Map = oldMap;
             player.TeleportTo(player.Homebind);
 
             return;

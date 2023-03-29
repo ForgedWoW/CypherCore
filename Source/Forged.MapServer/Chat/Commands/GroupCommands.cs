@@ -371,7 +371,7 @@ internal class GroupCommands
         }
 
         var gmPlayer = handler.Session.Player;
-        var gmMap = gmPlayer.Map;
+        var gmMap = gmPlayer.Location.Map;
         var toInstance = gmMap.Instanceable;
         var onlyLocalSummon = false;
 
@@ -411,7 +411,7 @@ internal class GroupCommands
 
             if (toInstance)
             {
-                var playerMap = player.Map;
+                var playerMap = player.Location.Map;
 
                 if ((onlyLocalSummon || (playerMap.Instanceable && playerMap.Id == gmMap.Id)) && // either no far summon allowed or we're in the same map as player (no map switch)
                     ((playerMap.Id != gmMap.Id) || (playerMap.InstanceId != gmMap.InstanceId)))  // so we need to be in the same map and instance of the map, otherwise skip
@@ -436,7 +436,7 @@ internal class GroupCommands
 
             // before GM
             var pos = new Position();
-            gmPlayer.GetClosePoint(pos, player.CombatReach);
+            gmPlayer.Location.GetClosePoint(pos, player.CombatReach);
             pos.Orientation = player.Location.Orientation;
             player.TeleportTo(gmPlayer.Location.MapId, pos, 0, gmPlayer.InstanceId);
         }

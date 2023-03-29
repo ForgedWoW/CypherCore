@@ -22,7 +22,7 @@ public class UnitListSearcher : IGridNotifierCreature, IGridNotifierPlayer
 
     public UnitListSearcher(WorldObject searcher, List<Unit> objects, ICheck<Unit> check, GridType gridType)
     {
-        _phaseShift = searcher.PhaseShift;
+        _phaseShift = searcher.Location.PhaseShift;
         _objects = objects;
         _check = check;
         GridType = gridType;
@@ -34,7 +34,7 @@ public class UnitListSearcher : IGridNotifierCreature, IGridNotifierPlayer
         {
             var creature = objs[i];
 
-            if (creature.InSamePhase(_phaseShift))
+            if (creature.Location.InSamePhase(_phaseShift))
                 if (_check.Invoke(creature))
                     _objects.Add(creature);
         }
@@ -46,7 +46,7 @@ public class UnitListSearcher : IGridNotifierCreature, IGridNotifierPlayer
         {
             var player = objs[i];
 
-            if (player.InSamePhase(_phaseShift))
+            if (player.Location.InSamePhase(_phaseShift))
                 if (_check.Invoke(player))
                     _objects.Add(player);
         }

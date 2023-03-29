@@ -30,11 +30,11 @@ internal class AnyAssistCreatureInRangeCheck : ICheck<Creature>
 
         // too far
         // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
-        if (!_funit.IsWithinDist(u, _range, true, false, false))
+        if (!_funit.Location.IsWithinDist(u, _range, true, false, false))
             return false;
 
         // only if see assisted creature
-        if (!_funit.IsWithinLOSInMap(u))
+        if (!_funit.Location.IsWithinLOSInMap(u))
             return false;
 
         return true;

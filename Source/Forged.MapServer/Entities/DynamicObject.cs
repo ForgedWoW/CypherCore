@@ -54,9 +54,9 @@ public class DynamicObject : WorldObject
     public override void AddToWorld()
     {
         // Register the dynamicObject for guid lookup and for caster
-        if (!IsInWorld)
+        if (!Location.IsInWorld)
         {
-            Map.ObjectsStore.TryAdd(GUID, this);
+            Location.Map.ObjectsStore.TryAdd(GUID, this);
             base.AddToWorld();
             BindToCaster();
         }
@@ -65,7 +65,7 @@ public class DynamicObject : WorldObject
     public override void RemoveFromWorld()
     {
         // Remove the dynamicObject from the accessor and from all lists of objects in world
-        if (IsInWorld)
+        if (Location.IsInWorld)
         {
             if (_isViewpoint)
                 RemoveCasterViewpoint();
@@ -74,12 +74,12 @@ public class DynamicObject : WorldObject
                 RemoveAura();
 
             // dynobj could get removed in Aura.RemoveAura
-            if (!IsInWorld)
+            if (!Location.IsInWorld)
                 return;
 
             UnbindFromCaster();
             base.RemoveFromWorld();
-            Map.ObjectsStore.TryRemove(GUID, out _);
+            Location.Map.ObjectsStore.TryRemove(GUID, out _);
         }
     }
 
@@ -98,8 +98,8 @@ public class DynamicObject : WorldObject
         Create(ObjectGuid.Create(HighGuid.DynamicObject, Location.MapId, spell.Id, guidlow));
         PhasingHandler.InheritPhaseShift(this, caster);
 
-        UpdatePositionData();
-        SetZoneScript();
+        Location.UpdatePositionData();
+        Location.SetZoneScript();
 
         Entry = spell.Id;
         ObjectScale = 1f;
@@ -130,7 +130,7 @@ public class DynamicObject : WorldObject
             transport.AddPassenger(this);
         }
 
-        if (!Map.AddToMap(this))
+        if (!Location.Map.AddToMap(this))
         {
             // Returning false will cause the object to be deleted - remove from transport
             if (transport != null)
@@ -172,7 +172,7 @@ public class DynamicObject : WorldObject
 
     public void Remove()
     {
-        if (IsInWorld)
+        if (Location.IsInWorld)
             AddObjectToRemoveList();
     }
 
@@ -207,7 +207,7 @@ public class DynamicObject : WorldObject
 
     public SpellInfo GetSpellInfo()
     {
-        return Global.SpellMgr.GetSpellInfo(GetSpellId(), Map.DifficultyID);
+        return Global.SpellMgr.GetSpellInfo(GetSpellId(), Location.Map.DifficultyID);
     }
 
     public override void BuildValuesCreate(WorldPacket data, Player target)

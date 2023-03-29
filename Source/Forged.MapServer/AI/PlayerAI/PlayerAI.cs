@@ -269,7 +269,7 @@ public class PlayerAI : UnitAI
         if (knownRank == 0)
             return null;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(knownRank, Me.Map.DifficultyID);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(knownRank, Me.Location.Map.DifficultyID);
 
         if (spellInfo == null)
             return null;
@@ -325,7 +325,7 @@ public class PlayerAI : UnitAI
         if (rangedAttackSpell == 0)
             return;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(rangedAttackSpell, Me.Map.DifficultyID);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(rangedAttackSpell, Me.Location.Map.DifficultyID);
 
         if (spellInfo == null)
             return;

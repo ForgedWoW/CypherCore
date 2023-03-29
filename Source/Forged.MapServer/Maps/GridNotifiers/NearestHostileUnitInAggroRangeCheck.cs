@@ -25,13 +25,13 @@ internal class NearestHostileUnitInAggroRangeCheck : ICheck<Unit>
         if (!u.IsHostileTo(_me))
             return false;
 
-        if (!u.IsWithinDist(_me, _me.GetAggroRange(u)))
+        if (!u.Location.IsWithinDist(_me, _me.GetAggroRange(u)))
             return false;
 
         if (!_me.IsValidAttackTarget(u))
             return false;
 
-        if (_useLOS && !u.IsWithinLOSInMap(_me))
+        if (_useLOS && !u.Location.IsWithinLOSInMap(_me))
             return false;
 
         // pets in aggressive do not attack civilians

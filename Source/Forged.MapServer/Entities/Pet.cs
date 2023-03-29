@@ -126,7 +126,7 @@ public class Pet : Guardian
     public override void AddToWorld()
     {
         //- Register the pet for guid lookup
-        if (!IsInWorld)
+        if (!Location.IsInWorld)
         {
             // Register the pet for guid lookup
             base.AddToWorld();
@@ -152,11 +152,11 @@ public class Pet : Guardian
     public override void RemoveFromWorld()
     {
         // Remove the pet from the accessor
-        if (IsInWorld)
+        if (Location.IsInWorld)
         {
             // Don't call the function for Creature, normal mobs + totems go in a different storage
             base.RemoveFromWorld();
-            Map.ObjectsStore.TryRemove(GUID, out _);
+            Location.Map.ObjectsStore.TryRemove(GUID, out _);
         }
     }
 
@@ -233,7 +233,7 @@ public class Pet : Guardian
         if (petStable.GetCurrentPet() != null && owner.CurrentPet != null && petStable.GetCurrentPet().PetNumber == petInfo.PetNumber)
             return false;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(petInfo.CreatedBySpellId, owner.Map.DifficultyID);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(petInfo.CreatedBySpellId, owner.Location.Map.DifficultyID);
 
         var isTemporarySummon = spellInfo != null && spellInfo.Duration > 0;
 
@@ -255,7 +255,7 @@ public class Pet : Guardian
             return false;
         }
 
-        var map = owner.Map;
+        var map = owner.Location.Map;
         var guid = map.GenerateLowGuid(HighGuid.Pet);
 
         if (!Create(guid, map, petInfo.CreatureId, petInfo.PetNumber))
@@ -271,7 +271,7 @@ public class Pet : Guardian
 
         if (IsCritter)
         {
-            owner.GetClosePoint(pos, CombatReach, SharedConst.PetFollowDist, FollowAngle);
+            owner.Location.GetClosePoint(pos, CombatReach, SharedConst.PetFollowDist, FollowAngle);
             pos.Orientation = owner.Location.Orientation;
             Location.Relocate(pos);
 
@@ -333,7 +333,7 @@ public class Pet : Guardian
         SynchronizeLevelWithOwner();
 
         // Set pet's position after setting level, its size depends on it
-        owner.GetClosePoint(pos, CombatReach, SharedConst.PetFollowDist, FollowAngle);
+        owner.Location.GetClosePoint(pos, CombatReach, SharedConst.PetFollowDist, FollowAngle);
         Location.Relocate(pos);
 
         if (!Location.IsPositionValid)
@@ -444,7 +444,7 @@ public class Pet : Guardian
                      LearnPetPassives();
                      InitLevelupSpellsForLevel();
 
-                     if (Map.IsBattleArena)
+                     if (Location.Map.IsBattleArena)
                          RemoveArenaAuras();
 
                      CastPetAuras(current);
@@ -693,7 +693,7 @@ public class Pet : Guardian
                 // unsummon pet that lost owner
                 var owner = OwningPlayer;
 
-                if (owner == null || (!IsWithinDistInMap(owner, Map.VisibilityRange) && !IsPossessed) || (IsControlled && owner.PetGUID.IsEmpty))
+                if (owner == null || (!Location.IsWithinDistInMap(owner, Location.Map.VisibilityRange) && !IsPossessed) || (IsControlled && owner.PetGUID.IsEmpty))
                 {
                     Remove(PetSaveMode.NotInSlot, true);
 
@@ -819,7 +819,7 @@ public class Pet : Guardian
 
     public bool CreateBaseAtCreature(Creature creature)
     {
-        if (!CreateBaseAtTamed(creature.Template, creature.Map))
+        if (!CreateBaseAtTamed(creature.Template, creature.Location.Map))
             return false;
 
         Location.Relocate(creature.Location);
@@ -857,7 +857,7 @@ public class Pet : Guardian
 
     public bool CreateBaseAtCreatureInfo(CreatureTemplate cinfo, Unit owner)
     {
-        if (!CreateBaseAtTamed(cinfo, owner.Map))
+        if (!CreateBaseAtTamed(cinfo, owner.Location.Map))
             return false;
 
         var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cinfo.Family);
@@ -1340,7 +1340,7 @@ public class Pet : Guardian
                 }
 
                 var info = effectInfo[key];
-                var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Map.GenerateLowGuid(HighGuid.Cast));
+                var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Location.Map.GenerateLowGuid(HighGuid.Cast));
 
                 AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask.ExplodeMask(SpellConst.MaxEffects), this);
                 createInfo.SetCasterGuid(casterGuid);

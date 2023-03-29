@@ -91,7 +91,7 @@ public class InstanceMap : Map
 
     public override TransferAbortParams CannotEnter(Player player)
     {
-        if (player.Map == this)
+        if (player.Location.Map == this)
         {
             Log.Logger.Error("InstanceMap:CannotEnter - player {0} ({1}) already in map {2}, {3}, {4}!", player.GetName(), player.GUID.ToString(), Id, InstanceId, DifficultyID);
 

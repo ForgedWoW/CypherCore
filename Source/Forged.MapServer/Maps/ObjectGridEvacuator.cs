@@ -27,10 +27,10 @@ internal class ObjectGridEvacuator : IGridNotifierCreature, IGridNotifierGameObj
             // creature in unloading grid can have respawn point in another grid
             // if it will be unloaded then it will not respawn in original grid until unload/load original grid
             // move to respawn point to prevent this case. For player view in respawn grid this will be normal respawn.
-            creature. // creature in unloading grid can have respawn point in another grid
-                // if it will be unloaded then it will not respawn in original grid until unload/load original grid
-                // move to respawn point to prevent this case. For player view in respawn grid this will be normal respawn.
-                Map.CreatureRespawnRelocation(creature, true);
+            creature.Location. // creature in unloading grid can have respawn point in another grid
+                     // if it will be unloaded then it will not respawn in original grid until unload/load original grid
+                     // move to respawn point to prevent this case. For player view in respawn grid this will be normal respawn.
+                     Map.CreatureRespawnRelocation(creature, true);
         }
     }
 
@@ -43,10 +43,10 @@ internal class ObjectGridEvacuator : IGridNotifierCreature, IGridNotifierGameObj
             // gameobject in unloading grid can have respawn point in another grid
             // if it will be unloaded then it will not respawn in original grid until unload/load original grid
             // move to respawn point to prevent this case. For player view in respawn grid this will be normal respawn.
-            gameObject. // gameobject in unloading grid can have respawn point in another grid
-                // if it will be unloaded then it will not respawn in original grid until unload/load original grid
-                // move to respawn point to prevent this case. For player view in respawn grid this will be normal respawn.
-                Map.GameObjectRespawnRelocation(gameObject, true);
+            gameObject.Location. // gameobject in unloading grid can have respawn point in another grid
+                       // if it will be unloaded then it will not respawn in original grid until unload/load original grid
+                       // move to respawn point to prevent this case. For player view in respawn grid this will be normal respawn.
+                       Map.GameObjectRespawnRelocation(gameObject, true);
         }
     }
 }

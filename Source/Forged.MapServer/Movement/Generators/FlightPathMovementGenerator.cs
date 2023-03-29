@@ -310,7 +310,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
     private void PreloadEndGrid(Player owner)
     {
         // Used to preload the final grid where the flightmaster is
-        var endMap = owner.Map;
+        var endMap = owner.Location.Map;
 
         // Load the grid
         if (endMap != null)

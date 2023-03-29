@@ -698,7 +698,7 @@ public class BattleGroundHandler : IWorldSessionHandler
         if (bg != null)
             Global.BattlegroundMgr.SendAreaSpiritHealerQuery(Player, bg, areaSpiritHealerQuery.HealerGuid);
 
-        var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(Player.Map, Player.Zone);
+        var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(Player.Location.Map, Player.Location.Zone);
 
         if (bf != null)
             bf.SendAreaSpiritHealerQuery(Player, areaSpiritHealerQuery.HealerGuid);
@@ -720,7 +720,7 @@ public class BattleGroundHandler : IWorldSessionHandler
         if (bg)
             bg.AddPlayerToResurrectQueue(areaSpiritHealerQueue.HealerGuid, Player.GUID);
 
-        var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(Player.Map, Player.Zone);
+        var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(Player.Location.Map, Player.Location.Zone);
 
         if (bf != null)
             bf.AddPlayerToResurrectQueue(areaSpiritHealerQueue.HealerGuid, Player.GUID);
@@ -732,7 +732,7 @@ public class BattleGroundHandler : IWorldSessionHandler
         if (Player.IsInFlight)
             return;
 
-        var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(Player.Map, Player.Zone);
+        var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(Player.Location.Map, Player.Location.Zone);
 
         if (bf != null)
         {
@@ -741,7 +741,7 @@ public class BattleGroundHandler : IWorldSessionHandler
             return;
         }
 
-        var atEntry = CliDB.AreaTableStorage.LookupByKey(Player.Area);
+        var atEntry = CliDB.AreaTableStorage.LookupByKey(Player.Location.Area);
 
         if (atEntry == null || !atEntry.HasFlag(AreaFlags.CanHearthAndResurrect))
             return;

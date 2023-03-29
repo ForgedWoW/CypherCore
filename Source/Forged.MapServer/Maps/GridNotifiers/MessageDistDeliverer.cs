@@ -28,7 +28,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
     {
         _source = src;
         _packetSender = packetSender;
-        _phaseShift = src.PhaseShift;
+        _phaseShift = src.Location.PhaseShift;
         _distSq = dist * dist;
 
         if (own_team_only && src.IsPlayer)
@@ -44,7 +44,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
         {
             var creature = objs[i];
 
-            if (!creature.InSamePhase(_phaseShift))
+            if (!creature.Location.InSamePhase(_phaseShift))
                 continue;
 
             if ((!_required3dDist ? creature.Location.GetExactDist2dSq(_source.Location) : creature.Location.GetExactDistSq(_source.Location)) > _distSq)
@@ -64,7 +64,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
         {
             var dynamicObject = objs[i];
 
-            if (!dynamicObject.InSamePhase(_phaseShift))
+            if (!dynamicObject.Location.InSamePhase(_phaseShift))
                 continue;
 
             if ((!_required3dDist ? dynamicObject.Location.GetExactDist2dSq(_source.Location) : dynamicObject.Location.GetExactDistSq(_source.Location)) > _distSq)
@@ -89,7 +89,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
         {
             var player = objs[i];
 
-            if (!player.InSamePhase(_phaseShift))
+            if (!player.Location.InSamePhase(_phaseShift))
                 continue;
 
             if ((!_required3dDist ? player.Location.GetExactDist2dSq(_source.Location) : player.Location.GetExactDistSq(_source.Location)) > _distSq)

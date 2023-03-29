@@ -25,7 +25,7 @@ internal class AnyPlayerInPositionRangeCheck : ICheck<Player>
         if (_reqAlive && !u.IsAlive)
             return false;
 
-        if (!u.IsWithinDist3d(_pos, _range))
+        if (!u.Location.IsWithinDist3d(_pos, _range))
             return false;
 
         return true;

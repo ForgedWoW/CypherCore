@@ -287,7 +287,7 @@ public class AzeriteItem : Item
 
     public static GameObject FindHeartForge(Player owner)
     {
-        var forge = owner.FindNearestGameObjectOfType(GameObjectTypes.ItemForge, 40.0f);
+        var forge = owner.Location.FindNearestGameObjectOfType(GameObjectTypes.ItemForge, 40.0f);
 
         if (forge != null)
             if (forge.Template.ItemForge.ForgeType == 2)

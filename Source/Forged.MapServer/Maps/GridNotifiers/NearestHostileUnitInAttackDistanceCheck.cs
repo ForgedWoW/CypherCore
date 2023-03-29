@@ -22,7 +22,7 @@ internal class NearestHostileUnitInAttackDistanceCheck : ICheck<Unit>
 
     public bool Invoke(Unit u)
     {
-        if (!_me.IsWithinDist(u, _range))
+        if (!_me.Location.IsWithinDist(u, _range))
             return false;
 
         if (!_me.CanSeeOrDetect(u))
@@ -38,7 +38,7 @@ internal class NearestHostileUnitInAttackDistanceCheck : ICheck<Unit>
             return false;
         }
 
-        _range = _me.GetDistance(u); // use found unit range as new range limit for next check
+        _range = _me.Location.GetDistance(u); // use found unit range as new range limit for next check
 
         return true;
     }

@@ -68,7 +68,7 @@ public class SceneMgr
 
         playScene.Write();
 
-        if (Player.IsInWorld)
+        if (Player.Location.IsInWorld)
             Player.SendPacket(playScene);
         else
             _delayedScenes.Add(playScene);

@@ -45,7 +45,7 @@ public class Minion : TempSummon
 
     public override void RemoveFromWorld()
     {
-        if (!IsInWorld)
+        if (!Location.IsInWorld)
             return;
 
         OwnerUnit.SetMinion(this, false);

@@ -54,8 +54,8 @@ public class Corpse : WorldObject
     public override void AddToWorld()
     {
         // Register the corpse for guid lookup
-        if (!IsInWorld)
-            Map.ObjectsStore.TryAdd(GUID, this);
+        if (!Location.IsInWorld)
+            Location.Map.ObjectsStore.TryAdd(GUID, this);
 
         base.AddToWorld();
     }
@@ -63,8 +63,8 @@ public class Corpse : WorldObject
     public override void RemoveFromWorld()
     {
         // Remove the corpse from the accessor
-        if (IsInWorld)
-            Map.ObjectsStore.TryRemove(GUID, out _);
+        if (Location.IsInWorld)
+            Location.Map.ObjectsStore.TryRemove(GUID, out _);
 
         base.RemoveFromWorld();
     }
@@ -141,7 +141,7 @@ public class Corpse : WorldObject
         stmt.AddValue(index++, InstanceId);                    // instanceId
         trans.Append(stmt);
 
-        foreach (var phaseId in PhaseShift.Phases.Keys)
+        foreach (var phaseId in Location.PhaseShift.Phases.Keys)
         {
             index = 0;
             stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CORPSE_PHASES);
@@ -217,7 +217,7 @@ public class Corpse : WorldObject
         var instanceId = field.Read<uint>(14);
 
         // place
-        SetLocationInstanceId(instanceId);
+        Location.SetLocationInstanceId(instanceId);
         Location.MapId = mapId;
         Location.Relocate(posX, posY, posZ, o);
 

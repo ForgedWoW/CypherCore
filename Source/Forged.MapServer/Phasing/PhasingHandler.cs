@@ -59,7 +59,7 @@ public class PhasingHandler
         for (byte i = 0; i < SharedConst.MaxSummonSlot; ++i)
             if (!unit.SummonSlot[i].IsEmpty)
             {
-                var summon = unit.Map.GetCreature(unit.SummonSlot[i]);
+                var summon = unit.Location.Map.GetCreature(unit.SummonSlot[i]);
 
                 if (summon)
                     func(summon);
@@ -125,25 +125,25 @@ public class PhasingHandler
 
     public static void ResetPhaseShift(WorldObject obj)
     {
-        obj.PhaseShift.Clear();
-        obj.SuppressedPhaseShift.Clear();
+        obj.Location.PhaseShift.Clear();
+        obj.Location.SuppressedPhaseShift.Clear();
     }
 
     public static void InheritPhaseShift(WorldObject target, WorldObject source)
     {
-        target.PhaseShift = source.PhaseShift;
-        target.SuppressedPhaseShift = source.SuppressedPhaseShift;
+        target.Location.PhaseShift = source.Location.PhaseShift;
+        target.Location.SuppressedPhaseShift = source.Location.SuppressedPhaseShift;
     }
 
     public static void OnMapChange(WorldObject obj)
     {
-        var phaseShift = obj.PhaseShift;
-        var suppressedPhaseShift = obj.SuppressedPhaseShift;
+        var phaseShift = obj.Location.PhaseShift;
+        var suppressedPhaseShift = obj.Location.SuppressedPhaseShift;
         ConditionSourceInfo srcInfo = new(obj);
 
-        obj.PhaseShift.VisibleMapIds.Clear();
-        obj.PhaseShift.UiMapPhaseIds.Clear();
-        obj.SuppressedPhaseShift.VisibleMapIds.Clear();
+        obj.Location.PhaseShift.VisibleMapIds.Clear();
+        obj.Location.PhaseShift.UiMapPhaseIds.Clear();
+        obj.Location.SuppressedPhaseShift.VisibleMapIds.Clear();
 
         foreach (var (mapId, visibleMapInfo) in Global.ObjectMgr.GetTerrainSwaps().KeyValueList)
             if (Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.TerrainSwap, visibleMapInfo.Id, srcInfo))
@@ -165,15 +165,15 @@ public class PhasingHandler
 
     public static void OnAreaChange(WorldObject obj)
     {
-        var phaseShift = obj.PhaseShift;
-        var suppressedPhaseShift = obj.SuppressedPhaseShift;
+        var phaseShift = obj.Location.PhaseShift;
+        var suppressedPhaseShift = obj.Location.SuppressedPhaseShift;
         var oldPhases = phaseShift.Phases; // for comparison
         ConditionSourceInfo srcInfo = new(obj);
 
-        obj.PhaseShift.ClearPhases();
-        obj.SuppressedPhaseShift.ClearPhases();
+        obj.Location.PhaseShift.ClearPhases();
+        obj.Location.SuppressedPhaseShift.ClearPhases();
 
-        var areaId = obj.Area;
+        var areaId = obj.Location.Area;
         var areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId);
 
         while (areaEntry != null)
@@ -239,8 +239,8 @@ public class PhasingHandler
 
     public static bool OnConditionChange(WorldObject obj, bool updateVisibility = true)
     {
-        var phaseShift = obj.PhaseShift;
-        var suppressedPhaseShift = obj.SuppressedPhaseShift;
+        var phaseShift = obj.Location.PhaseShift;
+        var suppressedPhaseShift = obj.Location.SuppressedPhaseShift;
         PhaseShift newSuppressions = new();
         ConditionSourceInfo srcInfo = new(obj);
         var changed = false;
@@ -366,7 +366,7 @@ public class PhasingHandler
 
     public static void SendToPlayer(Player player)
     {
-        SendToPlayer(player, player.PhaseShift);
+        SendToPlayer(player, player.Location.PhaseShift);
     }
 
     public static void FillPartyMemberPhase(PartyMemberPhaseStates partyMemberPhases, PhaseShift phaseShift)
@@ -437,7 +437,7 @@ public class PhasingHandler
         PhaseShift phaseShift = new();
         InitDbPhaseShift(phaseShift, phaseUseFlags, phaseId, phaseGroupId);
 
-        return obj.PhaseShift.CanSee(phaseShift);
+        return obj.Location.PhaseShift.CanSee(phaseShift);
     }
 
     public static uint GetTerrainMapId(PhaseShift phaseShift, uint mapId, TerrainInfo terrain, float x, float y)
@@ -462,9 +462,9 @@ public class PhasingHandler
     public static void SetAlwaysVisible(WorldObject obj, bool apply, bool updateVisibility)
     {
         if (apply)
-            obj.PhaseShift.Flags |= PhaseShiftFlags.AlwaysVisible;
+            obj.Location.PhaseShift.Flags |= PhaseShiftFlags.AlwaysVisible;
         else
-            obj.PhaseShift.Flags &= ~PhaseShiftFlags.AlwaysVisible;
+            obj.Location.PhaseShift.Flags &= ~PhaseShiftFlags.AlwaysVisible;
 
         UpdateVisibilityIfNeeded(obj, updateVisibility, true);
     }
@@ -472,18 +472,18 @@ public class PhasingHandler
     public static void SetInversed(WorldObject obj, bool apply, bool updateVisibility)
     {
         if (apply)
-            obj.PhaseShift.Flags |= PhaseShiftFlags.Inverse;
+            obj.Location.PhaseShift.Flags |= PhaseShiftFlags.Inverse;
         else
-            obj.PhaseShift.Flags &= ~PhaseShiftFlags.Inverse;
+            obj.Location.PhaseShift.Flags &= ~PhaseShiftFlags.Inverse;
 
-        obj.PhaseShift.UpdateUnphasedFlag();
+        obj.Location.PhaseShift.UpdateUnphasedFlag();
 
         UpdateVisibilityIfNeeded(obj, updateVisibility, true);
     }
 
     public static void PrintToChat(CommandHandler chat, WorldObject target)
     {
-        var phaseShift = target.PhaseShift;
+        var phaseShift = target.Location.PhaseShift;
 
         var phaseOwnerName = "N/A";
 
@@ -562,10 +562,10 @@ public class PhasingHandler
 
     private static void AddPhase(WorldObject obj, uint phaseId, ObjectGuid personalGuid, bool updateVisibility, ControlledUnitVisitor visitor)
     {
-        var changed = obj.PhaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), null);
+        var changed = obj.Location.PhaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), null);
 
-        if (obj.PhaseShift.PersonalReferences != 0)
-            obj.PhaseShift.PersonalGuid = personalGuid;
+        if (obj.Location.PhaseShift.PersonalReferences != 0)
+            obj.Location.PhaseShift.PersonalGuid = personalGuid;
 
         var unit = obj.AsUnit;
 
@@ -581,7 +581,7 @@ public class PhasingHandler
 
     private static void RemovePhase(WorldObject obj, uint phaseId, bool updateVisibility, ControlledUnitVisitor visitor)
     {
-        var changed = obj.PhaseShift.RemovePhase(phaseId);
+        var changed = obj.Location.PhaseShift.RemovePhase(phaseId);
 
         var unit = obj.AsUnit;
 
@@ -600,10 +600,10 @@ public class PhasingHandler
         var changed = false;
 
         foreach (var phaseId in phasesInGroup)
-            changed = obj.PhaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), null) || changed;
+            changed = obj.Location.PhaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), null) || changed;
 
-        if (obj.PhaseShift.PersonalReferences != 0)
-            obj.PhaseShift.PersonalGuid = personalGuid;
+        if (obj.Location.PhaseShift.PersonalReferences != 0)
+            obj.Location.PhaseShift.PersonalGuid = personalGuid;
 
         var unit = obj.AsUnit;
 
@@ -622,7 +622,7 @@ public class PhasingHandler
         var changed = false;
 
         foreach (var phaseId in phasesInGroup)
-            changed = obj.PhaseShift.RemovePhase(phaseId) || changed;
+            changed = obj.Location.PhaseShift.RemovePhase(phaseId) || changed;
 
         var unit = obj.AsUnit;
 
@@ -639,10 +639,10 @@ public class PhasingHandler
     private static void AddVisibleMapId(WorldObject obj, uint visibleMapId, ControlledUnitVisitor visitor)
     {
         var terrainSwapInfo = Global.ObjectMgr.GetTerrainSwapInfo(visibleMapId);
-        var changed = obj.PhaseShift.AddVisibleMapId(visibleMapId, terrainSwapInfo);
+        var changed = obj.Location.PhaseShift.AddVisibleMapId(visibleMapId, terrainSwapInfo);
 
         foreach (var uiMapPhaseId in terrainSwapInfo.UiMapPhaseIDs)
-            changed = obj.PhaseShift.AddUiMapPhaseId(uiMapPhaseId) || changed;
+            changed = obj.Location.PhaseShift.AddUiMapPhaseId(uiMapPhaseId) || changed;
 
         var unit = obj.AsUnit;
 
@@ -655,10 +655,10 @@ public class PhasingHandler
     private static void RemoveVisibleMapId(WorldObject obj, uint visibleMapId, ControlledUnitVisitor visitor)
     {
         var terrainSwapInfo = Global.ObjectMgr.GetTerrainSwapInfo(visibleMapId);
-        var changed = obj.PhaseShift.RemoveVisibleMapId(visibleMapId);
+        var changed = obj.Location.PhaseShift.RemoveVisibleMapId(visibleMapId);
 
         foreach (var uiWorldMapAreaIDSwap in terrainSwapInfo.UiMapPhaseIDs)
-            changed = obj.PhaseShift.RemoveUiMapPhaseId(uiWorldMapAreaIDSwap) || changed;
+            changed = obj.Location.PhaseShift.RemoveUiMapPhaseId(uiWorldMapAreaIDSwap) || changed;
 
         var unit = obj.AsUnit;
 
@@ -670,7 +670,7 @@ public class PhasingHandler
 
     private static void UpdateVisibilityIfNeeded(WorldObject obj, bool updateVisibility, bool changed)
     {
-        if (changed && obj.IsInWorld)
+        if (changed && obj.Location.IsInWorld)
         {
             var player = obj.AsPlayer;
 
@@ -680,7 +680,7 @@ public class PhasingHandler
             if (updateVisibility)
             {
                 if (player)
-                    player.Map.SendUpdateTransportVisibility(player);
+                    player.Location.Map.SendUpdateTransportVisibility(player);
 
                 obj.UpdateObjectVisibility();
             }

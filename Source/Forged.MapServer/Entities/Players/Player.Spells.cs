@@ -243,7 +243,7 @@ public partial class Player
         if (!overrides.Empty())
             foreach (var spellId in overrides)
             {
-                var newInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.DifficultyID);
+                var newInfo = Global.SpellMgr.GetSpellInfo(spellId, Location.Map.DifficultyID);
 
                 if (newInfo != null)
                     return GetCastSpellInfo(newInfo);
@@ -1433,7 +1433,7 @@ public partial class Player
             if (skillValue < ability.MinSkillLineRank && ability.AcquireMethod == AbilityLearnType.OnSkillValue)
                 RemoveSpell(ability.Spell);
             // need learn
-            else if (!IsInWorld)
+            else if (!Location.IsInWorld)
                 AddSpell(ability.Spell, true, true, true, false, false, ability.SkillLine);
             else
                 LearnSpell(ability.Spell, true, ability.SkillLine);
@@ -1700,7 +1700,7 @@ public partial class Player
         {
             Log.Logger.Debug("PLAYER (Class: {0} Race: {1}): Adding initial spell, id = {2}", Class, Race, tspell);
 
-            if (!IsInWorld) // will send in INITIAL_SPELLS in list anyway at map add
+            if (!Location.IsInWorld) // will send in INITIAL_SPELLS in list anyway at map add
                 AddSpell(tspell, true, true, true, false);
             else // but send in normal spell in game learn case
                 LearnSpell(tspell, true);
@@ -1788,7 +1788,7 @@ public partial class Player
         var learning = AddSpell(spellId, active, true, dependent, false, false, fromSkill, favorite, traitDefinitionId);
 
         // prevent duplicated entires in spell book, also not send if not in world (loading)
-        if (learning && IsInWorld)
+        if (learning && Location.IsInWorld)
         {
             LearnedSpells learnedSpells = new();
 
@@ -3452,7 +3452,7 @@ public partial class Player
         if (spellInfo == null)
         {
             // do character spell book cleanup (all characters)
-            if (!IsInWorld && !learning)
+            if (!Location.IsInWorld && !learning)
             {
                 Log.Logger.Error("Player.AddSpell: Spell (ID: {0}) does not exist. deleting for all characters in `character_spell`.", spellId);
 
@@ -3469,7 +3469,7 @@ public partial class Player
         if (!Global.SpellMgr.IsSpellValid(spellInfo, this, false))
         {
             // do character spell book cleanup (all characters)
-            if (!IsInWorld && !learning)
+            if (!Location.IsInWorld && !learning)
             {
                 Log.Logger.Error("Player.AddSpell: Spell (ID: {0}) is invalid. deleting for all characters in `character_spell`.", spellId);
 
@@ -3518,7 +3518,7 @@ public partial class Player
                 spell.Dependent == dependent &&
                 spell.Disabled == disabled)
             {
-                if (!IsInWorld && !learning)
+                if (!Location.IsInWorld && !learning)
                     spell.State = PlayerSpellState.Unchanged;
 
                 return false;
@@ -3555,7 +3555,7 @@ public partial class Player
             {
                 spell.Active = active;
 
-                if (!IsInWorld && !learning && !dependent_set) // explicitly load from DB and then exist in it already and set correctly
+                if (!Location.IsInWorld && !learning && !dependent_set) // explicitly load from DB and then exist in it already and set correctly
                     spell.State = PlayerSpellState.Unchanged;
                 else if (spell.State != PlayerSpellState.New)
                     spell.State = PlayerSpellState.Changed;
@@ -3565,7 +3565,7 @@ public partial class Player
                     if (spellInfo.IsPassive && HandlePassiveSpellLearn(spellInfo))
                         CastSpell(this, spellId, true);
                 }
-                else if (IsInWorld)
+                else if (Location.IsInWorld)
                 {
                     if (next_active_spell_id != 0)
                     {
@@ -3610,7 +3610,7 @@ public partial class Player
                     default:
                     {
                         // can be in case spell loading but learned at some previous spell loading
-                        if (!IsInWorld && !learning && !dependent_set)
+                        if (!Location.IsInWorld && !learning && !dependent_set)
                             spell.State = PlayerSpellState.Unchanged;
 
                         return false;
@@ -3626,7 +3626,7 @@ public partial class Player
 
             if (prev_spell != 0)
             {
-                if (!IsInWorld || disabled) // at spells loading, no output, but allow save
+                if (!Location.IsInWorld || disabled) // at spells loading, no output, but allow save
                     AddSpell(prev_spell, active, true, true, disabled, false, fromSkill);
                 else // at normal learning
                     LearnSpell(prev_spell, true, fromSkill);
@@ -3661,7 +3661,7 @@ public partial class Player
                         {
                             if (spellInfo.IsHighRankOf(i_spellInfo))
                             {
-                                if (IsInWorld) // not send spell (re-/over-)learn packets at loading
+                                if (Location.IsInWorld) // not send spell (re-/over-)learn packets at loading
                                     SendSupercededSpell(_spell.Key, spellId);
 
                                 // mark old spell as disable (SMSG_SUPERCEDED_SPELL replace it in client by new)
@@ -3674,7 +3674,7 @@ public partial class Player
                             }
                             else
                             {
-                                if (IsInWorld) // not send spell (re-/over-)learn packets at loading
+                                if (Location.IsInWorld) // not send spell (re-/over-)learn packets at loading
                                     SendSupercededSpell(spellId, _spell.Key);
 
                                 // mark new spell as disable (not learned yet for client and will not learned)
@@ -3822,7 +3822,7 @@ public partial class Player
         {
             if (!spellNode.AutoLearned)
             {
-                if (!IsInWorld || !spellNode.Active) // at spells loading, no output, but allow save
+                if (!Location.IsInWorld || !spellNode.Active) // at spells loading, no output, but allow save
                     AddSpell(spellNode.Spell, spellNode.Active, true, true, false);
                 else // at normal learning
                     LearnSpell(spellNode.Spell, true);
@@ -3846,7 +3846,7 @@ public partial class Player
 
         // needs to be when spell is already learned, to prevent infinite recursion crashes
         if (Global.DB2Mgr.GetMount(spellId) != null)
-            Session.CollectionMgr.AddMount(spellId, MountStatusFlags.None, false, !IsInWorld);
+            Session.CollectionMgr.AddMount(spellId, MountStatusFlags.None, false, !Location.IsInWorld);
 
         // return true (for send learn packet) only if spell active (in case ranked spells) and not replace old spell
         return active && !disabled && !superceded_old;

@@ -19,6 +19,6 @@ public class ObjectDistanceOrderPred : IComparer<WorldObject>
 
     public int Compare(WorldObject pLeft, WorldObject pRight)
     {
-        return (_ascending ? _refObj.GetDistanceOrder(pLeft, pRight) : !_refObj.GetDistanceOrder(pLeft, pRight)) ? 1 : 0;
+        return (_ascending ? _refObj.Location.GetDistanceOrder(pLeft, pRight) : !_refObj.Location.GetDistanceOrder(pLeft, pRight)) ? 1 : 0;
     }
 }

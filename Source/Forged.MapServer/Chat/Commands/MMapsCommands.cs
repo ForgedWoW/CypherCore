@@ -100,7 +100,7 @@ internal class MMapsCommands
         handler.SendSysMessage("tileloc [{0}, {1}]", gx, gy);
 
         // calculate navmesh tile location
-        var terrainMapId = PhasingHandler.GetTerrainMapId(player.PhaseShift, player.Location.MapId, player.Map.Terrain, player.Location.X, player.Location.Y);
+        var terrainMapId = PhasingHandler.GetTerrainMapId(player.Location.PhaseShift, player.Location.MapId, player.Location.Map.Terrain, player.Location.X, player.Location.Y);
         var navmesh = Global.MMapMgr.GetNavMesh(terrainMapId);
         var navmeshquery = Global.MMapMgr.GetNavMeshQuery(terrainMapId, player.InstanceId);
 
@@ -167,7 +167,7 @@ internal class MMapsCommands
     private static bool HandleMmapLoadedTilesCommand(CommandHandler handler)
     {
         var player = handler.Session.Player;
-        var terrainMapId = PhasingHandler.GetTerrainMapId(player.PhaseShift, player.Location.MapId, player.Map.Terrain, player.Location.X, player.Location.Y);
+        var terrainMapId = PhasingHandler.GetTerrainMapId(player.Location.PhaseShift, player.Location.MapId, player.Location.Map.Terrain, player.Location.X, player.Location.Y);
         var navmesh = Global.MMapMgr.GetNavMesh(terrainMapId);
         var navmeshquery = Global.MMapMgr.GetNavMeshQuery(terrainMapId, handler.Player.InstanceId);
 
@@ -197,7 +197,7 @@ internal class MMapsCommands
     private static bool HandleMmapStatsCommand(CommandHandler handler)
     {
         var player = handler.Session.Player;
-        var terrainMapId = PhasingHandler.GetTerrainMapId(player.PhaseShift, player.Location.MapId, player.Map.Terrain, player.Location.X, player.Location.Y);
+        var terrainMapId = PhasingHandler.GetTerrainMapId(player.Location.PhaseShift, player.Location.MapId, player.Location.Map.Terrain, player.Location.X, player.Location.Y);
         handler.SendSysMessage("mmap stats:");
         handler.SendSysMessage("  global mmap pathfinding is {0}abled", Global.DisableMgr.IsPathfindingEnabled(player.Location.MapId) ? "En" : "Dis");
         handler.SendSysMessage(" {0} maps loaded with {1} tiles overall", Global.MMapMgr.GetLoadedMapsCount(), Global.MMapMgr.GetLoadedTilesCount());

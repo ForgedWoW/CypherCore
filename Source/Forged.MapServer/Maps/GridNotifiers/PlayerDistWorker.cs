@@ -31,7 +31,7 @@ public class PlayerDistWorker : IGridNotifierPlayer
         {
             var player = objs[i];
 
-            if (player.InSamePhase(_searcher) && player.IsWithinDist(_searcher, _dist))
+            if (player.Location.InSamePhase(_searcher) && player.Location.IsWithinDist(_searcher, _dist))
                 _doWork.Invoke(player);
         }
     }

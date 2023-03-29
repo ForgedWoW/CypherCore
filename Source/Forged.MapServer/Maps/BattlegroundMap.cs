@@ -26,7 +26,7 @@ public class BattlegroundMap : Map
 
     public override TransferAbortParams CannotEnter(Player player)
     {
-        if (player.Map == this)
+        if (player.Location.Map == this)
         {
             Log.Logger.Error("BGMap:CannotEnter - player {0} is already in map!", player.GUID.ToString());
 

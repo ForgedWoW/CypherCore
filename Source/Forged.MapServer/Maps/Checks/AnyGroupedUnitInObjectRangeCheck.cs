@@ -57,6 +57,6 @@ public class AnyGroupedUnitInObjectRangeCheck : ICheck<Unit>
         if (_incTargetRadius)
             searchRadius += u.CombatReach;
 
-        return u.IsInMap(_source) && u.InSamePhase(_source) && u.Location.IsWithinDoubleVerticalCylinder(_source.Location, searchRadius, searchRadius);
+        return u.Location.IsInMap(_source) && u.Location.InSamePhase(_source) && u.Location.IsWithinDoubleVerticalCylinder(_source.Location, searchRadius, searchRadius);
     }
 }

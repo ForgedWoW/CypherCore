@@ -576,7 +576,7 @@ public class MotionMaster
             if (movementGenerator.HasFlag(MovementGeneratorFlags.PersistOnDeath))
                 return false;
 
-        if (_owner.IsInWorld)
+        if (_owner.Location.IsInWorld)
         {
             // Only clear MotionMaster for entities that exists in world
             // Avoids crashes in the following conditions :
@@ -829,9 +829,9 @@ public class MotionMaster
 
         var moveTimeHalf = (float)(speedZ / gravity);
         var dist = 2 * moveTimeHalf * speedXY;
-        _owner.GetNearPoint2D(null, out var x, out var y, dist, _owner.Location.Orientation + angle);
+        _owner.Location.GetNearPoint2D(null, out var x, out var y, dist, _owner.Location.Orientation + angle);
         var z = _owner.Location.Z;
-        z = _owner.UpdateAllowedPositionZ(x, y, z);
+        z = _owner.Location.UpdateAllowedPositionZ(x, y, z);
         MoveJump(x, y, z, 0.0f, speedXY, speedZ);
     }
 
@@ -949,7 +949,7 @@ public class MotionMaster
                 if (_owner.IsFlying)
                     point.Z = z;
                 else
-                    point.Z = _owner.GetMapHeight(point.X, point.Y, z) + _owner.HoverOffset;
+                    point.Z = _owner.Location.GetMapHeight(point.X, point.Y, z) + _owner.HoverOffset;
 
                 init.Path().Add(point);
             }
@@ -1017,7 +1017,7 @@ public class MotionMaster
     public void MoveFall(uint id = 0)
     {
         // Use larger distance for vmap height search than in most other cases
-        var tz = _owner.GetMapHeight(_owner.Location.X, _owner.Location.Y, _owner.Location.Z, true, MapConst.MaxFallDistance);
+        var tz = _owner.Location.GetMapHeight(_owner.Location.X, _owner.Location.Y, _owner.Location.Z, true, MapConst.MaxFallDistance);
 
         if (tz <= MapConst.InvalidHeight)
             return;

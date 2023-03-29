@@ -50,7 +50,7 @@ internal class FollowerAI : ScriptedAI
                     var member = groupRef.Source;
 
                     if (member)
-                        if (member.IsInMap(player))
+                        if (member.Location.IsInMap(player))
                             member.FailQuest(_questForFollow);
                 }
             else
@@ -116,7 +116,7 @@ internal class FollowerAI : ScriptedAI
                             if (member == null)
                                 continue;
 
-                            if (maxRangeExceeded && Me.IsWithinDistInMap(member, 100.0f))
+                            if (maxRangeExceeded && Me.Location.IsWithinDistInMap(member, 100.0f))
                                 maxRangeExceeded = false;
 
                             if (questAbandoned)
@@ -130,7 +130,7 @@ internal class FollowerAI : ScriptedAI
                     }
                     else
                     {
-                        if (Me.IsWithinDistInMap(player, 100.0f))
+                        if (Me.Location.IsWithinDistInMap(player, 100.0f))
                             maxRangeExceeded = false;
 
                         if (questAbandoned)
@@ -278,7 +278,7 @@ internal class FollowerAI : ScriptedAI
                     {
                         var member = groupRef.Source;
 
-                        if (member && Me.IsWithinDistInMap(member, 100.0f) && member.IsAlive)
+                        if (member && Me.Location.IsWithinDistInMap(member, 100.0f) && member.IsAlive)
                         {
                             Log.Logger.Debug($"FollowerAI::GetLeaderForFollower: GetLeader changed and returned new leader. ({Me.GUID})");
                             _leaderGUID = member.GUID;
@@ -325,7 +325,7 @@ internal class FollowerAI : ScriptedAI
             return false;
 
         //too far away and no free sight?
-        if (!Me.IsWithinDistInMap(who, 100.0f) || !Me.IsWithinLOSInMap(who))
+        if (!Me.Location.IsWithinDistInMap(who, 100.0f) || !Me.Location.IsWithinLOSInMap(who))
             return false;
 
         return true;

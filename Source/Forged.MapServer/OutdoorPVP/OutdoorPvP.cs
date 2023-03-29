@@ -389,7 +389,7 @@ public class OPvPCapturePoint
                 var player = Global.ObjAccessor.FindPlayer(playerGuid);
 
                 if (player)
-                    if (!m_capturePoint.IsWithinDistInMap(player, radius) || !player.IsOutdoorPvPActive())
+                    if (!m_capturePoint.Location.IsWithinDistInMap(player, radius) || !player.IsOutdoorPvPActive())
                         HandlePlayerLeave(player);
             }
 

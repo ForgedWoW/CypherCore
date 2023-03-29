@@ -173,7 +173,7 @@ public partial class Player
                 UpdateCriteria(CriteriaType.HonorableKills);
                 UpdateCriteria(CriteriaType.DeliverKillingBlowToClass, (uint)victim.Class);
                 UpdateCriteria(CriteriaType.DeliverKillingBlowToRace, (uint)victim.Race);
-                UpdateCriteria(CriteriaType.PVPKillInArea, Area);
+                UpdateCriteria(CriteriaType.PVPKillInArea, Location.Area);
                 UpdateCriteria(CriteriaType.EarnHonorableKill, 1, 0, 0, victim);
                 UpdateCriteria(CriteriaType.KillPlayer, 1, 0, 0, victim);
             }
@@ -474,7 +474,7 @@ public partial class Player
             }
 
             // If map is dungeon find linked graveyard
-            if (Map.IsDungeon)
+            if (Location.Map.IsDungeon)
             {
                 var entry = Global.ObjectMgr.GetClosestGraveYard(Location, Team, this);
 
@@ -484,7 +484,7 @@ public partial class Player
                     Log.Logger.Error("SetBattlegroundEntryPoint: Dungeon map {0} has no linked graveyard, setting home location as entry point.", Location.MapId);
             }
             // If new entry point is not BG or arena set it
-            else if (!Map.IsBattlegroundOrArena)
+            else if (!Location.Map.IsBattlegroundOrArena)
             {
                 _bgData.JoinPos = new WorldLocation(Location.MapId, Location.X, Location.Y, Location.Z, Location.Orientation);
             }
@@ -714,7 +714,7 @@ public partial class Player
 
     public OutdoorPvP GetOutdoorPvP()
     {
-        return Global.OutdoorPvPMgr.GetOutdoorPvPToZoneId(Map, Zone);
+        return Global.OutdoorPvPMgr.GetOutdoorPvPToZoneId(Location.Map, Location.Zone);
     }
 
     private void _InitHonorLevelOnLoadFromDB(uint honor, uint honorLevel)
@@ -801,7 +801,7 @@ public partial class Player
 
     private bool IsInAreaThatActivatesPvpTalents()
     {
-        return IsAreaThatActivatesPvpTalents(Area);
+        return IsAreaThatActivatesPvpTalents(Location.Area);
     }
 
     private bool IsAreaThatActivatesPvpTalents(uint areaId)

@@ -60,7 +60,7 @@ internal class ChaseMovementGenerator : MovementGenerator
         // our target might have gone away
         var target = _abstractFollower.GetTarget();
 
-        if (target == null || !target.IsInWorld)
+        if (target == null || !target.Location.IsInWorld)
             return false;
 
         // the owner might be unable to move (rooted or casting), or we have lost the target, pause movement
@@ -170,12 +170,12 @@ internal class ChaseMovementGenerator : MovementGenerator
                 else
                 {
                     // otherwise, we fall back to nearpoint finding
-                    target.GetNearPoint(owner, pos, (moveToward ? maxTarget : minTarget) - hitboxSum, angle.HasValue ? target.Location.ToAbsoluteAngle(angle.Value.RelativeAngle) : target.Location.GetAbsoluteAngle(owner.Location));
+                    target.Location.GetNearPoint(owner, pos, (moveToward ? maxTarget : minTarget) - hitboxSum, angle.HasValue ? target.Location.ToAbsoluteAngle(angle.Value.RelativeAngle) : target.Location.GetAbsoluteAngle(owner.Location));
                     shortenPath = false;
                 }
 
                 if (owner.IsHovering)
-                    owner.UpdateAllowedPositionZ(pos);
+                    owner.Location.UpdateAllowedPositionZ(pos);
 
                 var success = _path.CalculatePath(pos, owner.CanFly);
 
@@ -300,7 +300,7 @@ internal class ChaseMovementGenerator : MovementGenerator
         if (angle.HasValue && !angle.Value.IsAngleOkay(target.Location.GetRelativeAngle(owner.Location)))
             return false;
 
-        if (!owner.IsWithinLOSInMap(target))
+        if (!owner.Location.IsWithinLOSInMap(target))
             return false;
 
         return true;

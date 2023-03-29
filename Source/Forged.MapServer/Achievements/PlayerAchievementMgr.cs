@@ -561,7 +561,7 @@ public class PlayerAchievementMgr : AchievementManager
                 Global.WorldMgr.SendGlobalMessage(serverFirstAchievement);
             }
             // if player is in world he can tell his friends about new achievement
-            else if (_owner.IsInWorld)
+            else if (_owner.Location.IsInWorld)
             {
                 BroadcastTextBuilder _builder = new(_owner, ChatMsg.Achievement, (uint)BroadcastTextIds.AchivementEarned, _owner.NativeGender, _owner, achievement.Id);
                 var _localizer = new LocalizedDo(_builder);

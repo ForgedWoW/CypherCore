@@ -1139,7 +1139,7 @@ public sealed class GameObjectManager
         var MapId = location.MapId;
 
         // search for zone associated closest graveyard
-        var zoneId = Global.TerrainMgr.GetZoneId(conditionObject ? conditionObject.PhaseShift : PhasingHandler.EmptyPhaseShift, MapId, location);
+        var zoneId = Global.TerrainMgr.GetZoneId(conditionObject ? conditionObject.Location.PhaseShift : PhasingHandler.EmptyPhaseShift, MapId, location);
 
         if (zoneId == 0)
             if (location.Z > -500)
@@ -1204,7 +1204,7 @@ public sealed class GameObjectManager
                 if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.Graveyard, data.SafeLocId, conditionSource))
                     continue;
 
-                if (entry.Loc.MapId == mapEntry.ParentMapID && !conditionObject.PhaseShift.HasVisibleMapId(entry.Loc.MapId))
+                if (entry.Loc.MapId == mapEntry.ParentMapID && !conditionObject.Location.PhaseShift.HasVisibleMapId(entry.Loc.MapId))
                     continue;
             }
 

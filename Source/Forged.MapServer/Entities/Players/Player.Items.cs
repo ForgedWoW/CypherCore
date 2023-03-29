@@ -1097,7 +1097,7 @@ public partial class Player
 
             pItem.SetItemFlag2(ItemFieldFlags2.Equipped);
 
-            if (IsInWorld && update)
+            if (Location.IsInWorld && update)
             {
                 pItem.AddToWorld();
                 pItem.SendUpdateToPlayer(this);
@@ -1125,10 +1125,10 @@ public partial class Player
         {
             pItem2.SetCount(pItem2.Count + pItem.Count);
 
-            if (IsInWorld && update)
+            if (Location.IsInWorld && update)
                 pItem2.SendUpdateToPlayer(this);
 
-            if (IsInWorld && update)
+            if (Location.IsInWorld && update)
             {
                 pItem.RemoveFromWorld();
                 pItem.DestroyForPlayer(this);
@@ -1440,7 +1440,7 @@ public partial class Player
             pItem.SetContainedIn(ObjectGuid.Empty);
             pItem.SetSlot(ItemConst.NullSlot);
 
-            if (IsInWorld && update)
+            if (Location.IsInWorld && update)
                 pItem.SendUpdateToPlayer(this);
 
             AutoUnequipChildItem(pItem);
@@ -1661,7 +1661,7 @@ public partial class Player
                 return;
             }
 
-            if (IsInWorld)
+            if (Location.IsInWorld)
                 pSrcItem.SendUpdateToPlayer(this);
 
             pSrcItem.SetState(ItemUpdateState.Changed, this);
@@ -1683,7 +1683,7 @@ public partial class Player
                 return;
             }
 
-            if (IsInWorld)
+            if (Location.IsInWorld)
                 pSrcItem.SendUpdateToPlayer(this);
 
             pSrcItem.SetState(ItemUpdateState.Changed, this);
@@ -1704,7 +1704,7 @@ public partial class Player
                 return;
             }
 
-            if (IsInWorld)
+            if (Location.IsInWorld)
                 pSrcItem.SendUpdateToPlayer(this);
 
             pSrcItem.SetState(ItemUpdateState.Changed, this);
@@ -1932,7 +1932,7 @@ public partial class Player
                     pSrcItem.SetState(ItemUpdateState.Changed, this);
                     pDstItem.SetState(ItemUpdateState.Changed, this);
 
-                    if (IsInWorld)
+                    if (Location.IsInWorld)
                     {
                         pSrcItem.SendUpdateToPlayer(this);
                         pDstItem.SendUpdateToPlayer(this);
@@ -3710,7 +3710,7 @@ public partial class Player
             Item.RemoveItemFromUpdateQueueOf(it, this);
             Session.CollectionMgr.RemoveTemporaryAppearance(it);
 
-            if (it.IsInWorld)
+            if (it.Location.IsInWorld)
             {
                 it.RemoveFromWorld();
                 it.DestroyForPlayer(this);
@@ -4806,7 +4806,7 @@ public partial class Player
 
             ItemRemovedQuestCheck(pItem.Entry, pItem.Count);
 
-            if (IsInWorld && update)
+            if (Location.IsInWorld && update)
             {
                 pItem.RemoveFromWorld();
                 pItem.DestroyForPlayer(this);
@@ -4854,7 +4854,7 @@ public partial class Player
                         item.SetCount(item.Count - count + remcount);
                         ItemRemovedQuestCheck(item.Entry, count - remcount);
 
-                        if (IsInWorld && update)
+                        if (Location.IsInWorld && update)
                             item.SendUpdateToPlayer(this);
 
                         item.SetState(ItemUpdateState.Changed, this);
@@ -4891,7 +4891,7 @@ public partial class Player
                                 item.SetCount(item.Count - count + remcount);
                                 ItemRemovedQuestCheck(item.Entry, count - remcount);
 
-                                if (IsInWorld && update)
+                                if (Location.IsInWorld && update)
                                     item.SendUpdateToPlayer(this);
 
                                 item.SetState(ItemUpdateState.Changed, this);
@@ -4926,7 +4926,7 @@ public partial class Player
                         item.SetCount(item.Count - count + remcount);
                         ItemRemovedQuestCheck(item.Entry, count - remcount);
 
-                        if (IsInWorld && update)
+                        if (Location.IsInWorld && update)
                             item.SendUpdateToPlayer(this);
 
                         item.SetState(ItemUpdateState.Changed, this);
@@ -4957,7 +4957,7 @@ public partial class Player
                         item.SetCount(item.Count - count + remcount);
                         ItemRemovedQuestCheck(item.Entry, count - remcount);
 
-                        if (IsInWorld && update)
+                        if (Location.IsInWorld && update)
                             item.SendUpdateToPlayer(this);
 
                         item.SetState(ItemUpdateState.Changed, this);
@@ -4994,7 +4994,7 @@ public partial class Player
                                 item.SetCount(item.Count - count + remcount);
                                 ItemRemovedQuestCheck(item.Entry, count - remcount);
 
-                                if (IsInWorld && update)
+                                if (Location.IsInWorld && update)
                                     item.SendUpdateToPlayer(this);
 
                                 item.SetState(ItemUpdateState.Changed, this);
@@ -5029,7 +5029,7 @@ public partial class Player
                         item.SetCount(item.Count - count + remcount);
                         ItemRemovedQuestCheck(item.Entry, count - remcount);
 
-                        if (IsInWorld && update)
+                        if (Location.IsInWorld && update)
                             item.SendUpdateToPlayer(this);
 
                         item.SetState(ItemUpdateState.Changed, this);
@@ -5060,7 +5060,7 @@ public partial class Player
                         item.SetCount(item.Count - count + remcount);
                         ItemRemovedQuestCheck(item.Entry, count - remcount);
 
-                        if (IsInWorld && update)
+                        if (Location.IsInWorld && update)
                             item.SendUpdateToPlayer(this);
 
                         item.SetState(ItemUpdateState.Changed, this);
@@ -5091,7 +5091,7 @@ public partial class Player
                         item.SetCount(item.Count - count + remcount);
                         ItemRemovedQuestCheck(item.Entry, count - remcount);
 
-                        if (IsInWorld && update)
+                        if (Location.IsInWorld && update)
                             item.SendUpdateToPlayer(this);
 
                         item.SetState(ItemUpdateState.Changed, this);
@@ -5123,7 +5123,7 @@ public partial class Player
             pItem.SetCount(pItem.Count - count);
             count = 0;
 
-            if (IsInWorld && update)
+            if (Location.IsInWorld && update)
                 pItem.SendUpdateToPlayer(this);
 
             pItem.SetState(ItemUpdateState.Changed, this);
@@ -5256,7 +5256,7 @@ public partial class Player
             }
             else //not freeforall, notify everyone
             {
-                loot.NotifyItemRemoved(lootSlot, Map);
+                loot.NotifyItemRemoved(lootSlot, Location.Map);
             }
 
             //if only one person is supposed to loot the item, then set it to looted
@@ -5327,7 +5327,7 @@ public partial class Player
 
         // We have to convert player corpse to bones, not to be able to resurrect there
         // SpawnCorpseBones isn't handy, 'cos it saves player while he in BG
-        var bones = Map.ConvertCorpseToBones(GUID, true);
+        var bones = Location.Map.ConvertCorpseToBones(GUID, true);
 
         if (!bones)
             return;
@@ -5335,7 +5335,7 @@ public partial class Player
         // Now we must make bones lootable, and send player loot
         bones.SetCorpseDynamicFlag(CorpseDynFlags.Lootable);
 
-        bones.Loot = _lootFactory.GenerateLoot(Map, bones.GUID, LootType.Insignia, looterPlr.Group);
+        bones.Loot = _lootFactory.GenerateLoot(Location.Map, bones.GUID, LootType.Insignia, looterPlr.Group);
 
         // For AV Achievement
         var bg = Battleground;
@@ -5346,7 +5346,7 @@ public partial class Player
                 bones.Loot.FillLoot(1, LootStorage.Creature, this, true);
         }
         // For wintergrasp Quests
-        else if (Zone == (uint)AreaId.Wintergrasp)
+        else if (Location.Zone == (uint)AreaId.Wintergrasp)
         {
             bones.Loot.FillLoot(1, LootStorage.Creature, this, true);
         }
@@ -5401,7 +5401,7 @@ public partial class Player
         SendPacket(packet);
 
         // add 'this' player as one of the players that are looting 'loot'
-        loot.OnLootOpened(Map, GUID);
+        loot.OnLootOpened(Location.Map, GUID);
         _aeLootView[loot.GetGuid()] = loot;
 
         if (loot.LootType == LootType.Corpse && !loot.GetOwnerGuid().IsItem)
@@ -6277,7 +6277,7 @@ public partial class Player
                 pBag.StoreItem(slot, pItem, update);
             }
 
-            if (IsInWorld && update)
+            if (Location.IsInWorld && update)
             {
                 pItem.AddToWorld();
                 pItem.SendUpdateToPlayer(this);
@@ -6305,13 +6305,13 @@ public partial class Player
 
             pItem2.SetCount(pItem2.Count + count);
 
-            if (IsInWorld && update)
+            if (Location.IsInWorld && update)
                 pItem2.SendUpdateToPlayer(this);
 
             if (!clone)
             {
                 // delete item (it not in any slot currently)
-                if (IsInWorld && update)
+                if (Location.IsInWorld && update)
                 {
                     pItem.RemoveFromWorld();
                     pItem.DestroyForPlayer(this);
@@ -6511,7 +6511,7 @@ public partial class Player
 
             pItem.SetItemFlag2(ItemFieldFlags2.Equipped);
 
-            if (IsInWorld)
+            if (Location.IsInWorld)
             {
                 pItem.AddToWorld();
                 pItem.SendUpdateToPlayer(this);
@@ -7518,7 +7518,7 @@ public partial class Player
         {
             pItem.SetBinding(true);
 
-            if (IsInWorld)
+            if (Location.IsInWorld)
                 Session.CollectionMgr.AddItemAppearance(pItem);
         }
 
@@ -7565,7 +7565,7 @@ public partial class Player
     private void UpdateItemLevelAreaBasedScaling()
     {
         // @todo Activate pvp item levels during world pvp
-        var map = Map;
+        var map = Location.Map;
         var pvpActivity = map.IsBattlegroundOrArena || ((int)map.Entry.Flags[1]).HasAnyFlag(0x40) || HasPvpRulesEnabled();
 
         if (_usePvpItemLevels != pvpActivity)

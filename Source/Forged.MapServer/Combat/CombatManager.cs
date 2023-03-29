@@ -37,7 +37,7 @@ public class CombatManager
             return false;
 
         // ...the two units need to be in the world
-        if (!a.IsInWorld || !b.IsInWorld)
+        if (!a.Location.IsInWorld || !b.Location.IsInWorld)
             return false;
 
         // ...the two units need to both be alive
@@ -45,11 +45,11 @@ public class CombatManager
             return false;
 
         // ...the two units need to be on the same map
-        if (a.Map != b.Map)
+        if (a.Location.Map != b.Location.Map)
             return false;
 
         // ...the two units need to be in the same phase
-        if (!WorldObject.InSamePhase(a, b))
+        if (!WorldLocation.InSamePhase(a, b))
             return false;
 
         if (a.HasUnitState(UnitState.Evade) || b.HasUnitState(UnitState.Evade))
@@ -252,7 +252,7 @@ public class CombatManager
             {
                 var refe = pair.Value;
 
-                if (!refe.First.IsWithinDistInMap(refe.Second, range))
+                if (!refe.First.Location.IsWithinDistInMap(refe.Second, range))
                 {
                     _pveRefs.Remove(pair.Key);
                     refe.EndCombat();
@@ -266,7 +266,7 @@ public class CombatManager
             {
                 CombatReference refe = pair.Value;
 
-                if (!refe.First.IsWithinDistInMap(refe.Second, range))
+                if (!refe.First.Location.IsWithinDistInMap(refe.Second, range))
                 {
                     _pvpRefs.Remove(pair.Key);
                     refe.EndCombat();

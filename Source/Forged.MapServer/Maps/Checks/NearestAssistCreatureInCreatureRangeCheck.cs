@@ -29,13 +29,13 @@ internal class NearestAssistCreatureInCreatureRangeCheck : ICheck<Creature>
             return false;
 
         // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
-        if (!_obj.IsWithinDist(u, _range, true, false, false))
+        if (!_obj.Location.IsWithinDist(u, _range, true, false, false))
             return false;
 
-        if (!_obj.IsWithinLOSInMap(u))
+        if (!_obj.Location.IsWithinLOSInMap(u))
             return false;
 
-        _range = _obj.GetDistance(u); // use found unit range as new range limit for next check
+        _range = _obj.Location.GetDistance(u); // use found unit range as new range limit for next check
 
         return true;
     }

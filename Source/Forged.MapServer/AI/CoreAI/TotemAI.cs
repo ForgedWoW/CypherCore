@@ -30,7 +30,7 @@ public class TotemAI : NullCreatureAI
             return;
 
         // Search spell
-        var spellInfo = Global.SpellMgr.GetSpellInfo(Me.ToTotem().GetSpell(), Me.Map.DifficultyID);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(Me.ToTotem().GetSpell(), Me.Location.Map.DifficultyID);
 
         if (spellInfo == null)
             return;
@@ -43,7 +43,7 @@ public class TotemAI : NullCreatureAI
         var victim = !_victimGuid.IsEmpty ? Global.ObjAccessor.GetUnit(Me, _victimGuid) : null;
 
         // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
-        if (victim == null || !victim.IsTargetableForAttack() || !Me.IsWithinDistInMap(victim, max_range) || Me.IsFriendlyTo(victim) || !Me.CanSeeOrDetect(victim))
+        if (victim == null || !victim.IsTargetableForAttack() || !Me.Location.IsWithinDistInMap(victim, max_range) || Me.IsFriendlyTo(victim) || !Me.CanSeeOrDetect(victim))
         {
             var extraSearchRadius = max_range > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
             var u_check = new NearestAttackableUnitInObjectRangeCheck(Me, Me.CharmerOrOwnerOrSelf, max_range);

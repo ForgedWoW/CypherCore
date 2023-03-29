@@ -125,7 +125,7 @@ public class BattleFieldManager
 
     public void HandlePlayerEnterZone(Player player, uint zoneId)
     {
-        var bf = _battlefieldsByZone.LookupByKey((player.Map, zoneId));
+        var bf = _battlefieldsByZone.LookupByKey((player.Location.Map, zoneId));
 
         if (bf == null)
             return;
@@ -139,7 +139,7 @@ public class BattleFieldManager
 
     public void HandlePlayerLeaveZone(Player player, uint zoneId)
     {
-        var bf = _battlefieldsByZone.LookupByKey((player.Map, zoneId));
+        var bf = _battlefieldsByZone.LookupByKey((player.Location.Map, zoneId));
 
         if (bf == null)
             return;

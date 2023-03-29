@@ -1360,7 +1360,7 @@ public class SpellInfo
 
         if (HasAttribute(SpellAttr8.BattleResurrection))
         {
-            var map = caster.Map;
+            var map = caster.Location.Map;
 
             if (map)
             {
@@ -2789,7 +2789,7 @@ public class SpellInfo
                 }
                 case SpellProcsPerMinuteModType.Battleground:
                 {
-                    if (caster.Map.IsBattlegroundOrArena)
+                    if (caster.Location.Map.IsBattlegroundOrArena)
                         ppm *= 1.0f + mod.Coeff;
 
                     break;

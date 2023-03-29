@@ -33,7 +33,7 @@ public class Bag : Item
 
             if (item)
             {
-                if (item.IsInWorld)
+                if (item.Location.IsInWorld)
                 {
                     Log.Logger.Fatal("Item {0} (slot {1}, bag slot {2}) in bag {3} (slot {4}, bag slot {5}, m_bagslot {6}) is to be deleted but is still in world.",
                                      item.Entry,

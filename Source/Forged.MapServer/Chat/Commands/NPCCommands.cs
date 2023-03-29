@@ -39,7 +39,7 @@ internal class NPCCommands
 
         var player = handler.Session.Player;
 
-        if (!player.Map.SpawnGroupDespawn(groupId, deleteRespawnTimes, out var despawnedCount))
+        if (!player.Location.Map.SpawnGroupDespawn(groupId, deleteRespawnTimes, out var despawnedCount))
         {
             handler.SendSysMessage(CypherStrings.SpawngroupBadgroup, groupId);
 
@@ -99,7 +99,7 @@ internal class NPCCommands
         var nativeid = target.NativeDisplayId;
         var entry = target.Entry;
 
-        var curRespawnDelay = target.RespawnCompatibilityMode ? target.RespawnTimeEx - GameTime.GetGameTime() : target.Map.GetCreatureRespawnTime(target.SpawnId) - GameTime.GetGameTime();
+        var curRespawnDelay = target.RespawnCompatibilityMode ? target.RespawnTimeEx - GameTime.GetGameTime() : target.Location.Map.GetCreatureRespawnTime(target.SpawnId) - GameTime.GetGameTime();
 
         if (curRespawnDelay < 0)
             curRespawnDelay = 0;
@@ -112,7 +112,7 @@ internal class NPCCommands
         if (target.CreatureData != null && target.CreatureData.SpawnGroupData.GroupId != 0)
         {
             var groupData = target.CreatureData.SpawnGroupData;
-            handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, target.Map.IsSpawnGroupActive(groupData.GroupId));
+            handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, target.Location.Map.IsSpawnGroupActive(groupData.GroupId));
         }
 
         handler.SendSysMessage(CypherStrings.SpawninfoCompatibilityMode, target.RespawnCompatibilityMode);
@@ -416,7 +416,7 @@ internal class NPCCommands
 
         List<WorldObject> creatureList = new();
 
-        if (!player.Map.SpawnGroupSpawn(groupId, ignoreRespawn, force, creatureList))
+        if (!player.Location.Map.SpawnGroupSpawn(groupId, ignoreRespawn, force, creatureList))
         {
             handler.SendSysMessage(CypherStrings.SpawngroupBadgroup, groupId);
 
@@ -470,7 +470,7 @@ internal class NPCCommands
 
         // place pet before player
         var pos = new Position();
-        player.GetClosePoint(pos, creatureTarget.CombatReach, SharedConst.ContactDistance);
+        player.Location.GetClosePoint(pos, creatureTarget.CombatReach, SharedConst.ContactDistance);
         pos.Orientation = MathFunctions.PI - player.Location.Orientation;
         pet.Location.Relocate(pos);
 
@@ -486,7 +486,7 @@ internal class NPCCommands
         pet.SetLevel(level - 1);
 
         // add to world
-        pet.
+        pet.Location.
             // add to world
             Map.AddToMap(pet.AsCreature);
 
@@ -621,7 +621,7 @@ internal class NPCCommands
                 return false;
 
             var chr = handler.Session.Player;
-            var map = chr.Map;
+            var map = chr.Location.Map;
 
             var trans = chr.GetTransport<Transport>();
 
@@ -1305,7 +1305,7 @@ internal class NPCCommands
 
             PhasingHandler.ResetPhaseShift(creature);
             PhasingHandler.AddPhase(creature, phaseId, true);
-            creature.DBPhase = (int)phaseId;
+            creature.Location.DBPhase = (int)phaseId;
 
             creature.SaveToDB();
 
@@ -1331,7 +1331,7 @@ internal class NPCCommands
 
             PhasingHandler.ResetPhaseShift(creature);
             PhasingHandler.AddPhaseGroup(creature, (uint)phaseGroupId, true);
-            creature.DBPhase = -phaseGroupId;
+            creature.Location.DBPhase = -phaseGroupId;
 
             creature.SaveToDB();
 

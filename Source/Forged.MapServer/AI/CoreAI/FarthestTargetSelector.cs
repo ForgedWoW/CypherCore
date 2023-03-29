@@ -33,7 +33,7 @@ internal class FarthestTargetSelector : ICheck<Unit>
         if (_dist > 0.0f && !_me.IsWithinCombatRange(target, _dist))
             return false;
 
-        if (_inLos && !_me.IsWithinLOSInMap(target))
+        if (_inLos && !_me.Location.IsWithinLOSInMap(target))
             return false;
 
         return true;

@@ -216,7 +216,7 @@ public class PlayerGroup
 
             DB.Characters.Execute(stmt);
 
-            var leaderInstance = leader.Map.ToInstanceMap;
+            var leaderInstance = leader.Location.Map.ToInstanceMap;
 
             if (leaderInstance != null)
                 leaderInstance.TrySetOwningGroup(this);
@@ -1003,7 +1003,7 @@ public class PlayerGroup
 
     public void UpdatePlayerOutOfRange(Player player)
     {
-        if (!player || !player.IsInWorld)
+        if (!player || !player.Location.IsInWorld)
             return;
 
         PartyMemberFullState packet = new();
@@ -1013,7 +1013,7 @@ public class PlayerGroup
         {
             var member = refe.Source;
 
-            if (member && member != player && (!member.IsInMap(player) || !member.IsWithinDist(player, member.GetSightRange(), false)))
+            if (member && member != player && (!member.Location.IsInMap(player) || !member.Location.IsWithinDist(player, member.GetSightRange(), false)))
                 member.SendPacket(packet);
         }
     }

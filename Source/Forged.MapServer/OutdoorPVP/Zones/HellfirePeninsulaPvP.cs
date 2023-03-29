@@ -135,8 +135,8 @@ internal class HellfirePeninsulaPvP : OutdoorPvP
         InitWorldStates initWorldStates = new()
         {
             MapID = player.Location.MapId,
-            AreaID = player.Zone,
-            SubareaID = player.Area
+            AreaID = player.Location.Zone,
+            SubareaID = player.Location.Area
         };
 
         initWorldStates.AddState(OutdoorPvPHPWorldStates.Display_A, 0);

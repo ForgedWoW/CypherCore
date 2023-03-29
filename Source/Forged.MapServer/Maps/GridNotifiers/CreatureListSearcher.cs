@@ -21,7 +21,7 @@ public class CreatureListSearcher : IGridNotifierCreature
 
     public CreatureListSearcher(WorldObject searcher, List<Creature> objects, ICheck<Creature> check, GridType gridType)
     {
-        _phaseShift = searcher.PhaseShift;
+        _phaseShift = searcher.Location.PhaseShift;
         _objects = objects;
         _check = check;
         GridType = gridType;
@@ -33,7 +33,7 @@ public class CreatureListSearcher : IGridNotifierCreature
         {
             var creature = objs[i];
 
-            if (creature.InSamePhase(_phaseShift))
+            if (creature.Location.InSamePhase(_phaseShift))
                 if (_check.Invoke(creature))
                     _objects.Add(creature);
         }

@@ -73,7 +73,7 @@ internal class CastCommands
             return false;
 
         var closestPos = new Position();
-        handler.Session.Player.GetClosePoint(closestPos, dist);
+        handler.Session.Player.Location.GetClosePoint(closestPos, dist);
 
         handler.Session.Player.CastSpell(closestPos, spellId, new CastSpellExtraArgs(triggerFlags.Value));
 

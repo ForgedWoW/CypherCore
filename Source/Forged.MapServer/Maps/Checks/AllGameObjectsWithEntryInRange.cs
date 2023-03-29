@@ -22,7 +22,7 @@ internal class AllGameObjectsWithEntryInRange : ICheck<GameObject>
 
     public bool Invoke(GameObject go)
     {
-        if (_uiEntry == 0 || go.Entry == _uiEntry && _pObject.IsWithinDist(go, _fRange, false))
+        if (_uiEntry == 0 || go.Entry == _uiEntry && _pObject.Location.IsWithinDist(go, _fRange, false))
             return true;
 
         return false;

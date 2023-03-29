@@ -1082,7 +1082,7 @@ public class Guild
 
         GuildPartyState partyStateResponse = new()
         {
-            InGuildParty = (player.Map.GetOwnerGuildId(player.Team) == GetId()),
+            InGuildParty = (player.Location.Map.GetOwnerGuildId(player.Team) == GetId()),
             NumMembers = 0,
             NumRequired = 0,
             GuildXPEarnedMult = 0.0f
@@ -2931,7 +2931,7 @@ public class Guild
             m_race = player.Race;
             m_class = player.Class;
             _gender = player.NativeGender;
-            m_zoneId = player.Zone;
+            m_zoneId = player.Location.Zone;
             m_accountId = player.Session.AccountId;
             m_achievementPoints = player.AchievementPoints;
         }

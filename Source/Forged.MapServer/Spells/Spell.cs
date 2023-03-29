@@ -215,7 +215,7 @@ public partial class Spell : IDisposable
         }
     }
 
-    public Difficulty CastDifficulty => _caster.Map.DifficultyID;
+    public Difficulty CastDifficulty => _caster.Location.Map.DifficultyID;
 
     public bool IsPositive => SpellInfo.IsPositive && (TriggeredByAuraSpell == null || TriggeredByAuraSpell.IsPositive);
 
@@ -286,7 +286,7 @@ public partial class Spell : IDisposable
         {
             _originalCaster = Global.ObjAccessor.GetUnit(_caster, _originalCasterGuid);
 
-            if (_originalCaster is { IsInWorld: false })
+            if (_originalCaster is { Location.IsInWorld: false })
                 _originalCaster = null;
             else
                 _originalCaster = _caster.AsUnit;
@@ -306,7 +306,7 @@ public partial class Spell : IDisposable
         if (IsIgnoringCooldowns)
             CastFlagsEx |= SpellCastFlagsEx.IgnoreCooldown;
 
-        CastId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, _caster.Location.MapId, SpellInfo.Id, _caster.Map.GenerateLowGuid(HighGuid.Cast));
+        CastId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, _caster.Location.MapId, SpellInfo.Id, _caster.Location.Map.GenerateLowGuid(HighGuid.Cast));
         OriginalCastId = originalCastId;
         SpellVisual.SpellXSpellVisualID = caster.GetCastSpellXSpellVisualId(SpellInfo);
 
@@ -1724,10 +1724,10 @@ public partial class Spell : IDisposable
 
         if (_caster.IsTypeId(TypeId.Player) && Global.VMapMgr.IsLineOfSightCalcEnabled)
         {
-            if (SpellInfo.HasAttribute(SpellAttr0.OnlyOutdoors) && !_caster.IsOutdoors)
+            if (SpellInfo.HasAttribute(SpellAttr0.OnlyOutdoors) && !_caster.Location.IsOutdoors)
                 return SpellCastResult.OnlyOutdoors;
 
-            if (SpellInfo.HasAttribute(SpellAttr0.OnlyIndoors) && _caster.IsOutdoors)
+            if (SpellInfo.HasAttribute(SpellAttr0.OnlyIndoors) && _caster.Location.IsOutdoors)
                 return SpellCastResult.OnlyIndoors;
         }
 
@@ -1913,7 +1913,7 @@ public partial class Spell : IDisposable
                             losTarget = dynObj;
                     }
 
-                    if (!SpellInfo.HasAttribute(SpellAttr2.IgnoreLineOfSight) && !Global.DisableMgr.IsDisabledFor(DisableType.Spell, SpellInfo.Id, null, (byte)DisableFlags.SpellLOS) && !unitTarget.IsWithinLOSInMap(losTarget, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                    if (!SpellInfo.HasAttribute(SpellAttr2.IgnoreLineOfSight) && !Global.DisableMgr.IsDisabledFor(DisableType.Spell, SpellInfo.Id, null, (byte)DisableFlags.SpellLOS) && !unitTarget.Location.IsWithinLOSInMap(losTarget, LineOfSightChecks.All, ModelIgnoreFlags.M2))
                         return SpellCastResult.LineOfSight;
                 }
             }
@@ -1921,7 +1921,7 @@ public partial class Spell : IDisposable
 
         // Check for line of sight for spells with dest
         if (Targets.HasDst)
-            if (!SpellInfo.HasAttribute(SpellAttr2.IgnoreLineOfSight) && !Global.DisableMgr.IsDisabledFor(DisableType.Spell, SpellInfo.Id, null, (byte)DisableFlags.SpellLOS) && !_caster.IsWithinLOS(Targets.DstPos, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+            if (!SpellInfo.HasAttribute(SpellAttr2.IgnoreLineOfSight) && !Global.DisableMgr.IsDisabledFor(DisableType.Spell, SpellInfo.Id, null, (byte)DisableFlags.SpellLOS) && !_caster.Location.IsWithinLOS(Targets.DstPos, LineOfSightChecks.All, ModelIgnoreFlags.M2))
                 return SpellCastResult.LineOfSight;
 
         // check pet presence
@@ -1948,7 +1948,7 @@ public partial class Spell : IDisposable
 
         // Spell casted only on Battleground
         if (SpellInfo.HasAttribute(SpellAttr3.OnlyBattlegrounds))
-            if (!_caster.Map.IsBattleground)
+            if (!_caster.Location.Map.IsBattleground)
                 return SpellCastResult.OnlyBattlegrounds;
 
         // do not allow spells to be cast in arenas or rated Battlegrounds
@@ -2231,7 +2231,7 @@ public partial class Spell : IDisposable
                             return SpellCastResult.DontReport;
 
                         // first we must check to see if the target is in LoS. A path can usually be built but LoS matters for charge spells
-                        if (!target.IsWithinLOSInMap(unitCaster)) //Do full LoS/Path check. Don't exclude m2
+                        if (!target.Location.IsWithinLOSInMap(unitCaster)) //Do full LoS/Path check. Don't exclude m2
                             return SpellCastResult.LineOfSight;
 
                         var objSize = target.CombatReach;
@@ -2525,7 +2525,7 @@ public partial class Spell : IDisposable
                         return SpellCastResult.SummonPending;
 
                     // check if our map is dungeon
-                    var map = _caster.Map.ToInstanceMap;
+                    var map = _caster.Location.Map.ToInstanceMap;
 
                     if (map != null)
                     {
@@ -2830,7 +2830,7 @@ public partial class Spell : IDisposable
                     if (unitCaster == null)
                         return SpellCastResult.BadTargets;
 
-                    if (unitCaster.IsInWater && SpellInfo.HasAura(AuraType.ModIncreaseMountedFlightSpeed))
+                    if (unitCaster.Location.IsInWater && SpellInfo.HasAura(AuraType.ModIncreaseMountedFlightSpeed))
                         return SpellCastResult.OnlyAbovewater;
 
                     if (unitCaster.IsInDisallowedMountForm)
@@ -2860,8 +2860,8 @@ public partial class Spell : IDisposable
                     // allow always ghost flight spells
                     if (_originalCaster != null && _originalCaster.IsTypeId(TypeId.Player) && _originalCaster.IsAlive)
                     {
-                        var Bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(_originalCaster.Map, _originalCaster.Zone);
-                        var area = CliDB.AreaTableStorage.LookupByKey(_originalCaster.Area);
+                        var Bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(_originalCaster.Location.Map, _originalCaster.Location.Zone);
+                        var area = CliDB.AreaTableStorage.LookupByKey(_originalCaster.Location.Area);
 
                         if (area != null)
                             if (area.HasFlag(AreaFlags.NoFlyZone) || (Bf != null && !Bf.CanFlyIn()))
@@ -4138,12 +4138,12 @@ public partial class Spell : IDisposable
                 var dis = (float)RandomHelper.NextDouble() * (maxDist - minDist) + minDist;
                 var angle = (float)RandomHelper.NextDouble() * (MathFunctions.PI * 35.0f / 180.0f) - (float)(Math.PI * 17.5f / 180.0f);
                 var pos = new Position();
-                _caster.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius, dis, angle);
+                _caster.Location.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius, dis, angle);
 
-                var ground = _caster.GetMapHeight(pos);
+                var ground = _caster.Location.GetMapHeight(pos);
                 var liquidLevel = MapConst.VMAPInvalidHeightValue;
 
-                if (_caster.Map.GetLiquidStatus(_caster.PhaseShift, pos, LiquidHeaderTypeFlags.AllLiquids, out var liquidData, _caster.CollisionHeight) != 0)
+                if (_caster.Location.Map.GetLiquidStatus(_caster.Location.PhaseShift, pos, LiquidHeaderTypeFlags.AllLiquids, out var liquidData, _caster.Location.CollisionHeight) != 0)
                     liquidLevel = liquidData.level;
 
                 if (liquidLevel <= ground) // When there is no liquid Map.GetWaterOrGroundLevel returns ground level
@@ -4237,7 +4237,7 @@ public partial class Spell : IDisposable
             }
             case Framework.Constants.Targets.DestCasterGround:
             case Framework.Constants.Targets.DestCasterGround2:
-                dest.Position.Z = _caster.GetMapWaterOrGroundLevel(dest.Position.X, dest.Position.Y, dest.Position.Z);
+                dest.Position.Z = _caster.Location.GetMapWaterOrGroundLevel(dest.Position.X, dest.Position.Y, dest.Position.Z);
 
                 break;
             case Framework.Constants.Targets.DestSummoner:
@@ -4365,7 +4365,7 @@ public partial class Spell : IDisposable
             case Framework.Constants.Targets.DestDest:
                 break;
             case Framework.Constants.Targets.DestDestGround:
-                dest.Position.Z = _caster.GetMapHeight(dest.Position.X, dest.Position.Y, dest.Position.Z);
+                dest.Position.Z = _caster.Location.GetMapHeight(dest.Position.X, dest.Position.Y, dest.Position.Z);
 
                 break;
             default:
@@ -4755,7 +4755,7 @@ public partial class Spell : IDisposable
                         var spell = this;
                         var targetGuid = rafTarget.GUID;
 
-                        rafTarget.Map.AddFarSpellCallback(map =>
+                        rafTarget.Location.Map.AddFarSpellCallback(map =>
                         {
                             var player = Global.ObjAccessor.GetPlayer(map, targetGuid);
 
@@ -4866,7 +4866,7 @@ public partial class Spell : IDisposable
             Cell cell = new(p);
             cell.SetNoCreate();
 
-            var map = referer.Map;
+            var map = referer.Location.Map;
 
             if (searchInWorld)
                 Cell.VisitGrid(x, y, map, notifier, radius);
@@ -4971,7 +4971,7 @@ public partial class Spell : IDisposable
                     {
                         var deficit = (uint)(unitTarget.MaxHealth - unitTarget.Health);
 
-                        if ((deficit > maxHPDeficit || found == null) && chainSource.IsWithinDist(unitTarget, jumpRadius) && chainSource.IsWithinLOSInMap(unitTarget, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                        if ((deficit > maxHPDeficit || found == null) && chainSource.Location.IsWithinDist(unitTarget, jumpRadius) && chainSource.Location.IsWithinLOSInMap(unitTarget, LineOfSightChecks.All, ModelIgnoreFlags.M2))
                         {
                             found = obj;
                             maxHPDeficit = deficit;
@@ -4985,10 +4985,10 @@ public partial class Spell : IDisposable
                 foreach (var obj in tempTargets)
                     if (found == null)
                     {
-                        if (chainSource.IsWithinDist(obj, jumpRadius) && chainSource.IsWithinLOSInMap(obj, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                        if (chainSource.Location.IsWithinDist(obj, jumpRadius) && chainSource.Location.IsWithinLOSInMap(obj, LineOfSightChecks.All, ModelIgnoreFlags.M2))
                             found = obj;
                     }
-                    else if (chainSource.GetDistanceOrder(obj, found) && chainSource.IsWithinLOSInMap(obj, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                    else if (chainSource.Location.GetDistanceOrder(obj, found) && chainSource.Location.IsWithinLOSInMap(obj, LineOfSightChecks.All, ModelIgnoreFlags.M2))
                     {
                         found = obj;
                     }
@@ -5163,7 +5163,7 @@ public partial class Spell : IDisposable
             {
                 // calculate spell incoming interval
                 /// @todo this is a hack
-                var dist = Math.Max(missileSource.GetDistance(target.Location.X, target.Location.Y, target.Location.Z), 5.0f);
+                var dist = Math.Max(missileSource.Location.GetDistance(target.Location.X, target.Location.Y, target.Location.Z), 5.0f);
                 hitDelay += dist / SpellInfo.Speed;
             }
 
@@ -5257,7 +5257,7 @@ public partial class Spell : IDisposable
             else if (SpellInfo.Speed > 0.0f)
             {
                 // calculate spell incoming interval
-                var dist = Math.Max(_caster.GetDistance(go.Location.X, go.Location.Y, go.Location.Z), 5.0f);
+                var dist = Math.Max(_caster.Location.GetDistance(go.Location.X, go.Location.Y, go.Location.Z), 5.0f);
                 hitDelay += dist / SpellInfo.Speed;
             }
 
@@ -5376,7 +5376,7 @@ public partial class Spell : IDisposable
             else if (SpellInfo.Speed > 0.0f)
             {
                 // calculate spell incoming interval
-                var dist = Math.Max(_caster.GetDistance(corpse.Location.X, corpse.Location.Y, corpse.Location.Z), 5.0f);
+                var dist = Math.Max(_caster.Location.GetDistance(corpse.Location.X, corpse.Location.Y, corpse.Location.Z), 5.0f);
                 hitDelay += dist / SpellInfo.Speed;
             }
 
@@ -5452,7 +5452,7 @@ public partial class Spell : IDisposable
 
                         if (aurApp != null)
                         {
-                            if (_caster != unit && !_caster.IsWithinDistInMap(unit, range))
+                            if (_caster != unit && !_caster.Location.IsWithinDistInMap(unit, range))
                             {
                                 targetInfo.Effects.ExceptWith(aurApp.EffectMask);
                                 unit.RemoveAura(aurApp);
@@ -8319,7 +8319,7 @@ public partial class Spell : IDisposable
         {
             _originalCaster = Global.ObjAccessor.GetUnit(_caster, _originalCasterGuid);
 
-            if (_originalCaster is { IsInWorld: false })
+            if (_originalCaster is { Location.IsInWorld: false })
                 _originalCaster = null;
             else
                 _originalCaster = _caster.AsUnit;
@@ -8425,7 +8425,7 @@ public partial class Spell : IDisposable
             {
                 if (Targets.CorpseTargetGUID.IsEmpty)
                 {
-                    if (target.IsWithinLOSInMap(_caster, LineOfSightChecks.All, ModelIgnoreFlags.M2) && target.HasUnitFlag(UnitFlags.Skinnable))
+                    if (target.Location.IsWithinLOSInMap(_caster, LineOfSightChecks.All, ModelIgnoreFlags.M2) && target.HasUnitFlag(UnitFlags.Skinnable))
                         return true;
 
                     return false;
@@ -8442,7 +8442,7 @@ public partial class Spell : IDisposable
                 if (!corpse.HasCorpseDynamicFlag(CorpseDynFlags.Lootable))
                     return false;
 
-                if (!corpse.IsWithinLOSInMap(_caster, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                if (!corpse.Location.IsWithinLOSInMap(_caster, LineOfSightChecks.All, ModelIgnoreFlags.M2))
                     return false;
 
                 break;
@@ -8455,17 +8455,17 @@ public partial class Spell : IDisposable
                     WorldObject caster = null;
 
                     if (_originalCasterGuid.IsGameObject)
-                        caster = _caster.Map.GetGameObject(_originalCasterGuid);
+                        caster = _caster.Location.Map.GetGameObject(_originalCasterGuid);
 
                     if (!caster)
                         caster = _caster;
 
-                    if (target != _caster && !target.IsWithinLOSInMap(caster, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                    if (target != _caster && !target.Location.IsWithinLOSInMap(caster, LineOfSightChecks.All, ModelIgnoreFlags.M2))
                         return false;
                 }
 
                 if (losPosition != null)
-                    if (!target.IsWithinLOS(losPosition.X, losPosition.Y, losPosition.Z, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                    if (!target.Location.IsWithinLOS(losPosition.X, losPosition.Y, losPosition.Z, LineOfSightChecks.All, ModelIgnoreFlags.M2))
                         return false;
 
                 break;

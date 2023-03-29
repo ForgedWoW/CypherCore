@@ -77,7 +77,7 @@ public class CreatureAI : UnitAI
         if (creature == null)
             creature = Me;
 
-        var map = creature.Map;
+        var map = creature.Location.Map;
 
         if (!map.IsDungeon) // use IsDungeon instead of Instanceable, in case Battlegrounds will be instantiated
         {
@@ -461,14 +461,14 @@ public class CreatureAI : UnitAI
 
     public Creature DoSummon(uint entry, WorldObject obj, float radius = 5.0f, TimeSpan despawnTime = default, TempSummonType summonType = TempSummonType.CorpseTimedDespawn)
     {
-        var pos = obj.GetRandomNearPosition(radius);
+        var pos = obj.Location.GetRandomNearPosition(radius);
 
         return Me.SummonCreature(entry, pos, summonType, despawnTime);
     }
 
     public Creature DoSummonFlyer(uint entry, WorldObject obj, float flightZ, float radius = 5.0f, TimeSpan despawnTime = default, TempSummonType summonType = TempSummonType.CorpseTimedDespawn)
     {
-        var pos = obj.GetRandomNearPosition(radius);
+        var pos = obj.Location.GetRandomNearPosition(radius);
         pos.Z += flightZ;
 
         return Me.SummonCreature(entry, pos, summonType, despawnTime);

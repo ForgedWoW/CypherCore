@@ -52,7 +52,7 @@ public class DynObjAura : Aura
             Cell.VisitGrid(DynobjOwner, searcher, radius);
 
             // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
-            targetList.RemoveAll(unit => !unit.IsSelfOrInSameMap(DynobjOwner));
+            targetList.RemoveAll(unit => !unit.Location.IsSelfOrInSameMap(DynobjOwner));
 
             foreach (var unit in targetList)
             {

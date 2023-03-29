@@ -62,7 +62,7 @@ public class MultiPersonalPhaseTracker
 
     public void UnregisterTrackedObject(WorldObject obj)
     {
-        var playerTracker = _playerData.LookupByKey(obj.PhaseShift.PersonalGuid);
+        var playerTracker = _playerData.LookupByKey(obj.Location.PhaseShift.PersonalGuid);
 
         if (playerTracker != null)
             playerTracker.UnregisterTrackedObject(obj);
@@ -76,7 +76,7 @@ public class MultiPersonalPhaseTracker
             playerTracker.OnOwnerPhasesChanged(phaseOwner);
 
         if (grid != null)
-            LoadGrid(phaseOwner.PhaseShift, grid, map, cell);
+            LoadGrid(phaseOwner.Location.PhaseShift, grid, map, cell);
     }
 
     public void MarkAllPhasesForDeletion(ObjectGuid phaseOwner)

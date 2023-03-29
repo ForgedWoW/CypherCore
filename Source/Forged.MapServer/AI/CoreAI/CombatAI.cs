@@ -18,7 +18,7 @@ public class CombatAI : CreatureAI
     public override void InitializeAI()
     {
         for (var i = 0; i < SharedConst.MaxCreatureSpells; ++i)
-            if (Me.Spells[i] != 0 && Global.SpellMgr.HasSpellInfo(Me.Spells[i], Me.Map.DifficultyID))
+            if (Me.Spells[i] != 0 && Global.SpellMgr.HasSpellInfo(Me.Spells[i], Me.Location.Map.DifficultyID))
                 _spells.Add(Me.Spells[i]);
 
         base.InitializeAI();
@@ -33,7 +33,7 @@ public class CombatAI : CreatureAI
     {
         foreach (var id in _spells)
         {
-            var info = GetAISpellInfo(id, Me.Map.DifficultyID);
+            var info = GetAISpellInfo(id, Me.Location.Map.DifficultyID);
 
             if (info is { Condition: AICondition.Die })
                 Me.CastSpell(killer, id, true);
@@ -44,7 +44,7 @@ public class CombatAI : CreatureAI
     {
         foreach (var id in _spells)
         {
-            var info = GetAISpellInfo(id, Me.Map.DifficultyID);
+            var info = GetAISpellInfo(id, Me.Location.Map.DifficultyID);
 
             if (info != null)
             {
@@ -71,7 +71,7 @@ public class CombatAI : CreatureAI
         if (spellId != 0)
         {
             DoCast(spellId);
-            var info = GetAISpellInfo(spellId, Me.Map.DifficultyID);
+            var info = GetAISpellInfo(spellId, Me.Location.Map.DifficultyID);
 
             if (info != null)
                 Events.ScheduleEvent(spellId, info.Cooldown, info.Cooldown * 2);

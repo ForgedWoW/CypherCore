@@ -98,7 +98,7 @@ public class KillRewarder
 
             if (!_killers.Empty())
             {
-                var guildId = victim.Map.GetOwnerGuildId();
+                var guildId = victim.Location.Map.GetOwnerGuildId();
                 var guild = Global.GuildMgr.GetGuildById(guildId);
 
                 if (guild != null)

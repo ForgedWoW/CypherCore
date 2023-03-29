@@ -24,9 +24,9 @@ internal class NearestGameObjectEntryInObjectRangeCheck : ICheck<GameObject>
 
     public bool Invoke(GameObject go)
     {
-        if ((!_spawnedOnly || go.IsSpawned) && go.Entry == _entry && go.GUID != _obj.GUID && _obj.IsWithinDist(go, _range))
+        if ((!_spawnedOnly || go.IsSpawned) && go.Entry == _entry && go.GUID != _obj.GUID && _obj.Location.IsWithinDist(go, _range))
         {
-            _range = _obj.GetDistance(go); // use found GO range as new range limit for next check
+            _range = _obj.Location.GetDistance(go); // use found GO range as new range limit for next check
 
             return true;
         }

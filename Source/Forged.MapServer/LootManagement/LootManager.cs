@@ -69,7 +69,7 @@ public class LootManager : LootStorage
             if (tapper.IsLockedToDungeonEncounter(dungeonEncounterId))
                 continue;
 
-            Loot loot = new(lootOwner.Map, lootOwner.GUID, type, null, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration);
+            Loot loot = new(lootOwner.Location.Map, lootOwner.GUID, type, null, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration);
             loot.SetItemContext(context);
             loot.SetDungeonEncounterId(dungeonEncounterId);
             loot.GenerateMoneyLoot(minMoney, maxMoney);

@@ -303,7 +303,7 @@ public class LootHandler : IWorldSessionHandler
             item.count = 0;
             item.is_looted = true;
 
-            loot.NotifyItemRemoved(req.LootListID, Player.Map);
+            loot.NotifyItemRemoved(req.LootListID, Player.Location.Map);
             --loot.unlootedCount;
         }
 
@@ -367,7 +367,7 @@ public class LootHandler : IWorldSessionHandler
             if (creature.IsAlive)
                 return false;
 
-            if (!_looter.IsWithinDist(creature, LootDistance))
+            if (!_looter.Location.IsWithinDist(creature, LootDistance))
                 return false;
 
             return _looter.IsAllowedToLoot(creature);

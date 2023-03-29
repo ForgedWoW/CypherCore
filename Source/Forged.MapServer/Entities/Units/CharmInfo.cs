@@ -113,7 +113,7 @@ public class CharmInfo
             for (byte i = 0; i < SharedConst.MaxCreatureSpells; ++i)
             {
                 var spellId = _unit.AsCreature.Spells[i];
-                var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _unit.Map.DifficultyID);
+                var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _unit.Location.Map.DifficultyID);
 
                 if (spellInfo != null)
                 {
@@ -147,7 +147,7 @@ public class CharmInfo
         for (uint x = 0; x < SharedConst.MaxSpellCharm; ++x)
         {
             var spellId = _unit.AsCreature.Spells[x];
-            var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _unit.Map.DifficultyID);
+            var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _unit.Location.Map.DifficultyID);
 
             if (spellInfo == null)
             {
@@ -288,7 +288,7 @@ public class CharmInfo
             // check correctness
             if (PetActionBar[index].IsActionBarForSpell())
             {
-                var spelInfo = Global.SpellMgr.GetSpellInfo(PetActionBar[index].GetAction(), _unit.Map.DifficultyID);
+                var spelInfo = Global.SpellMgr.GetSpellInfo(PetActionBar[index].GetAction(), _unit.Location.Map.DifficultyID);
 
                 if (spelInfo == null)
                     SetActionBar(index, 0, ActiveStates.Passive);

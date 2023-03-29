@@ -19,6 +19,6 @@ public class AllWorldObjectsInRange : ICheck<WorldObject>
 
     public bool Invoke(WorldObject go)
     {
-        return _pObject.IsWithinDist(go, _fRange, false) && _pObject.InSamePhase(go);
+        return _pObject.Location.IsWithinDist(go, _fRange, false) && _pObject.Location.InSamePhase(go);
     }
 }

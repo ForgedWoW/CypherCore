@@ -27,7 +27,7 @@ public class FormationMgr
 
     public void AddCreatureToGroup(ulong leaderSpawnId, Creature creature)
     {
-        var map = creature.Map;
+        var map = creature.Location.Map;
 
         var creatureGroup = map.CreatureGroupHolder.LookupByKey(leaderSpawnId);
 
@@ -68,7 +68,7 @@ public class FormationMgr
 
         if (group.IsEmpty)
         {
-            var map = member.Map;
+            var map = member.Location.Map;
 
             Log.Logger.Debug("Deleting group with InstanceID {0}", member.InstanceId);
             map.CreatureGroupHolder.Remove(group.LeaderSpawnId);

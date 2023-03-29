@@ -1263,7 +1263,7 @@ public class LFGManager
                     }
                 }
 
-            if (!player.Map.IsDungeon)
+            if (!player.Location.Map.IsDungeon)
                 player.SetBattlegroundEntryPoint();
 
             player.FinishTaxiFlight();
@@ -1340,7 +1340,7 @@ public class LFGManager
                 continue;
             }
 
-            if (player.Map != currMap)
+            if (player.Location.Map != currMap)
             {
                 Log.Logger.Debug($"Group: {gguid}, Player: {guid} is in a different map");
 

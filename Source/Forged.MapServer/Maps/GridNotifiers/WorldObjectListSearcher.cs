@@ -28,7 +28,7 @@ public class WorldObjectListSearcher : IGridNotifierPlayer, IGridNotifierCreatur
     public WorldObjectListSearcher(WorldObject searcher, List<WorldObject> objects, ICheck<WorldObject> check, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
     {
         Mask = mapTypeMask;
-        _phaseShift = searcher.PhaseShift;
+        _phaseShift = searcher.Location.PhaseShift;
         _objects = objects;
         _check = check;
         GridType = gridType;
@@ -43,7 +43,7 @@ public class WorldObjectListSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var areaTrigger = objs[i];
 
-            if (areaTrigger.InSamePhase(_phaseShift) && _check.Invoke(areaTrigger))
+            if (areaTrigger.Location.InSamePhase(_phaseShift) && _check.Invoke(areaTrigger))
                 _objects.Add(areaTrigger);
         }
     }
@@ -57,7 +57,7 @@ public class WorldObjectListSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var conversation = objs[i];
 
-            if (conversation.InSamePhase(_phaseShift) && _check.Invoke(conversation))
+            if (conversation.Location.InSamePhase(_phaseShift) && _check.Invoke(conversation))
                 _objects.Add(conversation);
         }
     }
@@ -71,7 +71,7 @@ public class WorldObjectListSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var corpse = objs[i];
 
-            if (corpse.InSamePhase(_phaseShift) && _check.Invoke(corpse))
+            if (corpse.Location.InSamePhase(_phaseShift) && _check.Invoke(corpse))
                 _objects.Add(corpse);
         }
     }
@@ -85,7 +85,7 @@ public class WorldObjectListSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var creature = objs[i];
 
-            if (creature.InSamePhase(_phaseShift) && _check.Invoke(creature))
+            if (creature.Location.InSamePhase(_phaseShift) && _check.Invoke(creature))
                 _objects.Add(creature);
         }
     }
@@ -99,7 +99,7 @@ public class WorldObjectListSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var dynamicObject = objs[i];
 
-            if (dynamicObject.InSamePhase(_phaseShift) && _check.Invoke(dynamicObject))
+            if (dynamicObject.Location.InSamePhase(_phaseShift) && _check.Invoke(dynamicObject))
                 _objects.Add(dynamicObject);
         }
     }
@@ -113,7 +113,7 @@ public class WorldObjectListSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var gameObject = objs[i];
 
-            if (gameObject.InSamePhase(_phaseShift) && _check.Invoke(gameObject))
+            if (gameObject.Location.InSamePhase(_phaseShift) && _check.Invoke(gameObject))
                 _objects.Add(gameObject);
         }
     }
@@ -127,7 +127,7 @@ public class WorldObjectListSearcher : IGridNotifierPlayer, IGridNotifierCreatur
         {
             var player = objs[i];
 
-            if (player.InSamePhase(_phaseShift) && _check.Invoke(player))
+            if (player.Location.InSamePhase(_phaseShift) && _check.Invoke(player))
                 _objects.Add(player);
         }
     }

@@ -403,14 +403,14 @@ public class Aura
             else
             {
                 // owner has to be in world, or effect has to be applied to self
-                if (!_owner.IsSelfOrInSameMap(unit))
+                if (!_owner.Location.IsSelfOrInSameMap(unit))
                     // @todo There is a crash caused by shadowfiend load addon
                     Log.Logger.Fatal("Aura {0}: Owner {1} (map {2}) is not in the same map as target {3} (map {4}).",
                                      SpellInfo.Id,
                                      _owner.GetName(),
-                                     _owner.IsInWorld ? (int)_owner.Map.Id : -1,
+                                     _owner.Location.IsInWorld ? (int)_owner.Location.Map.Id : -1,
                                      unit.GetName(),
-                                     unit.IsInWorld ? (int)unit.Map.Id : -1);
+                                     unit.Location.IsInWorld ? (int)unit.Location.Map.Id : -1);
 
                 if (aurApp != null)
                 {
@@ -441,7 +441,7 @@ public class Aura
         {
             var aurApp = GetApplicationOfTarget(pair.Key.GUID);
 
-            if (aurApp != null && ((!_owner.IsInWorld && _owner == pair.Key) || _owner.IsInMap(pair.Key)))
+            if (aurApp != null && ((!_owner.Location.IsInWorld && _owner == pair.Key) || _owner.Location.IsInMap(pair.Key)))
                 // owner has to be in world, or effect has to be applied to self
                 pair.Key._ApplyAura(aurApp, pair.Value);
         }
@@ -1570,7 +1570,7 @@ public class Aura
             }
 
         if (_spellInfo.HasAttribute(SpellAttr3.OnlyProcOutdoors))
-            if (!target.IsOutdoors)
+            if (!target.Location.IsOutdoors)
                 return DummyHashset;
 
         if (_spellInfo.HasAttribute(SpellAttr3.OnlyProcOnCaster))
@@ -1903,7 +1903,7 @@ public class Aura
 
         // check if aura can be owned by owner
         if (createInfo.Owner.IsTypeMask(TypeMask.Unit))
-            if (!createInfo.Owner.IsInWorld || createInfo.Owner.AsUnit.IsDuringRemoveFromWorld)
+            if (!createInfo.Owner.Location.IsInWorld || createInfo.Owner.AsUnit.IsDuringRemoveFromWorld)
                 // owner not in world so don't allow to own not self casted single target auras
                 if (createInfo.CasterGuid != createInfo.Owner.GUID && createInfo.SpellInfo.IsSingleTarget())
                     return null;
@@ -2052,7 +2052,7 @@ public class Aura
                 return false;
 
         // unit not in world or during remove from world
-        if (!target.IsInWorld || target.IsDuringRemoveFromWorld)
+        if (!target.Location.IsInWorld || target.IsDuringRemoveFromWorld)
         {
             // area auras mustn't be applied
             if (Owner != target)

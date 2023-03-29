@@ -33,7 +33,7 @@ public class WorldObjectSpellAreaTargetCheck : WorldObjectSpellTargetCheck
         }
         else
         {
-            var isInsideCylinder = target.IsWithinDist2d(_position, _range) && Math.Abs(target.Location.Z - _position.Z) <= _range;
+            var isInsideCylinder = target.Location.IsWithinDist2d(_position, _range) && Math.Abs(target.Location.Z - _position.Z) <= _range;
 
             if (!isInsideCylinder)
                 return false;

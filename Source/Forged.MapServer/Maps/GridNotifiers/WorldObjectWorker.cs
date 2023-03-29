@@ -27,7 +27,7 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
     public WorldObjectWorker(WorldObject searcher, IDoWork<WorldObject> work, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
     {
         Mask = mapTypeMask;
-        _phaseShift = searcher.PhaseShift;
+        _phaseShift = searcher.Location.PhaseShift;
         _doWork = work;
         GridType = gridType;
     }
@@ -41,7 +41,7 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         {
             var areaTrigger = objs[i];
 
-            if (areaTrigger.InSamePhase(_phaseShift))
+            if (areaTrigger.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(areaTrigger);
         }
     }
@@ -55,7 +55,7 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         {
             var conversation = objs[i];
 
-            if (conversation.InSamePhase(_phaseShift))
+            if (conversation.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(conversation);
         }
     }
@@ -69,7 +69,7 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         {
             var corpse = objs[i];
 
-            if (corpse.InSamePhase(_phaseShift))
+            if (corpse.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(corpse);
         }
     }
@@ -83,7 +83,7 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         {
             var creature = objs[i];
 
-            if (creature.InSamePhase(_phaseShift))
+            if (creature.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(creature);
         }
     }
@@ -97,7 +97,7 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         {
             var dynamicObject = objs[i];
 
-            if (dynamicObject.InSamePhase(_phaseShift))
+            if (dynamicObject.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(dynamicObject);
         }
     }
@@ -111,7 +111,7 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         {
             var gameObject = objs[i];
 
-            if (gameObject.InSamePhase(_phaseShift))
+            if (gameObject.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(gameObject);
         }
     }
@@ -125,7 +125,7 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         {
             var player = objs[i];
 
-            if (player.InSamePhase(_phaseShift))
+            if (player.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(player);
         }
     }
@@ -139,7 +139,7 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         {
             var sceneObject = objs[i];
 
-            if (sceneObject.InSamePhase(_phaseShift))
+            if (sceneObject.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(sceneObject);
         }
     }

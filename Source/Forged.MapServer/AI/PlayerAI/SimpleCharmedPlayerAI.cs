@@ -107,7 +107,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
 
                 if (IsRangedAttacker())
                 {
-                    _chaseCloser = !Me.IsWithinLOSInMap(target);
+                    _chaseCloser = !Me.Location.IsWithinLOSInMap(target);
 
                     if (_chaseCloser)
                         AttackStart(target);
@@ -143,7 +143,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                 {
                     if (IsRangedAttacker()) // chase to zero if the target isn't in line of sight
                     {
-                        var inLOS = Me.IsWithinLOSInMap(target);
+                        var inLOS = Me.Location.IsWithinLOSInMap(target);
 
                         if (_chaseCloser != !inLOS)
                         {

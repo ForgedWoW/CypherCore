@@ -1013,7 +1013,7 @@ public class CriteriaHandler
         }
 
         if (criteria.Entry.EligibilityWorldStateID != 0)
-            if (Global.WorldStateMgr.GetValue(criteria.Entry.EligibilityWorldStateID, referencePlayer.Map) != criteria.Entry.EligibilityWorldStateValue)
+            if (Global.WorldStateMgr.GetValue(criteria.Entry.EligibilityWorldStateID, referencePlayer.Location.Map) != criteria.Entry.EligibilityWorldStateValue)
                 return false;
 
         return true;
@@ -1152,7 +1152,7 @@ public class CriteriaHandler
                 if (miscValue1 == 0)
                     return false;
 
-                var map = referencePlayer.IsInWorld ? referencePlayer.Map : Global.MapMgr.FindMap(referencePlayer.Location.MapId, referencePlayer.InstanceId);
+                var map = referencePlayer.Location.IsInWorld ? referencePlayer.Location.Map : Global.MapMgr.FindMap(referencePlayer.Location.MapId, referencePlayer.InstanceId);
 
                 if (!map || !map.IsDungeon)
                     return false;
@@ -1535,7 +1535,7 @@ public class CriteriaHandler
                 break;
             case ModifierTreeType.LegacyDungeonDifficulty: // 20
             {
-                var difficulty = CliDB.DifficultyStorage.LookupByKey(referencePlayer.Map.DifficultyID);
+                var difficulty = CliDB.DifficultyStorage.LookupByKey(referencePlayer.Location.Map.DifficultyID);
 
                 if (difficulty == null || difficulty.OldEnumValue == -1 || difficulty.OldEnumValue != reqValue)
                     return false;
@@ -1659,7 +1659,7 @@ public class CriteriaHandler
                 break;
             case ModifierTreeType.PlayerIsInZone: // 41
             {
-                var zoneId = referencePlayer.Area;
+                var zoneId = referencePlayer.Location.Area;
                 var areaEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
 
                 if (areaEntry != null)
@@ -1676,7 +1676,7 @@ public class CriteriaHandler
                 if (!refe)
                     return false;
 
-                var zoneId = refe.Area;
+                var zoneId = refe.Location.Area;
                 var areaEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
 
                 if (areaEntry != null)
@@ -1821,7 +1821,7 @@ public class CriteriaHandler
 
                 return false;
             case ModifierTreeType.DungeonDifficulty: // 68
-                if (referencePlayer.Map.DifficultyID != (Difficulty)reqValue)
+                if (referencePlayer.Location.Map.DifficultyID != (Difficulty)reqValue)
                     return false;
 
                 break;
@@ -2077,7 +2077,7 @@ public class CriteriaHandler
 
                 break;
             case ModifierTreeType.PlayersRealmWorldState: // 108
-                if (Global.WorldStateMgr.GetValue((int)reqValue, referencePlayer.Map) != secondaryAsset)
+                if (Global.WorldStateMgr.GetValue((int)reqValue, referencePlayer.Location.Map) != secondaryAsset)
                     return false;
 
                 break;
@@ -2149,7 +2149,7 @@ public class CriteriaHandler
 
                 break;
             case ModifierTreeType.Weather: // 115
-                if (referencePlayer.Map.GetZoneWeather(referencePlayer.Zone) != (WeatherState)reqValue)
+                if (referencePlayer.Location.Map.GetZoneWeather(referencePlayer.Location.Zone) != (WeatherState)reqValue)
                     return false;
 
                 break;
@@ -2215,7 +2215,7 @@ public class CriteriaHandler
 
                 break;
             case ModifierTreeType.PlayerMapInstanceType: // 122
-                if ((uint)referencePlayer.Map.Entry.InstanceType != reqValue)
+                if ((uint)referencePlayer.Location.Map.Entry.InstanceType != reqValue)
                     return false;
 
                 break;
@@ -2452,7 +2452,7 @@ public class CriteriaHandler
                 break;
             }
             case ModifierTreeType.PlayerIsInOwnGarrison: // 138
-                if (!referencePlayer.Map.IsGarrison || referencePlayer.Map.InstanceId != referencePlayer.GUID.Counter)
+                if (!referencePlayer.Location.Map.IsGarrison || referencePlayer.Location.Map.InstanceId != referencePlayer.GUID.Counter)
                     return false;
 
                 break;
@@ -2749,7 +2749,7 @@ public class CriteriaHandler
             case ModifierTreeType.PlayerCountIsValidToStartGarrisonInvasion: // 164
                 return true;                                                 // Only 1 player is required and referencePlayer.GetMap() will ALWAYS have at least the referencePlayer on it
             case ModifierTreeType.InstancePlayerCountEqualOrLessThan:        // 165
-                if (referencePlayer.Map.GetPlayersCountExceptGMs() > reqValue)
+                if (referencePlayer.Location.Map.GetPlayersCountExceptGMs() > reqValue)
                     return false;
 
                 break;
@@ -2821,7 +2821,7 @@ public class CriteriaHandler
                 break;
             }
             case ModifierTreeType.InstancePlayerCountEqual: // 171
-                if (referencePlayer.Map.Players.Count != reqValue)
+                if (referencePlayer.Location.Map.Players.Count != reqValue)
                     return false;
 
                 break;
@@ -2909,7 +2909,7 @@ public class CriteriaHandler
             case ModifierTreeType.CurrencySource: // 179 NYI
                 return false;
             case ModifierTreeType.PlayerIsInNotOwnGarrison: // 180
-                if (!referencePlayer.Map.IsGarrison || referencePlayer.Map.InstanceId == referencePlayer.GUID.Counter)
+                if (!referencePlayer.Location.Map.IsGarrison || referencePlayer.Location.Map.InstanceId == referencePlayer.GUID.Counter)
                     return false;
 
                 break;
@@ -3782,7 +3782,7 @@ public class CriteriaHandler
                 break;
             case ModifierTreeType.PlayerMapOrCosmeticChildMap: // 280
             {
-                var map = referencePlayer.Map.Entry;
+                var map = referencePlayer.Location.Map.Entry;
 
                 if (map.Id != reqValue && map.CosmeticParentMapID != reqValue)
                     return false;
@@ -3859,7 +3859,7 @@ public class CriteriaHandler
             case ModifierTreeType.PlayerIsInAreaGroup: // 298
             {
                 var areas = Global.DB2Mgr.GetAreasForGroup(reqValue);
-                var area = CliDB.AreaTableStorage.LookupByKey(referencePlayer.Area);
+                var area = CliDB.AreaTableStorage.LookupByKey(referencePlayer.Location.Area);
 
                 if (area != null)
                     foreach (var areaInGroup in areas)
@@ -3874,7 +3874,7 @@ public class CriteriaHandler
                     return false;
 
                 var areas = Global.DB2Mgr.GetAreasForGroup(reqValue);
-                var area = CliDB.AreaTableStorage.LookupByKey(refe.Area);
+                var area = CliDB.AreaTableStorage.LookupByKey(refe.Location.Area);
 
                 if (area != null)
                     foreach (var areaInGroup in areas)

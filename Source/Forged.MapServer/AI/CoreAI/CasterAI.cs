@@ -26,7 +26,7 @@ public class CasterAI : CombatAI
 
         foreach (var id in _spells)
         {
-            var info = GetAISpellInfo(id, Me.Map.DifficultyID);
+            var info = GetAISpellInfo(id, Me.Location.Map.DifficultyID);
 
             if (info is { Condition: AICondition.Combat } && _attackDistance > info.MaxRange)
                 _attackDistance = info.MaxRange;
@@ -51,7 +51,7 @@ public class CasterAI : CombatAI
 
         foreach (var id in _spells)
         {
-            var info = GetAISpellInfo(id, Me.Map.DifficultyID);
+            var info = GetAISpellInfo(id, Me.Location.Map.DifficultyID);
 
             if (info != null)
             {
@@ -99,7 +99,7 @@ public class CasterAI : CombatAI
         {
             DoCast(spellId);
             var casttime = (uint)Me.GetCurrentSpellCastTime(spellId);
-            var info = GetAISpellInfo(spellId, Me.Map.DifficultyID);
+            var info = GetAISpellInfo(spellId, Me.Location.Map.DifficultyID);
 
             if (info != null)
                 Events.ScheduleEvent(spellId, TimeSpan.FromMilliseconds(casttime != 0 ? casttime : 500) + info.RealCooldown);

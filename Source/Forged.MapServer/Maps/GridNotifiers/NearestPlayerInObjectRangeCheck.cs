@@ -20,9 +20,9 @@ internal class NearestPlayerInObjectRangeCheck : ICheck<Player>
 
     public bool Invoke(Player pl)
     {
-        if (pl.IsAlive && _obj.IsWithinDist(pl, _range))
+        if (pl.IsAlive && _obj.Location.IsWithinDist(pl, _range))
         {
-            _range = _obj.GetDistance(pl);
+            _range = _obj.Location.GetDistance(pl);
 
             return true;
         }

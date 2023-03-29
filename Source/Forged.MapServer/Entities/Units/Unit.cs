@@ -623,7 +623,7 @@ public partial class Unit : WorldObject
         // Spells must be processed with event system BEFORE they go to _UpdateSpells.
         base.Update(diff);
 
-        if (!IsInWorld)
+        if (!Location.IsInWorld)
             return;
 
         _UpdateSpells(diff);
@@ -740,7 +740,7 @@ public partial class Unit : WorldObject
 
     public bool IsDisallowedMountForm(uint spellId, ShapeShiftForm form, uint displayId)
     {
-        var transformSpellInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.DifficultyID);
+        var transformSpellInfo = Global.SpellMgr.GetSpellInfo(spellId, Location.Map.DifficultyID);
 
         if (transformSpellInfo != null)
             if (transformSpellInfo.HasAttribute(SpellAttr0.AllowWhileMounted))
@@ -934,7 +934,7 @@ public partial class Unit : WorldObject
     {
         // cleanup
 
-        if (IsInWorld)
+        if (Location.IsInWorld)
         {
             _duringRemoveFromWorld = true;
             var ai = AI;
@@ -981,7 +981,7 @@ public partial class Unit : WorldObject
         // This needs to be before RemoveFromWorld to make GetCaster() return a valid for aura removal
         InterruptNonMeleeSpells(true);
 
-        if (IsInWorld)
+        if (Location.IsInWorld)
             RemoveFromWorld();
 
         // A unit may be in removelist and not in world, but it is still in grid
@@ -1055,7 +1055,7 @@ public partial class Unit : WorldObject
 
         if (gameObj.SpellId != 0)
         {
-            var createBySpell = Global.SpellMgr.GetSpellInfo(gameObj.SpellId, Map.DifficultyID);
+            var createBySpell = Global.SpellMgr.GetSpellInfo(gameObj.SpellId, Location.Map.DifficultyID);
 
             // Need disable spell use for owner
             if (createBySpell != null && createBySpell.IsCooldownStartedOnEvent)
@@ -1089,7 +1089,7 @@ public partial class Unit : WorldObject
         {
             RemoveAura(spellid);
 
-            var createBySpell = Global.SpellMgr.GetSpellInfo(spellid, Map.DifficultyID);
+            var createBySpell = Global.SpellMgr.GetSpellInfo(spellid, Location.Map.DifficultyID);
 
             // Need activate spell use for owner
             if (createBySpell != null && createBySpell.IsCooldownStartedOnEvent)
@@ -1324,7 +1324,7 @@ public partial class Unit : WorldObject
                 return false;
 
             // remove not LoS targets
-            if (!IsWithinLOSInMap(u) || u.IsTotem || u.IsSpiritService || u.IsCritter)
+            if (!Location.IsWithinLOSInMap(u) || u.IsTotem || u.IsSpiritService || u.IsCritter)
                 return false;
 
             return true;
@@ -1524,7 +1524,7 @@ public partial class Unit : WorldObject
             var height = pos.Z + vehicle.GetBase().CollisionHeight;
 
             // Creatures without inhabit type air should begin falling after exiting the vehicle
-            if (IsTypeId(TypeId.Unit) && !CanFly && height > Map.GetWaterOrGroundLevel(PhaseShift, pos.X, pos.Y, pos.Z + vehicle.GetBase().CollisionHeight, ref height))
+            if (IsTypeId(TypeId.Unit) && !CanFly && height > Location.Map.GetWaterOrGroundLevel(Location.PhaseShift, pos.X, pos.Y, pos.Z + vehicle.GetBase().CollisionHeight, ref height))
                 init.SetFall();
 
             init.MoveTo(pos.X, pos.Y, height, false);
@@ -1559,7 +1559,7 @@ public partial class Unit : WorldObject
             if (SummonSlot[i].IsEmpty)
                 continue;
 
-            var OldTotem = Map.GetCreature(SummonSlot[i]);
+            var OldTotem = Location.Map.GetCreature(SummonSlot[i]);
 
             if (OldTotem is { IsSummon: true })
                 OldTotem.ToTempSummon().UnSummon();
@@ -2592,7 +2592,7 @@ public partial class Unit : WorldObject
                 var target = refe.Source;
 
                 // IsHostileTo check duel and controlled by enemy
-                if (target != null && target.IsInMap(owner) && target.SubGroup == subgroup && !IsHostileTo(target))
+                if (target != null && target.Location.IsInMap(owner) && target.SubGroup == subgroup && !IsHostileTo(target))
                 {
                     if (target.IsAlive)
                         TagUnitMap.Add(target);
@@ -2607,13 +2607,13 @@ public partial class Unit : WorldObject
         }
         else
         {
-            if ((owner == this || IsInMap(owner)) && owner.IsAlive)
+            if ((owner == this || Location.IsInMap(owner)) && owner.IsAlive)
                 TagUnitMap.Add(owner);
 
             var pet = owner.GetGuardianPet();
 
             if (owner.GetGuardianPet() != null)
-                if ((pet == this || IsInMap(pet)) && pet.IsAlive)
+                if ((pet == this || Location.IsInMap(pet)) && pet.IsAlive)
                     TagUnitMap.Add(pet);
         }
     }
@@ -3503,7 +3503,7 @@ public partial class Unit : WorldObject
         {
             // We are pet now, return owner
             if (player != this)
-                return IsWithinDistInMap(player, radius) ? player : null;
+                return Location.IsWithinDistInMap(player, radius) ? player : null;
 
             Unit pet = GetGuardianPet();
 
@@ -3512,7 +3512,7 @@ public partial class Unit : WorldObject
                 return null;
 
             // We are owner now, return pet
-            return IsWithinDistInMap(pet, radius) ? pet : null;
+            return Location.IsWithinDistInMap(pet, radius) ? pet : null;
         }
 
         List<Unit> nearMembers = new();
@@ -3525,14 +3525,14 @@ public partial class Unit : WorldObject
             if (target)
             {
                 // IsHostileTo check duel and controlled by enemy
-                if (target != this && IsWithinDistInMap(target, radius) && target.IsAlive && !IsHostileTo(target))
+                if (target != this && Location.IsWithinDistInMap(target, radius) && target.IsAlive && !IsHostileTo(target))
                     nearMembers.Add(target);
 
                 // Push player's pet to vector
                 Unit pet = target.GetGuardianPet();
 
                 if (pet)
-                    if (pet != this && IsWithinDistInMap(pet, radius) && pet.IsAlive && !IsHostileTo(pet))
+                    if (pet != this && Location.IsWithinDistInMap(pet, radius) && pet.IsAlive && !IsHostileTo(pet))
                         nearMembers.Add(pet);
             }
         }
@@ -3812,7 +3812,7 @@ public partial class Unit : WorldObject
                 // Damage can be splitted only if aura has an alive caster
                 var caster = itr.Caster;
 
-                if (!caster || (caster == damageInfo.Victim) || !caster.IsInWorld || !caster.IsAlive)
+                if (!caster || (caster == damageInfo.Victim) || !caster.Location.IsInWorld || !caster.IsAlive)
                     continue;
 
                 var splitDamage = MathFunctions.CalculatePct(damageInfo.Damage, itr.Amount);
@@ -4339,7 +4339,7 @@ public partial class Unit : WorldObject
         var u_check = new AnyUnitInObjectRangeCheck(this, fMaxSearchRange);
         var searcher = new UnitListSearcher(this, list, u_check, GridType.All);
 
-        cell.Visit(p, searcher, Map, this, fMaxSearchRange);
+        cell.Visit(p, searcher, Location.Map, this, fMaxSearchRange);
     }
 
     public void GetAttackableUnitListInRange(List<Unit> list, float fMaxSearchRange)
@@ -4351,7 +4351,7 @@ public partial class Unit : WorldObject
         var u_check = new NearestAttackableUnitInObjectRangeCheck(this, this, fMaxSearchRange);
         var searcher = new UnitListSearcher(this, list, u_check, GridType.All);
 
-        cell.Visit(p, searcher, Map, this, fMaxSearchRange);
+        cell.Visit(p, searcher, Location.Map, this, fMaxSearchRange);
     }
 
     public void GetFriendlyUnitListInRange(List<Unit> list, float fMaxSearchRange, bool exceptSelf = false)
@@ -4363,7 +4363,7 @@ public partial class Unit : WorldObject
         var u_check = new AnyFriendlyUnitInObjectRangeCheck(this, this, fMaxSearchRange, false, exceptSelf);
         var searcher = new UnitListSearcher(this, list, u_check, GridType.All);
 
-        cell.Visit(p, searcher, Map, this, fMaxSearchRange);
+        cell.Visit(p, searcher, Location.Map, this, fMaxSearchRange);
     }
 
     public CombatManager GetCombatManager()

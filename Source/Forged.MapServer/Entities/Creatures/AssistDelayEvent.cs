@@ -31,7 +31,7 @@ public class AssistDelayEvent : BasicEvent
         if (victim != null)
             while (!m_assistants.Empty())
             {
-                var assistant = m_owner.Map.GetCreature(m_assistants[0]);
+                var assistant = m_owner.Location.Map.GetCreature(m_assistants[0]);
                 m_assistants.RemoveAt(0);
 
                 if (assistant != null && assistant.CanAssistTo(m_owner, victim))

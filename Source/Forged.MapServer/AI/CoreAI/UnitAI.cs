@@ -77,12 +77,12 @@ public class UnitAI : IUnitAI
         if (Me.HasUnitState(UnitState.Casting) || !Me.IsAttackReady())
             return true;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Me.Map.DifficultyID);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Me.Location.Map.DifficultyID);
 
         if (spellInfo != null)
             if (Me.IsWithinCombatRange(Me.Victim, spellInfo.GetMaxRange(false)))
             {
-                Me.CastSpell(Me.Victim, spellId, new CastSpellExtraArgs(Me.Map.DifficultyID));
+                Me.CastSpell(Me.Victim, spellId, new CastSpellExtraArgs(Me.Location.Map.DifficultyID));
                 Me.ResetAttackTimer();
 
                 return true;
@@ -286,7 +286,7 @@ public class UnitAI : IUnitAI
         Unit target = null;
         var aiTargetType = AITarget.Self;
 
-        var info = GetAISpellInfo(spellId, Me.Map.DifficultyID);
+        var info = GetAISpellInfo(spellId, Me.Location.Map.DifficultyID);
 
         if (info != null)
             aiTargetType = info.Target;
@@ -304,7 +304,7 @@ public class UnitAI : IUnitAI
                 break;
             case AITarget.Enemy:
             {
-                var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Me.Map.DifficultyID);
+                var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Me.Location.Map.DifficultyID);
 
                 if (spellInfo != null)
                 {
@@ -341,7 +341,7 @@ public class UnitAI : IUnitAI
                 break;
             case AITarget.Debuff:
             {
-                var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Me.Map.DifficultyID);
+                var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Me.Location.Map.DifficultyID);
 
                 if (spellInfo != null)
                 {

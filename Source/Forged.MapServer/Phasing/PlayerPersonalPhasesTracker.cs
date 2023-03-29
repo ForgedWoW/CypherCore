@@ -28,7 +28,7 @@ internal class PlayerPersonalPhasesTracker
 
     public void OnOwnerPhasesChanged(WorldObject owner)
     {
-        var phaseShift = owner.PhaseShift;
+        var phaseShift = owner.Location.PhaseShift;
 
         // Loop over all our tracked phases. If any don't exist - delete them
         foreach (var (phaseId, spawns) in _spawns)

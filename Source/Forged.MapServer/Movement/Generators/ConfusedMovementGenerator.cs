@@ -80,7 +80,7 @@ public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T :
             owner.MovePositionToFirstCollision(destination, distance, angle);
 
             // Check if the destination is in LOS
-            if (!owner.IsWithinLOS(destination.X, destination.Y, destination.Z))
+            if (!owner.Location.IsWithinLOS(destination.X, destination.Y, destination.Z))
             {
                 // Retry later on
                 _timer.Reset(200);

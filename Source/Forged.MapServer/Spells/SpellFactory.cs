@@ -144,7 +144,7 @@ public class SpellFactory
 
     public SpellCastResult CastSpell(CastSpellTargetArg targets, uint spellId, CastSpellExtraArgs args)
     {
-        var info = _spellManager.GetSpellInfo(spellId, args.CastDifficulty != Difficulty.None ? args.CastDifficulty : _caster.Map.DifficultyID);
+        var info = _spellManager.GetSpellInfo(spellId, args.CastDifficulty != Difficulty.None ? args.CastDifficulty : _caster.Location.Map.DifficultyID);
 
         if (info == null)
         {

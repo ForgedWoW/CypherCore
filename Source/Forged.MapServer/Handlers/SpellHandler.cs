@@ -317,7 +317,7 @@ public class SpellHandler : IWorldSessionHandler
         if (mover != Player && mover.IsTypeId(TypeId.Player))
             return;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(cast.Cast.SpellID, mover.Map.DifficultyID);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(cast.Cast.SpellID, mover.Location.Map.DifficultyID);
 
         if (spellInfo == null)
         {
@@ -614,7 +614,7 @@ public class SpellHandler : IWorldSessionHandler
         // this will get something not in world. crash
         var unit = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.SpellClickUnitGuid);
 
-        if (unit is not { IsInWorld: true })
+        if (unit is not { Location.IsInWorld: true })
             return;
 
         // @todo Unit.SetCharmedBy: 28782 is not in world but 0 is trying to charm it! . crash

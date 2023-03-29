@@ -103,7 +103,7 @@ public class PetAI : CreatureAI
                 if (spellID == 0)
                     continue;
 
-                var spellInfo = Global.SpellMgr.GetSpellInfo(spellID, Me.Map.DifficultyID);
+                var spellInfo = Global.SpellMgr.GetSpellInfo(spellID, Me.Location.Map.DifficultyID);
 
                 if (spellInfo == null)
                     continue;
@@ -680,7 +680,7 @@ public class PetAI : CreatureAI
             {
                 var target = refe.Source;
 
-                if (!target || !target.IsInMap(owner) || !group.SameSubGroup(owner.AsPlayer, target))
+                if (!target || !target.Location.IsInMap(owner) || !group.SameSubGroup(owner.AsPlayer, target))
                     continue;
 
                 if (target.GUID == owner.GUID)

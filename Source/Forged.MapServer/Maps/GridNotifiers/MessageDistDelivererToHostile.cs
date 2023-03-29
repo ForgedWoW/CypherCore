@@ -25,7 +25,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
     {
         _source = src;
         _packetSender = packetSender;
-        _phaseShift = src.PhaseShift;
+        _phaseShift = src.Location.PhaseShift;
         _distSq = dist * dist;
         GridType = gridType;
     }
@@ -36,7 +36,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
         {
             var creature = objs[i];
 
-            if (!creature.InSamePhase(_phaseShift))
+            if (!creature.Location.InSamePhase(_phaseShift))
                 continue;
 
             if (creature.Location.GetExactDist2dSq(_source.Location) > _distSq)
@@ -56,7 +56,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
         {
             var dynamicObject = objs[i];
 
-            if (!dynamicObject.InSamePhase(_phaseShift))
+            if (!dynamicObject.Location.InSamePhase(_phaseShift))
                 continue;
 
             if (dynamicObject.Location.GetExactDist2dSq(_source.Location) > _distSq)
@@ -81,7 +81,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
         {
             var player = objs[i];
 
-            if (!player.InSamePhase(_phaseShift))
+            if (!player.Location.InSamePhase(_phaseShift))
                 continue;
 
             if (player.Location.GetExactDist2dSq(_source.Location) > _distSq)

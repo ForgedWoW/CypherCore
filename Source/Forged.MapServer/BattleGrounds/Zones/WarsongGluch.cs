@@ -389,7 +389,7 @@ internal class BgWarsongGluch : Battleground
         }
 
         //Alliance flag on ground(not in base) (returned or picked up again from ground!)
-        if (GetFlagState(TeamFaction.Alliance) == WSGFlagState.OnGround && player.IsWithinDistInMap(target_obj, 10) && target_obj.Template.entry == WSGObjectEntry.AFlagGround)
+        if (GetFlagState(TeamFaction.Alliance) == WSGFlagState.OnGround && player.Location.IsWithinDistInMap(target_obj, 10) && target_obj.Template.entry == WSGObjectEntry.AFlagGround)
         {
             if (team == TeamFaction.Alliance)
             {
@@ -423,7 +423,7 @@ internal class BgWarsongGluch : Battleground
         }
 
         //Horde flag on ground(not in base) (returned or picked up again)
-        if (GetFlagState(TeamFaction.Horde) == WSGFlagState.OnGround && player.IsWithinDistInMap(target_obj, 10) && target_obj.Template.entry == WSGObjectEntry.HFlagGround)
+        if (GetFlagState(TeamFaction.Horde) == WSGFlagState.OnGround && player.Location.IsWithinDistInMap(target_obj, 10) && target_obj.Template.entry == WSGObjectEntry.HFlagGround)
         {
             if (team == TeamFaction.Horde)
             {

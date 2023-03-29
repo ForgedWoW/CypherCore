@@ -446,7 +446,7 @@ internal class GoCommands
     {
         var player = handler.Session.Player;
 
-        var areaId = areaIdArg.HasValue ? areaIdArg.Value : player.Zone;
+        var areaId = areaIdArg.HasValue ? areaIdArg.Value : player.Location.Zone;
 
         var areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId);
 

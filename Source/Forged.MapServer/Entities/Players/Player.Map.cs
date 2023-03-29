@@ -117,14 +117,14 @@ public partial class Player
 
     public void UpdateZone(uint newZone, uint newArea)
     {
-        if (!IsInWorld)
+        if (!Location.IsInWorld)
             return;
 
         var oldZone = _zoneUpdateId;
         _zoneUpdateId = newZone;
         _zoneUpdateTimer = 1 * Time.InMilliseconds;
 
-        Map.UpdatePlayerZoneStats(oldZone, newZone);
+        Location.Map.UpdatePlayerZoneStats(oldZone, newZone);
 
         // call leave script hooks immedately (before updating flags)
         if (oldZone != newZone)
@@ -153,9 +153,9 @@ public partial class Player
             return;
 
         if (GetDefaultValue("ActivateWeather", true))
-            Map.GetOrGenerateZoneDefaultWeather(newZone);
+            Location.Map.GetOrGenerateZoneDefaultWeather(newZone);
 
-        Map.SendZoneDynamicInfo(newZone, this);
+        Location.Map.SendZoneDynamicInfo(newZone, this);
 
         UpdateWarModeAuras();
 
@@ -219,7 +219,7 @@ public partial class Player
         }
         else if (overrideZonePvpType == ZonePVPTypeOverride.None)
         {
-            if (InBattleground || area.HasFlag(AreaFlags.Combat) || (area.PvpCombatWorldStateID != -1 && Global.WorldStateMgr.GetValue(area.PvpCombatWorldStateID, Map) != 0))
+            if (InBattleground || area.HasFlag(AreaFlags.Combat) || (area.PvpCombatWorldStateID != -1 && Global.WorldStateMgr.GetValue(area.PvpCombatWorldStateID, Location.Map) != 0))
             {
                 PvpInfo.IsInHostileArea = true;
             }
@@ -265,7 +265,7 @@ public partial class Player
 
     public void ConfirmPendingBind()
     {
-        var map = Map.ToInstanceMap;
+        var map = Location.Map.ToInstanceMap;
 
         if (map == null || map.InstanceId != _pendingBindId)
             return;
@@ -421,7 +421,7 @@ public partial class Player
             return true;
 
         // non-instances are always valid
-        var map = Map;
+        var map = Location.Map;
         var instance = map?.ToInstanceMap;
 
         if (instance == null)
@@ -568,7 +568,7 @@ public partial class Player
         if (dungeonEncounter == null)
             return false;
 
-        var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(GUID, new MapDb2Entries(Map.Entry, Map.MapDifficulty));
+        var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(GUID, new MapDb2Entries(Location.Map.Entry, Location.Map.MapDifficulty));
 
         if (instanceLock == null)
             return false;
@@ -584,11 +584,11 @@ public partial class Player
         _mirrorTimerFlags &= ~(PlayerUnderwaterState.InWater | PlayerUnderwaterState.InLava | PlayerUnderwaterState.InSlime | PlayerUnderwaterState.InDarkWater);
 
         // player specific logic for mirror timers
-        if (LiquidStatus != 0 && newLiquidData != null)
+        if (Location.LiquidStatus != 0 && newLiquidData != null)
         {
             // Breath bar state (under water in any liquid type)
             if (newLiquidData.type_flags.HasAnyFlag(LiquidHeaderTypeFlags.AllLiquids))
-                if (LiquidStatus.HasAnyFlag(ZLiquidStatus.UnderWater))
+                if (Location.LiquidStatus.HasAnyFlag(ZLiquidStatus.UnderWater))
                     _mirrorTimerFlags |= PlayerUnderwaterState.InWater;
 
             // Fatigue bar state (if not on flight path or transport)
@@ -597,12 +597,12 @@ public partial class Player
 
             // Lava state (any contact)
             if (newLiquidData.type_flags.HasAnyFlag(LiquidHeaderTypeFlags.Magma))
-                if (LiquidStatus.HasAnyFlag(ZLiquidStatus.InContact))
+                if (Location.LiquidStatus.HasAnyFlag(ZLiquidStatus.InContact))
                     _mirrorTimerFlags |= PlayerUnderwaterState.InLava;
 
             // Slime state (any contact)
             if (newLiquidData.type_flags.HasAnyFlag(LiquidHeaderTypeFlags.Slime))
-                if (LiquidStatus.HasAnyFlag(ZLiquidStatus.InContact))
+                if (Location.LiquidStatus.HasAnyFlag(ZLiquidStatus.InContact))
                     _mirrorTimerFlags |= PlayerUnderwaterState.InSlime;
         }
 

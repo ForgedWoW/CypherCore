@@ -77,7 +77,7 @@ public class SocialManager
                     friendInfo.Status |= FriendStatus.RAF;
             }
 
-            friendInfo.Area = target.Zone;
+            friendInfo.Area = target.Location.Zone;
             friendInfo.Level = target.Level;
             friendInfo.Class = target.Class;
         }
@@ -140,7 +140,7 @@ public class SocialManager
             {
                 var target = _objectAccessor.FindPlayer(pair.Key);
 
-                if (!target || !target.IsInWorld)
+                if (!target || !target.Location.IsInWorld)
                     continue;
 
                 var session = target.Session;

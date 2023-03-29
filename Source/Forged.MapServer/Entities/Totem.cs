@@ -78,7 +78,7 @@ public class Totem : Minion
         base.InitStats(duration);
 
         // Get spell cast by totem
-        var totemSpell = Global.SpellMgr.GetSpellInfo(GetSpell(), Map.DifficultyID);
+        var totemSpell = Global.SpellMgr.GetSpellInfo(GetSpell(), Location.Map.DifficultyID);
 
         if (totemSpell != null)
             if (totemSpell.CalcCastTime() != 0) // If spell has cast time -> its an active totem
@@ -132,7 +132,7 @@ public class Totem : Minion
         {
             owner.SendAutoRepeatCancel(this);
 
-            var spell = Global.SpellMgr.GetSpellInfo(UnitData.CreatedBySpell, Map.DifficultyID);
+            var spell = Global.SpellMgr.GetSpellInfo(UnitData.CreatedBySpell, Location.Map.DifficultyID);
 
             if (spell != null)
                 SpellHistory.SendCooldownEvent(spell, 0, null, false);
@@ -144,7 +144,7 @@ public class Totem : Minion
                 {
                     var target = refe.Source;
 
-                    if (target && target.IsInMap(owner) && group.SameSubGroup(owner, target))
+                    if (target && target.Location.IsInMap(owner) && group.SameSubGroup(owner, target))
                         target.RemoveAurasDueToSpell(GetSpell(), GUID);
                 }
         }

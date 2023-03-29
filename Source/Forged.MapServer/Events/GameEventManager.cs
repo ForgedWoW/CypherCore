@@ -1992,7 +1992,7 @@ internal class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCre
         {
             var creature = objs[i];
 
-            if (creature.IsInWorld && creature.IsAIEnabled)
+            if (creature.Location.IsInWorld && creature.IsAIEnabled)
             {
                 var ai = creature.AI;
 
@@ -2008,7 +2008,7 @@ internal class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCre
         {
             var gameObject = objs[i];
 
-            if (gameObject.IsInWorld)
+            if (gameObject.Location.IsInWorld)
             {
                 var ai = gameObject.AI;
 
@@ -2024,7 +2024,7 @@ internal class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCre
         {
             var gameObject = objs[i] as GameObject;
 
-            if (gameObject is { IsInWorld: true })
+            if (gameObject is { Location.IsInWorld: true })
             {
                 var ai = gameObject.AI;
 

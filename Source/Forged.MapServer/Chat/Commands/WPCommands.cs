@@ -520,7 +520,7 @@ internal class WPCommands
             handler.SendSysMessage("|cff00ff00DEBUG: wp move, PathID: |r|cff00ffff{0}|r", pathid);
 
             var chr = handler.Session.Player;
-            var map = chr.Map;
+            var map = chr.Location.Map;
 
             // What to do:
             // Move the visual spawnpoint
@@ -738,7 +738,7 @@ internal class WPCommands
                 uint id = 1;
 
                 var chr = handler.Session.Player;
-                var map = chr.Map;
+                var map = chr.Location.Map;
 
                 var creature = Creature.CreateCreature(id, map, new Position(x, y, z, o));
 
@@ -814,7 +814,7 @@ internal class WPCommands
             var o = result.Read<float>(3);
 
             var chr = handler.Session.Player;
-            var map = chr.Map;
+            var map = chr.Location.Map;
 
             var creature = Creature.CreateCreature(1, map, new Position(x, y, z, 0));
 
@@ -878,7 +878,7 @@ internal class WPCommands
             var o = result.Read<float>(3);
 
             var chr = handler.Session.Player;
-            var map = chr.Map;
+            var map = chr.Location.Map;
             Position pos = new(x, y, z, o);
 
             var creature = Creature.CreateCreature(1, map, pos);

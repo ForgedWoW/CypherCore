@@ -172,7 +172,7 @@ public class Condition
 
                 break;
             case ConditionTypes.Zoneid:
-                condMeets = obj.Zone == ConditionValue1;
+                condMeets = obj.Location.Zone == ConditionValue1;
 
                 break;
             case ConditionTypes.ReputationRank:
@@ -245,7 +245,7 @@ public class Condition
 
                 break;
             case ConditionTypes.Areaid:
-                condMeets = obj.Area == ConditionValue1;
+                condMeets = obj.Location.Area == ConditionValue1;
 
                 break;
             case ConditionTypes.Spell:
@@ -264,11 +264,11 @@ public class Condition
 
                 break;
             case ConditionTypes.NearCreature:
-                condMeets = obj.FindNearestCreature(ConditionValue1, ConditionValue2, ConditionValue3 == 0) != null;
+                condMeets = obj.Location.FindNearestCreature(ConditionValue1, ConditionValue2, ConditionValue3 == 0) != null;
 
                 break;
             case ConditionTypes.NearGameobject:
-                condMeets = obj.FindNearestGameObject(ConditionValue1, ConditionValue2) != null;
+                condMeets = obj.Location.FindNearestGameObject(ConditionValue1, ConditionValue2) != null;
 
                 break;
             case ConditionTypes.ObjectEntryGuid:
@@ -354,7 +354,7 @@ public class Condition
                 var toObject = sourceInfo.mConditionTargets[ConditionValue1];
 
                 if (toObject != null)
-                    condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, obj.GetDistance(toObject), ConditionValue2);
+                    condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, obj.Location.GetDistance(toObject), ConditionValue2);
 
                 break;
             }
@@ -374,7 +374,7 @@ public class Condition
 
                 break;
             case ConditionTypes.PhaseId:
-                condMeets = obj.PhaseShift.HasPhase(ConditionValue1);
+                condMeets = obj.Location.PhaseShift.HasPhase(ConditionValue1);
 
                 break;
             case ConditionTypes.Title:
@@ -398,11 +398,11 @@ public class Condition
             }
             case ConditionTypes.InWater:
                 if (unit)
-                    condMeets = unit.IsInWater;
+                    condMeets = unit.Location.IsInWater;
 
                 break;
             case ConditionTypes.TerrainSwap:
-                condMeets = obj.PhaseShift.HasVisibleMapId(ConditionValue1);
+                condMeets = obj.Location.PhaseShift.HasVisibleMapId(ConditionValue1);
 
                 break;
             case ConditionTypes.StandState:
@@ -749,7 +749,7 @@ public class ConditionSourceInfo
         mConditionTargets[0] = target0;
         mConditionTargets[1] = target1;
         mConditionTargets[2] = target2;
-        mConditionMap = target0 != null ? target0.Map : null;
+        mConditionMap = target0 != null ? target0.Location.Map : null;
         mLastFailedCondition = null;
     }
 

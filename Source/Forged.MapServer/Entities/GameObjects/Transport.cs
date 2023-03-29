@@ -98,7 +98,7 @@ internal class Transport : GameObjectTypeBase, ITransport
 
     public void AddPassenger(WorldObject passenger)
     {
-        if (!Owner.IsInWorld)
+        if (!Owner.Location.IsInWorld)
             return;
 
         if (!_passengers.Contains(passenger))
@@ -319,7 +319,7 @@ internal class Transport : GameObjectTypeBase, ITransport
             dst = pathRotation.Multiply(dst);
             dst += Owner.StationaryPosition;
 
-            Owner.Map.GameObjectRelocation(Owner, dst.X, dst.Y, dst.Z, Owner.Location.Orientation);
+            Owner.Location.Map.GameObjectRelocation(Owner, dst.X, dst.Y, dst.Z, Owner.Location.Orientation);
         }
 
         var oldRotation = _animationInfo.GetPrevAnimRotation(newProgress);
@@ -415,7 +415,7 @@ internal class Transport : GameObjectTypeBase, ITransport
         {
             var pos = passenger.MovementInfo.Transport.Pos.Copy();
             CalculatePassengerPosition(pos);
-            ITransport.UpdatePassengerPosition(this, Owner.Map, passenger, pos, true);
+            ITransport.UpdatePassengerPosition(this, Owner.Location.Map, passenger, pos, true);
         }
     }
 

@@ -177,7 +177,7 @@ public class VehicleJoinEvent : BasicEvent
                              Seat.Key);
         }
 
-        if (Passenger.IsInWorld && Passenger.HasUnitTypeMask(UnitTypeMask.Accessory))
+        if (Passenger.Location.IsInWorld && Passenger.HasUnitTypeMask(UnitTypeMask.Accessory))
             Passenger.AsCreature.DespawnOrUnsummon();
     }
 }

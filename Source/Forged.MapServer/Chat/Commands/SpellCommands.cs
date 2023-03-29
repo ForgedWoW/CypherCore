@@ -41,7 +41,7 @@ internal class SpellCommands
         }
         else
         {
-            var spellInfo = Global.SpellMgr.GetSpellInfo(spellIdArg.Value, target.Map.DifficultyID);
+            var spellInfo = Global.SpellMgr.GetSpellInfo(spellIdArg.Value, target.Location.Map.DifficultyID);
 
             if (spellInfo == null)
             {
@@ -70,13 +70,13 @@ internal class SpellCommands
             return false;
         }
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, target.Map.DifficultyID);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, target.Location.Map.DifficultyID);
 
         if (spellInfo == null)
             return false;
 
-        var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, target.Location.MapId, spellId, target.Map.GenerateLowGuid(HighGuid.Cast));
-        AuraCreateInfo createInfo = new(castId, spellInfo, target.Map.DifficultyID, SpellConst.MaxEffects, target);
+        var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, target.Location.MapId, spellId, target.Location.Map.GenerateLowGuid(HighGuid.Cast));
+        AuraCreateInfo createInfo = new(castId, spellInfo, target.Location.Map.DifficultyID, SpellConst.MaxEffects, target);
         createInfo.SetCaster(target);
 
         Aura.TryRefreshStackOrCreate(createInfo);

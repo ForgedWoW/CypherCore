@@ -701,7 +701,7 @@ public partial class Player
 
         Location.Map = map;
         CheckAddToMap();
-        UpdatePositionData();
+        Location.UpdatePositionData();
 
         // now that map position is determined, check instance validity
         if (!CheckInstanceValidity(true) && !IsInstanceLoginGameMasterException())
@@ -1326,7 +1326,7 @@ public partial class Player
                 stmt.AddValue(index++, 0); // summonedPetNumber
 
             stmt.AddValue(index++, (ushort)LoginFlags);
-            stmt.AddValue(index++, Zone);
+            stmt.AddValue(index++, Location.Zone);
             stmt.AddValue(index++, _deathExpireTime);
 
             ss.Clear();
@@ -1401,7 +1401,7 @@ public partial class Player
             stmt.AddValue(index++, ss.ToString());
             stmt.AddValue(index++, ActivePlayerData.MultiActionBars);
 
-            stmt.AddValue(index++, IsInWorld && !Session.PlayerLogout ? 1 : 0);
+            stmt.AddValue(index++, Location.IsInWorld && !Session.PlayerLogout ? 1 : 0);
             stmt.AddValue(index++, ActivePlayerData.Honor);
             stmt.AddValue(index++, HonorLevel);
             stmt.AddValue(index++, ActivePlayerData.RestInfo[(int)RestTypes.Honor].StateID);
@@ -2110,7 +2110,7 @@ public partial class Player
 
         if (!result.IsEmpty())
         {
-            var zoneId = Zone;
+            var zoneId = Location.Zone;
             Dictionary<ObjectGuid, Bag> bagMap = new();         // fast guid lookup for bags
             Dictionary<ObjectGuid, Item> invalidBagMap = new(); // fast guid lookup for bags
             Queue<Item> problematicItems = new();
@@ -2704,7 +2704,7 @@ public partial class Player
                 }
 
                 var info = effectInfo[key];
-                var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Map.GenerateLowGuid(HighGuid.Cast));
+                var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Location.Map.GenerateLowGuid(HighGuid.Cast));
 
                 AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask.ExplodeMask(SpellConst.MaxEffects), this);
                 createInfo.SetCasterGuid(casterGuid);

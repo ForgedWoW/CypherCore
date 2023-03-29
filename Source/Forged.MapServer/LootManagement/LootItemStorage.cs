@@ -119,7 +119,7 @@ public class LootItemStorage
 
         var container = _lootItemStorage[item.GUID.Counter];
 
-        var loot = _lootFactory.GenerateLoot(player.Map, item.GUID, LootType.Item);
+        var loot = _lootFactory.GenerateLoot(player.Location.Map, item.GUID, LootType.Item);
         loot.Gold = container.GetMoney();
 
         var lt = _lootStorage.Items.GetLootFor(item.Entry);

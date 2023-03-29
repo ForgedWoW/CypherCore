@@ -314,7 +314,7 @@ public partial class Player
         {
             //we should obtain map from GetMap() in 99% of cases. Special case
             //only for quests which cast teleport spells on player
-            var _map = IsInWorld ? Map : Global.MapMgr.FindMap(Location.MapId, InstanceId);
+            var _map = Location.IsInWorld ? Location.Map : Global.MapMgr.FindMap(Location.MapId, InstanceId);
 
             var gameObject = _map.GetGameObject(guid);
 
@@ -441,7 +441,7 @@ public partial class Player
             {
                 //we should obtain map from GetMap() in 99% of cases. Special case
                 //only for quests which cast teleport spells on player
-                var _map = IsInWorld ? Map : Global.MapMgr.FindMap(Location.MapId, InstanceId);
+                var _map = Location.IsInWorld ? Location.Map : Global.MapMgr.FindMap(Location.MapId, InstanceId);
 
                 var gameObject = _map.GetGameObject(guid);
 
@@ -868,7 +868,7 @@ public partial class Player
 
         if (quest.SourceSpellID > 0)
         {
-            var spellInfo = Global.SpellMgr.GetSpellInfo(quest.SourceSpellID, Map.DifficultyID);
+            var spellInfo = Global.SpellMgr.GetSpellInfo(quest.SourceSpellID, Location.Map.DifficultyID);
             Unit caster = this;
 
             if (questGiver != null && questGiver.IsTypeMask(TypeMask.Unit) && !quest.HasFlag(QuestFlags.PlayerCastOnAccept) && !spellInfo.HasTargetType(Targets.UnitCaster) && !spellInfo.HasTargetType(Targets.DestCasterSummon))
@@ -1219,7 +1219,7 @@ public partial class Player
         // cast spells after mark quest complete (some spells have quest completed state requirements in spell_area data)
         if (quest.RewardSpell > 0)
         {
-            var spellInfo = Global.SpellMgr.GetSpellInfo(quest.RewardSpell, Map.DifficultyID);
+            var spellInfo = Global.SpellMgr.GetSpellInfo(quest.RewardSpell, Location.Map.DifficultyID);
             Unit caster = this;
 
             if (questGiver != null && questGiver.IsTypeMask(TypeMask.Unit) && !quest.HasFlag(QuestFlags.PlayerCastOnComplete) && !spellInfo.HasTargetType(Targets.UnitCaster))
@@ -1242,7 +1242,7 @@ public partial class Player
                     if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
                         continue;
 
-                var spellInfo = Global.SpellMgr.GetSpellInfo(displaySpell.SpellId, Map.DifficultyID);
+                var spellInfo = Global.SpellMgr.GetSpellInfo(displaySpell.SpellId, Location.Map.DifficultyID);
                 Unit caster = this;
 
                 if (questGiver && questGiver.IsTypeMask(TypeMask.Unit) && !quest.HasFlag(QuestFlags.PlayerCastOnComplete) && !spellInfo.HasTargetType(Targets.UnitCaster))
@@ -2347,7 +2347,7 @@ public partial class Player
 
         if (!guid.IsEmpty)
         {
-            killed = Map.GetCreature(guid);
+            killed = Location.Map.GetCreature(guid);
 
             if (killed != null && killed.Entry != 0)
                 real_entry = killed.Entry;
@@ -2401,7 +2401,7 @@ public partial class Player
             var quest = Global.ObjectMgr.GetQuestTemplate(questId);
 
             if (!QuestObjective.CanAlwaysBeProgressedInRaid(objectiveType))
-                if (Group && Group.IsRaidGroup && quest.IsAllowedInRaid(Map.DifficultyID))
+                if (Group && Group.IsRaidGroup && quest.IsAllowedInRaid(Location.Map.DifficultyID))
                     continue;
 
             var logSlot = objectiveStatusData.QuestStatusPair.Status.Slot;
@@ -2420,7 +2420,7 @@ public partial class Player
                 {
                     if (objectiveType == QuestObjectiveType.PlayerKills && objective.Flags.HasAnyFlag(QuestObjectiveFlags.KillPlayersSameFaction))
                     {
-                        var victim = Global.ObjAccessor.GetPlayer(Map, victimGuid);
+                        var victim = Global.ObjAccessor.GetPlayer(Location.Map, victimGuid);
 
                         if (victim?.EffectiveTeam != EffectiveTeam)
                             continue;
@@ -2530,7 +2530,7 @@ public partial class Player
                 continue;
 
             // hide quest if player is in raid-group and quest is no raid quest
-            if (Group && Group.IsRaidGroup && !qInfo.IsAllowedInRaid(Map.DifficultyID))
+            if (Group && Group.IsRaidGroup && !qInfo.IsAllowedInRaid(Location.Map.DifficultyID))
                 if (!InBattleground) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
                     continue;
 
@@ -2547,7 +2547,7 @@ public partial class Player
             var qInfo = Global.ObjectMgr.GetQuestTemplate(questStatus.Key);
 
             // hide quest if player is in raid-group and quest is no raid quest
-            if (Group && Group.IsRaidGroup && !qInfo.IsAllowedInRaid(Map.DifficultyID))
+            if (Group && Group.IsRaidGroup && !qInfo.IsAllowedInRaid(Location.Map.DifficultyID))
                 if (!InBattleground)
                     continue;
 
@@ -2987,7 +2987,7 @@ public partial class Player
             }
             else if (itr.IsGameObject)
             {
-                var questgiver = Map.GetGameObject(itr);
+                var questgiver = Location.Map.GetGameObject(itr);
 
                 if (!questgiver || questgiver.GoType != GameObjectTypes.QuestGiver)
                     continue;
@@ -3030,7 +3030,7 @@ public partial class Player
                 continue;
 
             // hide quest if player is in raid-group and quest is no raid quest
-            if (Group && Group.IsRaidGroup && !qInfo.IsAllowedInRaid(Map.DifficultyID))
+            if (Group && Group.IsRaidGroup && !qInfo.IsAllowedInRaid(Location.Map.DifficultyID))
                 if (!InBattleground) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
                     continue;
 

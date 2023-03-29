@@ -311,7 +311,7 @@ public class PetHandler : IWorldSessionHandler
                     unit_target = Global.ObjAccessor.GetUnit(Player, guid2);
 
                 // do not cast unknown spells
-                var spellInfo = Global.SpellMgr.GetSpellInfo(spellid, pet.Map.DifficultyID);
+                var spellInfo = Global.SpellMgr.GetSpellInfo(spellid, pet.Location.Map.DifficultyID);
 
                 if (spellInfo == null)
                 {
@@ -540,7 +540,7 @@ public class PetHandler : IWorldSessionHandler
             //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
             if (!((act_state == ActiveStates.Enabled || act_state == ActiveStates.Disabled || act_state == ActiveStates.Passive) && spell_id != 0 && !petControlled.HasSpell(spell_id)))
             {
-                var spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, petControlled.Map.DifficultyID);
+                var spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, petControlled.Location.Map.DifficultyID);
 
                 if (spellInfo != null)
                 {
@@ -648,7 +648,7 @@ public class PetHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.PetAbandon)]
     private void HandlePetAbandon(PetAbandon packet)
     {
-        if (!Player.IsInWorld)
+        if (!Player.Location.IsInWorld)
             return;
 
         // pet/charmed
@@ -680,7 +680,7 @@ public class PetHandler : IWorldSessionHandler
             return;
         }
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(packet.SpellID, pet.Map.DifficultyID);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(packet.SpellID, pet.Location.Map.DifficultyID);
 
         if (spellInfo == null)
         {

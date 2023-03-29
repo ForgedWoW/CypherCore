@@ -291,7 +291,7 @@ public class BgStrandOfAncients : Battleground
                         {
                             GateStatus[gateId] = Attackers == TeamIds.Horde ? SAGateState.AllianceGateDamaged : SAGateState.HordeGateDamaged;
 
-                            var c = obj.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
+                            var c = obj.Location.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
 
                             if (c)
                                 SendChatMessage(c, (byte)gate.DamagedText, invoker);
@@ -306,7 +306,7 @@ public class BgStrandOfAncients : Battleground
                             if (gateId < 5)
                                 DelObject((int)gateId + 14);
 
-                            var c = obj.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
+                            var c = obj.Location.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
 
                             if (c)
                                 SendChatMessage(c, (byte)gate.DestroyedText, invoker);
@@ -960,7 +960,7 @@ public class BgStrandOfAncients : Battleground
                 UpdateWorldState(SAWorldStateIds.LeftGyAlliance, GraveyardStatus[i] == TeamIds.Alliance ? 1 : 0);
                 UpdateWorldState(SAWorldStateIds.LeftGyHorde, GraveyardStatus[i] == TeamIds.Horde ? 1 : 0);
 
-                var c = source.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
+                var c = source.Location.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
 
                 if (c)
                     SendChatMessage(c, teamId == TeamIds.Alliance ? SATextIds.WestGraveyardCapturedA : SATextIds.WestGraveyardCapturedH, source);
@@ -1000,7 +1000,7 @@ public class BgStrandOfAncients : Battleground
                 UpdateWorldState(SAWorldStateIds.RightGyAlliance, GraveyardStatus[i] == TeamIds.Alliance ? 1 : 0);
                 UpdateWorldState(SAWorldStateIds.RightGyHorde, GraveyardStatus[i] == TeamIds.Horde ? 1 : 0);
 
-                var c = source.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
+                var c = source.Location.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
 
                 if (c)
                     SendChatMessage(c, teamId == TeamIds.Alliance ? SATextIds.EastGraveyardCapturedA : SATextIds.EastGraveyardCapturedH, source);
@@ -1024,7 +1024,7 @@ public class BgStrandOfAncients : Battleground
                 UpdateWorldState(SAWorldStateIds.CenterGyAlliance, GraveyardStatus[i] == TeamIds.Alliance ? 1 : 0);
                 UpdateWorldState(SAWorldStateIds.CenterGyHorde, GraveyardStatus[i] == TeamIds.Horde ? 1 : 0);
 
-                var c = source.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
+                var c = source.Location.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
 
                 if (c)
                     SendChatMessage(c, teamId == TeamIds.Alliance ? SATextIds.SouthGraveyardCapturedA : SATextIds.SouthGraveyardCapturedH, source);

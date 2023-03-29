@@ -514,7 +514,7 @@ public class NPCHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.BinderActivate, Processing = PacketProcessing.Inplace)]
     private void HandleBinderActivate(Hello packet)
     {
-        if (!Player.IsInWorld || !Player.IsAlive)
+        if (!Player.Location.IsInWorld || !Player.IsAlive)
             return;
 
         var unit = Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.Innkeeper, NPCFlags2.None);
@@ -536,7 +536,7 @@ public class NPCHandler : IWorldSessionHandler
     private void SendBindPoint(Creature npc)
     {
         // prevent set homebind to instances in any case
-        if (Player.Map.Instanceable)
+        if (Player.Location.Map.Instanceable)
             return;
 
         uint bindspell = 3286;

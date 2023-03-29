@@ -19,7 +19,7 @@ public class GameObjectWorker : IGridNotifierGameObject
 
     public GameObjectWorker(WorldObject searcher, IDoWork<GameObject> work, GridType gridType)
     {
-        _phaseShift = searcher.PhaseShift;
+        _phaseShift = searcher.Location.PhaseShift;
         _doWork = work;
         GridType = gridType;
     }
@@ -30,7 +30,7 @@ public class GameObjectWorker : IGridNotifierGameObject
         {
             var gameObject = objs[i];
 
-            if (gameObject.InSamePhase(_phaseShift))
+            if (gameObject.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(gameObject);
         }
     }
