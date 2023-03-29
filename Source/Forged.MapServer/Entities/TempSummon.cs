@@ -397,7 +397,7 @@ public class TempSummon : Creature
                 owner.AsGameObject.AI?.SummonedCreatureDespawn(this);
         }
 
-        AddObjectToRemoveList();
+        Location.AddObjectToRemoveList();
     }
 
     public override void RemoveFromWorld()

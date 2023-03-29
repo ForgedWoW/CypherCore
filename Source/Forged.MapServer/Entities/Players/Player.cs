@@ -4247,7 +4247,7 @@ public partial class Player : Unit
 
         SetMinion(pet, false);
 
-        pet.AddObjectToRemoveList();
+        pet.Location.AddObjectToRemoveList();
         pet.Removed = true;
 
         if (pet.IsControlled)

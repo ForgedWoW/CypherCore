@@ -9,6 +9,7 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Guilds;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
@@ -16,6 +17,8 @@ using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
+using Serilog;
+using static Forged.MapServer.Globals.ScriptNameContainer;
 
 namespace Forged.MapServer.Entities.Objects
 {
@@ -159,6 +162,32 @@ namespace Forged.MapServer.Entities.Objects
             NewPosition.Relocate(x, y, z, o);
         }
 
+
+        public virtual void ResetMap()
+        {
+            if (Map == null)
+                return;
+
+            if (_worldObject.IsWorldObject())
+                Map.RemoveWorldObject(_worldObject);
+
+            Map = null;
+        }
+        
+        public void AddObjectToRemoveList()
+        {
+            var map = Map;
+
+            if (map == null)
+            {
+                Log.Logger.Error("Object (TypeId: {0} Entry: {1} GUID: {2}) at attempt add to move list not have valid map (Id: {3}).", _worldObject.TypeId, _worldObject.Entry, _worldObject.GUID.ToString(), MapId);
+
+                return;
+            }
+
+            map.AddObjectToRemoveList(_worldObject);
+        }
+        
         public virtual bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
         {
             float sizefactor = 0;

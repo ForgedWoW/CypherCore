@@ -149,7 +149,7 @@ public class Totem : Minion
                 }
         }
 
-        AddObjectToRemoveList();
+        Location.AddObjectToRemoveList();
     }
 
     public override bool IsImmunedToSpellEffect(SpellInfo spellInfo, SpellEffectInfo spellEffectInfo, WorldObject caster, bool requireImmunityPurgesEffectAttribute = false)

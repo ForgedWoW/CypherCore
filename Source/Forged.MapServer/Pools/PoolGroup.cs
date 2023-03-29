@@ -208,7 +208,7 @@ public class PoolGroup<T>
                         if (saveRespawnTime && !creature.RespawnCompatibilityMode)
                             creature.SaveRespawnTime();
 
-                        creature.AddObjectToRemoveList();
+                        creature.Location.AddObjectToRemoveList();
                     }
 
                 if (alwaysDeleteRespawnTime)
@@ -226,7 +226,7 @@ public class PoolGroup<T>
                     if (saveRespawnTime && !go.RespawnCompatibilityMode)
                         go.SaveRespawnTime();
 
-                    go.AddObjectToRemoveList();
+                    go.Location.AddObjectToRemoveList();
                 }
 
                 if (alwaysDeleteRespawnTime)

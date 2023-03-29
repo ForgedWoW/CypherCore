@@ -241,7 +241,7 @@ public class Map : IDisposable
         {
             var obj = _worldObjects[i];
             obj.RemoveFromWorld();
-            obj.ResetMap();
+            obj.Location.ResetMap();
         }
 
         if (!_scriptSchedule.Empty())
@@ -873,7 +873,7 @@ public class Map : IDisposable
         var cell = obj.Location.GetCurrentCell();
         RemoveFromGrid(obj, cell);
 
-        obj.ResetMap();
+        obj.Location.ResetMap();
 
         if (remove)
             DeleteFromWorld(obj);
@@ -907,7 +907,7 @@ public class Map : IDisposable
 
         _transports.Remove(obj);
 
-        obj.ResetMap();
+        obj.Location.ResetMap();
 
         if (remove)
             DeleteFromWorld(obj);
@@ -1247,7 +1247,7 @@ public class Map : IDisposable
         foreach (var corpse in _corpsesByCell.Values.ToList())
         {
             corpse.RemoveFromWorld();
-            corpse.ResetMap();
+            corpse.Location.ResetMap();
             corpse.Dispose();
         }
 
@@ -4099,7 +4099,7 @@ public class Map : IDisposable
         else
         {
             corpse.RemoveFromWorld();
-            corpse.ResetMap();
+            corpse.Location.ResetMap();
         }
 
         _corpsesByCell.Remove(corpse.GetCellCoord().GetId(), corpse);

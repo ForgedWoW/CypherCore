@@ -90,7 +90,7 @@ public class Conversation : WorldObject
     public void Remove()
     {
         if (Location.IsInWorld)
-            AddObjectToRemoveList(); // calls RemoveFromWorld
+            Location.AddObjectToRemoveList(); // calls RemoveFromWorld
     }
 
     public static Conversation CreateConversation(uint conversationEntry, Unit creator, Position pos, ObjectGuid privateObjectOwner, SpellInfo spellInfo = null, bool autoStart = true)

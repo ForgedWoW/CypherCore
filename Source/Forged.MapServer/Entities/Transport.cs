@@ -667,7 +667,7 @@ public class Transport : GameObject, ITransport
             while (!_staticPassengers.Empty())
             {
                 var obj = _staticPassengers.First();
-                obj.AddObjectToRemoveList(); // also removes from _staticPassengers
+                obj.Location.AddObjectToRemoveList(); // also removes from _staticPassengers
             }
         }
     }
@@ -755,7 +755,7 @@ public class Transport : GameObject, ITransport
                     break;
                 case TypeId.DynamicObject:
                 case TypeId.AreaTrigger:
-                    obj.AddObjectToRemoveList();
+                    obj.Location.AddObjectToRemoveList();
 
                     break;
                 default:

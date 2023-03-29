@@ -287,7 +287,7 @@ public class MovementHandler : IWorldSessionHandler
         player.Location.Relocate(loc.X, loc.Y, z, loc.Orientation);
         player.SetFallInformation(0, player.Location.Z);
 
-        player.ResetMap();
+        player.Location.ResetMap();
         player.Location.Map = newMap;
         player.CheckAddToMap();
 
@@ -311,7 +311,7 @@ public class MovementHandler : IWorldSessionHandler
         if (!player.Map.AddPlayerToMap(player, !seamlessTeleport))
         {
             Log.Logger.Error($"WORLD: failed to teleport player {player.GetName()} ({player.GUID}) to map {loc.MapId} ({(newMap ? newMap.MapName : "Unknown")}) because of unknown reason!");
-            player.ResetMap();
+            player.Location.ResetMap();
             player.Location.Map = oldMap;
             player.CheckAddToMap();
             player.TeleportTo(player.Homebind);

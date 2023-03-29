@@ -173,7 +173,7 @@ public class DynamicObject : WorldObject
     public void Remove()
     {
         if (Location.IsInWorld)
-            AddObjectToRemoveList();
+            Location.AddObjectToRemoveList();
     }
 
     public void SetDuration(int newDuration)

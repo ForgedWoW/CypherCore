@@ -202,7 +202,7 @@ public partial class Creature : Unit
             if (summon != null)
                 summon.UnSummon();
             else
-                AddObjectToRemoveList();
+                Location.AddObjectToRemoveList();
         }
     }
 
@@ -2001,7 +2001,7 @@ public partial class Creature : Unit
                 SaveRespawnTime();
             }
 
-            AddObjectToRemoveList();
+            Location.AddObjectToRemoveList();
         }
     }
 
@@ -3039,7 +3039,7 @@ public partial class Creature : Unit
                 }
 
             foreach (var despawnCreature in despawnList)
-                despawnCreature.AddObjectToRemoveList();
+                despawnCreature.Location.AddObjectToRemoveList();
         }
 
         var data = Global.ObjectMgr.GetCreatureData(spawnId);

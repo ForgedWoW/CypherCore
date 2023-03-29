@@ -4756,7 +4756,7 @@ public partial class Unit : WorldObject
             MathFunctions.RoundToInterval(ref chance, 0.0f, 40.0f);
 
             if (RandomHelper.randChance(chance))
-                CastSpell(victim, 1604, true);
+                SpellFactory.CastSpell(victim, 1604, true);
         }
 
         if (IsTypeId(TypeId.Player))

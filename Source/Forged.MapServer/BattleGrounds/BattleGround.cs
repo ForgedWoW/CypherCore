@@ -1251,7 +1251,7 @@ public class Battleground : ZoneScript, IDisposable
 
         if (creature)
         {
-            creature.AddObjectToRemoveList();
+            creature.Location.AddObjectToRemoveList();
             BgCreatures[type].Clear();
 
             return true;

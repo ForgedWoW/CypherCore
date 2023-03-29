@@ -104,7 +104,7 @@ public class CinematicManager : IDisposable
                 if (vpObject == _cinematicObject)
                     _player.SetViewpoint(_cinematicObject, false);
 
-            _cinematicObject.AddObjectToRemoveList();
+            _cinematicObject.Location.AddObjectToRemoveList();
         }
     }
 

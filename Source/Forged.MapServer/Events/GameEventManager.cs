@@ -1539,7 +1539,7 @@ public class GameEventManager
                                                       var creatureBounds = map.CreatureBySpawnIdStore.LookupByKey(guid);
 
                                                       foreach (var creature in creatureBounds)
-                                                          creature.AddObjectToRemoveList();
+                                                          creature.Location.AddObjectToRemoveList();
                                                   });
             }
         }
@@ -1573,7 +1573,7 @@ public class GameEventManager
                                                       var gameobjectBounds = map.GameObjectBySpawnIdStore.LookupByKey(guid);
 
                                                       foreach (var go in gameobjectBounds)
-                                                          go.AddObjectToRemoveList();
+                                                          go.Location.AddObjectToRemoveList();
                                                   });
             }
         }

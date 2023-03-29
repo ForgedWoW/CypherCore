@@ -127,7 +127,7 @@ public class SceneObject : WorldObject
     private void Remove()
     {
         if (Location.IsInWorld)
-            AddObjectToRemoveList();
+            Location.AddObjectToRemoveList();
     }
 
     private bool ShouldBeRemoved()

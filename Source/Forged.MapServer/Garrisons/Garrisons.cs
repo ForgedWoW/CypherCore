@@ -894,7 +894,7 @@ public class Garrison
                 }
 
                 if (obj)
-                    obj.AddObjectToRemoveList();
+                    obj.Location.AddObjectToRemoveList();
             }
 
             BuildingInfo.Spawns.Clear();

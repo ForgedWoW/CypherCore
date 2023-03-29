@@ -1016,7 +1016,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     if (_respawnCompatibilityMode)
                         UpdateObjectVisibilityOnDestroy();
                     else
-                        AddObjectToRemoveList();
+                        Location.AddObjectToRemoveList();
 
                     break;
                 }
@@ -1084,7 +1084,7 @@ namespace Forged.MapServer.Entities.GameObjects
             if (_respawnCompatibilityMode && poolid != 0)
                 Global.PoolMgr.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
             else
-                AddObjectToRemoveList();
+                Location.AddObjectToRemoveList();
         }
 
         public void SendGameObjectDespawn()
