@@ -14,28 +14,28 @@ internal class ChannelUserlistUpdateBuilder : MessageBuilder
     private readonly Channel _source;
     private readonly ObjectGuid _guid;
 
-	public ChannelUserlistUpdateBuilder(Channel source, ObjectGuid guid)
-	{
-		_source = source;
-		_guid = guid;
-	}
+    public ChannelUserlistUpdateBuilder(Channel source, ObjectGuid guid)
+    {
+        _source = source;
+        _guid = guid;
+    }
 
-	public override PacketSenderOwning<UserlistUpdate> Invoke(Locale locale = Locale.enUS)
-	{
-		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+    public override PacketSenderOwning<UserlistUpdate> Invoke(Locale locale = Locale.enUS)
+    {
+        var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
-		PacketSenderOwning<UserlistUpdate> userlistUpdate = new()
-		{
-			Data =
-			{
-				UpdatedUserGUID = _guid,
-				ChannelFlags = _source.GetFlags(),
-				UserFlags = _source.GetPlayerFlags(_guid),
-				ChannelID = _source.GetChannelId(),
-				ChannelName = _source.GetName(localeIdx)
-			}
-		};
+        PacketSenderOwning<UserlistUpdate> userlistUpdate = new()
+        {
+            Data =
+            {
+                UpdatedUserGUID = _guid,
+                ChannelFlags = _source.GetFlags(),
+                UserFlags = _source.GetPlayerFlags(_guid),
+                ChannelID = _source.GetChannelId(),
+                ChannelName = _source.GetName(localeIdx)
+            }
+        };
 
-		return userlistUpdate;
-	}
+        return userlistUpdate;
+    }
 }

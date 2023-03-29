@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootMoney : ClientPacket
 {
-	public LootMoney(WorldPacket packet) : base(packet) { }
+    public LootMoney(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

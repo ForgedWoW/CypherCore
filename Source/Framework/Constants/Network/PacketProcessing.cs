@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum PacketProcessing
 {
-	Inplace = 0,  //process packet whenever we receive it - mostly for non-handled or non-implemented packets
-	ThreadUnsafe, //packet is not thread-safe - process it in World.UpdateSessions()
-	ThreadSafe    //packet is thread-safe - process it in Map.Update()
+    Inplace = 0,  //process packet whenever we receive it - mostly for non-handled or non-implemented packets
+    ThreadUnsafe, //packet is not thread-safe - process it in World.UpdateSessions()
+    ThreadSafe    //packet is thread-safe - process it in Map.Update()
 }

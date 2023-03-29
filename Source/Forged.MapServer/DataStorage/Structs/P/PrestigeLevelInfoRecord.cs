@@ -7,15 +7,15 @@ namespace Forged.MapServer.DataStorage.Structs.P;
 
 public sealed class PrestigeLevelInfoRecord
 {
-	public uint Id;
-	public string Name;
-	public int PrestigeLevel;
-	public int BadgeTextureFileDataID;
-	public PrestigeLevelInfoFlags Flags;
-	public int AwardedAchievementID;
+    public uint Id;
+    public string Name;
+    public int PrestigeLevel;
+    public int BadgeTextureFileDataID;
+    public PrestigeLevelInfoFlags Flags;
+    public int AwardedAchievementID;
 
-	public bool IsDisabled()
-	{
-		return (Flags & PrestigeLevelInfoFlags.Disabled) != 0;
-	}
+    public bool IsDisabled()
+    {
+        return (Flags & PrestigeLevelInfoFlags.Disabled) != 0;
+    }
 }

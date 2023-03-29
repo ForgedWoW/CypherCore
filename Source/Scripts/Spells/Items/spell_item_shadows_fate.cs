@@ -12,17 +12,17 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_shadows_fate : AuraScript, IAuraOnProc
 {
-	public void OnProc(ProcEventInfo procInfo)
-	{
-		PreventDefaultAction();
+    public void OnProc(ProcEventInfo procInfo)
+    {
+        PreventDefaultAction();
 
-		var caster = procInfo.Actor;
-		var target = Caster;
+        var caster = procInfo.Actor;
+        var target = Caster;
 
-		if (!caster ||
-			!target)
-			return;
+        if (!caster ||
+            !target)
+            return;
 
-		caster.CastSpell(target, ItemSpellIds.SoulFeast, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-	}
+        caster.CastSpell(target, ItemSpellIds.SoulFeast, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+    }
 }

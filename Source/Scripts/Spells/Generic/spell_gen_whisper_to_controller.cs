@@ -11,24 +11,24 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_whisper_to_controller : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var casterSummon = Caster.ToTempSummon();
+    private void HandleScript(int effIndex)
+    {
+        var casterSummon = Caster.ToTempSummon();
 
-		if (casterSummon != null)
-		{
-			var target = casterSummon.GetSummonerUnit().AsPlayer;
+        if (casterSummon != null)
+        {
+            var target = casterSummon.GetSummonerUnit().AsPlayer;
 
-			if (target != null)
-				casterSummon.Whisper((uint)EffectValue, target, false);
-		}
-	}
+            if (target != null)
+                casterSummon.Whisper((uint)EffectValue, target, false);
+        }
+    }
 }

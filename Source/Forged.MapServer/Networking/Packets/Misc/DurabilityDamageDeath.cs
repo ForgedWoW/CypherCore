@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class DurabilityDamageDeath : ServerPacket
 {
-	public uint Percent;
-	public DurabilityDamageDeath() : base(ServerOpcodes.DurabilityDamageDeath) { }
+    public uint Percent;
+    public DurabilityDamageDeath() : base(ServerOpcodes.DurabilityDamageDeath) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(Percent);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(Percent);
+    }
 }

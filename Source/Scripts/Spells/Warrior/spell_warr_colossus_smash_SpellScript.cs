@@ -9,11 +9,11 @@ namespace Scripts.Spells.Warrior;
 [Script] // 167105 - Colossus Smash 7.1.5
 internal class spell_warr_colossus_smash_SpellScript : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var target = HitUnit;
+    public void OnHit()
+    {
+        var target = HitUnit;
 
-		if (target)
-			Caster.CastSpell(target, WarriorSpells.COLOSSUS_SMASH_EFFECT, true);
-	}
+        if (target)
+            Caster.CastSpell(target, WarriorSpells.COLOSSUS_SMASH_EFFECT, true);
+    }
 }

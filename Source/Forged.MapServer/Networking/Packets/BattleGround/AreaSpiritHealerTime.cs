@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class AreaSpiritHealerTime : ServerPacket
 {
-	public ObjectGuid HealerGuid;
-	public uint TimeLeft;
-	public AreaSpiritHealerTime() : base(ServerOpcodes.AreaSpiritHealerTime) { }
+    public ObjectGuid HealerGuid;
+    public uint TimeLeft;
+    public AreaSpiritHealerTime() : base(ServerOpcodes.AreaSpiritHealerTime) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(HealerGuid);
-		_worldPacket.WriteUInt32(TimeLeft);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(HealerGuid);
+        _worldPacket.WriteUInt32(TimeLeft);
+    }
 }

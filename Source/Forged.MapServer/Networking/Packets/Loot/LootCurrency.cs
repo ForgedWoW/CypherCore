@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 public struct LootCurrency
 {
-	public uint CurrencyID;
-	public uint Quantity;
-	public byte LootListID;
-	public byte UIType;
+    public uint CurrencyID;
+    public uint Quantity;
+    public byte LootListID;
+    public byte UIType;
 }

@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GetGarrisonInfo : ClientPacket
 {
-	public GetGarrisonInfo(WorldPacket packet) : base(packet) { }
+    public GetGarrisonInfo(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

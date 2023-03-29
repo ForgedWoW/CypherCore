@@ -8,7 +8,7 @@ namespace Forged.MapServer.Phasing;
 [Flags]
 public enum PhaseFlags : ushort
 {
-	None = 0x0,
-	Cosmetic = 0x1,
-	Personal = 0x2
+    None = 0x0,
+    Cosmetic = 0x1,
+    Personal = 0x2
 }

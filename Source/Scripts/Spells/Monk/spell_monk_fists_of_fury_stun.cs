@@ -13,15 +13,15 @@ namespace Scripts.Spells.Monk;
 [SpellScript(120086)]
 public class spell_monk_fists_of_fury_stun : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, 0, Targets.UnitConeEnemy24));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, 0, Targets.UnitConeEnemy24));
+    }
 
-	private void RemoveInvalidTargets(List<WorldObject> targets)
-	{
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, SpellInfo.Id));
-	}
+    private void RemoveInvalidTargets(List<WorldObject> targets)
+    {
+        targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, SpellInfo.Id));
+    }
 }

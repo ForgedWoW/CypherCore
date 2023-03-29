@@ -9,10 +9,10 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(211052)]
 public class spell_dh_fel_barrage_damage : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var chargesUsed = SpellValue.EffectBasePoints[0];
-		var dmg = HitDamage;
-		HitDamage = (double)(dmg * chargesUsed) / 5.0f;
-	}
+    public void OnHit()
+    {
+        var chargesUsed = SpellValue.EffectBasePoints[0];
+        var dmg = HitDamage;
+        HitDamage = (double)(dmg * chargesUsed) / 5.0f;
+    }
 }

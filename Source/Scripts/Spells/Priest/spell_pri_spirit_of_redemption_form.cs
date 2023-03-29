@@ -12,24 +12,24 @@ namespace Scripts.Spells.Priest;
 [SpellScript(27827)]
 public class spell_pri_spirit_of_redemption_form : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.WaterBreathing, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.WaterBreathing, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void AfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var l_Target = Target;
+    private void AfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var l_Target = Target;
 
-		l_Target.RemoveAura(eSpells.SpiritOfRedemptionForm);
-		l_Target.RemoveAura(eSpells.SpiritOfRedemptionImmunity);
-	}
+        l_Target.RemoveAura(eSpells.SpiritOfRedemptionForm);
+        l_Target.RemoveAura(eSpells.SpiritOfRedemptionImmunity);
+    }
 
-	private struct eSpells
-	{
-		public const uint SpiritOfRedemptionImmunity = 62371;
-		public const uint SpiritOfRedemptionForm = 27795;
-	}
+    private struct eSpells
+    {
+        public const uint SpiritOfRedemptionImmunity = 62371;
+        public const uint SpiritOfRedemptionForm = 27795;
+    }
 }

@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Artifact;
 
 internal class ArtifactRespecPrompt : ServerPacket
 {
-	public ObjectGuid ArtifactGUID;
-	public ObjectGuid NpcGUID;
-	public ArtifactRespecPrompt() : base(ServerOpcodes.ArtifactRespecPrompt) { }
+    public ObjectGuid ArtifactGUID;
+    public ObjectGuid NpcGUID;
+    public ArtifactRespecPrompt() : base(ServerOpcodes.ArtifactRespecPrompt) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ArtifactGUID);
-		_worldPacket.WritePackedGuid(NpcGUID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ArtifactGUID);
+        _worldPacket.WritePackedGuid(NpcGUID);
+    }
 }

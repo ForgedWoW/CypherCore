@@ -12,18 +12,18 @@ namespace Scripts.Spells.Priest;
 [SpellScript(263165)]
 public class spell_priest_void_torrent : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDamage));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDamage));
+    }
 
-	private void OnTick(AuraEffect UnnamedParameter)
-	{
-		var caster = Caster;
+    private void OnTick(AuraEffect UnnamedParameter)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			caster.ModifyPower(PowerType.Insanity, +600);
-	}
+        if (caster != null)
+            caster.ModifyPower(PowerType.Insanity, +600);
+    }
 }

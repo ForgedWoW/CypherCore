@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal struct ItemPurchaseRefundCurrency
 {
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(CurrencyID);
-		data.WriteUInt32(CurrencyCount);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(CurrencyID);
+        data.WriteUInt32(CurrencyCount);
+    }
 
-	public uint CurrencyID;
-	public uint CurrencyCount;
+    public uint CurrencyID;
+    public uint CurrencyCount;
 }

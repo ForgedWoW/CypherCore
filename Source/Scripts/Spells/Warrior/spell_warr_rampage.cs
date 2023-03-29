@@ -9,37 +9,37 @@ namespace Scripts.Spells.Warrior;
 // Rampage damage dealers - 218617, 184707, 184709, 201364, 201363
 [SpellScript(new uint[]
 {
-	218617, 184707, 184709, 201364, 201363
+    218617, 184707, 184709, 201364, 201363
 })]
 public class spell_warr_rampage : SpellScript, ISpellOnHit, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var enrage = caster.GetAura(WarriorSpells.ENRAGE_AURA);
+        var enrage = caster.GetAura(WarriorSpells.ENRAGE_AURA);
 
-		if (enrage != null)
-			enrage.RefreshDuration();
-		else
-			caster.CastSpell(caster, WarriorSpells.ENRAGE_AURA, true);
-	}
+        if (enrage != null)
+            enrage.RefreshDuration();
+        else
+            caster.CastSpell(caster, WarriorSpells.ENRAGE_AURA, true);
+    }
 
-	public void OnHit()
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    public void OnHit()
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (target != ObjectAccessor.Instance.GetUnit(caster, caster.Target))
-			HitDamage = HitDamage / 2;
+        if (target != ObjectAccessor.Instance.GetUnit(caster, caster.Target))
+            HitDamage = HitDamage / 2;
 
-		if (caster == target)
-			HitDamage = 0;
-	}
+        if (caster == target)
+            HitDamage = 0;
+    }
 }

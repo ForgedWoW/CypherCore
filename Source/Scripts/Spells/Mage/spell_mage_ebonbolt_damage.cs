@@ -12,27 +12,27 @@ namespace Scripts.Spells.Mage;
 [SpellScript(257538)]
 public class spell_mage_ebonbolt_damage : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(DoEffectHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(DoEffectHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void DoEffectHitTarget(int effIndex)
-	{
-		var hitUnit = HitUnit;
-		var primaryTarget = Caster.VariableStorage.GetValue<ObjectGuid>("explTarget", default);
-		var damage = HitDamage;
+    private void DoEffectHitTarget(int effIndex)
+    {
+        var hitUnit = HitUnit;
+        var primaryTarget = Caster.VariableStorage.GetValue<ObjectGuid>("explTarget", default);
+        var damage = HitDamage;
 
-		if (hitUnit == null || primaryTarget == default)
-			return;
+        if (hitUnit == null || primaryTarget == default)
+            return;
 
-		var eff1 = Global.SpellMgr.GetSpellInfo(MageSpells.SPLITTING_ICE, Difficulty.None).GetEffect(1).CalcValue();
+        var eff1 = Global.SpellMgr.GetSpellInfo(MageSpells.SPLITTING_ICE, Difficulty.None).GetEffect(1).CalcValue();
 
-		if (eff1 != 0)
-			if (hitUnit.GUID != primaryTarget)
-				HitDamage = MathFunctions.CalculatePct(damage, eff1);
-	}
+        if (eff1 != 0)
+            if (hitUnit.GUID != primaryTarget)
+                HitDamage = MathFunctions.CalculatePct(damage, eff1);
+    }
 }

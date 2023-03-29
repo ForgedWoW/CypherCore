@@ -7,10 +7,10 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class NoopCheckCustomizer
 {
-	public virtual bool Test(WorldObject o)
-	{
-		return true;
-	}
+    public virtual bool Test(WorldObject o)
+    {
+        return true;
+    }
 
-	public virtual void Update(WorldObject o) { }
+    public virtual void Update(WorldObject o) { }
 }

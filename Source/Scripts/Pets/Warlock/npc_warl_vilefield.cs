@@ -8,43 +8,43 @@ using Game.Scripting;
 
 namespace Scripts.Pets
 {
-	namespace Warlock
-	{
-		[CreatureScript(135816)]
-		public class npc_warl_vilefield : SmartAI
-		{
-			public npc_warl_vilefield(Creature creature) : base(creature)
-			{
-				if (!Me.TryGetOwner(out Player owner))
-					return;
+    namespace Warlock
+    {
+        [CreatureScript(135816)]
+        public class npc_warl_vilefield : SmartAI
+        {
+            public npc_warl_vilefield(Creature creature) : base(creature)
+            {
+                if (!Me.TryGetOwner(out Player owner))
+                    return;
 
-				creature.SetLevel(owner.Level);
-				creature.UpdateLevelDependantStats();
-				creature.ReactState = ReactStates.Aggressive;
-				creature.SetCreatorGUID(owner.GUID);
+                creature.SetLevel(owner.Level);
+                creature.UpdateLevelDependantStats();
+                creature.ReactState = ReactStates.Aggressive;
+                creature.SetCreatorGUID(owner.GUID);
 
-				var summon = creature.ToTempSummon();
+                var summon = creature.ToTempSummon();
 
-				if (summon != null)
-				{
-					summon.SetCanFollowOwner(true);
-					summon.MotionMaster.Clear();
-					summon.MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, summon.FollowAngle);
-					StartAttackOnOwnersInCombatWith();
-				}
-			}
+                if (summon != null)
+                {
+                    summon.SetCanFollowOwner(true);
+                    summon.MotionMaster.Clear();
+                    summon.MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, summon.FollowAngle);
+                    StartAttackOnOwnersInCombatWith();
+                }
+            }
 
-			public override void Reset()
-			{
-				var owner = Me.OwnerUnit;
+            public override void Reset()
+            {
+                var owner = Me.OwnerUnit;
 
-				if (owner == null)
-					return;
+                if (owner == null)
+                    return;
 
-				Me.SetMaxHealth(owner.MaxHealth);
-				Me.SetHealth(Me.MaxHealth);
-				Me.SetControlled(true, UnitState.Root);
-			}
-		}
-	}
+                Me.SetMaxHealth(owner.MaxHealth);
+                Me.SetHealth(Me.MaxHealth);
+                Me.SetControlled(true, UnitState.Root);
+            }
+        }
+    }
 }

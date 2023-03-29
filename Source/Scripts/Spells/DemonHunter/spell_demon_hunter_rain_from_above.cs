@@ -10,13 +10,13 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(206803)]
 public class spell_demon_hunter_rain_from_above : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		var caster = Caster;
+    public void AfterCast()
+    {
+        var caster = Caster;
 
-		if (caster == null || !caster.AsPlayer)
-			return;
+        if (caster == null || !caster.AsPlayer)
+            return;
 
-		caster.Events.AddEventAtOffset(() => { caster.CastSpell(caster, DemonHunterSpells.RAIN_FROM_ABOVE_SLOWFALL); }, TimeSpan.FromMilliseconds(1750));
-	}
+        caster.Events.AddEventAtOffset(() => { caster.CastSpell(caster, DemonHunterSpells.RAIN_FROM_ABOVE_SLOWFALL); }, TimeSpan.FromMilliseconds(1750));
+    }
 }

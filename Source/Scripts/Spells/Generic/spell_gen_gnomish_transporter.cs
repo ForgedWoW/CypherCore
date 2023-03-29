@@ -11,16 +11,16 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_gnomish_transporter : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		Caster.CastSpell(Caster, RandomHelper.randChance(50) ? GenericSpellIds.TransporterSuccess : GenericSpellIds.TransporterFailure, true);
-	}
+    private void HandleDummy(int effIndex)
+    {
+        Caster.CastSpell(Caster, RandomHelper.randChance(50) ? GenericSpellIds.TransporterSuccess : GenericSpellIds.TransporterFailure, true);
+    }
 }

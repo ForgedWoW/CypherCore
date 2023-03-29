@@ -9,27 +9,27 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventNewLeader : ServerPacket
 {
-	public ObjectGuid NewLeaderGUID;
-	public string NewLeaderName;
-	public uint NewLeaderVirtualRealmAddress;
-	public ObjectGuid OldLeaderGUID;
-	public string OldLeaderName = "";
-	public uint OldLeaderVirtualRealmAddress;
-	public bool SelfPromoted;
-	public GuildEventNewLeader() : base(ServerOpcodes.GuildEventNewLeader) { }
+    public ObjectGuid NewLeaderGUID;
+    public string NewLeaderName;
+    public uint NewLeaderVirtualRealmAddress;
+    public ObjectGuid OldLeaderGUID;
+    public string OldLeaderName = "";
+    public uint OldLeaderVirtualRealmAddress;
+    public bool SelfPromoted;
+    public GuildEventNewLeader() : base(ServerOpcodes.GuildEventNewLeader) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(SelfPromoted);
-		_worldPacket.WriteBits(OldLeaderName.GetByteCount(), 6);
-		_worldPacket.WriteBits(NewLeaderName.GetByteCount(), 6);
+    public override void Write()
+    {
+        _worldPacket.WriteBit(SelfPromoted);
+        _worldPacket.WriteBits(OldLeaderName.GetByteCount(), 6);
+        _worldPacket.WriteBits(NewLeaderName.GetByteCount(), 6);
 
-		_worldPacket.WritePackedGuid(OldLeaderGUID);
-		_worldPacket.WriteUInt32(OldLeaderVirtualRealmAddress);
-		_worldPacket.WritePackedGuid(NewLeaderGUID);
-		_worldPacket.WriteUInt32(NewLeaderVirtualRealmAddress);
+        _worldPacket.WritePackedGuid(OldLeaderGUID);
+        _worldPacket.WriteUInt32(OldLeaderVirtualRealmAddress);
+        _worldPacket.WritePackedGuid(NewLeaderGUID);
+        _worldPacket.WriteUInt32(NewLeaderVirtualRealmAddress);
 
-		_worldPacket.WriteString(OldLeaderName);
-		_worldPacket.WriteString(NewLeaderName);
-	}
+        _worldPacket.WriteString(OldLeaderName);
+        _worldPacket.WriteString(NewLeaderName);
+    }
 }

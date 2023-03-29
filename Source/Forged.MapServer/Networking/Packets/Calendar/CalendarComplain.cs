@@ -10,12 +10,12 @@ internal class CalendarComplain : ClientPacket
     private ObjectGuid InvitedByGUID;
     private ulong InviteID;
     private ulong EventID;
-	public CalendarComplain(WorldPacket packet) : base(packet) { }
+    public CalendarComplain(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		InvitedByGUID = _worldPacket.ReadPackedGuid();
-		EventID = _worldPacket.ReadUInt64();
-		InviteID = _worldPacket.ReadUInt64();
-	}
+    public override void Read()
+    {
+        InvitedByGUID = _worldPacket.ReadPackedGuid();
+        EventID = _worldPacket.ReadUInt64();
+        InviteID = _worldPacket.ReadUInt64();
+    }
 }

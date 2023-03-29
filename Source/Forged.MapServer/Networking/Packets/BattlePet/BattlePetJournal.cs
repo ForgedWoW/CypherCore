@@ -8,26 +8,26 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetJournal : ServerPacket
 {
-	public ushort Trap;
-	public bool HasJournalLock = false;
-	public List<BattlePetSlot> Slots = new();
-	public List<BattlePetStruct> Pets = new();
-	public BattlePetJournal() : base(ServerOpcodes.BattlePetJournal) { }
+    public ushort Trap;
+    public bool HasJournalLock = false;
+    public List<BattlePetSlot> Slots = new();
+    public List<BattlePetStruct> Pets = new();
+    public BattlePetJournal() : base(ServerOpcodes.BattlePetJournal) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt16(Trap);
-		_worldPacket.WriteInt32(Slots.Count);
-		_worldPacket.WriteInt32(Pets.Count);
-		_worldPacket.WriteBit(HasJournalLock);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteUInt16(Trap);
+        _worldPacket.WriteInt32(Slots.Count);
+        _worldPacket.WriteInt32(Pets.Count);
+        _worldPacket.WriteBit(HasJournalLock);
+        _worldPacket.FlushBits();
 
-		foreach (var slot in Slots)
-			slot.Write(_worldPacket);
+        foreach (var slot in Slots)
+            slot.Write(_worldPacket);
 
-		foreach (var pet in Pets)
-			pet.Write(_worldPacket);
-	}
+        foreach (var pet in Pets)
+            pet.Write(_worldPacket);
+    }
 }
 
 //Structs

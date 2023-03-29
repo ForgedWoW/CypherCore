@@ -15,20 +15,20 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(70811)]
 internal class spell_sha_item_t10_elemental_2p_bonus : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var target = Target.AsPlayer;
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var target = Target.AsPlayer;
 
-		if (target)
-			target.SpellHistory.ModifyCooldown(ShamanSpells.ElementalMastery, TimeSpan.FromMilliseconds(-aurEff.Amount));
-	}
+        if (target)
+            target.SpellHistory.ModifyCooldown(ShamanSpells.ElementalMastery, TimeSpan.FromMilliseconds(-aurEff.Amount));
+    }
 }

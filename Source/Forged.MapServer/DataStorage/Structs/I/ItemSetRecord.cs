@@ -8,10 +8,10 @@ namespace Forged.MapServer.DataStorage.Structs.I;
 
 public sealed class ItemSetRecord
 {
-	public uint Id;
-	public LocalizedString Name;
-	public ItemSetFlags SetFlags;
-	public uint RequiredSkill;
-	public ushort RequiredSkillRank;
-	public uint[] ItemID = new uint[ItemConst.MaxItemSetItems];
+    public uint Id;
+    public LocalizedString Name;
+    public ItemSetFlags SetFlags;
+    public uint RequiredSkill;
+    public ushort RequiredSkillRank;
+    public uint[] ItemID = new uint[ItemConst.MaxItemSetItems];
 }

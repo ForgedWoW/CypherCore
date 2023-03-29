@@ -5,10 +5,10 @@ namespace Forged.MapServer.Phasing;
 
 public struct UiMapPhaseIdRef
 {
-	public UiMapPhaseIdRef(int references)
-	{
-		References = references;
-	}
+    public UiMapPhaseIdRef(int references)
+    {
+        References = references;
+    }
 
-	public int References;
+    public int References;
 }

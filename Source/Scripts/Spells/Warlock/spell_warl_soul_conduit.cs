@@ -15,52 +15,52 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(215941)]
 public class spell_warl_soul_conduit : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	private int _refund = 0;
+    private int _refund = 0;
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var caster = Caster;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return false;
+        if (caster == null)
+            return false;
 
-		if (eventInfo.Actor && eventInfo.Actor != caster)
-			return false;
+        if (eventInfo.Actor && eventInfo.Actor != caster)
+            return false;
 
-		var spell = eventInfo.ProcSpell;
+        var spell = eventInfo.ProcSpell;
 
-		if (spell == null)
-		{
-			var costs = spell.PowerCost;
+        if (spell == null)
+        {
+            var costs = spell.PowerCost;
 
-			var costData = costs.FirstOrDefault(cost => cost.Power == PowerType.Mana && cost.Amount > 0);
+            var costData = costs.FirstOrDefault(cost => cost.Power == PowerType.Mana && cost.Amount > 0);
 
-			if (costData == null)
-				return false;
+            if (costData == null)
+                return false;
 
-			_refund = costData.Amount;
+            _refund = costData.Amount;
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (RandomHelper.randChance(SpellInfo.GetEffect(0).BasePoints))
-			caster.CastSpell(caster, WarlockSpells.SOUL_CONDUIT_REFUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)_refund));
-	}
+        if (RandomHelper.randChance(SpellInfo.GetEffect(0).BasePoints))
+            caster.CastSpell(caster, WarlockSpells.SOUL_CONDUIT_REFUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)_refund));
+    }
 }

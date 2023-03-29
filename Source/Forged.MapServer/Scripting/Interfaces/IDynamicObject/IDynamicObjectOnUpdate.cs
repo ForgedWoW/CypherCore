@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IDynamicObject;
 
 public interface IDynamicObjectOnUpdate : IScriptObject
 {
-	void OnUpdate(DynamicObject obj, uint diff);
+    void OnUpdate(DynamicObject obj, uint diff);
 }

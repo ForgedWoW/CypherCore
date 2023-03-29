@@ -9,28 +9,28 @@ namespace Forged.MapServer.Networking.Packets.AreaTrigger;
 
 internal class AreaTriggerRePath : ServerPacket
 {
-	public AreaTriggerSplineInfo AreaTriggerSpline;
-	public AreaTriggerOrbitInfo AreaTriggerOrbit;
-	public AreaTriggerMovementScriptInfo? AreaTriggerMovementScript;
-	public ObjectGuid TriggerGUID;
-	public AreaTriggerRePath() : base(ServerOpcodes.AreaTriggerRePath) { }
+    public AreaTriggerSplineInfo AreaTriggerSpline;
+    public AreaTriggerOrbitInfo AreaTriggerOrbit;
+    public AreaTriggerMovementScriptInfo? AreaTriggerMovementScript;
+    public ObjectGuid TriggerGUID;
+    public AreaTriggerRePath() : base(ServerOpcodes.AreaTriggerRePath) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(TriggerGUID);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(TriggerGUID);
 
-		_worldPacket.WriteBit(AreaTriggerSpline != null);
-		_worldPacket.WriteBit(AreaTriggerOrbit != null);
-		_worldPacket.WriteBit(AreaTriggerMovementScript.HasValue);
-		_worldPacket.FlushBits();
+        _worldPacket.WriteBit(AreaTriggerSpline != null);
+        _worldPacket.WriteBit(AreaTriggerOrbit != null);
+        _worldPacket.WriteBit(AreaTriggerMovementScript.HasValue);
+        _worldPacket.FlushBits();
 
-		if (AreaTriggerSpline != null)
-			AreaTriggerSpline.Write(_worldPacket);
+        if (AreaTriggerSpline != null)
+            AreaTriggerSpline.Write(_worldPacket);
 
-		if (AreaTriggerMovementScript.HasValue)
-			AreaTriggerMovementScript.Value.Write(_worldPacket);
+        if (AreaTriggerMovementScript.HasValue)
+            AreaTriggerMovementScript.Value.Write(_worldPacket);
 
-		if (AreaTriggerOrbit != null)
-			AreaTriggerOrbit.Write(_worldPacket);
-	}
+        if (AreaTriggerOrbit != null)
+            AreaTriggerOrbit.Write(_worldPacket);
+    }
 }

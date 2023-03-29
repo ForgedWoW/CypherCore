@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionHelloRequest : ClientPacket
 {
-	public ObjectGuid Guid;
+    public ObjectGuid Guid;
 
-	public AuctionHelloRequest(WorldPacket packet) : base(packet) { }
+    public AuctionHelloRequest(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Guid = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Guid = _worldPacket.ReadPackedGuid();
+    }
 }

@@ -5,10 +5,10 @@ namespace Forged.MapServer.Entities;
 
 internal enum PetLoginQueryLoad
 {
-	DeclinedNames,
-	Auras,
-	AuraEffects,
-	Spells,
-	Cooldowns,
-	Charges
+    DeclinedNames,
+    Auras,
+    AuraEffects,
+    Spells,
+    Cooldowns,
+    Charges
 }

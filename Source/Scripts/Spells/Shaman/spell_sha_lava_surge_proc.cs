@@ -11,13 +11,13 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(77762)]
 internal class spell_sha_lava_surge_proc : SpellScript, ISpellAfterHit
 {
-	public override bool Load()
-	{
-		return Caster.IsTypeId(TypeId.Player);
-	}
+    public override bool Load()
+    {
+        return Caster.IsTypeId(TypeId.Player);
+    }
 
-	public void AfterHit()
-	{
-		Caster.SpellHistory.RestoreCharge(Global.SpellMgr.GetSpellInfo(ShamanSpells.LavaBurst, CastDifficulty).ChargeCategoryId);
-	}
+    public void AfterHit()
+    {
+        Caster.SpellHistory.RestoreCharge(Global.SpellMgr.GetSpellInfo(ShamanSpells.LavaBurst, CastDifficulty).ChargeCategoryId);
+    }
 }

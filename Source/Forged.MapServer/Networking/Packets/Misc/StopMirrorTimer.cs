@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class StopMirrorTimer : ServerPacket
 {
-	public MirrorTimerType Timer;
+    public MirrorTimerType Timer;
 
-	public StopMirrorTimer(MirrorTimerType timer) : base(ServerOpcodes.StopMirrorTimer)
-	{
-		Timer = timer;
-	}
+    public StopMirrorTimer(MirrorTimerType timer) : base(ServerOpcodes.StopMirrorTimer)
+    {
+        Timer = timer;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32((int)Timer);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32((int)Timer);
+    }
 }

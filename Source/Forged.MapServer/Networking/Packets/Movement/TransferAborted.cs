@@ -7,18 +7,18 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class TransferAborted : ServerPacket
 {
-	public uint MapID;
-	public byte Arg;
-	public uint MapDifficultyXConditionID;
-	public TransferAbortReason TransfertAbort;
-	public TransferAborted() : base(ServerOpcodes.TransferAborted) { }
+    public uint MapID;
+    public byte Arg;
+    public uint MapDifficultyXConditionID;
+    public TransferAbortReason TransfertAbort;
+    public TransferAborted() : base(ServerOpcodes.TransferAborted) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(MapID);
-		_worldPacket.WriteUInt8(Arg);
-		_worldPacket.WriteUInt32(MapDifficultyXConditionID);
-		_worldPacket.WriteBits(TransfertAbort, 6);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(MapID);
+        _worldPacket.WriteUInt8(Arg);
+        _worldPacket.WriteUInt32(MapDifficultyXConditionID);
+        _worldPacket.WriteBits(TransfertAbort, 6);
+        _worldPacket.FlushBits();
+    }
 }

@@ -10,31 +10,31 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(193537)]
 public class spell_rog_weaponmaster_AuraScript : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var caster = eventInfo.Actor;
-		var target = eventInfo.ActionTarget;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var caster = eventInfo.Actor;
+        var target = eventInfo.ActionTarget;
 
-		if (target == null || caster == null)
-			return false;
+        if (target == null || caster == null)
+            return false;
 
-		var triggerSpell = eventInfo.SpellInfo;
+        var triggerSpell = eventInfo.SpellInfo;
 
-		if (triggerSpell == null)
-			return false;
+        if (triggerSpell == null)
+            return false;
 
-		if (!RandomHelper.randChance(6))
-			return false;
+        if (!RandomHelper.randChance(6))
+            return false;
 
-		if (eventInfo.DamageInfo != null)
-			return false;
+        if (eventInfo.DamageInfo != null)
+            return false;
 
-		var damageLog = new SpellNonMeleeDamage(caster, target, triggerSpell, new SpellCastVisual(triggerSpell.GetSpellXSpellVisualId(), 0), triggerSpell.SchoolMask);
-		damageLog.Damage = eventInfo.DamageInfo.Damage;
-		damageLog.CleanDamage = damageLog.Damage;
-		caster.DealSpellDamage(damageLog, true);
-		caster.SendSpellNonMeleeDamageLog(damageLog);
+        var damageLog = new SpellNonMeleeDamage(caster, target, triggerSpell, new SpellCastVisual(triggerSpell.GetSpellXSpellVisualId(), 0), triggerSpell.SchoolMask);
+        damageLog.Damage = eventInfo.DamageInfo.Damage;
+        damageLog.CleanDamage = damageLog.Damage;
+        caster.DealSpellDamage(damageLog, true);
+        caster.SendSpellNonMeleeDamageLog(damageLog);
 
-		return true;
-	}
+        return true;
+    }
 }

@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildAssignMemberRank : ClientPacket
 {
-	public ObjectGuid Member;
-	public int RankOrder;
-	public GuildAssignMemberRank(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Member;
+    public int RankOrder;
+    public GuildAssignMemberRank(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Member = _worldPacket.ReadPackedGuid();
-		RankOrder = _worldPacket.ReadInt32();
-	}
+    public override void Read()
+    {
+        Member = _worldPacket.ReadPackedGuid();
+        RankOrder = _worldPacket.ReadInt32();
+    }
 }

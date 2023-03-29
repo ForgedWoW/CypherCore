@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public struct QuestInfoChoiceItem
 {
-	public uint ItemID;
-	public uint Quantity;
-	public uint DisplayID;
+    public uint ItemID;
+    public uint Quantity;
+    public uint DisplayID;
 }

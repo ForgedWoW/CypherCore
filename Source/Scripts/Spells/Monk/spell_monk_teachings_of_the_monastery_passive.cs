@@ -13,34 +13,34 @@ namespace Scripts.Spells.Monk;
 [SpellScript(116645)]
 public class spell_monk_teachings_of_the_monastery_passive : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo.Id != MonkSpells.TIGER_PALM && eventInfo.SpellInfo.Id != MonkSpells.BLACKOUT_KICK && eventInfo.SpellInfo.Id != MonkSpells.BLACKOUT_KICK_TRIGGERED)
-			return false;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo.Id != MonkSpells.TIGER_PALM && eventInfo.SpellInfo.Id != MonkSpells.BLACKOUT_KICK && eventInfo.SpellInfo.Id != MonkSpells.BLACKOUT_KICK_TRIGGERED)
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo.Id == MonkSpells.TIGER_PALM)
-		{
-			Target.CastSpell(Target, MonkSpells.TEACHINGS_OF_THE_MONASTERY, true);
-		}
-		else if (RandomHelper.randChance(aurEff.Amount))
-		{
-			var spellInfo = Global.SpellMgr.GetSpellInfo(MonkSpells.RISING_SUN_KICK, Difficulty.None);
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo.Id == MonkSpells.TIGER_PALM)
+        {
+            Target.CastSpell(Target, MonkSpells.TEACHINGS_OF_THE_MONASTERY, true);
+        }
+        else if (RandomHelper.randChance(aurEff.Amount))
+        {
+            var spellInfo = Global.SpellMgr.GetSpellInfo(MonkSpells.RISING_SUN_KICK, Difficulty.None);
 
-			if (spellInfo != null)
-				Target.SpellHistory.RestoreCharge(spellInfo.ChargeCategoryId);
-		}
-	}
+            if (spellInfo != null)
+                Target.SpellHistory.RestoreCharge(spellInfo.ChargeCategoryId);
+        }
+    }
 }

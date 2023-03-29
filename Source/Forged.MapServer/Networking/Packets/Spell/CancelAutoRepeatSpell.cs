@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class CancelAutoRepeatSpell : ClientPacket
 {
-	public CancelAutoRepeatSpell(WorldPacket packet) : base(packet) { }
+    public CancelAutoRepeatSpell(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

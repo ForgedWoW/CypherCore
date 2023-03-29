@@ -13,17 +13,17 @@ namespace Scripts.Spells.Monk;
 [SpellScript(MonkSpells.RISING_THUNDER)]
 public class spell_monk_rising_thunder : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		caster.AsPlayer.SpellHistory.ResetCooldown(MonkSpells.THUNDER_FOCUS_TEA, true);
-	}
+        caster.AsPlayer.SpellHistory.ResetCooldown(MonkSpells.THUNDER_FOCUS_TEA, true);
+    }
 }

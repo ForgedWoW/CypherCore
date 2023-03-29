@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class GroupUninvite : ServerPacket
 {
-	public GroupUninvite() : base(ServerOpcodes.GroupUninvite) { }
+    public GroupUninvite() : base(ServerOpcodes.GroupUninvite) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

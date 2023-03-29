@@ -10,19 +10,19 @@ namespace Scripts.Spells.Priest;
 [SpellScript(8122)]
 public class spell_pri_psychic_scream : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var target = eventInfo.ActionTarget;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var target = eventInfo.ActionTarget;
 
-		if (target == null)
-			return false;
+        if (target == null)
+            return false;
 
-		var dmg = eventInfo.DamageInfo;
-		var fear = Aura;
+        var dmg = eventInfo.DamageInfo;
+        var fear = Aura;
 
-		if (fear != null && dmg != null && dmg.Damage > 0)
-			fear.SetDuration(0);
+        if (fear != null && dmg != null && dmg.Damage > 0)
+            fear.SetDuration(0);
 
-		return true;
-	}
+        return true;
+    }
 }

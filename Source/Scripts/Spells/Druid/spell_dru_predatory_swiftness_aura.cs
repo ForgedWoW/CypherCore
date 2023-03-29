@@ -9,12 +9,12 @@ namespace Scripts.Spells.Druid;
 [SpellScript(69369)]
 public class spell_dru_predatory_swiftness_aura : SpellScript, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		var player = Caster.AsPlayer;
+    public void AfterHit()
+    {
+        var player = Caster.AsPlayer;
 
-		if (player != null)
-			if (player.HasAura(PredatorySwiftnessSpells.PREDATORY_SWIFTNESS_AURA))
-				player.RemoveAura(PredatorySwiftnessSpells.PREDATORY_SWIFTNESS_AURA);
-	}
+        if (player != null)
+            if (player.HasAura(PredatorySwiftnessSpells.PREDATORY_SWIFTNESS_AURA))
+                player.RemoveAura(PredatorySwiftnessSpells.PREDATORY_SWIFTNESS_AURA);
+    }
 }

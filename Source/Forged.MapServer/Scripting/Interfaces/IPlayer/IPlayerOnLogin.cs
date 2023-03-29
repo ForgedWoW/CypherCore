@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 // Called when a player logs in.
 public interface IPlayerOnLogin : IScriptObject, IClassRescriction
 {
-	void OnLogin(Player player);
+    void OnLogin(Player player);
 }

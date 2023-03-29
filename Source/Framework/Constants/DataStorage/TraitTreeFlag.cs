@@ -8,7 +8,7 @@ namespace Framework.Constants;
 [Flags]
 public enum TraitTreeFlag
 {
-	None = 0x0,
-	CannotRefund = 0x1,
-	HideSingleRankNumbers = 0x2
+    None = 0x0,
+    CannotRefund = 0x1,
+    HideSingleRankNumbers = 0x2
 }

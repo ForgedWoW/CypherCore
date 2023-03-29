@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class UnlearnSkill : ClientPacket
 {
-	public uint SkillLine;
-	public UnlearnSkill(WorldPacket packet) : base(packet) { }
+    public uint SkillLine;
+    public UnlearnSkill(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		SkillLine = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        SkillLine = _worldPacket.ReadUInt32();
+    }
 }

@@ -12,59 +12,59 @@ namespace Scripts.Spells.Rogue;
 [Script] // 1784 - Stealth
 internal class spell_rog_stealth : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply));
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void HandleEffectApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var target = Target;
+    private void HandleEffectApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var target = Target;
 
-		// Master of Subtlety
-		if (target.HasAura(RogueSpells.MasterOfSubtletyPassive))
-			target.CastSpell(target, RogueSpells.MasterOfSubtletyDamagePercent, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        // Master of Subtlety
+        if (target.HasAura(RogueSpells.MasterOfSubtletyPassive))
+            target.CastSpell(target, RogueSpells.MasterOfSubtletyDamagePercent, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
-		// Shadow Focus
-		if (target.HasAura(RogueSpells.ShadowFocus))
-			target.CastSpell(target, RogueSpells.ShadowFocusEffect, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        // Shadow Focus
+        if (target.HasAura(RogueSpells.ShadowFocus))
+            target.CastSpell(target, RogueSpells.ShadowFocusEffect, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
-		// Premeditation
-		if (target.HasAura(RogueSpells.PremeditationPassive))
-			target.CastSpell(target, RogueSpells.PremeditationAura, true);
+        // Premeditation
+        if (target.HasAura(RogueSpells.PremeditationPassive))
+            target.CastSpell(target, RogueSpells.PremeditationAura, true);
 
-		target.CastSpell(target, RogueSpells.Sanctuary, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-		target.CastSpell(target, RogueSpells.StealthStealthAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-		target.CastSpell(target, RogueSpells.StealthShapeshiftAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-	}
+        target.CastSpell(target, RogueSpells.Sanctuary, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        target.CastSpell(target, RogueSpells.StealthStealthAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        target.CastSpell(target, RogueSpells.StealthShapeshiftAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+    }
 
-	private void HandleEffectRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var target = Target;
+    private void HandleEffectRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var target = Target;
 
-		// Master of Subtlety
-		var masterOfSubtletyPassive = Target.GetAuraEffect(RogueSpells.MasterOfSubtletyPassive, 0);
+        // Master of Subtlety
+        var masterOfSubtletyPassive = Target.GetAuraEffect(RogueSpells.MasterOfSubtletyPassive, 0);
 
-		if (masterOfSubtletyPassive != null)
-		{
-			var masterOfSubtletyAura = Target.GetAura(RogueSpells.MasterOfSubtletyDamagePercent);
+        if (masterOfSubtletyPassive != null)
+        {
+            var masterOfSubtletyAura = Target.GetAura(RogueSpells.MasterOfSubtletyDamagePercent);
 
-			if (masterOfSubtletyAura != null)
-			{
-				masterOfSubtletyAura.SetMaxDuration(masterOfSubtletyPassive.Amount);
-				masterOfSubtletyAura.RefreshDuration();
-			}
-		}
+            if (masterOfSubtletyAura != null)
+            {
+                masterOfSubtletyAura.SetMaxDuration(masterOfSubtletyPassive.Amount);
+                masterOfSubtletyAura.RefreshDuration();
+            }
+        }
 
-		// Premeditation
-		target.RemoveAura(RogueSpells.PremeditationAura);
+        // Premeditation
+        target.RemoveAura(RogueSpells.PremeditationAura);
 
-		target.RemoveAura(RogueSpells.ShadowFocusEffect);
-		target.RemoveAura(RogueSpells.StealthStealthAura);
-		target.RemoveAura(RogueSpells.StealthShapeshiftAura);
-	}
+        target.RemoveAura(RogueSpells.ShadowFocusEffect);
+        target.RemoveAura(RogueSpells.StealthStealthAura);
+        target.RemoveAura(RogueSpells.StealthShapeshiftAura);
+    }
 }

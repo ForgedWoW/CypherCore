@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestLogRemoveQuest : ClientPacket
 {
-	public byte Entry;
-	public QuestLogRemoveQuest(WorldPacket packet) : base(packet) { }
+    public byte Entry;
+    public QuestLogRemoveQuest(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Entry = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        Entry = _worldPacket.ReadUInt8();
+    }
 }

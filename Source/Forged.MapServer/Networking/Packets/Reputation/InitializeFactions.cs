@@ -7,24 +7,24 @@ namespace Forged.MapServer.Networking.Packets.Reputation;
 
 public class InitializeFactions : ServerPacket
 {
-	public int[] FactionStandings = new int[FactionCount];
-	public bool[] FactionHasBonus = new bool[FactionCount]; //@todo: implement faction bonus
-	public ReputationFlags[] FactionFlags = new ReputationFlags[FactionCount];
+    public int[] FactionStandings = new int[FactionCount];
+    public bool[] FactionHasBonus = new bool[FactionCount]; //@todo: implement faction bonus
+    public ReputationFlags[] FactionFlags = new ReputationFlags[FactionCount];
     private const ushort FactionCount = 443;
 
-	public InitializeFactions() : base(ServerOpcodes.InitializeFactions, ConnectionType.Instance) { }
+    public InitializeFactions() : base(ServerOpcodes.InitializeFactions, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		for (ushort i = 0; i < FactionCount; ++i)
-		{
-			_worldPacket.WriteUInt16((ushort)((ushort)FactionFlags[i] & 0xFF));
-			_worldPacket.WriteInt32(FactionStandings[i]);
-		}
+    public override void Write()
+    {
+        for (ushort i = 0; i < FactionCount; ++i)
+        {
+            _worldPacket.WriteUInt16((ushort)((ushort)FactionFlags[i] & 0xFF));
+            _worldPacket.WriteInt32(FactionStandings[i]);
+        }
 
-		for (ushort i = 0; i < FactionCount; ++i)
-			_worldPacket.WriteBit(FactionHasBonus[i]);
+        for (ushort i = 0; i < FactionCount; ++i)
+            _worldPacket.WriteBit(FactionHasBonus[i]);
 
-		_worldPacket.FlushBits();
-	}
+        _worldPacket.FlushBits();
+    }
 }

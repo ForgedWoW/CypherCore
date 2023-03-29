@@ -11,22 +11,22 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(206966)]
 public class spell_dh_fel_lance : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		var pct = SpellInfo.GetEffect(0).BasePoints;
-		HitDamage = HitDamage + (int)target.CountPctFromMaxHealth(pct);
-	}
+        var pct = SpellInfo.GetEffect(0).BasePoints;
+        HitDamage = HitDamage + (int)target.CountPctFromMaxHealth(pct);
+    }
 }

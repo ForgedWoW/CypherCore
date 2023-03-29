@@ -11,20 +11,20 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_spectator_cheer_trigger : SpellScript, IHasSpellEffects
 {
-	private static readonly Emote[] EmoteArray =
-	{
-		Emote.OneshotCheer, Emote.OneshotExclamation, Emote.OneshotApplaud
-	};
+    private static readonly Emote[] EmoteArray =
+    {
+        Emote.OneshotCheer, Emote.OneshotExclamation, Emote.OneshotApplaud
+    };
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		Caster.HandleEmoteCommand(EmoteArray.SelectRandom());
-	}
+    private void HandleDummy(int effIndex)
+    {
+        Caster.HandleEmoteCommand(EmoteArray.SelectRandom());
+    }
 }

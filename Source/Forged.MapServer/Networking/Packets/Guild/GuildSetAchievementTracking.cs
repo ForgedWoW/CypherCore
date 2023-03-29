@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 internal class GuildSetAchievementTracking : ClientPacket
 {
-	public List<uint> AchievementIDs = new();
-	public GuildSetAchievementTracking(WorldPacket packet) : base(packet) { }
+    public List<uint> AchievementIDs = new();
+    public GuildSetAchievementTracking(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var count = _worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        var count = _worldPacket.ReadUInt32();
 
-		for (uint i = 0; i < count; ++i)
-			AchievementIDs.Add(_worldPacket.ReadUInt32());
-	}
+        for (uint i = 0; i < count; ++i)
+            AchievementIDs.Add(_worldPacket.ReadUInt32());
+    }
 }

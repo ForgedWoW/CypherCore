@@ -5,13 +5,13 @@ namespace Framework.Constants;
 
 public enum ItemQuality
 {
-	Poor = 0,      //Grey
-	Normal = 1,    //White
-	Uncommon = 2,  //Green
-	Rare = 3,      //Blue
-	Epic = 4,      //Purple
-	Legendary = 5, //Orange
-	Artifact = 6,  //Light Yellow
-	Heirloom = 7,
-	Max = 8
+    Poor = 0,      //Grey
+    Normal = 1,    //White
+    Uncommon = 2,  //Green
+    Rare = 3,      //Blue
+    Epic = 4,      //Purple
+    Legendary = 5, //Orange
+    Artifact = 6,  //Light Yellow
+    Heirloom = 7,
+    Max = 8
 }

@@ -13,36 +13,36 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(206891)]
 public class spell_dh_intimidated : AuraScript, IHasAuraEffects
 {
-	private readonly List<ObjectGuid> _uniqueTargets = new();
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    private readonly List<ObjectGuid> _uniqueTargets = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ModDamagePercentTaken, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ModDamagePercentTaken, AuraScriptHookType.EffectProc));
+    }
 
-	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
-	{
-		var attacker = eventInfo.Actor;
-		var auraOwner = Aura.Owner;
+    private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+    {
+        var attacker = eventInfo.Actor;
+        var auraOwner = Aura.Owner;
 
-		if (attacker == null || auraOwner == null)
-			return;
+        if (attacker == null || auraOwner == null)
+            return;
 
-		if (attacker == Caster)
-		{
-			RefreshDuration();
+        if (attacker == Caster)
+        {
+            RefreshDuration();
 
-			return;
-		}
+            return;
+        }
 
-		if (_uniqueTargets.Count >= 4 || !auraOwner.AsUnit)
-			return;
+        if (_uniqueTargets.Count >= 4 || !auraOwner.AsUnit)
+            return;
 
-		if (_uniqueTargets.Contains(attacker.GUID))
-		{
-			attacker.CastSpell(auraOwner.AsUnit, SpellInfo.Id, true);
-			_uniqueTargets.Add(attacker.GUID);
-		}
-	}
+        if (_uniqueTargets.Contains(attacker.GUID))
+        {
+            attacker.CastSpell(auraOwner.AsUnit, SpellInfo.Id, true);
+            _uniqueTargets.Add(attacker.GUID);
+        }
+    }
 }

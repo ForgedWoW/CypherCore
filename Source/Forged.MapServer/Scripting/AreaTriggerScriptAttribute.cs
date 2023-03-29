@@ -8,25 +8,25 @@ namespace Forged.MapServer.Scripting;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class AreaTriggerScriptAttribute : ScriptAttribute
 {
-	public uint[] AreaTriggerIds { get; private set; }
+    public uint[] AreaTriggerIds { get; private set; }
 
-	public AreaTriggerScriptAttribute(params uint[] areaTriggerId) : base("", new object[0])
-	{
-		AreaTriggerIds = areaTriggerId;
-	}
+    public AreaTriggerScriptAttribute(params uint[] areaTriggerId) : base("", new object[0])
+    {
+        AreaTriggerIds = areaTriggerId;
+    }
 
-	public AreaTriggerScriptAttribute(string name = "", params object[] args) : base(name, args) { }
+    public AreaTriggerScriptAttribute(string name = "", params object[] args) : base(name, args) { }
 
-	public AreaTriggerScriptAttribute(uint areaTriggerId, string name = "", params object[] args) : base(name, args)
-	{
-		AreaTriggerIds = new[]
-		{
-			areaTriggerId
-		};
-	}
+    public AreaTriggerScriptAttribute(uint areaTriggerId, string name = "", params object[] args) : base(name, args)
+    {
+        AreaTriggerIds = new[]
+        {
+            areaTriggerId
+        };
+    }
 
-	public AreaTriggerScriptAttribute(uint[] areaTriggerId, string name = "", params object[] args) : base(name, args)
-	{
-		AreaTriggerIds = areaTriggerId;
-	}
+    public AreaTriggerScriptAttribute(uint[] areaTriggerId, string name = "", params object[] args) : base(name, args)
+    {
+        AreaTriggerIds = areaTriggerId;
+    }
 }

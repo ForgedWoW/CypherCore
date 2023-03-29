@@ -8,5 +8,5 @@ namespace Forged.MapServer.Entities.Units;
 
 public class DeclinedName
 {
-	public StringArray Name = new(SharedConst.MaxDeclinedNameCases);
+    public StringArray Name = new(SharedConst.MaxDeclinedNameCases);
 }

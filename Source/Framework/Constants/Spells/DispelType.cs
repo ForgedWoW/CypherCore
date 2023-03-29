@@ -5,18 +5,18 @@ namespace Framework.Constants;
 
 public enum DispelType
 {
-	None = 0,
-	Magic = 1,
-	Curse = 2,
-	Disease = 3,
-	Poison = 4,
-	Stealth = 5,
-	Invisibility = 6,
-	ALL = 7,
-	SpeNPCOnly = 8,
-	Enrage = 9,
-	ZGTicket = 10,
-	OldUnused = 11,
+    None = 0,
+    Magic = 1,
+    Curse = 2,
+    Disease = 3,
+    Poison = 4,
+    Stealth = 5,
+    Invisibility = 6,
+    ALL = 7,
+    SpeNPCOnly = 8,
+    Enrage = 9,
+    ZGTicket = 10,
+    OldUnused = 11,
 
-	AllMask = ((1 << Magic) | (1 << Curse) | (1 << Disease) | (1 << Poison))
+    AllMask = ((1 << Magic) | (1 << Curse) | (1 << Disease) | (1 << Poison))
 }

@@ -5,12 +5,12 @@ namespace Forged.MapServer.Maps.Instances;
 
 public struct UpdateAdditionalSaveDataEvent
 {
-	public string Key;
-	public object Value;
+    public string Key;
+    public object Value;
 
-	public UpdateAdditionalSaveDataEvent(string key, object value)
-	{
-		Key = key;
-		Value = value;
-	}
+    public UpdateAdditionalSaveDataEvent(string key, object value)
+    {
+        Key = key;
+        Value = value;
+    }
 }

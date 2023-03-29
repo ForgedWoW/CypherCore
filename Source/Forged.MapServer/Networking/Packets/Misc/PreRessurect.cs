@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class PreRessurect : ServerPacket
 {
-	public ObjectGuid PlayerGUID;
-	public PreRessurect() : base(ServerOpcodes.PreRessurect) { }
+    public ObjectGuid PlayerGUID;
+    public PreRessurect() : base(ServerOpcodes.PreRessurect) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(PlayerGUID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(PlayerGUID);
+    }
 }

@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum CurrentSpellTypes
 {
-	Melee = 0,
-	Generic = 1,
-	Channeled = 2,
-	AutoRepeat = 3,
-	Max = 4
+    Melee = 0,
+    Generic = 1,
+    Channeled = 2,
+    AutoRepeat = 3,
+    Max = 4
 }

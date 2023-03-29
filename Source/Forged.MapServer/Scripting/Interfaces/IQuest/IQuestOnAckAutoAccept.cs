@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IQuest;
 
 public interface IQuestOnAckAutoAccept : IScriptObject
 {
-	void OnAcknowledgeAutoAccept(Player player, Quest.Quest quest);
+    void OnAcknowledgeAutoAccept(Player player, Quest.Quest quest);
 }

@@ -14,22 +14,22 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(260895)]
 internal class spell_sha_unlimited_power : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
-	{
-		var caster = procInfo.Actor;
-		var aura = caster.GetAura(ShamanSpells.UnlimitedPowerBuff);
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
+    {
+        var caster = procInfo.Actor;
+        var aura = caster.GetAura(ShamanSpells.UnlimitedPowerBuff);
 
-		if (aura != null)
-			aura.SetStackAmount((byte)(aura.StackAmount + 1));
-		else
-			caster.CastSpell(caster, ShamanSpells.UnlimitedPowerBuff, procInfo.ProcSpell);
-	}
+        if (aura != null)
+            aura.SetStackAmount((byte)(aura.StackAmount + 1));
+        else
+            caster.CastSpell(caster, ShamanSpells.UnlimitedPowerBuff, procInfo.ProcSpell);
+    }
 }

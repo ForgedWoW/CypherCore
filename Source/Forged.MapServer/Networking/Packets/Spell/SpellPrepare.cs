@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class SpellPrepare : ServerPacket
 {
-	public ObjectGuid ClientCastID;
-	public ObjectGuid ServerCastID;
-	public SpellPrepare() : base(ServerOpcodes.SpellPrepare) { }
+    public ObjectGuid ClientCastID;
+    public ObjectGuid ServerCastID;
+    public SpellPrepare() : base(ServerOpcodes.SpellPrepare) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ClientCastID);
-		_worldPacket.WritePackedGuid(ServerCastID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ClientCastID);
+        _worldPacket.WritePackedGuid(ServerCastID);
+    }
 }

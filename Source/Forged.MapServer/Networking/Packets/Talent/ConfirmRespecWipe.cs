@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Talent;
 
 internal class ConfirmRespecWipe : ClientPacket
 {
-	public ObjectGuid RespecMaster;
-	public SpecResetType RespecType;
-	public ConfirmRespecWipe(WorldPacket packet) : base(packet) { }
+    public ObjectGuid RespecMaster;
+    public SpecResetType RespecType;
+    public ConfirmRespecWipe(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		RespecMaster = _worldPacket.ReadPackedGuid();
-		RespecType = (SpecResetType)_worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        RespecMaster = _worldPacket.ReadPackedGuid();
+        RespecType = (SpecResetType)_worldPacket.ReadUInt8();
+    }
 }

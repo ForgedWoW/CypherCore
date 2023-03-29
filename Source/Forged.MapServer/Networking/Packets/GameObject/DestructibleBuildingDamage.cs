@@ -8,19 +8,19 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class DestructibleBuildingDamage : ServerPacket
 {
-	public ObjectGuid Target;
-	public ObjectGuid Caster;
-	public ObjectGuid Owner;
-	public int Damage;
-	public uint SpellID;
-	public DestructibleBuildingDamage() : base(ServerOpcodes.DestructibleBuildingDamage, ConnectionType.Instance) { }
+    public ObjectGuid Target;
+    public ObjectGuid Caster;
+    public ObjectGuid Owner;
+    public int Damage;
+    public uint SpellID;
+    public DestructibleBuildingDamage() : base(ServerOpcodes.DestructibleBuildingDamage, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Target);
-		_worldPacket.WritePackedGuid(Owner);
-		_worldPacket.WritePackedGuid(Caster);
-		_worldPacket.WriteInt32(Damage);
-		_worldPacket.WriteUInt32(SpellID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Target);
+        _worldPacket.WritePackedGuid(Owner);
+        _worldPacket.WritePackedGuid(Caster);
+        _worldPacket.WriteInt32(Damage);
+        _worldPacket.WriteUInt32(SpellID);
+    }
 }

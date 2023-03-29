@@ -9,10 +9,10 @@ namespace Forged.MapServer.Spells;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public class SpellEffectHandlerAttribute : Attribute
 {
-	public SpellEffectName EffectName { get; set; }
+    public SpellEffectName EffectName { get; set; }
 
-	public SpellEffectHandlerAttribute(SpellEffectName effectName)
-	{
-		EffectName = effectName;
-	}
+    public SpellEffectHandlerAttribute(SpellEffectName effectName)
+    {
+        EffectName = effectName;
+    }
 }

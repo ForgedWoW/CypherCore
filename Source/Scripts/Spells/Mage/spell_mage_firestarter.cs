@@ -10,12 +10,12 @@ namespace Scripts.Spells.Mage;
 [Script] // 11366 - Pyroblast
 internal class spell_mage_firestarter : SpellScript, ISpellCalcCritChance
 {
-	public void CalcCritChance(Unit victim, ref double critChance)
-	{
-		var aurEff = Caster.GetAuraEffect(MageSpells.Firestarter, 0);
+    public void CalcCritChance(Unit victim, ref double critChance)
+    {
+        var aurEff = Caster.GetAuraEffect(MageSpells.Firestarter, 0);
 
-		if (aurEff != null)
-			if (victim.HealthPct >= aurEff.Amount)
-				critChance = 100.0f;
-	}
+        if (aurEff != null)
+            if (victim.HealthPct >= aurEff.Amount)
+                critChance = 100.0f;
+    }
 }

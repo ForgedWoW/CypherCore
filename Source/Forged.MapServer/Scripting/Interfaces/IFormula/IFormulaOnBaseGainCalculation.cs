@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IFormula;
 
 public interface IFormulaOnBaseGainCalculation : IScriptObject
 {
-	void OnBaseGainCalculation(uint gain, uint playerLevel, uint mobLevel);
+    void OnBaseGainCalculation(uint gain, uint playerLevel, uint mobLevel);
 }

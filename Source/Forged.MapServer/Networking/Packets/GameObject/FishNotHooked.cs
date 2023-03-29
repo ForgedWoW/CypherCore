@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class FishNotHooked : ServerPacket
 {
-	public FishNotHooked() : base(ServerOpcodes.FishNotHooked) { }
+    public FishNotHooked() : base(ServerOpcodes.FishNotHooked) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

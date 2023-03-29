@@ -17,33 +17,33 @@ internal class ChannelWhisperBuilder : MessageBuilder
     private readonly string _prefix;
     private readonly ObjectGuid _guid;
 
-	public ChannelWhisperBuilder(Channel source, Language lang, string what, string prefix, ObjectGuid guid)
-	{
-		_source = source;
-		_lang = lang;
-		_what = what;
-		_prefix = prefix;
-		_guid = guid;
-	}
+    public ChannelWhisperBuilder(Channel source, Language lang, string what, string prefix, ObjectGuid guid)
+    {
+        _source = source;
+        _lang = lang;
+        _what = what;
+        _prefix = prefix;
+        _guid = guid;
+    }
 
-	public override PacketSenderOwning<ChatPkt> Invoke(Locale locale = Locale.enUS)
-	{
-		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+    public override PacketSenderOwning<ChatPkt> Invoke(Locale locale = Locale.enUS)
+    {
+        var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
-		PacketSenderOwning<ChatPkt> packet = new();
-		var player = Global.ObjAccessor.FindConnectedPlayer(_guid);
+        PacketSenderOwning<ChatPkt> packet = new();
+        var player = Global.ObjAccessor.FindConnectedPlayer(_guid);
 
-		if (player)
-		{
-			packet.Data.Initialize(ChatMsg.Channel, _lang, player, player, _what, 0, _source.GetName(localeIdx), Locale.enUS, _prefix);
-		}
-		else
-		{
-			packet.Data.Initialize(ChatMsg.Channel, _lang, null, null, _what, 0, _source.GetName(localeIdx), Locale.enUS, _prefix);
-			packet.Data.SenderGUID = _guid;
-			packet.Data.TargetGUID = _guid;
-		}
+        if (player)
+        {
+            packet.Data.Initialize(ChatMsg.Channel, _lang, player, player, _what, 0, _source.GetName(localeIdx), Locale.enUS, _prefix);
+        }
+        else
+        {
+            packet.Data.Initialize(ChatMsg.Channel, _lang, null, null, _what, 0, _source.GetName(localeIdx), Locale.enUS, _prefix);
+            packet.Data.SenderGUID = _guid;
+            packet.Data.TargetGUID = _guid;
+        }
 
-		return packet;
-	}
+        return packet;
+    }
 }

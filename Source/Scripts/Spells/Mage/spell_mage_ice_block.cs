@@ -12,25 +12,25 @@ namespace Scripts.Spells.Mage;
 [Script] // 45438 - Ice Block
 internal class spell_mage_ice_block : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectTargetSelectHandler(PreventStunWithEverwarmSocks, 0, Targets.UnitCaster));
-		SpellEffects.Add(new ObjectTargetSelectHandler(PreventEverwarmSocks, 5, Targets.UnitCaster));
-		SpellEffects.Add(new ObjectTargetSelectHandler(PreventEverwarmSocks, 6, Targets.UnitCaster));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectTargetSelectHandler(PreventStunWithEverwarmSocks, 0, Targets.UnitCaster));
+        SpellEffects.Add(new ObjectTargetSelectHandler(PreventEverwarmSocks, 5, Targets.UnitCaster));
+        SpellEffects.Add(new ObjectTargetSelectHandler(PreventEverwarmSocks, 6, Targets.UnitCaster));
+    }
 
-	private void PreventStunWithEverwarmSocks(WorldObject target)
-	{
-		if (Caster.HasAura(MageSpells.EverwarmSocks))
-			target = null;
-	}
+    private void PreventStunWithEverwarmSocks(WorldObject target)
+    {
+        if (Caster.HasAura(MageSpells.EverwarmSocks))
+            target = null;
+    }
 
-	private void PreventEverwarmSocks(WorldObject target)
-	{
-		if (!Caster.HasAura(MageSpells.EverwarmSocks))
-			target = null;
-	}
+    private void PreventEverwarmSocks(WorldObject target)
+    {
+        if (!Caster.HasAura(MageSpells.EverwarmSocks))
+            target = null;
+    }
 }

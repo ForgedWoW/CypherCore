@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetTameFailure : ServerPacket
 {
-	public byte Result;
-	public PetTameFailure() : base(ServerOpcodes.PetTameFailure) { }
+    public byte Result;
+    public PetTameFailure() : base(ServerOpcodes.PetTameFailure) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt8(Result);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt8(Result);
+    }
 }

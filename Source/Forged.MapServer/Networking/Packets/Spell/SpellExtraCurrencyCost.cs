@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellExtraCurrencyCost
 {
-	public int CurrencyID;
-	public int Count;
+    public int CurrencyID;
+    public int Count;
 
-	public void Read(WorldPacket data)
-	{
-		CurrencyID = data.ReadInt32();
-		Count = data.ReadInt32();
-	}
+    public void Read(WorldPacket data)
+    {
+        CurrencyID = data.ReadInt32();
+        Count = data.ReadInt32();
+    }
 }

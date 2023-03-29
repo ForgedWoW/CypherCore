@@ -7,17 +7,17 @@ namespace Forged.MapServer.Networking.Packets.MythicPlus;
 
 public class DungeonScoreSummary
 {
-	public float OverallScoreCurrentSeason;
-	public float LadderScoreCurrentSeason;
-	public List<DungeonScoreMapSummary> Runs = new();
+    public float OverallScoreCurrentSeason;
+    public float LadderScoreCurrentSeason;
+    public List<DungeonScoreMapSummary> Runs = new();
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteFloat(OverallScoreCurrentSeason);
-		data.WriteFloat(LadderScoreCurrentSeason);
-		data.WriteInt32(Runs.Count);
+    public void Write(WorldPacket data)
+    {
+        data.WriteFloat(OverallScoreCurrentSeason);
+        data.WriteFloat(LadderScoreCurrentSeason);
+        data.WriteInt32(Runs.Count);
 
-		foreach (var dungeonScoreMapSummary in Runs)
-			dungeonScoreMapSummary.Write(data);
-	}
+        foreach (var dungeonScoreMapSummary in Runs)
+            dungeonScoreMapSummary.Write(data);
+    }
 }

@@ -8,17 +8,17 @@ namespace Forged.MapServer.Warden;
 
 internal class WardenModuleTransfer
 {
-	public WardenOpcodes Command;
-	public ushort DataSize;
-	public byte[] Data = new byte[500];
+    public WardenOpcodes Command;
+    public ushort DataSize;
+    public byte[] Data = new byte[500];
 
-	public static implicit operator byte[](WardenModuleTransfer transfer)
-	{
-		var buffer = new ByteBuffer();
-		buffer.WriteUInt8((byte)transfer.Command);
-		buffer.WriteUInt16(transfer.DataSize);
-		buffer.WriteBytes(transfer.Data, 500);
+    public static implicit operator byte[](WardenModuleTransfer transfer)
+    {
+        var buffer = new ByteBuffer();
+        buffer.WriteUInt8((byte)transfer.Command);
+        buffer.WriteUInt16(transfer.DataSize);
+        buffer.WriteBytes(transfer.Data, 500);
 
-		return buffer.GetData();
-	}
+        return buffer.GetData();
+    }
 }

@@ -11,41 +11,41 @@ namespace Scripts.Spells.Monk;
 [SpellScript(119996)]
 public class spell_monk_transcendence_transfer : SpellScript, ISpellOnCast, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		var caster = Caster;
+    public SpellCastResult CheckCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return SpellCastResult.Error;
+        if (caster == null)
+            return SpellCastResult.Error;
 
-		Unit spirit = spell_monk_transcendence.GetSpirit(caster);
+        Unit spirit = spell_monk_transcendence.GetSpirit(caster);
 
-		if (spirit == null)
-		{
-			SetCustomCastResultMessage(SpellCustomErrors.YouHaveNoSpiritActive);
+        if (spirit == null)
+        {
+            SetCustomCastResultMessage(SpellCustomErrors.YouHaveNoSpiritActive);
 
-			return SpellCastResult.CustomError;
-		}
+            return SpellCastResult.CustomError;
+        }
 
-		if (!spirit.IsWithinDist(caster, SpellInfo.GetMaxRange(true, caster, Spell)))
-			return SpellCastResult.OutOfRange;
+        if (!spirit.IsWithinDist(caster, SpellInfo.GetMaxRange(true, caster, Spell)))
+            return SpellCastResult.OutOfRange;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		Unit spirit = spell_monk_transcendence.GetSpirit(caster);
+        Unit spirit = spell_monk_transcendence.GetSpirit(caster);
 
-		if (spirit == null)
-			return;
+        if (spirit == null)
+            return;
 
-		caster.NearTeleportTo(spirit.Location, true);
-		spirit.NearTeleportTo(caster.Location, true);
-	}
+        caster.NearTeleportTo(spirit.Location, true);
+        spirit.NearTeleportTo(caster.Location, true);
+    }
 }

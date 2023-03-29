@@ -11,22 +11,22 @@ namespace Scripts.Spells.Priest;
 [SpellScript(88625)]
 public class spell_pri_holy_word_chastise : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleOnHit(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleOnHit(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (caster.HasAura(PriestSpells.CENSURE))
-			caster.CastSpell(target, PriestSpells.HOLY_WORD_CHASTISE_STUN, true);
-	}
+        if (caster.HasAura(PriestSpells.CENSURE))
+            caster.CastSpell(target, PriestSpells.HOLY_WORD_CHASTISE_STUN, true);
+    }
 }

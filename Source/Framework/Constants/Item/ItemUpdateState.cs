@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum ItemUpdateState
 {
-	Unchanged = 0,
-	Changed = 1,
-	New = 2,
-	Removed = 3
+    Unchanged = 0,
+    Changed = 1,
+    New = 2,
+    Removed = 3
 }

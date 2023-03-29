@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class CancelTempEnchantment : ClientPacket
 {
-	public int Slot;
-	public CancelTempEnchantment(WorldPacket packet) : base(packet) { }
+    public int Slot;
+    public CancelTempEnchantment(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Slot = _worldPacket.ReadInt32();
-	}
+    public override void Read()
+    {
+        Slot = _worldPacket.ReadInt32();
+    }
 }

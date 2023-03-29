@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum MailResponseType
 {
-	Send = 0,
-	MoneyTaken = 1,
-	ItemTaken = 2,
-	ReturnedToSender = 3,
-	Deleted = 4,
-	MadePermanent = 5
+    Send = 0,
+    MoneyTaken = 1,
+    ItemTaken = 2,
+    ReturnedToSender = 3,
+    Deleted = 4,
+    MadePermanent = 5
 }

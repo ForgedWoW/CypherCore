@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IVehicle;
 
 public interface IVehicleOnAddPassenger : IScriptObject
 {
-	void OnAddPassenger(Vehicle veh, Unit passenger, sbyte seatId);
+    void OnAddPassenger(Vehicle veh, Unit passenger, sbyte seatId);
 }

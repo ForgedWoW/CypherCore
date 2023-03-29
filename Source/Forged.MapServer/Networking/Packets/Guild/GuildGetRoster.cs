@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildGetRoster : ClientPacket
 {
-	public GuildGetRoster(WorldPacket packet) : base(packet) { }
+    public GuildGetRoster(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

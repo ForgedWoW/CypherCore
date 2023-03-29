@@ -12,16 +12,16 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(115994)]
 public class spell_dk_unholy_blight : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDamage));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDamage));
+    }
 
 
-	private void HandlePeriodic(AuraEffect UnnamedParameter)
-	{
-		return;
-	}
+    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    {
+        return;
+    }
 }

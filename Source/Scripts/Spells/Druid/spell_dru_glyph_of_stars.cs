@@ -12,25 +12,25 @@ namespace Scripts.Spells.Druid;
 [Script] // 24858 - Moonkin Form
 internal class spell_dru_glyph_of_stars : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 1, AuraType.ModShapeshift, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.ModShapeshift, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 1, AuraType.ModShapeshift, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.ModShapeshift, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var target = Target;
+    private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var target = Target;
 
-		if (target.HasAura(DruidSpellIds.GlyphOfStars))
-			target.CastSpell(target, DruidSpellIds.GlyphOfStarsVisual, true);
-	}
+        if (target.HasAura(DruidSpellIds.GlyphOfStars))
+            target.CastSpell(target, DruidSpellIds.GlyphOfStarsVisual, true);
+    }
 
-	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.RemoveAura(DruidSpellIds.GlyphOfStarsVisual);
-	}
+    private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.RemoveAura(DruidSpellIds.GlyphOfStarsVisual);
+    }
 }

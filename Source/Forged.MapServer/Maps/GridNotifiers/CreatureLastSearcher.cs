@@ -12,35 +12,35 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class CreatureLastSearcher : IGridNotifierCreature
 {
-	internal PhaseShift _phaseShift;
+    internal PhaseShift _phaseShift;
     private readonly ICheck<Creature> _check;
     private Creature _object;
 
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public CreatureLastSearcher(WorldObject searcher, ICheck<Creature> check, GridType gridType)
-	{
-		_phaseShift = searcher.PhaseShift;
-		_check = check;
-		GridType = gridType;
-	}
+    public CreatureLastSearcher(WorldObject searcher, ICheck<Creature> check, GridType gridType)
+    {
+        _phaseShift = searcher.PhaseShift;
+        _check = check;
+        GridType = gridType;
+    }
 
-	public void Visit(IList<Creature> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var creature = objs[i];
+    public void Visit(IList<Creature> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var creature = objs[i];
 
-			if (!creature.InSamePhase(_phaseShift))
-				continue;
+            if (!creature.InSamePhase(_phaseShift))
+                continue;
 
-			if (_check.Invoke(creature))
-				_object = creature;
-		}
-	}
+            if (_check.Invoke(creature))
+                _object = creature;
+        }
+    }
 
-	public Creature GetTarget()
-	{
-		return _object;
-	}
+    public Creature GetTarget()
+    {
+        return _object;
+    }
 }

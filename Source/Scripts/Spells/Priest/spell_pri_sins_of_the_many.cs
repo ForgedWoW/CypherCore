@@ -12,22 +12,22 @@ namespace Scripts.Spells.Priest;
 [Script] // 280391 - Sins of the Many
 internal class spell_pri_sins_of_the_many : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleOnApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleOnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleOnApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleOnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void HandleOnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.CastSpell(Target, PriestSpells.SINS_OF_THE_MANY, true);
-	}
+    private void HandleOnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.CastSpell(Target, PriestSpells.SINS_OF_THE_MANY, true);
+    }
 
-	private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.RemoveAura(PriestSpells.SINS_OF_THE_MANY);
-	}
+    private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.RemoveAura(PriestSpells.SINS_OF_THE_MANY);
+    }
 }

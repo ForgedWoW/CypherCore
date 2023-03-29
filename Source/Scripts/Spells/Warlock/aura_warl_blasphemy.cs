@@ -12,20 +12,20 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(WarlockSpells.BLASPHEMY)]
 public class aura_warl_blasphemy : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(Apply, 1, AuraType.Dummy, AuraEffectHandleModes.Real));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(Apply, 1, AuraType.Dummy, AuraEffectHandleModes.Real));
+    }
 
-	private void Apply(AuraEffect aura, AuraEffectHandleModes auraMode)
-	{
-		if (Caster.TryGetAsPlayer(out var p) && p.TryGetAura(WarlockSpells.AVATAR_OF_DESTRUCTION, out var avatar))
-		{
-			var time = avatar.GetEffect(0).Amount * Time.InMilliseconds;
-			MaxDuration = (int)time;
-			SetDuration(time);
-		}
-	}
+    private void Apply(AuraEffect aura, AuraEffectHandleModes auraMode)
+    {
+        if (Caster.TryGetAsPlayer(out var p) && p.TryGetAura(WarlockSpells.AVATAR_OF_DESTRUCTION, out var avatar))
+        {
+            var time = avatar.GetEffect(0).Amount * Time.InMilliseconds;
+            MaxDuration = (int)time;
+            SetDuration(time);
+        }
+    }
 }

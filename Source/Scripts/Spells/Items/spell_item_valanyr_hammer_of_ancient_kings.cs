@@ -10,8 +10,8 @@ namespace Scripts.Spells.Items;
 [Script] // 64415 Val'anyr Hammer of Ancient Kings - Equip Effect
 internal class spell_item_valanyr_hammer_of_ancient_kings : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.HealInfo != null && eventInfo.HealInfo.EffectiveHeal > 0;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.HealInfo != null && eventInfo.HealInfo.EffectiveHeal > 0;
+    }
 }

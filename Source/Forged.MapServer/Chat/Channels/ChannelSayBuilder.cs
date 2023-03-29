@@ -17,35 +17,35 @@ internal class ChannelSayBuilder : MessageBuilder
     private readonly ObjectGuid _guid;
     private readonly ObjectGuid _channelGuid;
 
-	public ChannelSayBuilder(Channel source, Language lang, string what, ObjectGuid guid, ObjectGuid channelGuid)
-	{
-		_source = source;
-		_lang = lang;
-		_what = what;
-		_guid = guid;
-		_channelGuid = channelGuid;
-	}
+    public ChannelSayBuilder(Channel source, Language lang, string what, ObjectGuid guid, ObjectGuid channelGuid)
+    {
+        _source = source;
+        _lang = lang;
+        _what = what;
+        _guid = guid;
+        _channelGuid = channelGuid;
+    }
 
-	public override PacketSenderOwning<ChatPkt> Invoke(Locale locale = Locale.enUS)
-	{
-		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+    public override PacketSenderOwning<ChatPkt> Invoke(Locale locale = Locale.enUS)
+    {
+        var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
-		PacketSenderOwning<ChatPkt> packet = new();
-		var player = Global.ObjAccessor.FindConnectedPlayer(_guid);
+        PacketSenderOwning<ChatPkt> packet = new();
+        var player = Global.ObjAccessor.FindConnectedPlayer(_guid);
 
-		if (player)
-		{
-			packet.Data.Initialize(ChatMsg.Channel, _lang, player, player, _what, 0, _source.GetName(localeIdx));
-		}
-		else
-		{
-			packet.Data.Initialize(ChatMsg.Channel, _lang, null, null, _what, 0, _source.GetName(localeIdx));
-			packet.Data.SenderGUID = _guid;
-			packet.Data.TargetGUID = _guid;
-		}
+        if (player)
+        {
+            packet.Data.Initialize(ChatMsg.Channel, _lang, player, player, _what, 0, _source.GetName(localeIdx));
+        }
+        else
+        {
+            packet.Data.Initialize(ChatMsg.Channel, _lang, null, null, _what, 0, _source.GetName(localeIdx));
+            packet.Data.SenderGUID = _guid;
+            packet.Data.TargetGUID = _guid;
+        }
 
-		packet.Data.ChannelGUID = _channelGuid;
+        packet.Data.ChannelGUID = _channelGuid;
 
-		return packet;
-	}
+        return packet;
+    }
 }

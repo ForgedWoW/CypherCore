@@ -11,8 +11,8 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(207982)]
 public class spell_warr_focused_rage_arms : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.SpellInfo.Id == WarriorSpells.MORTAL_STRIKE;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.SpellInfo.Id == WarriorSpells.MORTAL_STRIKE;
+    }
 }

@@ -8,11 +8,11 @@ namespace Forged.MapServer.DataStorage;
 
 internal class ChrClassesXPowerTypesRecordComparer : IComparer<ChrClassesXPowerTypesRecord>
 {
-	public int Compare(ChrClassesXPowerTypesRecord left, ChrClassesXPowerTypesRecord right)
-	{
-		if (left.ClassID != right.ClassID)
-			return left.ClassID.CompareTo(right.ClassID);
+    public int Compare(ChrClassesXPowerTypesRecord left, ChrClassesXPowerTypesRecord right)
+    {
+        if (left.ClassID != right.ClassID)
+            return left.ClassID.CompareTo(right.ClassID);
 
-		return left.PowerType.CompareTo(right.PowerType);
-	}
+        return left.PowerType.CompareTo(right.PowerType);
+    }
 }

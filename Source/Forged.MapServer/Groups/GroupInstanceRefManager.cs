@@ -8,8 +8,8 @@ namespace Forged.MapServer.Groups;
 
 internal class GroupInstanceRefManager : RefManager<PlayerGroup, InstanceMap>
 {
-	public new GroupInstanceReference GetFirst()
-	{
-		return (GroupInstanceReference)base.GetFirst();
-	}
+    public new GroupInstanceReference GetFirst()
+    {
+        return (GroupInstanceReference)base.GetFirst();
+    }
 }

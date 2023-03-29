@@ -9,18 +9,18 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class VendorInventory : ServerPacket
 {
-	public byte Reason = 0;
-	public List<VendorItemPkt> Items = new();
-	public ObjectGuid Vendor;
-	public VendorInventory() : base(ServerOpcodes.VendorInventory, ConnectionType.Instance) { }
+    public byte Reason = 0;
+    public List<VendorItemPkt> Items = new();
+    public ObjectGuid Vendor;
+    public VendorInventory() : base(ServerOpcodes.VendorInventory, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Vendor);
-		_worldPacket.WriteUInt8(Reason);
-		_worldPacket.WriteInt32(Items.Count);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Vendor);
+        _worldPacket.WriteUInt8(Reason);
+        _worldPacket.WriteInt32(Items.Count);
 
-		foreach (var item in Items)
-			item.Write(_worldPacket);
-	}
+        foreach (var item in Items)
+            item.Write(_worldPacket);
+    }
 }

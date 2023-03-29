@@ -13,15 +13,15 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(214871)]
 internal class spell_warr_odyns_fury : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
+    }
 
-	private double Absorb(AuraEffect UnnamedParameter, DamageInfo UnnamedParameter2, double absorbAmount)
-	{
-		return 0;
-	}
+    private double Absorb(AuraEffect UnnamedParameter, DamageInfo UnnamedParameter2, double absorbAmount)
+    {
+        return 0;
+    }
 }

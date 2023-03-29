@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IItem;
 
 public interface IItemOnExpire : IScriptObject
 {
-	bool OnExpire(Player player, ItemTemplate proto);
+    bool OnExpire(Player player, ItemTemplate proto);
 }

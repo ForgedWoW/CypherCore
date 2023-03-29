@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildFlaggedForRename : ServerPacket
 {
-	public bool FlagSet;
-	public GuildFlaggedForRename() : base(ServerOpcodes.GuildFlaggedForRename) { }
+    public bool FlagSet;
+    public GuildFlaggedForRename() : base(ServerOpcodes.GuildFlaggedForRename) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(FlagSet);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBit(FlagSet);
+    }
 }

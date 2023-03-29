@@ -13,20 +13,20 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_party_time : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
+    }
 
-	private void HandleEffectApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var player = Owner.AsPlayer;
+    private void HandleEffectApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var player = Owner.AsPlayer;
 
-		if (player == null)
-			return;
+        if (player == null)
+            return;
 
-		player.Events.AddEventAtOffset(new PartyTimeEmoteEvent(player), TimeSpan.FromSeconds(RandomHelper.RAND(5, 10, 15)));
-	}
+        player.Events.AddEventAtOffset(new PartyTimeEmoteEvent(player), TimeSpan.FromSeconds(RandomHelper.RAND(5, 10, 15)));
+    }
 }

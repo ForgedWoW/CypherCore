@@ -12,23 +12,23 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(191587)]
 public class aura_dk_virulent_plague : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectRemove, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectRemove, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void HandleEffectRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var removeMode = TargetApplication.RemoveMode;
+    private void HandleEffectRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var removeMode = TargetApplication.RemoveMode;
 
-		if (removeMode == AuraRemoveMode.Death)
-		{
-			var caster = Caster;
+        if (removeMode == AuraRemoveMode.Death)
+        {
+            var caster = Caster;
 
-			if (caster != null)
-				caster.CastSpell(Target, DeathKnightSpells.VIRULENT_ERUPTION, true);
-		}
-	}
+            if (caster != null)
+                caster.CastSpell(Target, DeathKnightSpells.VIRULENT_ERUPTION, true);
+        }
+    }
 }

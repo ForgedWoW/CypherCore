@@ -7,21 +7,21 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class UseItem : ClientPacket
 {
-	public byte PackSlot;
-	public byte Slot;
-	public ObjectGuid CastItem;
-	public SpellCastRequest Cast;
+    public byte PackSlot;
+    public byte Slot;
+    public ObjectGuid CastItem;
+    public SpellCastRequest Cast;
 
-	public UseItem(WorldPacket packet) : base(packet)
-	{
-		Cast = new SpellCastRequest();
-	}
+    public UseItem(WorldPacket packet) : base(packet)
+    {
+        Cast = new SpellCastRequest();
+    }
 
-	public override void Read()
-	{
-		PackSlot = _worldPacket.ReadUInt8();
-		Slot = _worldPacket.ReadUInt8();
-		CastItem = _worldPacket.ReadPackedGuid();
-		Cast.Read(_worldPacket);
-	}
+    public override void Read()
+    {
+        PackSlot = _worldPacket.ReadUInt8();
+        Slot = _worldPacket.ReadUInt8();
+        CastItem = _worldPacket.ReadPackedGuid();
+        Cast.Read(_worldPacket);
+    }
 }

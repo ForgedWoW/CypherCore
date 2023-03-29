@@ -13,25 +13,25 @@ public static class DBExecutableUtil
 {
     private static string _mysqlExecutablePath;
 
-	public static string GetMySQLExecutable()
-	{
-		return _mysqlExecutablePath;
-	}
+    public static string GetMySQLExecutable()
+    {
+        return _mysqlExecutablePath;
+    }
 
-	public static bool CheckExecutable(IConfiguration configuration)
-	{
-		var mysqlExePath = configuration.GetDefaultValue("MySQLExecutable", "");
+    public static bool CheckExecutable(IConfiguration configuration)
+    {
+        var mysqlExePath = configuration.GetDefaultValue("MySQLExecutable", "");
 
-		if (mysqlExePath.IsEmpty() || !File.Exists(mysqlExePath))
-		{
-			Log.Logger.Fatal($"Didn't find any executable MySQL binary at \'{mysqlExePath}\' or in path, correct the path in the *.conf (\"MySQLExecutable\").");
+        if (mysqlExePath.IsEmpty() || !File.Exists(mysqlExePath))
+        {
+            Log.Logger.Fatal($"Didn't find any executable MySQL binary at \'{mysqlExePath}\' or in path, correct the path in the *.conf (\"MySQLExecutable\").");
 
-			return false;
-		}
+            return false;
+        }
 
-		// Correct the path to the cli
-		_mysqlExecutablePath = mysqlExePath;
+        // Correct the path to the cli
+        _mysqlExecutablePath = mysqlExePath;
 
-		return true;
-	}
+        return true;
+    }
 }

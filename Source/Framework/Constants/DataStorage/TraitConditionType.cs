@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum TraitConditionType
 {
-	Available = 0,
-	Visible = 1,
-	Granted = 2,
-	Increased = 3
+    Available = 0,
+    Visible = 1,
+    Granted = 2,
+    Increased = 3
 }

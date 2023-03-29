@@ -10,43 +10,43 @@ public class DynTreeImpl : RegularGrid2D<GameObjectModel, BIHWrap<GameObjectMode
     private readonly TimeTracker _rebalanceTimer;
     private int _unbalancedTimes;
 
-	public DynTreeImpl()
-	{
-		_rebalanceTimer = new TimeTracker(200);
-		_unbalancedTimes = 0;
-	}
+    public DynTreeImpl()
+    {
+        _rebalanceTimer = new TimeTracker(200);
+        _unbalancedTimes = 0;
+    }
 
-	public override void Insert(GameObjectModel mdl)
-	{
-		base.Insert(mdl);
-		++_unbalancedTimes;
-	}
+    public override void Insert(GameObjectModel mdl)
+    {
+        base.Insert(mdl);
+        ++_unbalancedTimes;
+    }
 
-	public override void Remove(GameObjectModel mdl)
-	{
-		base.Remove(mdl);
-		++_unbalancedTimes;
-	}
+    public override void Remove(GameObjectModel mdl)
+    {
+        base.Remove(mdl);
+        ++_unbalancedTimes;
+    }
 
-	public override void Balance()
-	{
-		base.Balance();
-		_unbalancedTimes = 0;
-	}
+    public override void Balance()
+    {
+        base.Balance();
+        _unbalancedTimes = 0;
+    }
 
-	public void Update(uint difftime)
-	{
-		if (Empty())
-			return;
+    public void Update(uint difftime)
+    {
+        if (Empty())
+            return;
 
-		_rebalanceTimer.Update(difftime);
+        _rebalanceTimer.Update(difftime);
 
-		if (_rebalanceTimer.Passed)
-		{
-			_rebalanceTimer.Reset(200);
+        if (_rebalanceTimer.Passed)
+        {
+            _rebalanceTimer.Reset(200);
 
-			if (_unbalancedTimes > 0)
-				Balance();
-		}
-	}
+            if (_unbalancedTimes > 0)
+                Balance();
+        }
+    }
 }

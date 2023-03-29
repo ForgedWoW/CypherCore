@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IUnit;
 
 public interface IUnitOnMeleeAttack : IScriptObject
 {
-	void OnMeleeAttack(CalcDamageInfo damageInfo, WeaponAttackType attType, bool extra);
+    void OnMeleeAttack(CalcDamageInfo damageInfo, WeaponAttackType attType, bool extra);
 }

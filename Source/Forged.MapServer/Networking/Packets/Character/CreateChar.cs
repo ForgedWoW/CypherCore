@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class CreateChar : ServerPacket
 {
-	public ResponseCodes Code;
-	public ObjectGuid Guid;
-	public CreateChar() : base(ServerOpcodes.CreateChar) { }
+    public ResponseCodes Code;
+    public ObjectGuid Guid;
+    public CreateChar() : base(ServerOpcodes.CreateChar) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt8((byte)Code);
-		_worldPacket.WritePackedGuid(Guid);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt8((byte)Code);
+        _worldPacket.WritePackedGuid(Guid);
+    }
 }

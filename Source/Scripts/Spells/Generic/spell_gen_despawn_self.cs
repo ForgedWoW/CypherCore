@@ -11,22 +11,22 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_despawn_self : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		return Caster.IsTypeId(TypeId.Unit);
-	}
+    public override bool Load()
+    {
+        return Caster.IsTypeId(TypeId.Unit);
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, SpellConst.EffectAll, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, SpellConst.EffectAll, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		if (EffectInfo.IsEffect(SpellEffectName.Dummy) ||
-			EffectInfo.IsEffect(SpellEffectName.ScriptEffect))
-			Caster.AsCreature.DespawnOrUnsummon();
-	}
+    private void HandleDummy(int effIndex)
+    {
+        if (EffectInfo.IsEffect(SpellEffectName.Dummy) ||
+            EffectInfo.IsEffect(SpellEffectName.ScriptEffect))
+            Caster.AsCreature.DespawnOrUnsummon();
+    }
 }

@@ -27,13 +27,16 @@ internal class spell_evoker_life_givers_flame : SpellScript, ISpellAfterHit
                 aurEff.SetAmount(0);
             }
             else
+            {
                 aurEff = aura.GetEffect(0);
+            }
 
             var maxHits = SpellManager.Instance.GetSpellInfo(EvokerSpells.LIFE_GIVERS_FLAME).GetEffect(1).BasePoints;
-            bool update = false;
+            var update = false;
+
             aura.ForEachAuraScript<IAuraScriptValues>(a =>
             {
-                if (a.ScriptValues.TryGetValue("LIFE_GIVERS_FLAME_AURA hits", out object val))
+                if (a.ScriptValues.TryGetValue("LIFE_GIVERS_FLAME_AURA hits", out var val))
                 {
                     var intVal = (int)val;
 

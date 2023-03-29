@@ -10,68 +10,68 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class SpellPeriodicAuraLog : CombatLogServerPacket
 {
-	public ObjectGuid TargetGUID;
-	public ObjectGuid CasterGUID;
-	public uint SpellID;
-	public List<SpellLogEffect> Effects = new();
-	public SpellPeriodicAuraLog() : base(ServerOpcodes.SpellPeriodicAuraLog, ConnectionType.Instance) { }
+    public ObjectGuid TargetGUID;
+    public ObjectGuid CasterGUID;
+    public uint SpellID;
+    public List<SpellLogEffect> Effects = new();
+    public SpellPeriodicAuraLog() : base(ServerOpcodes.SpellPeriodicAuraLog, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(TargetGUID);
-		_worldPacket.WritePackedGuid(CasterGUID);
-		_worldPacket.WriteUInt32(SpellID);
-		_worldPacket.WriteInt32(Effects.Count);
-		WriteLogDataBit();
-		FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(TargetGUID);
+        _worldPacket.WritePackedGuid(CasterGUID);
+        _worldPacket.WriteUInt32(SpellID);
+        _worldPacket.WriteInt32(Effects.Count);
+        WriteLogDataBit();
+        FlushBits();
 
-		Effects.ForEach(p => p.Write(_worldPacket));
+        Effects.ForEach(p => p.Write(_worldPacket));
 
-		WriteLogData();
-	}
+        WriteLogData();
+    }
 
-	public struct PeriodicalAuraLogEffectDebugInfo
-	{
-		public float CritRollMade;
-		public float CritRollNeeded;
-	}
+    public struct PeriodicalAuraLogEffectDebugInfo
+    {
+        public float CritRollMade;
+        public float CritRollNeeded;
+    }
 
-	public class SpellLogEffect
-	{
-		public uint Effect;
-		public uint Amount;
-		public int OriginalDamage;
-		public uint OverHealOrKill;
-		public uint SchoolMaskOrPower;
-		public uint AbsorbedOrAmplitude;
-		public uint Resisted;
-		public bool Crit;
-		public PeriodicalAuraLogEffectDebugInfo? DebugInfo;
-		public ContentTuningParams ContentTuning;
+    public class SpellLogEffect
+    {
+        public uint Effect;
+        public uint Amount;
+        public int OriginalDamage;
+        public uint OverHealOrKill;
+        public uint SchoolMaskOrPower;
+        public uint AbsorbedOrAmplitude;
+        public uint Resisted;
+        public bool Crit;
+        public PeriodicalAuraLogEffectDebugInfo? DebugInfo;
+        public ContentTuningParams ContentTuning;
 
-		public void Write(WorldPacket data)
-		{
-			data.WriteUInt32(Effect);
-			data.WriteUInt32(Amount);
-			data.WriteInt32(OriginalDamage);
-			data.WriteUInt32(OverHealOrKill);
-			data.WriteUInt32(SchoolMaskOrPower);
-			data.WriteUInt32(AbsorbedOrAmplitude);
-			data.WriteUInt32(Resisted);
+        public void Write(WorldPacket data)
+        {
+            data.WriteUInt32(Effect);
+            data.WriteUInt32(Amount);
+            data.WriteInt32(OriginalDamage);
+            data.WriteUInt32(OverHealOrKill);
+            data.WriteUInt32(SchoolMaskOrPower);
+            data.WriteUInt32(AbsorbedOrAmplitude);
+            data.WriteUInt32(Resisted);
 
-			data.WriteBit(Crit);
-			data.WriteBit(DebugInfo.HasValue);
-			data.WriteBit(ContentTuning != null);
-			data.FlushBits();
+            data.WriteBit(Crit);
+            data.WriteBit(DebugInfo.HasValue);
+            data.WriteBit(ContentTuning != null);
+            data.FlushBits();
 
-			if (ContentTuning != null)
-				ContentTuning.Write(data);
+            if (ContentTuning != null)
+                ContentTuning.Write(data);
 
-			if (DebugInfo.HasValue)
-			{
-				data.WriteFloat(DebugInfo.Value.CritRollMade);
-				data.WriteFloat(DebugInfo.Value.CritRollNeeded);
-			}
-		}
-	}
+            if (DebugInfo.HasValue)
+            {
+                data.WriteFloat(DebugInfo.Value.CritRollMade);
+                data.WriteFloat(DebugInfo.Value.CritRollNeeded);
+            }
+        }
+    }
 }

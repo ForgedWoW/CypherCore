@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class ClientPlayerMovement : ClientPacket
 {
-	public MovementInfo Status;
-	public ClientPlayerMovement(WorldPacket packet) : base(packet) { }
+    public MovementInfo Status;
+    public ClientPlayerMovement(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Status = MovementExtensions.ReadMovementInfo(_worldPacket);
-	}
+    public override void Read()
+    {
+        Status = MovementExtensions.ReadMovementInfo(_worldPacket);
+    }
 }

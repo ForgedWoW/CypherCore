@@ -5,9 +5,9 @@ namespace Forged.MapServer.Spells;
 
 public class SpellChainNode
 {
-	public SpellInfo Prev;
-	public SpellInfo Next;
-	public SpellInfo First;
-	public SpellInfo Last;
-	public byte Rank;
+    public SpellInfo Prev;
+    public SpellInfo Next;
+    public SpellInfo First;
+    public SpellInfo Last;
+    public byte Rank;
 }

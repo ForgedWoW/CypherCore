@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum BattlegroundCreatures
 {
-	A_SpiritGuide = 13116, // alliance
-	H_SpiritGuide = 13117  // horde
+    A_SpiritGuide = 13116, // alliance
+    H_SpiritGuide = 13117  // horde
 }

@@ -7,19 +7,19 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class GossipSelectOption : ClientPacket
 {
-	public ObjectGuid GossipUnit;
-	public int GossipOptionID;
-	public uint GossipID;
-	public string PromotionCode;
-	public GossipSelectOption(WorldPacket packet) : base(packet) { }
+    public ObjectGuid GossipUnit;
+    public int GossipOptionID;
+    public uint GossipID;
+    public string PromotionCode;
+    public GossipSelectOption(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		GossipUnit = _worldPacket.ReadPackedGuid();
-		GossipID = _worldPacket.ReadUInt32();
-		GossipOptionID = _worldPacket.ReadInt32();
+    public override void Read()
+    {
+        GossipUnit = _worldPacket.ReadPackedGuid();
+        GossipID = _worldPacket.ReadUInt32();
+        GossipOptionID = _worldPacket.ReadInt32();
 
-		var length = _worldPacket.ReadBits<uint>(8);
-		PromotionCode = _worldPacket.ReadString(length);
-	}
+        var length = _worldPacket.ReadBits<uint>(8);
+        PromotionCode = _worldPacket.ReadString(length);
+    }
 }

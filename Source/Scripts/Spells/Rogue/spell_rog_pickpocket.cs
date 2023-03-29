@@ -10,12 +10,12 @@ namespace Scripts.Spells.Rogue;
 [Script]
 internal class spell_rog_pickpocket : SpellScript, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		if (!ExplTargetUnit ||
-			!Caster.IsValidAttackTarget(ExplTargetUnit, SpellInfo))
-			return SpellCastResult.BadTargets;
+    public SpellCastResult CheckCast()
+    {
+        if (!ExplTargetUnit ||
+            !Caster.IsValidAttackTarget(ExplTargetUnit, SpellInfo))
+            return SpellCastResult.BadTargets;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

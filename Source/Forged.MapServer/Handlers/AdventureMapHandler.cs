@@ -12,20 +12,20 @@ namespace Forged.MapServer.Handlers;
 
 public class AdventureMapHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.AdventureMapStartQuest)]
+    [WorldPacketHandler(ClientOpcodes.AdventureMapStartQuest)]
     private void HandleAdventureMapStartQuest(AdventureMapStartQuest startQuest)
-	{
-		var quest = Global.ObjectMgr.GetQuestTemplate(startQuest.QuestID);
+    {
+        var quest = Global.ObjectMgr.GetQuestTemplate(startQuest.QuestID);
 
-		if (quest == null)
-			return;
+        if (quest == null)
+            return;
 
-		var adventureMapPOI = CliDB.AdventureMapPOIStorage.Values.FirstOrDefault(adventureMap => { return adventureMap.QuestID == startQuest.QuestID && _player.MeetPlayerCondition(adventureMap.PlayerConditionID); });
+        var adventureMapPOI = CliDB.AdventureMapPOIStorage.Values.FirstOrDefault(adventureMap => { return adventureMap.QuestID == startQuest.QuestID && _player.MeetPlayerCondition(adventureMap.PlayerConditionID); });
 
-		if (adventureMapPOI == null)
-			return;
+        if (adventureMapPOI == null)
+            return;
 
-		if (_player.CanTakeQuest(quest, true))
-			_player.AddQuestAndCheckCompletion(quest, _player);
-	}
+        if (_player.CanTakeQuest(quest, true))
+            _player.AddQuestAndCheckCompletion(quest, _player);
+    }
 }

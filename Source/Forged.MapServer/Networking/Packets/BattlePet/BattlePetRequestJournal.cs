@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetRequestJournal : ClientPacket
 {
-	public BattlePetRequestJournal(WorldPacket packet) : base(packet) { }
+    public BattlePetRequestJournal(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

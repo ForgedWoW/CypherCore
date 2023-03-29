@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum GuildBankRights
 {
-	ViewTab = 0x01,
-	PutItem = 0x02,
-	UpdateText = 0x04,
+    ViewTab = 0x01,
+    PutItem = 0x02,
+    UpdateText = 0x04,
 
-	DepositItem = ViewTab | PutItem,
-	Full = -1
+    DepositItem = ViewTab | PutItem,
+    Full = -1
 }

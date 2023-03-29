@@ -10,18 +10,18 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_summon_tournament_mount : SpellScript, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		if (Caster.IsInDisallowedMountForm)
-			Caster.RemoveAurasByType(AuraType.ModShapeshift);
+    public SpellCastResult CheckCast()
+    {
+        if (Caster.IsInDisallowedMountForm)
+            Caster.RemoveAurasByType(AuraType.ModShapeshift);
 
-		if (!Caster.HasAura(GenericSpellIds.LanceEquipped))
-		{
-			SetCustomCastResultMessage(SpellCustomErrors.MustHaveLanceEquipped);
+        if (!Caster.HasAura(GenericSpellIds.LanceEquipped))
+        {
+            SetCustomCastResultMessage(SpellCustomErrors.MustHaveLanceEquipped);
 
-			return SpellCastResult.CustomError;
-		}
+            return SpellCastResult.CustomError;
+        }
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

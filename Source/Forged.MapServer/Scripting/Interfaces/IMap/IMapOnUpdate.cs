@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IMap;
 
 public interface IMapOnUpdate<T> : IScriptObject where T : Map
 {
-	void OnUpdate(T obj, uint diff);
+    void OnUpdate(T obj, uint diff);
 }

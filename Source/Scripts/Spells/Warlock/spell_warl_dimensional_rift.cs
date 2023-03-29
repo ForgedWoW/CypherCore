@@ -10,22 +10,22 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(WarlockSpells.DIMENSIONAL_RIFT)]
 public class spell_warl_dimensional_rift : SpellScript, IHasSpellEffects
 {
-	private readonly List<uint> _spells = new()
-	{
-		WarlockSpells.SHADOWY_TEAR,
-		WarlockSpells.UNSTABLE_TEAR,
-		WarlockSpells.CHAOS_TEAR
-	};
+    private readonly List<uint> _spells = new()
+    {
+        WarlockSpells.SHADOWY_TEAR,
+        WarlockSpells.UNSTABLE_TEAR,
+        WarlockSpells.CHAOS_TEAR
+    };
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public void HandleScriptEffect(int effectIndex)
-	{
-		Caster.CastSpell(_spells.SelectRandom(), true);
-	}
+    public void HandleScriptEffect(int effectIndex)
+    {
+        Caster.CastSpell(_spells.SelectRandom(), true);
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, Framework.Constants.SpellEffectName.ScriptEffect, Framework.Constants.SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, Framework.Constants.SpellEffectName.ScriptEffect, Framework.Constants.SpellScriptHookType.EffectHitTarget));
+    }
 }

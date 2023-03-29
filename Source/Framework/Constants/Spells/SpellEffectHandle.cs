@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum SpellEffectHandle
 {
-	Launch,
-	LaunchTarget,
-	Hit,
-	HitTarget
+    Launch,
+    LaunchTarget,
+    Hit,
+    HitTarget
 }

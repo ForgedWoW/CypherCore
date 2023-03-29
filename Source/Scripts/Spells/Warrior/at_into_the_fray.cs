@@ -12,38 +12,38 @@ namespace Scripts.Spells.Warrior;
 [Script]
 public class at_into_the_fray : AreaTriggerScript, IAreaTriggerOnUpdate
 {
-	public void OnUpdate(uint diff)
-	{
-		var caster = At.GetCaster();
+    public void OnUpdate(uint diff)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var timer = At.VariableStorage.GetValue<uint>("_timer", 0) + diff;
+        var timer = At.VariableStorage.GetValue<uint>("_timer", 0) + diff;
 
-		if (timer >= 250)
-		{
-			At.VariableStorage.Set<int>("_timer", 0);
-			var count = (uint)(At.InsideUnits.Count - 1);
+        if (timer >= 250)
+        {
+            At.VariableStorage.Set<int>("_timer", 0);
+            var count = (uint)(At.InsideUnits.Count - 1);
 
-			if (count != 0)
-			{
-				if (!caster.HasAura(WarriorSpells.INTO_THE_FRAY))
-					caster.CastSpell(caster, WarriorSpells.INTO_THE_FRAY, true);
+            if (count != 0)
+            {
+                if (!caster.HasAura(WarriorSpells.INTO_THE_FRAY))
+                    caster.CastSpell(caster, WarriorSpells.INTO_THE_FRAY, true);
 
-				var itf = caster.GetAura(WarriorSpells.INTO_THE_FRAY);
+                var itf = caster.GetAura(WarriorSpells.INTO_THE_FRAY);
 
-				if (itf != null)
-					itf.SetStackAmount((byte)Math.Min(itf.CalcMaxStackAmount(), count));
-			}
-			else
-			{
-				caster.RemoveAura(WarriorSpells.INTO_THE_FRAY);
-			}
-		}
-		else
-		{
-			At.VariableStorage.Set("_timer", timer);
-		}
-	}
+                if (itf != null)
+                    itf.SetStackAmount((byte)Math.Min(itf.CalcMaxStackAmount(), count));
+            }
+            else
+            {
+                caster.RemoveAura(WarriorSpells.INTO_THE_FRAY);
+            }
+        }
+        else
+        {
+            At.VariableStorage.Set("_timer", timer);
+        }
+    }
 }

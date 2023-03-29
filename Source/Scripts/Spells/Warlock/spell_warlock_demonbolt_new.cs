@@ -12,19 +12,19 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(264178)]
 public class spell_warlock_demonbolt_new : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		if (Caster)
-		{
-			Caster.CastSpell(Caster, WarlockSpells.DEMONBOLT_ENERGIZE, true);
-			Caster.CastSpell(Caster, WarlockSpells.DEMONBOLT_ENERGIZE, true);
-		}
-	}
+    private void HandleHit(int effIndex)
+    {
+        if (Caster)
+        {
+            Caster.CastSpell(Caster, WarlockSpells.DEMONBOLT_ENERGIZE, true);
+            Caster.CastSpell(Caster, WarlockSpells.DEMONBOLT_ENERGIZE, true);
+        }
+    }
 }

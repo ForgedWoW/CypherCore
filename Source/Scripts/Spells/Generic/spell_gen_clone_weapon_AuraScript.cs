@@ -12,124 +12,124 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 {
-	private uint prevItem;
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    private uint prevItem;
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override bool Load()
-	{
-		prevItem = 0;
+    public override bool Load()
+    {
+        prevItem = 0;
 
-		return true;
-	}
+        return true;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.PeriodicDummy, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectApply));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.PeriodicDummy, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.PeriodicDummy, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectApply));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.PeriodicDummy, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectRemove));
+    }
 
-	private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var caster = Caster;
-		var target = Target;
+    private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var caster = Caster;
+        var target = Target;
 
-		if (!caster)
-			return;
+        if (!caster)
+            return;
 
-		switch (SpellInfo.Id)
-		{
-			case GenericSpellIds.WeaponAura:
-			case GenericSpellIds.Weapon2Aura:
-			case GenericSpellIds.Weapon3Aura:
-			{
-				prevItem = target.GetVirtualItemId(0);
+        switch (SpellInfo.Id)
+        {
+            case GenericSpellIds.WeaponAura:
+            case GenericSpellIds.Weapon2Aura:
+            case GenericSpellIds.Weapon3Aura:
+            {
+                prevItem = target.GetVirtualItemId(0);
 
-				var player = caster.AsPlayer;
+                var player = caster.AsPlayer;
 
-				if (player)
-				{
-					var mainItem = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
+                if (player)
+                {
+                    var mainItem = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
-					if (mainItem)
-						target.SetVirtualItem(0, mainItem.Entry);
-				}
-				else
-				{
-					target.SetVirtualItem(0, caster.GetVirtualItemId(0));
-				}
+                    if (mainItem)
+                        target.SetVirtualItem(0, mainItem.Entry);
+                }
+                else
+                {
+                    target.SetVirtualItem(0, caster.GetVirtualItemId(0));
+                }
 
-				break;
-			}
-			case GenericSpellIds.OffhandAura:
-			case GenericSpellIds.Offhand2Aura:
-			{
-				prevItem = target.GetVirtualItemId(1);
+                break;
+            }
+            case GenericSpellIds.OffhandAura:
+            case GenericSpellIds.Offhand2Aura:
+            {
+                prevItem = target.GetVirtualItemId(1);
 
-				var player = caster.AsPlayer;
+                var player = caster.AsPlayer;
 
-				if (player)
-				{
-					var offItem = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
+                if (player)
+                {
+                    var offItem = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
-					if (offItem)
-						target.SetVirtualItem(1, offItem.Entry);
-				}
-				else
-				{
-					target.SetVirtualItem(1, caster.GetVirtualItemId(1));
-				}
+                    if (offItem)
+                        target.SetVirtualItem(1, offItem.Entry);
+                }
+                else
+                {
+                    target.SetVirtualItem(1, caster.GetVirtualItemId(1));
+                }
 
-				break;
-			}
-			case GenericSpellIds.RangedAura:
-			{
-				prevItem = target.GetVirtualItemId(2);
+                break;
+            }
+            case GenericSpellIds.RangedAura:
+            {
+                prevItem = target.GetVirtualItemId(2);
 
-				var player = caster.AsPlayer;
+                var player = caster.AsPlayer;
 
-				if (player)
-				{
-					var rangedItem = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
+                if (player)
+                {
+                    var rangedItem = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
-					if (rangedItem)
-						target.SetVirtualItem(2, rangedItem.Entry);
-				}
-				else
-				{
-					target.SetVirtualItem(2, caster.GetVirtualItemId(2));
-				}
+                    if (rangedItem)
+                        target.SetVirtualItem(2, rangedItem.Entry);
+                }
+                else
+                {
+                    target.SetVirtualItem(2, caster.GetVirtualItemId(2));
+                }
 
-				break;
-			}
-			default:
-				break;
-		}
-	}
+                break;
+            }
+            default:
+                break;
+        }
+    }
 
-	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var target = Target;
+    private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var target = Target;
 
-		switch (SpellInfo.Id)
-		{
-			case GenericSpellIds.WeaponAura:
-			case GenericSpellIds.Weapon2Aura:
-			case GenericSpellIds.Weapon3Aura:
-				target.SetVirtualItem(0, prevItem);
+        switch (SpellInfo.Id)
+        {
+            case GenericSpellIds.WeaponAura:
+            case GenericSpellIds.Weapon2Aura:
+            case GenericSpellIds.Weapon3Aura:
+                target.SetVirtualItem(0, prevItem);
 
-				break;
-			case GenericSpellIds.OffhandAura:
-			case GenericSpellIds.Offhand2Aura:
-				target.SetVirtualItem(1, prevItem);
+                break;
+            case GenericSpellIds.OffhandAura:
+            case GenericSpellIds.Offhand2Aura:
+                target.SetVirtualItem(1, prevItem);
 
-				break;
-			case GenericSpellIds.RangedAura:
-				target.SetVirtualItem(2, prevItem);
+                break;
+            case GenericSpellIds.RangedAura:
+                target.SetVirtualItem(2, prevItem);
 
-				break;
-			default:
-				break;
-		}
-	}
+                break;
+            default:
+                break;
+        }
+    }
 }

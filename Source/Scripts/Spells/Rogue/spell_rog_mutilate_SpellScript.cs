@@ -11,28 +11,28 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(1329)]
 public class spell_rog_mutilate_SpellScript : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 2, SpellEffectName.TriggerSpell, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHit, 2, SpellEffectName.TriggerSpell, SpellScriptHookType.EffectHitTarget));
+    }
 
 
-	private void HandleOnHit(int effIndex)
-	{
-		var caster = Caster.AsPlayer;
-		var target = HitUnit;
+    private void HandleOnHit(int effIndex)
+    {
+        var caster = Caster.AsPlayer;
+        var target = HitUnit;
 
-		if (target == null || caster == null)
-			return;
+        if (target == null || caster == null)
+            return;
 
-		if (caster.HasAura(5374) || caster.HasAura(27576))
-			caster.AsPlayer.ModifyPower(PowerType.ComboPoints, 1);
+        if (caster.HasAura(5374) || caster.HasAura(27576))
+            caster.AsPlayer.ModifyPower(PowerType.ComboPoints, 1);
 
-		if (caster.HasAura(14190))
-			caster.AsPlayer.ModifyPower(PowerType.ComboPoints, 2);
+        if (caster.HasAura(14190))
+            caster.AsPlayer.ModifyPower(PowerType.ComboPoints, 2);
 
-		caster.ModifyPower(PowerType.ComboPoints, -3);
-	}
+        caster.ModifyPower(PowerType.ComboPoints, -3);
+    }
 }

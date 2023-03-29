@@ -11,9 +11,9 @@ namespace Forged.MapServer.Text;
 
 public class ChatPacketSender : IDoWork<Player>
 {
-	// caches
-	public ChatPkt UntranslatedPacket;
-	public ChatPkt TranslatedPacket;
+    // caches
+    public ChatPkt UntranslatedPacket;
+    public ChatPkt TranslatedPacket;
     private readonly ChatMsg _type;
     private readonly Language _language;
     private readonly WorldObject _sender;
@@ -22,37 +22,37 @@ public class ChatPacketSender : IDoWork<Player>
     private readonly uint _achievementId;
     private readonly Locale _locale;
 
-	public ChatPacketSender(ChatMsg chatType, Language language, WorldObject sender, WorldObject receiver, string message, uint achievementId = 0, Locale locale = Locale.enUS)
-	{
-		_type = chatType;
-		_language = language;
-		_sender = sender;
-		_receiver = receiver;
-		_text = message;
-		_achievementId = achievementId;
-		_locale = locale;
+    public ChatPacketSender(ChatMsg chatType, Language language, WorldObject sender, WorldObject receiver, string message, uint achievementId = 0, Locale locale = Locale.enUS)
+    {
+        _type = chatType;
+        _language = language;
+        _sender = sender;
+        _receiver = receiver;
+        _text = message;
+        _achievementId = achievementId;
+        _locale = locale;
 
-		UntranslatedPacket = new ChatPkt();
-		UntranslatedPacket.Initialize(_type, _language, _sender, _receiver, _text, _achievementId, "", _locale);
-		UntranslatedPacket.Write();
-	}
+        UntranslatedPacket = new ChatPkt();
+        UntranslatedPacket.Initialize(_type, _language, _sender, _receiver, _text, _achievementId, "", _locale);
+        UntranslatedPacket.Write();
+    }
 
-	public void Invoke(Player player)
-	{
-		if (_language == Language.Universal || _language == Language.Addon || _language == Language.AddonLogged || player.CanUnderstandLanguage(_language))
-		{
-			player.SendPacket(UntranslatedPacket);
+    public void Invoke(Player player)
+    {
+        if (_language == Language.Universal || _language == Language.Addon || _language == Language.AddonLogged || player.CanUnderstandLanguage(_language))
+        {
+            player.SendPacket(UntranslatedPacket);
 
-			return;
-		}
+            return;
+        }
 
-		if (TranslatedPacket == null)
-		{
-			TranslatedPacket = new ChatPkt();
-			TranslatedPacket.Initialize(_type, _language, _sender, _receiver, Global.LanguageMgr.Translate(_text, (uint)_language, player.Session.SessionDbcLocale), _achievementId, "", _locale);
-			TranslatedPacket.Write();
-		}
+        if (TranslatedPacket == null)
+        {
+            TranslatedPacket = new ChatPkt();
+            TranslatedPacket.Initialize(_type, _language, _sender, _receiver, Global.LanguageMgr.Translate(_text, (uint)_language, player.Session.SessionDbcLocale), _achievementId, "", _locale);
+            TranslatedPacket.Write();
+        }
 
-		player.SendPacket(TranslatedPacket);
-	}
+        player.SendPacket(TranslatedPacket);
+    }
 }

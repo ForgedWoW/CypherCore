@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Reputation;
 
 internal class RequestForcedReactions : ClientPacket
 {
-	public RequestForcedReactions(WorldPacket packet) : base(packet) { }
+    public RequestForcedReactions(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

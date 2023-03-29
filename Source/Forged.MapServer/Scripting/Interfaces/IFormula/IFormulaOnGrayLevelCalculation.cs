@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IFormula;
 
 public interface IFormulaOnGrayLevelCalculation : IScriptObject
 {
-	void OnGrayLevelCalculation(uint grayLevel, uint playerLevel);
+    void OnGrayLevelCalculation(uint grayLevel, uint playerLevel);
 }

@@ -12,29 +12,29 @@ namespace Scripts.Spells.Monk;
 [Script] // 124255 - Stagger - STAGGER_DAMAGE_AURA
 internal class spell_monk_stagger_damage_aura : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnPeriodicDamage, 0, AuraType.PeriodicDamage));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnPeriodicDamage, 0, AuraType.PeriodicDamage));
+    }
 
-	private void OnPeriodicDamage(AuraEffect aurEff)
-	{
-		// Update our light/medium/heavy stagger with the correct stagger amount left
-		var auraStagger = spell_monk_stagger.FindExistingStaggerEffect(Target);
+    private void OnPeriodicDamage(AuraEffect aurEff)
+    {
+        // Update our light/medium/heavy stagger with the correct stagger amount left
+        var auraStagger = spell_monk_stagger.FindExistingStaggerEffect(Target);
 
-		if (auraStagger != null)
-		{
-			var auraEff = auraStagger.GetEffect(1);
+        if (auraStagger != null)
+        {
+            var auraEff = auraStagger.GetEffect(1);
 
-			if (auraEff != null)
-			{
-				var total = auraEff.Amount;
-				var tickDamage = aurEff.Amount;
-				auraEff.ChangeAmount((int)(total - tickDamage));
-			}
-		}
-	}
+            if (auraEff != null)
+            {
+                var total = auraEff.Amount;
+                var tickDamage = aurEff.Amount;
+                auraEff.ChangeAmount((int)(total - tickDamage));
+            }
+        }
+    }
 }

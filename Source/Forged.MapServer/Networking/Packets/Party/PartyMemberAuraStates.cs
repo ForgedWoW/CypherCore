@@ -7,19 +7,19 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class PartyMemberAuraStates
 {
-	public int SpellID;
-	public ushort Flags;
-	public uint ActiveFlags;
-	public List<float> Points = new();
+    public int SpellID;
+    public ushort Flags;
+    public uint ActiveFlags;
+    public List<float> Points = new();
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(SpellID);
-		data.WriteUInt16(Flags);
-		data.WriteUInt32(ActiveFlags);
-		data.WriteInt32(Points.Count);
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(SpellID);
+        data.WriteUInt16(Flags);
+        data.WriteUInt32(ActiveFlags);
+        data.WriteInt32(Points.Count);
 
-		foreach (var points in Points)
-			data.WriteFloat(points);
-	}
+        foreach (var points in Points)
+            data.WriteFloat(points);
+    }
 }

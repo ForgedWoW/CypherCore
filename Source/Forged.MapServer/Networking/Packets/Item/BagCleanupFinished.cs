@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class BagCleanupFinished : ServerPacket
 {
-	public BagCleanupFinished() : base(ServerOpcodes.BagCleanupFinished, ConnectionType.Instance) { }
+    public BagCleanupFinished() : base(ServerOpcodes.BagCleanupFinished, ConnectionType.Instance) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

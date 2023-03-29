@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class KeyboundOverride : ClientPacket
 {
-	public ushort OverrideID;
-	public KeyboundOverride(WorldPacket packet) : base(packet) { }
+    public ushort OverrideID;
+    public KeyboundOverride(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		OverrideID = _worldPacket.ReadUInt16();
-	}
+    public override void Read()
+    {
+        OverrideID = _worldPacket.ReadUInt16();
+    }
 }

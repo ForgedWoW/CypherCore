@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum DiminishingReturnsType
 {
-	None = 0,   // this spell is not diminished, but may have its duration limited
-	Player = 1, // this spell is diminished only when applied on players
-	All = 2     // this spell is diminished in every case
+    None = 0,   // this spell is not diminished, but may have its duration limited
+    Player = 1, // this spell is diminished only when applied on players
+    All = 2     // this spell is diminished in every case
 }

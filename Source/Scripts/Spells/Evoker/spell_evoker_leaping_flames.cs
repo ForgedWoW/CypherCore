@@ -10,12 +10,12 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.RED_FIRE_BREATH, EvokerSpells.RED_FIRE_BREATH_2)]
 internal class spell_evoker_leaping_flames : SpellScript, ISpellOnEpowerSpellEnd
 {
-	public void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta)
-	{
-		if (Caster.HasSpell(EvokerSpells.LEAPING_FLAMES))
-		{
-			var auraEff = Caster.AddAura(EvokerSpells.LEAPING_FLAMES_AURA).GetEffect(0);
+    public void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta)
+    {
+        if (Caster.HasSpell(EvokerSpells.LEAPING_FLAMES))
+        {
+            var auraEff = Caster.AddAura(EvokerSpells.LEAPING_FLAMES_AURA).GetEffect(0);
             auraEff.SetAmount(auraEff.Amount + stage.Stage);
         }
-	}
+    }
 }

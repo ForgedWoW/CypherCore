@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum DisplayToastType : byte
 {
-	NewItem = 0,
-	NewCurrency = 1,
-	Money = 2,
-	Honor = 3
+    NewItem = 0,
+    NewCurrency = 1,
+    Money = 2,
+    Honor = 3
 }

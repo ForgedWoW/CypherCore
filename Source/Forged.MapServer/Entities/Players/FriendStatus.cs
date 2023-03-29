@@ -8,9 +8,9 @@ namespace Forged.MapServer.Entities.Players;
 [Flags]
 public enum FriendStatus
 {
-	Offline = 0x00,
-	Online = 0x01,
-	AFK = 0x02,
-	DND = 0x04,
-	RAF = 0x08
+    Offline = 0x00,
+    Online = 0x01,
+    AFK = 0x02,
+    DND = 0x04,
+    RAF = 0x08
 }

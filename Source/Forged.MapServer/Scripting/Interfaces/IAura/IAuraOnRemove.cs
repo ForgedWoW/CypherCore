@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraOnRemove : IAuraScript
 {
-	void AuraRemoved(AuraRemoveMode removeMode);
+    void AuraRemoved(AuraRemoveMode removeMode);
 }

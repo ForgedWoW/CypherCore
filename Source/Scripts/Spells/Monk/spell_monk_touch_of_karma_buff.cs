@@ -12,27 +12,27 @@ namespace Scripts.Spells.Monk;
 [SpellScript(125174)]
 public class spell_monk_touch_of_karma_buff : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		foreach (var aurApp in caster.GetAppliedAurasQuery().HasSpellId(MonkSpells.TOUCH_OF_KARMA).GetResults())
-		{
-			var targetAura = aurApp.Base;
+        foreach (var aurApp in caster.GetAppliedAurasQuery().HasSpellId(MonkSpells.TOUCH_OF_KARMA).GetResults())
+        {
+            var targetAura = aurApp.Base;
 
-			if (targetAura != null)
-				targetAura.Remove();
-		}
-	}
+            if (targetAura != null)
+                targetAura.Remove();
+        }
+    }
 }

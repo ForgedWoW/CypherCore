@@ -8,9 +8,9 @@ namespace Forged.MapServer.Entities.GameObjects;
 
 public class GameObjectAddon
 {
-	public Quaternion ParentRotation;
-	public InvisibilityType invisibilityType;
-	public uint invisibilityValue;
-	public uint WorldEffectID;
-	public uint AIAnimKitID;
+    public Quaternion ParentRotation;
+    public InvisibilityType invisibilityType;
+    public uint invisibilityValue;
+    public uint WorldEffectID;
+    public uint AIAnimKitID;
 }

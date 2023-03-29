@@ -9,43 +9,43 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class ConversationLine
 {
-	public uint ConversationLineID;
-	public uint StartTime;
-	public uint UiCameraID;
-	public byte ActorIndex;
-	public byte Flags;
-	public byte ChatType;
+    public uint ConversationLineID;
+    public uint StartTime;
+    public uint UiCameraID;
+    public byte ActorIndex;
+    public byte Flags;
+    public byte ChatType;
 
-	public void WriteCreate(WorldPacket data, Conversation owner, Player receiver)
-	{
-		data.WriteUInt32(ConversationLineID);
-		data.WriteUInt32(GetViewerStartTime(this, owner, receiver));
-		data.WriteUInt32(UiCameraID);
-		data.WriteUInt8(ActorIndex);
-		data.WriteUInt8(Flags);
-		data.WriteUInt8(ChatType);
-	}
+    public void WriteCreate(WorldPacket data, Conversation owner, Player receiver)
+    {
+        data.WriteUInt32(ConversationLineID);
+        data.WriteUInt32(GetViewerStartTime(this, owner, receiver));
+        data.WriteUInt32(UiCameraID);
+        data.WriteUInt8(ActorIndex);
+        data.WriteUInt8(Flags);
+        data.WriteUInt8(ChatType);
+    }
 
-	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Conversation owner, Player receiver)
-	{
-		data.WriteUInt32(ConversationLineID);
-		data.WriteUInt32(GetViewerStartTime(this, owner, receiver));
-		data.WriteUInt32(UiCameraID);
-		data.WriteUInt8(ActorIndex);
-		data.WriteUInt8(Flags);
-		data.WriteUInt8(ChatType);
-	}
+    public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Conversation owner, Player receiver)
+    {
+        data.WriteUInt32(ConversationLineID);
+        data.WriteUInt32(GetViewerStartTime(this, owner, receiver));
+        data.WriteUInt32(UiCameraID);
+        data.WriteUInt8(ActorIndex);
+        data.WriteUInt8(Flags);
+        data.WriteUInt8(ChatType);
+    }
 
-	public uint GetViewerStartTime(ConversationLine conversationLine, Conversation conversation, Player receiver)
-	{
-		var startTime = conversationLine.StartTime;
-		var locale = receiver.Session.SessionDbLocaleIndex;
+    public uint GetViewerStartTime(ConversationLine conversationLine, Conversation conversation, Player receiver)
+    {
+        var startTime = conversationLine.StartTime;
+        var locale = receiver.Session.SessionDbLocaleIndex;
 
-		var localizedStartTime = conversation.GetLineStartTime(locale, (int)conversationLine.ConversationLineID);
+        var localizedStartTime = conversation.GetLineStartTime(locale, (int)conversationLine.ConversationLineID);
 
-		if (localizedStartTime != TimeSpan.Zero)
-			startTime = (uint)localizedStartTime.TotalMilliseconds;
+        if (localizedStartTime != TimeSpan.Zero)
+            startTime = (uint)localizedStartTime.TotalMilliseconds;
 
-		return startTime;
-	}
+        return startTime;
+    }
 }

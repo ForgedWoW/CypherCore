@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
 internal class VoidStorageContents : ServerPacket
 {
-	public List<VoidItem> Items = new();
-	public VoidStorageContents() : base(ServerOpcodes.VoidStorageContents, ConnectionType.Instance) { }
+    public List<VoidItem> Items = new();
+    public VoidStorageContents() : base(ServerOpcodes.VoidStorageContents, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(Items.Count, 8);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteBits(Items.Count, 8);
+        _worldPacket.FlushBits();
 
-		foreach (var voidItem in Items)
-			voidItem.Write(_worldPacket);
-	}
+        foreach (var voidItem in Items)
+            voidItem.Write(_worldPacket);
+    }
 }

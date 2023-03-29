@@ -8,18 +8,18 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class LoginVerifyWorld : ServerPacket
 {
-	public int MapID = -1;
-	public Position Pos;
-	public uint Reason = 0;
-	public LoginVerifyWorld() : base(ServerOpcodes.LoginVerifyWorld, ConnectionType.Instance) { }
+    public int MapID = -1;
+    public Position Pos;
+    public uint Reason = 0;
+    public LoginVerifyWorld() : base(ServerOpcodes.LoginVerifyWorld, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(MapID);
-		_worldPacket.WriteFloat(Pos.X);
-		_worldPacket.WriteFloat(Pos.Y);
-		_worldPacket.WriteFloat(Pos.Z);
-		_worldPacket.WriteFloat(Pos.Orientation);
-		_worldPacket.WriteUInt32(Reason);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(MapID);
+        _worldPacket.WriteFloat(Pos.X);
+        _worldPacket.WriteFloat(Pos.Y);
+        _worldPacket.WriteFloat(Pos.Z);
+        _worldPacket.WriteFloat(Pos.Orientation);
+        _worldPacket.WriteUInt32(Reason);
+    }
 }

@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class QueryGuildInfo : ClientPacket
 {
-	public ObjectGuid GuildGuid;
-	public ObjectGuid PlayerGuid;
-	public QueryGuildInfo(WorldPacket packet) : base(packet) { }
+    public ObjectGuid GuildGuid;
+    public ObjectGuid PlayerGuid;
+    public QueryGuildInfo(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		GuildGuid = _worldPacket.ReadPackedGuid();
-		PlayerGuid = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        GuildGuid = _worldPacket.ReadPackedGuid();
+        PlayerGuid = _worldPacket.ReadPackedGuid();
+    }
 }
 
 //Structs

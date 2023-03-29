@@ -9,13 +9,13 @@ public class CharacterLoginFailed : ServerPacket
 {
     private readonly LoginFailureReason Code;
 
-	public CharacterLoginFailed(LoginFailureReason code) : base(ServerOpcodes.CharacterLoginFailed)
-	{
-		Code = code;
-	}
+    public CharacterLoginFailed(LoginFailureReason code) : base(ServerOpcodes.CharacterLoginFailed)
+    {
+        Code = code;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt8((byte)Code);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt8((byte)Code);
+    }
 }

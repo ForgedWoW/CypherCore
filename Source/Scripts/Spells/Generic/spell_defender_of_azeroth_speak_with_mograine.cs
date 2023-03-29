@@ -11,35 +11,35 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_defender_of_azeroth_speak_with_mograine : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		if (!Caster)
-			return;
+    private void HandleDummy(int effIndex)
+    {
+        if (!Caster)
+            return;
 
-		var player = Caster.AsPlayer;
+        var player = Caster.AsPlayer;
 
-		if (player == null)
-			return;
+        if (player == null)
+            return;
 
-		var nazgrim = HitUnit.FindNearestCreature(CreatureIds.Nazgrim, 10.0f);
+        var nazgrim = HitUnit.FindNearestCreature(CreatureIds.Nazgrim, 10.0f);
 
-		nazgrim?.HandleEmoteCommand(Emote.OneshotPoint, player);
+        nazgrim?.HandleEmoteCommand(Emote.OneshotPoint, player);
 
-		var trollbane = HitUnit.FindNearestCreature(CreatureIds.Trollbane, 10.0f);
+        var trollbane = HitUnit.FindNearestCreature(CreatureIds.Trollbane, 10.0f);
 
-		trollbane?.HandleEmoteCommand(Emote.OneshotPoint, player);
+        trollbane?.HandleEmoteCommand(Emote.OneshotPoint, player);
 
-		var whitemane = HitUnit.FindNearestCreature(CreatureIds.Whitemane, 10.0f);
+        var whitemane = HitUnit.FindNearestCreature(CreatureIds.Whitemane, 10.0f);
 
-		whitemane?.HandleEmoteCommand(Emote.OneshotPoint, player);
+        whitemane?.HandleEmoteCommand(Emote.OneshotPoint, player);
 
-		// @TODO: spawntracking - show death gate for casting player
-	}
+        // @TODO: spawntracking - show death gate for casting player
+    }
 }

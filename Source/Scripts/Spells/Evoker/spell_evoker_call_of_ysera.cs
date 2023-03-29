@@ -9,9 +9,9 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.GREEN_VERDANT_EMBRACE_HEAL)]
 public class spell_evoker_call_of_ysera : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		if (Caster.TryGetAsPlayer(out var player))
-			player.AddAura(EvokerSpells.CALL_OF_YSERA_AURA);
-	}
+    public void AfterCast()
+    {
+        if (Caster.TryGetAsPlayer(out var player))
+            player.AddAura(EvokerSpells.CALL_OF_YSERA_AURA);
+    }
 }

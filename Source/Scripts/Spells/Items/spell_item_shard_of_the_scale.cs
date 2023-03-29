@@ -14,34 +14,34 @@ namespace Scripts.Spells.Items;
 [Script("spell_item_shiny_shard_of_the_scale", ItemSpellIds.ShinyCauterizingHeal, ItemSpellIds.ShinySearingFlames)]
 internal class spell_item_shard_of_the_scale : AuraScript, IHasAuraEffects
 {
-	private readonly uint _damageProcSpellId;
+    private readonly uint _damageProcSpellId;
 
-	private readonly uint _healProcSpellId;
+    private readonly uint _healProcSpellId;
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public spell_item_shard_of_the_scale(uint healProcSpellId, uint damageProcSpellId)
-	{
-		_healProcSpellId = healProcSpellId;
-		_damageProcSpellId = damageProcSpellId;
-	}
+    public spell_item_shard_of_the_scale(uint healProcSpellId, uint damageProcSpellId)
+    {
+        _healProcSpellId = healProcSpellId;
+        _damageProcSpellId = damageProcSpellId;
+    }
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var caster = eventInfo.Actor;
-		var target = eventInfo.ProcTarget;
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var caster = eventInfo.Actor;
+        var target = eventInfo.ProcTarget;
 
-		if (eventInfo.TypeMask.HasFlag(ProcFlags.DealHelpfulSpell))
-			caster.CastSpell(target, _healProcSpellId, new CastSpellExtraArgs(aurEff));
+        if (eventInfo.TypeMask.HasFlag(ProcFlags.DealHelpfulSpell))
+            caster.CastSpell(target, _healProcSpellId, new CastSpellExtraArgs(aurEff));
 
-		if (eventInfo.TypeMask.HasFlag(ProcFlags.DealHarmfulSpell))
-			caster.CastSpell(target, _damageProcSpellId, new CastSpellExtraArgs(aurEff));
-	}
+        if (eventInfo.TypeMask.HasFlag(ProcFlags.DealHarmfulSpell))
+            caster.CastSpell(target, _damageProcSpellId, new CastSpellExtraArgs(aurEff));
+    }
 }

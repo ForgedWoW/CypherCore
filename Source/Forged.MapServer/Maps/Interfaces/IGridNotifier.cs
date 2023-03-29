@@ -7,5 +7,5 @@ namespace Forged.MapServer.Maps.Interfaces;
 
 public interface IGridNotifier
 {
-	GridType GridType { get; set; }
+    GridType GridType { get; set; }
 }

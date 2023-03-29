@@ -8,20 +8,20 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildRewardList : ServerPacket
 {
-	public List<GuildRewardItem> RewardItems;
-	public long Version;
+    public List<GuildRewardItem> RewardItems;
+    public long Version;
 
-	public GuildRewardList() : base(ServerOpcodes.GuildRewardList)
-	{
-		RewardItems = new List<GuildRewardItem>();
-	}
+    public GuildRewardList() : base(ServerOpcodes.GuildRewardList)
+    {
+        RewardItems = new List<GuildRewardItem>();
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt64(Version);
-		_worldPacket.WriteInt32(RewardItems.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt64(Version);
+        _worldPacket.WriteInt32(RewardItems.Count);
 
-		foreach (var item in RewardItems)
-			item.Write(_worldPacket);
-	}
+        foreach (var item in RewardItems)
+            item.Write(_worldPacket);
+    }
 }

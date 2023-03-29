@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 internal class RatedPvpInfo : ServerPacket
 {
     private readonly BracketInfo[] Bracket = new BracketInfo[6];
-	public RatedPvpInfo() : base(ServerOpcodes.RatedPvpInfo) { }
+    public RatedPvpInfo() : base(ServerOpcodes.RatedPvpInfo) { }
 
-	public override void Write()
-	{
-		foreach (var bracket in Bracket)
-			bracket.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        foreach (var bracket in Bracket)
+            bracket.Write(_worldPacket);
+    }
 }

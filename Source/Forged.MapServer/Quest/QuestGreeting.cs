@@ -5,19 +5,19 @@ namespace Forged.MapServer.Quest;
 
 public class QuestGreeting
 {
-	public ushort EmoteType;
-	public uint EmoteDelay;
-	public string Text;
+    public ushort EmoteType;
+    public uint EmoteDelay;
+    public string Text;
 
-	public QuestGreeting()
-	{
-		Text = "";
-	}
+    public QuestGreeting()
+    {
+        Text = "";
+    }
 
-	public QuestGreeting(ushort emoteType, uint emoteDelay, string text)
-	{
-		EmoteType = emoteType;
-		EmoteDelay = emoteDelay;
-		Text = text;
-	}
+    public QuestGreeting(ushort emoteType, uint emoteDelay, string text)
+    {
+        EmoteType = emoteType;
+        EmoteDelay = emoteDelay;
+        Text = text;
+    }
 }

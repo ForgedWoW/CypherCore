@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Battlenet;
 
 internal class ConnectionStatus : ServerPacket
 {
-	public byte State;
-	public bool SuppressNotification = true;
-	public ConnectionStatus() : base(ServerOpcodes.BattleNetConnectionStatus) { }
+    public byte State;
+    public bool SuppressNotification = true;
+    public ConnectionStatus() : base(ServerOpcodes.BattleNetConnectionStatus) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(State, 2);
-		_worldPacket.WriteBit(SuppressNotification);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBits(State, 2);
+        _worldPacket.WriteBit(SuppressNotification);
+        _worldPacket.FlushBits();
+    }
 }

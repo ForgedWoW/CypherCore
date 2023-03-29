@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum BattlegroundPointCaptureStatus
 {
-	AllianceControlled,
-	AllianceCapturing,
-	Neutral,
-	HordeCapturing,
-	HordeControlled
+    AllianceControlled,
+    AllianceCapturing,
+    Neutral,
+    HordeCapturing,
+    HordeControlled
 }

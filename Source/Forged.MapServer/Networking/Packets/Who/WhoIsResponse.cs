@@ -8,12 +8,12 @@ namespace Forged.MapServer.Networking.Packets.Who;
 
 public class WhoIsResponse : ServerPacket
 {
-	public string AccountName;
-	public WhoIsResponse() : base(ServerOpcodes.WhoIs) { }
+    public string AccountName;
+    public WhoIsResponse() : base(ServerOpcodes.WhoIs) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(AccountName.GetByteCount(), 11);
-		_worldPacket.WriteString(AccountName);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBits(AccountName.GetByteCount(), 11);
+        _worldPacket.WriteString(AccountName);
+    }
 }

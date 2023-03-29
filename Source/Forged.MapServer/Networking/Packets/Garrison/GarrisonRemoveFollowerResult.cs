@@ -7,17 +7,17 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonRemoveFollowerResult : ServerPacket
 {
-	public ulong FollowerDBID;
-	public int GarrTypeID;
-	public uint Result;
-	public uint Destroyed;
-	public GarrisonRemoveFollowerResult() : base(ServerOpcodes.GarrisonRemoveFollowerResult) { }
+    public ulong FollowerDBID;
+    public int GarrTypeID;
+    public uint Result;
+    public uint Destroyed;
+    public GarrisonRemoveFollowerResult() : base(ServerOpcodes.GarrisonRemoveFollowerResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt64(FollowerDBID);
-		_worldPacket.WriteInt32(GarrTypeID);
-		_worldPacket.WriteUInt32(Result);
-		_worldPacket.WriteUInt32(Destroyed);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt64(FollowerDBID);
+        _worldPacket.WriteInt32(GarrTypeID);
+        _worldPacket.WriteUInt32(Result);
+        _worldPacket.WriteUInt32(Destroyed);
+    }
 }

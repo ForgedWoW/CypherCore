@@ -13,20 +13,20 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 206940 - Mark of Blood
 internal class spell_dk_mark_of_blood : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var caster = Caster;
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var caster = Caster;
 
-		if (caster)
-			caster.CastSpell(eventInfo.ProcTarget, DeathKnightSpells.MarkOfBloodHeal, true);
-	}
+        if (caster)
+            caster.CastSpell(eventInfo.ProcTarget, DeathKnightSpells.MarkOfBloodHeal, true);
+    }
 }

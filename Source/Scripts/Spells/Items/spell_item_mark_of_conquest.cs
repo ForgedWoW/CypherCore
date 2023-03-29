@@ -13,24 +13,24 @@ namespace Scripts.Spells.Items;
 [Script] // 33510 - Health Restore
 internal class spell_item_mark_of_conquest : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.PeriodicTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.PeriodicTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		if (eventInfo.TypeMask.HasFlag(ProcFlags.DealRangedAttack | ProcFlags.DealRangedAbility))
-		{
-			// in that case, do not cast heal spell
-			PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        if (eventInfo.TypeMask.HasFlag(ProcFlags.DealRangedAttack | ProcFlags.DealRangedAbility))
+        {
+            // in that case, do not cast heal spell
+            PreventDefaultAction();
 
-			// but mana instead
-			eventInfo. // but mana instead
-				Actor.CastSpell((Unit)null, ItemSpellIds.MarkOfConquestEnergize, new CastSpellExtraArgs(aurEff));
-		}
-	}
+            // but mana instead
+            eventInfo. // but mana instead
+                Actor.CastSpell((Unit)null, ItemSpellIds.MarkOfConquestEnergize, new CastSpellExtraArgs(aurEff));
+        }
+    }
 }

@@ -11,26 +11,26 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(211881)]
 public class spell_dh_fel_eruption : SpellScript, ISpellBeforeHit, ISpellOnHit
 {
-	public void BeforeHit(SpellMissInfo missInfo)
-	{
-		var caster = Caster;
-		var target = ExplTargetUnit;
+    public void BeforeHit(SpellMissInfo missInfo)
+    {
+        var caster = Caster;
+        var target = ExplTargetUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (missInfo == SpellMissInfo.Immune || missInfo == SpellMissInfo.Immune2)
-			caster.CastSpell(target, DemonHunterSpells.FEL_ERUPTION_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, 2));
-	}
+        if (missInfo == SpellMissInfo.Immune || missInfo == SpellMissInfo.Immune2)
+            caster.CastSpell(target, DemonHunterSpells.FEL_ERUPTION_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, 2));
+    }
 
-	public void OnHit()
-	{
-		var caster = Caster;
-		var target = ExplTargetUnit;
+    public void OnHit()
+    {
+        var caster = Caster;
+        var target = ExplTargetUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		caster.CastSpell(target, DemonHunterSpells.FEL_ERUPTION_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, 1));
-	}
+        caster.CastSpell(target, DemonHunterSpells.FEL_ERUPTION_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, 1));
+    }
 }

@@ -10,25 +10,25 @@ namespace Scripts.Spells.Druid;
 
 public class spell_dru_tranquility_heal : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHit));
+    }
 
 
-	private void HandleHeal(int effIndex)
-	{
-		if (!Caster)
-			return;
+    private void HandleHeal(int effIndex)
+    {
+        if (!Caster)
+            return;
 
-		var caster = Caster;
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var heal = MathFunctions.CalculatePct(caster.SpellBaseHealingBonusDone(SpellSchoolMask.Nature), 180);
-			HitHeal = (int)heal;
-		}
-	}
+        if (caster != null)
+        {
+            var heal = MathFunctions.CalculatePct(caster.SpellBaseHealingBonusDone(SpellSchoolMask.Nature), 180);
+            HitHeal = (int)heal;
+        }
+    }
 }

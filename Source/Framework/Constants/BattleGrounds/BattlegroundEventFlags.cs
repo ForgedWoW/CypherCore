@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum BattlegroundEventFlags
 {
-	None = 0x00,
-	Event1 = 0x01,
-	Event2 = 0x02,
-	Event3 = 0x04,
-	Event4 = 0x08
+    None = 0x00,
+    Event1 = 0x01,
+    Event2 = 0x02,
+    Event3 = 0x04,
+    Event4 = 0x08
 }

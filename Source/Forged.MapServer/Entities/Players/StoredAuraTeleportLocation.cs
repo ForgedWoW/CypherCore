@@ -7,13 +7,13 @@ namespace Forged.MapServer.Entities.Players;
 
 internal class StoredAuraTeleportLocation
 {
-	public enum State
-	{
-		Unchanged,
-		Changed,
-		Deleted
-	}
+    public enum State
+    {
+        Unchanged,
+        Changed,
+        Deleted
+    }
 
-	public WorldLocation Loc { get; set; }
-	public State CurrentState { get; set; }
+    public WorldLocation Loc { get; set; }
+    public State CurrentState { get; set; }
 }

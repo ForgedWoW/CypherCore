@@ -5,7 +5,7 @@ namespace Forged.MapServer.Collision.Models;
 
 public enum ModelFlags
 {
-	M2 = 1,
-	HasBound = 1 << 1,
-	ParentSpawn = 1 << 2
+    M2 = 1,
+    HasBound = 1 << 1,
+    ParentSpawn = 1 << 2
 }

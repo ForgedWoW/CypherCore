@@ -10,19 +10,19 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(53209)]
 public class spell_hun_chimera_shot : SpellScript, ISpellOnHit
 {
-	public override bool Load()
-	{
-		return Caster.TypeId == TypeId.Player;
-	}
+    public override bool Load()
+    {
+        return Caster.TypeId == TypeId.Player;
+    }
 
-	public void OnHit()
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    public void OnHit()
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (RandomHelper.URand(0, 1) == 1)
-			caster.CastSpell(target, 171454, true);
-		else
-			caster.CastSpell(target, 171457, true);
-	}
+        if (RandomHelper.URand(0, 1) == 1)
+            caster.CastSpell(target, 171454, true);
+        else
+            caster.CastSpell(target, 171457, true);
+    }
 }

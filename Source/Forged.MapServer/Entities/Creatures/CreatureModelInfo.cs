@@ -5,9 +5,9 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureModelInfo
 {
-	public float BoundingRadius;
-	public float CombatReach;
-	public sbyte Gender;
-	public uint DisplayIdOtherGender;
-	public bool IsTrigger;
+    public float BoundingRadius;
+    public float CombatReach;
+    public sbyte Gender;
+    public uint DisplayIdOtherGender;
+    public bool IsTrigger;
 }

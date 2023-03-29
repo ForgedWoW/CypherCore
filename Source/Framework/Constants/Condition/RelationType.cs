@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum RelationType
 {
-	Self = 0,
-	InParty,
-	InRaidOrParty,
-	OwnedBy,
-	PassengerOf,
-	CreatedBy,
-	Max
+    Self = 0,
+    InParty,
+    InRaidOrParty,
+    OwnedBy,
+    PassengerOf,
+    CreatedBy,
+    Max
 }

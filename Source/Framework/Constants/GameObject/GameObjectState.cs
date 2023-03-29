@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum GameObjectState
 {
-	Active = 0,
-	Ready = 1,
-	Destroyed = 2,
-	TransportActive = 24,
-	TransportStopped = 25,
-	Max = 3
+    Active = 0,
+    Ready = 1,
+    Destroyed = 2,
+    TransportActive = 24,
+    TransportStopped = 25,
+    Max = 3
 }

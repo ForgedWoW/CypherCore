@@ -10,21 +10,21 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(14172)]
 public class spell_rog_serrated_blades_SpellScript : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var blade = Caster.GetAuraEffectOfRankedSpell(RogueSpells.SERRATED_BLADES_R1, 0);
+    public void OnHit()
+    {
+        var blade = Caster.GetAuraEffectOfRankedSpell(RogueSpells.SERRATED_BLADES_R1, 0);
 
-		if (blade != null)
-		{
-			var combo = Caster.AsPlayer.GetPower(PowerType.ComboPoints);
+        if (blade != null)
+        {
+            var combo = Caster.AsPlayer.GetPower(PowerType.ComboPoints);
 
-			if (RandomHelper.randChance(blade.Amount * combo))
-			{
-				var dot = HitUnit.GetAura(RogueSpells.RUPTURE, Caster.GUID);
+            if (RandomHelper.randChance(blade.Amount * combo))
+            {
+                var dot = HitUnit.GetAura(RogueSpells.RUPTURE, Caster.GUID);
 
-				if (dot != null)
-					dot.RefreshDuration();
-			}
-		}
-	}
+                if (dot != null)
+                    dot.RefreshDuration();
+            }
+        }
+    }
 }

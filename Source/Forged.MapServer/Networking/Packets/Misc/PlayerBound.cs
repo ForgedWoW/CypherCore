@@ -12,15 +12,15 @@ public class PlayerBound : ServerPacket
 
     private readonly ObjectGuid BinderID;
 
-	public PlayerBound(ObjectGuid binderId, uint areaId) : base(ServerOpcodes.PlayerBound)
-	{
-		BinderID = binderId;
-		AreaID = areaId;
-	}
+    public PlayerBound(ObjectGuid binderId, uint areaId) : base(ServerOpcodes.PlayerBound)
+    {
+        BinderID = binderId;
+        AreaID = areaId;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(BinderID);
-		_worldPacket.WriteUInt32(AreaID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(BinderID);
+        _worldPacket.WriteUInt32(AreaID);
+    }
 }

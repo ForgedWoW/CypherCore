@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class RespondInspectAchievements : ServerPacket
 {
-	public ObjectGuid Player;
-	public AllAchievements Data = new();
-	public RespondInspectAchievements() : base(ServerOpcodes.RespondInspectAchievements, ConnectionType.Instance) { }
+    public ObjectGuid Player;
+    public AllAchievements Data = new();
+    public RespondInspectAchievements() : base(ServerOpcodes.RespondInspectAchievements, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Player);
-		Data.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Player);
+        Data.Write(_worldPacket);
+    }
 }

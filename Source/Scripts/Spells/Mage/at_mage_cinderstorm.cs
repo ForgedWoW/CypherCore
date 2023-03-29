@@ -10,12 +10,12 @@ namespace Scripts.Spells.Mage;
 [Script]
 public class at_mage_cinderstorm : AreaTriggerScript, IAreaTriggerOnUnitEnter
 {
-	public void OnUnitEnter(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitEnter(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster != null)
-			if (caster.IsValidAttackTarget(unit))
-				caster.CastSpell(unit, MageSpells.CINDERSTORM_DMG, true);
-	}
+        if (caster != null)
+            if (caster.IsValidAttackTarget(unit))
+                caster.CastSpell(unit, MageSpells.CINDERSTORM_DMG, true);
+    }
 }

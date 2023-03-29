@@ -9,24 +9,24 @@ namespace Forged.MapServer.Scripting.Registers;
 
 public class GameObjectScriptRegister : IScriptRegister
 {
-	public Type AttributeType => typeof(GameObjectScriptAttribute);
+    public Type AttributeType => typeof(GameObjectScriptAttribute);
 
-	public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
-	{
-		if (attribute is GameObjectScriptAttribute { GameObjectIds: { } } gameObjectScript)
-			foreach (var id in gameObjectScript.GameObjectIds)
-			{
-				var gameObject = Global.ObjectMgr.GetGameObjectTemplate(id);
+    public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
+    {
+        if (attribute is GameObjectScriptAttribute { GameObjectIds: { } } gameObjectScript)
+            foreach (var id in gameObjectScript.GameObjectIds)
+            {
+                var gameObject = Global.ObjectMgr.GetGameObjectTemplate(id);
 
-				if (gameObject == null)
-				{
-					Log.Logger.Error($"GameObjectScriptAttribute: Unknown game object id {id} for script name {scriptName}");
+                if (gameObject == null)
+                {
+                    Log.Logger.Error($"GameObjectScriptAttribute: Unknown game object id {id} for script name {scriptName}");
 
-					continue;
-				}
+                    continue;
+                }
 
-				if (gameObject.ScriptId == 0) // dont override database
-					gameObject.ScriptId = Global.ObjectMgr.GetScriptId(scriptName);
-			}
-	}
+                if (gameObject.ScriptId == 0) // dont override database
+                    gameObject.ScriptId = Global.ObjectMgr.GetScriptId(scriptName);
+            }
+    }
 }

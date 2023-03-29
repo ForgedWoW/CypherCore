@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Taxi;
 
 internal class TaxiNodeStatusPkt : ServerPacket
 {
-	public TaxiNodeStatus Status; // replace with TaxiStatus enum
-	public ObjectGuid Unit;
-	public TaxiNodeStatusPkt() : base(ServerOpcodes.TaxiNodeStatus) { }
+    public TaxiNodeStatus Status; // replace with TaxiStatus enum
+    public ObjectGuid Unit;
+    public TaxiNodeStatusPkt() : base(ServerOpcodes.TaxiNodeStatus) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Unit);
-		_worldPacket.WriteBits(Status, 2);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Unit);
+        _worldPacket.WriteBits(Status, 2);
+        _worldPacket.FlushBits();
+    }
 }

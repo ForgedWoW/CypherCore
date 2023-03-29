@@ -8,7 +8,7 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct NotInAreaAppend : IChannelAppender
 {
-	public ChatNotify GetNotificationType() => ChatNotify.NotInAreaNotice;
+    public ChatNotify GetNotificationType() => ChatNotify.NotInAreaNotice;
 
-	public void Append(ChannelNotify data) { }
+    public void Append(ChannelNotify data) { }
 }

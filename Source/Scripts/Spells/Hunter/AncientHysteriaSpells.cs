@@ -5,8 +5,8 @@ namespace Scripts.Spells.Hunter;
 
 public struct AncientHysteriaSpells
 {
-	public const uint TEMPORAL_DISPLACEMENT = 80354;
-	public const uint EXHAUSTION = 57723;
-	public const uint SATED = 57724;
-	public const uint INSANITY = 95809;
+    public const uint TEMPORAL_DISPLACEMENT = 80354;
+    public const uint EXHAUSTION = 57723;
+    public const uint SATED = 57724;
+    public const uint INSANITY = 95809;
 }

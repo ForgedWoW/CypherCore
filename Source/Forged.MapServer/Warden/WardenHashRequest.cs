@@ -8,15 +8,15 @@ namespace Forged.MapServer.Warden;
 
 internal class WardenHashRequest
 {
-	public WardenOpcodes Command;
-	public byte[] Seed = new byte[16];
+    public WardenOpcodes Command;
+    public byte[] Seed = new byte[16];
 
-	public static implicit operator byte[](WardenHashRequest request)
-	{
-		var buffer = new ByteBuffer();
-		buffer.WriteUInt8((byte)request.Command);
-		buffer.WriteBytes(request.Seed);
+    public static implicit operator byte[](WardenHashRequest request)
+    {
+        var buffer = new ByteBuffer();
+        buffer.WriteUInt8((byte)request.Command);
+        buffer.WriteBytes(request.Seed);
 
-		return buffer.GetData();
-	}
+        return buffer.GetData();
+    }
 }

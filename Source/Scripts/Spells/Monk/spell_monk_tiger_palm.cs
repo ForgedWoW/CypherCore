@@ -11,21 +11,21 @@ namespace Scripts.Spells.Monk;
 [SpellScript(100780)]
 public class spell_monk_tiger_palm : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var powerStrikes = Caster.GetAura(MonkSpells.POWER_STRIKES_AURA);
+    private void HandleHit(int effIndex)
+    {
+        var powerStrikes = Caster.GetAura(MonkSpells.POWER_STRIKES_AURA);
 
-		if (powerStrikes != null)
-		{
-			EffectValue = EffectValue + powerStrikes.GetEffect(0).BaseAmount;
-			powerStrikes.Remove();
-		}
-	}
+        if (powerStrikes != null)
+        {
+            EffectValue = EffectValue + powerStrikes.GetEffect(0).BaseAmount;
+            powerStrikes.Remove();
+        }
+    }
 }

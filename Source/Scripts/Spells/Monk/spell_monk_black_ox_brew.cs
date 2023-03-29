@@ -11,20 +11,20 @@ namespace Scripts.Spells.Monk;
 [SpellScript(115399)]
 public class spell_monk_black_ox_brew : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		caster.SpellHistory.ResetCharges(Global.SpellMgr.GetSpellInfo(MonkSpells.PURIFYING_BREW, Difficulty.None).ChargeCategoryId);
-	}
+        caster.SpellHistory.ResetCharges(Global.SpellMgr.GetSpellInfo(MonkSpells.PURIFYING_BREW, Difficulty.None).ChargeCategoryId);
+    }
 }

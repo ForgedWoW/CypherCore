@@ -8,25 +8,25 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class DFJoin : ClientPacket
 {
-	public bool QueueAsGroup;
-	public byte PartyIndex;
-	public LfgRoles Roles;
-	public List<uint> Slots = new();
+    public bool QueueAsGroup;
+    public byte PartyIndex;
+    public LfgRoles Roles;
+    public List<uint> Slots = new();
     private bool Unknown; // Always false in 7.2.5
-	public DFJoin(WorldPacket packet) : base(packet) { }
+    public DFJoin(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		QueueAsGroup = _worldPacket.HasBit();
-		Unknown = _worldPacket.HasBit();
-		PartyIndex = _worldPacket.ReadUInt8();
-		Roles = (LfgRoles)_worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        QueueAsGroup = _worldPacket.HasBit();
+        Unknown = _worldPacket.HasBit();
+        PartyIndex = _worldPacket.ReadUInt8();
+        Roles = (LfgRoles)_worldPacket.ReadUInt32();
 
-		var slotsCount = _worldPacket.ReadInt32();
+        var slotsCount = _worldPacket.ReadInt32();
 
-		for (var i = 0; i < slotsCount; ++i) // Slots
-			Slots.Add(_worldPacket.ReadUInt32());
-	}
+        for (var i = 0; i < slotsCount; ++i) // Slots
+            Slots.Add(_worldPacket.ReadUInt32());
+    }
 }
 
 //Structs

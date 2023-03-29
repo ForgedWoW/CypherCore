@@ -12,22 +12,22 @@ public class MostHPMissingInRange<T> : ICheck<T> where T : Unit
     private readonly float _range;
     private long _hp;
 
-	public MostHPMissingInRange(Unit obj, float range, uint hp)
-	{
-		_obj = obj;
-		_range = range;
-		_hp = hp;
-	}
+    public MostHPMissingInRange(Unit obj, float range, uint hp)
+    {
+        _obj = obj;
+        _range = range;
+        _hp = hp;
+    }
 
-	public bool Invoke(T u)
-	{
-		if (u.IsAlive && u.IsInCombat && !_obj.IsHostileTo(u) && _obj.IsWithinDist(u, _range) && u.MaxHealth - u.Health > _hp)
-		{
-			_hp = (uint)(u.MaxHealth - u.Health);
+    public bool Invoke(T u)
+    {
+        if (u.IsAlive && u.IsInCombat && !_obj.IsHostileTo(u) && _obj.IsWithinDist(u, _range) && u.MaxHealth - u.Health > _hp)
+        {
+            _hp = (uint)(u.MaxHealth - u.Health);
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

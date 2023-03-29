@@ -11,25 +11,25 @@ namespace Scripts.Spells.Items;
 [Script] // 13280 Gnomish Death Ray
 internal class spell_item_gnomish_death_ray : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (target)
-		{
-			if (RandomHelper.URand(0, 99) < 15)
-				caster.CastSpell(caster, ItemSpellIds.GnomishDeathRaySelf, true); // failure
-			else
-				caster.CastSpell(target, ItemSpellIds.GnomishDeathRayTarget, true);
-		}
-	}
+        if (target)
+        {
+            if (RandomHelper.URand(0, 99) < 15)
+                caster.CastSpell(caster, ItemSpellIds.GnomishDeathRaySelf, true); // failure
+            else
+                caster.CastSpell(target, ItemSpellIds.GnomishDeathRayTarget, true);
+        }
+    }
 }

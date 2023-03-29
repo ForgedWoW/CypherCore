@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class QuestGiverQuestFailed : ServerPacket
 {
-	public uint QuestID;
-	public InventoryResult Reason;
-	public QuestGiverQuestFailed() : base(ServerOpcodes.QuestGiverQuestFailed) { }
+    public uint QuestID;
+    public InventoryResult Reason;
+    public QuestGiverQuestFailed() : base(ServerOpcodes.QuestGiverQuestFailed) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(QuestID);
-		_worldPacket.WriteUInt32((uint)Reason);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(QuestID);
+        _worldPacket.WriteUInt32((uint)Reason);
+    }
 }

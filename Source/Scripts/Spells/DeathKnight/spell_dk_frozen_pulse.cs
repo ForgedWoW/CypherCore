@@ -11,16 +11,16 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(194909)]
 public class spell_dk_frozen_pulse : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo UnnamedParameter)
-	{
-		var caster = Caster;
+    public bool CheckProc(ProcEventInfo UnnamedParameter)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return false;
+        if (caster == null)
+            return false;
 
-		if (caster.GetPower(PowerType.Runes) > SpellInfo.GetEffect(1).BasePoints)
-			return false;
+        if (caster.GetPower(PowerType.Runes) > SpellInfo.GetEffect(1).BasePoints)
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 }

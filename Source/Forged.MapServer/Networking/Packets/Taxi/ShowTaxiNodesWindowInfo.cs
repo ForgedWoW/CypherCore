@@ -7,6 +7,6 @@ namespace Forged.MapServer.Networking.Packets.Taxi;
 
 public struct ShowTaxiNodesWindowInfo
 {
-	public ObjectGuid UnitGUID;
-	public int CurrentNode;
+    public ObjectGuid UnitGUID;
+    public int CurrentNode;
 }

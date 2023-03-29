@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildBankRemainingWithdrawMoney : ServerPacket
 {
-	public long RemainingWithdrawMoney;
-	public GuildBankRemainingWithdrawMoney() : base(ServerOpcodes.GuildBankRemainingWithdrawMoney) { }
+    public long RemainingWithdrawMoney;
+    public GuildBankRemainingWithdrawMoney() : base(ServerOpcodes.GuildBankRemainingWithdrawMoney) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt64(RemainingWithdrawMoney);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt64(RemainingWithdrawMoney);
+    }
 }

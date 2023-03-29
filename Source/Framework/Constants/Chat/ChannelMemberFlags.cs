@@ -5,14 +5,14 @@ namespace Framework.Constants;
 
 public enum ChannelMemberFlags
 {
-	None = 0x00,
-	Owner = 0x01,
-	Moderator = 0x02,
-	Voiced = 0x04,
-	Muted = 0x08,
-	Custom = 0x10,
+    None = 0x00,
+    Owner = 0x01,
+    Moderator = 0x02,
+    Voiced = 0x04,
+    Muted = 0x08,
+    Custom = 0x10,
 
-	MicMuted = 0x20
-	// 0x40
-	// 0x80
+    MicMuted = 0x20
+    // 0x40
+    // 0x80
 }

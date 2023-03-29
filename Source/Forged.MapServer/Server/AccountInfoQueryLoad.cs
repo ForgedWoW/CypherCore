@@ -5,15 +5,15 @@ namespace Forged.MapServer.Server;
 
 internal enum AccountInfoQueryLoad
 {
-	GlobalAccountToys,
-	BattlePets,
-	BattlePetSlot,
-	GlobalAccountHeirlooms,
-	GlobalRealmCharacterCounts,
-	Mounts,
-	ItemAppearances,
-	ItemFavoriteAppearances,
-	GlobalAccountDataIndexPerRealm,
-	TutorialsIndexPerRealm,
-	TransmogIllusions,
+    GlobalAccountToys,
+    BattlePets,
+    BattlePetSlot,
+    GlobalAccountHeirlooms,
+    GlobalRealmCharacterCounts,
+    Mounts,
+    ItemAppearances,
+    ItemFavoriteAppearances,
+    GlobalAccountDataIndexPerRealm,
+    TutorialsIndexPerRealm,
+    TransmogIllusions,
 }

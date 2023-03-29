@@ -12,16 +12,16 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 [CreatureScript(47754)]
 public class npc_captain_cookie_cauldron : ScriptedAI
 {
-	public npc_captain_cookie_cauldron(Creature pCreature) : base(pCreature)
-	{
-		Me.ReactState = ReactStates.Passive;
-		Me.SetUnitFlag(UnitFlags.Uninteractible);
-	}
+    public npc_captain_cookie_cauldron(Creature pCreature) : base(pCreature)
+    {
+        Me.ReactState = ReactStates.Passive;
+        Me.SetUnitFlag(UnitFlags.Uninteractible);
+    }
 
-	public override void Reset()
-	{
-		DoCast(Me, eSpell.CAULDRON_VISUAL, new Game.Spells.CastSpellExtraArgs(true));
-		DoCast(Me, eSpell.CAULDRON_FIRE);
-		Me.SetUnitFlag(UnitFlags.Stunned);
-	}
+    public override void Reset()
+    {
+        DoCast(Me, eSpell.CAULDRON_VISUAL, new Game.Spells.CastSpellExtraArgs(true));
+        DoCast(Me, eSpell.CAULDRON_FIRE);
+        Me.SetUnitFlag(UnitFlags.Stunned);
+    }
 }

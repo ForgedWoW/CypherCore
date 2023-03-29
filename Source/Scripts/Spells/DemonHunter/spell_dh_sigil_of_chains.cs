@@ -12,22 +12,22 @@ namespace Scripts.Spells.DemonHunter;
 [Script] // 208673 - Sigil of Chains
 internal class spell_dh_sigil_of_chains : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleEffectHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleEffectHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleEffectHitTarget(int effIndex)
-	{
-		var loc = ExplTargetDest;
+    private void HandleEffectHitTarget(int effIndex)
+    {
+        var loc = ExplTargetDest;
 
-		if (loc != null)
-		{
-			Caster.CastSpell(HitUnit, DemonHunterSpells.SigilOfChainsSlow, new CastSpellExtraArgs(true));
-			HitUnit.CastSpell(loc, DemonHunterSpells.SigilOfChainsGrip, new CastSpellExtraArgs(true));
-		}
-	}
+        if (loc != null)
+        {
+            Caster.CastSpell(HitUnit, DemonHunterSpells.SigilOfChainsSlow, new CastSpellExtraArgs(true));
+            HitUnit.CastSpell(loc, DemonHunterSpells.SigilOfChainsGrip, new CastSpellExtraArgs(true));
+        }
+    }
 }

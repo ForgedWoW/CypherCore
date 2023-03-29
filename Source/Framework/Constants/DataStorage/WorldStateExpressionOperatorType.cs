@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum WorldStateExpressionOperatorType
 {
-	None = 0,
-	Sum = 1,
-	Substraction = 2,
-	Multiplication = 3,
-	Division = 4,
-	Remainder = 5,
+    None = 0,
+    Sum = 1,
+    Substraction = 2,
+    Multiplication = 3,
+    Division = 4,
+    Remainder = 5,
 }

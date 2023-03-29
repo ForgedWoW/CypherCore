@@ -8,7 +8,7 @@ namespace Forged.MapServer.World;
 [Flags]
 public enum ShutdownMask
 {
-	Restart = 1,
-	Idle = 2,
-	Force = 4
+    Restart = 1,
+    Idle = 2,
+    Force = 4
 }

@@ -14,36 +14,36 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(23572)]
 internal class spell_sha_item_mana_surge : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.ProcSpell != null;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.ProcSpell != null;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var costs = eventInfo.ProcSpell.PowerCost;
-		var m = costs.Find(cost => cost.Power == PowerType.Mana);
+        var costs = eventInfo.ProcSpell.PowerCost;
+        var m = costs.Find(cost => cost.Power == PowerType.Mana);
 
-		if (m != null)
-		{
-			var mana = MathFunctions.CalculatePct(m.Amount, 35);
+        if (m != null)
+        {
+            var mana = MathFunctions.CalculatePct(m.Amount, 35);
 
-			if (mana > 0)
-			{
-				CastSpellExtraArgs args = new(aurEff);
-				args.AddSpellMod(SpellValueMod.BasePoint0, mana);
-				Target.CastSpell(Target, ShamanSpells.ItemManaSurge, args);
-			}
-		}
-	}
+            if (mana > 0)
+            {
+                CastSpellExtraArgs args = new(aurEff);
+                args.AddSpellMod(SpellValueMod.BasePoint0, mana);
+                Target.CastSpell(Target, ShamanSpells.ItemManaSurge, args);
+            }
+        }
+    }
 }

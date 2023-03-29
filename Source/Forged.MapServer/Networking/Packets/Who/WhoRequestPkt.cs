@@ -7,19 +7,19 @@ namespace Forged.MapServer.Networking.Packets.Who;
 
 public class WhoRequestPkt : ClientPacket
 {
-	public WhoRequest Request = new();
-	public uint RequestID;
-	public List<int> Areas = new();
-	public WhoRequestPkt(WorldPacket packet) : base(packet) { }
+    public WhoRequest Request = new();
+    public uint RequestID;
+    public List<int> Areas = new();
+    public WhoRequestPkt(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var areasCount = _worldPacket.ReadBits<uint>(4);
+    public override void Read()
+    {
+        var areasCount = _worldPacket.ReadBits<uint>(4);
 
-		Request.Read(_worldPacket);
-		RequestID = _worldPacket.ReadUInt32();
+        Request.Read(_worldPacket);
+        RequestID = _worldPacket.ReadUInt32();
 
-		for (var i = 0; i < areasCount; ++i)
-			Areas.Add(_worldPacket.ReadInt32());
-	}
+        for (var i = 0; i < areasCount; ++i)
+            Areas.Add(_worldPacket.ReadInt32());
+    }
 }

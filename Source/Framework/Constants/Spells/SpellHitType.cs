@@ -8,12 +8,12 @@ namespace Framework.Constants;
 [Flags]
 public enum SpellHitType
 {
-	CritDebu = 0x1,
-	Crit = 0x2,
-	HitDebug = 0x4,
-	Split = 0x8,
-	VictimIsAttacker = 0x10,
-	AttackTableDebug = 0x20,
-	Unk = 0x40,
-	NoAttacker = 0x80 // does the same as SPELL_ATTR4_COMBAT_LOG_NO_CASTER
+    CritDebu = 0x1,
+    Crit = 0x2,
+    HitDebug = 0x4,
+    Split = 0x8,
+    VictimIsAttacker = 0x10,
+    AttackTableDebug = 0x20,
+    Unk = 0x40,
+    NoAttacker = 0x80 // does the same as SPELL_ATTR4_COMBAT_LOG_NO_CASTER
 }

@@ -12,16 +12,16 @@ namespace Scripts.Spells.DemonHunter;
 [Script] // 131347 - Glide
 internal class spell_dh_glide_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.FeatherFall, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.FeatherFall, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.RemoveAura(DemonHunterSpells.GlideDuration);
-	}
+    private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.RemoveAura(DemonHunterSpells.GlideDuration);
+    }
 }

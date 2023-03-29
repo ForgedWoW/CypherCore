@@ -10,10 +10,10 @@ namespace Scripts.Spells.DemonHunter;
 [Script]
 internal class areatrigger_dh_sigil_of_flame : AreaTriggerScript, IAreaTriggerOnRemove
 {
-	public void OnRemove()
-	{
-		var caster = At.GetCaster();
+    public void OnRemove()
+    {
+        var caster = At.GetCaster();
 
-		caster?.CastSpell(At.Location, DemonHunterSpells.SigilOfFlameAoe, new CastSpellExtraArgs());
-	}
+        caster?.CastSpell(At.Location, DemonHunterSpells.SigilOfFlameAoe, new CastSpellExtraArgs());
+    }
 }

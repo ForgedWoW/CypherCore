@@ -5,12 +5,12 @@ namespace Framework.Constants;
 
 public enum MotionMasterDelayedActionType
 {
-	Clear = 0,
-	ClearSlot,
-	ClearMode,
-	ClearPriority,
-	Add,
-	Remove,
-	RemoveType,
-	Initialize
+    Clear = 0,
+    ClearSlot,
+    ClearMode,
+    ClearPriority,
+    Add,
+    Remove,
+    RemoveType,
+    Initialize
 }

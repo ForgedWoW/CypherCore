@@ -13,14 +13,14 @@ namespace Scripts.Spells.Evoker;
 [AreaTriggerScript(EvokerAreaTriggers.GREEN_EMERALD_BLOSSOM)]
 public class at_evoker_emerald_blossom : AreaTriggerScript, IAreaTriggerOnRemove
 {
-	public void OnRemove()
-	{
-		var caster = At.GetCaster();
+    public void OnRemove()
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
         var args = new CastSpellExtraArgs(TriggerCastFlags.TriggeredAllowProc);
         caster.CastSpell(At.Location, EvokerSpells.GREEN_EMERALD_BLOSSOM_HEAL, args);
-	}
+    }
 }

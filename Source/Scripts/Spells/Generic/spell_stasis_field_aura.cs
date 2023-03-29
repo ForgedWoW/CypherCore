@@ -14,26 +14,26 @@ namespace Scripts.Spells.Generic;
 [Script] // 40306 - Stasis Field
 internal class spell_stasis_field_aura : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnPeriodic, 0, AuraType.PeriodicTriggerSpell));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnPeriodic, 0, AuraType.PeriodicTriggerSpell));
+    }
 
-	private void OnPeriodic(AuraEffect aurEff)
-	{
-		var owner = Target;
+    private void OnPeriodic(AuraEffect aurEff)
+    {
+        var owner = Target;
 
-		List<Creature> targets = new();
-		StasisFieldSearcher creature_check = new(owner, 15.0f);
-		CreatureListSearcher creature_searcher = new(owner, targets, creature_check, GridType.Grid);
-		Cell.VisitGrid(owner, creature_searcher, 15.0f);
+        List<Creature> targets = new();
+        StasisFieldSearcher creature_check = new(owner, 15.0f);
+        CreatureListSearcher creature_searcher = new(owner, targets, creature_check, GridType.Grid);
+        Cell.VisitGrid(owner, creature_searcher, 15.0f);
 
-		if (!targets.Empty())
-			return;
+        if (!targets.Empty())
+            return;
 
-		PreventDefaultAction();
-	}
+        PreventDefaultAction();
+    }
 }

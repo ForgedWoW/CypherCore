@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class AELootTargetsAck : ServerPacket
 {
-	public AELootTargetsAck() : base(ServerOpcodes.AeLootTargetAck, ConnectionType.Instance) { }
+    public AELootTargetsAck() : base(ServerOpcodes.AeLootTargetAck, ConnectionType.Instance) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

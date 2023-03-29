@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum AccountTypes
 {
-	Player = 0,
-	Moderator = 1,
-	GameMaster = 2,
-	Administrator = 3,
-	Console = 4
+    Player = 0,
+    Moderator = 1,
+    GameMaster = 2,
+    Administrator = 3,
+    Console = 4
 }

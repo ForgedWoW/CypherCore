@@ -5,5 +5,5 @@ namespace Framework.Constants;
 
 public enum CorpseDynFlags
 {
-	Lootable = 0x1
+    Lootable = 0x1
 }

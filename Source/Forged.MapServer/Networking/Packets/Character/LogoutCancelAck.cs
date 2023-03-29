@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class LogoutCancelAck : ServerPacket
 {
-	public LogoutCancelAck() : base(ServerOpcodes.LogoutCancelAck, ConnectionType.Instance) { }
+    public LogoutCancelAck() : base(ServerOpcodes.LogoutCancelAck, ConnectionType.Instance) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

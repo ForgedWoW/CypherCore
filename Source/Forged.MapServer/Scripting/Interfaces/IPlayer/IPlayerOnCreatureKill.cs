@@ -9,5 +9,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 // Called when a player kills a creature
 public interface IPlayerOnCreatureKill : IScriptObject
 {
-	void OnCreatureKill(Player killer, Creature killed);
+    void OnCreatureKill(Player killer, Creature killed);
 }

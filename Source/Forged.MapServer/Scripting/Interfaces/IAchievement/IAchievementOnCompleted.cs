@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAchievement;
 
 public interface IAchievementOnCompleted : IScriptObject
 {
-	void OnCompleted(Player player, AchievementRecord achievement);
+    void OnCompleted(Player player, AchievementRecord achievement);
 }

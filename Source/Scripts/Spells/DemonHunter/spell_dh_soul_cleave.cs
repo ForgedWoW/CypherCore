@@ -14,92 +14,92 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(228477)]
 public class spell_dh_soul_cleave : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new EffectHandler(HandleHeal, 3, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+        SpellEffects.Add(new EffectHandler(HandleHeal, 3, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHeal(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleHeal(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (caster.TypeId != TypeId.Player)
-			return;
+        if (caster.TypeId != TypeId.Player)
+            return;
 
-		if (caster.HasAura(DemonHunterSpells.FEAST_OF_SOULS))
-			caster.CastSpell(caster, DemonHunterSpells.FEAST_OF_SOULS_HEAL, true);
-	}
+        if (caster.HasAura(DemonHunterSpells.FEAST_OF_SOULS))
+            caster.CastSpell(caster, DemonHunterSpells.FEAST_OF_SOULS_HEAL, true);
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		// Consume all soul fragments in 25 yards;
-		var fragments = new List<List<AreaTrigger>>();
-		fragments.Add(caster.GetAreaTriggers(ShatteredSoulsSpells.SHATTERED_SOULS));
-		fragments.Add(caster.GetAreaTriggers(ShatteredSoulsSpells.SHATTERED_SOULS_DEMON));
-		fragments.Add(caster.GetAreaTriggers(ShatteredSoulsSpells.LESSER_SOUL_SHARD));
-		var range = (float)EffectInfo.BasePoints;
+        // Consume all soul fragments in 25 yards;
+        var fragments = new List<List<AreaTrigger>>();
+        fragments.Add(caster.GetAreaTriggers(ShatteredSoulsSpells.SHATTERED_SOULS));
+        fragments.Add(caster.GetAreaTriggers(ShatteredSoulsSpells.SHATTERED_SOULS_DEMON));
+        fragments.Add(caster.GetAreaTriggers(ShatteredSoulsSpells.LESSER_SOUL_SHARD));
+        var range = (float)EffectInfo.BasePoints;
 
-		foreach (var vec in fragments)
-		{
-			foreach (var at in vec)
-			{
-				if (!caster.IsWithinDist(at, range))
-					continue;
+        foreach (var vec in fragments)
+        {
+            foreach (var at in vec)
+            {
+                if (!caster.IsWithinDist(at, range))
+                    continue;
 
-				var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.Location.X, at.Location.Y, at.Location.Z, 0, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(100));
+                var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.Location.X, at.Location.Y, at.Location.Z, 0, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(100));
 
-				if (tempSumm != null)
-				{
-					tempSumm.Faction = caster.Faction;
-					tempSumm.SetSummonerGUID(caster.GUID);
-					var bp = 0;
+                if (tempSumm != null)
+                {
+                    tempSumm.Faction = caster.Faction;
+                    tempSumm.SetSummonerGUID(caster.GUID);
+                    var bp = 0;
 
-					switch (at.GetTemplate().Id.Id)
-					{
-						case 6007:
-						case 5997:
-							bp = (int)ShatteredSoulsSpells.SOUL_FRAGMENT_HEAL_VENGEANCE;
+                    switch (at.GetTemplate().Id.Id)
+                    {
+                        case 6007:
+                        case 5997:
+                            bp = (int)ShatteredSoulsSpells.SOUL_FRAGMENT_HEAL_VENGEANCE;
 
-							break;
-						case 6710:
-							bp = (int)ShatteredSoulsSpells.LESSER_SOUL_SHARD_HEAL;
+                            break;
+                        case 6710:
+                            bp = (int)ShatteredSoulsSpells.LESSER_SOUL_SHARD_HEAL;
 
-							break;
-					}
+                            break;
+                    }
 
-					caster.CastSpell(tempSumm, ShatteredSoulsSpells.CONSUME_SOUL_MISSILE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)bp));
+                    caster.CastSpell(tempSumm, ShatteredSoulsSpells.CONSUME_SOUL_MISSILE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)bp));
 
-					if (at.GetTemplate().Id.Id == 6007)
-						caster.CastSpell(caster, ShatteredSoulsSpells.SOUL_FRAGMENT_DEMON_BONUS, true);
+                    if (at.GetTemplate().Id.Id == 6007)
+                        caster.CastSpell(caster, ShatteredSoulsSpells.SOUL_FRAGMENT_DEMON_BONUS, true);
 
-					if (caster.HasAura(DemonHunterSpells.FEED_THE_DEMON))
-						caster.SpellHistory.ModifyCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId, TimeSpan.FromMilliseconds(-1000));
+                    if (caster.HasAura(DemonHunterSpells.FEED_THE_DEMON))
+                        caster.SpellHistory.ModifyCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId, TimeSpan.FromMilliseconds(-1000));
 
-					if (caster.HasAura(ShatteredSoulsSpells.PAINBRINGER))
-						caster.CastSpell(caster, ShatteredSoulsSpells.PAINBRINGER_BUFF, true);
+                    if (caster.HasAura(ShatteredSoulsSpells.PAINBRINGER))
+                        caster.CastSpell(caster, ShatteredSoulsSpells.PAINBRINGER_BUFF, true);
 
-					var soulBarrier = caster.GetAuraEffect(DemonHunterSpells.SOUL_BARRIER, 0);
+                    var soulBarrier = caster.GetAuraEffect(DemonHunterSpells.SOUL_BARRIER, 0);
 
-					if (soulBarrier != null)
-					{
-						var amount = soulBarrier.Amount + ((double)(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.SOUL_BARRIER, Difficulty.None).GetEffect(1).BasePoints) / 100.0f) * caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
-						soulBarrier.SetAmount(amount);
-					}
+                    if (soulBarrier != null)
+                    {
+                        var amount = soulBarrier.Amount + ((double)(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.SOUL_BARRIER, Difficulty.None).GetEffect(1).BasePoints) / 100.0f) * caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
+                        soulBarrier.SetAmount(amount);
+                    }
 
-					at.SetDuration(0);
-				}
-			}
-		}
-	}
+                    at.SetDuration(0);
+                }
+            }
+        }
+    }
 }

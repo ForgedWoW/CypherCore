@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class DFSetRoles : ClientPacket
 {
-	public LfgRoles RolesDesired;
-	public byte PartyIndex;
-	public DFSetRoles(WorldPacket packet) : base(packet) { }
+    public LfgRoles RolesDesired;
+    public byte PartyIndex;
+    public DFSetRoles(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		RolesDesired = (LfgRoles)_worldPacket.ReadUInt32();
-		PartyIndex = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        RolesDesired = (LfgRoles)_worldPacket.ReadUInt32();
+        PartyIndex = _worldPacket.ReadUInt8();
+    }
 }

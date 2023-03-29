@@ -8,11 +8,11 @@ namespace Framework.Constants;
 [Flags]
 public enum ItemSearchLocation
 {
-	Equipment = 0x01,
-	Inventory = 0x02,
-	Bank = 0x04,
-	ReagentBank = 0x08,
+    Equipment = 0x01,
+    Inventory = 0x02,
+    Bank = 0x04,
+    ReagentBank = 0x08,
 
-	Default = Equipment | Inventory,
-	Everywhere = Equipment | Inventory | Bank | ReagentBank
+    Default = Equipment | Inventory,
+    Everywhere = Equipment | Inventory | Bank | ReagentBank
 }

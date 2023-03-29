@@ -10,31 +10,31 @@ namespace Scripts.Spells.Rogue;
 [Script]
 public class at_rog_smoke_bombAI : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	public void OnUnitEnter(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitEnter(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		if (caster.IsValidAssistTarget(unit))
-			caster.CastSpell(unit, RogueSpells.SMOKE_BOMB_AURA, true);
-	}
+        if (caster.IsValidAssistTarget(unit))
+            caster.CastSpell(unit, RogueSpells.SMOKE_BOMB_AURA, true);
+    }
 
-	public void OnUnitExit(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitExit(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		if (unit.HasAura(RogueSpells.SMOKE_BOMB_AURA))
-			unit.RemoveAura(RogueSpells.SMOKE_BOMB_AURA);
-	}
+        if (unit.HasAura(RogueSpells.SMOKE_BOMB_AURA))
+            unit.RemoveAura(RogueSpells.SMOKE_BOMB_AURA);
+    }
 }

@@ -10,9 +10,9 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(280772)]
 public class spell_warr_siegebreaker : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
-		caster.CastSpell(null, WarriorSpells.SIEGEBREAKER_BUFF, true);
-	}
+    public void OnHit()
+    {
+        var caster = Caster;
+        caster.CastSpell(null, WarriorSpells.SIEGEBREAKER_BUFF, true);
+    }
 }

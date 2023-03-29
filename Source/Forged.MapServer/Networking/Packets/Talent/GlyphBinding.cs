@@ -5,17 +5,17 @@ namespace Forged.MapServer.Networking.Packets.Talent;
 
 internal struct GlyphBinding
 {
-	public GlyphBinding(uint spellId, ushort glyphId)
-	{
-		SpellID = spellId;
-		GlyphID = glyphId;
-	}
+    public GlyphBinding(uint spellId, ushort glyphId)
+    {
+        SpellID = spellId;
+        GlyphID = glyphId;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(SpellID);
-		data.WriteUInt16(GlyphID);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(SpellID);
+        data.WriteUInt16(GlyphID);
+    }
 
     private readonly uint SpellID;
     private readonly ushort GlyphID;

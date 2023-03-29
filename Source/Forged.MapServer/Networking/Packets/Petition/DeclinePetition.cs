@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class DeclinePetition : ClientPacket
 {
-	public ObjectGuid PetitionGUID;
-	public DeclinePetition(WorldPacket packet) : base(packet) { }
+    public ObjectGuid PetitionGUID;
+    public DeclinePetition(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PetitionGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        PetitionGUID = _worldPacket.ReadPackedGuid();
+    }
 }

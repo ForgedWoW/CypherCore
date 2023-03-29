@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class LfgDisabled : ServerPacket
 {
-	public LfgDisabled() : base(ServerOpcodes.LfgDisabled, ConnectionType.Instance) { }
+    public LfgDisabled() : base(ServerOpcodes.LfgDisabled, ConnectionType.Instance) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

@@ -8,9 +8,9 @@ namespace Framework.Constants;
 [Flags]
 public enum GuildMemberFlags
 {
-	None = 0x00,
-	Online = 0x01,
-	AFK = 0x02,
-	DND = 0x04,
-	Mobile = 0x08
+    None = 0x00,
+    Online = 0x01,
+    AFK = 0x02,
+    DND = 0x04,
+    Mobile = 0x08
 }

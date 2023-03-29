@@ -13,17 +13,17 @@ namespace Scripts.Spells.Druid;
 [Script] // 203974 - Earthwarden
 internal class spell_dru_earthwarden : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		var target = Target;
-		target.CastSpell(target, DruidSpellIds.EarthwardenAura, true);
-	}
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        var target = Target;
+        target.CastSpell(target, DruidSpellIds.EarthwardenAura, true);
+    }
 }

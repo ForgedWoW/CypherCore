@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class WrapItem : ClientPacket
 {
-	public InvUpdate Inv;
-	public WrapItem(WorldPacket packet) : base(packet) { }
+    public InvUpdate Inv;
+    public WrapItem(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Inv = new InvUpdate(_worldPacket);
-	}
+    public override void Read()
+    {
+        Inv = new InvUpdate(_worldPacket);
+    }
 }

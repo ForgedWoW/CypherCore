@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class PushQuestToParty : ClientPacket
 {
-	public uint QuestID;
-	public PushQuestToParty(WorldPacket packet) : base(packet) { }
+    public uint QuestID;
+    public PushQuestToParty(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		QuestID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        QuestID = _worldPacket.ReadUInt32();
+    }
 }

@@ -11,16 +11,16 @@ namespace Scripts.Spells.Priest;
 [SpellScript(8092)]
 public class spell_pri_mind_blast : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleOnHit(int effIndex)
-	{
-		if (Caster.HasAura(PriestSpells.SHADOWY_INSIGHTS))
-			Caster.RemoveAura(PriestSpells.SHADOWY_INSIGHTS);
-	}
+    private void HandleOnHit(int effIndex)
+    {
+        if (Caster.HasAura(PriestSpells.SHADOWY_INSIGHTS))
+            Caster.RemoveAura(PriestSpells.SHADOWY_INSIGHTS);
+    }
 }

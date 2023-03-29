@@ -7,29 +7,29 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public struct InvUpdate
 {
-	public InvUpdate(WorldPacket data)
-	{
-		Items = new List<InvItem>();
-		var size = data.ReadBits<int>(2);
-		data.ResetBitPos();
+    public InvUpdate(WorldPacket data)
+    {
+        Items = new List<InvItem>();
+        var size = data.ReadBits<int>(2);
+        data.ResetBitPos();
 
-		for (var i = 0; i < size; ++i)
-		{
-			var item = new InvItem
-			{
-				ContainerSlot = data.ReadUInt8(),
-				Slot = data.ReadUInt8()
-			};
+        for (var i = 0; i < size; ++i)
+        {
+            var item = new InvItem
+            {
+                ContainerSlot = data.ReadUInt8(),
+                Slot = data.ReadUInt8()
+            };
 
-			Items.Add(item);
-		}
-	}
+            Items.Add(item);
+        }
+    }
 
-	public List<InvItem> Items;
+    public List<InvItem> Items;
 
-	public struct InvItem
-	{
-		public byte ContainerSlot;
-		public byte Slot;
-	}
+    public struct InvItem
+    {
+        public byte ContainerSlot;
+        public byte Slot;
+    }
 }

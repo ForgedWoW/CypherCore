@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventTabAdded : ServerPacket
 {
-	public GuildEventTabAdded() : base(ServerOpcodes.GuildEventTabAdded) { }
+    public GuildEventTabAdded() : base(ServerOpcodes.GuildEventTabAdded) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

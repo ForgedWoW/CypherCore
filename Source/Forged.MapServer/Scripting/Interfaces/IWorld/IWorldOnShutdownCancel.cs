@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IWorld;
 
 public interface IWorldOnShutdownCancel : IScriptObject
 {
-	void OnShutdownCancel();
+    void OnShutdownCancel();
 }

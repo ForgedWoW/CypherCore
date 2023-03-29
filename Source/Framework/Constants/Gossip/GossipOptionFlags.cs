@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum GossipOptionFlags
 {
-	None = 0x0,
-	QuestLabelPrepend = 0x1
+    None = 0x0,
+    QuestLabelPrepend = 0x1
 }

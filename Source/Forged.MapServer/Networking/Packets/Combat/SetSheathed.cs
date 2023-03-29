@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public class SetSheathed : ClientPacket
 {
-	public int CurrentSheathState;
-	public bool Animate = true;
-	public SetSheathed(WorldPacket packet) : base(packet) { }
+    public int CurrentSheathState;
+    public bool Animate = true;
+    public SetSheathed(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		CurrentSheathState = _worldPacket.ReadInt32();
-		Animate = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        CurrentSheathState = _worldPacket.ReadInt32();
+        Animate = _worldPacket.HasBit();
+    }
 }

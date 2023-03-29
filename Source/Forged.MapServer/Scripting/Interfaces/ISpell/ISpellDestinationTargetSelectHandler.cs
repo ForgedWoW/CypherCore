@@ -9,21 +9,21 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellDestinationTargetSelectHandler : ITargetHookHandler
 {
-	void SetDest(SpellDestination dest);
+    void SetDest(SpellDestination dest);
 }
 
 public class DestinationTargetSelectHandler : TargetHookHandler, ISpellDestinationTargetSelectHandler
 {
-	private readonly Action<SpellDestination> _func;
+    private readonly Action<SpellDestination> _func;
 
 
-	public DestinationTargetSelectHandler(Action<SpellDestination> func, int effectIndex, Targets targetType, SpellScriptHookType hookType = SpellScriptHookType.DestinationTargetSelect) : base(effectIndex, targetType, false, hookType, true)
-	{
-		_func = func;
-	}
+    public DestinationTargetSelectHandler(Action<SpellDestination> func, int effectIndex, Targets targetType, SpellScriptHookType hookType = SpellScriptHookType.DestinationTargetSelect) : base(effectIndex, targetType, false, hookType, true)
+    {
+        _func = func;
+    }
 
-	public void SetDest(SpellDestination dest)
-	{
-		_func(dest);
-	}
+    public void SetDest(SpellDestination dest)
+    {
+        _func(dest);
+    }
 }

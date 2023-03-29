@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum InstanceResetMethod
 {
-	Manual,
-	OnChangeDifficulty,
-	Expire,
+    Manual,
+    OnChangeDifficulty,
+    Expire,
 }

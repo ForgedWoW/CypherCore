@@ -11,40 +11,40 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(214579)]
 public class spell_hun_sidewinders : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new EffectHandler(HandleDummy1, 2, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+        SpellEffects.Add(new EffectHandler(HandleDummy1, 2, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var target = HitUnit;
+        if (caster != null)
+        {
+            var target = HitUnit;
 
-			if (target != null)
-				caster.CastSpell(target, 187131, true);
-		}
-	}
+            if (target != null)
+                caster.CastSpell(target, 187131, true);
+        }
+    }
 
-	private void HandleDummy1(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy1(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var target = HitUnit;
+        if (caster != null)
+        {
+            var target = HitUnit;
 
-			if (target != null)
-			{
-				caster.CastSpell(target, 214581, true);
-				caster.SendPlaySpellVisual(target.Location, target.Location.Orientation, 56931, 0, 0, 18.0f, false);
-			}
-		}
-	}
+            if (target != null)
+            {
+                caster.CastSpell(target, 214581, true);
+                caster.SendPlaySpellVisual(target.Location, target.Location.Orientation, 56931, 0, 0, 18.0f, false);
+            }
+        }
+    }
 }

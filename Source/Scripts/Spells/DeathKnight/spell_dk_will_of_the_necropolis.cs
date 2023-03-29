@@ -14,26 +14,26 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(206967)]
 public class spell_dk_will_of_the_necropolis : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+        AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
+    }
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		amount.Value = -1;
-	}
+    private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        amount.Value = -1;
+    }
 
-	private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
-	{
-		absorbAmount = 0;
+    private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
+    {
+        absorbAmount = 0;
 
-		if (Target.HealthPct < GetEffect(2).BaseAmount)
-			absorbAmount = MathFunctions.CalculatePct(dmgInfo.Damage, GetEffect(1).BaseAmount);
+        if (Target.HealthPct < GetEffect(2).BaseAmount)
+            absorbAmount = MathFunctions.CalculatePct(dmgInfo.Damage, GetEffect(1).BaseAmount);
 
-		return absorbAmount;
-	}
+        return absorbAmount;
+    }
 }

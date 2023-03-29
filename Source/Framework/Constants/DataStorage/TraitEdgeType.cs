@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum TraitEdgeType
 {
-	VisualOnly = 0,
-	DeprecatedRankConnection = 1,
-	SufficientForAvailability = 2,
-	RequiredForAvailability = 3,
-	MutuallyExclusive = 4,
-	DeprecatedSelectionOption = 5
+    VisualOnly = 0,
+    DeprecatedRankConnection = 1,
+    SufficientForAvailability = 2,
+    RequiredForAvailability = 3,
+    MutuallyExclusive = 4,
+    DeprecatedSelectionOption = 5
 }

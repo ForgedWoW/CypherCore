@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraCheckAreaTarget : IAuraScript
 {
-	bool CheckAreaTarget(Unit target);
+    bool CheckAreaTarget(Unit target);
 }

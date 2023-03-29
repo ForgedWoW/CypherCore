@@ -8,6 +8,6 @@ namespace Framework.Constants;
 [Flags]
 public enum TransmogIllusionFlags
 {
-	HideUntilCollected = 0x1,
-	PlayerConditionGrantsOnLogin = 0x2,
+    HideUntilCollected = 0x1,
+    PlayerConditionGrantsOnLogin = 0x2,
 }

@@ -14,36 +14,36 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(114052)]
 public class spell_sha_ascendance_water : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.HealInfo != null && eventInfo.SpellInfo != null && eventInfo.SpellInfo.Id == eSpells.RestorativeMists)
-			return false;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.HealInfo != null && eventInfo.SpellInfo != null && eventInfo.SpellInfo.Id == eSpells.RestorativeMists)
+            return false;
 
-		if (eventInfo.HealInfo == null)
-			return false;
+        if (eventInfo.HealInfo == null)
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 1, AuraType.PeriodicDummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 1, AuraType.PeriodicDummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var bp0 = eventInfo.HealInfo.Heal;
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var bp0 = eventInfo.HealInfo.Heal;
 
-		if (bp0 != 0)
-			eventInfo.ActionTarget.CastSpell(eventInfo.Actor, eSpells.RestorativeMists, new CastSpellExtraArgs(aurEff).AddSpellMod(SpellValueMod.BasePoint0, (int)bp0));
-	}
+        if (bp0 != 0)
+            eventInfo.ActionTarget.CastSpell(eventInfo.Actor, eSpells.RestorativeMists, new CastSpellExtraArgs(aurEff).AddSpellMod(SpellValueMod.BasePoint0, (int)bp0));
+    }
 
-	private struct eSpells
-	{
-		public const uint RestorativeMists = 114083;
-	}
+    private struct eSpells
+    {
+        public const uint RestorativeMists = 114083;
+    }
 }

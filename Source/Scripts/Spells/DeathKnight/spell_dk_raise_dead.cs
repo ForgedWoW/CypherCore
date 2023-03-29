@@ -12,21 +12,21 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 46584 - Raise Dead
 internal class spell_dk_raise_dead : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var spellId = DeathKnightSpells.RaiseDeadSummon;
+    private void HandleDummy(int effIndex)
+    {
+        var spellId = DeathKnightSpells.RaiseDeadSummon;
 
-		if (Caster.HasAura(DeathKnightSpells.SludgeBelcher))
-			spellId = DeathKnightSpells.SludgeBelcherSummon;
+        if (Caster.HasAura(DeathKnightSpells.SludgeBelcher))
+            spellId = DeathKnightSpells.SludgeBelcherSummon;
 
-		Caster.CastSpell((Unit)null, spellId, true);
-	}
+        Caster.CastSpell((Unit)null, spellId, true);
+    }
 }

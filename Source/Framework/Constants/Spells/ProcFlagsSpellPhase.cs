@@ -8,9 +8,9 @@ namespace Framework.Constants;
 [Flags]
 public enum ProcFlagsSpellPhase
 {
-	None = 0x0,
-	Cast = 0x1,
-	Hit = 0x2,
-	Finish = 0x4,
-	MaskAll = Cast | Hit | Finish
+    None = 0x0,
+    Cast = 0x1,
+    Hit = 0x2,
+    Finish = 0x4,
+    MaskAll = Cast | Hit | Finish
 }

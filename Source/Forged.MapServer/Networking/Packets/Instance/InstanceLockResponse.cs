@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class InstanceLockResponse : ClientPacket
 {
-	public bool AcceptLock;
-	public InstanceLockResponse(WorldPacket packet) : base(packet) { }
+    public bool AcceptLock;
+    public InstanceLockResponse(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		AcceptLock = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        AcceptLock = _worldPacket.HasBit();
+    }
 }

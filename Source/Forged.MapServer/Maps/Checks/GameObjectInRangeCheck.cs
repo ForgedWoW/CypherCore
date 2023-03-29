@@ -11,19 +11,19 @@ internal class GameObjectInRangeCheck : ICheck<GameObject>
     private readonly float _x, _y, _z, _range;
     private readonly uint _entry;
 
-	public GameObjectInRangeCheck(float x, float y, float z, float range, uint entry = 0)
-	{
-		_x = x;
-		_y = y;
-		_z = z;
-		_range = range;
-		_entry = entry;
-	}
+    public GameObjectInRangeCheck(float x, float y, float z, float range, uint entry = 0)
+    {
+        _x = x;
+        _y = y;
+        _z = z;
+        _range = range;
+        _entry = entry;
+    }
 
-	public bool Invoke(GameObject go)
-	{
-		if (_entry == 0 || (go.Template != null && go.Template.entry == _entry))
-			return go.IsInRange(_x, _y, _z, _range);
-		else return false;
-	}
+    public bool Invoke(GameObject go)
+    {
+        if (_entry == 0 || (go.Template != null && go.Template.entry == _entry))
+            return go.IsInRange(_x, _y, _z, _range);
+        else return false;
+    }
 }

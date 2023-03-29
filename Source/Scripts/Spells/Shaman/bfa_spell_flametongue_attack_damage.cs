@@ -11,16 +11,16 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(10444)]
 public class bfa_spell_flametongue_attack_damage : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
+    public void OnHit()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var flamet = caster.GetAura(ShamanSpells.FLAMETONGUE_AURA);
+        var flamet = caster.GetAura(ShamanSpells.FLAMETONGUE_AURA);
 
-		if (flamet != null)
-			HitDamage = (int)(caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 0.2f);
-	}
+        if (flamet != null)
+            HitDamage = (int)(caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 0.2f);
+    }
 }

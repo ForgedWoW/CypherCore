@@ -10,42 +10,42 @@ namespace Forged.MapServer.Chat;
 public class CommandAttribute : Attribute
 {
 	/// <summary>
-	///  Command's name.
+	///     Command's name.
 	/// </summary>
 	public string Name { get; private set; }
 
 	/// <summary>
-	///  Help String for command.
+	///     Help String for command.
 	/// </summary>
 	public CypherStrings Help { get; set; }
 
 	/// <summary>
-	///  Allow Console?
+	///     Allow Console?
 	/// </summary>
 	public bool AllowConsole { get; private set; }
 
 	/// <summary>
-	///  Minimum user level required to invoke the command.
+	///     Minimum user level required to invoke the command.
 	/// </summary>
 	public RBACPermissions RBAC { get; set; }
 
-	public CommandAttribute(string command)
-	{
-		Name = command.ToLower();
-	}
+    public CommandAttribute(string command)
+    {
+        Name = command.ToLower();
+    }
 
-	public CommandAttribute(string command, RBACPermissions rbac, bool allowConsole = false)
-	{
-		Name = command.ToLower();
-		RBAC = rbac;
-		AllowConsole = allowConsole;
-	}
+    public CommandAttribute(string command, RBACPermissions rbac, bool allowConsole = false)
+    {
+        Name = command.ToLower();
+        RBAC = rbac;
+        AllowConsole = allowConsole;
+    }
 
-	public CommandAttribute(string command, CypherStrings help, RBACPermissions rbac, bool allowConsole = false)
-	{
-		Name = command.ToLower();
-		Help = help;
-		RBAC = rbac;
-		AllowConsole = allowConsole;
-	}
+    public CommandAttribute(string command, CypherStrings help, RBACPermissions rbac, bool allowConsole = false)
+    {
+        Name = command.ToLower();
+        Help = help;
+        RBAC = rbac;
+        AllowConsole = allowConsole;
+    }
 }

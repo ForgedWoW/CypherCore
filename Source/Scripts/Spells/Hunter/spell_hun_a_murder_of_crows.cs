@@ -12,35 +12,35 @@ namespace Scripts.Spells.Hunter;
 [Script] // 131894 - A Murder of Crows
 internal class spell_hun_a_murder_of_crows : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleDummyTick, 0, AuraType.PeriodicDummy));
-		AuraEffects.Add(new AuraEffectApplyHandler(RemoveEffect, 0, AuraType.PeriodicDummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleDummyTick, 0, AuraType.PeriodicDummy));
+        AuraEffects.Add(new AuraEffectApplyHandler(RemoveEffect, 0, AuraType.PeriodicDummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void HandleDummyTick(AuraEffect aurEff)
-	{
-		var target = Target;
-		var caster = Caster;
+    private void HandleDummyTick(AuraEffect aurEff)
+    {
+        var target = Target;
+        var caster = Caster;
 
-		caster?.CastSpell(target, HunterSpells.AMurderOfCrowsDamage, true);
+        caster?.CastSpell(target, HunterSpells.AMurderOfCrowsDamage, true);
 
-		target.CastSpell(target, HunterSpells.AMurderOfCrowsVisual1, true);
-		target.CastSpell(target, HunterSpells.AMurderOfCrowsVisual2, true);
-		target.CastSpell(target, HunterSpells.AMurderOfCrowsVisual3, true);
-		target.CastSpell(target, HunterSpells.AMurderOfCrowsVisual3, true); // not a mistake, it is intended to cast twice
-	}
+        target.CastSpell(target, HunterSpells.AMurderOfCrowsVisual1, true);
+        target.CastSpell(target, HunterSpells.AMurderOfCrowsVisual2, true);
+        target.CastSpell(target, HunterSpells.AMurderOfCrowsVisual3, true);
+        target.CastSpell(target, HunterSpells.AMurderOfCrowsVisual3, true); // not a mistake, it is intended to cast twice
+    }
 
-	private void RemoveEffect(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		if (TargetApplication.RemoveMode == AuraRemoveMode.Death)
-		{
-			var caster = Caster;
+    private void RemoveEffect(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        if (TargetApplication.RemoveMode == AuraRemoveMode.Death)
+        {
+            var caster = Caster;
 
-			caster?.SpellHistory.ResetCooldown(Id, true);
-		}
-	}
+            caster?.SpellHistory.ResetCooldown(Id, true);
+        }
+    }
 }

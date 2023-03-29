@@ -10,18 +10,18 @@ namespace Scripts.Spells.Druid;
 [SpellScript(102383)]
 public class spell_dru_wild_charge_moonkin : SpellScript, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		if (Caster)
-		{
-			if (!Caster.IsInCombat)
-				return SpellCastResult.DontReport;
-		}
-		else
-		{
-			return SpellCastResult.DontReport;
-		}
+    public SpellCastResult CheckCast()
+    {
+        if (Caster)
+        {
+            if (!Caster.IsInCombat)
+                return SpellCastResult.DontReport;
+        }
+        else
+        {
+            return SpellCastResult.DontReport;
+        }
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

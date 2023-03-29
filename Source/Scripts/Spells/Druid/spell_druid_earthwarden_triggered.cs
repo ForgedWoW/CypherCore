@@ -14,36 +14,36 @@ namespace Scripts.Spells.Druid;
 [SpellScript(203975)]
 public class spell_druid_earthwarden_triggered : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+        AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
+    }
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		amount.Value = -1;
-	}
+    private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        amount.Value = -1;
+    }
 
-	private double Absorb(AuraEffect auraEffect, DamageInfo dmgInfo, double absorbAmount)
-	{
-		if (dmgInfo.DamageType == DamageEffectType.Direct)
-		{
-			var earthwarden = Global.SpellMgr.AssertSpellInfo(Spells.EARTHWARDEN, Difficulty.None);
+    private double Absorb(AuraEffect auraEffect, DamageInfo dmgInfo, double absorbAmount)
+    {
+        if (dmgInfo.DamageType == DamageEffectType.Direct)
+        {
+            var earthwarden = Global.SpellMgr.AssertSpellInfo(Spells.EARTHWARDEN, Difficulty.None);
 
-			absorbAmount = MathFunctions.CalculatePct(dmgInfo.Damage, earthwarden.GetEffect(0).BasePoints);
-			Caster.RemoveAura(Spells.EARTHWARDEN_TRIGGERED);
-		}
+            absorbAmount = MathFunctions.CalculatePct(dmgInfo.Damage, earthwarden.GetEffect(0).BasePoints);
+            Caster.RemoveAura(Spells.EARTHWARDEN_TRIGGERED);
+        }
 
-		return absorbAmount;
-	}
+        return absorbAmount;
+    }
 
-	private struct Spells
-	{
-		public static readonly uint EARTHWARDEN = 203974;
-		public static readonly uint EARTHWARDEN_TRIGGERED = 203975;
-	}
+    private struct Spells
+    {
+        public static readonly uint EARTHWARDEN = 203974;
+        public static readonly uint EARTHWARDEN_TRIGGERED = 203975;
+    }
 }

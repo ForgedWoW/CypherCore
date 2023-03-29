@@ -14,32 +14,32 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(2565)]
 public class spell_warr_shield_block_SpellScript : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var _player = Caster.AsPlayer;
+    public void OnHit()
+    {
+        var _player = Caster.AsPlayer;
 
-		if (_player != null)
-			_player.CastSpell(_player, WarriorSpells.SHIELD_BLOCKC_TRIGGERED, true);
-	}
+        if (_player != null)
+            _player.CastSpell(_player, WarriorSpells.SHIELD_BLOCKC_TRIGGERED, true);
+    }
 }
 
 [SpellScript(2565)]
 public class spell_warr_shield_block_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.None));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.None));
+    }
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		var caster = Caster;
+    private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			if (caster.HasAura(WarriorSpells.HEAVY_REPERCUSSIONS))
-				amount.Value += 30;
-	}
+        if (caster != null)
+            if (caster.HasAura(WarriorSpells.HEAVY_REPERCUSSIONS))
+                amount.Value += 30;
+    }
 }

@@ -12,35 +12,35 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_oracle_wolvar_reputation : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override bool Load()
-	{
-		return Caster.IsTypeId(TypeId.Player);
-	}
+    public override bool Load()
+    {
+        return Caster.IsTypeId(TypeId.Player);
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var player = Caster.AsPlayer;
-		var factionId = (uint)EffectInfo.CalcValue();
-		var repChange = GetEffectInfo(1).CalcValue();
+    private void HandleDummy(int effIndex)
+    {
+        var player = Caster.AsPlayer;
+        var factionId = (uint)EffectInfo.CalcValue();
+        var repChange = GetEffectInfo(1).CalcValue();
 
-		var factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
+        var factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
 
-		if (factionEntry == null)
-			return;
+        if (factionEntry == null)
+            return;
 
-		// Set rep to baserep + basepoints (expecting spillover for oposite faction . become hated)
-		// Not when player already has equal or higher rep with this faction
-		if (player.ReputationMgr.GetBaseReputation(factionEntry) < repChange)
-			player.ReputationMgr.SetReputation(factionEntry, repChange);
+        // Set rep to baserep + basepoints (expecting spillover for oposite faction . become hated)
+        // Not when player already has equal or higher rep with this faction
+        if (player.ReputationMgr.GetBaseReputation(factionEntry) < repChange)
+            player.ReputationMgr.SetReputation(factionEntry, repChange);
 
-		// EFFECT_INDEX_2 most likely update at war State, we already handle this in SetReputation
-	}
+        // EFFECT_INDEX_2 most likely update at war State, we already handle this in SetReputation
+    }
 }

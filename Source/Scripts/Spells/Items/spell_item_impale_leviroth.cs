@@ -11,23 +11,23 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_impale_leviroth : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var target = HitCreature;
+    private void HandleDummy(int effIndex)
+    {
+        var target = HitCreature;
 
-		if (target)
-			if (target.Entry == CreatureIds.Leviroth &&
-				!target.HealthBelowPct(95))
-			{
-				target.CastSpell(target, ItemSpellIds.LevirothSelfImpale, true);
-				target.ResetPlayerDamageReq();
-			}
-	}
+        if (target)
+            if (target.Entry == CreatureIds.Leviroth &&
+                !target.HealthBelowPct(95))
+            {
+                target.CastSpell(target, ItemSpellIds.LevirothSelfImpale, true);
+                target.ResetPlayerDamageReq();
+            }
+    }
 }

@@ -5,10 +5,10 @@ namespace Forged.MapServer.Accounts;
 
 public enum RBACCommandResult
 {
-	OK,
-	CantAddAlreadyAdded,
-	CantRevokeNotInList,
-	InGrantedList,
-	InDeniedList,
-	IdDoesNotExists
+    OK,
+    CantAddAlreadyAdded,
+    CantRevokeNotInList,
+    InGrantedList,
+    InDeniedList,
+    IdDoesNotExists
 }

@@ -9,24 +9,24 @@ namespace Scripts.Spells.Rogue;
 
 [SpellScript(new uint[]
 {
-	703, 1833, 8676
+    703, 1833, 8676
 })]
 public class spell_rog_cloak_and_dagger_SpellScript : SpellScript, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		var caster = Caster;
+    public SpellCastResult CheckCast()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			if (caster.HasAuraType(AuraType.ModStealth))
-				if (caster.HasAura(138106))
-				{
-					var target = ExplTargetUnit;
+        if (caster != null)
+            if (caster.HasAuraType(AuraType.ModStealth))
+                if (caster.HasAura(138106))
+                {
+                    var target = ExplTargetUnit;
 
-					if (target != null)
-						caster.CastSpell(target, 138916, true);
-				}
+                    if (target != null)
+                        caster.CastSpell(target, 138916, true);
+                }
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

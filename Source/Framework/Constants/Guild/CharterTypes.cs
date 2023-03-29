@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum CharterTypes
 {
-	Guild = 4,
-	Arena2v2 = 2,
-	Arena3v3 = 3,
-	Arena5v5 = 5,
+    Guild = 4,
+    Arena2v2 = 2,
+    Arena3v3 = 3,
+    Arena5v5 = 5,
 }

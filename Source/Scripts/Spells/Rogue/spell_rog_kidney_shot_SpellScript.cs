@@ -11,24 +11,24 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(408)]
 public class spell_rog_kidney_shot_SpellScript : SpellScript, ISpellAfterHit, ISpellOnTakePower
 {
-	private int _cp = 0;
+    private int _cp = 0;
 
-	public void AfterHit()
-	{
-		var target = HitUnit;
+    public void AfterHit()
+    {
+        var target = HitUnit;
 
-		if (target != null)
-		{
-			var aura = target.GetAura(RogueSpells.KIDNEY_SHOT, Caster.GUID);
+        if (target != null)
+        {
+            var aura = target.GetAura(RogueSpells.KIDNEY_SHOT, Caster.GUID);
 
-			if (aura != null)
-				aura.SetDuration(_cp * Time.InMilliseconds);
-		}
-	}
+            if (aura != null)
+                aura.SetDuration(_cp * Time.InMilliseconds);
+        }
+    }
 
-	public void TakePower(SpellPowerCost powerCost)
-	{
-		if (powerCost.Power == PowerType.ComboPoints)
-			_cp = powerCost.Amount + 1;
-	}
+    public void TakePower(SpellPowerCost powerCost)
+    {
+        if (powerCost.Power == PowerType.ComboPoints)
+            _cp = powerCost.Amount + 1;
+    }
 }

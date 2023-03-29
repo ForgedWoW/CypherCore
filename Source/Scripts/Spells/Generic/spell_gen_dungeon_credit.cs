@@ -10,25 +10,25 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_dungeon_credit : SpellScript, ISpellAfterHit
 {
-	private bool _handled;
+    private bool _handled;
 
-	public override bool Load()
-	{
-		_handled = false;
+    public override bool Load()
+    {
+        _handled = false;
 
-		return Caster.IsTypeId(TypeId.Unit);
-	}
+        return Caster.IsTypeId(TypeId.Unit);
+    }
 
-	public void AfterHit()
-	{
-		// This hook is executed for every Target, make sure we only credit instance once
-		if (_handled)
-			return;
+    public void AfterHit()
+    {
+        // This hook is executed for every Target, make sure we only credit instance once
+        if (_handled)
+            return;
 
-		_handled = true;
-		var caster = Caster;
-		var instance = caster.InstanceScript;
+        _handled = true;
+        var caster = Caster;
+        var instance = caster.InstanceScript;
 
-		instance?.UpdateEncounterStateForSpellCast(SpellInfo.Id, caster);
-	}
+        instance?.UpdateEncounterStateForSpellCast(SpellInfo.Id, caster);
+    }
 }

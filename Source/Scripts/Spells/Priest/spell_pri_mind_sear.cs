@@ -11,15 +11,15 @@ namespace Scripts.Spells.Priest;
 [SpellScript(49821)]
 public class spell_pri_mind_sear : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleInsanity, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleInsanity, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleInsanity(int effIndex)
-	{
-		Caster.CastSpell(Caster, PriestSpells.MIND_SEAR_INSANITY, true);
-	}
+    private void HandleInsanity(int effIndex)
+    {
+        Caster.CastSpell(Caster, PriestSpells.MIND_SEAR_INSANITY, true);
+    }
 }

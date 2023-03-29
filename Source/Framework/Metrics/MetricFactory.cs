@@ -7,19 +7,19 @@ namespace Framework.Metrics;
 
 public class MetricFactory
 {
-	private readonly uint _logEvery;
-	private readonly bool _recordlessThanOnems;
+    private readonly uint _logEvery;
+    private readonly bool _recordlessThanOnems;
 
     private readonly Dictionary<string, MeteredMetric> _meteredMetrics = new();
 
-	public MetricFactory(uint logEvery, bool recordlessThanOnems)
-	{
-		_logEvery = logEvery;
-		_recordlessThanOnems = recordlessThanOnems;
-	}
+    public MetricFactory(uint logEvery, bool recordlessThanOnems)
+    {
+        _logEvery = logEvery;
+        _recordlessThanOnems = recordlessThanOnems;
+    }
 
-	public MeteredMetric Meter(string name)
-	{
-		return _meteredMetrics.GetOrAdd(name, () => new MeteredMetric(name, _logEvery, _recordlessThanOnems));
-	}
+    public MeteredMetric Meter(string name)
+    {
+        return _meteredMetrics.GetOrAdd(name, () => new MeteredMetric(name, _logEvery, _recordlessThanOnems));
+    }
 }

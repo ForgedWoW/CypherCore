@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IBattleground;
 
 public interface IBattlegroundGetBattleground : IScriptObject
 {
-	Battleground GetBattleground();
+    Battleground GetBattleground();
 }

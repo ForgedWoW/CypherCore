@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class UpdateCapturePoint : ServerPacket
 {
-	public BattlegroundCapturePointInfo CapturePointInfo;
+    public BattlegroundCapturePointInfo CapturePointInfo;
 
-	public UpdateCapturePoint() : base(ServerOpcodes.UpdateCapturePoint) { }
+    public UpdateCapturePoint() : base(ServerOpcodes.UpdateCapturePoint) { }
 
-	public override void Write()
-	{
-		CapturePointInfo.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        CapturePointInfo.Write(_worldPacket);
+    }
 }

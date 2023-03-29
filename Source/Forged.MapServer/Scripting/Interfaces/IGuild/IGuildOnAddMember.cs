@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IGuild;
 
 public interface IGuildOnAddMember : IScriptObject
 {
-	void OnAddMember(Guild guild, Player player, byte plRank);
+    void OnAddMember(Guild guild, Player player, byte plRank);
 }

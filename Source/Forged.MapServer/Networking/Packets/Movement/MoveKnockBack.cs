@@ -9,17 +9,17 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class MoveKnockBack : ServerPacket
 {
-	public ObjectGuid MoverGUID;
-	public Vector2 Direction;
-	public MoveKnockBackSpeeds Speeds;
-	public uint SequenceIndex;
-	public MoveKnockBack() : base(ServerOpcodes.MoveKnockBack, ConnectionType.Instance) { }
+    public ObjectGuid MoverGUID;
+    public Vector2 Direction;
+    public MoveKnockBackSpeeds Speeds;
+    public uint SequenceIndex;
+    public MoveKnockBack() : base(ServerOpcodes.MoveKnockBack, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(MoverGUID);
-		_worldPacket.WriteUInt32(SequenceIndex);
-		_worldPacket.WriteVector2(Direction);
-		Speeds.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(MoverGUID);
+        _worldPacket.WriteUInt32(SequenceIndex);
+        _worldPacket.WriteVector2(Direction);
+        Speeds.Write(_worldPacket);
+    }
 }

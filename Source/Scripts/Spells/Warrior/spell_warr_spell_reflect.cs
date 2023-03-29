@@ -13,41 +13,41 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(23920)]
 public class spell_warr_spell_reflect : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ReflectSpells, AuraEffectHandleModes.RealOrReapplyMask));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ReflectSpells, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ReflectSpells, AuraEffectHandleModes.RealOrReapplyMask));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ReflectSpells, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectRemove));
+    }
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null || caster.TypeId != TypeId.Player)
-			return;
+        if (caster == null || caster.TypeId != TypeId.Player)
+            return;
 
-		var item = caster.AsPlayer.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
+        var item = caster.AsPlayer.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
-		if (item != null && item.Template.InventoryType == InventoryType.Shield)
-			caster.CastSpell(caster, 146120, true);
-		else if (caster.Faction == 1732) // Alliance
-			caster.CastSpell(caster, 147923, true);
-		else // Horde
-			caster.CastSpell(caster, 146122, true);
-	}
+        if (item != null && item.Template.InventoryType == InventoryType.Shield)
+            caster.CastSpell(caster, 146120, true);
+        else if (caster.Faction == 1732) // Alliance
+            caster.CastSpell(caster, 147923, true);
+        else // Horde
+            caster.CastSpell(caster, 146122, true);
+    }
 
-	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null || caster.TypeId != TypeId.Player)
-			return;
+        if (caster == null || caster.TypeId != TypeId.Player)
+            return;
 
-		// Visuals
-		caster.RemoveAura(146120);
-		caster.RemoveAura(147923);
-		caster.RemoveAura(146122);
-	}
+        // Visuals
+        caster.RemoveAura(146120);
+        caster.RemoveAura(147923);
+        caster.RemoveAura(146122);
+    }
 }

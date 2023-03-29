@@ -8,9 +8,9 @@ namespace Framework.Constants;
 [Flags]
 public enum UpdateFieldFlag
 {
-	None = 0,
-	Owner = 0x01,
-	PartyMember = 0x02,
-	UnitAll = 0x04,
-	Empath = 0x08
+    None = 0,
+    Owner = 0x01,
+    PartyMember = 0x02,
+    UnitAll = 0x04,
+    Empath = 0x08
 }

@@ -7,14 +7,14 @@ using Game.Scripting.Interfaces.ISpell;
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.GREEN_EMERALD_BLOSSOM,
-			EvokerSpells.BLUE_DISINTEGRATE,
-			EvokerSpells.BLUE_DISINTEGRATE_2,
-			EvokerSpells.ECHO,
-			EvokerSpells.DREAM_PROJECTION)]
+             EvokerSpells.BLUE_DISINTEGRATE,
+             EvokerSpells.BLUE_DISINTEGRATE_2,
+             EvokerSpells.ECHO,
+             EvokerSpells.DREAM_PROJECTION)]
 public class spell_evoker_essence_burst : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		Caster.RemoveAura(EvokerSpells.ESSENCE_BURST);
-	}
+    public void OnCast()
+    {
+        Caster.RemoveAura(EvokerSpells.ESSENCE_BURST);
+    }
 }

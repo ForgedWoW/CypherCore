@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 // Called when a player is created.
 public interface IPlayerOnCreate : IScriptObject, IClassRescriction
 {
-	void OnCreate(Player player);
+    void OnCreate(Player player);
 }

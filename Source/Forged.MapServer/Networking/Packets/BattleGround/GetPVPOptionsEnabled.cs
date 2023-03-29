@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class GetPVPOptionsEnabled : ClientPacket
 {
-	public GetPVPOptionsEnabled(WorldPacket packet) : base(packet) { }
+    public GetPVPOptionsEnabled(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

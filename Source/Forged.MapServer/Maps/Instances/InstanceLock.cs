@@ -17,92 +17,92 @@ public class InstanceLock
     private bool _extended;
     private bool _isInUse;
 
-	public InstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId)
-	{
-		_mapId = mapId;
-		_difficultyId = difficultyId;
-		_instanceId = instanceId;
-		_expiryTime = expiryTime;
-		_extended = false;
-	}
+    public InstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId)
+    {
+        _mapId = mapId;
+        _difficultyId = difficultyId;
+        _instanceId = instanceId;
+        _expiryTime = expiryTime;
+        _extended = false;
+    }
 
-	public bool IsExpired()
-	{
-		return _expiryTime < GameTime.GetSystemTime();
-	}
+    public bool IsExpired()
+    {
+        return _expiryTime < GameTime.GetSystemTime();
+    }
 
-	public DateTime GetEffectiveExpiryTime()
-	{
-		if (!IsExtended())
-			return GetExpiryTime();
+    public DateTime GetEffectiveExpiryTime()
+    {
+        if (!IsExtended())
+            return GetExpiryTime();
 
-		MapDb2Entries entries = new(_mapId, _difficultyId);
+        MapDb2Entries entries = new(_mapId, _difficultyId);
 
-		// return next reset time
-		if (IsExpired())
-			return Global.InstanceLockMgr.GetNextResetTime(entries);
+        // return next reset time
+        if (IsExpired())
+            return Global.InstanceLockMgr.GetNextResetTime(entries);
 
-		// if not expired, return expiration time + 1 reset period
-		return GetExpiryTime() + TimeSpan.FromSeconds(entries.MapDifficulty.GetRaidDuration());
-	}
+        // if not expired, return expiration time + 1 reset period
+        return GetExpiryTime() + TimeSpan.FromSeconds(entries.MapDifficulty.GetRaidDuration());
+    }
 
-	public uint GetMapId()
-	{
-		return _mapId;
-	}
+    public uint GetMapId()
+    {
+        return _mapId;
+    }
 
-	public Difficulty GetDifficultyId()
-	{
-		return _difficultyId;
-	}
+    public Difficulty GetDifficultyId()
+    {
+        return _difficultyId;
+    }
 
-	public uint GetInstanceId()
-	{
-		return _instanceId;
-	}
+    public uint GetInstanceId()
+    {
+        return _instanceId;
+    }
 
-	public void SetInstanceId(uint instanceId)
-	{
-		_instanceId = instanceId;
-	}
+    public void SetInstanceId(uint instanceId)
+    {
+        _instanceId = instanceId;
+    }
 
-	public DateTime GetExpiryTime()
-	{
-		return _expiryTime;
-	}
+    public DateTime GetExpiryTime()
+    {
+        return _expiryTime;
+    }
 
-	public void SetExpiryTime(DateTime expiryTime)
-	{
-		_expiryTime = expiryTime;
-	}
+    public void SetExpiryTime(DateTime expiryTime)
+    {
+        _expiryTime = expiryTime;
+    }
 
-	public bool IsExtended()
-	{
-		return _extended;
-	}
+    public bool IsExtended()
+    {
+        return _extended;
+    }
 
-	public void SetExtended(bool extended)
-	{
-		_extended = extended;
-	}
+    public void SetExtended(bool extended)
+    {
+        _extended = extended;
+    }
 
-	public InstanceLockData GetData()
-	{
-		return _data;
-	}
+    public InstanceLockData GetData()
+    {
+        return _data;
+    }
 
-	public virtual InstanceLockData GetInstanceInitializationData()
-	{
-		return _data;
-	}
+    public virtual InstanceLockData GetInstanceInitializationData()
+    {
+        return _data;
+    }
 
-	public bool IsInUse()
-	{
-		return _isInUse;
-	}
+    public bool IsInUse()
+    {
+        return _isInUse;
+    }
 
-	public void SetInUse(bool inUse)
-	{
-		_isInUse = inUse;
-	}
+    public void SetInUse(bool inUse)
+    {
+        _isInUse = inUse;
+    }
 }

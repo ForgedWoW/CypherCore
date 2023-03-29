@@ -10,12 +10,12 @@ namespace Scripts.Spells.Mage;
 [Script]
 public class at_mage_arcane_orb : AreaTriggerScript, IAreaTriggerOnUnitEnter
 {
-	public void OnUnitEnter(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitEnter(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster != null)
-			if (caster.IsValidAttackTarget(unit))
-				caster.CastSpell(unit, MageSpells.ARCANE_ORB_DAMAGE, true);
-	}
+        if (caster != null)
+            if (caster.IsValidAttackTarget(unit))
+                caster.CastSpell(unit, MageSpells.ARCANE_ORB_DAMAGE, true);
+    }
 }

@@ -10,20 +10,20 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraCalcCritChance : IAuraEffectHandler
 {
-	double CalcCritChance(AuraEffect aura, Unit victim, double critChance);
+    double CalcCritChance(AuraEffect aura, Unit victim, double critChance);
 }
 
 public class AuraEffectCalcCritChanceHandler : AuraEffectHandler, IAuraCalcCritChance
 {
-	private readonly Func<AuraEffect, Unit, double, double> _fn;
+    private readonly Func<AuraEffect, Unit, double, double> _fn;
 
-	public AuraEffectCalcCritChanceHandler(Func<AuraEffect, Unit, double, double> fn, int effectIndex, AuraType auraType) : base(effectIndex, auraType, AuraScriptHookType.EffectCalcCritChance)
-	{
-		_fn = fn;
-	}
+    public AuraEffectCalcCritChanceHandler(Func<AuraEffect, Unit, double, double> fn, int effectIndex, AuraType auraType) : base(effectIndex, auraType, AuraScriptHookType.EffectCalcCritChance)
+    {
+        _fn = fn;
+    }
 
-	public double CalcCritChance(AuraEffect aura, Unit victim, double critChance)
-	{
-		return _fn(aura, victim, critChance);
-	}
+    public double CalcCritChance(AuraEffect aura, Unit victim, double critChance)
+    {
+        return _fn(aura, victim, critChance);
+    }
 }

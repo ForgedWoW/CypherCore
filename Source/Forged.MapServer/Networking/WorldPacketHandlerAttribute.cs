@@ -9,14 +9,14 @@ namespace Forged.MapServer.Networking;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public sealed class WorldPacketHandlerAttribute : Attribute
 {
-	public ClientOpcodes Opcode { get; private set; }
-	public SessionStatus Status { get; set; }
-	public PacketProcessing Processing { get; set; }
+    public ClientOpcodes Opcode { get; private set; }
+    public SessionStatus Status { get; set; }
+    public PacketProcessing Processing { get; set; }
 
-	public WorldPacketHandlerAttribute(ClientOpcodes opcode)
-	{
-		Opcode = opcode;
-		Status = SessionStatus.Loggedin;
-		Processing = PacketProcessing.ThreadUnsafe;
-	}
+    public WorldPacketHandlerAttribute(ClientOpcodes opcode)
+    {
+        Opcode = opcode;
+        Status = SessionStatus.Loggedin;
+        Processing = PacketProcessing.ThreadUnsafe;
+    }
 }

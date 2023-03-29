@@ -10,84 +10,84 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MovementSpline
 {
-	public uint Flags;           // Spline flags
-	public MonsterMoveType Face; // Movement direction (see MonsterMoveType enum)
-	public int Elapsed;
-	public uint MoveTime;
-	public uint FadeObjectTime;
-	public List<Vector3> Points = new(); // Spline path
-	public byte Mode;                    // Spline mode - actually always 0 in this packet - Catmullrom mode appears only in SMSG_UPDATE_OBJECT. In this packet it is determined by flags
-	public bool VehicleExitVoluntary;
-	public bool Interpolate;
-	public ObjectGuid TransportGUID;
-	public sbyte VehicleSeat = -1;
-	public List<Vector3> PackedDeltas = new();
-	public MonsterSplineFilter SplineFilter;
-	public MonsterSplineSpellEffectExtraData? SpellEffectExtraData;
-	public MonsterSplineJumpExtraData? JumpExtraData;
-	public MonsterSplineAnimTierTransition? AnimTierTransition;
-	public MonsterSplineUnknown901 Unknown901;
-	public float FaceDirection;
-	public ObjectGuid FaceGUID;
-	public Vector3 FaceSpot;
+    public uint Flags;           // Spline flags
+    public MonsterMoveType Face; // Movement direction (see MonsterMoveType enum)
+    public int Elapsed;
+    public uint MoveTime;
+    public uint FadeObjectTime;
+    public List<Vector3> Points = new(); // Spline path
+    public byte Mode;                    // Spline mode - actually always 0 in this packet - Catmullrom mode appears only in SMSG_UPDATE_OBJECT. In this packet it is determined by flags
+    public bool VehicleExitVoluntary;
+    public bool Interpolate;
+    public ObjectGuid TransportGUID;
+    public sbyte VehicleSeat = -1;
+    public List<Vector3> PackedDeltas = new();
+    public MonsterSplineFilter SplineFilter;
+    public MonsterSplineSpellEffectExtraData? SpellEffectExtraData;
+    public MonsterSplineJumpExtraData? JumpExtraData;
+    public MonsterSplineAnimTierTransition? AnimTierTransition;
+    public MonsterSplineUnknown901 Unknown901;
+    public float FaceDirection;
+    public ObjectGuid FaceGUID;
+    public Vector3 FaceSpot;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(Flags);
-		data.WriteInt32(Elapsed);
-		data.WriteUInt32(MoveTime);
-		data.WriteUInt32(FadeObjectTime);
-		data.WriteUInt8(Mode);
-		data.WritePackedGuid(TransportGUID);
-		data.WriteInt8(VehicleSeat);
-		data.WriteBits((byte)Face, 2);
-		data.WriteBits(Points.Count, 16);
-		data.WriteBit(VehicleExitVoluntary);
-		data.WriteBit(Interpolate);
-		data.WriteBits(PackedDeltas.Count, 16);
-		data.WriteBit(SplineFilter != null);
-		data.WriteBit(SpellEffectExtraData.HasValue);
-		data.WriteBit(JumpExtraData.HasValue);
-		data.WriteBit(AnimTierTransition.HasValue);
-		data.WriteBit(Unknown901 != null);
-		data.FlushBits();
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(Flags);
+        data.WriteInt32(Elapsed);
+        data.WriteUInt32(MoveTime);
+        data.WriteUInt32(FadeObjectTime);
+        data.WriteUInt8(Mode);
+        data.WritePackedGuid(TransportGUID);
+        data.WriteInt8(VehicleSeat);
+        data.WriteBits((byte)Face, 2);
+        data.WriteBits(Points.Count, 16);
+        data.WriteBit(VehicleExitVoluntary);
+        data.WriteBit(Interpolate);
+        data.WriteBits(PackedDeltas.Count, 16);
+        data.WriteBit(SplineFilter != null);
+        data.WriteBit(SpellEffectExtraData.HasValue);
+        data.WriteBit(JumpExtraData.HasValue);
+        data.WriteBit(AnimTierTransition.HasValue);
+        data.WriteBit(Unknown901 != null);
+        data.FlushBits();
 
-		if (SplineFilter != null)
-			SplineFilter.Write(data);
+        if (SplineFilter != null)
+            SplineFilter.Write(data);
 
-		switch (Face)
-		{
-			case MonsterMoveType.FacingSpot:
-				data.WriteVector3(FaceSpot);
+        switch (Face)
+        {
+            case MonsterMoveType.FacingSpot:
+                data.WriteVector3(FaceSpot);
 
-				break;
-			case MonsterMoveType.FacingTarget:
-				data.WriteFloat(FaceDirection);
-				data.WritePackedGuid(FaceGUID);
+                break;
+            case MonsterMoveType.FacingTarget:
+                data.WriteFloat(FaceDirection);
+                data.WritePackedGuid(FaceGUID);
 
-				break;
-			case MonsterMoveType.FacingAngle:
-				data.WriteFloat(FaceDirection);
+                break;
+            case MonsterMoveType.FacingAngle:
+                data.WriteFloat(FaceDirection);
 
-				break;
-		}
+                break;
+        }
 
-		foreach (var pos in Points)
-			data.WriteVector3(pos);
+        foreach (var pos in Points)
+            data.WriteVector3(pos);
 
-		foreach (var pos in PackedDeltas)
-			data.WritePackXYZ(pos);
+        foreach (var pos in PackedDeltas)
+            data.WritePackXYZ(pos);
 
-		if (SpellEffectExtraData.HasValue)
-			SpellEffectExtraData.Value.Write(data);
+        if (SpellEffectExtraData.HasValue)
+            SpellEffectExtraData.Value.Write(data);
 
-		if (JumpExtraData.HasValue)
-			JumpExtraData.Value.Write(data);
+        if (JumpExtraData.HasValue)
+            JumpExtraData.Value.Write(data);
 
-		if (AnimTierTransition.HasValue)
-			AnimTierTransition.Value.Write(data);
+        if (AnimTierTransition.HasValue)
+            AnimTierTransition.Value.Write(data);
 
-		if (Unknown901 != null)
-			Unknown901.Write(data);
-	}
+        if (Unknown901 != null)
+            Unknown901.Write(data);
+    }
 }

@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.System;
 
 public struct GameRuleValuePair
 {
-	public int Rule;
-	public int Value;
+    public int Rule;
+    public int Value;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(Rule);
-		data.WriteInt32(Value);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(Rule);
+        data.WriteInt32(Value);
+    }
 }

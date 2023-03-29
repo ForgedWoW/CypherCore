@@ -8,12 +8,12 @@ namespace Forged.MapServer.Groups;
 
 public class MemberSlot
 {
-	public ObjectGuid Guid;
-	public string Name;
-	public Race Race;
-	public byte Class;
-	public byte Group;
-	public GroupMemberFlags Flags;
-	public LfgRoles Roles;
-	public bool ReadyChecked;
+    public ObjectGuid Guid;
+    public string Name;
+    public Race Race;
+    public byte Class;
+    public byte Group;
+    public GroupMemberFlags Flags;
+    public LfgRoles Roles;
+    public bool ReadyChecked;
 }

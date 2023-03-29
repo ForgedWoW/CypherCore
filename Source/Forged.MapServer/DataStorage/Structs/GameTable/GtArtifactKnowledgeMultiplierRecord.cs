@@ -5,5 +5,5 @@ namespace Forged.MapServer.DataStorage.Structs.GameTable;
 
 public sealed class GtArtifactKnowledgeMultiplierRecord
 {
-	public float Multiplier;
+    public float Multiplier;
 }

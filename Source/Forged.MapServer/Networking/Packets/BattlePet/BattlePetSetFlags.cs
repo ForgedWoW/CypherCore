@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetSetFlags : ClientPacket
 {
-	public ObjectGuid PetGuid;
-	public uint Flags;
-	public FlagsControlType ControlType;
-	public BattlePetSetFlags(WorldPacket packet) : base(packet) { }
+    public ObjectGuid PetGuid;
+    public uint Flags;
+    public FlagsControlType ControlType;
+    public BattlePetSetFlags(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PetGuid = _worldPacket.ReadPackedGuid();
-		Flags = _worldPacket.ReadUInt32();
-		ControlType = (FlagsControlType)_worldPacket.ReadBits<byte>(2);
-	}
+    public override void Read()
+    {
+        PetGuid = _worldPacket.ReadPackedGuid();
+        Flags = _worldPacket.ReadUInt32();
+        ControlType = (FlagsControlType)_worldPacket.ReadBits<byte>(2);
+    }
 }

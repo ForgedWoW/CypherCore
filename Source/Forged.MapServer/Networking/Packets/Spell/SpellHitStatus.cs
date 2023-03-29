@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellHitStatus
 {
-	public SpellHitStatus(SpellMissInfo reason)
-	{
-		Reason = reason;
-	}
+    public SpellHitStatus(SpellMissInfo reason)
+    {
+        Reason = reason;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt8((byte)Reason);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt8((byte)Reason);
+    }
 
-	public SpellMissInfo Reason;
+    public SpellMissInfo Reason;
 }

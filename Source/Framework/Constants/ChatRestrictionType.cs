@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum ChatRestrictionType
 {
-	Restricted = 0,
-	Throttled = 1,
-	Squelched = 2,
-	YellRestricted = 3,
-	RaidRestricted = 4
+    Restricted = 0,
+    Throttled = 1,
+    Squelched = 2,
+    YellRestricted = 3,
+    RaidRestricted = 4
 }

@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.BlackMarket;
 
 internal class BlackMarketOpen : ClientPacket
 {
-	public ObjectGuid Guid;
-	public BlackMarketOpen(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Guid;
+    public BlackMarketOpen(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Guid = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Guid = _worldPacket.ReadPackedGuid();
+    }
 }

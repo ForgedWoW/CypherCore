@@ -12,24 +12,24 @@ namespace Scripts.Spells.Quest;
 [Script] // 50894 - Zul'Drak Rat
 internal class spell_q12527_zuldrak_rat : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScriptEffect(int effIndex)
-	{
-		if (GetHitAura() != null &&
-			GetHitAura().StackAmount >= SpellInfo.StackAmount)
-		{
-			HitUnit.CastSpell((Unit)null, QuestSpellIds.SummonGorgedLurkingBasilisk, true);
-			var basilisk = HitUnit.AsCreature;
+    private void HandleScriptEffect(int effIndex)
+    {
+        if (GetHitAura() != null &&
+            GetHitAura().StackAmount >= SpellInfo.StackAmount)
+        {
+            HitUnit.CastSpell((Unit)null, QuestSpellIds.SummonGorgedLurkingBasilisk, true);
+            var basilisk = HitUnit.AsCreature;
 
-			if (basilisk)
-				basilisk.DespawnOrUnsummon();
-		}
-	}
+            if (basilisk)
+                basilisk.DespawnOrUnsummon();
+        }
+    }
 }

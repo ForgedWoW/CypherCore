@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class LfgPartyInfo : ServerPacket
 {
-	public List<LFGBlackList> Player = new();
-	public LfgPartyInfo() : base(ServerOpcodes.LfgPartyInfo, ConnectionType.Instance) { }
+    public List<LFGBlackList> Player = new();
+    public LfgPartyInfo() : base(ServerOpcodes.LfgPartyInfo, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Player.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Player.Count);
 
-		foreach (var blackList in Player)
-			blackList.Write(_worldPacket);
-	}
+        foreach (var blackList in Player)
+            blackList.Write(_worldPacket);
+    }
 }

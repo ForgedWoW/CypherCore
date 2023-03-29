@@ -7,18 +7,18 @@ namespace Forged.MapServer.Maps.Instances;
 
 public struct InstanceLockUpdateEvent
 {
-	public uint InstanceId;
-	public string NewData;
-	public uint InstanceCompletedEncountersMask;
-	public DungeonEncounterRecord CompletedEncounter;
-	public uint? EntranceWorldSafeLocId;
+    public uint InstanceId;
+    public string NewData;
+    public uint InstanceCompletedEncountersMask;
+    public DungeonEncounterRecord CompletedEncounter;
+    public uint? EntranceWorldSafeLocId;
 
-	public InstanceLockUpdateEvent(uint instanceId, string newData, uint instanceCompletedEncountersMask, DungeonEncounterRecord completedEncounter, uint? entranceWorldSafeLocId)
-	{
-		InstanceId = instanceId;
-		NewData = newData;
-		InstanceCompletedEncountersMask = instanceCompletedEncountersMask;
-		CompletedEncounter = completedEncounter;
-		EntranceWorldSafeLocId = entranceWorldSafeLocId;
-	}
+    public InstanceLockUpdateEvent(uint instanceId, string newData, uint instanceCompletedEncountersMask, DungeonEncounterRecord completedEncounter, uint? entranceWorldSafeLocId)
+    {
+        InstanceId = instanceId;
+        NewData = newData;
+        InstanceCompletedEncountersMask = instanceCompletedEncountersMask;
+        CompletedEncounter = completedEncounter;
+        EntranceWorldSafeLocId = entranceWorldSafeLocId;
+    }
 }

@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class StandStateChange : ClientPacket
 {
-	public UnitStandStateType StandState;
-	public StandStateChange(WorldPacket packet) : base(packet) { }
+    public UnitStandStateType StandState;
+    public StandStateChange(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		StandState = (UnitStandStateType)_worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        StandState = (UnitStandStateType)_worldPacket.ReadUInt32();
+    }
 }

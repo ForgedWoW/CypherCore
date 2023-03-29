@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum HeightHeaderFlags : uint
 {
-	None = 0x0000,
-	NoHeight = 0x0001,
-	HeightAsInt16 = 0x0002,
-	HeightAsInt8 = 0x0004,
-	HasFlightBounds = 0x0008
+    None = 0x0000,
+    NoHeight = 0x0001,
+    HeightAsInt16 = 0x0002,
+    HeightAsInt8 = 0x0004,
+    HasFlightBounds = 0x0008
 }

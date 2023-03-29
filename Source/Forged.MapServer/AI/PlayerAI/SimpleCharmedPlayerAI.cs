@@ -19,197 +19,197 @@ internal class SimpleCharmedPlayerAI : PlayerAI
     private bool _forceFacing;
     private bool _isFollowing;
 
-	public SimpleCharmedPlayerAI(Player player) : base(player)
-	{
-		_castCheckTimer = 2500;
-		_chaseCloser = false;
-		_forceFacing = true;
-	}
+    public SimpleCharmedPlayerAI(Player player) : base(player)
+    {
+        _castCheckTimer = 2500;
+        _chaseCloser = false;
+        _forceFacing = true;
+    }
 
-	public override bool CanAIAttack(Unit who)
-	{
-		if (!Me.IsValidAttackTarget(who) || who.HasBreakableByDamageCrowdControlAura())
-			return false;
+    public override bool CanAIAttack(Unit who)
+    {
+        if (!Me.IsValidAttackTarget(who) || who.HasBreakableByDamageCrowdControlAura())
+            return false;
 
-		var charmer = Me.Charmer;
+        var charmer = Me.Charmer;
 
-		if (charmer != null)
-			if (!charmer.IsValidAttackTarget(who))
-				return false;
+        if (charmer != null)
+            if (!charmer.IsValidAttackTarget(who))
+                return false;
 
-		return base.CanAIAttack(who);
-	}
+        return base.CanAIAttack(who);
+    }
 
-	public override Unit SelectAttackTarget()
-	{
-		var charmer = Me.Charmer;
+    public override Unit SelectAttackTarget()
+    {
+        var charmer = Me.Charmer;
 
-		if (charmer)
-		{
-			var charmerAI = charmer.AI;
+        if (charmer)
+        {
+            var charmerAI = charmer.AI;
 
-			if (charmerAI != null)
-				return charmerAI.SelectTarget(SelectTargetMethod.Random, 0, new ValidTargetSelectPredicate(this));
+            if (charmerAI != null)
+                return charmerAI.SelectTarget(SelectTargetMethod.Random, 0, new ValidTargetSelectPredicate(this));
 
-			return charmer.Victim;
-		}
+            return charmer.Victim;
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	public override void UpdateAI(uint diff)
-	{
-		var charmer = GetCharmer();
+    public override void UpdateAI(uint diff)
+    {
+        var charmer = GetCharmer();
 
-		if (!charmer)
-			return;
+        if (!charmer)
+            return;
 
-		//kill self if charm aura has infinite duration
-		if (charmer.IsInEvadeMode)
-		{
-			var auras = Me.GetAuraEffectsByType(AuraType.ModCharm);
+        //kill self if charm aura has infinite duration
+        if (charmer.IsInEvadeMode)
+        {
+            var auras = Me.GetAuraEffectsByType(AuraType.ModCharm);
 
-			foreach (var effect in auras)
-				if (effect.CasterGuid == charmer.GUID && effect.Base.IsPermanent)
-				{
-					Me.KillSelf();
+            foreach (var effect in auras)
+                if (effect.CasterGuid == charmer.GUID && effect.Base.IsPermanent)
+                {
+                    Me.KillSelf();
 
-					return;
-				}
-		}
+                    return;
+                }
+        }
 
-		if (charmer.IsEngaged)
-		{
-			var target = Me.Victim;
+        if (charmer.IsEngaged)
+        {
+            var target = Me.Victim;
 
-			if (!target || !CanAIAttack(target))
-			{
-				target = SelectAttackTarget();
+            if (!target || !CanAIAttack(target))
+            {
+                target = SelectAttackTarget();
 
-				if (!target || !CanAIAttack(target))
-				{
-					if (!_isFollowing)
-					{
-						_isFollowing = true;
-						Me.AttackStop();
-						Me.CastStop();
+                if (!target || !CanAIAttack(target))
+                {
+                    if (!_isFollowing)
+                    {
+                        _isFollowing = true;
+                        Me.AttackStop();
+                        Me.CastStop();
 
-						if (Me.HasUnitState(UnitState.Chase))
-							Me.MotionMaster.Remove(MovementGeneratorType.Chase);
+                        if (Me.HasUnitState(UnitState.Chase))
+                            Me.MotionMaster.Remove(MovementGeneratorType.Chase);
 
-						Me.MotionMaster.MoveFollow(charmer, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
-					}
+                        Me.MotionMaster.MoveFollow(charmer, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
+                    }
 
-					return;
-				}
+                    return;
+                }
 
-				_isFollowing = false;
+                _isFollowing = false;
 
-				if (IsRangedAttacker())
-				{
-					_chaseCloser = !Me.IsWithinLOSInMap(target);
+                if (IsRangedAttacker())
+                {
+                    _chaseCloser = !Me.IsWithinLOSInMap(target);
 
-					if (_chaseCloser)
-						AttackStart(target);
-					else
-						AttackStartCaster(target, CASTER_CHASE_DISTANCE);
-				}
-				else
-				{
-					AttackStart(target);
-				}
+                    if (_chaseCloser)
+                        AttackStart(target);
+                    else
+                        AttackStartCaster(target, CASTER_CHASE_DISTANCE);
+                }
+                else
+                {
+                    AttackStart(target);
+                }
 
-				_forceFacing = true;
-			}
+                _forceFacing = true;
+            }
 
-			if (Me.IsStopped && !Me.HasUnitState(UnitState.CannotTurn))
-			{
-				var targetAngle = Me.Location.GetAbsoluteAngle(target.Location);
+            if (Me.IsStopped && !Me.HasUnitState(UnitState.CannotTurn))
+            {
+                var targetAngle = Me.Location.GetAbsoluteAngle(target.Location);
 
-				if (_forceFacing || Math.Abs(Me.Location.Orientation - targetAngle) > 0.4f)
-				{
-					Me.SetFacingTo(targetAngle);
-					_forceFacing = false;
-				}
-			}
+                if (_forceFacing || Math.Abs(Me.Location.Orientation - targetAngle) > 0.4f)
+                {
+                    Me.SetFacingTo(targetAngle);
+                    _forceFacing = false;
+                }
+            }
 
-			if (_castCheckTimer <= diff)
-			{
-				if (Me.HasUnitState(UnitState.Casting))
-				{
-					_castCheckTimer = 0;
-				}
-				else
-				{
-					if (IsRangedAttacker()) // chase to zero if the target isn't in line of sight
-					{
-						var inLOS = Me.IsWithinLOSInMap(target);
+            if (_castCheckTimer <= diff)
+            {
+                if (Me.HasUnitState(UnitState.Casting))
+                {
+                    _castCheckTimer = 0;
+                }
+                else
+                {
+                    if (IsRangedAttacker()) // chase to zero if the target isn't in line of sight
+                    {
+                        var inLOS = Me.IsWithinLOSInMap(target);
 
-						if (_chaseCloser != !inLOS)
-						{
-							_chaseCloser = !inLOS;
+                        if (_chaseCloser != !inLOS)
+                        {
+                            _chaseCloser = !inLOS;
 
-							if (_chaseCloser)
-								AttackStart(target);
-							else
-								AttackStartCaster(target, CASTER_CHASE_DISTANCE);
-						}
-					}
+                            if (_chaseCloser)
+                                AttackStart(target);
+                            else
+                                AttackStartCaster(target, CASTER_CHASE_DISTANCE);
+                        }
+                    }
 
-					var shouldCast = SelectAppropriateCastForSpec();
+                    var shouldCast = SelectAppropriateCastForSpec();
 
-					if (shouldCast != null)
-						DoCastAtTarget(shouldCast);
+                    if (shouldCast != null)
+                        DoCastAtTarget(shouldCast);
 
-					_castCheckTimer = 500;
-				}
-			}
-			else
-			{
-				_castCheckTimer -= diff;
-			}
+                    _castCheckTimer = 500;
+                }
+            }
+            else
+            {
+                _castCheckTimer -= diff;
+            }
 
-			DoAutoAttackIfReady();
-		}
-		else if (!_isFollowing)
-		{
-			_isFollowing = true;
-			Me.AttackStop();
-			Me.CastStop();
+            DoAutoAttackIfReady();
+        }
+        else if (!_isFollowing)
+        {
+            _isFollowing = true;
+            Me.AttackStop();
+            Me.CastStop();
 
-			if (Me.HasUnitState(UnitState.Chase))
-				Me.MotionMaster.Remove(MovementGeneratorType.Chase);
+            if (Me.HasUnitState(UnitState.Chase))
+                Me.MotionMaster.Remove(MovementGeneratorType.Chase);
 
-			Me.MotionMaster.MoveFollow(charmer, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
-		}
-	}
+            Me.MotionMaster.MoveFollow(charmer, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
+        }
+    }
 
-	public override void OnCharmed(bool isNew)
-	{
-		if (Me.IsCharmed)
-		{
-			Me.CastStop();
-			Me.AttackStop();
+    public override void OnCharmed(bool isNew)
+    {
+        if (Me.IsCharmed)
+        {
+            Me.CastStop();
+            Me.AttackStop();
 
-			if (Me.MotionMaster.Size() <= 1)                      // if there is no current movement (we dont want to erase/overwrite any existing stuff)
-				Me.MotionMaster.MovePoint(0, Me.Location, false); // force re-sync of current position for all clients
-		}
-		else
-		{
-			Me.CastStop();
-			Me.AttackStop();
+            if (Me.MotionMaster.Size() <= 1)                      // if there is no current movement (we dont want to erase/overwrite any existing stuff)
+                Me.MotionMaster.MovePoint(0, Me.Location, false); // force re-sync of current position for all clients
+        }
+        else
+        {
+            Me.CastStop();
+            Me.AttackStop();
 
-			Me.MotionMaster.Clear(MovementGeneratorPriority.Normal);
-		}
+            Me.MotionMaster.Clear(MovementGeneratorPriority.Normal);
+        }
 
-		base.OnCharmed(isNew);
-	}
+        base.OnCharmed(isNew);
+    }
 
     private Tuple<Spell, Unit> SelectAppropriateCastForSpec()
-	{
-		List<Tuple<Tuple<Spell, Unit>, uint>> spells = new();
+    {
+        List<Tuple<Tuple<Spell, Unit>, uint>> spells = new();
 
-		/*
+        /*
             switch (me.getClass())
             {
                 case CLASS_WARRIOR:
@@ -281,7 +281,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                         else
                             VerifyAndPushSpellCast(spells, SPELL_HAND_OF_PROTECTION, creatureCharmer, 3);
                     }
-
+      
                     switch (GetSpec())
                     {
                         case TALENT_SPEC_PALADIN_PROTECTION:
@@ -317,7 +317,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                     VerifyAndPushSpellCast(spells, SPELL_KILL_SHOT, TARGET_VICTIM, 10);
                     if (me.Victim && me.Victim.getPowerType() == POWER_MANA && !me.Victim.GetAuraApplicationOfRankedSpell(SPELL_VIPER_STING, me.GetGUID()))
                         VerifyAndPushSpellCast(spells, SPELL_VIPER_STING, TARGET_VICTIM, 5);
-
+      
                     switch (GetSpec())
                     {
                         case TALENT_SPEC_HUNTER_BEASTMASTER:
@@ -349,7 +349,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                     VerifyAndPushSpellCast(spells, SPELL_VANISH, TARGET_NONE, 4);
                     VerifyAndPushSpellCast(spells, SPELL_BLIND, TARGET_VICTIM, 2);
                     VerifyAndPushSpellCast(spells, SPELL_CLOAK_OF_SHADOWS, TARGET_NONE, 2);
-
+      
                     uint32 builder, finisher;
                     switch (GetSpec())
                     {
@@ -371,12 +371,12 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_SHADOW_DANCE, TARGET_NONE, 10);
                             break;
                     }
-
+      
                     if (Unit* victim = me.Victim)
                     {
                         if (victim.HasUnitState(UNIT_STATE_CASTING))
                             VerifyAndPushSpellCast(spells, SPELL_KICK, TARGET_VICTIM, 25);
-
+      
                         uint8 const cp = me.GetPower(POWER_COMBO_POINTS);
                         if (cp >= 4)
                             VerifyAndPushSpellCast(spells, finisher, TARGET_VICTIM, 10);
@@ -439,13 +439,13 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                     VerifyAndPushSpellCast(spells, SPELL_EMPOWER_RUNE_WEAP, TARGET_NONE, 5);
                     VerifyAndPushSpellCast(spells, SPELL_ICEBORN_FORTITUDE, TARGET_NONE, 15);
                     VerifyAndPushSpellCast(spells, SPELL_ANTI_MAGIC_SHELL, TARGET_NONE, 10);
-
+      
                     bool hasFF = false, hasBP = false;
                     if (Unit* victim = me.Victim)
                     {
                         if (victim.HasUnitState(UNIT_STATE_CASTING))
                             VerifyAndPushSpellCast(spells, SPELL_MIND_FREEZE, TARGET_VICTIM, 25);
-
+      
                         hasFF = !!victim.GetAuraApplicationOfRankedSpell(AURA_FROST_FEVER, me.GetGUID()), hasBP = !!victim.GetAuraApplicationOfRankedSpell(AURA_BLOOD_PLAGUE, me.GetGUID());
                         if (hasFF && hasBP)
                             VerifyAndPushSpellCast(spells, SPELL_PESTILENCE, TARGET_VICTIM, 3);
@@ -729,6 +729,6 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                     break;
             }
             */
-		return SelectSpellCast(spells);
-	}
+        return SelectSpellCast(spells);
+    }
 }

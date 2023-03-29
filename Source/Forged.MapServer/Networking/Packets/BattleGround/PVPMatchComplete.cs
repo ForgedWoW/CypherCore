@@ -7,21 +7,21 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class PVPMatchComplete : ServerPacket
 {
-	public byte Winner;
-	public int Duration;
-	public PVPMatchStatistics LogData;
-	public uint SoloShuffleStatus;
-	public PVPMatchComplete() : base(ServerOpcodes.PvpMatchComplete, ConnectionType.Instance) { }
+    public byte Winner;
+    public int Duration;
+    public PVPMatchStatistics LogData;
+    public uint SoloShuffleStatus;
+    public PVPMatchComplete() : base(ServerOpcodes.PvpMatchComplete, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt8(Winner);
-		_worldPacket.WriteInt32(Duration);
-		_worldPacket.WriteBit(LogData != null);
-		_worldPacket.WriteBits(SoloShuffleStatus, 2);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteUInt8(Winner);
+        _worldPacket.WriteInt32(Duration);
+        _worldPacket.WriteBit(LogData != null);
+        _worldPacket.WriteBits(SoloShuffleStatus, 2);
+        _worldPacket.FlushBits();
 
-		if (LogData != null)
-			LogData.Write(_worldPacket);
-	}
+        if (LogData != null)
+            LogData.Write(_worldPacket);
+    }
 }

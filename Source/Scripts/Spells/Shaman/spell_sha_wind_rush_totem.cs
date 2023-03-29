@@ -9,5 +9,5 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(192077)]
 internal class spell_sha_wind_rush_totem : SpellScript, ISpellOnCast
 {
-	public void OnCast() { }
+    public void OnCast() { }
 }

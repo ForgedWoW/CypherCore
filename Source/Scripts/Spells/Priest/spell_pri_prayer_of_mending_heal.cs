@@ -11,27 +11,27 @@ namespace Scripts.Spells.Priest;
 [SpellScript(33110)]
 public class spell_pri_prayer_of_mending_heal : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHeal(int effIndex)
-	{
-		var caster = OriginalCaster;
+    private void HandleHeal(int effIndex)
+    {
+        var caster = OriginalCaster;
 
-		if (caster != null)
-		{
-			var aurEff = caster.GetAuraEffect(PriestSpells.T9_HEALING_2P, 0);
+        if (caster != null)
+        {
+            var aurEff = caster.GetAuraEffect(PriestSpells.T9_HEALING_2P, 0);
 
-			if (aurEff != null)
-			{
-				var heal = HitHeal;
-				MathFunctions.AddPct(ref heal, aurEff.Amount);
-				HitHeal = heal;
-			}
-		}
-	}
+            if (aurEff != null)
+            {
+                var heal = HitHeal;
+                MathFunctions.AddPct(ref heal, aurEff.Amount);
+                HitHeal = heal;
+            }
+        }
+    }
 }

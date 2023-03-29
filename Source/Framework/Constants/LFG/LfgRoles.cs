@@ -8,10 +8,10 @@ namespace Framework.Constants;
 [Flags]
 public enum LfgRoles
 {
-	None = 0x00,
-	Leader = 0x01,
-	Tank = 0x02,
-	Healer = 0x04,
-	Damage = 0x08,
-	Any = Leader | Tank | Healer | Damage
+    None = 0x00,
+    Leader = 0x01,
+    Tank = 0x02,
+    Healer = 0x04,
+    Damage = 0x08,
+    Any = Leader | Tank | Healer | Damage
 }

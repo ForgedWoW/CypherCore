@@ -5,6 +5,6 @@ namespace Scripts.Spells.Items;
 
 internal struct ObjectIds
 {
-	//Crystalprison
-	public const uint ImprisonedDoomguard = 179644;
+    //Crystalprison
+    public const uint ImprisonedDoomguard = 179644;
 }

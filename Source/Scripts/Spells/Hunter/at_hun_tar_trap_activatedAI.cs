@@ -10,77 +10,77 @@ namespace Scripts.Spells.Hunter;
 [Script]
 public class at_hun_tar_trap_activatedAI : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnRemove
 {
-	public enum UsedSpells
-	{
-		TAR_TRAP_SLOW = 135299
-	}
+    public enum UsedSpells
+    {
+        TAR_TRAP_SLOW = 135299
+    }
 
-	public int timeInterval;
+    public int timeInterval;
 
-	public void OnCreate()
-	{
-		timeInterval = 200;
-		var caster = At.GetCaster();
+    public void OnCreate()
+    {
+        timeInterval = 200;
+        var caster = At.GetCaster();
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		foreach (var itr in At.InsideUnits)
-		{
-			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
+        foreach (var itr in At.InsideUnits)
+        {
+            var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 
-			if (!caster.IsFriendlyTo(target))
-				caster.CastSpell(target, UsedSpells.TAR_TRAP_SLOW, true);
-		}
-	}
+            if (!caster.IsFriendlyTo(target))
+                caster.CastSpell(target, UsedSpells.TAR_TRAP_SLOW, true);
+        }
+    }
 
-	public void OnRemove()
-	{
-		var caster = At.GetCaster();
+    public void OnRemove()
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		foreach (var itr in At.InsideUnits)
-		{
-			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
+        foreach (var itr in At.InsideUnits)
+        {
+            var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 
-			if (target.HasAura(UsedSpells.TAR_TRAP_SLOW) && target.GetAura(UsedSpells.TAR_TRAP_SLOW).Caster == caster)
-				target.RemoveAura(UsedSpells.TAR_TRAP_SLOW);
-		}
-	}
+            if (target.HasAura(UsedSpells.TAR_TRAP_SLOW) && target.GetAura(UsedSpells.TAR_TRAP_SLOW).Caster == caster)
+                target.RemoveAura(UsedSpells.TAR_TRAP_SLOW);
+        }
+    }
 
-	public void OnUnitEnter(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitEnter(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		if (!caster.IsFriendlyTo(unit))
-			caster.CastSpell(unit, UsedSpells.TAR_TRAP_SLOW, true);
-	}
+        if (!caster.IsFriendlyTo(unit))
+            caster.CastSpell(unit, UsedSpells.TAR_TRAP_SLOW, true);
+    }
 
-	public void OnUnitExit(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitExit(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		if (unit.HasAura(UsedSpells.TAR_TRAP_SLOW) && unit.GetAura(UsedSpells.TAR_TRAP_SLOW).Caster == caster)
-			unit.RemoveAura(UsedSpells.TAR_TRAP_SLOW);
-	}
+        if (unit.HasAura(UsedSpells.TAR_TRAP_SLOW) && unit.GetAura(UsedSpells.TAR_TRAP_SLOW).Caster == caster)
+            unit.RemoveAura(UsedSpells.TAR_TRAP_SLOW);
+    }
 }

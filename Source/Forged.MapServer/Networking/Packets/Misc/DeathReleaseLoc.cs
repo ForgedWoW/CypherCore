@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class DeathReleaseLoc : ServerPacket
 {
-	public int MapID;
-	public WorldLocation Loc;
-	public DeathReleaseLoc() : base(ServerOpcodes.DeathReleaseLoc) { }
+    public int MapID;
+    public WorldLocation Loc;
+    public DeathReleaseLoc() : base(ServerOpcodes.DeathReleaseLoc) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(MapID);
-		_worldPacket.WriteXYZ(Loc);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(MapID);
+        _worldPacket.WriteXYZ(Loc);
+    }
 }

@@ -10,46 +10,46 @@ public class VendorItemData
 {
     private readonly List<VendorItem> _items = new();
 
-	public VendorItem GetItem(uint slot)
-	{
-		if (slot >= _items.Count)
-			return null;
+    public VendorItem GetItem(uint slot)
+    {
+        if (slot >= _items.Count)
+            return null;
 
-		return _items[(int)slot];
-	}
+        return _items[(int)slot];
+    }
 
-	public bool Empty()
-	{
-		return _items.Count == 0;
-	}
+    public bool Empty()
+    {
+        return _items.Count == 0;
+    }
 
-	public int GetItemCount()
-	{
-		return _items.Count;
-	}
+    public int GetItemCount()
+    {
+        return _items.Count;
+    }
 
-	public void AddItem(VendorItem vItem)
-	{
-		_items.Add(vItem);
-	}
+    public void AddItem(VendorItem vItem)
+    {
+        _items.Add(vItem);
+    }
 
-	public bool RemoveItem(uint item_id, ItemVendorType type)
-	{
-		var i = _items.RemoveAll(p => p.Item == item_id && p.Type == type);
+    public bool RemoveItem(uint item_id, ItemVendorType type)
+    {
+        var i = _items.RemoveAll(p => p.Item == item_id && p.Type == type);
 
-		if (i == 0)
-			return false;
-		else
-			return true;
-	}
+        if (i == 0)
+            return false;
+        else
+            return true;
+    }
 
-	public VendorItem FindItemCostPair(uint itemId, uint extendedCost, ItemVendorType type)
-	{
-		return _items.Find(p => p.Item == itemId && p.ExtendedCost == extendedCost && p.Type == type);
-	}
+    public VendorItem FindItemCostPair(uint itemId, uint extendedCost, ItemVendorType type)
+    {
+        return _items.Find(p => p.Item == itemId && p.ExtendedCost == extendedCost && p.Type == type);
+    }
 
-	public void Clear()
-	{
-		_items.Clear();
-	}
+    public void Clear()
+    {
+        _items.Clear();
+    }
 }

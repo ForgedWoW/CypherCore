@@ -11,8 +11,8 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_darkflight : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		Caster.CastSpell(Caster, GenericSpellIds.AlteredForm, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-	}
+    public void AfterCast()
+    {
+        Caster.CastSpell(Caster, GenericSpellIds.AlteredForm, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+    }
 }

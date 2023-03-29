@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class DFGetSystemInfo : ClientPacket
 {
-	public byte PartyIndex;
-	public bool Player;
-	public DFGetSystemInfo(WorldPacket packet) : base(packet) { }
+    public byte PartyIndex;
+    public bool Player;
+    public DFGetSystemInfo(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Player = _worldPacket.HasBit();
-		PartyIndex = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        Player = _worldPacket.HasBit();
+        PartyIndex = _worldPacket.ReadUInt8();
+    }
 }

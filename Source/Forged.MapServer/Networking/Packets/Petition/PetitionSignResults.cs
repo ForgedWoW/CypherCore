@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class PetitionSignResults : ServerPacket
 {
-	public ObjectGuid Item;
-	public ObjectGuid Player;
-	public PetitionSigns Error = 0;
-	public PetitionSignResults() : base(ServerOpcodes.PetitionSignResults) { }
+    public ObjectGuid Item;
+    public ObjectGuid Player;
+    public PetitionSigns Error = 0;
+    public PetitionSignResults() : base(ServerOpcodes.PetitionSignResults) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Item);
-		_worldPacket.WritePackedGuid(Player);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Item);
+        _worldPacket.WritePackedGuid(Player);
 
-		_worldPacket.WriteBits(Error, 4);
-		_worldPacket.FlushBits();
-	}
+        _worldPacket.WriteBits(Error, 4);
+        _worldPacket.FlushBits();
+    }
 }

@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class MoveUpdateRemoveMovementForce : ServerPacket
 {
-	public MovementInfo Status = new();
-	public ObjectGuid TriggerGUID;
-	public MoveUpdateRemoveMovementForce() : base(ServerOpcodes.MoveUpdateRemoveMovementForce) { }
+    public MovementInfo Status = new();
+    public ObjectGuid TriggerGUID;
+    public MoveUpdateRemoveMovementForce() : base(ServerOpcodes.MoveUpdateRemoveMovementForce) { }
 
-	public override void Write()
-	{
-		MovementExtensions.WriteMovementInfo(_worldPacket, Status);
-		_worldPacket.WritePackedGuid(TriggerGUID);
-	}
+    public override void Write()
+    {
+        MovementExtensions.WriteMovementInfo(_worldPacket, Status);
+        _worldPacket.WritePackedGuid(TriggerGUID);
+    }
 }

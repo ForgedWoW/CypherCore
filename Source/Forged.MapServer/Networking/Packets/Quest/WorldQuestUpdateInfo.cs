@@ -5,21 +5,21 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal struct WorldQuestUpdateInfo
 {
-	public WorldQuestUpdateInfo(long lastUpdate, uint questID, uint timer, int variableID, int value)
-	{
-		LastUpdate = lastUpdate;
-		QuestID = questID;
-		Timer = timer;
-		VariableID = variableID;
-		Value = value;
-	}
+    public WorldQuestUpdateInfo(long lastUpdate, uint questID, uint timer, int variableID, int value)
+    {
+        LastUpdate = lastUpdate;
+        QuestID = questID;
+        Timer = timer;
+        VariableID = variableID;
+        Value = value;
+    }
 
-	public long LastUpdate;
-	public uint QuestID;
+    public long LastUpdate;
+    public uint QuestID;
 
-	public uint Timer;
+    public uint Timer;
 
-	// WorldState
-	public int VariableID;
-	public int Value;
+    // WorldState
+    public int VariableID;
+    public int Value;
 }

@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum SmartActionSummonCreatureFlags
 {
-	None = 0,
-	PersonalSpawn = 1,
-	PreferUnit = 2,
+    None = 0,
+    PersonalSpawn = 1,
+    PreferUnit = 2,
 
-	All = PersonalSpawn | PreferUnit,
+    All = PersonalSpawn | PreferUnit,
 }

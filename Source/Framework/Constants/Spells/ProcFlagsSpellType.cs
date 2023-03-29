@@ -8,9 +8,9 @@ namespace Framework.Constants;
 [Flags]
 public enum ProcFlagsSpellType
 {
-	None = 0x0,
-	Damage = 0x1,    // damage type of spell
-	Heal = 0x2,      // heal type of spell
-	NoDmgHeal = 0x4, // other spells
-	MaskAll = Damage | Heal | NoDmgHeal
+    None = 0x0,
+    Damage = 0x1,    // damage type of spell
+    Heal = 0x2,      // heal type of spell
+    NoDmgHeal = 0x4, // other spells
+    MaskAll = Damage | Heal | NoDmgHeal
 }

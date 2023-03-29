@@ -16,57 +16,57 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(190456)]
 public class aura_warr_ignore_pain : AuraScript, IHasAuraEffects
 {
-	private int m_ExtraSpellCost;
+    private int m_ExtraSpellCost;
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Load()
-	{
-		var caster = Caster;
-		// In this phase the initial 20 Rage cost is removed already
-		// We just check for bonus.
-		m_ExtraSpellCost = Math.Min(caster.GetPower(PowerType.Rage), 400);
+    public override bool Load()
+    {
+        var caster = Caster;
+        // In this phase the initial 20 Rage cost is removed already
+        // We just check for bonus.
+        m_ExtraSpellCost = Math.Min(caster.GetPower(PowerType.Rage), 400);
 
-		return true;
-	}
+        return true;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(OnAbsorb, 0));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 0, AuraType.SchoolAbsorb));
+        AuraEffects.Add(new AuraEffectAbsorbHandler(OnAbsorb, 0));
+    }
 
-	private void CalcAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		var caster = Caster;
+    private void CalcAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			amount.Value = (22.3f * caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack)) * ((m_ExtraSpellCost + 200) / 600.0f);
-			var m_newRage = caster.GetPower(PowerType.Rage) - m_ExtraSpellCost;
+        if (caster != null)
+        {
+            amount.Value = (22.3f * caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack)) * ((m_ExtraSpellCost + 200) / 600.0f);
+            var m_newRage = caster.GetPower(PowerType.Rage) - m_ExtraSpellCost;
 
-			if (m_newRage < 0)
-				m_newRage = 0;
+            if (m_newRage < 0)
+                m_newRage = 0;
 
-			caster.SetPower(PowerType.Rage, m_newRage);
-			/*if (Player* player = caster->ToPlayer())
-				player->SendPowerUpdate(PowerType.Rage, m_newRage);*/
-		}
-	}
+            caster.SetPower(PowerType.Rage, m_newRage);
+            /*if (Player* player = caster->ToPlayer())
+                player->SendPowerUpdate(PowerType.Rage, m_newRage);*/
+        }
+    }
 
-	private double OnAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double UnnamedParameter2)
-	{
-		var caster = Caster;
+    private double OnAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var spell = new SpellNonMeleeDamage(caster, caster, SpellInfo, new SpellCastVisual(0, 0), SpellSchoolMask.Normal);
-			spell.Damage = dmgInfo.Damage - dmgInfo.Damage * 0.9f;
-			spell.CleanDamage = spell.Damage;
-			caster.DealSpellDamage(spell, false);
-			caster.SendSpellNonMeleeDamageLog(spell);
-		}
+        if (caster != null)
+        {
+            var spell = new SpellNonMeleeDamage(caster, caster, SpellInfo, new SpellCastVisual(0, 0), SpellSchoolMask.Normal);
+            spell.Damage = dmgInfo.Damage - dmgInfo.Damage * 0.9f;
+            spell.CleanDamage = spell.Damage;
+            caster.DealSpellDamage(spell, false);
+            caster.SendSpellNonMeleeDamageLog(spell);
+        }
 
-		return UnnamedParameter2;
-	}
+        return UnnamedParameter2;
+    }
 }

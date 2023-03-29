@@ -11,28 +11,28 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class ResetNotifier : IGridNotifierPlayer, IGridNotifierCreature
 {
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public ResetNotifier(GridType gridType)
-	{
-		GridType = gridType;
-	}
+    public ResetNotifier(GridType gridType)
+    {
+        GridType = gridType;
+    }
 
-	public void Visit(IList<Creature> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var creature = objs[i];
-			creature.ResetAllNotifies();
-		}
-	}
+    public void Visit(IList<Creature> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var creature = objs[i];
+            creature.ResetAllNotifies();
+        }
+    }
 
-	public void Visit(IList<Player> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var player = objs[i];
-			player.ResetAllNotifies();
-		}
-	}
+    public void Visit(IList<Player> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var player = objs[i];
+            player.ResetAllNotifies();
+        }
+    }
 }

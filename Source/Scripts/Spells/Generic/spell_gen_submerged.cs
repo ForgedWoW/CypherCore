@@ -11,17 +11,17 @@ namespace Scripts.Spells.Generic;
 [Script] // 37751 - Submerged
 internal class spell_gen_submerged : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int eff)
-	{
-		var target = HitCreature;
+    private void HandleScript(int eff)
+    {
+        var target = HitCreature;
 
-		target?.SetStandState(UnitStandStateType.Submerged);
-	}
+        target?.SetStandState(UnitStandStateType.Submerged);
+    }
 }

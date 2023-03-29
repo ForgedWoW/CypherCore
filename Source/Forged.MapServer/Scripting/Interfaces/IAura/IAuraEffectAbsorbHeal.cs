@@ -10,26 +10,26 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraEffectAbsorbHeal : IAuraEffectHandler
 {
-	double HandleAbsorb(AuraEffect aura, HealInfo healInfo, double absorbAmount);
+    double HandleAbsorb(AuraEffect aura, HealInfo healInfo, double absorbAmount);
 }
 
 public class AuraEffectAbsorbHealHandler : AuraEffectHandler, IAuraEffectAbsorbHeal
 {
-	private readonly Func<AuraEffect, HealInfo, double, double> _fn;
+    private readonly Func<AuraEffect, HealInfo, double, double> _fn;
 
-	public AuraEffectAbsorbHealHandler(Func<AuraEffect, HealInfo, double, double> fn, int effectIndex, AuraType auraType, AuraScriptHookType hookType) : base(effectIndex, auraType, hookType)
-	{
-		_fn = fn;
+    public AuraEffectAbsorbHealHandler(Func<AuraEffect, HealInfo, double, double> fn, int effectIndex, AuraType auraType, AuraScriptHookType hookType) : base(effectIndex, auraType, hookType)
+    {
+        _fn = fn;
 
-		if (hookType != AuraScriptHookType.EffectAbsorbHeal &&
-			hookType != AuraScriptHookType.EffectAfterAbsorbHeal &&
-			hookType != AuraScriptHookType.EffectManaShield &&
-			hookType != AuraScriptHookType.EffectAfterManaShield)
-			throw new Exception($"Hook Type {hookType} is not valid for {nameof(AuraEffectAbsorbHealHandler)}. Use {AuraScriptHookType.EffectAbsorbHeal}, {AuraScriptHookType.EffectAfterManaShield}, {AuraScriptHookType.EffectManaShield} or {AuraScriptHookType.EffectAfterAbsorbHeal}");
-	}
+        if (hookType != AuraScriptHookType.EffectAbsorbHeal &&
+            hookType != AuraScriptHookType.EffectAfterAbsorbHeal &&
+            hookType != AuraScriptHookType.EffectManaShield &&
+            hookType != AuraScriptHookType.EffectAfterManaShield)
+            throw new Exception($"Hook Type {hookType} is not valid for {nameof(AuraEffectAbsorbHealHandler)}. Use {AuraScriptHookType.EffectAbsorbHeal}, {AuraScriptHookType.EffectAfterManaShield}, {AuraScriptHookType.EffectManaShield} or {AuraScriptHookType.EffectAfterAbsorbHeal}");
+    }
 
-	public double HandleAbsorb(AuraEffect aura, HealInfo healInfo, double absorbAmount)
-	{
-		return _fn(aura, healInfo, absorbAmount);
-	}
+    public double HandleAbsorb(AuraEffect aura, HealInfo healInfo, double absorbAmount)
+    {
+        return _fn(aura, healInfo, absorbAmount);
+    }
 }

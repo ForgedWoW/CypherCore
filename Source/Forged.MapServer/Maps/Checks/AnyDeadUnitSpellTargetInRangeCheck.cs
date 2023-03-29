@@ -11,13 +11,13 @@ public class AnyDeadUnitSpellTargetInRangeCheck<T> : AnyDeadUnitObjectInRangeChe
 {
     private readonly WorldObjectSpellTargetCheck _check;
 
-	public AnyDeadUnitSpellTargetInRangeCheck(WorldObject searchObj, float range, SpellInfo spellInfo, SpellTargetCheckTypes check, SpellTargetObjectTypes objectType) : base(searchObj, range)
-	{
-		_check = new WorldObjectSpellTargetCheck(searchObj, searchObj, spellInfo, check, null, objectType);
-	}
+    public AnyDeadUnitSpellTargetInRangeCheck(WorldObject searchObj, float range, SpellInfo spellInfo, SpellTargetCheckTypes check, SpellTargetObjectTypes objectType) : base(searchObj, range)
+    {
+        _check = new WorldObjectSpellTargetCheck(searchObj, searchObj, spellInfo, check, null, objectType);
+    }
 
-	public override bool Invoke(T obj)
-	{
-		return base.Invoke(obj) && _check.Invoke(obj);
-	}
+    public override bool Invoke(T obj)
+    {
+        return base.Invoke(obj) && _check.Invoke(obj);
+    }
 }

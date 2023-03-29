@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildShiftRank : ClientPacket
 {
-	public bool ShiftUp;
-	public int RankOrder;
-	public GuildShiftRank(WorldPacket packet) : base(packet) { }
+    public bool ShiftUp;
+    public int RankOrder;
+    public GuildShiftRank(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		RankOrder = _worldPacket.ReadInt32();
-		ShiftUp = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        RankOrder = _worldPacket.ReadInt32();
+        ShiftUp = _worldPacket.HasBit();
+    }
 }

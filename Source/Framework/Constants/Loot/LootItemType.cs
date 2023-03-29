@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum LootItemType
 {
-	Item = 0,
-	Currency = 1
+    Item = 0,
+    Currency = 1
 }

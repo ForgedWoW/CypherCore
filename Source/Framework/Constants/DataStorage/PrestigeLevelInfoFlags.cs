@@ -5,5 +5,5 @@ namespace Framework.Constants;
 
 public enum PrestigeLevelInfoFlags : byte
 {
-	Disabled = 0x01 // Prestige levels with this flag won't be included to calculate max prestigelevel.
+    Disabled = 0x01 // Prestige levels with this flag won't be included to calculate max prestigelevel.
 }

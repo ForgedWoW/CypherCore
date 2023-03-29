@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum EncounterCreditType
 {
-	KillCreature = 0,
-	CastSpell = 1
+    KillCreature = 0,
+    CastSpell = 1
 }

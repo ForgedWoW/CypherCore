@@ -13,20 +13,20 @@ namespace Scripts.Spells.Priest;
 [Script] // 20711 - Spirit of Redemption
 internal class spell_pri_spirit_of_redemption : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0, true, AuraScriptHookType.EffectAbsorb));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0, true, AuraScriptHookType.EffectAbsorb));
+    }
 
-	private double HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
-	{
-		var target = Target;
-		target.CastSpell(target, PriestSpells.SPIRIT_OF_REDEMPTION, new CastSpellExtraArgs(aurEff));
-		target.SetFullHealth();
+    private double HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
+    {
+        var target = Target;
+        target.CastSpell(target, PriestSpells.SPIRIT_OF_REDEMPTION, new CastSpellExtraArgs(aurEff));
+        target.SetFullHealth();
 
-		return dmgInfo.Damage;
-	}
+        return dmgInfo.Damage;
+    }
 }

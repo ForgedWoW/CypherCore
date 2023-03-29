@@ -5,6 +5,6 @@ namespace Scripts.Spells.Druid;
 
 public struct StarfallSpells
 {
-	public const uint STARFALL_DAMAGE = 191037;
-	public const uint STELLAR_EMPOWERMENT = 197637;
+    public const uint STARFALL_DAMAGE = 191037;
+    public const uint STELLAR_EMPOWERMENT = 197637;
 }

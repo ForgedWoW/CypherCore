@@ -12,22 +12,22 @@ namespace Scripts.Spells.Mage;
 [Script] // 217694 - Living Bomb
 internal class spell_mage_living_bomb_periodic : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 2, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 2, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)
-			return;
+    private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)
+            return;
 
-		var caster = Caster;
+        var caster = Caster;
 
-		if (caster)
-			caster.CastSpell(Target, MageSpells.LivingBombExplosion, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount));
-	}
+        if (caster)
+            caster.CastSpell(Target, MageSpells.LivingBombExplosion, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount));
+    }
 }

@@ -5,14 +5,14 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionSetFavoriteItem : ClientPacket
 {
-	public AuctionFavoriteInfo Item;
-	public bool IsNotFavorite = true;
+    public AuctionFavoriteInfo Item;
+    public bool IsNotFavorite = true;
 
-	public AuctionSetFavoriteItem(WorldPacket packet) : base(packet) { }
+    public AuctionSetFavoriteItem(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		IsNotFavorite = _worldPacket.HasBit();
-		Item = new AuctionFavoriteInfo(_worldPacket);
-	}
+    public override void Read()
+    {
+        IsNotFavorite = _worldPacket.HasBit();
+        Item = new AuctionFavoriteInfo(_worldPacket);
+    }
 }

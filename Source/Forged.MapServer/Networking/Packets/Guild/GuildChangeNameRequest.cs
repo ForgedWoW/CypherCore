@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildChangeNameRequest : ClientPacket
 {
-	public string NewName;
-	public GuildChangeNameRequest(WorldPacket packet) : base(packet) { }
+    public string NewName;
+    public GuildChangeNameRequest(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var nameLen = _worldPacket.ReadBits<uint>(7);
-		NewName = _worldPacket.ReadString(nameLen);
-	}
+    public override void Read()
+    {
+        var nameLen = _worldPacket.ReadBits<uint>(7);
+        NewName = _worldPacket.ReadString(nameLen);
+    }
 }

@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum ItemSubClassProjectile
 {
-	Wand = 0, // Obsolete
-	Bolt = 1, // Obsolete
-	Arrow = 2,
-	Bullet = 3,
-	Thrown = 4, // Obsolete
-	Max
+    Wand = 0, // Obsolete
+    Bolt = 1, // Obsolete
+    Arrow = 2,
+    Bullet = 3,
+    Thrown = 4, // Obsolete
+    Max
 }

@@ -8,5 +8,5 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class PointOfInterestLocale
 {
-	public StringArray Name { get; set; } = new((int)Locale.Total);
+    public StringArray Name { get; set; } = new((int)Locale.Total);
 }

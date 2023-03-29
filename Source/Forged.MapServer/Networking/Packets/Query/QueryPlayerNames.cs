@@ -7,16 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class QueryPlayerNames : ClientPacket
 {
-	public ObjectGuid[] Players;
-	public QueryPlayerNames(WorldPacket packet) : base(packet) { }
+    public ObjectGuid[] Players;
+    public QueryPlayerNames(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Players = new ObjectGuid[_worldPacket.ReadInt32()];
+    public override void Read()
+    {
+        Players = new ObjectGuid[_worldPacket.ReadInt32()];
 
-		for (var i = 0; i < Players.Length; ++i)
-			Players[i] = _worldPacket.ReadPackedGuid();
-	}
+        for (var i = 0; i < Players.Length; ++i)
+            Players[i] = _worldPacket.ReadPackedGuid();
+    }
 }
 
 //Structs

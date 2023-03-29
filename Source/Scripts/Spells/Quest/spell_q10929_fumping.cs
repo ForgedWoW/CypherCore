@@ -12,22 +12,22 @@ namespace Scripts.Spells.Quest;
 [Script] // 39238 - Fumping
 internal class spell_q10929_fumping : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void HandleEffectRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)
-			return;
+    private void HandleEffectRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)
+            return;
 
-		var caster = Caster;
+        var caster = Caster;
 
-		if (caster)
-			caster.CastSpell(caster, RandomHelper.URand(QuestSpellIds.SummonSandGnome, QuestSpellIds.SummonBoneSlicer), true);
-	}
+        if (caster)
+            caster.CastSpell(caster, RandomHelper.URand(QuestSpellIds.SummonSandGnome, QuestSpellIds.SummonBoneSlicer), true);
+    }
 }

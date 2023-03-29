@@ -12,18 +12,18 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_poultryizer : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		if (CastItem &&
-			HitUnit)
-			Caster.CastSpell(HitUnit, RandomHelper.randChance(80) ? ItemSpellIds.PoultryizerSuccess : ItemSpellIds.PoultryizerBackfire, new CastSpellExtraArgs(CastItem));
-	}
+    private void HandleDummy(int effIndex)
+    {
+        if (CastItem &&
+            HitUnit)
+            Caster.CastSpell(HitUnit, RandomHelper.randChance(80) ? ItemSpellIds.PoultryizerSuccess : ItemSpellIds.PoultryizerBackfire, new CastSpellExtraArgs(CastItem));
+    }
 }

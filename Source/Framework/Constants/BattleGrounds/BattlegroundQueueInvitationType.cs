@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum BattlegroundQueueInvitationType
 {
-	NoBalance = 0, // no balance: N+M vs N players
-	Balanced = 1,  // teams balanced: N+1 vs N players
-	Even = 2       // teams even: N vs N players
+    NoBalance = 0, // no balance: N+M vs N players
+    Balanced = 1,  // teams balanced: N+1 vs N players
+    Even = 2       // teams even: N vs N players
 }

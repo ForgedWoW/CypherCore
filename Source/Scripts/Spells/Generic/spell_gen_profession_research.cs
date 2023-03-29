@@ -12,52 +12,52 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_profession_research : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		return Caster.IsTypeId(TypeId.Player);
-	}
+    public override bool Load()
+    {
+        return Caster.IsTypeId(TypeId.Player);
+    }
 
-	public SpellCastResult CheckCast()
-	{
-		var player = Caster.AsPlayer;
+    public SpellCastResult CheckCast()
+    {
+        var player = Caster.AsPlayer;
 
-		if (SkillDiscovery.HasDiscoveredAllSpells(SpellInfo.Id, player))
-		{
-			SetCustomCastResultMessage(SpellCustomErrors.NothingToDiscover);
+        if (SkillDiscovery.HasDiscoveredAllSpells(SpellInfo.Id, player))
+        {
+            SetCustomCastResultMessage(SpellCustomErrors.NothingToDiscover);
 
-			return SpellCastResult.CustomError;
-		}
+            return SpellCastResult.CustomError;
+        }
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var caster = Caster.AsPlayer;
-		var spellId = SpellInfo.Id;
+    private void HandleScript(int effIndex)
+    {
+        var caster = Caster.AsPlayer;
+        var spellId = SpellInfo.Id;
 
-		// Learn random explicit discovery recipe (if any)
-		// Players will now learn 3 recipes the very first Time they perform Northrend Inscription Research (3.3.0 patch notes)
-		if (spellId == GenericSpellIds.NorthrendInscriptionResearch &&
-			!SkillDiscovery.HasDiscoveredAnySpell(spellId, caster))
-			for (var i = 0; i < 2; ++i)
-			{
-				var _discoveredSpellId = SkillDiscovery.GetExplicitDiscoverySpell(spellId, caster);
+        // Learn random explicit discovery recipe (if any)
+        // Players will now learn 3 recipes the very first Time they perform Northrend Inscription Research (3.3.0 patch notes)
+        if (spellId == GenericSpellIds.NorthrendInscriptionResearch &&
+            !SkillDiscovery.HasDiscoveredAnySpell(spellId, caster))
+            for (var i = 0; i < 2; ++i)
+            {
+                var _discoveredSpellId = SkillDiscovery.GetExplicitDiscoverySpell(spellId, caster);
 
-				if (_discoveredSpellId != 0)
-					caster.LearnSpell(_discoveredSpellId, false);
-			}
+                if (_discoveredSpellId != 0)
+                    caster.LearnSpell(_discoveredSpellId, false);
+            }
 
-		var discoveredSpellId = SkillDiscovery.GetExplicitDiscoverySpell(spellId, caster);
+        var discoveredSpellId = SkillDiscovery.GetExplicitDiscoverySpell(spellId, caster);
 
-		if (discoveredSpellId != 0)
-			caster.LearnSpell(discoveredSpellId, false);
-	}
+        if (discoveredSpellId != 0)
+            caster.LearnSpell(discoveredSpellId, false);
+    }
 }

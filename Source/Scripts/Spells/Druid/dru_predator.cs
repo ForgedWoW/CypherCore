@@ -11,29 +11,29 @@ namespace Scripts.Spells.Druid;
 [Script]
 public class dru_predator : ScriptObjectAutoAdd, IPlayerOnPVPKill, IPlayerOnCreatureKill
 {
-	public dru_predator() : base("dru_predator") { }
+    public dru_predator() : base("dru_predator") { }
 
-	public void OnCreatureKill(Player killer, Creature killed)
-	{
-		if (killer.Class == PlayerClass.Druid)
-			return;
+    public void OnCreatureKill(Player killer, Creature killed)
+    {
+        if (killer.Class == PlayerClass.Druid)
+            return;
 
-		if (!killer.HasAura(DruidSpells.PREDATOR))
-			return;
+        if (!killer.HasAura(DruidSpells.PREDATOR))
+            return;
 
-		if (killer.SpellHistory.HasCooldown(DruidSpells.TIGER_FURY))
-			killer.SpellHistory.ResetCooldown(DruidSpells.TIGER_FURY);
-	}
+        if (killer.SpellHistory.HasCooldown(DruidSpells.TIGER_FURY))
+            killer.SpellHistory.ResetCooldown(DruidSpells.TIGER_FURY);
+    }
 
-	public void OnPVPKill(Player killer, Player killed)
-	{
-		if (killer.Class == PlayerClass.Druid)
-			return;
+    public void OnPVPKill(Player killer, Player killed)
+    {
+        if (killer.Class == PlayerClass.Druid)
+            return;
 
-		if (!killer.HasAura(DruidSpells.PREDATOR))
-			return;
+        if (!killer.HasAura(DruidSpells.PREDATOR))
+            return;
 
-		if (killer.SpellHistory.HasCooldown(DruidSpells.TIGER_FURY))
-			killer.SpellHistory.ResetCooldown(DruidSpells.TIGER_FURY);
-	}
+        if (killer.SpellHistory.HasCooldown(DruidSpells.TIGER_FURY))
+            killer.SpellHistory.ResetCooldown(DruidSpells.TIGER_FURY);
+    }
 }

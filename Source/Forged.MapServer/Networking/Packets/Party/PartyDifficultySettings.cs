@@ -5,14 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal struct PartyDifficultySettings
 {
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(DungeonDifficultyID);
-		data.WriteUInt32(RaidDifficultyID);
-		data.WriteUInt32(LegacyRaidDifficultyID);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(DungeonDifficultyID);
+        data.WriteUInt32(RaidDifficultyID);
+        data.WriteUInt32(LegacyRaidDifficultyID);
+    }
 
-	public uint DungeonDifficultyID;
-	public uint RaidDifficultyID;
-	public uint LegacyRaidDifficultyID;
+    public uint DungeonDifficultyID;
+    public uint RaidDifficultyID;
+    public uint LegacyRaidDifficultyID;
 }

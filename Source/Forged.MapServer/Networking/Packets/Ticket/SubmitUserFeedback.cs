@@ -5,19 +5,19 @@ namespace Forged.MapServer.Networking.Packets.Ticket;
 
 public class SubmitUserFeedback : ClientPacket
 {
-	public SupportTicketHeader Header;
-	public string Note;
-	public bool IsSuggestion;
+    public SupportTicketHeader Header;
+    public string Note;
+    public bool IsSuggestion;
 
-	public SubmitUserFeedback(WorldPacket packet) : base(packet) { }
+    public SubmitUserFeedback(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Header.Read(_worldPacket);
-		var noteLength = _worldPacket.ReadBits<uint>(24);
-		IsSuggestion = _worldPacket.HasBit();
+    public override void Read()
+    {
+        Header.Read(_worldPacket);
+        var noteLength = _worldPacket.ReadBits<uint>(24);
+        IsSuggestion = _worldPacket.HasBit();
 
-		if (noteLength != 0)
-			Note = _worldPacket.ReadString(noteLength - 1);
-	}
+        if (noteLength != 0)
+            Note = _worldPacket.ReadString(noteLength - 1);
+    }
 }

@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IWeather;
 
 public interface IWeatherOnUpdate : IScriptObject
 {
-	void OnUpdate(Weather.Weather obj, uint diff);
+    void OnUpdate(Weather.Weather obj, uint diff);
 }

@@ -11,14 +11,14 @@ namespace Forged.MapServer.Handlers;
 
 public class TimeHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.ServerTimeOffsetRequest, Status = SessionStatus.Authed, Processing = PacketProcessing.Inplace)]
+    [WorldPacketHandler(ClientOpcodes.ServerTimeOffsetRequest, Status = SessionStatus.Authed, Processing = PacketProcessing.Inplace)]
     private void HandleServerTimeOffsetRequest(ServerTimeOffsetRequest packet)
-	{
-		ServerTimeOffset response = new()
-		{
-			Time = GameTime.GetGameTime()
-		};
+    {
+        ServerTimeOffset response = new()
+        {
+            Time = GameTime.GetGameTime()
+        };
 
-		SendPacket(response);
-	}
+        SendPacket(response);
+    }
 }

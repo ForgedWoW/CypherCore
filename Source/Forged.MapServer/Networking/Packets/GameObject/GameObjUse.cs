@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 public class GameObjUse : ClientPacket
 {
-	public ObjectGuid Guid;
-	public bool IsSoftInteract;
-	public GameObjUse(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Guid;
+    public bool IsSoftInteract;
+    public GameObjUse(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Guid = _worldPacket.ReadPackedGuid();
-		IsSoftInteract = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        Guid = _worldPacket.ReadPackedGuid();
+        IsSoftInteract = _worldPacket.HasBit();
+    }
 }

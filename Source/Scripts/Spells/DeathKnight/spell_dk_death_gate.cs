@@ -11,31 +11,31 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 52751 - Death Gate
 internal class spell_dk_death_gate : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public SpellCastResult CheckCast()
-	{
-		if (Caster.Class != PlayerClass.Deathknight)
-		{
-			SetCustomCastResultMessage(SpellCustomErrors.MustBeDeathKnight);
+    public SpellCastResult CheckCast()
+    {
+        if (Caster.Class != PlayerClass.Deathknight)
+        {
+            SetCustomCastResultMessage(SpellCustomErrors.MustBeDeathKnight);
 
-			return SpellCastResult.CustomError;
-		}
+            return SpellCastResult.CustomError;
+        }
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		var target = HitUnit;
+    private void HandleScript(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        var target = HitUnit;
 
-		if (target)
-			target.CastSpell(target, (uint)EffectValue, false);
-	}
+        if (target)
+            target.CastSpell(target, (uint)EffectValue, false);
+    }
 }

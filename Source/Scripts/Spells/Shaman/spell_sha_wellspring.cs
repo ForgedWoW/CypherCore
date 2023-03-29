@@ -10,14 +10,14 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(197995)]
 public class spell_sha_wellspring : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    public void OnHit()
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		caster.CastSpell(target, ShamanSpells.WELLSPRING_MISSILE, true);
-	}
+        caster.CastSpell(target, ShamanSpells.WELLSPRING_MISSILE, true);
+    }
 }

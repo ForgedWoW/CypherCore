@@ -5,7 +5,7 @@ namespace Forged.MapServer.Weather;
 
 public struct WeatherSeasonChances
 {
-	public uint RainChance;
-	public uint SnowChance;
-	public uint StormChance;
+    public uint RainChance;
+    public uint SnowChance;
+    public uint StormChance;
 }

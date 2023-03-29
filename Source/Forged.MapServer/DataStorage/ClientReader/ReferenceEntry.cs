@@ -5,6 +5,6 @@ namespace Forged.MapServer.DataStorage.ClientReader;
 
 public struct ReferenceEntry
 {
-	public int Id;
-	public int Index;
+    public int Id;
+    public int Index;
 }

@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Social;
 
 public class SendContactList : ClientPacket
 {
-	public SocialFlag Flags;
-	public SendContactList(WorldPacket packet) : base(packet) { }
+    public SocialFlag Flags;
+    public SendContactList(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Flags = (SocialFlag)_worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        Flags = (SocialFlag)_worldPacket.ReadUInt32();
+    }
 }
 
 //Structs

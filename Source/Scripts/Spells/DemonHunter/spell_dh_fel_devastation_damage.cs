@@ -11,25 +11,25 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(212105)]
 public class spell_dh_fel_devastation_damage : SpellScript, IHasSpellEffects
 {
-	private bool firstHit = true;
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    private bool firstHit = true;
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (firstHit)
-		{
-			firstHit = false;
-			caster.CastSpell(caster, DemonHunterSpells.FEL_DEVASTATION_HEAL, true);
-		}
-	}
+        if (firstHit)
+        {
+            firstHit = false;
+            caster.CastSpell(caster, DemonHunterSpells.FEL_DEVASTATION_HEAL, true);
+        }
+    }
 }

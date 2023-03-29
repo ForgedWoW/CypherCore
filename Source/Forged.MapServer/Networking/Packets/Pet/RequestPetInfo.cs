@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class RequestPetInfo : ClientPacket
 {
-	public RequestPetInfo(WorldPacket packet) : base(packet) { }
+    public RequestPetInfo(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

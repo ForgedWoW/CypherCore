@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootRemoved : ServerPacket
 {
-	public ObjectGuid LootObj;
-	public ObjectGuid Owner;
-	public byte LootListID;
-	public LootRemoved() : base(ServerOpcodes.LootRemoved, ConnectionType.Instance) { }
+    public ObjectGuid LootObj;
+    public ObjectGuid Owner;
+    public byte LootListID;
+    public LootRemoved() : base(ServerOpcodes.LootRemoved, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Owner);
-		_worldPacket.WritePackedGuid(LootObj);
-		_worldPacket.WriteUInt8(LootListID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Owner);
+        _worldPacket.WritePackedGuid(LootObj);
+        _worldPacket.WriteUInt8(LootListID);
+    }
 }

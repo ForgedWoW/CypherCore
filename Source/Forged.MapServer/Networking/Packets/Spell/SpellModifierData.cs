@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellModifierData
 {
-	public double ModifierValue;
-	public byte ClassIndex;
+    public double ModifierValue;
+    public byte ClassIndex;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteFloat((float)ModifierValue);
-		data.WriteUInt8(ClassIndex);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteFloat((float)ModifierValue);
+        data.WriteUInt8(ClassIndex);
+    }
 }

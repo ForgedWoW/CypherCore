@@ -20,139 +20,139 @@ public class PetitionManager
         _characterDatabase = characterDatabase;
     }
 
-	public void LoadPetitions()
-	{
-		var oldMsTime = Time.MSTime;
-		_petitionStorage.Clear();
+    public void LoadPetitions()
+    {
+        var oldMsTime = Time.MSTime;
+        _petitionStorage.Clear();
 
-		var result = _characterDatabase.Query("SELECT petitionguid, ownerguid, name FROM petition");
+        var result = _characterDatabase.Query("SELECT petitionguid, ownerguid, name FROM petition");
 
-		if (result.IsEmpty())
-		{
-			Log.Logger.Information("Loaded 0 petitions.");
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 petitions.");
 
-			return;
-		}
+            return;
+        }
 
-		uint count = 0;
+        uint count = 0;
 
-		do
-		{
-			AddPetition(ObjectGuid.Create(HighGuid.Item, result.Read<ulong>(0)), ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(1)), result.Read<string>(2), true);
-			++count;
-		} while (result.NextRow());
+        do
+        {
+            AddPetition(ObjectGuid.Create(HighGuid.Item, result.Read<ulong>(0)), ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(1)), result.Read<string>(2), true);
+            ++count;
+        } while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} petitions in: {Time.GetMSTimeDiffToNow(oldMsTime)} ms.");
-	}
+        Log.Logger.Information($"Loaded {count} petitions in: {Time.GetMSTimeDiffToNow(oldMsTime)} ms.");
+    }
 
-	public void LoadSignatures()
-	{
-		var oldMSTime = Time.MSTime;
+    public void LoadSignatures()
+    {
+        var oldMSTime = Time.MSTime;
 
-		var result = _characterDatabase.Query("SELECT petitionguid, player_account, playerguid FROM petition_sign");
+        var result = _characterDatabase.Query("SELECT petitionguid, player_account, playerguid FROM petition_sign");
 
-		if (result.IsEmpty())
-		{
-			Log.Logger.Information("Loaded 0 Petition signs!");
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 Petition signs!");
 
-			return;
-		}
+            return;
+        }
 
-		uint count = 0;
+        uint count = 0;
 
-		do
-		{
-			var petition = GetPetition(ObjectGuid.Create(HighGuid.Item, result.Read<ulong>(0)));
+        do
+        {
+            var petition = GetPetition(ObjectGuid.Create(HighGuid.Item, result.Read<ulong>(0)));
 
-			if (petition == null)
-				continue;
+            if (petition == null)
+                continue;
 
-			petition.AddSignature(result.Read<uint>(1), ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(2)), true);
-			++count;
-		} while (result.NextRow());
+            petition.AddSignature(result.Read<uint>(1), ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(2)), true);
+            ++count;
+        } while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} Petition signs in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
-	}
+        Log.Logger.Information($"Loaded {count} Petition signs in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+    }
 
-	public void AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, string name, bool isLoading)
-	{
-		Petition p = new()
-		{
-			PetitionGuid = petitionGuid,
-			OwnerGuid = ownerGuid,
-			PetitionName = name
-		};
+    public void AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, string name, bool isLoading)
+    {
+        Petition p = new()
+        {
+            PetitionGuid = petitionGuid,
+            OwnerGuid = ownerGuid,
+            PetitionName = name
+        };
 
-		p.Signatures.Clear();
+        p.Signatures.Clear();
 
-		_petitionStorage[petitionGuid] = p;
+        _petitionStorage[petitionGuid] = p;
 
-		if (isLoading)
-			return;
+        if (isLoading)
+            return;
 
-		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_PETITION);
-		stmt.AddValue(0, ownerGuid.Counter);
-		stmt.AddValue(1, petitionGuid.Counter);
-		stmt.AddValue(2, name);
-		_characterDatabase.Execute(stmt);
-	}
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_PETITION);
+        stmt.AddValue(0, ownerGuid.Counter);
+        stmt.AddValue(1, petitionGuid.Counter);
+        stmt.AddValue(2, name);
+        _characterDatabase.Execute(stmt);
+    }
 
-	public void RemovePetition(ObjectGuid petitionGuid)
-	{
-		_petitionStorage.Remove(petitionGuid);
+    public void RemovePetition(ObjectGuid petitionGuid)
+    {
+        _petitionStorage.Remove(petitionGuid);
 
-		// Delete From DB
-		SQLTransaction trans = new();
+        // Delete From DB
+        SQLTransaction trans = new();
 
-		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_BY_GUID);
-		stmt.AddValue(0, petitionGuid.Counter);
-		trans.Append(stmt);
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_BY_GUID);
+        stmt.AddValue(0, petitionGuid.Counter);
+        trans.Append(stmt);
 
-		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_SIGNATURE_BY_GUID);
-		stmt.AddValue(0, petitionGuid.Counter);
-		trans.Append(stmt);
+        stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_SIGNATURE_BY_GUID);
+        stmt.AddValue(0, petitionGuid.Counter);
+        trans.Append(stmt);
 
-		_characterDatabase.CommitTransaction(trans);
-	}
+        _characterDatabase.CommitTransaction(trans);
+    }
 
-	public Petition GetPetition(ObjectGuid petitionGuid)
-	{
-		return _petitionStorage.LookupByKey(petitionGuid);
-	}
+    public Petition GetPetition(ObjectGuid petitionGuid)
+    {
+        return _petitionStorage.LookupByKey(petitionGuid);
+    }
 
-	public Petition GetPetitionByOwner(ObjectGuid ownerGuid)
-	{
-		return _petitionStorage.FirstOrDefault(p => p.Value.OwnerGuid == ownerGuid).Value;
-	}
+    public Petition GetPetitionByOwner(ObjectGuid ownerGuid)
+    {
+        return _petitionStorage.FirstOrDefault(p => p.Value.OwnerGuid == ownerGuid).Value;
+    }
 
-	public void RemovePetitionsByOwner(ObjectGuid ownerGuid)
-	{
-		foreach (var key in _petitionStorage.Keys.ToList())
-			if (_petitionStorage[key].OwnerGuid == ownerGuid)
-			{
-				_petitionStorage.Remove(key);
+    public void RemovePetitionsByOwner(ObjectGuid ownerGuid)
+    {
+        foreach (var key in _petitionStorage.Keys.ToList())
+            if (_petitionStorage[key].OwnerGuid == ownerGuid)
+            {
+                _petitionStorage.Remove(key);
 
-				break;
-			}
+                break;
+            }
 
-		SQLTransaction trans = new();
-		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_BY_OWNER);
-		stmt.AddValue(0, ownerGuid.Counter);
-		trans.Append(stmt);
+        SQLTransaction trans = new();
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_BY_OWNER);
+        stmt.AddValue(0, ownerGuid.Counter);
+        trans.Append(stmt);
 
-		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_SIGNATURE_BY_OWNER);
-		stmt.AddValue(0, ownerGuid.Counter);
-		trans.Append(stmt);
-		_characterDatabase.CommitTransaction(trans);
-	}
+        stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_SIGNATURE_BY_OWNER);
+        stmt.AddValue(0, ownerGuid.Counter);
+        trans.Append(stmt);
+        _characterDatabase.CommitTransaction(trans);
+    }
 
-	public void RemoveSignaturesBySigner(ObjectGuid signerGuid)
-	{
-		foreach (var petitionPair in _petitionStorage)
-			petitionPair.Value.RemoveSignatureBySigner(signerGuid);
+    public void RemoveSignaturesBySigner(ObjectGuid signerGuid)
+    {
+        foreach (var petitionPair in _petitionStorage)
+            petitionPair.Value.RemoveSignatureBySigner(signerGuid);
 
-		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_PETITION_SIGNATURES);
-		stmt.AddValue(0, signerGuid.Counter);
-		_characterDatabase.Execute(stmt);
-	}
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_PETITION_SIGNATURES);
+        stmt.AddValue(0, signerGuid.Counter);
+        _characterDatabase.Execute(stmt);
+    }
 }

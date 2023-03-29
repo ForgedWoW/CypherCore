@@ -12,23 +12,23 @@ namespace Scripts.Spells.Generic;
 [Script] // 45472 Parachute
 internal class spell_gen_parachute : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
+    }
 
-	private void HandleEffectPeriodic(AuraEffect aurEff)
-	{
-		var target = Target.AsPlayer;
+    private void HandleEffectPeriodic(AuraEffect aurEff)
+    {
+        var target = Target.AsPlayer;
 
-		if (target)
-			if (target.IsFalling)
-			{
-				target.RemoveAura(GenericSpellIds.Parachute);
-				target.CastSpell(target, GenericSpellIds.ParachuteBuff, true);
-			}
-	}
+        if (target)
+            if (target.IsFalling)
+            {
+                target.RemoveAura(GenericSpellIds.Parachute);
+                target.CastSpell(target, GenericSpellIds.ParachuteBuff, true);
+            }
+    }
 }

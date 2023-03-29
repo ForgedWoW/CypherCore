@@ -11,18 +11,18 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_vanquished_clutches : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var spellId = RandomHelper.RAND(ItemSpellIds.Crusher, ItemSpellIds.Constrictor, ItemSpellIds.Corruptor);
-		var caster = Caster;
-		caster.CastSpell(caster, spellId, true);
-	}
+    private void HandleDummy(int effIndex)
+    {
+        var spellId = RandomHelper.RAND(ItemSpellIds.Crusher, ItemSpellIds.Constrictor, ItemSpellIds.Corruptor);
+        var caster = Caster;
+        caster.CastSpell(caster, spellId, true);
+    }
 }

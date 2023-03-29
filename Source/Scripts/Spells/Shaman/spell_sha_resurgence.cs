@@ -13,67 +13,67 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(16196)]
 public class spell_sha_resurgence : AuraScript, IAuraOnProc, IAuraCheckProc
 {
-	// Spell cannot proc if caster doesn't have aura 52127
-	public bool CheckProc(ProcEventInfo procInfo)
-	{
-		var target = procInfo.Actor;
+    // Spell cannot proc if caster doesn't have aura 52127
+    public bool CheckProc(ProcEventInfo procInfo)
+    {
+        var target = procInfo.Actor;
 
-		if (target != null)
-			return target.HasAura(Resurgence.WATER_SHIELD);
+        if (target != null)
+            return target.HasAura(Resurgence.WATER_SHIELD);
 
-		return false;
-	}
+        return false;
+    }
 
 
-	public void OnProc(ProcEventInfo procInfo)
-	{
-		double healAmount = 0.0f;
-		var target = procInfo.Actor;
+    public void OnProc(ProcEventInfo procInfo)
+    {
+        double healAmount = 0.0f;
+        var target = procInfo.Actor;
 
-		if (target != null)
-		{
-			healAmount = target.CalculateSpellDamage(target, procInfo.ProcSpell.SpellInfo.GetEffect(0), 0);
+        if (target != null)
+        {
+            healAmount = target.CalculateSpellDamage(target, procInfo.ProcSpell.SpellInfo.GetEffect(0), 0);
 
-			if (healAmount != 0)
-			{
-				var damageInfo = procInfo.DamageInfo;
+            if (healAmount != 0)
+            {
+                var damageInfo = procInfo.DamageInfo;
 
-				// Change heal amount accoring to the spell that triggered this one */
-				if (damageInfo != null)
-				{
-					switch (damageInfo.SpellInfo.Id)
-					{
-						// 100% on Healing Wave and Greater Healing Wave
-						case Resurgence.HEALING_WAVE:
-						case Resurgence.GREATER_HEALING_WAVE:
-							break;
+                // Change heal amount accoring to the spell that triggered this one */
+                if (damageInfo != null)
+                {
+                    switch (damageInfo.SpellInfo.Id)
+                    {
+                        // 100% on Healing Wave and Greater Healing Wave
+                        case Resurgence.HEALING_WAVE:
+                        case Resurgence.GREATER_HEALING_WAVE:
+                            break;
 
-						// 60% on Riptide, Healing Surge and Unleash Life
-						case Resurgence.RIPTIDE:
-						case Resurgence.HEALING_SURGE:
-						case Resurgence.UNLEASH_LIFE:
-							healAmount *= 0.6f;
+                        // 60% on Riptide, Healing Surge and Unleash Life
+                        case Resurgence.RIPTIDE:
+                        case Resurgence.HEALING_SURGE:
+                        case Resurgence.UNLEASH_LIFE:
+                            healAmount *= 0.6f;
 
-							break;
+                            break;
 
-						// 33% on Chain Heal
-						case Resurgence.CHAIN_HEAL:
-							healAmount *= 0.33f;
+                        // 33% on Chain Heal
+                        case Resurgence.CHAIN_HEAL:
+                            healAmount *= 0.33f;
 
-							break;
+                            break;
 
-						/*
-						* If we have something else here, we should assert, because it would not be
-						* logic (if spell_proc_event entry in DB is correct). But, since I cannot be
-						* sure that proc system is 100% correct, just return for now.
-						*/
-						default:
-							return;
-					} //switch damageInfo->GetSpellInfo()->Id
+                        /*
+                        * If we have something else here, we should assert, because it would not be
+                        * logic (if spell_proc_event entry in DB is correct). But, since I cannot be
+                        * sure that proc system is 100% correct, just return for now.
+                        */
+                        default:
+                            return;
+                    } //switch damageInfo->GetSpellInfo()->Id
 
-					target.CastSpell(target, Resurgence.RESURGENCE_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)healAmount));
-				} // if procInfo.GetDamageInfo()
-			}     // if target->CalculateSpellDamage()
-		}         // if procInfo.GetActor()
-	}             // void HandleDummyProc
+                    target.CastSpell(target, Resurgence.RESURGENCE_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)healAmount));
+                } // if procInfo.GetDamageInfo()
+            }     // if target->CalculateSpellDamage()
+        }         // if procInfo.GetActor()
+    }             // void HandleDummyProc
 }

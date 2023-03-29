@@ -10,19 +10,19 @@ namespace Scripts.Spells.DeathKnight;
 [Script]
 public class at_dk_death_and_decay : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	public void OnUnitEnter(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitEnter(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster != null)
-			if (unit.GUID == caster.GUID)
-				if (!caster.HasAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE))
-					caster.CastSpell(unit, DeathKnightSpells.DEATH_AND_DECAY_CLEAVE, true);
-	}
+        if (caster != null)
+            if (unit.GUID == caster.GUID)
+                if (!caster.HasAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE))
+                    caster.CastSpell(unit, DeathKnightSpells.DEATH_AND_DECAY_CLEAVE, true);
+    }
 
-	public void OnUnitExit(Unit unit)
-	{
-		if (At.GetCaster().HasAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE))
-			unit.RemoveAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE, Game.Spells.AuraRemoveMode.Cancel);
-	}
+    public void OnUnitExit(Unit unit)
+    {
+        if (At.GetCaster().HasAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE))
+            unit.RemoveAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE, Game.Spells.AuraRemoveMode.Cancel);
+    }
 }

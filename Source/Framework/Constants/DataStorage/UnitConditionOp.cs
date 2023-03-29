@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum UnitConditionOp
 {
-	EqualTo = 1,
-	NotEqualTo = 2,
-	LessThan = 3,
-	LessThanOrEqualTo = 4,
-	GreaterThan = 5,
-	GreaterThanOrEqualTo = 6
+    EqualTo = 1,
+    NotEqualTo = 2,
+    LessThan = 3,
+    LessThanOrEqualTo = 4,
+    GreaterThan = 5,
+    GreaterThanOrEqualTo = 6
 }

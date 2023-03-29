@@ -13,49 +13,49 @@ namespace Scripts.Spells.Mage;
 [SpellScript(44614)]
 public class spell_mage_flurry : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
-		var isImproved = false;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
+        var isImproved = false;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (caster.HasAura(MageSpells.BRAIN_FREEZE_AURA))
-		{
-			caster.RemoveAura(MageSpells.BRAIN_FREEZE_AURA);
+        if (caster.HasAura(MageSpells.BRAIN_FREEZE_AURA))
+        {
+            caster.RemoveAura(MageSpells.BRAIN_FREEZE_AURA);
 
-			if (caster.HasSpell(MageSpells.BRAIN_FREEZE_IMPROVED))
-				isImproved = true;
-		}
+            if (caster.HasSpell(MageSpells.BRAIN_FREEZE_IMPROVED))
+                isImproved = true;
+        }
 
-		var targetGuid = target.GUID;
+        var targetGuid = target.GUID;
 
-		if (targetGuid != ObjectGuid.Empty)
-			for (byte i = 1; i < 3; ++i) // basepoint value is 3 all the time, so, set it 3 because sometimes it won't read
-				caster.Events.AddEventAtOffset(() =>
-												{
-													if (caster != null)
-													{
-														var target = ObjectAccessor.Instance.GetUnit(caster, targetGuid);
+        if (targetGuid != ObjectGuid.Empty)
+            for (byte i = 1; i < 3; ++i) // basepoint value is 3 all the time, so, set it 3 because sometimes it won't read
+                caster.Events.AddEventAtOffset(() =>
+                                               {
+                                                   if (caster != null)
+                                                   {
+                                                       var target = ObjectAccessor.Instance.GetUnit(caster, targetGuid);
 
-														if (target != null)
-														{
-															caster.CastSpell(target, MageSpells.FLURRY_VISUAL, false);
+                                                       if (target != null)
+                                                       {
+                                                           caster.CastSpell(target, MageSpells.FLURRY_VISUAL, false);
 
-															if (isImproved)
-																caster.CastSpell(target, MageSpells.FLURRY_CHILL_PROC, false);
-														}
-													}
-												},
-												TimeSpan.FromMilliseconds(i * 250));
-	}
+                                                           if (isImproved)
+                                                               caster.CastSpell(target, MageSpells.FLURRY_CHILL_PROC, false);
+                                                       }
+                                                   }
+                                               },
+                                               TimeSpan.FromMilliseconds(i * 250));
+    }
 }

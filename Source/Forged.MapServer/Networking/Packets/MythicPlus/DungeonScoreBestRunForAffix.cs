@@ -5,14 +5,14 @@ namespace Forged.MapServer.Networking.Packets.MythicPlus;
 
 public class DungeonScoreBestRunForAffix
 {
-	public int KeystoneAffixID;
-	public MythicPlusRun Run = new();
-	public float Score;
+    public int KeystoneAffixID;
+    public MythicPlusRun Run = new();
+    public float Score;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(KeystoneAffixID);
-		data.WriteFloat(Score);
-		Run.Write(data);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(KeystoneAffixID);
+        data.WriteFloat(Score);
+        Run.Write(data);
+    }
 }

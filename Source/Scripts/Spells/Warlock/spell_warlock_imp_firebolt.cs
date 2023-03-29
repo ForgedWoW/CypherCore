@@ -12,27 +12,27 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(3110)]
 public class spell_warlock_imp_firebolt : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || !caster.OwnerUnit || target == null)
-			return;
+        if (caster == null || !caster.OwnerUnit || target == null)
+            return;
 
-		var owner = caster.OwnerUnit;
-		var damage = HitDamage;
+        var owner = caster.OwnerUnit;
+        var damage = HitDamage;
 
-		if (target.HasAura(WarlockSpells.IMMOLATE_DOT, owner.GUID))
-			MathFunctions.AddPct(ref damage, owner.GetAuraEffectAmount(WarlockSpells.FIREBOLT_BONUS, 0));
+        if (target.HasAura(WarlockSpells.IMMOLATE_DOT, owner.GUID))
+            MathFunctions.AddPct(ref damage, owner.GetAuraEffectAmount(WarlockSpells.FIREBOLT_BONUS, 0));
 
-		HitDamage = damage;
-	}
+        HitDamage = damage;
+    }
 }

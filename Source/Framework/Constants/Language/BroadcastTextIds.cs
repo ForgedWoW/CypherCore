@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum BroadcastTextIds
 {
-	AchivementEarned = 29245,
-	CallForHelp = 2541,
-	FleeForAssist = 1150
+    AchivementEarned = 29245,
+    CallForHelp = 2541,
+    FleeForAssist = 1150
 }

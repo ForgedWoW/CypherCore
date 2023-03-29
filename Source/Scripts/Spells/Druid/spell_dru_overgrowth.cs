@@ -11,33 +11,33 @@ namespace Scripts.Spells.Druid;
 [SpellScript(203651)]
 public class spell_dru_overgrowth : SpellScript, IHasSpellEffects
 {
-	private const int REJUVENATION = 774;
-	private const int WILD_GROWTH = 48438;
-	private const int LIFE_BLOOM = 33763;
-	private const int REGROWTH = 8936;
+    private const int REJUVENATION = 774;
+    private const int WILD_GROWTH = 48438;
+    private const int LIFE_BLOOM = 33763;
+    private const int REGROWTH = 8936;
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var target = HitUnit;
+        if (caster != null)
+        {
+            var target = HitUnit;
 
-			if (target != null)
-			{
-				caster.AddAura(REJUVENATION, target);
-				caster.AddAura(WILD_GROWTH, target);
-				caster.AddAura(LIFE_BLOOM, target);
-				caster.AddAura(REGROWTH, target);
-			}
-		}
-	}
+            if (target != null)
+            {
+                caster.AddAura(REJUVENATION, target);
+                caster.AddAura(WILD_GROWTH, target);
+                caster.AddAura(LIFE_BLOOM, target);
+                caster.AddAura(REGROWTH, target);
+            }
+        }
+    }
 }

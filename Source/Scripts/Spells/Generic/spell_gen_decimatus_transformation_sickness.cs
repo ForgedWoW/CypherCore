@@ -11,18 +11,18 @@ namespace Scripts.Spells.Generic;
 [Script] // 169869 - Transformation Sickness
 internal class spell_gen_decimatus_transformation_sickness : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleScript(int effIndex)
+    {
+        var target = HitUnit;
 
-		if (target)
-			target.SetHealth(target.CountPctFromMaxHealth(25));
-	}
+        if (target)
+            target.SetHealth(target.CountPctFromMaxHealth(25));
+    }
 }

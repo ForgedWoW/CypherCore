@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class AcceptGuildInvite : ClientPacket
 {
-	public AcceptGuildInvite(WorldPacket packet) : base(packet) { }
+    public AcceptGuildInvite(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

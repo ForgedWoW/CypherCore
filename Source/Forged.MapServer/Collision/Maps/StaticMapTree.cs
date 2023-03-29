@@ -23,17 +23,17 @@ public class StaticMapTree
     private ModelInstance[] _treeValues;
     private uint _nTreeValues;
 
-	public StaticMapTree(uint mapId)
+    public StaticMapTree(uint mapId)
     {
         _mapId = mapId;
     }
 
-	public LoadResult InitMap(string fname)
-	{
-		Log.Logger.Debug("StaticMapTree.InitMap() : initializing StaticMapTree '{0}'", fname);
+    public LoadResult InitMap(string fname)
+    {
+        Log.Logger.Debug("StaticMapTree.InitMap() : initializing StaticMapTree '{0}'", fname);
 
-		if (!File.Exists(fname))
-			return LoadResult.FileNotFound;
+        if (!File.Exists(fname))
+            return LoadResult.FileNotFound;
 
         using BinaryReader reader = new(new FileStream(fname, FileMode.Open, FileAccess.Read));
 
@@ -65,123 +65,123 @@ public class StaticMapTree
         }
 
         return LoadResult.Success;
-	}
+    }
 
-	public void UnloadMap(VMapManager vm)
-	{
-		lock (_loadedSpawns)
-		{
-			foreach (var id in _loadedSpawns)
-			{
-				for (uint refCount = 0; refCount < id.Key; ++refCount)
-					vm.ReleaseModelInstance(_treeValues[id.Key].Name);
+    public void UnloadMap(VMapManager vm)
+    {
+        lock (_loadedSpawns)
+        {
+            foreach (var id in _loadedSpawns)
+            {
+                for (uint refCount = 0; refCount < id.Key; ++refCount)
+                    vm.ReleaseModelInstance(_treeValues[id.Key].Name);
 
-				_treeValues[id.Key].SetUnloaded();
-			}
+                _treeValues[id.Key].SetUnloaded();
+            }
 
-			_loadedSpawns.Clear();
-			_loadedTiles.Clear();
-		}
-	}
+            _loadedSpawns.Clear();
+            _loadedTiles.Clear();
+        }
+    }
 
-	public LoadResult LoadMapTile(int tileX, int tileY, VMapManager vm)
-	{
-		lock (_loadedSpawns)
-		{
-			if (_treeValues == null)
-			{
-				Log.Logger.Error("StaticMapTree.LoadMapTile() : tree has not been initialized [{0}, {1}]", tileX, tileY);
+    public LoadResult LoadMapTile(int tileX, int tileY, VMapManager vm)
+    {
+        lock (_loadedSpawns)
+        {
+            if (_treeValues == null)
+            {
+                Log.Logger.Error("StaticMapTree.LoadMapTile() : tree has not been initialized [{0}, {1}]", tileX, tileY);
 
-				return LoadResult.ReadFromFileFailed;
-			}
+                return LoadResult.ReadFromFileFailed;
+            }
 
-			var result = LoadResult.FileNotFound;
+            var result = LoadResult.FileNotFound;
 
-			var fileResult = OpenMapTileFile(vm.VMapPath, _mapId, tileX, tileY, vm);
+            var fileResult = OpenMapTileFile(vm.VMapPath, _mapId, tileX, tileY, vm);
 
-			if (fileResult.File != null)
-			{
-				result = LoadResult.Success;
-				using BinaryReader reader = new(fileResult.File);
+            if (fileResult.File != null)
+            {
+                result = LoadResult.Success;
+                using BinaryReader reader = new(fileResult.File);
 
-				if (reader.ReadStringFromChars(8) != MapConst.VMapMagic)
-					result = LoadResult.VersionMismatch;
+                if (reader.ReadStringFromChars(8) != MapConst.VMapMagic)
+                    result = LoadResult.VersionMismatch;
 
-				if (result == LoadResult.Success)
-				{
-					var numSpawns = reader.ReadUInt32();
+                if (result == LoadResult.Success)
+                {
+                    var numSpawns = reader.ReadUInt32();
 
-					for (uint i = 0; i < numSpawns && result == LoadResult.Success; ++i)
-						// read model spawns
-						if (ModelSpawn.ReadFromFile(reader, out var spawn))
-						{
-							// acquire model instance
-							var model = vm.AcquireModelInstance(spawn.Name, spawn.Flags);
+                    for (uint i = 0; i < numSpawns && result == LoadResult.Success; ++i)
+                        // read model spawns
+                        if (ModelSpawn.ReadFromFile(reader, out var spawn))
+                        {
+                            // acquire model instance
+                            var model = vm.AcquireModelInstance(spawn.Name, spawn.Flags);
 
-							if (model == null)
-								Log.Logger.Error("StaticMapTree.LoadMapTile() : could not acquire WorldModel [{0}, {1}]", tileX, tileY);
+                            if (model == null)
+                                Log.Logger.Error("StaticMapTree.LoadMapTile() : could not acquire WorldModel [{0}, {1}]", tileX, tileY);
 
-							// update tree
-							if (_spawnIndices.TryGetValue(spawn.Id, out var referencedVal))
-							{
-								if (!_loadedSpawns.ContainsKey(referencedVal))
-								{
-									if (referencedVal >= _nTreeValues)
-									{
-										Log.Logger.Error("StaticMapTree.LoadMapTile() : invalid tree element ({0}/{1}) referenced in tile {2}", referencedVal, _nTreeValues, fileResult.Name);
+                            // update tree
+                            if (_spawnIndices.TryGetValue(spawn.Id, out var referencedVal))
+                            {
+                                if (!_loadedSpawns.ContainsKey(referencedVal))
+                                {
+                                    if (referencedVal >= _nTreeValues)
+                                    {
+                                        Log.Logger.Error("StaticMapTree.LoadMapTile() : invalid tree element ({0}/{1}) referenced in tile {2}", referencedVal, _nTreeValues, fileResult.Name);
 
-										continue;
-									}
+                                        continue;
+                                    }
 
-									_treeValues[referencedVal] = new ModelInstance(spawn, model);
-									_loadedSpawns.TryAdd(referencedVal, 1);
-								}
-								else
-								{
-									++_loadedSpawns[referencedVal];
-								}
-							}
-							else if (_mapId == fileResult.UsedMapId)
-							{
-								// unknown parent spawn might appear in because it overlaps multiple tiles
-								// in case the original tile is swapped but its neighbour is now (adding this spawn)
-								// we want to not mark it as loading error and just skip that model
-								Log.Logger.Error($"StaticMapTree.LoadMapTile() : invalid tree element (spawn {spawn.Id}) referenced in tile fileResult.Name{fileResult.Name} by map {_mapId}");
-								result = LoadResult.ReadFromFileFailed;
-							}
-						}
-						else
-						{
-							Log.Logger.Error($"StaticMapTree.LoadMapTile() : cannot read model from file (spawn index {i}) referenced in tile {fileResult.Name} by map {_mapId}");
-							result = LoadResult.ReadFromFileFailed;
-						}
-				}
+                                    _treeValues[referencedVal] = new ModelInstance(spawn, model);
+                                    _loadedSpawns.TryAdd(referencedVal, 1);
+                                }
+                                else
+                                {
+                                    ++_loadedSpawns[referencedVal];
+                                }
+                            }
+                            else if (_mapId == fileResult.UsedMapId)
+                            {
+                                // unknown parent spawn might appear in because it overlaps multiple tiles
+                                // in case the original tile is swapped but its neighbour is now (adding this spawn)
+                                // we want to not mark it as loading error and just skip that model
+                                Log.Logger.Error($"StaticMapTree.LoadMapTile() : invalid tree element (spawn {spawn.Id}) referenced in tile fileResult.Name{fileResult.Name} by map {_mapId}");
+                                result = LoadResult.ReadFromFileFailed;
+                            }
+                        }
+                        else
+                        {
+                            Log.Logger.Error($"StaticMapTree.LoadMapTile() : cannot read model from file (spawn index {i}) referenced in tile {fileResult.Name} by map {_mapId}");
+                            result = LoadResult.ReadFromFileFailed;
+                        }
+                }
 
-				_loadedTiles[PackTileID(tileX, tileY)] = true;
-			}
-			else
-			{
-				_loadedTiles[PackTileID(tileX, tileY)] = false;
-			}
+                _loadedTiles[PackTileID(tileX, tileY)] = true;
+            }
+            else
+            {
+                _loadedTiles[PackTileID(tileX, tileY)] = false;
+            }
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 
-	public void UnloadMapTile(int tileX, int tileY, VMapManager vm)
-	{
-		lock (_loadedTiles)
-		{
-			var tileID = PackTileID(tileX, tileY);
+    public void UnloadMapTile(int tileX, int tileY, VMapManager vm)
+    {
+        lock (_loadedTiles)
+        {
+            var tileID = PackTileID(tileX, tileY);
 
-			if (!_loadedTiles.ContainsKey(tileID))
-				return;
+            if (!_loadedTiles.ContainsKey(tileID))
+                return;
 
-			if (_loadedTiles[tileID]) // file associated with tile
-			{
-				var fileResult = OpenMapTileFile(vm.VMapPath, _mapId, tileX, tileY, vm);
+            if (_loadedTiles[tileID]) // file associated with tile
+            {
+                var fileResult = OpenMapTileFile(vm.VMapPath, _mapId, tileX, tileY, vm);
 
-				if (fileResult.File != null)
+                if (fileResult.File != null)
                 {
                     using BinaryReader reader = new(fileResult.File);
                     var result = reader.ReadStringFromChars(8) == MapConst.VMapMagic;
@@ -216,208 +216,210 @@ public class StaticMapTree
                 }
             }
 
-			_loadedTiles.TryRemove(tileID, out _);
-		}
-	}
+            _loadedTiles.TryRemove(tileID, out _);
+        }
+    }
 
-	public static LoadResult CanLoadMap(string vmapPath, uint mapID, int tileX, int tileY, VMapManager vm)
-	{
-		var fullname = vmapPath + VMapManager.GetMapFileName(mapID);
+    public static LoadResult CanLoadMap(string vmapPath, uint mapID, int tileX, int tileY, VMapManager vm)
+    {
+        var fullname = vmapPath + VMapManager.GetMapFileName(mapID);
 
-		if (!File.Exists(fullname))
-			return LoadResult.FileNotFound;
+        if (!File.Exists(fullname))
+            return LoadResult.FileNotFound;
 
-		using (BinaryReader reader = new(new FileStream(fullname, FileMode.Open, FileAccess.Read)))
-		{
-			if (reader.ReadStringFromChars(8) != MapConst.VMapMagic)
-				return LoadResult.VersionMismatch;
-		}
+        using (BinaryReader reader = new(new FileStream(fullname, FileMode.Open, FileAccess.Read)))
+        {
+            if (reader.ReadStringFromChars(8) != MapConst.VMapMagic)
+                return LoadResult.VersionMismatch;
+        }
 
-		var stream = OpenMapTileFile(vmapPath, mapID, tileX, tileY, vm).File;
+        var stream = OpenMapTileFile(vmapPath, mapID, tileX, tileY, vm).File;
 
-		if (stream == null)
-			return LoadResult.FileNotFound;
+        if (stream == null)
+            return LoadResult.FileNotFound;
 
-		using (BinaryReader reader = new(stream))
-		{
-			if (reader.ReadStringFromChars(8) != MapConst.VMapMagic)
-				return LoadResult.VersionMismatch;
-		}
+        using (BinaryReader reader = new(stream))
+        {
+            if (reader.ReadStringFromChars(8) != MapConst.VMapMagic)
+                return LoadResult.VersionMismatch;
+        }
 
-		return LoadResult.Success;
-	}
+        return LoadResult.Success;
+    }
 
-	public static string GetTileFileName(uint mapID, int tileX, int tileY)
-	{
-		return $"{mapID:D4}_{tileY:D2}_{tileX:D2}.vmtile";
-	}
+    public static string GetTileFileName(uint mapID, int tileX, int tileY)
+    {
+        return $"{mapID:D4}_{tileY:D2}_{tileX:D2}.vmtile";
+    }
 
-	public bool GetAreaInfo(ref Vector3 pos, out uint flags, out int adtId, out int rootId, out int groupId)
-	{
-		flags = 0;
-		adtId = 0;
-		rootId = 0;
-		groupId = 0;
+    public bool GetAreaInfo(ref Vector3 pos, out uint flags, out int adtId, out int rootId, out int groupId)
+    {
+        flags = 0;
+        adtId = 0;
+        rootId = 0;
+        groupId = 0;
 
-		AreaInfoCallback intersectionCallBack = new(_treeValues);
-		_tree.IntersectPoint(pos, intersectionCallBack);
+        AreaInfoCallback intersectionCallBack = new(_treeValues);
+        _tree.IntersectPoint(pos, intersectionCallBack);
 
-		if (intersectionCallBack.AInfo.Result)
-		{
-			flags = intersectionCallBack.AInfo.Flags;
-			adtId = intersectionCallBack.AInfo.AdtId;
-			rootId = intersectionCallBack.AInfo.RootId;
-			groupId = intersectionCallBack.AInfo.GroupId;
-			pos.Z = intersectionCallBack.AInfo.GroundZ;
+        if (intersectionCallBack.AInfo.Result)
+        {
+            flags = intersectionCallBack.AInfo.Flags;
+            adtId = intersectionCallBack.AInfo.AdtId;
+            rootId = intersectionCallBack.AInfo.RootId;
+            groupId = intersectionCallBack.AInfo.GroupId;
+            pos.Z = intersectionCallBack.AInfo.GroundZ;
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public bool GetLocationInfo(Vector3 pos, LocationInfo info)
-	{
-		LocationInfoCallback intersectionCallBack = new(_treeValues, info);
-		_tree.IntersectPoint(pos, intersectionCallBack);
+    public bool GetLocationInfo(Vector3 pos, LocationInfo info)
+    {
+        LocationInfoCallback intersectionCallBack = new(_treeValues, info);
+        _tree.IntersectPoint(pos, intersectionCallBack);
 
-		return intersectionCallBack.Result;
-	}
+        return intersectionCallBack.Result;
+    }
 
-	public float GetHeight(Vector3 pPos, float maxSearchDist)
-	{
-		var height = float.PositiveInfinity;
-		Vector3 dir = new(0, 0, -1);
-		Ray ray = new(pPos, dir); // direction with length of 1
-		var maxDist = maxSearchDist;
+    public float GetHeight(Vector3 pPos, float maxSearchDist)
+    {
+        var height = float.PositiveInfinity;
+        Vector3 dir = new(0, 0, -1);
+        Ray ray = new(pPos, dir); // direction with length of 1
+        var maxDist = maxSearchDist;
 
-		if (GetIntersectionTime(ray, ref maxDist, false, ModelIgnoreFlags.Nothing))
-			height = pPos.Z - maxDist;
+        if (GetIntersectionTime(ray, ref maxDist, false, ModelIgnoreFlags.Nothing))
+            height = pPos.Z - maxDist;
 
-		return height;
-	}
+        return height;
+    }
 
-	public bool GetObjectHitPos(Vector3 pPos1, Vector3 pPos2, out Vector3 pResultHitPos, float pModifyDist)
-	{
-		bool result;
-		var maxDist = (pPos2 - pPos1).Length();
+    public bool GetObjectHitPos(Vector3 pPos1, Vector3 pPos2, out Vector3 pResultHitPos, float pModifyDist)
+    {
+        bool result;
+        var maxDist = (pPos2 - pPos1).Length();
 
-		// prevent NaN values which can cause BIH intersection to enter infinite loop
-		if (maxDist < 1e-10f)
-		{
-			pResultHitPos = pPos2;
+        // prevent NaN values which can cause BIH intersection to enter infinite loop
+        if (maxDist < 1e-10f)
+        {
+            pResultHitPos = pPos2;
 
-			return false;
-		}
+            return false;
+        }
 
-		var dir = (pPos2 - pPos1) / maxDist; // direction with length of 1
-		Ray ray = new(pPos1, dir);
-		var dist = maxDist;
+        var dir = (pPos2 - pPos1) / maxDist; // direction with length of 1
+        Ray ray = new(pPos1, dir);
+        var dist = maxDist;
 
-		if (GetIntersectionTime(ray, ref dist, false, ModelIgnoreFlags.Nothing))
-		{
-			pResultHitPos = pPos1 + dir * dist;
+        if (GetIntersectionTime(ray, ref dist, false, ModelIgnoreFlags.Nothing))
+        {
+            pResultHitPos = pPos1 + dir * dist;
 
-			if (pModifyDist < 0)
-			{
-				if ((pResultHitPos - pPos1).Length() > -pModifyDist)
-					pResultHitPos += dir * pModifyDist;
-				else
-					pResultHitPos = pPos1;
-			}
-			else
-			{
-				pResultHitPos += dir * pModifyDist;
-			}
+            if (pModifyDist < 0)
+            {
+                if ((pResultHitPos - pPos1).Length() > -pModifyDist)
+                    pResultHitPos += dir * pModifyDist;
+                else
+                    pResultHitPos = pPos1;
+            }
+            else
+            {
+                pResultHitPos += dir * pModifyDist;
+            }
 
-			result = true;
-		}
-		else
-		{
-			pResultHitPos = pPos2;
-			result = false;
-		}
+            result = true;
+        }
+        else
+        {
+            pResultHitPos = pPos2;
+            result = false;
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	public bool IsInLineOfSight(Vector3 pos1, Vector3 pos2, ModelIgnoreFlags ignoreFlags)
-	{
-		var maxDist = (pos2 - pos1).Length();
+    public bool IsInLineOfSight(Vector3 pos1, Vector3 pos2, ModelIgnoreFlags ignoreFlags)
+    {
+        var maxDist = (pos2 - pos1).Length();
 
-		// return false if distance is over max float, in case of cheater teleporting to the end of the universe
-		if (maxDist is float.MaxValue or float.PositiveInfinity)
-			return false;
+        // return false if distance is over max float, in case of cheater teleporting to the end of the universe
+        if (maxDist is float.MaxValue or float.PositiveInfinity)
+            return false;
 
-		// prevent NaN values which can cause BIH intersection to enter infinite loop
-		if (maxDist < 1e-10f)
-			return true;
+        // prevent NaN values which can cause BIH intersection to enter infinite loop
+        if (maxDist < 1e-10f)
+            return true;
 
-		// direction with length of 1
-		Ray ray = new(pos1, (pos2 - pos1) / maxDist);
+        // direction with length of 1
+        Ray ray = new(pos1, (pos2 - pos1) / maxDist);
 
-		if (GetIntersectionTime(ray, ref maxDist, true, ignoreFlags))
-			return false;
+        if (GetIntersectionTime(ray, ref maxDist, true, ignoreFlags))
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 
-	public int NumLoadedTiles()
+    public int NumLoadedTiles()
     {
         lock (_loadedTiles)
+        {
             return _loadedTiles.Count;
+        }
     }
 
     private static uint PackTileID(int tileX, int tileY)
-	{
-		return (uint)(tileX << 16 | tileY);
-	}
+    {
+        return (uint)(tileX << 16 | tileY);
+    }
 
 
     private static TileFileOpenResult OpenMapTileFile(string vmapPath, uint mapID, int tileX, int tileY, VMapManager vm)
-	{
-		TileFileOpenResult result = new()
-		{
-			Name = vmapPath + GetTileFileName(mapID, tileX, tileY)
-		};
+    {
+        TileFileOpenResult result = new()
+        {
+            Name = vmapPath + GetTileFileName(mapID, tileX, tileY)
+        };
 
-		if (File.Exists(result.Name))
-		{
-			result.UsedMapId = mapID;
-			result.File = new FileStream(result.Name, FileMode.Open, FileAccess.Read);
+        if (File.Exists(result.Name))
+        {
+            result.UsedMapId = mapID;
+            result.File = new FileStream(result.Name, FileMode.Open, FileAccess.Read);
 
-			return result;
-		}
+            return result;
+        }
 
-		var parentMapId = vm.GetParentMapId(mapID);
+        var parentMapId = vm.GetParentMapId(mapID);
 
-		while (parentMapId != -1)
-		{
-			result.Name = vmapPath + GetTileFileName((uint)parentMapId, tileX, tileY);
+        while (parentMapId != -1)
+        {
+            result.Name = vmapPath + GetTileFileName((uint)parentMapId, tileX, tileY);
 
-			if (File.Exists(result.Name))
-			{
-				result.File = new FileStream(result.Name, FileMode.Open, FileAccess.Read);
-				result.UsedMapId = (uint)parentMapId;
+            if (File.Exists(result.Name))
+            {
+                result.File = new FileStream(result.Name, FileMode.Open, FileAccess.Read);
+                result.UsedMapId = (uint)parentMapId;
 
-				return result;
-			}
+                return result;
+            }
 
-			parentMapId = vm.GetParentMapId((uint)parentMapId);
-		}
+            parentMapId = vm.GetParentMapId((uint)parentMapId);
+        }
 
-		return result;
-	}
+        return result;
+    }
 
     private bool GetIntersectionTime(Ray pRay, ref float pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags)
-	{
-		var distance = pMaxDist;
-		MapRayCallback intersectionCallBack = new(_treeValues, ignoreFlags);
-		_tree.IntersectRay(pRay, intersectionCallBack, ref distance, pStopAtFirstHit);
+    {
+        var distance = pMaxDist;
+        MapRayCallback intersectionCallBack = new(_treeValues, ignoreFlags);
+        _tree.IntersectRay(pRay, intersectionCallBack, ref distance, pStopAtFirstHit);
 
-		if (intersectionCallBack.DidHit())
-			pMaxDist = distance;
+        if (intersectionCallBack.DidHit())
+            pMaxDist = distance;
 
-		return intersectionCallBack.DidHit();
-	}
+        return intersectionCallBack.DidHit();
+    }
 }

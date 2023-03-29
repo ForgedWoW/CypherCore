@@ -7,6 +7,6 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 public struct SpellLogEffectExtraAttacksParams
 {
-	public ObjectGuid Victim;
-	public uint NumAttacks;
+    public ObjectGuid Victim;
+    public uint NumAttacks;
 }

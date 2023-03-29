@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 internal enum EquipableSpellSlots
 {
-	OffensiveSlot1 = 211,
-	OffensiveSlot2 = 212,
-	OffensiveSlot3 = 213,
-	OffensiveSlot4 = 214,
-	UtilitySlot1 = 215,
-	DefensiveSlot1 = 216,
-	MobilitySlot1 = 217
+    OffensiveSlot1 = 211,
+    OffensiveSlot2 = 212,
+    OffensiveSlot3 = 213,
+    OffensiveSlot4 = 214,
+    UtilitySlot1 = 215,
+    DefensiveSlot1 = 216,
+    MobilitySlot1 = 217
 }

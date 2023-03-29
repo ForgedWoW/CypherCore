@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class SetPetSpecialization : ServerPacket
 {
-	public ushort SpecID;
-	public SetPetSpecialization() : base(ServerOpcodes.SetPetSpecialization) { }
+    public ushort SpecID;
+    public SetPetSpecialization() : base(ServerOpcodes.SetPetSpecialization) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt16(SpecID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt16(SpecID);
+    }
 }

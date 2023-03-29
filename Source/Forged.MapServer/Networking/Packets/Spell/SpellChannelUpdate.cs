@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellChannelUpdate : ServerPacket
 {
-	public ObjectGuid CasterGUID;
-	public int TimeRemaining;
-	public SpellChannelUpdate() : base(ServerOpcodes.SpellChannelUpdate, ConnectionType.Instance) { }
+    public ObjectGuid CasterGUID;
+    public int TimeRemaining;
+    public SpellChannelUpdate() : base(ServerOpcodes.SpellChannelUpdate, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(CasterGUID);
-		_worldPacket.WriteInt32(TimeRemaining);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(CasterGUID);
+        _worldPacket.WriteInt32(TimeRemaining);
+    }
 }

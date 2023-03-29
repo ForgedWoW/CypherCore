@@ -7,18 +7,18 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class QueryPetitionResponse : ServerPacket
 {
-	public uint PetitionID = 0;
-	public bool Allow = false;
-	public PetitionInfo Info;
-	public QueryPetitionResponse() : base(ServerOpcodes.QueryPetitionResponse) { }
+    public uint PetitionID = 0;
+    public bool Allow = false;
+    public PetitionInfo Info;
+    public QueryPetitionResponse() : base(ServerOpcodes.QueryPetitionResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(PetitionID);
-		_worldPacket.WriteBit(Allow);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(PetitionID);
+        _worldPacket.WriteBit(Allow);
+        _worldPacket.FlushBits();
 
-		if (Allow)
-			Info.Write(_worldPacket);
-	}
+        if (Allow)
+            Info.Write(_worldPacket);
+    }
 }

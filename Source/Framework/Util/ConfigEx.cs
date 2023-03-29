@@ -1,17 +1,20 @@
-﻿using System;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using Microsoft.Extensions.Configuration;
 
-namespace Framework.Util
-{
-    public static class ConfigEx
-    {
-        public static T GetDefaultValue<T>(this IConfiguration config, string key, T defaultValue)
-        {
-            var value = config[key];
-            if (value == null)
-                return defaultValue;
+namespace Framework.Util;
 
-            return (T)Convert.ChangeType(value, typeof(T));
-        }
+public static class ConfigEx
+{
+    public static T GetDefaultValue<T>(this IConfiguration config, string key, T defaultValue)
+    {
+        var value = config[key];
+
+        if (value == null)
+            return defaultValue;
+
+        return (T)Convert.ChangeType(value, typeof(T));
     }
 }

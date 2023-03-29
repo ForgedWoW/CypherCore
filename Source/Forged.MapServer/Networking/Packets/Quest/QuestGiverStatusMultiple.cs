@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverStatusMultiple : ServerPacket
 {
-	public List<QuestGiverInfo> QuestGiver = new();
-	public QuestGiverStatusMultiple() : base(ServerOpcodes.QuestGiverStatusMultiple, ConnectionType.Instance) { }
+    public List<QuestGiverInfo> QuestGiver = new();
+    public QuestGiverStatusMultiple() : base(ServerOpcodes.QuestGiverStatusMultiple, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(QuestGiver.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(QuestGiver.Count);
 
-		foreach (var questGiver in QuestGiver)
-		{
-			_worldPacket.WritePackedGuid(questGiver.Guid);
-			_worldPacket.WriteUInt32((uint)questGiver.Status);
-		}
-	}
+        foreach (var questGiver in QuestGiver)
+        {
+            _worldPacket.WritePackedGuid(questGiver.Guid);
+            _worldPacket.WriteUInt32((uint)questGiver.Status);
+        }
+    }
 }

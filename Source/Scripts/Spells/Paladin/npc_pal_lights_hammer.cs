@@ -13,11 +13,11 @@ namespace Scripts.Spells.Paladin;
 [CreatureScript(59738)]
 public class npc_pal_lights_hammer : ScriptedAI
 {
-	public npc_pal_lights_hammer(Creature creature) : base(creature) { }
+    public npc_pal_lights_hammer(Creature creature) : base(creature) { }
 
-	public override void Reset()
-	{
-		Me.CastSpell(Me, PaladinSpells.LightHammerCosmetic, true);
-		Me.SetUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible | UnitFlags.RemoveClientControl);
-	}
+    public override void Reset()
+    {
+        Me.CastSpell(Me, PaladinSpells.LightHammerCosmetic, true);
+        Me.SetUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible | UnitFlags.RemoveClientControl);
+    }
 }

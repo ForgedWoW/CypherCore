@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class GameObjectInteraction : ServerPacket
 {
-	public ObjectGuid ObjectGUID;
-	public PlayerInteractionType InteractionType;
+    public ObjectGuid ObjectGUID;
+    public PlayerInteractionType InteractionType;
 
-	public GameObjectInteraction() : base(ServerOpcodes.GameObjectInteraction) { }
+    public GameObjectInteraction() : base(ServerOpcodes.GameObjectInteraction) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ObjectGUID);
-		_worldPacket.WriteInt32((int)InteractionType);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ObjectGUID);
+        _worldPacket.WriteInt32((int)InteractionType);
+    }
 }

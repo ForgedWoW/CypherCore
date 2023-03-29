@@ -9,31 +9,31 @@ namespace Scripts.Spells.Monk;
 [SpellScript(119582)]
 public class spell_monk_purifying_brew : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
+    public void OnHit()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var _player = caster.AsPlayer;
+        if (caster != null)
+        {
+            var _player = caster.AsPlayer;
 
-			if (_player != null)
-			{
-				var staggerAmount = _player.GetAura(MonkSpells.LIGHT_STAGGER);
+            if (_player != null)
+            {
+                var staggerAmount = _player.GetAura(MonkSpells.LIGHT_STAGGER);
 
-				if (staggerAmount == null)
-					staggerAmount = _player.GetAura(MonkSpells.MODERATE_STAGGER);
+                if (staggerAmount == null)
+                    staggerAmount = _player.GetAura(MonkSpells.MODERATE_STAGGER);
 
-				if (staggerAmount == null)
-					staggerAmount = _player.GetAura(MonkSpells.HEAVY_STAGGER);
+                if (staggerAmount == null)
+                    staggerAmount = _player.GetAura(MonkSpells.HEAVY_STAGGER);
 
-				if (staggerAmount != null)
-				{
-					var newStagger = staggerAmount.GetEffect(1).Amount;
-					newStagger = (int)(newStagger * 0.5);
-					staggerAmount.GetEffect(1).ChangeAmount(newStagger);
-				}
-			}
-		}
-	}
+                if (staggerAmount != null)
+                {
+                    var newStagger = staggerAmount.GetEffect(1).Amount;
+                    newStagger = (int)(newStagger * 0.5);
+                    staggerAmount.GetEffect(1).ChangeAmount(newStagger);
+                }
+            }
+        }
+    }
 }

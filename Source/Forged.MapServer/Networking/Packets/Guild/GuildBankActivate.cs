@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildBankActivate : ClientPacket
 {
-	public ObjectGuid Banker;
-	public bool FullUpdate;
-	public GuildBankActivate(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Banker;
+    public bool FullUpdate;
+    public GuildBankActivate(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Banker = _worldPacket.ReadPackedGuid();
-		FullUpdate = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        Banker = _worldPacket.ReadPackedGuid();
+        FullUpdate = _worldPacket.HasBit();
+    }
 }

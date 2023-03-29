@@ -11,11 +11,11 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(203753)]
 public class spell_dh_blade_turning : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if ((eventInfo.HitMask & ProcFlagsHit.Parry) != 0)
-			return true;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if ((eventInfo.HitMask & ProcFlagsHit.Parry) != 0)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

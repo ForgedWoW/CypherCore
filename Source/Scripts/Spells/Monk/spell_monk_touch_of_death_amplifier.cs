@@ -13,32 +13,32 @@ namespace Scripts.Spells.Monk;
 [SpellScript(271233)]
 public class spell_monk_touch_of_death_amplifier : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.DamageInfo != null && eventInfo.DamageInfo.Damage > 0;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.DamageInfo != null && eventInfo.DamageInfo.Damage > 0;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
-	{
-		var aurEff = Target.GetAuraEffect(MonkSpells.TOUCH_OF_DEATH, 0);
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+    {
+        var aurEff = Target.GetAuraEffect(MonkSpells.TOUCH_OF_DEATH, 0);
 
-		if (aurEff != null)
-		{
-			var aurEffAmplifier = eventInfo.Actor.GetAuraEffect(MonkSpells.TOUCH_OF_DEATH_AMPLIFIER, 0);
+        if (aurEff != null)
+        {
+            var aurEffAmplifier = eventInfo.Actor.GetAuraEffect(MonkSpells.TOUCH_OF_DEATH_AMPLIFIER, 0);
 
-			if (aurEffAmplifier != null)
-			{
-				var damage = aurEff.Amount + MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEffAmplifier.Amount);
-				aurEff.SetAmount(damage);
-			}
-		}
-	}
+            if (aurEffAmplifier != null)
+            {
+                var damage = aurEff.Amount + MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEffAmplifier.Amount);
+                aurEff.SetAmount(damage);
+            }
+        }
+    }
 }

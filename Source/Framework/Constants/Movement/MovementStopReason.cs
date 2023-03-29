@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum MovementStopReason : byte
 {
-	Finished, // Movement finished either by arriving at location or successfully continuing it for requested duration
-	Interrupted
+    Finished, // Movement finished either by arriving at location or successfully continuing it for requested duration
+    Interrupted
 };

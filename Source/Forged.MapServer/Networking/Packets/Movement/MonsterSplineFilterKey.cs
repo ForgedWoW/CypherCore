@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public struct MonsterSplineFilterKey
 {
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt16(Idx);
-		data.WriteUInt16(Speed);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt16(Idx);
+        data.WriteUInt16(Speed);
+    }
 
-	public short Idx;
-	public ushort Speed;
+    public short Idx;
+    public ushort Speed;
 }

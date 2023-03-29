@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.BlackMarket;
 
 internal class BlackMarketRequestItems : ClientPacket
 {
-	public ObjectGuid Guid;
-	public long LastUpdateID;
-	public BlackMarketRequestItems(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Guid;
+    public long LastUpdateID;
+    public BlackMarketRequestItems(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Guid = _worldPacket.ReadPackedGuid();
-		LastUpdateID = _worldPacket.ReadInt64();
-	}
+    public override void Read()
+    {
+        Guid = _worldPacket.ReadPackedGuid();
+        LastUpdateID = _worldPacket.ReadInt64();
+    }
 }

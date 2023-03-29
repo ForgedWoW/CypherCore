@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.MythicPlus;
 
 public class MythicPlusSeasonData : ServerPacket
 {
-	public bool SeasonActive;
+    public bool SeasonActive;
 
-	public MythicPlusSeasonData() : base(ServerOpcodes.MythicPlusSeasonData) { }
+    public MythicPlusSeasonData() : base(ServerOpcodes.MythicPlusSeasonData) { }
 
-	public override void Write()
-	{
-		_worldPacket.Write(SeasonActive);
-	}
+    public override void Write()
+    {
+        _worldPacket.Write(SeasonActive);
+    }
 }

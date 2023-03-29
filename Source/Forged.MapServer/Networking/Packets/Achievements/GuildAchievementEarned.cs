@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class GuildAchievementEarned : ServerPacket
 {
-	public uint AchievementID;
-	public ObjectGuid GuildGUID;
-	public long TimeEarned;
-	public GuildAchievementEarned() : base(ServerOpcodes.GuildAchievementEarned) { }
+    public uint AchievementID;
+    public ObjectGuid GuildGUID;
+    public long TimeEarned;
+    public GuildAchievementEarned() : base(ServerOpcodes.GuildAchievementEarned) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(GuildGUID);
-		_worldPacket.WriteUInt32(AchievementID);
-		_worldPacket.WritePackedTime(TimeEarned);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(GuildGUID);
+        _worldPacket.WriteUInt32(AchievementID);
+        _worldPacket.WritePackedTime(TimeEarned);
+    }
 }

@@ -8,21 +8,21 @@ namespace Forged.MapServer.Networking.Packets.Duel;
 
 public class DuelWinner : ServerPacket
 {
-	public string BeatenName;
-	public string WinnerName;
-	public uint BeatenVirtualRealmAddress;
-	public uint WinnerVirtualRealmAddress;
-	public bool Fled;
-	public DuelWinner() : base(ServerOpcodes.DuelWinner, ConnectionType.Instance) { }
+    public string BeatenName;
+    public string WinnerName;
+    public uint BeatenVirtualRealmAddress;
+    public uint WinnerVirtualRealmAddress;
+    public bool Fled;
+    public DuelWinner() : base(ServerOpcodes.DuelWinner, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(BeatenName.GetByteCount(), 6);
-		_worldPacket.WriteBits(WinnerName.GetByteCount(), 6);
-		_worldPacket.WriteBit(Fled);
-		_worldPacket.WriteUInt32(BeatenVirtualRealmAddress);
-		_worldPacket.WriteUInt32(WinnerVirtualRealmAddress);
-		_worldPacket.WriteString(BeatenName);
-		_worldPacket.WriteString(WinnerName);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBits(BeatenName.GetByteCount(), 6);
+        _worldPacket.WriteBits(WinnerName.GetByteCount(), 6);
+        _worldPacket.WriteBit(Fled);
+        _worldPacket.WriteUInt32(BeatenVirtualRealmAddress);
+        _worldPacket.WriteUInt32(WinnerVirtualRealmAddress);
+        _worldPacket.WriteString(BeatenName);
+        _worldPacket.WriteString(WinnerName);
+    }
 }

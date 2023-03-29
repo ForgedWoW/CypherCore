@@ -8,17 +8,17 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct YouLeftAppend : IChannelAppender
 {
-	public YouLeftAppend(Channel channel)
-	{
-		_channel = channel;
-	}
+    public YouLeftAppend(Channel channel)
+    {
+        _channel = channel;
+    }
 
-	public ChatNotify GetNotificationType() => ChatNotify.YouLeftNotice;
+    public ChatNotify GetNotificationType() => ChatNotify.YouLeftNotice;
 
-	public void Append(ChannelNotify data)
-	{
-		data.ChatChannelID = (int)_channel.GetChannelId();
-	}
+    public void Append(ChannelNotify data)
+    {
+        data.ChatChannelID = (int)_channel.GetChannelId();
+    }
 
     private readonly Channel _channel;
 }

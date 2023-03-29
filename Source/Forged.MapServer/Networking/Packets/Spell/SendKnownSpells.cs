@@ -8,21 +8,21 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SendKnownSpells : ServerPacket
 {
-	public bool InitialLogin;
-	public List<uint> KnownSpells = new();
-	public List<uint> FavoriteSpells = new(); // tradeskill recipes
-	public SendKnownSpells() : base(ServerOpcodes.SendKnownSpells, ConnectionType.Instance) { }
+    public bool InitialLogin;
+    public List<uint> KnownSpells = new();
+    public List<uint> FavoriteSpells = new(); // tradeskill recipes
+    public SendKnownSpells() : base(ServerOpcodes.SendKnownSpells, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(InitialLogin);
-		_worldPacket.WriteInt32(KnownSpells.Count);
-		_worldPacket.WriteInt32(FavoriteSpells.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteBit(InitialLogin);
+        _worldPacket.WriteInt32(KnownSpells.Count);
+        _worldPacket.WriteInt32(FavoriteSpells.Count);
 
-		foreach (var spellId in KnownSpells)
-			_worldPacket.WriteUInt32(spellId);
+        foreach (var spellId in KnownSpells)
+            _worldPacket.WriteUInt32(spellId);
 
-		foreach (var spellId in FavoriteSpells)
-			_worldPacket.WriteUInt32(spellId);
-	}
+        foreach (var spellId in FavoriteSpells)
+            _worldPacket.WriteUInt32(spellId);
+    }
 }

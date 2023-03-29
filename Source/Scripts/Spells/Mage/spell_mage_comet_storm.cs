@@ -12,16 +12,16 @@ namespace Scripts.Spells.Mage;
 [Script] // 153595 - Comet Storm (launch)
 internal class spell_mage_comet_storm : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(EffectHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(EffectHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void EffectHit(int effIndex)
-	{
-		Caster.Events.AddEventAtOffset(new CometStormEvent(Caster, Spell.CastId, HitDest), RandomHelper.RandTime(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(275)));
-	}
+    private void EffectHit(int effIndex)
+    {
+        Caster.Events.AddEventAtOffset(new CometStormEvent(Caster, Spell.CastId, HitDest), RandomHelper.RandTime(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(275)));
+    }
 }

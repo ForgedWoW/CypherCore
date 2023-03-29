@@ -13,26 +13,26 @@ namespace Scripts.Spells.Items;
 [Script] // Frozen Shadoweave set 3p bonus
 internal class spell_item_frozen_shadoweave : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var damageInfo = eventInfo.DamageInfo;
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var damageInfo = eventInfo.DamageInfo;
 
-		if (damageInfo == null ||
-			damageInfo.Damage == 0)
-			return;
+        if (damageInfo == null ||
+            damageInfo.Damage == 0)
+            return;
 
-		var caster = eventInfo.Actor;
-		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(damageInfo.Damage, aurEff.Amount));
-		caster.CastSpell((Unit)null, ItemSpellIds.Shadowmend, args);
-	}
+        var caster = eventInfo.Actor;
+        CastSpellExtraArgs args = new(aurEff);
+        args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(damageInfo.Damage, aurEff.Amount));
+        caster.CastSpell((Unit)null, ItemSpellIds.Shadowmend, args);
+    }
 }

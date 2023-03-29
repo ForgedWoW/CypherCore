@@ -12,35 +12,35 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_pony_mount_check : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
+    }
 
-	private void HandleEffectPeriodic(AuraEffect aurEff)
-	{
-		var caster = Caster;
+    private void HandleEffectPeriodic(AuraEffect aurEff)
+    {
+        var caster = Caster;
 
-		if (!caster)
-			return;
+        if (!caster)
+            return;
 
-		var owner = caster.OwnerUnit.AsPlayer;
+        var owner = caster.OwnerUnit.AsPlayer;
 
-		if (!owner ||
-			!owner.HasAchieved(GenericSpellIds.AchievementPonyup))
-			return;
+        if (!owner ||
+            !owner.HasAchieved(GenericSpellIds.AchievementPonyup))
+            return;
 
-		if (owner.IsMounted)
-		{
-			caster.Mount(GenericSpellIds.MountPony);
-			caster.SetSpeedRate(UnitMoveType.Run, owner.GetSpeedRate(UnitMoveType.Run));
-		}
-		else if (caster.IsMounted)
-		{
-			caster.Dismount();
-			caster.SetSpeedRate(UnitMoveType.Run, owner.GetSpeedRate(UnitMoveType.Run));
-		}
-	}
+        if (owner.IsMounted)
+        {
+            caster.Mount(GenericSpellIds.MountPony);
+            caster.SetSpeedRate(UnitMoveType.Run, owner.GetSpeedRate(UnitMoveType.Run));
+        }
+        else if (caster.IsMounted)
+        {
+            caster.Dismount();
+            caster.SetSpeedRate(UnitMoveType.Run, owner.GetSpeedRate(UnitMoveType.Run));
+        }
+    }
 }

@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 public interface IAreaTriggerScriptLoaderGetTriggerScriptScript : IScriptObject
 {
-	AreaTriggerScript GetAreaTriggerScript();
+    AreaTriggerScript GetAreaTriggerScript();
 }

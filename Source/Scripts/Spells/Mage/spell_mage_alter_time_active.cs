@@ -12,18 +12,18 @@ namespace Scripts.Spells.Mage;
 [Script] // 342247 - Alter Time Active
 internal class spell_mage_alter_time_active : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(RemoveAlterTimeAura, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(RemoveAlterTimeAura, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void RemoveAlterTimeAura(int effIndex)
-	{
-		var unit = Caster;
-		unit.RemoveAura(MageSpells.AlterTimeAura, AuraRemoveMode.Expire);
-		unit.RemoveAura(MageSpells.ArcaneAlterTimeAura, AuraRemoveMode.Expire);
-	}
+    private void RemoveAlterTimeAura(int effIndex)
+    {
+        var unit = Caster;
+        unit.RemoveAura(MageSpells.AlterTimeAura, AuraRemoveMode.Expire);
+        unit.RemoveAura(MageSpells.ArcaneAlterTimeAura, AuraRemoveMode.Expire);
+    }
 }

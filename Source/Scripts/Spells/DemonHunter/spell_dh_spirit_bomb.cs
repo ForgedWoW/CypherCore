@@ -11,50 +11,50 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(218679)]
 public class spell_dh_spirit_bomb : SpellScript, ISpellOnHit, ISpellCheckCast
 {
-	readonly uint[] _ids = new uint[]
-	{
-		ShatteredSoulsSpells.LESSER_SOUL_SHARD, ShatteredSoulsSpells.SHATTERED_SOULS, ShatteredSoulsSpells.SHATTERED_SOULS_DEMON
-	};
+    readonly uint[] _ids = new uint[]
+    {
+        ShatteredSoulsSpells.LESSER_SOUL_SHARD, ShatteredSoulsSpells.SHATTERED_SOULS, ShatteredSoulsSpells.SHATTERED_SOULS_DEMON
+    };
 
-	public SpellCastResult CheckCast()
-	{
-		var caster = Caster;
+    public SpellCastResult CheckCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return SpellCastResult.CantDoThatRightNow;
+        if (caster == null)
+            return SpellCastResult.CantDoThatRightNow;
 
-		if (!caster.GetAreaTrigger(ShatteredSoulsSpells.LESSER_SOUL_SHARD) && !caster.GetAreaTrigger(ShatteredSoulsSpells.SHATTERED_SOULS) && !caster.GetAreaTrigger(ShatteredSoulsSpells.SHATTERED_SOULS_DEMON))
-			return SpellCastResult.CantDoThatRightNow;
+        if (!caster.GetAreaTrigger(ShatteredSoulsSpells.LESSER_SOUL_SHARD) && !caster.GetAreaTrigger(ShatteredSoulsSpells.SHATTERED_SOULS) && !caster.GetAreaTrigger(ShatteredSoulsSpells.SHATTERED_SOULS_DEMON))
+            return SpellCastResult.CantDoThatRightNow;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public void OnHit()
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    public void OnHit()
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		foreach (var spellId in _ids)
+        foreach (var spellId in _ids)
 
-			if (TryCastDamage(caster, target, spellId))
-				break;
-	}
+            if (TryCastDamage(caster, target, spellId))
+                break;
+    }
 
-	private bool TryCastDamage(Unit caster, Unit target, uint spellId)
-	{
-		var at = caster.GetAreaTrigger(spellId);
+    private bool TryCastDamage(Unit caster, Unit target, uint spellId)
+    {
+        var at = caster.GetAreaTrigger(spellId);
 
-		if (at != null)
-		{
-			caster.CastSpell(target, DemonHunterSpells.SPIRIT_BOMB_DAMAGE, true);
-			at.Remove();
+        if (at != null)
+        {
+            caster.CastSpell(target, DemonHunterSpells.SPIRIT_BOMB_DAMAGE, true);
+            at.Remove();
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

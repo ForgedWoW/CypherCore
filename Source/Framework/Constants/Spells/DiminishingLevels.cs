@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum DiminishingLevels
 {
-	Level1 = 0,
-	Level2 = 1,
-	Level3 = 2,
-	Immune = 3,
-	Level4 = 3,
-	TauntImmune = 4
+    Level1 = 0,
+    Level2 = 1,
+    Level3 = 2,
+    Immune = 3,
+    Level4 = 3,
+    TauntImmune = 4
 }

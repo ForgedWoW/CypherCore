@@ -11,21 +11,21 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(100)] // 100 - Charge
 internal class spell_warr_charge : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var spellId = WarriorSpells.CHARGE_EFFECT;
+    private void HandleDummy(int effIndex)
+    {
+        var spellId = WarriorSpells.CHARGE_EFFECT;
 
-		if (Caster.HasAura(WarriorSpells.GLYPH_OF_THE_BLAZING_TRAIL))
-			spellId = WarriorSpells.CHARGE_EFFECT_BLAZING_TRAIL;
+        if (Caster.HasAura(WarriorSpells.GLYPH_OF_THE_BLAZING_TRAIL))
+            spellId = WarriorSpells.CHARGE_EFFECT_BLAZING_TRAIL;
 
-		Caster.CastSpell(HitUnit, spellId, true);
-	}
+        Caster.CastSpell(HitUnit, spellId, true);
+    }
 }

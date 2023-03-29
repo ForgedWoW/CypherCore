@@ -13,20 +13,20 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(48181)]
 public class aura_warl_haunt : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 1, AuraType.ModSchoolMaskDamageFromCaster, AuraEffectHandleModes.RealOrReapplyMask));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 1, AuraType.ModSchoolMaskDamageFromCaster, AuraEffectHandleModes.RealOrReapplyMask));
+    }
 
-	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null || TargetApplication.RemoveMode != AuraRemoveMode.Death)
-			return;
+        if (caster == null || TargetApplication.RemoveMode != AuraRemoveMode.Death)
+            return;
 
-		caster.SpellHistory.ResetCooldown(WarlockSpells.HAUNT, true);
-	}
+        caster.SpellHistory.ResetCooldown(WarlockSpells.HAUNT, true);
+    }
 }

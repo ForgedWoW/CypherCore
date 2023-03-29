@@ -5,7 +5,7 @@ namespace Scripts.Spells.Druid;
 
 public struct GoreSpells
 {
-	public static uint THRASH = 106832;
-	public static uint MOONFIRE = 8921;
-	public static uint SWIPE = 213764;
+    public static uint THRASH = 106832;
+    public static uint MOONFIRE = 8921;
+    public static uint SWIPE = 213764;
 }

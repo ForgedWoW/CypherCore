@@ -7,6 +7,6 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class CreatureDisplayStats
 {
-	public float TotalProbability;
-	public List<CreatureXDisplay> CreatureDisplay = new();
+    public float TotalProbability;
+    public List<CreatureXDisplay> CreatureDisplay = new();
 }

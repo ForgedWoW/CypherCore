@@ -5,18 +5,18 @@ namespace Forged.MapServer.Networking.Packets.Authentication;
 
 internal struct VirtualRealmInfo
 {
-	public VirtualRealmInfo(uint realmAddress, bool isHomeRealm, bool isInternalRealm, string realmNameActual, string realmNameNormalized)
-	{
-		RealmAddress = realmAddress;
-		RealmNameInfo = new VirtualRealmNameInfo(isHomeRealm, isInternalRealm, realmNameActual, realmNameNormalized);
-	}
+    public VirtualRealmInfo(uint realmAddress, bool isHomeRealm, bool isInternalRealm, string realmNameActual, string realmNameNormalized)
+    {
+        RealmAddress = realmAddress;
+        RealmNameInfo = new VirtualRealmNameInfo(isHomeRealm, isInternalRealm, realmNameActual, realmNameNormalized);
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(RealmAddress);
-		RealmNameInfo.Write(data);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(RealmAddress);
+        RealmNameInfo.Write(data);
+    }
 
-	public uint RealmAddress; // the virtual address of this realm, constructed as RealmHandle::Region << 24 | RealmHandle::Battlegroup << 16 | RealmHandle::Index
-	public VirtualRealmNameInfo RealmNameInfo;
+    public uint RealmAddress; // the virtual address of this realm, constructed as RealmHandle::Region << 24 | RealmHandle::Battlegroup << 16 | RealmHandle::Index
+    public VirtualRealmNameInfo RealmNameInfo;
 }

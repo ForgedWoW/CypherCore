@@ -11,17 +11,17 @@ namespace Scripts.Spells.Rogue;
 [Script] // 212283 - Symbols of Death
 internal class spell_rog_symbols_of_death : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleEffectHitTarget, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleEffectHitTarget, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleEffectHitTarget(int effIndex)
-	{
-		if (Caster.HasAura(RogueSpells.SymbolsOfDeathRank2))
-			Caster.CastSpell(Caster, RogueSpells.SymbolsOfDeathCritAura, true);
-	}
+    private void HandleEffectHitTarget(int effIndex)
+    {
+        if (Caster.HasAura(RogueSpells.SymbolsOfDeathRank2))
+            Caster.CastSpell(Caster, RogueSpells.SymbolsOfDeathCritAura, true);
+    }
 }

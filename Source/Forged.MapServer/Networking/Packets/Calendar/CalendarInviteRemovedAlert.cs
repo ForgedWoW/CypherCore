@@ -7,17 +7,17 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarInviteRemovedAlert : ServerPacket
 {
-	public ulong EventID;
-	public long Date;
-	public CalendarFlags Flags;
-	public CalendarInviteStatus Status;
-	public CalendarInviteRemovedAlert() : base(ServerOpcodes.CalendarInviteRemovedAlert) { }
+    public ulong EventID;
+    public long Date;
+    public CalendarFlags Flags;
+    public CalendarInviteStatus Status;
+    public CalendarInviteRemovedAlert() : base(ServerOpcodes.CalendarInviteRemovedAlert) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt64(EventID);
-		_worldPacket.WritePackedTime(Date);
-		_worldPacket.WriteUInt32((uint)Flags);
-		_worldPacket.WriteUInt8((byte)Status);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt64(EventID);
+        _worldPacket.WritePackedTime(Date);
+        _worldPacket.WriteUInt32((uint)Flags);
+        _worldPacket.WriteUInt8((byte)Status);
+    }
 }

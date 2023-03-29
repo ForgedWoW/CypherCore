@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellScriptLoaderGetSpellScript : IScriptObject
 {
-	SpellScript GetSpellScript();
+    SpellScript GetSpellScript();
 }

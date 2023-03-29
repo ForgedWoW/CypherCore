@@ -10,73 +10,73 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class at_monk_windwalking : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnRemove
 {
-	public void OnRemove()
-	{
-		var caster = At.GetCaster();
+    public void OnRemove()
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		foreach (var guid in At.InsideUnits)
-		{
-			var unit = ObjectAccessor.Instance.GetUnit(caster, guid);
+        foreach (var guid in At.InsideUnits)
+        {
+            var unit = ObjectAccessor.Instance.GetUnit(caster, guid);
 
-			if (unit != null)
-			{
-				if (unit.HasAura(MonkSpells.WINDWALKING) && unit != caster) // Don't remove from other WW monks.
-					continue;
+            if (unit != null)
+            {
+                if (unit.HasAura(MonkSpells.WINDWALKING) && unit != caster) // Don't remove from other WW monks.
+                    continue;
 
-				var aur = unit.GetAura(MonkSpells.WINDWALKER_AURA, caster.GUID);
+                var aur = unit.GetAura(MonkSpells.WINDWALKER_AURA, caster.GUID);
 
-				if (aur != null)
-				{
-					aur.SetMaxDuration(10 * Time.InMilliseconds);
-					aur.SetDuration(10 * Time.InMilliseconds);
-				}
-			}
-		}
-	}
+                if (aur != null)
+                {
+                    aur.SetMaxDuration(10 * Time.InMilliseconds);
+                    aur.SetDuration(10 * Time.InMilliseconds);
+                }
+            }
+        }
+    }
 
-	public void OnUnitEnter(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitEnter(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		var aur = unit.GetAura(MonkSpells.WINDWALKER_AURA);
+        var aur = unit.GetAura(MonkSpells.WINDWALKER_AURA);
 
-		if (aur != null)
-			aur.SetDuration(-1);
-		else if (caster.IsFriendlyTo(unit))
-			caster.CastSpell(unit, MonkSpells.WINDWALKER_AURA, true);
-	}
+        if (aur != null)
+            aur.SetDuration(-1);
+        else if (caster.IsFriendlyTo(unit))
+            caster.CastSpell(unit, MonkSpells.WINDWALKER_AURA, true);
+    }
 
-	public void OnUnitExit(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitExit(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		if (unit.HasAura(MonkSpells.WINDWALKING) && unit != caster) // Don't remove from other WW monks.
-			return;
+        if (unit.HasAura(MonkSpells.WINDWALKING) && unit != caster) // Don't remove from other WW monks.
+            return;
 
-		var aur = unit.GetAura(MonkSpells.WINDWALKER_AURA, caster.GUID);
+        var aur = unit.GetAura(MonkSpells.WINDWALKER_AURA, caster.GUID);
 
-		if (aur != null)
-		{
-			aur.SetMaxDuration(10 * Time.InMilliseconds);
-			aur.SetDuration(10 * Time.InMilliseconds);
-		}
-	}
+        if (aur != null)
+        {
+            aur.SetMaxDuration(10 * Time.InMilliseconds);
+            aur.SetDuration(10 * Time.InMilliseconds);
+        }
+    }
 }

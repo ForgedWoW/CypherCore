@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum SpecResetType
 {
-	Talents = 0,
-	Specialization = 1,
-	Glyphs = 2,
-	PetTalents = 3
+    Talents = 0,
+    Specialization = 1,
+    Glyphs = 2,
+    PetTalents = 3
 }

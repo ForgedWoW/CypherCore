@@ -12,17 +12,17 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(51490)]
 public class spell_sha_thunderstorm : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleKnockBack, 1, SpellEffectName.KnockBack, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleKnockBack, 1, SpellEffectName.KnockBack, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleKnockBack(int effIndex)
-	{
-		// Glyph of Thunderstorm
-		if (Caster.HasAura(ShamanSpells.GLYPH_OF_THUNDERSTORM))
-			PreventHitDefaultEffect(effIndex);
-	}
+    private void HandleKnockBack(int effIndex)
+    {
+        // Glyph of Thunderstorm
+        if (Caster.HasAura(ShamanSpells.GLYPH_OF_THUNDERSTORM))
+            PreventHitDefaultEffect(effIndex);
+    }
 }

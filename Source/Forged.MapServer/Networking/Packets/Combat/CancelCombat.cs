@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public class CancelCombat : ServerPacket
 {
-	public CancelCombat() : base(ServerOpcodes.CancelCombat) { }
+    public CancelCombat() : base(ServerOpcodes.CancelCombat) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

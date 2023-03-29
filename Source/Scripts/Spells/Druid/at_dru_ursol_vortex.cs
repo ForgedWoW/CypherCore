@@ -10,24 +10,24 @@ namespace Scripts.Spells.Druid;
 [Script]
 public class at_dru_ursol_vortex : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	private bool _hasPull = false;
+    private bool _hasPull = false;
 
-	public void OnUnitEnter(Unit target)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitEnter(Unit target)
+    {
+        var caster = At.GetCaster();
 
-		if (caster != null && caster.IsInCombatWith(target))
-			caster.CastSpell(target, DruidSpells.URSOL_VORTEX_DEBUFF, true);
-	}
+        if (caster != null && caster.IsInCombatWith(target))
+            caster.CastSpell(target, DruidSpells.URSOL_VORTEX_DEBUFF, true);
+    }
 
-	public void OnUnitExit(Unit target)
-	{
-		target.RemoveAura(DruidSpells.URSOL_VORTEX_DEBUFF);
+    public void OnUnitExit(Unit target)
+    {
+        target.RemoveAura(DruidSpells.URSOL_VORTEX_DEBUFF);
 
-		if (!_hasPull && target.IsValidAttackTarget(At.GetCaster()))
-		{
-			_hasPull = true;
-			target.CastSpell(At.Location, DruidSpells.URSOL_VORTEX_PULL, true);
-		}
-	}
+        if (!_hasPull && target.IsValidAttackTarget(At.GetCaster()))
+        {
+            _hasPull = true;
+            target.CastSpell(At.Location, DruidSpells.URSOL_VORTEX_PULL, true);
+        }
+    }
 }

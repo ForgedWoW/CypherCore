@@ -13,49 +13,49 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(28789)] // 28789 - Holy Power
 internal class spell_pal_t3_6p_bonus : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		uint spellId;
-		var caster = eventInfo.Actor;
-		var target = eventInfo.ProcTarget;
+        uint spellId;
+        var caster = eventInfo.Actor;
+        var target = eventInfo.ProcTarget;
 
-		switch (target.Class)
-		{
-			case PlayerClass.Paladin:
-			case PlayerClass.Priest:
-			case PlayerClass.Shaman:
-			case PlayerClass.Druid:
-				spellId = PaladinSpells.HolyPowerMp5;
+        switch (target.Class)
+        {
+            case PlayerClass.Paladin:
+            case PlayerClass.Priest:
+            case PlayerClass.Shaman:
+            case PlayerClass.Druid:
+                spellId = PaladinSpells.HolyPowerMp5;
 
-				break;
-			case PlayerClass.Mage:
-			case PlayerClass.Warlock:
-				spellId = PaladinSpells.HolyPowerSpellPower;
+                break;
+            case PlayerClass.Mage:
+            case PlayerClass.Warlock:
+                spellId = PaladinSpells.HolyPowerSpellPower;
 
-				break;
-			case PlayerClass.Hunter:
-			case PlayerClass.Rogue:
-				spellId = PaladinSpells.HolyPowerAttackPower;
+                break;
+            case PlayerClass.Hunter:
+            case PlayerClass.Rogue:
+                spellId = PaladinSpells.HolyPowerAttackPower;
 
-				break;
-			case PlayerClass.Warrior:
-				spellId = PaladinSpells.HolyPowerArmor;
+                break;
+            case PlayerClass.Warrior:
+                spellId = PaladinSpells.HolyPowerArmor;
 
-				break;
-			default:
-				return;
-		}
+                break;
+            default:
+                return;
+        }
 
-		caster.CastSpell(target, spellId, new CastSpellExtraArgs(aurEff));
-	}
+        caster.CastSpell(target, spellId, new CastSpellExtraArgs(aurEff));
+    }
 }

@@ -12,36 +12,36 @@ namespace Scripts.Spells.Warlock;
 // 6358 - Seduction, 115268 - Mesmerize
 [SpellScript(new uint[]
 {
-	6358, 115268
+    6358, 115268
 })]
 public class spell_warlock_seduction : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModStun, AuraEffectHandleModes.Real));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModStun, AuraEffectHandleModes.Real));
+    }
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		// Glyph of Demon Training
-		var target = Target;
-		var caster = Caster;
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        // Glyph of Demon Training
+        var target = Target;
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var owner = caster.OwnerUnit;
+        var owner = caster.OwnerUnit;
 
-		if (owner != null)
-			if (owner.HasAura(WarlockSpells.GLYPH_OF_DEMON_TRAINING))
-			{
-				target.RemoveAurasByType(AuraType.PeriodicDamage);
-				target.RemoveAurasByType(AuraType.PeriodicDamagePercent);
-			}
+        if (owner != null)
+            if (owner.HasAura(WarlockSpells.GLYPH_OF_DEMON_TRAINING))
+            {
+                target.RemoveAurasByType(AuraType.PeriodicDamage);
+                target.RemoveAurasByType(AuraType.PeriodicDamagePercent);
+            }
 
-		// remove invisibility from Succubus on successful cast
-		caster.RemoveAura(WarlockSpells.PET_LESSER_INVISIBILITY);
-	}
+        // remove invisibility from Succubus on successful cast
+        caster.RemoveAura(WarlockSpells.PET_LESSER_INVISIBILITY);
+    }
 }

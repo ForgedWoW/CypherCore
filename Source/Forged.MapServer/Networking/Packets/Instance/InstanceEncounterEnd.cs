@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class InstanceEncounterEnd : ServerPacket
 {
-	public InstanceEncounterEnd() : base(ServerOpcodes.InstanceEncounterEnd, ConnectionType.Instance) { }
+    public InstanceEncounterEnd() : base(ServerOpcodes.InstanceEncounterEnd, ConnectionType.Instance) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

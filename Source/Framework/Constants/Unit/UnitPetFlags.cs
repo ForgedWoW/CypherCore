@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum UnitPetFlags : byte
 {
-	None = 0x00,
-	CanBeRenamed = 0x01,
-	CanBeAbandoned = 0x02
+    None = 0x00,
+    CanBeRenamed = 0x01,
+    CanBeAbandoned = 0x02
 }

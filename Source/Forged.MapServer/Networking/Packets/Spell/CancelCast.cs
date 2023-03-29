@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class CancelCast : ClientPacket
 {
-	public uint SpellID;
-	public ObjectGuid CastID;
-	public CancelCast(WorldPacket packet) : base(packet) { }
+    public uint SpellID;
+    public ObjectGuid CastID;
+    public CancelCast(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		CastID = _worldPacket.ReadPackedGuid();
-		SpellID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        CastID = _worldPacket.ReadPackedGuid();
+        SpellID = _worldPacket.ReadUInt32();
+    }
 }

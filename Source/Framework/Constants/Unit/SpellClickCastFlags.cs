@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum SpellClickCastFlags
 {
-	CasterClicker = 0x01,
-	TargetClicker = 0x02,
-	OrigCasterOwner = 0x04
+    CasterClicker = 0x01,
+    TargetClicker = 0x02,
+    OrigCasterOwner = 0x04
 }

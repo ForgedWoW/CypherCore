@@ -9,5 +9,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 
 public interface IPlayerOnChatGuild : IScriptObject
 {
-	void OnChat(Player player, ChatMsg type, Language lang, string msg, Guild guild);
+    void OnChat(Player player, ChatMsg type, Language lang, string msg, Guild guild);
 }

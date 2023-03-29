@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 internal class RealmQueryResponse : ServerPacket
 {
-	public uint VirtualRealmAddress;
-	public byte LookupState;
-	public VirtualRealmNameInfo NameInfo;
-	public RealmQueryResponse() : base(ServerOpcodes.RealmQueryResponse) { }
+    public uint VirtualRealmAddress;
+    public byte LookupState;
+    public VirtualRealmNameInfo NameInfo;
+    public RealmQueryResponse() : base(ServerOpcodes.RealmQueryResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(VirtualRealmAddress);
-		_worldPacket.WriteUInt8(LookupState);
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(VirtualRealmAddress);
+        _worldPacket.WriteUInt8(LookupState);
 
-		if (LookupState == 0)
-			NameInfo.Write(_worldPacket);
-	}
+        if (LookupState == 0)
+            NameInfo.Write(_worldPacket);
+    }
 }

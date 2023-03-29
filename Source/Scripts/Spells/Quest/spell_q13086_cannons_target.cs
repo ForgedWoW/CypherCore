@@ -12,19 +12,19 @@ namespace Scripts.Spells.Quest;
 [Script] // 57412 - Reckoning Bomb
 internal class spell_q13086_cannons_target : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleEffectDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleEffectDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleEffectDummy(int effIndex)
-	{
-		var pos = ExplTargetDest;
+    private void HandleEffectDummy(int effIndex)
+    {
+        var pos = ExplTargetDest;
 
-		if (pos != null)
-			Caster.CastSpell(pos, (uint)EffectValue, new CastSpellExtraArgs(true));
-	}
+        if (pos != null)
+            Caster.CastSpell(pos, (uint)EffectValue, new CastSpellExtraArgs(true));
+    }
 }

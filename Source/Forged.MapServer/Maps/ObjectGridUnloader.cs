@@ -10,28 +10,28 @@ namespace Forged.MapServer.Maps;
 
 internal class ObjectGridUnloader : IGridNotifierWorldObject
 {
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	internal ObjectGridUnloader(GridType gridType = GridType.Grid)
-	{
-		GridType = gridType;
-	}
+    internal ObjectGridUnloader(GridType gridType = GridType.Grid)
+    {
+        GridType = gridType;
+    }
 
-	public void Visit(IList<WorldObject> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var obj = objs[i];
+    public void Visit(IList<WorldObject> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var obj = objs[i];
 
-			if (obj.IsTypeId(TypeId.Corpse))
-				continue;
+            if (obj.IsTypeId(TypeId.Corpse))
+                continue;
 
-			//Some creatures may summon other temp summons in CleanupsBeforeDelete()
-			//So we need this even after cleaner (maybe we can remove cleaner)
-			//Example: Flame Leviathan Turret 33139 is summoned when a creature is deleted
-			//TODO: Check if that script has the correct logic. Do we really need to summons something before deleting?
-			obj.CleanupsBeforeDelete();
-			obj.Dispose();
-		}
-	}
+            //Some creatures may summon other temp summons in CleanupsBeforeDelete()
+            //So we need this even after cleaner (maybe we can remove cleaner)
+            //Example: Flame Leviathan Turret 33139 is summoned when a creature is deleted
+            //TODO: Check if that script has the correct logic. Do we really need to summons something before deleting?
+            obj.CleanupsBeforeDelete();
+            obj.Dispose();
+        }
+    }
 }

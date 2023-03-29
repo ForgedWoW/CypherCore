@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum BGHonorMode
 {
-	Normal = 0,
-	Holiday,
-	HonorModeNum
+    Normal = 0,
+    Holiday,
+    HonorModeNum
 }

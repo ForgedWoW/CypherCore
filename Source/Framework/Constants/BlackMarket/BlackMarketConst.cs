@@ -5,5 +5,5 @@ namespace Framework.Constants;
 
 public struct BlackMarketConst
 {
-	public const ulong MaxBid = 1000000UL * MoneyConstants.Gold;
+    public const ulong MaxBid = 1000000UL * MoneyConstants.Gold;
 }

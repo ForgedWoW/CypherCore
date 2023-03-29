@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraEnterLeaveCombat : IAuraScript
 {
-	void EnterLeaveCombat(bool isNowInCombat);
+    void EnterLeaveCombat(bool isNowInCombat);
 }

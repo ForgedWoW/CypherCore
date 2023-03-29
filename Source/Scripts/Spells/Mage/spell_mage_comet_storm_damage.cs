@@ -12,16 +12,16 @@ namespace Scripts.Spells.Mage;
 [Script] // 228601 - Comet Storm (Damage)
 internal class spell_mage_comet_storm_damage : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleEffectHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleEffectHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleEffectHitTarget(int effIndex)
-	{
-		Caster.CastSpell(HitDest, MageSpells.CometStormDamage, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetOriginalCastId(Spell.OriginalCastId));
-	}
+    private void HandleEffectHitTarget(int effIndex)
+    {
+        Caster.CastSpell(HitDest, MageSpells.CometStormDamage, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetOriginalCastId(Spell.OriginalCastId));
+    }
 }

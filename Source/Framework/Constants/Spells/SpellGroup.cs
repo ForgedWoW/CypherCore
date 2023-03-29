@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum SpellGroup
 {
-	None = 0,
-	ElixirBattle = 1,
-	ElixirGuardian = 2,
-	ElixirUnstable = 3,
-	ElixirShattrath = 4,
-	CoreRangeMax = 5
+    None = 0,
+    ElixirBattle = 1,
+    ElixirGuardian = 2,
+    ElixirUnstable = 3,
+    ElixirShattrath = 4,
+    CoreRangeMax = 5
 }

@@ -14,22 +14,22 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(212580)]
 public class spell_warlock_eye_of_the_observer : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var caster = Caster;
-		var actor = eventInfo.Actor;
+    private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var caster = Caster;
+        var actor = eventInfo.Actor;
 
-		if (caster == null || actor == null)
-			return;
+        if (caster == null || actor == null)
+            return;
 
-		caster.CastSpell(actor, WarlockSpells.LASERBEAM, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)actor.CountPctFromMaxHealth(5)));
-	}
+        caster.CastSpell(actor, WarlockSpells.LASERBEAM, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)actor.CountPctFromMaxHealth(5)));
+    }
 }

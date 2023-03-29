@@ -8,7 +8,7 @@ namespace Forged.MapServer.DataStorage;
 
 public class ShapeshiftFormModelData
 {
-	public uint OptionID;
-	public List<ChrCustomizationChoiceRecord> Choices = new();
-	public List<ChrCustomizationDisplayInfoRecord> Displays = new();
+    public uint OptionID;
+    public List<ChrCustomizationChoiceRecord> Choices = new();
+    public List<ChrCustomizationDisplayInfoRecord> Displays = new();
 }

@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum VendorInventoryReason
 {
-	None = 0,
-	Empty = 1
+    None = 0,
+    Empty = 1
 }

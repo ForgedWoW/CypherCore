@@ -10,11 +10,11 @@ namespace Scripts.Spells.Monk;
 [SpellScript(115288)]
 public class spell_monk_energizing_brew : SpellScript, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		if (!Caster.IsInCombat)
-			return SpellCastResult.CasterAurastate;
+    public SpellCastResult CheckCast()
+    {
+        if (!Caster.IsInCombat)
+            return SpellCastResult.CasterAurastate;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

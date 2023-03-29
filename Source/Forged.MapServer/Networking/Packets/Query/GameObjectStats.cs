@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class GameObjectStats
 {
-	public string[] Name = new string[4];
-	public string IconName;
-	public string CastBarCaption;
-	public string UnkString;
-	public uint Type;
-	public uint DisplayID;
-	public int[] Data = new int[SharedConst.MaxGOData];
-	public float Size;
-	public List<uint> QuestItems = new();
-	public uint ContentTuningId;
+    public string[] Name = new string[4];
+    public string IconName;
+    public string CastBarCaption;
+    public string UnkString;
+    public uint Type;
+    public uint DisplayID;
+    public int[] Data = new int[SharedConst.MaxGOData];
+    public float Size;
+    public List<uint> QuestItems = new();
+    public uint ContentTuningId;
 }

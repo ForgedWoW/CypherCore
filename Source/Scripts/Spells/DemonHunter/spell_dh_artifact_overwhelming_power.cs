@@ -12,21 +12,21 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(201464)]
 public class spell_dh_artifact_overwhelming_power : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Dummy, AuraEffectHandleModes.RealOrReapplyMask));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Dummy, AuraEffectHandleModes.RealOrReapplyMask));
+    }
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (RandomHelper.randChance(caster.GetAuraEffectAmount(DemonHunterSpells.OVERWHELMING_POWER, 0)))
-			caster.CastSpell(caster, ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE, SpellValueMod.BasePoint0, (int)ShatteredSoulsSpells.LESSER_SOUL_SHARD, true);
-	}
+        if (RandomHelper.randChance(caster.GetAuraEffectAmount(DemonHunterSpells.OVERWHELMING_POWER, 0)))
+            caster.CastSpell(caster, ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE, SpellValueMod.BasePoint0, (int)ShatteredSoulsSpells.LESSER_SOUL_SHARD, true);
+    }
 }

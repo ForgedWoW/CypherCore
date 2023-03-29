@@ -11,19 +11,19 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_muisek_vessel : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var target = HitCreature;
+    private void HandleDummy(int effIndex)
+    {
+        var target = HitCreature;
 
-		if (target)
-			if (target.IsDead)
-				target.DespawnOrUnsummon();
-	}
+        if (target)
+            if (target.IsDead)
+                target.DespawnOrUnsummon();
+    }
 }

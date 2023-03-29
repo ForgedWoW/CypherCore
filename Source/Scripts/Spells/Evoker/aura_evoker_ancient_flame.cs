@@ -10,9 +10,9 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.ANCIENT_FLAME)]
 public class aura_evoker_ancient_flame : AuraScript, IAuraOnProc
 {
-	public void OnProc(ProcEventInfo info)
-	{
-		if (Caster == Target)
-			Caster.AddAura(EvokerSpells.ANCIENT_FLAME_AURA);
-	}
+    public void OnProc(ProcEventInfo info)
+    {
+        if (Caster == Target)
+            Caster.AddAura(EvokerSpells.ANCIENT_FLAME_AURA);
+    }
 }

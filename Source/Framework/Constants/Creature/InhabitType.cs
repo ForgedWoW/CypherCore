@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum InhabitType
 {
-	Ground = 1,
-	Water = 2,
-	Air = 4,
-	Root = 8,
-	Anywhere = Ground | Water | Air | Root
+    Ground = 1,
+    Water = 2,
+    Air = 4,
+    Root = 8,
+    Anywhere = Ground | Water | Air | Root
 }

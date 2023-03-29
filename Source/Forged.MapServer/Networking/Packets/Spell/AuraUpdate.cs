@@ -9,19 +9,19 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class AuraUpdate : ServerPacket
 {
-	public bool UpdateAll;
-	public ObjectGuid UnitGUID;
-	public List<AuraInfo> Auras = new();
-	public AuraUpdate() : base(ServerOpcodes.AuraUpdate, ConnectionType.Instance) { }
+    public bool UpdateAll;
+    public ObjectGuid UnitGUID;
+    public List<AuraInfo> Auras = new();
+    public AuraUpdate() : base(ServerOpcodes.AuraUpdate, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(UpdateAll);
-		_worldPacket.WriteBits(Auras.Count, 9);
+    public override void Write()
+    {
+        _worldPacket.WriteBit(UpdateAll);
+        _worldPacket.WriteBits(Auras.Count, 9);
 
-		foreach (var aura in Auras)
-			aura.Write(_worldPacket);
+        foreach (var aura in Auras)
+            aura.Write(_worldPacket);
 
-		_worldPacket.WritePackedGuid(UnitGUID);
-	}
+        _worldPacket.WritePackedGuid(UnitGUID);
+    }
 }

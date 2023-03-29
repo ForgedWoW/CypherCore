@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum ReactStates
 {
-	Passive = 0,
-	Defensive = 1,
-	Aggressive = 2,
-	Assist = 3
+    Passive = 0,
+    Defensive = 1,
+    Aggressive = 2,
+    Assist = 3
 }

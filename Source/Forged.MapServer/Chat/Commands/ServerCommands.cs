@@ -3,7 +3,6 @@
 
 using System;
 using Forged.MapServer.Chrono;
-using Forged.MapServer.Server;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.IO;
@@ -15,395 +14,395 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("server")]
 internal class ServerCommands
 {
-	[Command("corpses", RBACPermissions.CommandServerCorpses, true)]
+    [Command("corpses", RBACPermissions.CommandServerCorpses, true)]
     private static bool HandleServerCorpsesCommand(CommandHandler handler)
-	{
-		Global.WorldMgr.RemoveOldCorpses();
+    {
+        Global.WorldMgr.RemoveOldCorpses();
 
-		return true;
-	}
+        return true;
+    }
 
-	[Command("debug", RBACPermissions.CommandServerCorpses, true)]
+    [Command("debug", RBACPermissions.CommandServerCorpses, true)]
     private static bool HandleServerDebugCommand(CommandHandler handler)
-	{
-		return false; //todo fix me
-	}
+    {
+        return false; //todo fix me
+    }
 
-	[Command("exit", RBACPermissions.CommandServerExit, true)]
+    [Command("exit", RBACPermissions.CommandServerExit, true)]
     private static bool HandleServerExitCommand(CommandHandler handler)
-	{
-		handler.SendSysMessage(CypherStrings.CommandExit);
-		Global.WorldMgr.StopNow(ShutdownExitCode.Shutdown);
+    {
+        handler.SendSysMessage(CypherStrings.CommandExit);
+        Global.WorldMgr.StopNow(ShutdownExitCode.Shutdown);
 
-		return true;
-	}
+        return true;
+    }
 
-	[Command("info", RBACPermissions.CommandServerInfo, true)]
+    [Command("info", RBACPermissions.CommandServerInfo, true)]
     private static bool HandleServerInfoCommand(CommandHandler handler)
-	{
-		var playersNum = Global.WorldMgr.PlayerCount;
-		var maxPlayersNum = Global.WorldMgr.MaxPlayerCount;
-		var activeClientsNum = Global.WorldMgr.ActiveSessionCount;
-		var queuedClientsNum = Global.WorldMgr.QueuedSessionCount;
-		var maxActiveClientsNum = Global.WorldMgr.MaxActiveSessionCount;
-		var maxQueuedClientsNum = Global.WorldMgr.MaxQueuedSessionCount;
-		var uptime = Time.secsToTimeString(GameTime.GetUptime());
-		var updateTime = Global.WorldMgr.WorldUpdateTime.GetLastUpdateTime();
+    {
+        var playersNum = Global.WorldMgr.PlayerCount;
+        var maxPlayersNum = Global.WorldMgr.MaxPlayerCount;
+        var activeClientsNum = Global.WorldMgr.ActiveSessionCount;
+        var queuedClientsNum = Global.WorldMgr.QueuedSessionCount;
+        var maxActiveClientsNum = Global.WorldMgr.MaxActiveSessionCount;
+        var maxQueuedClientsNum = Global.WorldMgr.MaxQueuedSessionCount;
+        var uptime = Time.secsToTimeString(GameTime.GetUptime());
+        var updateTime = Global.WorldMgr.WorldUpdateTime.GetLastUpdateTime();
 
-		handler.SendSysMessage(CypherStrings.ConnectedPlayers, playersNum, maxPlayersNum);
-		handler.SendSysMessage(CypherStrings.ConnectedUsers, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
-		handler.SendSysMessage(CypherStrings.Uptime, uptime);
-		handler.SendSysMessage(CypherStrings.UpdateDiff, updateTime);
+        handler.SendSysMessage(CypherStrings.ConnectedPlayers, playersNum, maxPlayersNum);
+        handler.SendSysMessage(CypherStrings.ConnectedUsers, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
+        handler.SendSysMessage(CypherStrings.Uptime, uptime);
+        handler.SendSysMessage(CypherStrings.UpdateDiff, updateTime);
 
-		// Can't use Global.WorldMgr.ShutdownMsg here in case of console command
-		if (Global.WorldMgr.IsShuttingDown)
-			handler.SendSysMessage(CypherStrings.ShutdownTimeleft, Time.secsToTimeString(Global.WorldMgr.ShutDownTimeLeft));
+        // Can't use Global.WorldMgr.ShutdownMsg here in case of console command
+        if (Global.WorldMgr.IsShuttingDown)
+            handler.SendSysMessage(CypherStrings.ShutdownTimeleft, Time.secsToTimeString(Global.WorldMgr.ShutDownTimeLeft));
 
-		return true;
-	}
+        return true;
+    }
 
-	[Command("motd", RBACPermissions.CommandServerMotd, true)]
+    [Command("motd", RBACPermissions.CommandServerMotd, true)]
     private static bool HandleServerMotdCommand(CommandHandler handler)
-	{
-		var motd = "";
+    {
+        var motd = "";
 
-		foreach (var line in Global.WorldMgr.Motd)
-			motd += line;
+        foreach (var line in Global.WorldMgr.Motd)
+            motd += line;
 
-		handler.SendSysMessage(CypherStrings.MotdCurrent, motd);
+        handler.SendSysMessage(CypherStrings.MotdCurrent, motd);
 
-		return true;
-	}
+        return true;
+    }
 
-	[Command("plimit", RBACPermissions.CommandServerPlimit, true)]
+    [Command("plimit", RBACPermissions.CommandServerPlimit, true)]
     private static bool HandleServerPLimitCommand(CommandHandler handler, StringArguments args)
-	{
-		if (!args.Empty())
-		{
-			var paramStr = args.NextString();
+    {
+        if (!args.Empty())
+        {
+            var paramStr = args.NextString();
 
-			if (string.IsNullOrEmpty(paramStr))
-				return false;
+            if (string.IsNullOrEmpty(paramStr))
+                return false;
 
-			switch (paramStr.ToLower())
-			{
-				case "player":
-					Global.WorldMgr.PlayerSecurityLimit = AccountTypes.Player;
+            switch (paramStr.ToLower())
+            {
+                case "player":
+                    Global.WorldMgr.PlayerSecurityLimit = AccountTypes.Player;
 
-					break;
-				case "moderator":
-					Global.WorldMgr.PlayerSecurityLimit = AccountTypes.Moderator;
+                    break;
+                case "moderator":
+                    Global.WorldMgr.PlayerSecurityLimit = AccountTypes.Moderator;
 
-					break;
-				case "gamemaster":
-					Global.WorldMgr.PlayerSecurityLimit = AccountTypes.GameMaster;
+                    break;
+                case "gamemaster":
+                    Global.WorldMgr.PlayerSecurityLimit = AccountTypes.GameMaster;
 
-					break;
-				case "administrator":
-					Global.WorldMgr.PlayerSecurityLimit = AccountTypes.Administrator;
+                    break;
+                case "administrator":
+                    Global.WorldMgr.PlayerSecurityLimit = AccountTypes.Administrator;
 
-					break;
-				case "reset":
-					Global.WorldMgr.PlayerAmountLimit = ConfigMgr.GetDefaultValue<uint>("PlayerLimit", 100);
-					Global.WorldMgr.LoadDBAllowedSecurityLevel();
+                    break;
+                case "reset":
+                    Global.WorldMgr.PlayerAmountLimit = ConfigMgr.GetDefaultValue<uint>("PlayerLimit", 100);
+                    Global.WorldMgr.LoadDBAllowedSecurityLevel();
 
-					break;
-				default:
-					if (!int.TryParse(paramStr, out var value))
-						return false;
+                    break;
+                default:
+                    if (!int.TryParse(paramStr, out var value))
+                        return false;
 
-					if (value < 0)
-						Global.WorldMgr.PlayerSecurityLimit = (AccountTypes)(-value);
-					else
-						Global.WorldMgr.PlayerAmountLimit = (uint)value;
+                    if (value < 0)
+                        Global.WorldMgr.PlayerSecurityLimit = (AccountTypes)(-value);
+                    else
+                        Global.WorldMgr.PlayerAmountLimit = (uint)value;
 
-					break;
-			}
-		}
+                    break;
+            }
+        }
 
-		var playerAmountLimit = Global.WorldMgr.PlayerAmountLimit;
-		var allowedAccountType = Global.WorldMgr.PlayerSecurityLimit;
-		string secName;
+        var playerAmountLimit = Global.WorldMgr.PlayerAmountLimit;
+        var allowedAccountType = Global.WorldMgr.PlayerSecurityLimit;
+        string secName;
 
-		switch (allowedAccountType)
-		{
-			case AccountTypes.Player:
-				secName = "Player";
+        switch (allowedAccountType)
+        {
+            case AccountTypes.Player:
+                secName = "Player";
 
-				break;
-			case AccountTypes.Moderator:
-				secName = "Moderator";
+                break;
+            case AccountTypes.Moderator:
+                secName = "Moderator";
 
-				break;
-			case AccountTypes.GameMaster:
-				secName = "Gamemaster";
+                break;
+            case AccountTypes.GameMaster:
+                secName = "Gamemaster";
 
-				break;
-			case AccountTypes.Administrator:
-				secName = "Administrator";
+                break;
+            case AccountTypes.Administrator:
+                secName = "Administrator";
 
-				break;
-			default:
-				secName = "<unknown>";
+                break;
+            default:
+                secName = "<unknown>";
 
-				break;
-		}
+                break;
+        }
 
-		handler.SendSysMessage("Player limits: amount {0}, min. security level {1}.", playerAmountLimit, secName);
+        handler.SendSysMessage("Player limits: amount {0}, min. security level {1}.", playerAmountLimit, secName);
 
-		return true;
-	}
+        return true;
+    }
 
     private static bool IsOnlyUser(WorldSession mySession)
-	{
-		// check if there is any session connected from a different address
-		var myAddr = mySession ? mySession.RemoteAddress : "";
-		var sessions = Global.WorldMgr.AllSessions;
+    {
+        // check if there is any session connected from a different address
+        var myAddr = mySession ? mySession.RemoteAddress : "";
+        var sessions = Global.WorldMgr.AllSessions;
 
-		foreach (var session in sessions)
-			if (session && myAddr != session.RemoteAddress)
-				return false;
+        foreach (var session in sessions)
+            if (session && myAddr != session.RemoteAddress)
+                return false;
 
-		return true;
-	}
+        return true;
+    }
 
     private static bool ParseExitCode(string exitCodeStr, out int exitCode)
-	{
-		if (!int.TryParse(exitCodeStr, out exitCode))
-			return false;
+    {
+        if (!int.TryParse(exitCodeStr, out exitCode))
+            return false;
 
-		// Handle atoi() errors
-		if (exitCode == 0 && (exitCodeStr[0] != '0' || (exitCodeStr.Length > 1 && exitCodeStr[1] != '\0')))
-			return false;
+        // Handle atoi() errors
+        if (exitCode == 0 && (exitCodeStr[0] != '0' || (exitCodeStr.Length > 1 && exitCodeStr[1] != '\0')))
+            return false;
 
-		// Exit code should be in range of 0-125, 126-255 is used
-		// in many shells for their own return codes and code > 255
-		// is not supported in many others
-		if (exitCode < 0 || exitCode > 125)
-			return false;
+        // Exit code should be in range of 0-125, 126-255 is used
+        // in many shells for their own return codes and code > 255
+        // is not supported in many others
+        if (exitCode < 0 || exitCode > 125)
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 
     private static bool ShutdownServer(StringArguments args, CommandHandler handler, ShutdownMask shutdownMask, ShutdownExitCode defaultExitCode)
-	{
-		if (args.Empty())
-			return false;
+    {
+        if (args.Empty())
+            return false;
 
-		var delayStr = args.NextString();
+        var delayStr = args.NextString();
 
-		if (delayStr.IsEmpty())
-			return false;
+        if (delayStr.IsEmpty())
+            return false;
 
-		if (int.TryParse(delayStr, out var delay))
-		{
-			//  Prevent interpret wrong arg value as 0 secs shutdown time
-			if ((delay == 0 && (delayStr[0] != '0' || delayStr.Length > 1 && delayStr[1] != '\0')) || delay < 0)
-				return false;
-		}
-		else
-		{
-			delay = (int)Time.TimeStringToSecs(delayStr);
+        if (int.TryParse(delayStr, out var delay))
+        {
+            //  Prevent interpret wrong arg value as 0 secs shutdown time
+            if ((delay == 0 && (delayStr[0] != '0' || delayStr.Length > 1 && delayStr[1] != '\0')) || delay < 0)
+                return false;
+        }
+        else
+        {
+            delay = (int)Time.TimeStringToSecs(delayStr);
 
-			if (delay == 0)
-				return false;
-		}
+            if (delay == 0)
+                return false;
+        }
 
-		var reason = "";
-		var exitCodeStr = "";
-		string nextToken;
+        var reason = "";
+        var exitCodeStr = "";
+        string nextToken;
 
-		while (!(nextToken = args.NextString()).IsEmpty())
-			if (nextToken.IsNumber())
-			{
-				exitCodeStr = nextToken;
-			}
-			else
-			{
-				reason = nextToken;
-				reason += args.NextString("\0");
+        while (!(nextToken = args.NextString()).IsEmpty())
+            if (nextToken.IsNumber())
+            {
+                exitCodeStr = nextToken;
+            }
+            else
+            {
+                reason = nextToken;
+                reason += args.NextString("\0");
 
-				break;
-			}
+                break;
+            }
 
-		var exitCode = (int)defaultExitCode;
+        var exitCode = (int)defaultExitCode;
 
-		if (!exitCodeStr.IsEmpty())
-			if (!ParseExitCode(exitCodeStr, out exitCode))
-				return false;
+        if (!exitCodeStr.IsEmpty())
+            if (!ParseExitCode(exitCodeStr, out exitCode))
+                return false;
 
-		// Override parameter "delay" with the configuration value if there are still players connected and "force" parameter was not specified
-		if (delay < GetDefaultValue("GM.ForceShutdownThreshold", 30) && !shutdownMask.HasAnyFlag(ShutdownMask.Force) && !IsOnlyUser(handler.Session))
-		{
-			delay = GetDefaultValue("GM.ForceShutdownThreshold", 30);
-			handler.SendSysMessage(CypherStrings.ShutdownDelayed, delay);
-		}
+        // Override parameter "delay" with the configuration value if there are still players connected and "force" parameter was not specified
+        if (delay < GetDefaultValue("GM.ForceShutdownThreshold", 30) && !shutdownMask.HasAnyFlag(ShutdownMask.Force) && !IsOnlyUser(handler.Session))
+        {
+            delay = GetDefaultValue("GM.ForceShutdownThreshold", 30);
+            handler.SendSysMessage(CypherStrings.ShutdownDelayed, delay);
+        }
 
-		Global.WorldMgr.ShutdownServ((uint)delay, shutdownMask, (ShutdownExitCode)exitCode, reason);
+        Global.WorldMgr.ShutdownServ((uint)delay, shutdownMask, (ShutdownExitCode)exitCode, reason);
 
-		return true;
-	}
+        return true;
+    }
 
-	[CommandGroup("idleRestart")]
+    [CommandGroup("idleRestart")]
     private class IdleRestartCommands
-	{
-		[Command("", RBACPermissions.CommandServerIdlerestart, true)]
+    {
+        [Command("", RBACPermissions.CommandServerIdlerestart, true)]
         private static bool HandleServerIdleRestartCommand(CommandHandler handler, StringArguments args)
-		{
-			return ShutdownServer(args, handler, ShutdownMask.Restart | ShutdownMask.Idle, ShutdownExitCode.Restart);
-		}
+        {
+            return ShutdownServer(args, handler, ShutdownMask.Restart | ShutdownMask.Idle, ShutdownExitCode.Restart);
+        }
 
-		[Command("cancel", RBACPermissions.CommandServerIdlerestartCancel, true)]
+        [Command("cancel", RBACPermissions.CommandServerIdlerestartCancel, true)]
         private static bool HandleServerShutDownCancelCommand(CommandHandler handler)
-		{
-			var timer = Global.WorldMgr.ShutdownCancel();
+        {
+            var timer = Global.WorldMgr.ShutdownCancel();
 
-			if (timer != 0)
-				handler.SendSysMessage(CypherStrings.ShutdownCancelled, timer);
+            if (timer != 0)
+                handler.SendSysMessage(CypherStrings.ShutdownCancelled, timer);
 
-			return true;
-		}
-	}
+            return true;
+        }
+    }
 
-	[CommandGroup("idleshutdown")]
+    [CommandGroup("idleshutdown")]
     private class IdleshutdownCommands
-	{
-		[Command("", RBACPermissions.CommandServerIdleshutdown, true)]
+    {
+        [Command("", RBACPermissions.CommandServerIdleshutdown, true)]
         private static bool HandleServerIdleShutDownCommand(CommandHandler handler, StringArguments args)
-		{
-			return ShutdownServer(args, handler, ShutdownMask.Idle, ShutdownExitCode.Shutdown);
-		}
+        {
+            return ShutdownServer(args, handler, ShutdownMask.Idle, ShutdownExitCode.Shutdown);
+        }
 
-		[Command("cancel", RBACPermissions.CommandServerIdleshutdownCancel, true)]
+        [Command("cancel", RBACPermissions.CommandServerIdleshutdownCancel, true)]
         private static bool HandleServerShutDownCancelCommand(CommandHandler handler)
-		{
-			var timer = Global.WorldMgr.ShutdownCancel();
+        {
+            var timer = Global.WorldMgr.ShutdownCancel();
 
-			if (timer != 0)
-				handler.SendSysMessage(CypherStrings.ShutdownCancelled, timer);
+            if (timer != 0)
+                handler.SendSysMessage(CypherStrings.ShutdownCancelled, timer);
 
-			return true;
-		}
-	}
+            return true;
+        }
+    }
 
-	[CommandGroup("restart")]
+    [CommandGroup("restart")]
     private class RestartCommands
-	{
-		[Command("", RBACPermissions.CommandServerRestart, true)]
+    {
+        [Command("", RBACPermissions.CommandServerRestart, true)]
         private static bool HandleServerRestartCommand(CommandHandler handler, StringArguments args)
-		{
-			return ShutdownServer(args, handler, ShutdownMask.Restart, ShutdownExitCode.Restart);
-		}
+        {
+            return ShutdownServer(args, handler, ShutdownMask.Restart, ShutdownExitCode.Restart);
+        }
 
-		[Command("cancel", RBACPermissions.CommandServerRestartCancel, true)]
+        [Command("cancel", RBACPermissions.CommandServerRestartCancel, true)]
         private static bool HandleServerShutDownCancelCommand(CommandHandler handler)
-		{
-			var timer = Global.WorldMgr.ShutdownCancel();
+        {
+            var timer = Global.WorldMgr.ShutdownCancel();
 
-			if (timer != 0)
-				handler.SendSysMessage(CypherStrings.ShutdownCancelled, timer);
+            if (timer != 0)
+                handler.SendSysMessage(CypherStrings.ShutdownCancelled, timer);
 
-			return true;
-		}
+            return true;
+        }
 
-		[Command("force", RBACPermissions.CommandServerRestartCancel, true)]
+        [Command("force", RBACPermissions.CommandServerRestartCancel, true)]
         private static bool HandleServerForceRestartCommand(CommandHandler handler, StringArguments args)
-		{
-			return ShutdownServer(args, handler, ShutdownMask.Force | ShutdownMask.Restart, ShutdownExitCode.Restart);
-		}
-	}
+        {
+            return ShutdownServer(args, handler, ShutdownMask.Force | ShutdownMask.Restart, ShutdownExitCode.Restart);
+        }
+    }
 
-	[CommandGroup("shutdown")]
+    [CommandGroup("shutdown")]
     private class ShutdownCommands
-	{
-		[Command("", RBACPermissions.CommandServerShutdown, true)]
+    {
+        [Command("", RBACPermissions.CommandServerShutdown, true)]
         private static bool HandleServerShutDownCommand(CommandHandler handler, StringArguments args)
-		{
-			return ShutdownServer(args, handler, 0, ShutdownExitCode.Shutdown);
-		}
+        {
+            return ShutdownServer(args, handler, 0, ShutdownExitCode.Shutdown);
+        }
 
-		[Command("cancel", RBACPermissions.CommandServerShutdownCancel, true)]
+        [Command("cancel", RBACPermissions.CommandServerShutdownCancel, true)]
         private static bool HandleServerShutDownCancelCommand(CommandHandler handler)
-		{
-			var timer = Global.WorldMgr.ShutdownCancel();
+        {
+            var timer = Global.WorldMgr.ShutdownCancel();
 
-			if (timer != 0)
-				handler.SendSysMessage(CypherStrings.ShutdownCancelled, timer);
+            if (timer != 0)
+                handler.SendSysMessage(CypherStrings.ShutdownCancelled, timer);
 
-			return true;
-		}
+            return true;
+        }
 
-		[Command("force", RBACPermissions.CommandServerShutdownCancel, true)]
+        [Command("force", RBACPermissions.CommandServerShutdownCancel, true)]
         private static bool HandleServerForceShutDownCommand(CommandHandler handler, StringArguments args)
-		{
-			return ShutdownServer(args, handler, ShutdownMask.Force, ShutdownExitCode.Shutdown);
-		}
-	}
+        {
+            return ShutdownServer(args, handler, ShutdownMask.Force, ShutdownExitCode.Shutdown);
+        }
+    }
 
-	[CommandGroup("set")]
+    [CommandGroup("set")]
     private class SetCommands
-	{
-		[Command("difftime", RBACPermissions.CommandServerSetDifftime, true)]
+    {
+        [Command("difftime", RBACPermissions.CommandServerSetDifftime, true)]
         private static bool HandleServerSetDiffTimeCommand(CommandHandler handler, StringArguments args)
-		{
-			if (args.Empty())
-				return false;
+        {
+            if (args.Empty())
+                return false;
 
-			var newTimeStr = args.NextString();
+            var newTimeStr = args.NextString();
 
-			if (newTimeStr.IsEmpty())
-				return false;
+            if (newTimeStr.IsEmpty())
+                return false;
 
-			if (!int.TryParse(newTimeStr, out var newTime) || newTime < 0)
-				return false;
+            if (!int.TryParse(newTimeStr, out var newTime) || newTime < 0)
+                return false;
 
-			//Global.WorldMgr.SetRecordDiffInterval(newTime);
-			//printf("Record diff every %i ms\n", newTime);
+            //Global.WorldMgr.SetRecordDiffInterval(newTime);
+            //printf("Record diff every %i ms\n", newTime);
 
-			return true;
-		}
+            return true;
+        }
 
-		[Command("loglevel", RBACPermissions.CommandServerSetLoglevel, true)]
+        [Command("loglevel", RBACPermissions.CommandServerSetLoglevel, true)]
         private static bool HandleServerSetLogLevelCommand(CommandHandler handler, string type, string name, int level)
-		{
-			if (name.IsEmpty() || level < 0 || (type != "a" && type != "l"))
-				return false;
+        {
+            if (name.IsEmpty() || level < 0 || (type != "a" && type != "l"))
+                return false;
 
-			return Log.SetLogLevel(name, level, type == "l");
-		}
+            return Log.SetLogLevel(name, level, type == "l");
+        }
 
-		[Command("motd", RBACPermissions.CommandServerSetMotd, true)]
+        [Command("motd", RBACPermissions.CommandServerSetMotd, true)]
         private static bool HandleServerSetMotdCommand(CommandHandler handler, StringArguments args)
-		{
-			Global.WorldMgr.SetMotd(args.NextString(""));
-			handler.SendSysMessage(CypherStrings.MotdNew, args.GetString());
+        {
+            Global.WorldMgr.SetMotd(args.NextString(""));
+            handler.SendSysMessage(CypherStrings.MotdNew, args.GetString());
 
-			return true;
-		}
+            return true;
+        }
 
-		[Command("closed", RBACPermissions.CommandServerSetClosed, true)]
+        [Command("closed", RBACPermissions.CommandServerSetClosed, true)]
         private static bool HandleServerSetClosedCommand(CommandHandler handler, StringArguments args)
-		{
-			var arg1 = args.NextString();
+        {
+            var arg1 = args.NextString();
 
-			if (arg1.Equals("on", StringComparison.OrdinalIgnoreCase))
-			{
-				handler.SendSysMessage(CypherStrings.WorldClosed);
-				Global.WorldMgr.SetClosed(true);
+            if (arg1.Equals("on", StringComparison.OrdinalIgnoreCase))
+            {
+                handler.SendSysMessage(CypherStrings.WorldClosed);
+                Global.WorldMgr.SetClosed(true);
 
-				return true;
-			}
-			else if (arg1.Equals("off", StringComparison.OrdinalIgnoreCase))
-			{
-				handler.SendSysMessage(CypherStrings.WorldOpened);
-				Global.WorldMgr.SetClosed(false);
+                return true;
+            }
+            else if (arg1.Equals("off", StringComparison.OrdinalIgnoreCase))
+            {
+                handler.SendSysMessage(CypherStrings.WorldOpened);
+                Global.WorldMgr.SetClosed(false);
 
-				return true;
-			}
+                return true;
+            }
 
-			handler.SendSysMessage(CypherStrings.UseBol);
+            handler.SendSysMessage(CypherStrings.UseBol);
 
-			return false;
-		}
-	}
+            return false;
+        }
+    }
 }

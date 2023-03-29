@@ -17,33 +17,33 @@ public class PlayerListSearcher : IGridNotifierPlayer
     private readonly List<Unit> _objects;
     private readonly ICheck<Player> _check;
 
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public PlayerListSearcher(WorldObject searcher, List<Unit> objects, ICheck<Player> check, GridType gridType = GridType.World)
-	{
-		_phaseShift = searcher.PhaseShift;
-		_objects = objects;
-		_check = check;
-		GridType = gridType;
-	}
+    public PlayerListSearcher(WorldObject searcher, List<Unit> objects, ICheck<Player> check, GridType gridType = GridType.World)
+    {
+        _phaseShift = searcher.PhaseShift;
+        _objects = objects;
+        _check = check;
+        GridType = gridType;
+    }
 
-	public PlayerListSearcher(PhaseShift phaseShift, List<Unit> objects, ICheck<Player> check, GridType gridType = GridType.World)
-	{
-		_phaseShift = phaseShift;
-		_objects = objects;
-		_check = check;
-		GridType = gridType;
-	}
+    public PlayerListSearcher(PhaseShift phaseShift, List<Unit> objects, ICheck<Player> check, GridType gridType = GridType.World)
+    {
+        _phaseShift = phaseShift;
+        _objects = objects;
+        _check = check;
+        GridType = gridType;
+    }
 
-	public void Visit(IList<Player> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var player = objs[i];
+    public void Visit(IList<Player> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var player = objs[i];
 
-			if (player != null && player.InSamePhase(_phaseShift))
-				if (_check.Invoke(player))
-					_objects.Add(player);
-		}
-	}
+            if (player != null && player.InSamePhase(_phaseShift))
+                if (_check.Invoke(player))
+                    _objects.Add(player);
+        }
+    }
 }

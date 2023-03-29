@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class EmoteClient : ClientPacket
 {
-	public EmoteClient(WorldPacket packet) : base(packet) { }
+    public EmoteClient(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

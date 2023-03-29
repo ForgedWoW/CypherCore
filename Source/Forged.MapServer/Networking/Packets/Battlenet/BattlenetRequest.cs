@@ -5,15 +5,15 @@ namespace Forged.MapServer.Networking.Packets.Battlenet;
 
 internal class BattlenetRequest : ClientPacket
 {
-	public MethodCall Method;
-	public byte[] Data;
-	public BattlenetRequest(WorldPacket packet) : base(packet) { }
+    public MethodCall Method;
+    public byte[] Data;
+    public BattlenetRequest(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Method.Read(_worldPacket);
-		var protoSize = _worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        Method.Read(_worldPacket);
+        var protoSize = _worldPacket.ReadUInt32();
 
-		Data = _worldPacket.ReadBytes(protoSize);
-	}
+        Data = _worldPacket.ReadBytes(protoSize);
+    }
 }

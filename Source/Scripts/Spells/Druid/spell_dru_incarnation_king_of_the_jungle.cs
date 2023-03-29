@@ -9,12 +9,12 @@ namespace Scripts.Spells.Druid;
 [SpellScript(102543)]
 public class spell_dru_incarnation_king_of_the_jungle : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var player = Caster.AsPlayer;
+    public void OnCast()
+    {
+        var player = Caster.AsPlayer;
 
-		if (player != null)
-			if (!player.HasAura(ShapeshiftFormSpells.CAT_FORM))
-				player.CastSpell(player, ShapeshiftFormSpells.CAT_FORM, true);
-	}
+        if (player != null)
+            if (!player.HasAura(ShapeshiftFormSpells.CAT_FORM))
+                player.CastSpell(player, ShapeshiftFormSpells.CAT_FORM, true);
+    }
 }

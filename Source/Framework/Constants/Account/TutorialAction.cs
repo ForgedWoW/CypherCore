@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum TutorialAction
 {
-	Update = 0,
-	Clear = 1,
-	Reset = 2
+    Update = 0,
+    Clear = 1,
+    Reset = 2
 }

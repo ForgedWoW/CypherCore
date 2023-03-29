@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class DeleteChar : ServerPacket
 {
-	public ResponseCodes Code;
-	public DeleteChar() : base(ServerOpcodes.DeleteChar) { }
+    public ResponseCodes Code;
+    public DeleteChar() : base(ServerOpcodes.DeleteChar) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt8((byte)Code);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt8((byte)Code);
+    }
 }

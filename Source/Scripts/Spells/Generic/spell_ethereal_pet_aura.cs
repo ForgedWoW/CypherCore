@@ -14,32 +14,32 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_ethereal_pet_aura : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var levelDiff = (uint)Math.Abs(Target.Level - eventInfo.ProcTarget.Level);
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var levelDiff = (uint)Math.Abs(Target.Level - eventInfo.ProcTarget.Level);
 
-		return levelDiff <= 9;
-	}
+        return levelDiff <= 9;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		List<TempSummon> minionList = new();
-		OwnerAsUnit.GetAllMinionsByEntry(minionList, CreatureIds.EtherealSoulTrader);
+        List<TempSummon> minionList = new();
+        OwnerAsUnit.GetAllMinionsByEntry(minionList, CreatureIds.EtherealSoulTrader);
 
-		foreach (Creature minion in minionList)
-			if (minion.IsAIEnabled)
-			{
-				minion.AI.Talk(TextIds.SayStealEssence);
-				minion.CastSpell(eventInfo.ProcTarget, GenericSpellIds.StealEssenceVisual);
-			}
-	}
+        foreach (Creature minion in minionList)
+            if (minion.IsAIEnabled)
+            {
+                minion.AI.Talk(TextIds.SayStealEssence);
+                minion.CastSpell(eventInfo.ProcTarget, GenericSpellIds.StealEssenceVisual);
+            }
+    }
 }

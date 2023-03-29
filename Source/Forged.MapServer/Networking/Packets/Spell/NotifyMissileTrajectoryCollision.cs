@@ -9,15 +9,15 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class NotifyMissileTrajectoryCollision : ServerPacket
 {
-	public ObjectGuid Caster;
-	public ObjectGuid CastID;
-	public Vector3 CollisionPos;
-	public NotifyMissileTrajectoryCollision() : base(ServerOpcodes.NotifyMissileTrajectoryCollision) { }
+    public ObjectGuid Caster;
+    public ObjectGuid CastID;
+    public Vector3 CollisionPos;
+    public NotifyMissileTrajectoryCollision() : base(ServerOpcodes.NotifyMissileTrajectoryCollision) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Caster);
-		_worldPacket.WritePackedGuid(CastID);
-		_worldPacket.WriteVector3(CollisionPos);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Caster);
+        _worldPacket.WritePackedGuid(CastID);
+        _worldPacket.WriteVector3(CollisionPos);
+    }
 }

@@ -5,5 +5,5 @@ namespace Framework.Constants;
 
 public enum GarrisonBuildingFlags : int
 {
-	NeedsPlan = 0x1
+    NeedsPlan = 0x1
 }

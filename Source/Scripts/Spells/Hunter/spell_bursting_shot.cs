@@ -9,11 +9,11 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(186387)]
 public class spell_bursting_shot : SpellScript, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		var caster = Caster;
+    public void AfterHit()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			caster.CastSpell(HitUnit, HunterSpells.AURA_SHOOTING, true);
-	}
+        if (caster != null)
+            caster.CastSpell(HitUnit, HunterSpells.AURA_SHOOTING, true);
+    }
 }

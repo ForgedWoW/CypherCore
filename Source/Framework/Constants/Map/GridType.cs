@@ -8,7 +8,7 @@ namespace Framework.Constants;
 [Flags]
 public enum GridType
 {
-	Grid,
-	World,
-	All = Grid | World
+    Grid,
+    World,
+    All = Grid | World
 }

@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IVehicle;
 
 public interface IVehicleOnInstall : IScriptObject
 {
-	void OnInstall(Vehicle veh);
+    void OnInstall(Vehicle veh);
 }

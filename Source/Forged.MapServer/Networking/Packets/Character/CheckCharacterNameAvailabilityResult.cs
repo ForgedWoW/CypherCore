@@ -7,18 +7,18 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class CheckCharacterNameAvailabilityResult : ServerPacket
 {
-	public uint SequenceIndex;
-	public ResponseCodes Result;
+    public uint SequenceIndex;
+    public ResponseCodes Result;
 
-	public CheckCharacterNameAvailabilityResult(uint sequenceIndex, ResponseCodes result) : base(ServerOpcodes.CheckCharacterNameAvailabilityResult)
-	{
-		SequenceIndex = sequenceIndex;
-		Result = result;
-	}
+    public CheckCharacterNameAvailabilityResult(uint sequenceIndex, ResponseCodes result) : base(ServerOpcodes.CheckCharacterNameAvailabilityResult)
+    {
+        SequenceIndex = sequenceIndex;
+        Result = result;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(SequenceIndex);
-		_worldPacket.WriteUInt32((uint)Result);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(SequenceIndex);
+        _worldPacket.WriteUInt32((uint)Result);
+    }
 }

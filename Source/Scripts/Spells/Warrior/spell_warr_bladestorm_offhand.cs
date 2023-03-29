@@ -12,28 +12,28 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(95738)]
 public class spell_warr_bladestorm_offhand : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.WeaponPercentDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+        SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.WeaponPercentDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleOnHit(int effIndex)
-	{
-		var caster = Caster.AsPlayer;
+    private void HandleOnHit(int effIndex)
+    {
+        var caster = Caster.AsPlayer;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var _spec = caster.GetPrimarySpecialization();
+        var _spec = caster.GetPrimarySpecialization();
 
-		if (_spec != TalentSpecialization.WarriorFury) //only fury warriors should deal damage with offhand
-		{
-			PreventHitDamage();
-			PreventHitDefaultEffect(effIndex);
-			PreventHitEffect(effIndex);
-		}
-	}
+        if (_spec != TalentSpecialization.WarriorFury) //only fury warriors should deal damage with offhand
+        {
+            PreventHitDamage();
+            PreventHitDefaultEffect(effIndex);
+            PreventHitEffect(effIndex);
+        }
+    }
 }

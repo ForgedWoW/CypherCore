@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class TurnInPetitionResult : ServerPacket
 {
-	public PetitionTurns Result = 0; // PetitionError
-	public TurnInPetitionResult() : base(ServerOpcodes.TurnInPetitionResult) { }
+    public PetitionTurns Result = 0; // PetitionError
+    public TurnInPetitionResult() : base(ServerOpcodes.TurnInPetitionResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(Result, 4);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBits(Result, 4);
+        _worldPacket.FlushBits();
+    }
 }

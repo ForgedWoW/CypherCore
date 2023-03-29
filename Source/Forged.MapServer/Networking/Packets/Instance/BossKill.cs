@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class BossKill : ServerPacket
 {
-	public uint DungeonEncounterID;
-	public BossKill() : base(ServerOpcodes.BossKill, ConnectionType.Instance) { }
+    public uint DungeonEncounterID;
+    public BossKill() : base(ServerOpcodes.BossKill, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(DungeonEncounterID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(DungeonEncounterID);
+    }
 }

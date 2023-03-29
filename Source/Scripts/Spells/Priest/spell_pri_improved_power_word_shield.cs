@@ -12,24 +12,24 @@ namespace Scripts.Spells.Priest;
 [SpellScript(14769)]
 public class spell_pri_improved_power_word_shield : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcSpellModHandler(HandleEffectCalcSpellMod, 0, AuraType.Dummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcSpellModHandler(HandleEffectCalcSpellMod, 0, AuraType.Dummy));
+    }
 
-	private void HandleEffectCalcSpellMod(AuraEffect aurEff, SpellModifier spellMod)
-	{
-		if (spellMod == null)
-		{
-			var mod = new SpellModifierByClassMask(Aura);
-			spellMod.Op = (SpellModOp)aurEff.MiscValue;
-			spellMod.Type = SpellModType.Pct;
-			spellMod.SpellId = Id;
-			mod.Mask = aurEff.GetSpellEffectInfo().SpellClassMask;
-		}
+    private void HandleEffectCalcSpellMod(AuraEffect aurEff, SpellModifier spellMod)
+    {
+        if (spellMod == null)
+        {
+            var mod = new SpellModifierByClassMask(Aura);
+            spellMod.Op = (SpellModOp)aurEff.MiscValue;
+            spellMod.Type = SpellModType.Pct;
+            spellMod.SpellId = Id;
+            mod.Mask = aurEff.GetSpellEffectInfo().SpellClassMask;
+        }
 
-		((SpellModifierByClassMask)spellMod).Value = aurEff.Amount;
-	}
+        ((SpellModifierByClassMask)spellMod).Value = aurEff.Amount;
+    }
 }

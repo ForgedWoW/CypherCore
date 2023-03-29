@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ITransport;
 
 public interface ITransportOnAddCreaturePassenger : IScriptObject
 {
-	void OnAddCreaturePassenger(Transport transport, Creature creature);
+    void OnAddCreaturePassenger(Transport transport, Creature creature);
 }

@@ -10,20 +10,20 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(781)]
 public class spell_hun_disengage : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		var player = Caster.AsPlayer;
+    public void AfterCast()
+    {
+        var player = Caster.AsPlayer;
 
-		if (player != null)
-		{
-			var spec = player.GetPrimarySpecialization();
+        if (player != null)
+        {
+            var spec = player.GetPrimarySpecialization();
 
-			if (player.HasSpell(HunterSpells.POSTHAST))
-				if (spec == TalentSpecialization.HunterMarksman || spec == TalentSpecialization.HunterBeastMastery)
-				{
-					player.RemoveMovementImpairingAuras(false);
-					player.CastSpell(player, HunterSpells.POSTHAST_SPEED, true);
-				}
-		}
-	}
+            if (player.HasSpell(HunterSpells.POSTHAST))
+                if (spec == TalentSpecialization.HunterMarksman || spec == TalentSpecialization.HunterBeastMastery)
+                {
+                    player.RemoveMovementImpairingAuras(false);
+                    player.CastSpell(player, HunterSpells.POSTHAST_SPEED, true);
+                }
+        }
+    }
 }

@@ -11,24 +11,24 @@ namespace Scripts.Spells.Mage;
 [Script] // 4658 - AreaTrigger Create Properties
 internal class areatrigger_mage_blizzard : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
 {
-	private TimeSpan _tickTimer;
+    private TimeSpan _tickTimer;
 
-	public void OnCreate()
-	{
-		_tickTimer = TimeSpan.FromMilliseconds(1000);
-	}
+    public void OnCreate()
+    {
+        _tickTimer = TimeSpan.FromMilliseconds(1000);
+    }
 
-	public void OnUpdate(uint diff)
-	{
-		_tickTimer -= TimeSpan.FromMilliseconds(diff);
+    public void OnUpdate(uint diff)
+    {
+        _tickTimer -= TimeSpan.FromMilliseconds(diff);
 
-		while (_tickTimer <= TimeSpan.Zero)
-		{
-			var caster = At.GetCaster();
+        while (_tickTimer <= TimeSpan.Zero)
+        {
+            var caster = At.GetCaster();
 
-			caster?.CastSpell(At.Location, MageSpells.BlizzardDamage, new CastSpellExtraArgs());
+            caster?.CastSpell(At.Location, MageSpells.BlizzardDamage, new CastSpellExtraArgs());
 
-			_tickTimer += TimeSpan.FromMilliseconds(1000);
-		}
-	}
+            _tickTimer += TimeSpan.FromMilliseconds(1000);
+        }
+    }
 }

@@ -12,36 +12,36 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(104318)]
 public class spell_warlock_fel_firebolt_wild_imp : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		// "Increases damage dealt by your Wild Imps' Firebolt by 10%."
-		var owner = Caster.OwnerUnit;
+    private void HandleHit(int effIndex)
+    {
+        // "Increases damage dealt by your Wild Imps' Firebolt by 10%."
+        var owner = Caster.OwnerUnit;
 
-		if (owner != null)
-		{
-			var pct = owner.GetAuraEffectAmount(WarlockSpells.INFERNAL_FURNACE, 0);
+        if (owner != null)
+        {
+            var pct = owner.GetAuraEffectAmount(WarlockSpells.INFERNAL_FURNACE, 0);
 
-			if (pct != 0)
-				HitDamage = HitDamage + MathFunctions.CalculatePct(HitDamage, pct);
+            if (pct != 0)
+                HitDamage = HitDamage + MathFunctions.CalculatePct(HitDamage, pct);
 
-			if (owner.HasAura(WarlockSpells.STOLEN_POWER))
-			{
-				var aur = owner.AddAura(WarlockSpells.STOLEN_POWER_COUNTER, owner);
+            if (owner.HasAura(WarlockSpells.STOLEN_POWER))
+            {
+                var aur = owner.AddAura(WarlockSpells.STOLEN_POWER_COUNTER, owner);
 
-				if (aur != null)
-					if (aur.StackAmount == 100)
-					{
-						owner.CastSpell(owner, WarlockSpells.STOLEN_POWER_BUFF, true);
-						aur.Remove();
-					}
-			}
-		}
-	}
+                if (aur != null)
+                    if (aur.StackAmount == 100)
+                    {
+                        owner.CastSpell(owner, WarlockSpells.STOLEN_POWER_BUFF, true);
+                        aur.Remove();
+                    }
+            }
+        }
+    }
 }

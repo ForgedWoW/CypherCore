@@ -12,43 +12,43 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.BLACK_DEEP_BREATH)]
 public class spell_evoker_deep_breath : SpellScript, ISpellOnCast, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		var dest = ExplTargetDest;
+    public SpellCastResult CheckCast()
+    {
+        var dest = ExplTargetDest;
 
-		if (dest != null)
-		{
-			if (Caster.HasUnitMovementFlag(MovementFlag.Root))
-				return SpellCastResult.Rooted;
+        if (dest != null)
+        {
+            if (Caster.HasUnitMovementFlag(MovementFlag.Root))
+                return SpellCastResult.Rooted;
 
-			if (Caster.Map.Instanceable)
-			{
-				var range = SpellInfo.GetMaxRange(true, Caster) * 1.5f;
+            if (Caster.Map.Instanceable)
+            {
+                var range = SpellInfo.GetMaxRange(true, Caster) * 1.5f;
 
-				PathGenerator generatedPath = new(Caster);
-				generatedPath.SetPathLengthLimit(range);
+                PathGenerator generatedPath = new(Caster);
+                generatedPath.SetPathLengthLimit(range);
 
-				var result = generatedPath.CalculatePath(dest, false);
+                var result = generatedPath.CalculatePath(dest, false);
 
-				if (generatedPath.GetPathType().HasAnyFlag(PathType.Short))
-					return SpellCastResult.OutOfRange;
-				else if (!result ||
-						generatedPath.GetPathType().HasAnyFlag(PathType.NoPath))
-					return SpellCastResult.NoPath;
-			}
-			else if (dest.Z > Caster.Location.Z + 4.0f)
-			{
-				return SpellCastResult.NoPath;
-			}
+                if (generatedPath.GetPathType().HasAnyFlag(PathType.Short))
+                    return SpellCastResult.OutOfRange;
+                else if (!result ||
+                         generatedPath.GetPathType().HasAnyFlag(PathType.NoPath))
+                    return SpellCastResult.NoPath;
+            }
+            else if (dest.Z > Caster.Location.Z + 4.0f)
+            {
+                return SpellCastResult.NoPath;
+            }
 
-			return SpellCastResult.SpellCastOk;
-		}
+            return SpellCastResult.SpellCastOk;
+        }
 
-		return SpellCastResult.NoValidTargets;
-	}
+        return SpellCastResult.NoValidTargets;
+    }
 
-	public void OnCast()
-	{
-		Caster.CastSpell(Spell.Targets.DstPos, EvokerSpells.BLACK_DEEP_BREATH_EFFECT, true);
-	}
+    public void OnCast()
+    {
+        Caster.CastSpell(Spell.Targets.DstPos, EvokerSpells.BLACK_DEEP_BREATH_EFFECT, true);
+    }
 }

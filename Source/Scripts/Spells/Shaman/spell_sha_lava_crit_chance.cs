@@ -12,17 +12,17 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(285466)]
 internal class spell_sha_lava_crit_chance : SpellScript, ISpellCalcCritChance
 {
-	public void CalcCritChance(Unit victim, ref double critChance)
-	{
-		var caster = Caster;
+    public void CalcCritChance(Unit victim, ref double critChance)
+    {
+        var caster = Caster;
 
-		if (caster == null ||
-			victim == null)
-			return;
+        if (caster == null ||
+            victim == null)
+            return;
 
-		if (caster.HasAura(ShamanSpells.LavaBurstRank2) &&
-			victim.HasAura(ShamanSpells.FlameShock, caster.GUID))
-			if (victim.GetTotalAuraModifier(AuraType.ModAttackerSpellAndWeaponCritChance) > -100)
-				critChance = 100.0f;
-	}
+        if (caster.HasAura(ShamanSpells.LavaBurstRank2) &&
+            victim.HasAura(ShamanSpells.FlameShock, caster.GUID))
+            if (victim.GetTotalAuraModifier(AuraType.ModAttackerSpellAndWeaponCritChance) > -100)
+                critChance = 100.0f;
+    }
 }

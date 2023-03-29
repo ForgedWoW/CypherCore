@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellAfterCast : ISpellScript
 {
-	public void AfterCast();
+    public void AfterCast();
 }

@@ -13,17 +13,17 @@ namespace Scripts.Spells.Items;
 [Script] // 33896 - Desperate Defense
 internal class spell_item_desperate_defense : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 2, AuraType.PeriodicTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 2, AuraType.PeriodicTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		Target.CastSpell(Target, ItemSpellIds.DesperateRage, new CastSpellExtraArgs(aurEff));
-	}
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        Target.CastSpell(Target, ItemSpellIds.DesperateRage, new CastSpellExtraArgs(aurEff));
+    }
 }

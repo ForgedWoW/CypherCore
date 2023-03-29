@@ -11,37 +11,37 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_rocket_boots : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		return Caster.TypeId == TypeId.Player;
-	}
+    public override bool Load()
+    {
+        return Caster.TypeId == TypeId.Player;
+    }
 
 
-	public SpellCastResult CheckCast()
-	{
-		if (Caster.IsInWater)
-			return SpellCastResult.OnlyAbovewater;
+    public SpellCastResult CheckCast()
+    {
+        if (Caster.IsInWater)
+            return SpellCastResult.OnlyAbovewater;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster.AsPlayer;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster.AsPlayer;
 
-		var bg = caster.Battleground;
+        var bg = caster.Battleground;
 
-		if (bg)
-			bg.EventPlayerDroppedFlag(caster);
+        if (bg)
+            bg.EventPlayerDroppedFlag(caster);
 
-		caster.SpellHistory.ResetCooldown(ItemSpellIds.RocketBootsProc);
-		caster.CastSpell(caster, ItemSpellIds.RocketBootsProc, true);
-	}
+        caster.SpellHistory.ResetCooldown(ItemSpellIds.RocketBootsProc);
+        caster.CastSpell(caster, ItemSpellIds.RocketBootsProc, true);
+    }
 }

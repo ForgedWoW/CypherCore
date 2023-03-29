@@ -8,7 +8,7 @@ namespace Framework.Constants;
 [Flags]
 public enum GroupMemberFlags
 {
-	Assistant = 0x01,
-	MainTank = 0x02,
-	MainAssist = 0x04
+    Assistant = 0x01,
+    MainTank = 0x02,
+    MainAssist = 0x04
 }

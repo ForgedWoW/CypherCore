@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootReleaseAll : ServerPacket
 {
-	public LootReleaseAll() : base(ServerOpcodes.LootReleaseAll, ConnectionType.Instance) { }
+    public LootReleaseAll() : base(ServerOpcodes.LootReleaseAll, ConnectionType.Instance) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

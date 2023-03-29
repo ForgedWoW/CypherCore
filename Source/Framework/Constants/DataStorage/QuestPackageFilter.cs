@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum QuestPackageFilter : byte
 {
-	LootSpecialization = 0, // Players can select this quest reward if it matches their selected loot specialization
-	Class = 1,              // Players can select this quest reward if it matches their class
-	Unmatched = 2,          // Players can select this quest reward if no class/loot_spec rewards are available
-	Everyone = 3            // Players can always select this quest reward
+    LootSpecialization = 0, // Players can select this quest reward if it matches their selected loot specialization
+    Class = 1,              // Players can select this quest reward if it matches their class
+    Unmatched = 2,          // Players can select this quest reward if no class/loot_spec rewards are available
+    Everyone = 3            // Players can always select this quest reward
 }

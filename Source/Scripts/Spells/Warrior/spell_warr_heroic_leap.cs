@@ -14,54 +14,54 @@ namespace Scripts.Spells.Warrior;
 [Script] // 6544 Heroic leap
 internal class spell_warr_heroic_leap : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public SpellCastResult CheckCast()
-	{
-		var dest = ExplTargetDest;
+    public SpellCastResult CheckCast()
+    {
+        var dest = ExplTargetDest;
 
-		if (dest != null)
-		{
-			if (Caster.HasUnitMovementFlag(MovementFlag.Root))
-				return SpellCastResult.Rooted;
+        if (dest != null)
+        {
+            if (Caster.HasUnitMovementFlag(MovementFlag.Root))
+                return SpellCastResult.Rooted;
 
-			if (Caster.Map.Instanceable)
-			{
-				var range = SpellInfo.GetMaxRange(true, Caster) * 1.5f;
+            if (Caster.Map.Instanceable)
+            {
+                var range = SpellInfo.GetMaxRange(true, Caster) * 1.5f;
 
-				PathGenerator generatedPath = new(Caster);
-				generatedPath.SetPathLengthLimit(range);
+                PathGenerator generatedPath = new(Caster);
+                generatedPath.SetPathLengthLimit(range);
 
-				var result = generatedPath.CalculatePath(dest, false);
+                var result = generatedPath.CalculatePath(dest, false);
 
-				if (generatedPath.GetPathType().HasAnyFlag(PathType.Short))
-					return SpellCastResult.OutOfRange;
-				else if (!result ||
-						generatedPath.GetPathType().HasAnyFlag(PathType.NoPath))
-					return SpellCastResult.NoPath;
-			}
-			else if (dest.Z > Caster.Location.Z + 4.0f)
-			{
-				return SpellCastResult.NoPath;
-			}
+                if (generatedPath.GetPathType().HasAnyFlag(PathType.Short))
+                    return SpellCastResult.OutOfRange;
+                else if (!result ||
+                         generatedPath.GetPathType().HasAnyFlag(PathType.NoPath))
+                    return SpellCastResult.NoPath;
+            }
+            else if (dest.Z > Caster.Location.Z + 4.0f)
+            {
+                return SpellCastResult.NoPath;
+            }
 
-			return SpellCastResult.SpellCastOk;
-		}
+            return SpellCastResult.SpellCastOk;
+        }
 
-		return SpellCastResult.NoValidTargets;
-	}
+        return SpellCastResult.NoValidTargets;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var dest = HitDest;
+    private void HandleDummy(int effIndex)
+    {
+        var dest = HitDest;
 
-		if (dest != null)
-			Caster.CastSpell(dest, WarriorSpells.HEROIC_LEAP_JUMP, new CastSpellExtraArgs(true));
-	}
+        if (dest != null)
+            Caster.CastSpell(dest, WarriorSpells.HEROIC_LEAP_JUMP, new CastSpellExtraArgs(true));
+    }
 }

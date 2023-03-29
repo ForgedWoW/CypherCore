@@ -13,21 +13,21 @@ namespace Scripts.Spells.Rogue;
 [Script] // 14161 - Ruthlessness
 internal class spell_rog_ruthlessness : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
-	{
-		var target = Target;
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
+    {
+        var target = Target;
 
-		var cost = procInfo.ProcSpell?.GetPowerTypeCostAmount(PowerType.ComboPoints);
+        var cost = procInfo.ProcSpell?.GetPowerTypeCostAmount(PowerType.ComboPoints);
 
-		if (cost.HasValue)
-			if (RandomHelper.randChance(aurEff.GetSpellEffectInfo().PointsPerResource * (cost.Value)))
-				target.ModifyPower(PowerType.ComboPoints, 1);
-	}
+        if (cost.HasValue)
+            if (RandomHelper.randChance(aurEff.GetSpellEffectInfo().PointsPerResource * (cost.Value)))
+                target.ModifyPower(PowerType.ComboPoints, 1);
+    }
 }

@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Who;
 
 public class WhoIsRequest : ClientPacket
 {
-	public string CharName;
-	public WhoIsRequest(WorldPacket packet) : base(packet) { }
+    public string CharName;
+    public WhoIsRequest(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		CharName = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(6));
-	}
+    public override void Read()
+    {
+        CharName = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(6));
+    }
 }

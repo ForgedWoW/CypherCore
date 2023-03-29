@@ -14,18 +14,18 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(199472)]
 public class spell_warlock_artifact_wrath_of_consumption : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			caster.CastSpell(caster, WarlockSpells.WRATH_OF_CONSUMPTION_PROC, true);
-	}
+        if (caster != null)
+            caster.CastSpell(caster, WarlockSpells.WRATH_OF_CONSUMPTION_PROC, true);
+    }
 }

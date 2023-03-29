@@ -7,19 +7,19 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public struct AuctionSortDef
 {
-	public AuctionHouseSortOrder SortOrder;
-	public bool ReverseSort;
+    public AuctionHouseSortOrder SortOrder;
+    public bool ReverseSort;
 
-	public AuctionSortDef(AuctionHouseSortOrder sortOrder, bool reverseSort)
-	{
-		SortOrder = sortOrder;
-		ReverseSort = reverseSort;
-	}
+    public AuctionSortDef(AuctionHouseSortOrder sortOrder, bool reverseSort)
+    {
+        SortOrder = sortOrder;
+        ReverseSort = reverseSort;
+    }
 
-	public AuctionSortDef(WorldPacket data)
-	{
-		data.ResetBitPos();
-		SortOrder = (AuctionHouseSortOrder)data.ReadBits<uint>(4);
-		ReverseSort = data.HasBit();
-	}
+    public AuctionSortDef(WorldPacket data)
+    {
+        data.ResetBitPos();
+        SortOrder = (AuctionHouseSortOrder)data.ReadBits<uint>(4);
+        ReverseSort = data.HasBit();
+    }
 }

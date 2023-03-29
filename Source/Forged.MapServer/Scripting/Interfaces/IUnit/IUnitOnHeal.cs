@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IUnit;
 
 public interface IUnitOnHeal : IScriptObject
 {
-	void OnHeal(HealInfo healInfo, ref uint gain);
+    void OnHeal(HealInfo healInfo, ref uint gain);
 }

@@ -13,38 +13,38 @@ namespace Scripts.Spells.Mage;
 [SpellScript(390218)]
 public class spell_mage_overflowing_energy : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo.Id == 390218)
-			return false;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo.Id == 390218)
+            return false;
 
-		if ((eventInfo.HitMask & ProcFlagsHit.Critical) != 0)
-			return false;
+        if ((eventInfo.HitMask & ProcFlagsHit.Critical) != 0)
+            return false;
 
-		if (eventInfo.DamageInfo != null)
-			return false;
+        if (eventInfo.DamageInfo != null)
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ModCritChanceForCaster, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ModCritChanceForCaster, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var amount = aurEff.Amount;
+        var amount = aurEff.Amount;
 
-		if (eventInfo.DamageInfo.SpellInfo.Id == 390218)
-			amount = 0;
+        if (eventInfo.DamageInfo.SpellInfo.Id == 390218)
+            amount = 0;
 
-		var target = Target;
+        var target = Target;
 
-		Target.CastSpell(target, 390218, new CastSpellExtraArgs(SpellValueMod.AuraStack, 5));
-	}
+        Target.CastSpell(target, 390218, new CastSpellExtraArgs(SpellValueMod.AuraStack, 5));
+    }
 }

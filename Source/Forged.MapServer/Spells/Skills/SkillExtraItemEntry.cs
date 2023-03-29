@@ -5,19 +5,19 @@ namespace Forged.MapServer.Spells.Skills;
 
 internal class SkillExtraItemEntry
 {
-	// the spell id of the specialization required to create extra items
-	public uint RequiredSpecialization;
+    // the spell id of the specialization required to create extra items
+    public uint RequiredSpecialization;
 
-	// the chance to create one additional item
-	public double AdditionalCreateChance;
+    // the chance to create one additional item
+    public double AdditionalCreateChance;
 
-	// maximum number of extra items created per crafting
-	public byte AdditionalMaxNum;
+    // maximum number of extra items created per crafting
+    public byte AdditionalMaxNum;
 
-	public SkillExtraItemEntry(uint rS = 0, double aCC = 0f, byte aMN = 0)
-	{
-		RequiredSpecialization = rS;
-		AdditionalCreateChance = aCC;
-		AdditionalMaxNum = aMN;
-	}
+    public SkillExtraItemEntry(uint rS = 0, double aCC = 0f, byte aMN = 0)
+    {
+        RequiredSpecialization = rS;
+        AdditionalCreateChance = aCC;
+        AdditionalMaxNum = aMN;
+    }
 }

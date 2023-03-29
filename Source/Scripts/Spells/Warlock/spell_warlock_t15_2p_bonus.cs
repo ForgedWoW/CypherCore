@@ -10,12 +10,12 @@ namespace Scripts.Spells.Warlock;
 [Script]
 public class spell_warlock_t15_2p_bonus : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		var caster = Caster;
+    public void AfterCast()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			if (caster.HasAura(WarlockSpells.T15_2P_BONUS)) // Check if caster has bonus aura
-				caster.AddAura(WarlockSpells.T15_2P_BONUS_TRIGGERED, caster);
-	}
+        if (caster != null)
+            if (caster.HasAura(WarlockSpells.T15_2P_BONUS)) // Check if caster has bonus aura
+                caster.AddAura(WarlockSpells.T15_2P_BONUS_TRIGGERED, caster);
+    }
 }

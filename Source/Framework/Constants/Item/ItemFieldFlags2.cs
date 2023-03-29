@@ -5,5 +5,5 @@ namespace Framework.Constants;
 
 public enum ItemFieldFlags2
 {
-	Equipped = 0x1
+    Equipped = 0x1
 }

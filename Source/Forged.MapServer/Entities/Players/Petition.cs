@@ -9,60 +9,60 @@ namespace Forged.MapServer.Entities.Players;
 
 public class Petition
 {
-	public ObjectGuid PetitionGuid;
-	public ObjectGuid OwnerGuid;
-	public string PetitionName;
-	public List<(uint AccountId, ObjectGuid PlayerGuid)> Signatures = new();
+    public ObjectGuid PetitionGuid;
+    public ObjectGuid OwnerGuid;
+    public string PetitionName;
+    public List<(uint AccountId, ObjectGuid PlayerGuid)> Signatures = new();
 
-	public bool IsPetitionSignedByAccount(uint accountId)
-	{
-		foreach (var signature in Signatures)
-			if (signature.AccountId == accountId)
-				return true;
+    public bool IsPetitionSignedByAccount(uint accountId)
+    {
+        foreach (var signature in Signatures)
+            if (signature.AccountId == accountId)
+                return true;
 
-		return false;
-	}
+        return false;
+    }
 
-	public void AddSignature(uint accountId, ObjectGuid playerGuid, bool isLoading)
-	{
-		Signatures.Add((accountId, playerGuid));
+    public void AddSignature(uint accountId, ObjectGuid playerGuid, bool isLoading)
+    {
+        Signatures.Add((accountId, playerGuid));
 
-		if (isLoading)
-			return;
+        if (isLoading)
+            return;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PETITION_SIGNATURE);
-		stmt.AddValue(0, OwnerGuid.Counter);
-		stmt.AddValue(1, PetitionGuid.Counter);
-		stmt.AddValue(2, playerGuid.Counter);
-		stmt.AddValue(3, accountId);
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PETITION_SIGNATURE);
+        stmt.AddValue(0, OwnerGuid.Counter);
+        stmt.AddValue(1, PetitionGuid.Counter);
+        stmt.AddValue(2, playerGuid.Counter);
+        stmt.AddValue(3, accountId);
 
-		DB.Characters.Execute(stmt);
-	}
+        DB.Characters.Execute(stmt);
+    }
 
-	public void UpdateName(string newName)
-	{
-		PetitionName = newName;
+    public void UpdateName(string newName)
+    {
+        PetitionName = newName;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_PETITION_NAME);
-		stmt.AddValue(0, newName);
-		stmt.AddValue(1, PetitionGuid.Counter);
-		DB.Characters.Execute(stmt);
-	}
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_PETITION_NAME);
+        stmt.AddValue(0, newName);
+        stmt.AddValue(1, PetitionGuid.Counter);
+        DB.Characters.Execute(stmt);
+    }
 
-	public void RemoveSignatureBySigner(ObjectGuid playerGuid)
-	{
-		foreach (var itr in Signatures)
-			if (itr.PlayerGuid == playerGuid)
-			{
-				Signatures.Remove(itr);
+    public void RemoveSignatureBySigner(ObjectGuid playerGuid)
+    {
+        foreach (var itr in Signatures)
+            if (itr.PlayerGuid == playerGuid)
+            {
+                Signatures.Remove(itr);
 
-				// notify owner
-				var owner = Global.ObjAccessor.FindConnectedPlayer(OwnerGuid);
+                // notify owner
+                var owner = Global.ObjAccessor.FindConnectedPlayer(OwnerGuid);
 
-				if (owner != null)
-					owner.Session.SendPetitionQuery(PetitionGuid);
+                if (owner != null)
+                    owner.Session.SendPetitionQuery(PetitionGuid);
 
-				break;
-			}
-	}
+                break;
+            }
+    }
 }

@@ -11,17 +11,17 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(111898)]
 public class spell_warlock_grimoire_felguard : SpellScript, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		var caster = Caster.AsPlayer;
+    public SpellCastResult CheckCast()
+    {
+        var caster = Caster.AsPlayer;
 
-		if (caster == null)
-			return SpellCastResult.CantDoThatRightNow;
+        if (caster == null)
+            return SpellCastResult.CantDoThatRightNow;
 
-		// allow only in Demonology spec
-		if (caster.GetPrimarySpecialization() != TalentSpecialization.WarlockDemonology)
-			return SpellCastResult.NoSpec;
+        // allow only in Demonology spec
+        if (caster.GetPrimarySpecialization() != TalentSpecialization.WarlockDemonology)
+            return SpellCastResult.NoSpec;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

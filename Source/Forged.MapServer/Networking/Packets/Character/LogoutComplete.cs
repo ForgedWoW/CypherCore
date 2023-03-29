@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class LogoutComplete : ServerPacket
 {
-	public LogoutComplete() : base(ServerOpcodes.LogoutComplete) { }
+    public LogoutComplete() : base(ServerOpcodes.LogoutComplete) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

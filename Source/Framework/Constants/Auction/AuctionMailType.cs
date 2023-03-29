@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum AuctionMailType
 {
-	Outbid = 0,
-	Won = 1,
-	Sold = 2,
-	Expired = 3,
-	Removed = 4,
-	Cancelled = 5,
-	Invoice = 6
+    Outbid = 0,
+    Won = 1,
+    Sold = 2,
+    Expired = 3,
+    Removed = 4,
+    Cancelled = 5,
+    Invoice = 6
 }

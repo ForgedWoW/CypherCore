@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Trade;
 
 public class CancelTrade : ClientPacket
 {
-	public CancelTrade(WorldPacket packet) : base(packet) { }
+    public CancelTrade(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

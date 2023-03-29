@@ -13,30 +13,30 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(152262)]
 public class spell_pal_seraphim : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public SpellCastResult CheckCast()
-	{
-		var ChargeCategoryId = Global.SpellMgr.GetSpellInfo(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS, Difficulty.None).ChargeCategoryId;
+    public SpellCastResult CheckCast()
+    {
+        var ChargeCategoryId = Global.SpellMgr.GetSpellInfo(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS, Difficulty.None).ChargeCategoryId;
 
-		if (!Caster.SpellHistory.HasCharge(ChargeCategoryId))
-			return SpellCastResult.NoPower;
+        if (!Caster.SpellHistory.HasCharge(ChargeCategoryId))
+            return SpellCastResult.NoPower;
 
-		return SpellCastResult.Success;
-	}
+        return SpellCastResult.Success;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var ChargeCategoryId = Global.SpellMgr.GetSpellInfo(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS, Difficulty.None).ChargeCategoryId;
-		var spellHistory = Caster.SpellHistory;
+    private void HandleDummy(int effIndex)
+    {
+        var ChargeCategoryId = Global.SpellMgr.GetSpellInfo(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS, Difficulty.None).ChargeCategoryId;
+        var spellHistory = Caster.SpellHistory;
 
-		spellHistory.ConsumeCharge(ChargeCategoryId);
-		spellHistory.ForceSendSpellCharge(CliDB.SpellCategoryStorage.LookupByKey(ChargeCategoryId));
-	}
+        spellHistory.ConsumeCharge(ChargeCategoryId);
+        spellHistory.ForceSendSpellCharge(CliDB.SpellCategoryStorage.LookupByKey(ChargeCategoryId));
+    }
 }

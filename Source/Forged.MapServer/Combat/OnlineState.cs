@@ -5,7 +5,7 @@ namespace Forged.MapServer.Combat;
 
 public enum OnlineState
 {
-	Online = 2,
-	Suppressed = 1,
-	Offline = 0
+    Online = 2,
+    Suppressed = 1,
+    Offline = 0
 }

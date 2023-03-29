@@ -5,12 +5,12 @@ namespace Forged.MapServer.Accounts;
 
 public enum AccountOpResult
 {
-	Ok,
-	NameTooLong,
-	PassTooLong,
-	EmailTooLong,
-	NameAlreadyExist,
-	NameNotExist,
-	DBInternalError,
-	BadLink
+    Ok,
+    NameTooLong,
+    PassTooLong,
+    EmailTooLong,
+    NameAlreadyExist,
+    NameNotExist,
+    DBInternalError,
+    BadLink
 }

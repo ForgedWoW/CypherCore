@@ -11,35 +11,35 @@ namespace Scripts.Spells.Monk;
 [SpellScript(130654)]
 public class spell_monk_chi_burst_heal : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHeal(int effIndex)
-	{
-		var caster = Caster;
-		var unit = HitUnit;
+    private void HandleHeal(int effIndex)
+    {
+        var caster = Caster;
+        var unit = HitUnit;
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		var spellInfo = Global.SpellMgr.GetSpellInfo(MonkSpells.CHI_BURST_HEAL, Difficulty.None);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(MonkSpells.CHI_BURST_HEAL, Difficulty.None);
 
-		if (spellInfo == null)
-			return;
+        if (spellInfo == null)
+            return;
 
-		var effectInfo = spellInfo.GetEffect(0);
+        var effectInfo = spellInfo.GetEffect(0);
 
-		if (!effectInfo.IsEffect())
-			return;
+        if (!effectInfo.IsEffect())
+            return;
 
-		var damage = caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 4.125f;
-		damage = caster.SpellDamageBonusDone(unit, spellInfo, damage, DamageEffectType.Heal, effectInfo, 1, Spell);
-		damage = unit.SpellDamageBonusTaken(caster, spellInfo, damage, DamageEffectType.Heal);
+        var damage = caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 4.125f;
+        damage = caster.SpellDamageBonusDone(unit, spellInfo, damage, DamageEffectType.Heal, effectInfo, 1, Spell);
+        damage = unit.SpellDamageBonusTaken(caster, spellInfo, damage, DamageEffectType.Heal);
 
-		HitHeal = damage;
-	}
+        HitHeal = damage;
+    }
 }

@@ -12,38 +12,38 @@ namespace Scripts.Spells.Generic;
 [Script("spell_gen_silver_covenant_disguise")]
 internal class spell_gen_dalaran_disguise : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var player = HitPlayer;
+    private void HandleScript(int effIndex)
+    {
+        var player = HitPlayer;
 
-		if (player)
-		{
-			var gender = player.NativeGender;
+        if (player)
+        {
+            var gender = player.NativeGender;
 
-			var spellId = SpellInfo.Id;
+            var spellId = SpellInfo.Id;
 
-			switch (spellId)
-			{
-				case GenericSpellIds.SunreaverTrigger:
-					spellId = gender == Gender.Female ? GenericSpellIds.SunreaverFemale : GenericSpellIds.SunreaverMale;
+            switch (spellId)
+            {
+                case GenericSpellIds.SunreaverTrigger:
+                    spellId = gender == Gender.Female ? GenericSpellIds.SunreaverFemale : GenericSpellIds.SunreaverMale;
 
-					break;
-				case GenericSpellIds.SilverCovenantTrigger:
-					spellId = gender == Gender.Female ? GenericSpellIds.SilverCovenantFemale : GenericSpellIds.SilverCovenantMale;
+                    break;
+                case GenericSpellIds.SilverCovenantTrigger:
+                    spellId = gender == Gender.Female ? GenericSpellIds.SilverCovenantFemale : GenericSpellIds.SilverCovenantMale;
 
-					break;
-				default:
-					break;
-			}
+                    break;
+                default:
+                    break;
+            }
 
-			Caster.CastSpell(player, spellId, true);
-		}
-	}
+            Caster.CastSpell(player, spellId, true);
+        }
+    }
 }

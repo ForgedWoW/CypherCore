@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MoveSetSpeed : ServerPacket
 {
-	public ObjectGuid MoverGUID;
-	public uint SequenceIndex; // Unit movement packet index, incremented each time
-	public float Speed = 1.0f;
-	public MoveSetSpeed(ServerOpcodes opcode) : base(opcode, ConnectionType.Instance) { }
+    public ObjectGuid MoverGUID;
+    public uint SequenceIndex; // Unit movement packet index, incremented each time
+    public float Speed = 1.0f;
+    public MoveSetSpeed(ServerOpcodes opcode) : base(opcode, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(MoverGUID);
-		_worldPacket.WriteUInt32(SequenceIndex);
-		_worldPacket.WriteFloat(Speed);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(MoverGUID);
+        _worldPacket.WriteUInt32(SequenceIndex);
+        _worldPacket.WriteFloat(Speed);
+    }
 }

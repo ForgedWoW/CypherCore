@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum AreaTriggerActionUserTypes
 {
-	Any = 0,
-	Friend = 1,
-	Enemy = 2,
-	Raid = 3,
-	Party = 4,
-	Caster = 5,
-	Max = 6
+    Any = 0,
+    Friend = 1,
+    Enemy = 2,
+    Raid = 3,
+    Party = 4,
+    Caster = 5,
+    Max = 6
 }

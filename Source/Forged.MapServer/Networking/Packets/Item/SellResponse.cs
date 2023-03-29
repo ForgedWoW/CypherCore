@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class SellResponse : ServerPacket
 {
-	public ObjectGuid VendorGUID;
-	public ObjectGuid ItemGUID;
-	public SellResult Reason = SellResult.Unk;
-	public SellResponse() : base(ServerOpcodes.SellResponse) { }
+    public ObjectGuid VendorGUID;
+    public ObjectGuid ItemGUID;
+    public SellResult Reason = SellResult.Unk;
+    public SellResponse() : base(ServerOpcodes.SellResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(VendorGUID);
-		_worldPacket.WritePackedGuid(ItemGUID);
-		_worldPacket.WriteUInt8((byte)Reason);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(VendorGUID);
+        _worldPacket.WritePackedGuid(ItemGUID);
+        _worldPacket.WriteUInt8((byte)Reason);
+    }
 }

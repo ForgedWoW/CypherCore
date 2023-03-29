@@ -12,28 +12,28 @@ namespace Scripts.Spells.Druid;
 [SpellScript(145108)]
 public class spell_dru_ysera_gift : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
+    }
 
-	private void HandlePeriodic(AuraEffect aurEff)
-	{
-		var caster = Caster;
+    private void HandlePeriodic(AuraEffect aurEff)
+    {
+        var caster = Caster;
 
-		if (caster == null || !caster.IsAlive)
-			return;
+        if (caster == null || !caster.IsAlive)
+            return;
 
-		var amount = MathFunctions.CalculatePct(caster.MaxHealth, aurEff.BaseAmount);
-		var values = new CastSpellExtraArgs(TriggerCastFlags.FullMask);
-		values.AddSpellMod(SpellValueMod.MaxTargets, 1);
-		values.AddSpellMod(SpellValueMod.BasePoint0, (int)amount);
+        var amount = MathFunctions.CalculatePct(caster.MaxHealth, aurEff.BaseAmount);
+        var values = new CastSpellExtraArgs(TriggerCastFlags.FullMask);
+        values.AddSpellMod(SpellValueMod.MaxTargets, 1);
+        values.AddSpellMod(SpellValueMod.BasePoint0, (int)amount);
 
-		if (caster.IsFullHealth)
-			caster.CastSpell(caster, DruidSpells.YSERA_GIFT_RAID_HEAL, values);
-		else
-			caster.CastSpell(caster, DruidSpells.YSERA_GIFT_CASTER_HEAL, values);
-	}
+        if (caster.IsFullHealth)
+            caster.CastSpell(caster, DruidSpells.YSERA_GIFT_RAID_HEAL, values);
+        else
+            caster.CastSpell(caster, DruidSpells.YSERA_GIFT_CASTER_HEAL, values);
+    }
 }

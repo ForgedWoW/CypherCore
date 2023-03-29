@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class ConvertRaid : ClientPacket
 {
-	public bool Raid;
-	public ConvertRaid(WorldPacket packet) : base(packet) { }
+    public bool Raid;
+    public ConvertRaid(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Raid = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        Raid = _worldPacket.HasBit();
+    }
 }

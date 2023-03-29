@@ -10,18 +10,18 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(204147)]
 public class spell_hun_windburst : SpellScript, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		var caster = Caster;
+    public void AfterHit()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var target = HitUnit;
+        if (caster != null)
+        {
+            var target = HitUnit;
 
-			if (target == null)
-				return;
+            if (target == null)
+                return;
 
-			caster.CastSpell(new Position(target.Location.X, target.Location.Y, target.Location.Z), 204475, true);
-		}
-	}
+            caster.CastSpell(new Position(target.Location.X, target.Location.Y, target.Location.Z), 204475, true);
+        }
+    }
 }

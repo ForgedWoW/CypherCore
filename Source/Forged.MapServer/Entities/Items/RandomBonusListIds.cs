@@ -7,6 +7,6 @@ namespace Forged.MapServer.Entities.Items;
 
 public class RandomBonusListIds
 {
-	public List<uint> BonusListIDs { get; set; } = new();
-	public List<double> Chances { get; set; } = new();
+    public List<uint> BonusListIDs { get; set; } = new();
+    public List<double> Chances { get; set; } = new();
 }

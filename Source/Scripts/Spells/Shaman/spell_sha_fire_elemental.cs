@@ -12,15 +12,15 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(198067)]
 public class spell_sha_fire_elemental : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleSummon, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleSummon, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleSummon(int effIndex)
-	{
-		Caster.CastSpell(HitUnit, ShamanSpells.FIRE_ELEMENTAL_SUMMON, true);
-	}
+    private void HandleSummon(int effIndex)
+    {
+        Caster.CastSpell(HitUnit, ShamanSpells.FIRE_ELEMENTAL_SUMMON, true);
+    }
 }

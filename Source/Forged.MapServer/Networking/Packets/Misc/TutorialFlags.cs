@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class TutorialFlags : ServerPacket
 {
-	public uint[] TutorialData = new uint[SharedConst.MaxAccountTutorialValues];
-	public TutorialFlags() : base(ServerOpcodes.TutorialFlags) { }
+    public uint[] TutorialData = new uint[SharedConst.MaxAccountTutorialValues];
+    public TutorialFlags() : base(ServerOpcodes.TutorialFlags) { }
 
-	public override void Write()
-	{
-		for (byte i = 0; i < (int)Tutorials.Max; ++i)
-			_worldPacket.WriteUInt32(TutorialData[i]);
-	}
+    public override void Write()
+    {
+        for (byte i = 0; i < (int)Tutorials.Max; ++i)
+            _worldPacket.WriteUInt32(TutorialData[i]);
+    }
 }

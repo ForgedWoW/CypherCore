@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class ObjectUpdateFailed : ClientPacket
 {
-	public ObjectGuid ObjectGUID;
-	public ObjectUpdateFailed(WorldPacket packet) : base(packet) { }
+    public ObjectGuid ObjectGUID;
+    public ObjectUpdateFailed(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ObjectGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        ObjectGUID = _worldPacket.ReadPackedGuid();
+    }
 }

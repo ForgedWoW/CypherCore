@@ -12,24 +12,24 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(14062)]
 public class spell_rog_nightstalker_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.ModShapeshift, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.ModShapeshift, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster)
-		{
-			if (caster.HasAura(RogueSpells.NIGHTSTALKER_DAMAGE_DONE))
-				caster.RemoveAura(RogueSpells.NIGHTSTALKER_DAMAGE_DONE);
+        if (caster)
+        {
+            if (caster.HasAura(RogueSpells.NIGHTSTALKER_DAMAGE_DONE))
+                caster.RemoveAura(RogueSpells.NIGHTSTALKER_DAMAGE_DONE);
 
-			if (caster.HasAura(RogueSpells.SHADOW_FOCUS_EFFECT))
-				caster.RemoveAura(RogueSpells.SHADOW_FOCUS_EFFECT);
-		}
-	}
+            if (caster.HasAura(RogueSpells.SHADOW_FOCUS_EFFECT))
+                caster.RemoveAura(RogueSpells.SHADOW_FOCUS_EFFECT);
+        }
+    }
 }

@@ -12,18 +12,18 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(5394)]
 public class spell_sha_healing_stream_totem : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		var caster = Caster;
+    public void AfterCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (caster.HasAura(ShamanSpells.CARESS_OF_THE_TIDEMOTHER))
-		{
-			var auraeffx = caster.GetAura(ShamanSpells.CARESS_OF_THE_TIDEMOTHER).GetEffect(0);
-			var amount = auraeffx.Amount;
-			caster.CastSpell(caster, ShamanSpells.CARESS_OF_THE_TIDEMOTHER_AURA, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, amount));
-		}
-	}
+        if (caster.HasAura(ShamanSpells.CARESS_OF_THE_TIDEMOTHER))
+        {
+            var auraeffx = caster.GetAura(ShamanSpells.CARESS_OF_THE_TIDEMOTHER).GetEffect(0);
+            var amount = auraeffx.Amount;
+            caster.CastSpell(caster, ShamanSpells.CARESS_OF_THE_TIDEMOTHER_AURA, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, amount));
+        }
+    }
 }

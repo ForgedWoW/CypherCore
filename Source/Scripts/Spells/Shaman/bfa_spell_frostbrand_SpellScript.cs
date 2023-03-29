@@ -10,19 +10,19 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(196834)]
 public class bfa_spell_frostbrand_SpellScript : SpellScript, ISpellOnHit
 {
-	public override bool Load()
-	{
-		return Caster.IsPlayer;
-	}
+    public override bool Load()
+    {
+        return Caster.IsPlayer;
+    }
 
-	public void OnHit()
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    public void OnHit()
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		caster.CastSpell(target, ShamanSpells.FROSTBRAND_SLOW, true);
-	}
+        caster.CastSpell(target, ShamanSpells.FROSTBRAND_SLOW, true);
+    }
 }

@@ -9,9 +9,9 @@ namespace Scripts.Spells.Hunter;
 [Script] // 109304 - Exhilaration
 internal class spell_hun_exhilaration : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		if (Caster.HasAura(HunterSpells.ExhilarationR2) && !Caster.HasAura(HunterSpells.Lonewolf))
-			Caster.CastSpell(null, HunterSpells.ExhilarationPet, true);
-	}
+    public void OnHit()
+    {
+        if (Caster.HasAura(HunterSpells.ExhilarationR2) && !Caster.HasAura(HunterSpells.Lonewolf))
+            Caster.CastSpell(null, HunterSpells.ExhilarationPet, true);
+    }
 }

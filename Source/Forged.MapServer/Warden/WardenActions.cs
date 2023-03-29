@@ -5,7 +5,7 @@ namespace Forged.MapServer.Warden;
 
 public enum WardenActions
 {
-	Log,
-	Kick,
-	Ban
+    Log,
+    Kick,
+    Ban
 }

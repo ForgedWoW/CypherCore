@@ -13,17 +13,17 @@ namespace Scripts.Spells.Druid;
 [Script] // 1850 - Dash
 public class spell_dru_dash : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ModIncreaseSpeed));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ModIncreaseSpeed));
+    }
 
-	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		// do not set speed if not in cat form
-		if (OwnerAsUnit.ShapeshiftForm != ShapeShiftForm.CatForm)
-			amount.Value = 0;
-	}
+    private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        // do not set speed if not in cat form
+        if (OwnerAsUnit.ShapeshiftForm != ShapeShiftForm.CatForm)
+            amount.Value = 0;
+    }
 }

@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 public interface IAreaTriggerScriptValues : IAreaTriggerScript
 {
-	Dictionary<string, object> ScriptValues { get; }
+    Dictionary<string, object> ScriptValues { get; }
 }

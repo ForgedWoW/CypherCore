@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 public interface IAreaTriggerOnDestinationReached : IAreaTriggerScript
 {
-	public void OnDestinationReached();
+    public void OnDestinationReached();
 }

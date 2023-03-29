@@ -7,17 +7,17 @@ namespace Framework.Database;
 
 public class FileEntry
 {
-	public string path;
-	public State state;
+    public string path;
+    public State state;
 
-	public FileEntry(string _path, State _state)
-	{
-		path = _path.Replace(@"\", @"/");
-		state = _state;
-	}
+    public FileEntry(string _path, State _state)
+    {
+        path = _path.Replace(@"\", @"/");
+        state = _state;
+    }
 
-	public string GetFileName()
-	{
-		return Path.GetFileName(path);
-	}
+    public string GetFileName()
+    {
+        return Path.GetFileName(path);
+    }
 }

@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IMap;
 
 public interface IInstanceMapGetInstanceScript : IScriptObject
 {
-	InstanceScript GetInstanceScript(InstanceMap map);
+    InstanceScript GetInstanceScript(InstanceMap map);
 }

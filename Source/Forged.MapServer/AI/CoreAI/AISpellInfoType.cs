@@ -8,19 +8,19 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class AISpellInfoType
 {
-	public AITarget Target;
-	public AICondition Condition;
-	public TimeSpan Cooldown;
-	public TimeSpan RealCooldown;
-	public float MaxRange;
+    public AITarget Target;
+    public AICondition Condition;
+    public TimeSpan Cooldown;
+    public TimeSpan RealCooldown;
+    public float MaxRange;
 
-	public byte Targets; // set of enum SelectTarget
-	public byte Effects; // set of enum SelectEffect
+    public byte Targets; // set of enum SelectTarget
+    public byte Effects; // set of enum SelectEffect
 
-	public AISpellInfoType()
-	{
-		Target = AITarget.Self;
-		Condition = AICondition.Combat;
-		Cooldown = TimeSpan.FromMilliseconds(SharedConst.AIDefaultCooldown);
-	}
+    public AISpellInfoType()
+    {
+        Target = AITarget.Self;
+        Condition = AICondition.Combat;
+        Cooldown = TimeSpan.FromMilliseconds(SharedConst.AIDefaultCooldown);
+    }
 }

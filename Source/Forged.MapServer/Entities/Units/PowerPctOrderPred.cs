@@ -13,19 +13,19 @@ public class PowerPctOrderPred : IComparer<WorldObject>
     private readonly PowerType _power;
     private readonly bool _ascending;
 
-	public PowerPctOrderPred(PowerType power, bool ascending = true)
-	{
-		_power = power;
-		_ascending = ascending;
-	}
+    public PowerPctOrderPred(PowerType power, bool ascending = true)
+    {
+        _power = power;
+        _ascending = ascending;
+    }
 
-	public int Compare(WorldObject objA, WorldObject objB)
-	{
-		var a = objA.AsUnit;
-		var b = objB.AsUnit;
-		var rA = a != null ? a.GetPowerPct(_power) : 0.0f;
-		var rB = b != null ? b.GetPowerPct(_power) : 0.0f;
+    public int Compare(WorldObject objA, WorldObject objB)
+    {
+        var a = objA.AsUnit;
+        var b = objB.AsUnit;
+        var rA = a != null ? a.GetPowerPct(_power) : 0.0f;
+        var rB = b != null ? b.GetPowerPct(_power) : 0.0f;
 
-		return Convert.ToInt32(_ascending ? rA < rB : rA > rB);
-	}
+        return Convert.ToInt32(_ascending ? rA < rB : rA > rB);
+    }
 }

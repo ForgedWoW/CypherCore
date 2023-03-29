@@ -14,17 +14,17 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(23551)]
 internal class spell_sha_item_lightning_shield : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		Target.CastSpell(eventInfo.ProcTarget, ShamanSpells.ItemLightningShield, new CastSpellExtraArgs(aurEff));
-	}
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        Target.CastSpell(eventInfo.ProcTarget, ShamanSpells.ItemLightningShield, new CastSpellExtraArgs(aurEff));
+    }
 }

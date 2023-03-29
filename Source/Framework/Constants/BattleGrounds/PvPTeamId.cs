@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum PvPTeamId
 {
-	Horde = 0,    // Battleground: Horde,    Arena: Green
-	Alliance = 1, // Battleground: Alliance, Arena: Gold
-	Neutral = 2   // Battleground: Neutral,  Arena: None
+    Horde = 0,    // Battleground: Horde,    Arena: Green
+    Alliance = 1, // Battleground: Alliance, Arena: Gold
+    Neutral = 2   // Battleground: Neutral,  Arena: None
 }

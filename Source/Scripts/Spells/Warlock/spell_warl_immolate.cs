@@ -11,16 +11,16 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(348)] // 348 - Immolate
 internal class spell_warl_immolate : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnEffectHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnEffectHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleOnEffectHit(int effIndex)
-	{
-		Caster.CastSpell(HitUnit, WarlockSpells.IMMOLATE_DOT, Spell);
-	}
+    private void HandleOnEffectHit(int effIndex)
+    {
+        Caster.CastSpell(HitUnit, WarlockSpells.IMMOLATE_DOT, Spell);
+    }
 }

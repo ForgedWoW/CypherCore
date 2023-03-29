@@ -11,7 +11,7 @@ namespace Scripts.Spells.Shaman;
 [CreatureScript(61245)]
 public class npc_capacitor_totem : ScriptedAI
 {
-	public npc_capacitor_totem(Creature creature) : base(creature) { }
+    public npc_capacitor_totem(Creature creature) : base(creature) { }
 
-	public override void Reset() { }
+    public override void Reset() { }
 }

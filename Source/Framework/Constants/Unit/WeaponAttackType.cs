@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum WeaponAttackType
 {
-	BaseAttack = 0,
-	OffAttack = 1,
-	RangedAttack = 2,
-	Max
+    BaseAttack = 0,
+    OffAttack = 1,
+    RangedAttack = 2,
+    Max
 }

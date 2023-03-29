@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class DFTeleport : ClientPacket
 {
-	public bool TeleportOut;
-	public DFTeleport(WorldPacket packet) : base(packet) { }
+    public bool TeleportOut;
+    public DFTeleport(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		TeleportOut = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        TeleportOut = _worldPacket.HasBit();
+    }
 }

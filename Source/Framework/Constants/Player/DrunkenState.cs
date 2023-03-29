@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum DrunkenState
 {
-	Sober = 0,
-	Tipsy = 1,
-	Drunk = 2,
-	Smashed = 3
+    Sober = 0,
+    Tipsy = 1,
+    Drunk = 2,
+    Smashed = 3
 }

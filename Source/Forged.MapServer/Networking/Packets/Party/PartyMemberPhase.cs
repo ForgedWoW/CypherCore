@@ -5,18 +5,18 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 public struct PartyMemberPhase
 {
-	public PartyMemberPhase(uint flags, uint id)
-	{
-		Flags = (ushort)flags;
-		Id = (ushort)id;
-	}
+    public PartyMemberPhase(uint flags, uint id)
+    {
+        Flags = (ushort)flags;
+        Id = (ushort)id;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt16(Flags);
-		data.WriteUInt16(Id);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt16(Flags);
+        data.WriteUInt16(Id);
+    }
 
-	public ushort Flags;
-	public ushort Id;
+    public ushort Flags;
+    public ushort Id;
 }

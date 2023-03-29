@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Vehicle;
 
 public class RideVehicleInteract : ClientPacket
 {
-	public ObjectGuid Vehicle;
-	public RideVehicleInteract(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Vehicle;
+    public RideVehicleInteract(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Vehicle = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Vehicle = _worldPacket.ReadPackedGuid();
+    }
 }

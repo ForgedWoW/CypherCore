@@ -5,22 +5,22 @@ namespace Framework.Constants;
 
 public enum CharSectionType
 {
-	SkinLowRes = 0,
-	FaceLowRes = 1,
-	FacialHairLowRes = 2,
-	HairLowRes = 3,
-	UnderwearLowRes = 4,
-	Skin = 5,
-	Face = 6,
-	FacialHair = 7,
-	Hair = 8,
-	Underwear = 9,
-	CustomDisplay1LowRes = 10,
-	CustomDisplay1 = 11,
-	CustomDisplay2LowRes = 12,
-	CustomDisplay2 = 13,
-	CustomDisplay3LowRes = 14,
-	CustomDisplay3 = 15,
+    SkinLowRes = 0,
+    FaceLowRes = 1,
+    FacialHairLowRes = 2,
+    HairLowRes = 3,
+    UnderwearLowRes = 4,
+    Skin = 5,
+    Face = 6,
+    FacialHair = 7,
+    Hair = 8,
+    Underwear = 9,
+    CustomDisplay1LowRes = 10,
+    CustomDisplay1 = 11,
+    CustomDisplay2LowRes = 12,
+    CustomDisplay2 = 13,
+    CustomDisplay3LowRes = 14,
+    CustomDisplay3 = 15,
 
-	Max
+    Max
 }

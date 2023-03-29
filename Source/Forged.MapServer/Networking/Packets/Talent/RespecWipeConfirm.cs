@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Talent;
 
 internal class RespecWipeConfirm : ServerPacket
 {
-	public ObjectGuid RespecMaster;
-	public uint Cost;
-	public SpecResetType RespecType;
-	public RespecWipeConfirm() : base(ServerOpcodes.RespecWipeConfirm) { }
+    public ObjectGuid RespecMaster;
+    public uint Cost;
+    public SpecResetType RespecType;
+    public RespecWipeConfirm() : base(ServerOpcodes.RespecWipeConfirm) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt8((sbyte)RespecType);
-		_worldPacket.WriteUInt32(Cost);
-		_worldPacket.WritePackedGuid(RespecMaster);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt8((sbyte)RespecType);
+        _worldPacket.WriteUInt32(Cost);
+        _worldPacket.WritePackedGuid(RespecMaster);
+    }
 }

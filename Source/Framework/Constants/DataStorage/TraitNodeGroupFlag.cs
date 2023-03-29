@@ -8,6 +8,6 @@ namespace Framework.Constants;
 [Flags]
 public enum TraitNodeGroupFlag
 {
-	None = 0x0,
-	AvailableByDefault = 0x1
+    None = 0x0,
+    AvailableByDefault = 0x1
 }

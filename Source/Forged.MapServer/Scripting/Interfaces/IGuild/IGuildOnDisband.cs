@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IGuild;
 
 public interface IGuildOnDisband : IScriptObject
 {
-	void OnDisband(Guild guild);
+    void OnDisband(Guild guild);
 }

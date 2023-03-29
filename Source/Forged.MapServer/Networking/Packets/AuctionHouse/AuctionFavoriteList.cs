@@ -8,18 +8,18 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionFavoriteList : ServerPacket
 {
-	public uint DesiredDelay;
-	public List<AuctionFavoriteInfo> Items = new();
+    public uint DesiredDelay;
+    public List<AuctionFavoriteInfo> Items = new();
 
-	public AuctionFavoriteList() : base(ServerOpcodes.AuctionFavoriteList) { }
+    public AuctionFavoriteList() : base(ServerOpcodes.AuctionFavoriteList) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(DesiredDelay);
-		_worldPacket.WriteBits(Items.Count, 7);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(DesiredDelay);
+        _worldPacket.WriteBits(Items.Count, 7);
+        _worldPacket.FlushBits();
 
-		foreach (var favoriteInfo in Items)
-			favoriteInfo.Write(_worldPacket);
-	}
+        foreach (var favoriteInfo in Items)
+            favoriteInfo.Write(_worldPacket);
+    }
 }

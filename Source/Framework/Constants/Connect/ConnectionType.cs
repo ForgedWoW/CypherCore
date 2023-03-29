@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum ConnectionType
 {
-	Realm = 0,
-	Instance = 1,
-	Max
+    Realm = 0,
+    Instance = 1,
+    Max
 }

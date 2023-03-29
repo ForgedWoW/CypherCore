@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetDeleted : ServerPacket
 {
-	public ObjectGuid PetGuid;
-	public BattlePetDeleted() : base(ServerOpcodes.BattlePetDeleted) { }
+    public ObjectGuid PetGuid;
+    public BattlePetDeleted() : base(ServerOpcodes.BattlePetDeleted) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(PetGuid);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(PetGuid);
+    }
 }

@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum PlayerCurrencyState
 {
-	Unchanged = 0,
-	Changed = 1,
-	New = 2,
-	Removed = 3 //not removed just set count == 0
+    Unchanged = 0,
+    Changed = 1,
+    New = 2,
+    Removed = 3 //not removed just set count == 0
 }

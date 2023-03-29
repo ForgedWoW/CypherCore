@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class BattlefieldLeave : ClientPacket
 {
-	public BattlefieldLeave(WorldPacket packet) : base(packet) { }
+    public BattlefieldLeave(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 
 public interface IPlayerOnDeath : IScriptObject, IClassRescriction
 {
-	void OnDeath(Player player);
+    void OnDeath(Player player);
 }

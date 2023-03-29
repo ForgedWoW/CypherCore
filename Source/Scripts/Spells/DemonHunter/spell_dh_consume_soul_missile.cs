@@ -11,22 +11,22 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(210047)]
 public class spell_dh_consume_soul_missile : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.TriggerMissile, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.TriggerMissile, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		var caster = Caster;
+    private void HandleHit(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var spellToCast = SpellValue.EffectBasePoints[0];
-		caster.CastSpell(caster, (uint)spellToCast, true);
-	}
+        var spellToCast = SpellValue.EffectBasePoints[0];
+        caster.CastSpell(caster, (uint)spellToCast, true);
+    }
 }

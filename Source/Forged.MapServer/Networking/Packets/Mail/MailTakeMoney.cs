@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailTakeMoney : ClientPacket
 {
-	public ObjectGuid Mailbox;
-	public ulong MailID;
-	public ulong Money;
-	public MailTakeMoney(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Mailbox;
+    public ulong MailID;
+    public ulong Money;
+    public MailTakeMoney(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Mailbox = _worldPacket.ReadPackedGuid();
-		MailID = _worldPacket.ReadUInt64();
-		Money = _worldPacket.ReadUInt64();
-	}
+    public override void Read()
+    {
+        Mailbox = _worldPacket.ReadPackedGuid();
+        MailID = _worldPacket.ReadUInt64();
+        Money = _worldPacket.ReadUInt64();
+    }
 }

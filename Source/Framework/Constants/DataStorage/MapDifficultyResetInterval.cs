@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum MapDifficultyResetInterval : byte
 {
-	Anytime = 0,
-	Daily = 1,
-	Weekly = 2
+    Anytime = 0,
+    Daily = 1,
+    Weekly = 2
 }

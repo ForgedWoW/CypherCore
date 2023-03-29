@@ -14,33 +14,33 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(212282)]
 public class spell_warlock_cremation : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var caster = Caster;
-		var target = eventInfo.ActionTarget;
+    private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var caster = Caster;
+        var target = eventInfo.ActionTarget;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		switch (eventInfo.DamageInfo.SpellInfo.Id)
-		{
-			case WarlockSpells.SHADOWBURN:
-			case WarlockSpells.CONFLAGRATE:
-				caster.CastSpell(target, SpellInfo.GetEffect(0).TriggerSpell, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)aurEff.Amount));
+        switch (eventInfo.DamageInfo.SpellInfo.Id)
+        {
+            case WarlockSpells.SHADOWBURN:
+            case WarlockSpells.CONFLAGRATE:
+                caster.CastSpell(target, SpellInfo.GetEffect(0).TriggerSpell, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)aurEff.Amount));
 
-				break;
-			case WarlockSpells.INCINERATE:
-				caster.CastSpell(target, WarlockSpells.IMMOLATE_DOT, true);
+                break;
+            case WarlockSpells.INCINERATE:
+                caster.CastSpell(target, WarlockSpells.IMMOLATE_DOT, true);
 
-				break;
-		}
-	}
+                break;
+        }
+    }
 }

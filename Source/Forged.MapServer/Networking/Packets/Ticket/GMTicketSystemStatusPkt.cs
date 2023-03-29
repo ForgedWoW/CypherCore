@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Ticket;
 
 public class GMTicketSystemStatusPkt : ServerPacket
 {
-	public int Status;
-	public GMTicketSystemStatusPkt() : base(ServerOpcodes.GmTicketSystemStatus) { }
+    public int Status;
+    public GMTicketSystemStatusPkt() : base(ServerOpcodes.GmTicketSystemStatus) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Status);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Status);
+    }
 }

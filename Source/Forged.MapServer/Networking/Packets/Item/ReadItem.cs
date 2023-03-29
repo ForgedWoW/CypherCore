@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class ReadItem : ClientPacket
 {
-	public byte PackSlot;
-	public byte Slot;
-	public ReadItem(WorldPacket packet) : base(packet) { }
+    public byte PackSlot;
+    public byte Slot;
+    public ReadItem(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PackSlot = _worldPacket.ReadUInt8();
-		Slot = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        PackSlot = _worldPacket.ReadUInt8();
+        Slot = _worldPacket.ReadUInt8();
+    }
 }

@@ -10,13 +10,13 @@ namespace Scripts.Spells.Hunter;
 [Script]
 internal class spell_hun_steady_shot : SpellScript, ISpellOnHit
 {
-	public override bool Load()
-	{
-		return Caster.IsTypeId(TypeId.Player);
-	}
+    public override bool Load()
+    {
+        return Caster.IsTypeId(TypeId.Player);
+    }
 
-	public void OnHit()
-	{
-		Caster.CastSpell(Caster, HunterSpells.SteadyShotFocus, true);
-	}
+    public void OnHit()
+    {
+        Caster.CastSpell(Caster, HunterSpells.SteadyShotFocus, true);
+    }
 }

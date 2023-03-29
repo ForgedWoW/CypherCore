@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Taxi;
 
 internal class EnableTaxiNode : ClientPacket
 {
-	public ObjectGuid Unit;
-	public EnableTaxiNode(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Unit;
+    public EnableTaxiNode(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Unit = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Unit = _worldPacket.ReadPackedGuid();
+    }
 }

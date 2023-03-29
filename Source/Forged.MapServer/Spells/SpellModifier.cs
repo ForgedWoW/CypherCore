@@ -8,16 +8,16 @@ namespace Forged.MapServer.Spells;
 
 public class SpellModifier
 {
-	public SpellModOp Op { get; set; }
-	public SpellModType Type { get; set; }
-	public uint SpellId { get; set; }
-	public Aura OwnerAura { get; set; }
+    public SpellModOp Op { get; set; }
+    public SpellModType Type { get; set; }
+    public uint SpellId { get; set; }
+    public Aura OwnerAura { get; set; }
 
-	public SpellModifier(Aura ownerAura)
-	{
-		Op = SpellModOp.HealingAndDamage;
-		Type = SpellModType.Flat;
-		SpellId = 0;
-		OwnerAura = ownerAura;
-	}
+    public SpellModifier(Aura ownerAura)
+    {
+        Op = SpellModOp.HealingAndDamage;
+        Type = SpellModType.Flat;
+        SpellId = 0;
+        OwnerAura = ownerAura;
+    }
 }

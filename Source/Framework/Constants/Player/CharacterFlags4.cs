@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum CharacterFlags4
 {
-	TrialBoost = 0x80,
-	TrialBoostLocked = 0x40000,
+    TrialBoost = 0x80,
+    TrialBoostLocked = 0x40000,
 }

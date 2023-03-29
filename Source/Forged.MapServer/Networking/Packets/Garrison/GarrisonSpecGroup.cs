@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal struct GarrisonSpecGroup
 {
-	public int ChrSpecializationID;
-	public int SoulbindID;
+    public int ChrSpecializationID;
+    public int SoulbindID;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(ChrSpecializationID);
-		data.WriteInt32(SoulbindID);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(ChrSpecializationID);
+        data.WriteInt32(SoulbindID);
+    }
 }

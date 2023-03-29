@@ -5,7 +5,7 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public struct EquipmentItem
 {
-	public uint ItemId;
-	public ushort AppearanceModId;
-	public ushort ItemVisual;
+    public uint ItemId;
+    public ushort AppearanceModId;
+    public ushort ItemVisual;
 }

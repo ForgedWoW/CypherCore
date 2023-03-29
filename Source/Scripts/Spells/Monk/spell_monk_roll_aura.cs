@@ -13,38 +13,38 @@ namespace Scripts.Spells.Monk;
 [Script] // 109131 - Roll (backward)
 internal class spell_monk_roll_aura : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		// Values need manual correction
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcMovementAmount, 0, AuraType.ModSpeedNoControl));
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcMovementAmount, 2, AuraType.ModMinimumSpeed));
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcImmunityAmount, 5, AuraType.MechanicImmunity));
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcImmunityAmount, 6, AuraType.MechanicImmunity));
+    public override void Register()
+    {
+        // Values need manual correction
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcMovementAmount, 0, AuraType.ModSpeedNoControl));
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcMovementAmount, 2, AuraType.ModMinimumSpeed));
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcImmunityAmount, 5, AuraType.MechanicImmunity));
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcImmunityAmount, 6, AuraType.MechanicImmunity));
 
-		// This is a special aura that sets backward run speed equal to forward speed
-		AuraEffects.Add(new AuraEffectApplyHandler(ChangeRunBackSpeed, 4, AuraType.UseNormalMovementSpeed, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply));
-		AuraEffects.Add(new AuraEffectApplyHandler(RestoreRunBackSpeed, 4, AuraType.UseNormalMovementSpeed, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+        // This is a special aura that sets backward run speed equal to forward speed
+        AuraEffects.Add(new AuraEffectApplyHandler(ChangeRunBackSpeed, 4, AuraType.UseNormalMovementSpeed, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply));
+        AuraEffects.Add(new AuraEffectApplyHandler(RestoreRunBackSpeed, 4, AuraType.UseNormalMovementSpeed, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void CalcMovementAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		amount.Value += 100;
-	}
+    private void CalcMovementAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        amount.Value += 100;
+    }
 
-	private void CalcImmunityAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		amount.Value -= 100;
-	}
+    private void CalcImmunityAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        amount.Value -= 100;
+    }
 
-	private void ChangeRunBackSpeed(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.SetSpeed(UnitMoveType.RunBack, Target.GetSpeed(UnitMoveType.Run));
-	}
+    private void ChangeRunBackSpeed(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.SetSpeed(UnitMoveType.RunBack, Target.GetSpeed(UnitMoveType.Run));
+    }
 
-	private void RestoreRunBackSpeed(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.UpdateSpeed(UnitMoveType.RunBack);
-	}
+    private void RestoreRunBackSpeed(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.UpdateSpeed(UnitMoveType.RunBack);
+    }
 }

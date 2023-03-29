@@ -9,36 +9,36 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class ServerPetitionShowSignatures : ServerPacket
 {
-	public ObjectGuid Item;
-	public ObjectGuid Owner;
-	public ObjectGuid OwnerAccountID;
-	public int PetitionID = 0;
-	public List<PetitionSignature> Signatures;
+    public ObjectGuid Item;
+    public ObjectGuid Owner;
+    public ObjectGuid OwnerAccountID;
+    public int PetitionID = 0;
+    public List<PetitionSignature> Signatures;
 
-	public ServerPetitionShowSignatures() : base(ServerOpcodes.PetitionShowSignatures)
-	{
-		Signatures = new List<PetitionSignature>();
-	}
+    public ServerPetitionShowSignatures() : base(ServerOpcodes.PetitionShowSignatures)
+    {
+        Signatures = new List<PetitionSignature>();
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Item);
-		_worldPacket.WritePackedGuid(Owner);
-		_worldPacket.WritePackedGuid(OwnerAccountID);
-		_worldPacket.WriteInt32(PetitionID);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Item);
+        _worldPacket.WritePackedGuid(Owner);
+        _worldPacket.WritePackedGuid(OwnerAccountID);
+        _worldPacket.WriteInt32(PetitionID);
 
-		_worldPacket.WriteInt32(Signatures.Count);
+        _worldPacket.WriteInt32(Signatures.Count);
 
-		foreach (var signature in Signatures)
-		{
-			_worldPacket.WritePackedGuid(signature.Signer);
-			_worldPacket.WriteInt32(signature.Choice);
-		}
-	}
+        foreach (var signature in Signatures)
+        {
+            _worldPacket.WritePackedGuid(signature.Signer);
+            _worldPacket.WriteInt32(signature.Choice);
+        }
+    }
 
-	public struct PetitionSignature
-	{
-		public ObjectGuid Signer;
-		public int Choice;
-	}
+    public struct PetitionSignature
+    {
+        public ObjectGuid Signer;
+        public int Choice;
+    }
 }

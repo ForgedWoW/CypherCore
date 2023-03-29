@@ -8,6 +8,6 @@ namespace Framework.Constants;
 [Flags]
 public enum LfgOptions
 {
-	EnableDungeonFinder = 0x01,
-	EnableRaidBrowser = 0x02,
+    EnableDungeonFinder = 0x01,
+    EnableRaidBrowser = 0x02,
 }

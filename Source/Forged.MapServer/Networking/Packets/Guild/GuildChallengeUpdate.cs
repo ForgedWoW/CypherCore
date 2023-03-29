@@ -7,24 +7,24 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildChallengeUpdate : ServerPacket
 {
-	public int[] CurrentCount = new int[GuildConst.ChallengesTypes];
-	public int[] MaxCount = new int[GuildConst.ChallengesTypes];
-	public int[] Gold = new int[GuildConst.ChallengesTypes];
-	public int[] MaxLevelGold = new int[GuildConst.ChallengesTypes];
-	public GuildChallengeUpdate() : base(ServerOpcodes.GuildChallengeUpdate) { }
+    public int[] CurrentCount = new int[GuildConst.ChallengesTypes];
+    public int[] MaxCount = new int[GuildConst.ChallengesTypes];
+    public int[] Gold = new int[GuildConst.ChallengesTypes];
+    public int[] MaxLevelGold = new int[GuildConst.ChallengesTypes];
+    public GuildChallengeUpdate() : base(ServerOpcodes.GuildChallengeUpdate) { }
 
-	public override void Write()
-	{
-		for (var i = 0; i < GuildConst.ChallengesTypes; ++i)
-			_worldPacket.WriteInt32(CurrentCount[i]);
+    public override void Write()
+    {
+        for (var i = 0; i < GuildConst.ChallengesTypes; ++i)
+            _worldPacket.WriteInt32(CurrentCount[i]);
 
-		for (var i = 0; i < GuildConst.ChallengesTypes; ++i)
-			_worldPacket.WriteInt32(MaxCount[i]);
+        for (var i = 0; i < GuildConst.ChallengesTypes; ++i)
+            _worldPacket.WriteInt32(MaxCount[i]);
 
-		for (var i = 0; i < GuildConst.ChallengesTypes; ++i)
-			_worldPacket.WriteInt32(MaxLevelGold[i]);
+        for (var i = 0; i < GuildConst.ChallengesTypes; ++i)
+            _worldPacket.WriteInt32(MaxLevelGold[i]);
 
-		for (var i = 0; i < GuildConst.ChallengesTypes; ++i)
-			_worldPacket.WriteInt32(Gold[i]);
-	}
+        for (var i = 0; i < GuildConst.ChallengesTypes; ++i)
+            _worldPacket.WriteInt32(Gold[i]);
+    }
 }

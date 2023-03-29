@@ -16,39 +16,39 @@ public class CreatureSearcher : IGridNotifierCreature
     private readonly ICheck<Creature> _check;
     private Creature _object;
 
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public CreatureSearcher(WorldObject searcher, ICheck<Creature> check, GridType gridType)
-	{
-		_phaseShift = searcher.PhaseShift;
-		_check = check;
-		GridType = gridType;
-	}
+    public CreatureSearcher(WorldObject searcher, ICheck<Creature> check, GridType gridType)
+    {
+        _phaseShift = searcher.PhaseShift;
+        _check = check;
+        GridType = gridType;
+    }
 
-	public void Visit(IList<Creature> objs)
-	{
-		// already found
-		if (_object)
-			return;
+    public void Visit(IList<Creature> objs)
+    {
+        // already found
+        if (_object)
+            return;
 
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var creature = objs[i];
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var creature = objs[i];
 
-			if (!creature.InSamePhase(_phaseShift))
-				continue;
+            if (!creature.InSamePhase(_phaseShift))
+                continue;
 
-			if (_check.Invoke(creature))
-			{
-				_object = creature;
+            if (_check.Invoke(creature))
+            {
+                _object = creature;
 
-				return;
-			}
-		}
-	}
+                return;
+            }
+        }
+    }
 
-	public Creature GetTarget()
-	{
-		return _object;
-	}
+    public Creature GetTarget()
+    {
+        return _object;
+    }
 }

@@ -8,176 +8,176 @@ namespace Framework.Dynamic;
 
 public class TaskContext
 {
-	// Associated task
+    // Associated task
     private readonly TaskSchedulerTask _task;
 
-	// Owner
+    // Owner
     private readonly TaskScheduler _owner;
 
 
-	public TaskContext(TaskSchedulerTask task, TaskScheduler owner)
-	{
-		_task = task;
-		_owner = owner;
-	}
+    public TaskContext(TaskSchedulerTask task, TaskScheduler owner)
+    {
+        _task = task;
+        _owner = owner;
+    }
 
 	/// <summary>
-	///  Returns the repeat counter which increases every time the task is repeated.
+	///     Returns the repeat counter which increases every time the task is repeated.
 	/// </summary>
 	/// <returns> </returns>
 	public uint GetRepeatCounter()
-	{
-		return _task._repeated;
-	}
+    {
+        return _task._repeated;
+    }
 
 	/// <summary>
-	///  Cancels all tasks from within the context.
+	///     Cancels all tasks from within the context.
 	/// </summary>
 	/// <returns> </returns>
 	public TaskContext CancelAll()
-	{
-		return Dispatch(() => _owner.CancelAll());
-	}
+    {
+        return Dispatch(() => _owner.CancelAll());
+    }
 
 	/// <summary>
-	///  Cancel all tasks of a single group from within the context.
+	///     Cancel all tasks of a single group from within the context.
 	/// </summary>
 	/// <param name="group"> </param>
 	/// <returns> </returns>
 	public TaskContext CancelGroup(uint group)
-	{
-		return Dispatch(() => _owner.CancelGroup(group));
-	}
+    {
+        return Dispatch(() => _owner.CancelGroup(group));
+    }
 
 	/// <summary>
-	///  Cancels all groups in the given std.vector from within the context.
+	///     Cancels all groups in the given std.vector from within the context.
 	/// </summary>
 	/// <param name="groups"> </param>
 	/// <returns> </returns>
 	public TaskContext CancelGroupsOf(List<uint> groups)
-	{
-		return Dispatch(() => _owner.CancelGroupsOf(groups));
-	}
+    {
+        return Dispatch(() => _owner.CancelGroupsOf(groups));
+    }
 
 	/// <summary>
-	///  Invokes the associated hook of the task.
+	///     Invokes the associated hook of the task.
 	/// </summary>
 	public void Invoke()
-	{
-		_task._task(this);
-	}
+    {
+        _task._task(this);
+    }
 
 	/// <summary>
-	///  Repeats the event and sets a new duration.
-	///  This will consume the task context, its not possible to repeat the task again
-	///  from the same task context!
+	///     Repeats the event and sets a new duration.
+	///     This will consume the task context, its not possible to repeat the task again
+	///     from the same task context!
 	/// </summary>
 	/// <param name="duration"> </param>
 	/// <returns> </returns>
 	public TaskContext Repeat(TimeSpan duration)
-	{
-		AssertOnConsumed();
+    {
+        AssertOnConsumed();
 
-		// Set new duration, in-context timing and increment repeat counter
-		_task._duration = duration;
-		_task._end += duration;
-		_task._repeated += 1;
+        // Set new duration, in-context timing and increment repeat counter
+        _task._duration = duration;
+        _task._end += duration;
+        _task._repeated += 1;
 
-		return Dispatch(() => _owner.InsertTask(_task));
-	}
+        return Dispatch(() => _owner.InsertTask(_task));
+    }
 
 	/// <summary>
-	///  Repeats the event with the same duration.
-	///  This will consume the task context, its not possible to repeat the task again
-	///  from the same task context!
+	///     Repeats the event with the same duration.
+	///     This will consume the task context, its not possible to repeat the task again
+	///     from the same task context!
 	/// </summary>
 	/// <returns> </returns>
 	public TaskContext Repeat()
-	{
-		return Repeat(_task._duration);
-	}
+    {
+        return Repeat(_task._duration);
+    }
 
 	/// <summary>
-	///  Repeats the event and set a new duration that is randomized between min and max.
-	///  This will consume the task context, its not possible to repeat the task again
-	///  from the same task context!
+	///     Repeats the event and set a new duration that is randomized between min and max.
+	///     This will consume the task context, its not possible to repeat the task again
+	///     from the same task context!
 	/// </summary>
 	/// <param name="min"> </param>
 	/// <param name="max"> </param>
 	/// <returns> </returns>
 	public TaskContext Repeat(TimeSpan min, TimeSpan max)
-	{
-		return Repeat(RandomHelper.RandTime(min, max));
-	}
+    {
+        return Repeat(RandomHelper.RandTime(min, max));
+    }
 
 	/// <summary>
-	///  Schedule an event with a fixed rate from within the context.
-	///  Its possible that the new event is executed immediately!
-	///  Use TaskScheduler.Async to create a task
-	///  which will be called at the next update tick.
+	///     Schedule an event with a fixed rate from within the context.
+	///     Its possible that the new event is executed immediately!
+	///     Use TaskScheduler.Async to create a task
+	///     which will be called at the next update tick.
 	/// </summary>
 	/// <param name="time"> </param>
 	/// <param name="task"> </param>
 	/// <returns> </returns>
 	public TaskContext Schedule(TimeSpan time, Action<TaskContext> task)
-	{
-		var end = _task._end;
+    {
+        var end = _task._end;
 
-		return Dispatch(scheduler => scheduler.ScheduleAt(end, time, task));
-	}
+        return Dispatch(scheduler => scheduler.ScheduleAt(end, time, task));
+    }
 
-	public TaskContext Schedule(TimeSpan time, Action task)
-	{
-		return Schedule(time, delegate(TaskContext task1) { task(); });
-	}
+    public TaskContext Schedule(TimeSpan time, Action task)
+    {
+        return Schedule(time, delegate(TaskContext task1) { task(); });
+    }
 
 	/// <summary>
-	///  Schedule an event with a fixed rate from within the context.
-	///  Its possible that the new event is executed immediately!
-	///  Use TaskScheduler.Async to create a task
-	///  which will be called at the next update tick.
+	///     Schedule an event with a fixed rate from within the context.
+	///     Its possible that the new event is executed immediately!
+	///     Use TaskScheduler.Async to create a task
+	///     which will be called at the next update tick.
 	/// </summary>
 	/// <param name="time"> </param>
 	/// <param name="group"> </param>
 	/// <param name="task"> </param>
 	/// <returns> </returns>
 	public TaskContext Schedule(TimeSpan time, uint group, Action<TaskContext> task)
-	{
-		var end = _task._end;
+    {
+        var end = _task._end;
 
-		return Dispatch(scheduler => scheduler.ScheduleAt(end, time, @group, task));
-	}
+        return Dispatch(scheduler => scheduler.ScheduleAt(end, time, @group, task));
+    }
 
-	public TaskContext Schedule(TimeSpan time, uint group, Action task)
-	{
-		return Schedule(time, group, delegate(TaskContext task1) { task(); });
-	}
+    public TaskContext Schedule(TimeSpan time, uint group, Action task)
+    {
+        return Schedule(time, group, delegate(TaskContext task1) { task(); });
+    }
 
 	/// <summary>
-	///  Schedule an event with a randomized rate between min and max rate from within the context.
-	///  Its possible that the new event is executed immediately!
-	///  Use TaskScheduler.Async to create a task
-	///  which will be called at the next update tick.
+	///     Schedule an event with a randomized rate between min and max rate from within the context.
+	///     Its possible that the new event is executed immediately!
+	///     Use TaskScheduler.Async to create a task
+	///     which will be called at the next update tick.
 	/// </summary>
 	/// <param name="min"> </param>
 	/// <param name="max"> </param>
 	/// <param name="task"> </param>
 	/// <returns> </returns>
 	public TaskContext Schedule(TimeSpan min, TimeSpan max, Action<TaskContext> task)
-	{
-		return Schedule(RandomHelper.RandTime(min, max), task);
-	}
+    {
+        return Schedule(RandomHelper.RandTime(min, max), task);
+    }
 
-	public TaskContext Schedule(TimeSpan min, TimeSpan max, Action task)
-	{
-		return Schedule(min, max, delegate(TaskContext task1) { task(); });
-	}
+    public TaskContext Schedule(TimeSpan min, TimeSpan max, Action task)
+    {
+        return Schedule(min, max, delegate(TaskContext task1) { task(); });
+    }
 
 	/// <summary>
-	///  Schedule an event with a randomized rate between min and max rate from within the context.
-	///  Its possible that the new event is executed immediately!
-	///  Use TaskScheduler.Async to create a task
-	///  which will be called at the next update tick.
+	///     Schedule an event with a randomized rate between min and max rate from within the context.
+	///     Its possible that the new event is executed immediately!
+	///     Use TaskScheduler.Async to create a task
+	///     which will be called at the next update tick.
 	/// </summary>
 	/// <param name="min"> </param>
 	/// <param name="max"> </param>
@@ -185,178 +185,177 @@ public class TaskContext
 	/// <param name="task"> </param>
 	/// <returns> </returns>
 	public TaskContext Schedule(TimeSpan min, TimeSpan max, uint group, Action<TaskContext> task)
-	{
-		return Schedule(RandomHelper.RandTime(min, max), group, task);
-	}
+    {
+        return Schedule(RandomHelper.RandTime(min, max), group, task);
+    }
 
-	public TaskContext Schedule(TimeSpan min, TimeSpan max, uint group, Action task)
-	{
-		return Schedule(min, max, group, delegate(TaskContext task1) { task(); });
-	}
+    public TaskContext Schedule(TimeSpan min, TimeSpan max, uint group, Action task)
+    {
+        return Schedule(min, max, group, delegate(TaskContext task1) { task(); });
+    }
 
 	/// <summary>
-	///  Delays all tasks with the given duration from within the context.
+	///     Delays all tasks with the given duration from within the context.
 	/// </summary>
 	/// <param name="duration"> </param>
 	/// <returns> </returns>
 	public TaskContext DelayAll(TimeSpan duration)
-	{
-		return Dispatch(() => _owner.DelayAll(duration));
-	}
+    {
+        return Dispatch(() => _owner.DelayAll(duration));
+    }
 
 	/// <summary>
-	///  Delays all tasks with a random duration between min and max from within the context.
+	///     Delays all tasks with a random duration between min and max from within the context.
 	/// </summary>
 	/// <param name="min"> </param>
 	/// <param name="max"> </param>
 	/// <returns> </returns>
 	public TaskContext DelayAll(TimeSpan min, TimeSpan max)
-	{
-		return DelayAll(RandomHelper.RandTime(min, max));
-	}
+    {
+        return DelayAll(RandomHelper.RandTime(min, max));
+    }
 
 	/// <summary>
-	///  Delays all tasks of a group with the given duration from within the context.
+	///     Delays all tasks of a group with the given duration from within the context.
 	/// </summary>
 	/// <param name="group"> </param>
 	/// <param name="duration"> </param>
 	/// <returns> </returns>
 	public TaskContext DelayGroup(uint group, TimeSpan duration)
-	{
-		return Dispatch(() => _owner.DelayGroup(group, duration));
-	}
+    {
+        return Dispatch(() => _owner.DelayGroup(group, duration));
+    }
 
 	/// <summary>
-	///  Delays all tasks of a group with a random duration between min and max from within the context.
+	///     Delays all tasks of a group with a random duration between min and max from within the context.
 	/// </summary>
 	/// <param name="group"> </param>
 	/// <param name="min"> </param>
 	/// <param name="max"> </param>
 	/// <returns> </returns>
 	public TaskContext DelayGroup(uint group, TimeSpan min, TimeSpan max)
-	{
-		return DelayGroup(group, RandomHelper.RandTime(min, max));
-	}
+    {
+        return DelayGroup(group, RandomHelper.RandTime(min, max));
+    }
 
 	/// <summary>
-	///  Reschedule all tasks with the given duration.
+	///     Reschedule all tasks with the given duration.
 	/// </summary>
 	/// <param name="duration"> </param>
 	/// <returns> </returns>
 	public TaskContext RescheduleAll(TimeSpan duration)
-	{
-		return Dispatch(() => _owner.RescheduleAll(duration));
-	}
+    {
+        return Dispatch(() => _owner.RescheduleAll(duration));
+    }
 
 	/// <summary>
-	///  Reschedule all tasks with a random duration between min and max.
+	///     Reschedule all tasks with a random duration between min and max.
 	/// </summary>
 	/// <param name="min"> </param>
 	/// <param name="max"> </param>
 	/// <returns> </returns>
 	public TaskContext RescheduleAll(TimeSpan min, TimeSpan max)
-	{
-		return RescheduleAll(RandomHelper.RandTime(min, max));
-	}
+    {
+        return RescheduleAll(RandomHelper.RandTime(min, max));
+    }
 
 	/// <summary>
-	///  Reschedule all tasks of a group with the given duration.
+	///     Reschedule all tasks of a group with the given duration.
 	/// </summary>
 	/// <param name="group"> </param>
 	/// <param name="duration"> </param>
 	/// <returns> </returns>
 	public TaskContext RescheduleGroup(uint group, TimeSpan duration)
-	{
-		return Dispatch(() => _owner.RescheduleGroup(group, duration));
-	}
+    {
+        return Dispatch(() => _owner.RescheduleGroup(group, duration));
+    }
 
 	/// <summary>
-	///  Reschedule all tasks of a group with a random duration between min and max.
+	///     Reschedule all tasks of a group with a random duration between min and max.
 	/// </summary>
 	/// <param name="group"> </param>
 	/// <param name="min"> </param>
 	/// <param name="max"> </param>
 	/// <returns> </returns>
 	public TaskContext RescheduleGroup(uint group, TimeSpan min, TimeSpan max)
-	{
-		return RescheduleGroup(group, RandomHelper.RandTime(min, max));
-	}
+    {
+        return RescheduleGroup(group, RandomHelper.RandTime(min, max));
+    }
 
 	/// <summary>
-	///  Dispatches an action safe on the TaskScheduler
+	///     Dispatches an action safe on the TaskScheduler
 	/// </summary>
 	/// <param name="apply"> </param>
 	/// <returns> </returns>
-    private TaskContext Dispatch(Action apply)
-	{
-		apply();
+	private TaskContext Dispatch(Action apply)
+    {
+        apply();
 
-		return this;
-	}
+        return this;
+    }
 
     private TaskContext Dispatch(Func<TaskScheduler, TaskScheduler> apply)
-	{
-		apply(_owner);
+    {
+        apply(_owner);
 
-		return this;
-	}
+        return this;
+    }
 
     private bool IsExpired()
-	{
-		return _owner == null;
-	}
+    {
+        return _owner == null;
+    }
 
 	/// <summary>
-	///  Returns true if the event is in the given group
+	///     Returns true if the event is in the given group
 	/// </summary>
 	/// <param name="group"> </param>
 	/// <returns> </returns>
-    private bool IsInGroup(uint group)
-	{
-		return _task.IsInGroup(group);
-	}
+	private bool IsInGroup(uint group)
+    {
+        return _task.IsInGroup(group);
+    }
 
 	/// <summary>
-	///  Sets the event in the given group
+	///     Sets the event in the given group
 	/// </summary>
 	/// <param name="group"> </param>
 	/// <returns> </returns>
-    private TaskContext SetGroup(uint group)
-	{
-		_task._group = group;
+	private TaskContext SetGroup(uint group)
+    {
+        _task._group = group;
 
-		return this;
-	}
+        return this;
+    }
 
 	/// <summary>
-	///  Removes the group from the event
+	///     Removes the group from the event
 	/// </summary>
 	/// <returns> </returns>
-    private TaskContext ClearGroup()
-	{
-		_task._group = null;
+	private TaskContext ClearGroup()
+    {
+        _task._group = null;
 
-		return this;
-	}
+        return this;
+    }
 
 	/// <summary>
-	///  Schedule a callable function that is executed at the next update tick from within the context.
-	///  Its safe to modify the TaskScheduler from within the callable.
+	///     Schedule a callable function that is executed at the next update tick from within the context.
+	///     Its safe to modify the TaskScheduler from within the callable.
 	/// </summary>
 	/// <param name="callable"> </param>
 	/// <returns> </returns>
-    private TaskContext Async(Action callable)
-	{
-		return Dispatch(() => _owner.Async(callable));
-	}
+	private TaskContext Async(Action callable)
+    {
+        return Dispatch(() => _owner.Async(callable));
+    }
 
 	/// <summary>
-	///  Asserts if the task was consumed already.
+	///     Asserts if the task was consumed already.
 	/// </summary>
-    private void AssertOnConsumed()
-	{
-		// This was adapted to TC to prevent static analysis tools from complaining.
-		// If you encounter this assertion check if you repeat a TaskContext more then 1 time!
-		
-	}
+	private void AssertOnConsumed()
+    {
+        // This was adapted to TC to prevent static analysis tools from complaining.
+        // If you encounter this assertion check if you repeat a TaskContext more then 1 time!
+    }
 }

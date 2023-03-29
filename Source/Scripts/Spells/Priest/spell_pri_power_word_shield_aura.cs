@@ -13,81 +13,81 @@ namespace Scripts.Spells.Priest;
 [SpellScript(17)] // 17 - Power Word: Shield Aura
 internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleOnApply, 0, AuraType.SchoolAbsorb, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectAfterApply));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleOnRemove, 0, AuraType.SchoolAbsorb, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleOnApply, 0, AuraType.SchoolAbsorb, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectAfterApply));
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleOnRemove, 0, AuraType.SchoolAbsorb, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void CalculateAmount(AuraEffect auraEffect, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		canBeRecalculated.Value = false;
+    private void CalculateAmount(AuraEffect auraEffect, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        canBeRecalculated.Value = false;
 
-		var caster = Caster;
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var amountF = caster.SpellBaseDamageBonusDone(SpellInfo.GetSchoolMask()) * 1.65f;
+        if (caster != null)
+        {
+            var amountF = caster.SpellBaseDamageBonusDone(SpellInfo.GetSchoolMask()) * 1.65f;
 
-			var player = caster.AsPlayer;
+            var player = caster.AsPlayer;
 
-			if (player != null)
-			{
-				MathFunctions.AddPct(ref amountF, player.GetRatingBonusValue(CombatRating.VersatilityDamageDone));
+            if (player != null)
+            {
+                MathFunctions.AddPct(ref amountF, player.GetRatingBonusValue(CombatRating.VersatilityDamageDone));
 
-				var mastery = caster.GetAuraEffect(PriestSpells.MASTERY_GRACE, 0);
+                var mastery = caster.GetAuraEffect(PriestSpells.MASTERY_GRACE, 0);
 
-				if (mastery != null)
-					if (OwnerAsUnit.HasAura(PriestSpells.ATONEMENT_TRIGGERED) ||
-						OwnerAsUnit.HasAura(PriestSpells.ATONEMENT_TRIGGERED_POWER_TRINITY))
-						MathFunctions.AddPct(ref amountF, mastery.Amount);
-			}
+                if (mastery != null)
+                    if (OwnerAsUnit.HasAura(PriestSpells.ATONEMENT_TRIGGERED) ||
+                        OwnerAsUnit.HasAura(PriestSpells.ATONEMENT_TRIGGERED_POWER_TRINITY))
+                        MathFunctions.AddPct(ref amountF, mastery.Amount);
+            }
 
-			var rapture = caster.GetAuraEffect(PriestSpells.RAPTURE, 1);
+            var rapture = caster.GetAuraEffect(PriestSpells.RAPTURE, 1);
 
-			if (rapture != null)
-				MathFunctions.AddPct(ref amountF, rapture.Amount);
+            if (rapture != null)
+                MathFunctions.AddPct(ref amountF, rapture.Amount);
 
-			amount.Value = amountF;
-		}
-	}
+            amount.Value = amountF;
+        }
+    }
 
-	private void HandleOnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var caster = Caster;
-		var target = Target;
+    private void HandleOnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var caster = Caster;
+        var target = Target;
 
-		if (!caster)
-			return;
+        if (!caster)
+            return;
 
-		if (caster.HasAura(PriestSpells.BODY_AND_SOUL))
-			caster.CastSpell(target, PriestSpells.BODY_AND_SOUL_SPEED, true);
+        if (caster.HasAura(PriestSpells.BODY_AND_SOUL))
+            caster.CastSpell(target, PriestSpells.BODY_AND_SOUL_SPEED, true);
 
-		if (caster.HasAura(PriestSpells.STRENGTH_OF_SOUL))
-			caster.CastSpell(target, PriestSpells.STRENGTH_OF_SOUL_EFFECT, true);
+        if (caster.HasAura(PriestSpells.STRENGTH_OF_SOUL))
+            caster.CastSpell(target, PriestSpells.STRENGTH_OF_SOUL_EFFECT, true);
 
-		if (caster.HasAura(PriestSpells.RENEWED_HOPE))
-			caster.CastSpell(target, PriestSpells.RENEWED_HOPE_EFFECT, true);
+        if (caster.HasAura(PriestSpells.RENEWED_HOPE))
+            caster.CastSpell(target, PriestSpells.RENEWED_HOPE_EFFECT, true);
 
-		if (caster.HasAura(PriestSpells.VOID_SHIELD) &&
-			caster == target)
-			caster.CastSpell(target, PriestSpells.VOID_SHIELD_EFFECT, true);
+        if (caster.HasAura(PriestSpells.VOID_SHIELD) &&
+            caster == target)
+            caster.CastSpell(target, PriestSpells.VOID_SHIELD_EFFECT, true);
 
-		if (caster.HasAura(PriestSpells.ATONEMENT))
-			caster.CastSpell(target, caster.HasAura(PriestSpells.TRINITY) ? PriestSpells.ATONEMENT_TRIGGERED_POWER_TRINITY : PriestSpells.ATONEMENT_TRIGGERED, true);
-	}
+        if (caster.HasAura(PriestSpells.ATONEMENT))
+            caster.CastSpell(target, caster.HasAura(PriestSpells.TRINITY) ? PriestSpells.ATONEMENT_TRIGGERED_POWER_TRINITY : PriestSpells.ATONEMENT_TRIGGERED, true);
+    }
 
-	private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.RemoveAura(PriestSpells.STRENGTH_OF_SOUL_EFFECT);
-		var caster = Caster;
+    private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.RemoveAura(PriestSpells.STRENGTH_OF_SOUL_EFFECT);
+        var caster = Caster;
 
-		if (caster)
-			if (TargetApplication.RemoveMode == AuraRemoveMode.EnemySpell &&
-				caster.HasAura(PriestSpells.SHIELD_DISCIPLINE_PASSIVE))
-				caster.CastSpell(caster, PriestSpells.SHIELD_DISCIPLINE_ENERGIZE, true);
-	}
+        if (caster)
+            if (TargetApplication.RemoveMode == AuraRemoveMode.EnemySpell &&
+                caster.HasAura(PriestSpells.SHIELD_DISCIPLINE_PASSIVE))
+                caster.CastSpell(caster, PriestSpells.SHIELD_DISCIPLINE_ENERGIZE, true);
+    }
 }

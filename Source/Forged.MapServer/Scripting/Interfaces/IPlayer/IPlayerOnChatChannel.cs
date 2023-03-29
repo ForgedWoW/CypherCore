@@ -9,5 +9,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 
 public interface IPlayerOnChatChannel : IScriptObject
 {
-	void OnChat(Player player, ChatMsg type, Language lang, string msg, Channel channel);
+    void OnChat(Player player, ChatMsg type, Language lang, string msg, Channel channel);
 }

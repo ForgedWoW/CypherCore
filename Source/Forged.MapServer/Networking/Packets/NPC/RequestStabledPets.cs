@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 internal class RequestStabledPets : ClientPacket
 {
-	public ObjectGuid StableMaster;
-	public RequestStabledPets(WorldPacket packet) : base(packet) { }
+    public ObjectGuid StableMaster;
+    public RequestStabledPets(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		StableMaster = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        StableMaster = _worldPacket.ReadPackedGuid();
+    }
 }

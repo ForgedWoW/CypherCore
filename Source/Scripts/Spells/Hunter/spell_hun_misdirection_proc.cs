@@ -12,15 +12,15 @@ namespace Scripts.Spells.Hunter;
 [Script]
 internal class spell_hun_misdirection_proc : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.GetThreatManager().UnregisterRedirectThreat(HunterSpells.Misdirection);
-	}
+    private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.GetThreatManager().UnregisterRedirectThreat(HunterSpells.Misdirection);
+    }
 }

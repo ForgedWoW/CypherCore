@@ -9,25 +9,25 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class RaidMarkersChanged : ServerPacket
 {
-	public sbyte PartyIndex;
-	public uint ActiveMarkers;
+    public sbyte PartyIndex;
+    public uint ActiveMarkers;
 
-	public List<RaidMarker> RaidMarkers = new();
-	public RaidMarkersChanged() : base(ServerOpcodes.RaidMarkersChanged) { }
+    public List<RaidMarker> RaidMarkers = new();
+    public RaidMarkersChanged() : base(ServerOpcodes.RaidMarkersChanged) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt8(PartyIndex);
-		_worldPacket.WriteUInt32(ActiveMarkers);
+    public override void Write()
+    {
+        _worldPacket.WriteInt8(PartyIndex);
+        _worldPacket.WriteUInt32(ActiveMarkers);
 
-		_worldPacket.WriteBits(RaidMarkers.Count, 4);
-		_worldPacket.FlushBits();
+        _worldPacket.WriteBits(RaidMarkers.Count, 4);
+        _worldPacket.FlushBits();
 
-		foreach (var raidMarker in RaidMarkers)
-		{
-			_worldPacket.WritePackedGuid(raidMarker.TransportGUID);
-			_worldPacket.WriteUInt32(raidMarker.Location.MapId);
-			_worldPacket.WriteXYZ(raidMarker.Location);
-		}
-	}
+        foreach (var raidMarker in RaidMarkers)
+        {
+            _worldPacket.WritePackedGuid(raidMarker.TransportGUID);
+            _worldPacket.WriteUInt32(raidMarker.Location.MapId);
+            _worldPacket.WriteXYZ(raidMarker.Location);
+        }
+    }
 }

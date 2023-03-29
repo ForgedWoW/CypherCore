@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Duel;
 
 public class DuelResponse : ClientPacket
 {
-	public ObjectGuid ArbiterGUID;
-	public bool Accepted;
-	public bool Forfeited;
-	public DuelResponse(WorldPacket packet) : base(packet) { }
+    public ObjectGuid ArbiterGUID;
+    public bool Accepted;
+    public bool Forfeited;
+    public DuelResponse(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ArbiterGUID = _worldPacket.ReadPackedGuid();
-		Accepted = _worldPacket.HasBit();
-		Forfeited = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        ArbiterGUID = _worldPacket.ReadPackedGuid();
+        Accepted = _worldPacket.HasBit();
+        Forfeited = _worldPacket.HasBit();
+    }
 }

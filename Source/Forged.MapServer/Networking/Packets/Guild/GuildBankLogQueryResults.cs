@@ -8,48 +8,48 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildBankLogQueryResults : ServerPacket
 {
-	public int Tab;
-	public List<GuildBankLogEntry> Entry;
-	public ulong? WeeklyBonusMoney;
+    public int Tab;
+    public List<GuildBankLogEntry> Entry;
+    public ulong? WeeklyBonusMoney;
 
-	public GuildBankLogQueryResults() : base(ServerOpcodes.GuildBankLogQueryResults)
-	{
-		Entry = new List<GuildBankLogEntry>();
-	}
+    public GuildBankLogQueryResults() : base(ServerOpcodes.GuildBankLogQueryResults)
+    {
+        Entry = new List<GuildBankLogEntry>();
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Tab);
-		_worldPacket.WriteInt32(Entry.Count);
-		_worldPacket.WriteBit(WeeklyBonusMoney.HasValue);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Tab);
+        _worldPacket.WriteInt32(Entry.Count);
+        _worldPacket.WriteBit(WeeklyBonusMoney.HasValue);
+        _worldPacket.FlushBits();
 
-		foreach (var logEntry in Entry)
-		{
-			_worldPacket.WritePackedGuid(logEntry.PlayerGUID);
-			_worldPacket.WriteUInt32(logEntry.TimeOffset);
-			_worldPacket.WriteInt8(logEntry.EntryType);
+        foreach (var logEntry in Entry)
+        {
+            _worldPacket.WritePackedGuid(logEntry.PlayerGUID);
+            _worldPacket.WriteUInt32(logEntry.TimeOffset);
+            _worldPacket.WriteInt8(logEntry.EntryType);
 
-			_worldPacket.WriteBit(logEntry.Money.HasValue);
-			_worldPacket.WriteBit(logEntry.ItemID.HasValue);
-			_worldPacket.WriteBit(logEntry.Count.HasValue);
-			_worldPacket.WriteBit(logEntry.OtherTab.HasValue);
-			_worldPacket.FlushBits();
+            _worldPacket.WriteBit(logEntry.Money.HasValue);
+            _worldPacket.WriteBit(logEntry.ItemID.HasValue);
+            _worldPacket.WriteBit(logEntry.Count.HasValue);
+            _worldPacket.WriteBit(logEntry.OtherTab.HasValue);
+            _worldPacket.FlushBits();
 
-			if (logEntry.Money.HasValue)
-				_worldPacket.WriteUInt64(logEntry.Money.Value);
+            if (logEntry.Money.HasValue)
+                _worldPacket.WriteUInt64(logEntry.Money.Value);
 
-			if (logEntry.ItemID.HasValue)
-				_worldPacket.WriteInt32(logEntry.ItemID.Value);
+            if (logEntry.ItemID.HasValue)
+                _worldPacket.WriteInt32(logEntry.ItemID.Value);
 
-			if (logEntry.Count.HasValue)
-				_worldPacket.WriteInt32(logEntry.Count.Value);
+            if (logEntry.Count.HasValue)
+                _worldPacket.WriteInt32(logEntry.Count.Value);
 
-			if (logEntry.OtherTab.HasValue)
-				_worldPacket.WriteInt8(logEntry.OtherTab.Value);
-		}
+            if (logEntry.OtherTab.HasValue)
+                _worldPacket.WriteInt8(logEntry.OtherTab.Value);
+        }
 
-		if (WeeklyBonusMoney.HasValue)
-			_worldPacket.WriteUInt64(WeeklyBonusMoney.Value);
-	}
+        if (WeeklyBonusMoney.HasValue)
+            _worldPacket.WriteUInt64(WeeklyBonusMoney.Value);
+    }
 }

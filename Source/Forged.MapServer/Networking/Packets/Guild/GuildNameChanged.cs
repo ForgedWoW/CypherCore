@@ -9,15 +9,15 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 internal class GuildNameChanged : ServerPacket
 {
-	public ObjectGuid GuildGUID;
-	public string GuildName;
-	public GuildNameChanged() : base(ServerOpcodes.GuildNameChanged) { }
+    public ObjectGuid GuildGUID;
+    public string GuildName;
+    public GuildNameChanged() : base(ServerOpcodes.GuildNameChanged) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(GuildGUID);
-		_worldPacket.WriteBits(GuildName.GetByteCount(), 7);
-		_worldPacket.FlushBits();
-		_worldPacket.WriteString(GuildName);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(GuildGUID);
+        _worldPacket.WriteBits(GuildName.GetByteCount(), 7);
+        _worldPacket.FlushBits();
+        _worldPacket.WriteString(GuildName);
+    }
 }

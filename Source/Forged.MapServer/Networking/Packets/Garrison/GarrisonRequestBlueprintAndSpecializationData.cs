@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonRequestBlueprintAndSpecializationData : ClientPacket
 {
-	public GarrisonRequestBlueprintAndSpecializationData(WorldPacket packet) : base(packet) { }
+    public GarrisonRequestBlueprintAndSpecializationData(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

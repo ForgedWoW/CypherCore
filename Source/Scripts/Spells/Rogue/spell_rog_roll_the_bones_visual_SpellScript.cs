@@ -11,27 +11,27 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(208244)]
 public class spell_rog_roll_the_bones_visual_SpellScript : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(Prevent, (byte)255, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(Prevent, (byte)255, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
+    }
 
 
-	private void Prevent(int effIndex)
-	{
-		var caster = Caster;
+    private void Prevent(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (caster.AsPlayer)
-		{
-			PreventHitAura();
-			PreventHitDamage();
-			PreventHitDefaultEffect(effIndex);
-			PreventHitEffect(effIndex);
-		}
-	}
+        if (caster.AsPlayer)
+        {
+            PreventHitAura();
+            PreventHitDamage();
+            PreventHitDefaultEffect(effIndex);
+            PreventHitEffect(effIndex);
+        }
+    }
 }

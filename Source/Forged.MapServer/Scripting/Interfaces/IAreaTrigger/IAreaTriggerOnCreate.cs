@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 public interface IAreaTriggerOnCreate : IAreaTriggerScript
 {
-	public void OnCreate();
+    public void OnCreate();
 }

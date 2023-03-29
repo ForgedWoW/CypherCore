@@ -8,8 +8,8 @@ namespace Framework.Constants;
 [Flags]
 public enum CurrencyTypesFlagsB
 {
-	UseTotalEarnedForEarned = 0x01,
-	ShowQuestXPGainInTooltip = 0x02,            // NYI
-	NoNotificationMailOnOfflineProgress = 0x04, // NYI
-	BattlenetVirtualCurrency = 0x08             // NYI
+    UseTotalEarnedForEarned = 0x01,
+    ShowQuestXPGainInTooltip = 0x02,            // NYI
+    NoNotificationMailOnOfflineProgress = 0x04, // NYI
+    BattlenetVirtualCurrency = 0x08             // NYI
 }

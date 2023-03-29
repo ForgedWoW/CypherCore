@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Trade;
 
 public class IgnoreTrade : ClientPacket
 {
-	public IgnoreTrade(WorldPacket packet) : base(packet) { }
+    public IgnoreTrade(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

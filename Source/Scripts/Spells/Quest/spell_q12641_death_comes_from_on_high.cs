@@ -12,40 +12,40 @@ namespace Scripts.Spells.Quest;
 [Script] // 51858 - Siphon of Acherus
 internal class spell_q12641_death_comes_from_on_high : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		uint spellId;
+    private void HandleDummy(int effIndex)
+    {
+        uint spellId;
 
-		switch (HitCreature.Entry)
-		{
-			case CreatureIds.NewAvalonForge:
-				spellId = QuestSpellIds.ForgeCredit;
+        switch (HitCreature.Entry)
+        {
+            case CreatureIds.NewAvalonForge:
+                spellId = QuestSpellIds.ForgeCredit;
 
-				break;
-			case CreatureIds.NewAvalonTownHall:
-				spellId = QuestSpellIds.TownHallCredit;
+                break;
+            case CreatureIds.NewAvalonTownHall:
+                spellId = QuestSpellIds.TownHallCredit;
 
-				break;
-			case CreatureIds.ScarletHold:
-				spellId = QuestSpellIds.ScarletHoldCredit;
+                break;
+            case CreatureIds.ScarletHold:
+                spellId = QuestSpellIds.ScarletHoldCredit;
 
-				break;
-			case CreatureIds.ChapelOfTheCrimsonFlame:
-				spellId = QuestSpellIds.ChapelCredit;
+                break;
+            case CreatureIds.ChapelOfTheCrimsonFlame:
+                spellId = QuestSpellIds.ChapelCredit;
 
-				break;
-			default:
-				return;
-		}
+                break;
+            default:
+                return;
+        }
 
-		Caster.CastSpell((Unit)null, spellId, true);
-	}
+        Caster.CastSpell((Unit)null, spellId, true);
+    }
 }

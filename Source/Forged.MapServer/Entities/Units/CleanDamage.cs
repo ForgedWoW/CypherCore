@@ -7,17 +7,17 @@ namespace Forged.MapServer.Entities.Units;
 
 public class CleanDamage
 {
-	public double AbsorbedDamage { get; }
-	public double MitigatedDamage { get; set; }
+    public double AbsorbedDamage { get; }
+    public double MitigatedDamage { get; set; }
 
-	public WeaponAttackType AttackType { get; }
-	public MeleeHitOutcome HitOutCome { get; }
+    public WeaponAttackType AttackType { get; }
+    public MeleeHitOutcome HitOutCome { get; }
 
-	public CleanDamage(double mitigated, double absorbed, WeaponAttackType attackType, MeleeHitOutcome hitOutCome)
-	{
-		AbsorbedDamage = absorbed;
-		MitigatedDamage = mitigated;
-		AttackType = attackType;
-		HitOutCome = hitOutCome;
-	}
+    public CleanDamage(double mitigated, double absorbed, WeaponAttackType attackType, MeleeHitOutcome hitOutCome)
+    {
+        AbsorbedDamage = absorbed;
+        MitigatedDamage = mitigated;
+        AttackType = attackType;
+        HitOutCome = hitOutCome;
+    }
 }

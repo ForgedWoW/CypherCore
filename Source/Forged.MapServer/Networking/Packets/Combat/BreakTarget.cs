@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 internal class BreakTarget : ServerPacket
 {
-	public ObjectGuid UnitGUID;
-	public BreakTarget() : base(ServerOpcodes.BreakTarget) { }
+    public ObjectGuid UnitGUID;
+    public BreakTarget() : base(ServerOpcodes.BreakTarget) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(UnitGUID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(UnitGUID);
+    }
 }

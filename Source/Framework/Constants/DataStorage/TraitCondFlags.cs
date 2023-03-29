@@ -8,8 +8,8 @@ namespace Framework.Constants;
 [Flags]
 public enum TraitCondFlags
 {
-	None = 0x0,
-	IsGate = 0x1,
-	IsAlwaysMet = 0x2,
-	IsSufficient = 0x4,
+    None = 0x0,
+    IsGate = 0x1,
+    IsAlwaysMet = 0x2,
+    IsSufficient = 0x4,
 }

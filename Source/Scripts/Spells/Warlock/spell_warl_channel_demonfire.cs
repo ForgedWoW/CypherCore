@@ -15,30 +15,30 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(196447)]
 public class spell_warl_channel_demonfire : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
+    }
 
-	private void HandlePeriodic(AuraEffect UnnamedParameter)
-	{
-		var caster = Caster;
-		var rangeInfoSpell = Global.SpellMgr.GetSpellInfo(WarlockSpells.CHANNEL_DEMONFIRE_RANGE);
+    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    {
+        var caster = Caster;
+        var rangeInfoSpell = Global.SpellMgr.GetSpellInfo(WarlockSpells.CHANNEL_DEMONFIRE_RANGE);
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var enemies = new List<Unit>();
-		var check = new AnyUnfriendlyUnitInObjectRangeCheck(caster, caster, rangeInfoSpell.GetMaxRange(), new UnitAuraCheck<Unit>(true, WarlockSpells.IMMOLATE_DOT, caster.GUID).Invoke);
-		var searcher = new UnitListSearcher(caster, enemies, check, GridType.All);
-		Cell.VisitGrid(caster, searcher, rangeInfoSpell.GetMaxRange());
+        var enemies = new List<Unit>();
+        var check = new AnyUnfriendlyUnitInObjectRangeCheck(caster, caster, rangeInfoSpell.GetMaxRange(), new UnitAuraCheck<Unit>(true, WarlockSpells.IMMOLATE_DOT, caster.GUID).Invoke);
+        var searcher = new UnitListSearcher(caster, enemies, check, GridType.All);
+        Cell.VisitGrid(caster, searcher, rangeInfoSpell.GetMaxRange());
 
-		if (enemies.Count == 0)
-			return;
+        if (enemies.Count == 0)
+            return;
 
-		var target = enemies.SelectRandom();
-		caster.CastSpell(target, WarlockSpells.CHANNEL_DEMONFIRE_DAMAGE, true);
-	}
+        var target = enemies.SelectRandom();
+        caster.CastSpell(target, WarlockSpells.CHANNEL_DEMONFIRE_DAMAGE, true);
+    }
 }

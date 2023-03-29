@@ -8,15 +8,15 @@ namespace Forged.MapServer.Collision.Models;
 
 public class GameobjectModelData
 {
-	public readonly string Name;
-	public readonly bool IsWmo;
+    public readonly string Name;
+    public readonly bool IsWmo;
 
-	public AxisAlignedBox Bound;
+    public AxisAlignedBox Bound;
 
-	public GameobjectModelData(string name, Vector3 lowBound, Vector3 highBound, bool isWmo)
-	{
-		Bound = new AxisAlignedBox(lowBound, highBound);
-		Name = name;
-		IsWmo = isWmo;
-	}
+    public GameobjectModelData(string name, Vector3 lowBound, Vector3 highBound, bool isWmo)
+    {
+        Bound = new AxisAlignedBox(lowBound, highBound);
+        Name = name;
+        IsWmo = isWmo;
+    }
 }

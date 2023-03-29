@@ -5,21 +5,21 @@ namespace Forged.MapServer.Networking.Packets.Channel;
 
 public class JoinChannel : ClientPacket
 {
-	public string Password;
-	public string ChannelName;
-	public bool CreateVoiceSession;
-	public int ChatChannelId;
-	public bool Internal;
-	public JoinChannel(WorldPacket packet) : base(packet) { }
+    public string Password;
+    public string ChannelName;
+    public bool CreateVoiceSession;
+    public int ChatChannelId;
+    public bool Internal;
+    public JoinChannel(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ChatChannelId = _worldPacket.ReadInt32();
-		CreateVoiceSession = _worldPacket.HasBit();
-		Internal = _worldPacket.HasBit();
-		var channelLength = _worldPacket.ReadBits<uint>(7);
-		var passwordLength = _worldPacket.ReadBits<uint>(7);
-		ChannelName = _worldPacket.ReadString(channelLength);
-		Password = _worldPacket.ReadString(passwordLength);
-	}
+    public override void Read()
+    {
+        ChatChannelId = _worldPacket.ReadInt32();
+        CreateVoiceSession = _worldPacket.HasBit();
+        Internal = _worldPacket.HasBit();
+        var channelLength = _worldPacket.ReadBits<uint>(7);
+        var passwordLength = _worldPacket.ReadBits<uint>(7);
+        ChannelName = _worldPacket.ReadString(channelLength);
+        Password = _worldPacket.ReadString(passwordLength);
+    }
 }

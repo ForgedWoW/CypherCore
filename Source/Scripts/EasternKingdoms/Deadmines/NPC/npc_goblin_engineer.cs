@@ -11,21 +11,21 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 [CreatureScript(48439)]
 public class npc_goblin_engineer : ScriptedAI
 {
-	public InstanceScript Instance;
+    public InstanceScript Instance;
 
-	public npc_goblin_engineer(Creature creature) : base(creature)
-	{
-		Instance = creature.InstanceScript;
-	}
+    public npc_goblin_engineer(Creature creature) : base(creature)
+    {
+        Instance = creature.InstanceScript;
+    }
 
-	public override void Reset()
-	{
-		if (!Me)
-			return;
+    public override void Reset()
+    {
+        if (!Me)
+            return;
 
-		if (Me.FindNearestGameObject(DMGameObjects.GO_HEAVY_DOOR, 20.0f))
-			Me.AddAura(78087, Me);
-		else
-			Me.AddAura(57626, Me);
-	}
+        if (Me.FindNearestGameObject(DMGameObjects.GO_HEAVY_DOOR, 20.0f))
+            Me.AddAura(78087, Me);
+        else
+            Me.AddAura(57626, Me);
+    }
 }

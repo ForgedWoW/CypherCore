@@ -11,21 +11,21 @@ namespace Scripts.Spells.Druid;
 [SpellScript(221514)]
 public class spell_dru_skull_bash_charge : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleCharge, 0, SpellEffectName.Charge, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleCharge, 0, SpellEffectName.Charge, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleCharge(int effIndex)
-	{
-		if (!Caster)
-			return;
+    private void HandleCharge(int effIndex)
+    {
+        if (!Caster)
+            return;
 
-		if (!HitUnit)
-			return;
+        if (!HitUnit)
+            return;
 
-		Caster.CastSpell(HitUnit, 93985, true);
-	}
+        Caster.CastSpell(HitUnit, 93985, true);
+    }
 }

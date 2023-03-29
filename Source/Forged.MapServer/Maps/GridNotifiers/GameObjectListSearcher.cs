@@ -16,25 +16,25 @@ public class GameObjectListSearcher : IGridNotifierGameObject
     private readonly List<GameObject> _objects;
     private readonly ICheck<GameObject> _check;
 
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public GameObjectListSearcher(WorldObject searcher, List<GameObject> objects, ICheck<GameObject> check, GridType gridType)
-	{
-		_phaseShift = searcher.PhaseShift;
-		_objects = objects;
-		_check = check;
-		GridType = gridType;
-	}
+    public GameObjectListSearcher(WorldObject searcher, List<GameObject> objects, ICheck<GameObject> check, GridType gridType)
+    {
+        _phaseShift = searcher.PhaseShift;
+        _objects = objects;
+        _check = check;
+        GridType = gridType;
+    }
 
-	public void Visit(IList<GameObject> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var gameObject = objs[i];
+    public void Visit(IList<GameObject> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var gameObject = objs[i];
 
-			if (gameObject.InSamePhase(_phaseShift))
-				if (_check.Invoke(gameObject))
-					_objects.Add(gameObject);
-		}
-	}
+            if (gameObject.InSamePhase(_phaseShift))
+                if (_check.Invoke(gameObject))
+                    _objects.Add(gameObject);
+        }
+    }
 }

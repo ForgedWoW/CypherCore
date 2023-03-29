@@ -12,37 +12,37 @@ namespace Scripts.Spells.Druid;
 [SpellScript(197492)]
 public class aura_dru_restoration_affinity : AuraScript, IHasAuraEffects
 {
-	private readonly List<uint> LearnedSpells = new()
-	{
-		(uint)DruidSpells.YSERA_GIFT,
-		(uint)DruidSpells.REJUVENATION,
-		(uint)DruidSpells.HEALING_TOUCH,
-		(uint)DruidSpells.SWIFTMEND
-	};
+    private readonly List<uint> LearnedSpells = new()
+    {
+        (uint)DruidSpells.YSERA_GIFT,
+        (uint)DruidSpells.REJUVENATION,
+        (uint)DruidSpells.HEALING_TOUCH,
+        (uint)DruidSpells.SWIFTMEND
+    };
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(AfterApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
+        AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void AfterApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var target = Target.AsPlayer;
+    private void AfterApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var target = Target.AsPlayer;
 
-		if (target != null)
-			foreach (var spellId in LearnedSpells)
-				target.LearnSpell(spellId, false);
-	}
+        if (target != null)
+            foreach (var spellId in LearnedSpells)
+                target.LearnSpell(spellId, false);
+    }
 
-	private void AfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var target = Target.AsPlayer;
+    private void AfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var target = Target.AsPlayer;
 
-		if (target != null)
-			foreach (var spellId in LearnedSpells)
-				target.RemoveSpell(spellId);
-	}
+        if (target != null)
+            foreach (var spellId in LearnedSpells)
+                target.RemoveSpell(spellId);
+    }
 }

@@ -15,95 +15,95 @@ public class SpawnedPoolData
     private readonly List<ulong> _spawnedGameobjects = new();
     private readonly Dictionary<ulong, uint> _spawnedPools = new();
 
-	public Map Map => _owner;
+    public Map Map => _owner;
 
-	public SpawnedPoolData(Map owner)
-	{
-		_owner = owner;
-	}
+    public SpawnedPoolData(Map owner)
+    {
+        _owner = owner;
+    }
 
-	public uint GetSpawnedObjects(uint poolId)
-	{
-		return _spawnedPools.LookupByKey(poolId);
-	}
+    public uint GetSpawnedObjects(uint poolId)
+    {
+        return _spawnedPools.LookupByKey(poolId);
+    }
 
-	public bool IsSpawnedObject<T>(ulong dbGuid)
-	{
-		switch (typeof(T).Name)
-		{
-			case "Creature":
-				return _spawnedCreatures.Contains(dbGuid);
-			case "GameObject":
-				return _spawnedGameobjects.Contains(dbGuid);
-			case "Pool":
-				return _spawnedPools.ContainsKey(dbGuid);
-			default:
-				return false;
-		}
-	}
+    public bool IsSpawnedObject<T>(ulong dbGuid)
+    {
+        switch (typeof(T).Name)
+        {
+            case "Creature":
+                return _spawnedCreatures.Contains(dbGuid);
+            case "GameObject":
+                return _spawnedGameobjects.Contains(dbGuid);
+            case "Pool":
+                return _spawnedPools.ContainsKey(dbGuid);
+            default:
+                return false;
+        }
+    }
 
-	public bool IsSpawnedObject(SpawnObjectType type, ulong dbGuidOrPoolId)
-	{
-		switch (type)
-		{
-			case SpawnObjectType.Creature:
-				return _spawnedCreatures.Contains(dbGuidOrPoolId);
-			case SpawnObjectType.GameObject:
-				return _spawnedGameobjects.Contains(dbGuidOrPoolId);
-			default:
-				Log.Logger.Fatal($"Invalid spawn type {type} passed to SpawnedPoolData::IsSpawnedObject (with spawnId {dbGuidOrPoolId})");
+    public bool IsSpawnedObject(SpawnObjectType type, ulong dbGuidOrPoolId)
+    {
+        switch (type)
+        {
+            case SpawnObjectType.Creature:
+                return _spawnedCreatures.Contains(dbGuidOrPoolId);
+            case SpawnObjectType.GameObject:
+                return _spawnedGameobjects.Contains(dbGuidOrPoolId);
+            default:
+                Log.Logger.Fatal($"Invalid spawn type {type} passed to SpawnedPoolData::IsSpawnedObject (with spawnId {dbGuidOrPoolId})");
 
-				return false;
-		}
-	}
+                return false;
+        }
+    }
 
-	public void AddSpawn<T>(ulong dbGuid, uint poolId)
-	{
-		switch (typeof(T).Name)
-		{
-			case "Creature":
-				_spawnedCreatures.Add(dbGuid);
+    public void AddSpawn<T>(ulong dbGuid, uint poolId)
+    {
+        switch (typeof(T).Name)
+        {
+            case "Creature":
+                _spawnedCreatures.Add(dbGuid);
 
-				break;
-			case "GameObject":
-				_spawnedGameobjects.Add(dbGuid);
+                break;
+            case "GameObject":
+                _spawnedGameobjects.Add(dbGuid);
 
-				break;
-			case "Pool":
-				_spawnedPools[dbGuid] = 0;
+                break;
+            case "Pool":
+                _spawnedPools[dbGuid] = 0;
 
-				break;
-			default:
-				return;
-		}
+                break;
+            default:
+                return;
+        }
 
-		if (!_spawnedPools.ContainsKey(poolId))
-			_spawnedPools[poolId] = 0;
+        if (!_spawnedPools.ContainsKey(poolId))
+            _spawnedPools[poolId] = 0;
 
-		++_spawnedPools[poolId];
-	}
+        ++_spawnedPools[poolId];
+    }
 
-	public void RemoveSpawn<T>(ulong dbGuid, uint poolId)
-	{
-		switch (typeof(T).Name)
-		{
-			case "Creature":
-				_spawnedCreatures.Remove(dbGuid);
+    public void RemoveSpawn<T>(ulong dbGuid, uint poolId)
+    {
+        switch (typeof(T).Name)
+        {
+            case "Creature":
+                _spawnedCreatures.Remove(dbGuid);
 
-				break;
-			case "GameObject":
-				_spawnedGameobjects.Remove(dbGuid);
+                break;
+            case "GameObject":
+                _spawnedGameobjects.Remove(dbGuid);
 
-				break;
-			case "Pool":
-				_spawnedPools.Remove(dbGuid);
+                break;
+            case "Pool":
+                _spawnedPools.Remove(dbGuid);
 
-				break;
-			default:
-				return;
-		}
+                break;
+            default:
+                return;
+        }
 
-		if (_spawnedPools[poolId] > 0)
-			--_spawnedPools[poolId];
-	}
+        if (_spawnedPools[poolId] > 0)
+            --_spawnedPools[poolId];
+    }
 }

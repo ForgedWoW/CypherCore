@@ -9,48 +9,48 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class QueryGameObjectResponse : ServerPacket
 {
-	public uint GameObjectID;
-	public ObjectGuid Guid;
-	public bool Allow;
-	public GameObjectStats Stats;
-	public QueryGameObjectResponse() : base(ServerOpcodes.QueryGameObjectResponse, ConnectionType.Instance) { }
+    public uint GameObjectID;
+    public ObjectGuid Guid;
+    public bool Allow;
+    public GameObjectStats Stats;
+    public QueryGameObjectResponse() : base(ServerOpcodes.QueryGameObjectResponse, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(GameObjectID);
-		_worldPacket.WritePackedGuid(Guid);
-		_worldPacket.WriteBit(Allow);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(GameObjectID);
+        _worldPacket.WritePackedGuid(Guid);
+        _worldPacket.WriteBit(Allow);
+        _worldPacket.FlushBits();
 
-		ByteBuffer statsData = new();
+        ByteBuffer statsData = new();
 
-		if (Allow)
-		{
-			statsData.WriteUInt32(Stats.Type);
-			statsData.WriteUInt32(Stats.DisplayID);
+        if (Allow)
+        {
+            statsData.WriteUInt32(Stats.Type);
+            statsData.WriteUInt32(Stats.DisplayID);
 
-			for (var i = 0; i < 4; i++)
-				statsData.WriteCString(Stats.Name[i]);
+            for (var i = 0; i < 4; i++)
+                statsData.WriteCString(Stats.Name[i]);
 
-			statsData.WriteCString(Stats.IconName);
-			statsData.WriteCString(Stats.CastBarCaption);
-			statsData.WriteCString(Stats.UnkString);
+            statsData.WriteCString(Stats.IconName);
+            statsData.WriteCString(Stats.CastBarCaption);
+            statsData.WriteCString(Stats.UnkString);
 
-			for (uint i = 0; i < SharedConst.MaxGOData; i++)
-				statsData.WriteInt32(Stats.Data[i]);
+            for (uint i = 0; i < SharedConst.MaxGOData; i++)
+                statsData.WriteInt32(Stats.Data[i]);
 
-			statsData.WriteFloat(Stats.Size);
-			statsData.WriteUInt8((byte)Stats.QuestItems.Count);
+            statsData.WriteFloat(Stats.Size);
+            statsData.WriteUInt8((byte)Stats.QuestItems.Count);
 
-			foreach (var questItem in Stats.QuestItems)
-				statsData.WriteUInt32(questItem);
+            foreach (var questItem in Stats.QuestItems)
+                statsData.WriteUInt32(questItem);
 
-			statsData.WriteUInt32(Stats.ContentTuningId);
-		}
+            statsData.WriteUInt32(Stats.ContentTuningId);
+        }
 
-		_worldPacket.WriteUInt32(statsData.GetSize());
+        _worldPacket.WriteUInt32(statsData.GetSize());
 
-		if (statsData.GetSize() != 0)
-			_worldPacket.WriteBytes(statsData);
-	}
+        if (statsData.GetSize() != 0)
+            _worldPacket.WriteBytes(statsData);
+    }
 }

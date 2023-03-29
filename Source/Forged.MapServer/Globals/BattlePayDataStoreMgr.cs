@@ -29,7 +29,7 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
     public List<BpayProduct> GetProductsOfProductInfo(uint productInfoEntry)
     {
         /*std::vector<BattlePayData::Product> subproducts = {};
-
+      
         for (auto productInfo : _productInfos)
             if (productInfo.second.Entry == productInfoEntry)
                 for (uint32 productid : productInfo.second.ProductIds)
@@ -37,7 +37,7 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
                     //TC_LOG_INFO("server.BattlePay", "GetProductsOfProductInfo: found product [{}] at productInfo [{}]", productid, productInfoEntry);
                     subproducts.push_back(*GetProduct(productid));
                 }
-
+      
         if (subproducts.size() > 0)
             return &subproducts; // warning*/
 

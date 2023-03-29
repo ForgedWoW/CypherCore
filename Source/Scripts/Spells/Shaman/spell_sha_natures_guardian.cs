@@ -14,15 +14,15 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(30884)]
 internal class spell_sha_natures_guardian : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraCheckEffectProcHandler(CheckProc, 0, AuraType.ProcTriggerSpell));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraCheckEffectProcHandler(CheckProc, 0, AuraType.ProcTriggerSpell));
+    }
 
-	private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		return eventInfo.ActionTarget.HealthBelowPct(aurEff.Amount);
-	}
+    private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        return eventInfo.ActionTarget.HealthBelowPct(aurEff.Amount);
+    }
 }

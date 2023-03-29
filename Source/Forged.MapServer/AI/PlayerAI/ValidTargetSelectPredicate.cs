@@ -11,13 +11,13 @@ internal struct ValidTargetSelectPredicate : ICheck<Unit>
 {
     private readonly IUnitAI _ai;
 
-	public ValidTargetSelectPredicate(IUnitAI ai)
-	{
-		_ai = ai;
-	}
+    public ValidTargetSelectPredicate(IUnitAI ai)
+    {
+        _ai = ai;
+    }
 
-	public bool Invoke(Unit target)
-	{
-		return _ai.CanAIAttack(target);
-	}
+    public bool Invoke(Unit target)
+    {
+        return _ai.CanAIAttack(target);
+    }
 }

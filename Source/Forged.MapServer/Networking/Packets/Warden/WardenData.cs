@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Warden;
 
 internal class WardenData : ClientPacket
 {
-	public ByteBuffer Data;
-	public WardenData(WorldPacket packet) : base(packet) { }
+    public ByteBuffer Data;
+    public WardenData(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var size = _worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        var size = _worldPacket.ReadUInt32();
 
-		if (size != 0)
-			Data = new ByteBuffer(_worldPacket.ReadBytes(size));
-	}
+        if (size != 0)
+            Data = new ByteBuffer(_worldPacket.ReadBytes(size));
+    }
 }

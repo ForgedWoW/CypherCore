@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventBankMoneyChanged : ServerPacket
 {
-	public ulong Money;
-	public GuildEventBankMoneyChanged() : base(ServerOpcodes.GuildEventBankMoneyChanged) { }
+    public ulong Money;
+    public GuildEventBankMoneyChanged() : base(ServerOpcodes.GuildEventBankMoneyChanged) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt64(Money);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt64(Money);
+    }
 }

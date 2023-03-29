@@ -11,14 +11,14 @@ internal class ObjectEntryAndPrivateOwnerIfExistsCheck : ICheck<WorldObject>
     private readonly uint _entry;
     private readonly ObjectGuid _ownerGUID;
 
-	public ObjectEntryAndPrivateOwnerIfExistsCheck(ObjectGuid ownerGUID, uint entry)
-	{
-		_ownerGUID = ownerGUID;
-		_entry = entry;
-	}
+    public ObjectEntryAndPrivateOwnerIfExistsCheck(ObjectGuid ownerGUID, uint entry)
+    {
+        _ownerGUID = ownerGUID;
+        _entry = entry;
+    }
 
-	public bool Invoke(WorldObject obj)
-	{
-		return obj.Entry == _entry && (!obj.IsPrivateObject || obj.PrivateObjectOwner == _ownerGUID);
-	}
+    public bool Invoke(WorldObject obj)
+    {
+        return obj.Entry == _entry && (!obj.IsPrivateObject || obj.PrivateObjectOwner == _ownerGUID);
+    }
 }

@@ -13,21 +13,21 @@ internal class AnyPlayerInPositionRangeCheck : ICheck<Player>
     private readonly float _range;
     private readonly bool _reqAlive;
 
-	public AnyPlayerInPositionRangeCheck(Position pos, float range, bool reqAlive = true)
-	{
-		_pos = pos;
-		_range = range;
-		_reqAlive = reqAlive;
-	}
+    public AnyPlayerInPositionRangeCheck(Position pos, float range, bool reqAlive = true)
+    {
+        _pos = pos;
+        _range = range;
+        _reqAlive = reqAlive;
+    }
 
-	public bool Invoke(Player u)
-	{
-		if (_reqAlive && !u.IsAlive)
-			return false;
+    public bool Invoke(Player u)
+    {
+        if (_reqAlive && !u.IsAlive)
+            return false;
 
-		if (!u.IsWithinDist3d(_pos, _range))
-			return false;
+        if (!u.IsWithinDist3d(_pos, _range))
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 }

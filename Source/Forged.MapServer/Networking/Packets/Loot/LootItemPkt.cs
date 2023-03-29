@@ -7,22 +7,22 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootItemPkt : ClientPacket
 {
-	public List<LootRequest> Loot = new();
-	public LootItemPkt(WorldPacket packet) : base(packet) { }
+    public List<LootRequest> Loot = new();
+    public LootItemPkt(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var Count = _worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        var Count = _worldPacket.ReadUInt32();
 
-		for (uint i = 0; i < Count; ++i)
-		{
-			var loot = new LootRequest()
-			{
-				Object = _worldPacket.ReadPackedGuid(),
-				LootListID = _worldPacket.ReadUInt8()
-			};
+        for (uint i = 0; i < Count; ++i)
+        {
+            var loot = new LootRequest()
+            {
+                Object = _worldPacket.ReadPackedGuid(),
+                LootListID = _worldPacket.ReadUInt8()
+            };
 
-			Loot.Add(loot);
-		}
-	}
+            Loot.Add(loot);
+        }
+    }
 }

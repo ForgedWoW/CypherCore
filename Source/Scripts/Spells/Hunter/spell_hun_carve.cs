@@ -9,15 +9,15 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(187708)]
 public class spell_hun_carve : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    public void OnHit()
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (caster.HasSpell(HunterSpells.SERPENT_STING))
-			caster.CastSpell(target, HunterSpells.SERPENT_STING_DAMAGE, true);
-	}
+        if (caster.HasSpell(HunterSpells.SERPENT_STING))
+            caster.CastSpell(target, HunterSpells.SERPENT_STING_DAMAGE, true);
+    }
 }

@@ -11,23 +11,23 @@ namespace Scripts.Spells.Generic;
 [Script] // 160938 - Despawn All Summons (Garrison Intro Only)
 internal class spell_gen_despawn_all_summons_owned_by_caster : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScriptEffect(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleScriptEffect(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var target = HitCreature;
+        if (caster != null)
+        {
+            var target = HitCreature;
 
-			if (target.OwnerUnit == caster)
-				target.DespawnOrUnsummon();
-		}
-	}
+            if (target.OwnerUnit == caster)
+                target.DespawnOrUnsummon();
+        }
+    }
 }

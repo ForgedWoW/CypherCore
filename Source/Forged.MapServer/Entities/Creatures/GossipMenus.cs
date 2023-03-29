@@ -8,7 +8,7 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class GossipMenus
 {
-	public uint MenuId { get; set; }
-	public uint TextId { get; set; }
-	public List<Condition> Conditions { get; set; } = new();
+    public uint MenuId { get; set; }
+    public uint TextId { get; set; }
+    public List<Condition> Conditions { get; set; } = new();
 }

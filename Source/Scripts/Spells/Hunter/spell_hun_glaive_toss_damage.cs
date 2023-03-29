@@ -11,100 +11,100 @@ namespace Scripts.Spells.Hunter;
 
 [SpellScript(new uint[]
 {
-	120761, 121414
+    120761, 121414
 })]
 public class spell_hun_glaive_toss_damage : SpellScript, IHasSpellEffects, ISpellOnHit
 {
-	private ObjectGuid mainTargetGUID = ObjectGuid.Empty;
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    private ObjectGuid mainTargetGUID = ObjectGuid.Empty;
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public void OnHit()
-	{
-		if (mainTargetGUID == default)
-			return;
+    public void OnHit()
+    {
+        if (mainTargetGUID == default)
+            return;
 
-		var target = ObjectAccessor.Instance.GetUnit(Caster, mainTargetGUID);
+        var target = ObjectAccessor.Instance.GetUnit(Caster, mainTargetGUID);
 
-		if (target == null)
-			return;
+        if (target == null)
+            return;
 
-		if (HitUnit)
-			if (HitUnit == target)
-				HitDamage = HitDamage * 4;
-	}
+        if (HitUnit)
+            if (HitUnit == target)
+                HitDamage = HitDamage * 4;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CorrectDamageRange, 0, Targets.UnitDestAreaEnemy));
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CorrectSnareRange, 1, Targets.UnitDestAreaEnemy));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(CorrectDamageRange, 0, Targets.UnitDestAreaEnemy));
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(CorrectSnareRange, 1, Targets.UnitDestAreaEnemy));
+    }
 
-	private void CorrectDamageRange(List<WorldObject> targets)
-	{
-		targets.Clear();
+    private void CorrectDamageRange(List<WorldObject> targets)
+    {
+        targets.Clear();
 
-		var targetList = new List<Unit>();
-		var radius = 50.0f;
+        var targetList = new List<Unit>();
+        var radius = 50.0f;
 
-		Caster.GetAnyUnitListInRange(targetList, radius);
+        Caster.GetAnyUnitListInRange(targetList, radius);
 
-		foreach (var itr in targetList)
-			if (itr.HasAura(HunterSpells.GLAIVE_TOSS_AURA))
-			{
-				mainTargetGUID = itr.GUID;
+        foreach (var itr in targetList)
+            if (itr.HasAura(HunterSpells.GLAIVE_TOSS_AURA))
+            {
+                mainTargetGUID = itr.GUID;
 
-				break;
-			}
+                break;
+            }
 
-		if (mainTargetGUID == default)
-			return;
+        if (mainTargetGUID == default)
+            return;
 
-		var target = ObjectAccessor.Instance.GetUnit(Caster, mainTargetGUID);
+        var target = ObjectAccessor.Instance.GetUnit(Caster, mainTargetGUID);
 
-		if (target == null)
-			return;
+        if (target == null)
+            return;
 
-		targets.Add(target);
+        targets.Add(target);
 
-		foreach (var itr in targetList)
-			if (itr.IsInBetween(Caster, target, 5.0f))
-				if (!Caster.IsFriendlyTo(itr))
-					targets.Add(itr);
-	}
+        foreach (var itr in targetList)
+            if (itr.IsInBetween(Caster, target, 5.0f))
+                if (!Caster.IsFriendlyTo(itr))
+                    targets.Add(itr);
+    }
 
-	private void CorrectSnareRange(List<WorldObject> targets)
-	{
-		targets.Clear();
+    private void CorrectSnareRange(List<WorldObject> targets)
+    {
+        targets.Clear();
 
-		var targetList = new List<Unit>();
-		var radius = 50.0f;
+        var targetList = new List<Unit>();
+        var radius = 50.0f;
 
-		Caster.GetAnyUnitListInRange(targetList, radius);
+        Caster.GetAnyUnitListInRange(targetList, radius);
 
-		foreach (var itr in targetList)
-			if (itr.HasAura(HunterSpells.GLAIVE_TOSS_AURA))
-			{
-				mainTargetGUID = itr.GUID;
+        foreach (var itr in targetList)
+            if (itr.HasAura(HunterSpells.GLAIVE_TOSS_AURA))
+            {
+                mainTargetGUID = itr.GUID;
 
-				break;
-			}
+                break;
+            }
 
-		if (mainTargetGUID == default)
-			return;
+        if (mainTargetGUID == default)
+            return;
 
-		if (mainTargetGUID == default)
-			return;
+        if (mainTargetGUID == default)
+            return;
 
-		var target = ObjectAccessor.Instance.GetUnit(Caster, mainTargetGUID);
+        var target = ObjectAccessor.Instance.GetUnit(Caster, mainTargetGUID);
 
-		if (target == null)
-			return;
+        if (target == null)
+            return;
 
-		targets.Add(target);
+        targets.Add(target);
 
-		foreach (var itr in targetList)
-			if (itr.IsInBetween(Caster, target, 5.0f))
-				if (!Caster.IsFriendlyTo(itr))
-					targets.Add(itr);
-	}
+        foreach (var itr in targetList)
+            if (itr.IsInBetween(Caster, target, 5.0f))
+                if (!Caster.IsFriendlyTo(itr))
+                    targets.Add(itr);
+    }
 }

@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 public interface IAreaTriggerOnSplineIndexReached : IAreaTriggerScript
 {
-	public void OnSplineIndexReached(int splineIndex);
+    public void OnSplineIndexReached(int splineIndex);
 }

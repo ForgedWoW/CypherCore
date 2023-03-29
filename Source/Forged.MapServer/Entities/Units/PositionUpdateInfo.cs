@@ -5,12 +5,12 @@ namespace Forged.MapServer.Entities.Units;
 
 internal struct PositionUpdateInfo
 {
-	public bool Relocated;
-	public bool Turned;
+    public bool Relocated;
+    public bool Turned;
 
-	public void Reset()
-	{
-		Relocated = false;
-		Turned = false;
-	}
+    public void Reset()
+    {
+        Relocated = false;
+        Turned = false;
+    }
 }

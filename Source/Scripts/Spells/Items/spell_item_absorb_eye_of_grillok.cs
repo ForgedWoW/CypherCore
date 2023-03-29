@@ -12,23 +12,23 @@ namespace Scripts.Spells.Items;
 [Script] // 38554 - Absorb Eye of Grillok (31463: Zezzak's Shard)
 internal class spell_item_absorb_eye_of_grillok : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicTriggerSpell));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicTriggerSpell));
+    }
 
-	private void PeriodicTick(AuraEffect aurEff)
-	{
-		PreventDefaultAction();
+    private void PeriodicTick(AuraEffect aurEff)
+    {
+        PreventDefaultAction();
 
-		if (!Caster ||
-			!Target.IsTypeId(TypeId.Unit))
-			return;
+        if (!Caster ||
+            !Target.IsTypeId(TypeId.Unit))
+            return;
 
-		Caster.CastSpell(Caster, ItemSpellIds.EyeOfGrillok, new CastSpellExtraArgs(aurEff));
-		Target.AsCreature.DespawnOrUnsummon();
-	}
+        Caster.CastSpell(Caster, ItemSpellIds.EyeOfGrillok, new CastSpellExtraArgs(aurEff));
+        Target.AsCreature.DespawnOrUnsummon();
+    }
 }

@@ -5,14 +5,14 @@ namespace Forged.MapServer.Collision.Models;
 
 public struct MeshTriangle
 {
-	public readonly int Idx0;
-	public readonly int Idx1;
-	public readonly int Idx2;
+    public readonly int Idx0;
+    public readonly int Idx1;
+    public readonly int Idx2;
 
-	public MeshTriangle(int na, int nb, int nc)
-	{
-		Idx0 = na;
-		Idx1 = nb;
-		Idx2 = nc;
-	}
+    public MeshTriangle(int na, int nb, int nc)
+    {
+        Idx0 = na;
+        Idx1 = nb;
+        Idx2 = nc;
+    }
 }

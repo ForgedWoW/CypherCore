@@ -5,6 +5,6 @@ namespace Forged.MapServer.Spells.Auras;
 
 public enum AuraObjectType
 {
-	Unit,
-	DynObj
+    Unit,
+    DynObj
 }

@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class SetActiveMover : ClientPacket
 {
-	public ObjectGuid ActiveMover;
+    public ObjectGuid ActiveMover;
 
-	public SetActiveMover(WorldPacket packet) : base(packet) { }
+    public SetActiveMover(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ActiveMover = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        ActiveMover = _worldPacket.ReadPackedGuid();
+    }
 }

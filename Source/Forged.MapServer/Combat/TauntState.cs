@@ -5,7 +5,7 @@ namespace Forged.MapServer.Combat;
 
 public enum TauntState
 {
-	Detaunt = 0,
-	None = 1,
-	Taunt = 2
+    Detaunt = 0,
+    None = 1,
+    Taunt = 2
 }

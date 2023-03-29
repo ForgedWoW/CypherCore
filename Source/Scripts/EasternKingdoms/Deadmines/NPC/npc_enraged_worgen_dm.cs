@@ -10,28 +10,28 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 [CreatureScript(49532)]
 public class npc_enraged_worgen_dm : ScriptedAI
 {
-	public npc_enraged_worgen_dm(Creature creature) : base(creature) { }
+    public npc_enraged_worgen_dm(Creature creature) : base(creature) { }
 
-	public override void JustEnteredCombat(Unit who)
-	{
-		DoZoneInCombat();
-	}
+    public override void JustEnteredCombat(Unit who)
+    {
+        DoZoneInCombat();
+    }
 
-	public override void JustDied(Unit killer)
-	{
-		var Vanessa = Me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
+    public override void JustDied(Unit killer)
+    {
+        var Vanessa = Me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
 
-		if (Vanessa != null)
-		{
-			var pAI = (npc_vanessa_nightmare)Vanessa.AI;
+        if (Vanessa != null)
+        {
+            var pAI = (npc_vanessa_nightmare)Vanessa.AI;
 
-			if (pAI != null)
-				pAI.WorgenKilled();
-		}
-	}
+            if (pAI != null)
+                pAI.WorgenKilled();
+        }
+    }
 
-	public override void UpdateAI(uint diff)
-	{
-		DoMeleeAttackIfReady();
-	}
+    public override void UpdateAI(uint diff)
+    {
+        DoMeleeAttackIfReady();
+    }
 }

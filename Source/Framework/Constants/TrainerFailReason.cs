@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum TrainerFailReason
 {
-	Unavailable = 0,
-	NotEnoughMoney = 1
+    Unavailable = 0,
+    NotEnoughMoney = 1
 }

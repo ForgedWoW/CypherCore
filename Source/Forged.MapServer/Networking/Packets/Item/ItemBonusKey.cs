@@ -8,35 +8,35 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class ItemBonusKey : IEquatable<ItemBonusKey>
 {
-	public uint ItemID;
-	public List<uint> BonusListIDs = new();
-	public List<ItemMod> Modifications = new();
+    public uint ItemID;
+    public List<uint> BonusListIDs = new();
+    public List<ItemMod> Modifications = new();
 
-	public bool Equals(ItemBonusKey right)
-	{
-		if (ItemID != right.ItemID)
-			return false;
+    public bool Equals(ItemBonusKey right)
+    {
+        if (ItemID != right.ItemID)
+            return false;
 
-		if (BonusListIDs != right.BonusListIDs)
-			return false;
+        if (BonusListIDs != right.BonusListIDs)
+            return false;
 
-		if (Modifications != right.Modifications)
-			return false;
+        if (Modifications != right.Modifications)
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(ItemID);
-		data.WriteInt32(BonusListIDs.Count);
-		data.WriteInt32(Modifications.Count);
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(ItemID);
+        data.WriteInt32(BonusListIDs.Count);
+        data.WriteInt32(Modifications.Count);
 
-		if (!BonusListIDs.Empty())
-			foreach (var id in BonusListIDs)
-				data.WriteUInt32(id);
+        if (!BonusListIDs.Empty())
+            foreach (var id in BonusListIDs)
+                data.WriteUInt32(id);
 
-		foreach (var modification in Modifications)
-			modification.Write(data);
-	}
+        foreach (var modification in Modifications)
+            modification.Write(data);
+    }
 }

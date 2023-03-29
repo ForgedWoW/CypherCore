@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum CorruptionEffectsFlag
 {
-	None = 0,
-	Disabled = 0x1
+    None = 0,
+    Disabled = 0x1
 }

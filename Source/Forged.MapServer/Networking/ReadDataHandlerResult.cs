@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking;
 
 internal enum ReadDataHandlerResult
 {
-	Ok = 0,
-	Error = 1,
-	WaitingForQuery = 2
+    Ok = 0,
+    Error = 1,
+    WaitingForQuery = 2
 }

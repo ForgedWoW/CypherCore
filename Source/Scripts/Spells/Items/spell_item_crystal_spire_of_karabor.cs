@@ -10,20 +10,20 @@ namespace Scripts.Spells.Items;
 [Script] // 40971 - Bonus Healing (Crystal Spire of Karabor)
 internal class spell_item_crystal_spire_of_karabor : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var pct = SpellInfo.GetEffect(0).CalcValue();
-		var healInfo = eventInfo.HealInfo;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var pct = SpellInfo.GetEffect(0).CalcValue();
+        var healInfo = eventInfo.HealInfo;
 
-		if (healInfo != null)
-		{
-			var healTarget = healInfo.Target;
+        if (healInfo != null)
+        {
+            var healTarget = healInfo.Target;
 
-			if (healTarget)
-				if (healTarget.Health - healInfo.EffectiveHeal <= healTarget.CountPctFromMaxHealth(pct))
-					return true;
-		}
+            if (healTarget)
+                if (healTarget.Health - healInfo.EffectiveHeal <= healTarget.CountPctFromMaxHealth(pct))
+                    return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

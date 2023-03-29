@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class CancelSpellVisual : ServerPacket
 {
-	public ObjectGuid Source;
-	public uint SpellVisualID;
-	public CancelSpellVisual() : base(ServerOpcodes.CancelSpellVisual) { }
+    public ObjectGuid Source;
+    public uint SpellVisualID;
+    public CancelSpellVisual() : base(ServerOpcodes.CancelSpellVisual) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Source);
-		_worldPacket.WriteUInt32(SpellVisualID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Source);
+        _worldPacket.WriteUInt32(SpellVisualID);
+    }
 }

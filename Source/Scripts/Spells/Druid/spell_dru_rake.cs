@@ -11,39 +11,39 @@ namespace Scripts.Spells.Druid;
 [SpellScript(1822)]
 public class spell_dru_rake : SpellScript, IHasSpellEffects
 {
-	private bool _stealthed = false;
+    private bool _stealthed = false;
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		var caster = Caster;
+    public override bool Load()
+    {
+        var caster = Caster;
 
-		if (caster.HasAuraType(AuraType.ModStealth))
-			_stealthed = true;
+        if (caster.HasAuraType(AuraType.ModStealth))
+            _stealthed = true;
 
-		return true;
-	}
+        return true;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleOnHit(int effIndex)
-	{
-		var caster = Caster;
-		var target = ExplTargetUnit;
+    private void HandleOnHit(int effIndex)
+    {
+        var caster = Caster;
+        var target = ExplTargetUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		// While stealthed or have Incarnation: King of the Jungle aura, deal 100% increased damage
-		if (_stealthed || caster.HasAura(ShapeshiftFormSpells.INCARNATION_KING_OF_JUNGLE))
-			HitDamage = HitDamage * 2;
+        // While stealthed or have Incarnation: King of the Jungle aura, deal 100% increased damage
+        if (_stealthed || caster.HasAura(ShapeshiftFormSpells.INCARNATION_KING_OF_JUNGLE))
+            HitDamage = HitDamage * 2;
 
-		// Only stun if the caster was in stealth
-		if (_stealthed)
-			caster.CastSpell(target, RakeSpells.RAKE_STUN, true);
-	}
+        // Only stun if the caster was in stealth
+        if (_stealthed)
+            caster.CastSpell(target, RakeSpells.RAKE_STUN, true);
+    }
 }

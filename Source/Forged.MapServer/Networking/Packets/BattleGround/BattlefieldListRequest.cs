@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class BattlefieldListRequest : ClientPacket
 {
-	public int ListID;
-	public BattlefieldListRequest(WorldPacket packet) : base(packet) { }
+    public int ListID;
+    public BattlefieldListRequest(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ListID = _worldPacket.ReadInt32();
-	}
+    public override void Read()
+    {
+        ListID = _worldPacket.ReadInt32();
+    }
 }

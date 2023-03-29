@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class DFLeave : ClientPacket
 {
-	public RideTicket Ticket = new();
-	public DFLeave(WorldPacket packet) : base(packet) { }
+    public RideTicket Ticket = new();
+    public DFLeave(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Ticket.Read(_worldPacket);
-	}
+    public override void Read()
+    {
+        Ticket.Read(_worldPacket);
+    }
 }

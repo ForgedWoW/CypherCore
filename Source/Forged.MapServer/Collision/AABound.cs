@@ -7,5 +7,5 @@ namespace Forged.MapServer.Collision;
 
 public struct AABound
 {
-	public Vector3 Lo, Hi;
+    public Vector3 Lo, Hi;
 }

@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class SuspendTokenResponse : ClientPacket
 {
-	public uint SequenceIndex;
-	public SuspendTokenResponse(WorldPacket packet) : base(packet) { }
+    public uint SequenceIndex;
+    public SuspendTokenResponse(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		SequenceIndex = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        SequenceIndex = _worldPacket.ReadUInt32();
+    }
 }

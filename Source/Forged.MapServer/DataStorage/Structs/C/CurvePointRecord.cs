@@ -7,9 +7,9 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class CurvePointRecord
 {
-	public Vector2 Pos;
-	public Vector2 PreSLSquishPos;
-	public uint Id;
-	public ushort CurveID;
-	public byte OrderIndex;
+    public Vector2 Pos;
+    public Vector2 PreSLSquishPos;
+    public uint Id;
+    public ushort CurveID;
+    public byte OrderIndex;
 }

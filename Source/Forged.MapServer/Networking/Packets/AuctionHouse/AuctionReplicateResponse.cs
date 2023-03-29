@@ -8,25 +8,25 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public class AuctionReplicateResponse : ServerPacket
 {
-	public uint ChangeNumberCursor;
-	public uint ChangeNumberGlobal;
-	public uint DesiredDelay;
-	public uint ChangeNumberTombstone;
-	public uint Result;
-	public List<AuctionItem> Items = new();
+    public uint ChangeNumberCursor;
+    public uint ChangeNumberGlobal;
+    public uint DesiredDelay;
+    public uint ChangeNumberTombstone;
+    public uint Result;
+    public List<AuctionItem> Items = new();
 
-	public AuctionReplicateResponse() : base(ServerOpcodes.AuctionReplicateResponse) { }
+    public AuctionReplicateResponse() : base(ServerOpcodes.AuctionReplicateResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(Result);
-		_worldPacket.WriteUInt32(DesiredDelay);
-		_worldPacket.WriteUInt32(ChangeNumberGlobal);
-		_worldPacket.WriteUInt32(ChangeNumberCursor);
-		_worldPacket.WriteUInt32(ChangeNumberTombstone);
-		_worldPacket.WriteInt32(Items.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(Result);
+        _worldPacket.WriteUInt32(DesiredDelay);
+        _worldPacket.WriteUInt32(ChangeNumberGlobal);
+        _worldPacket.WriteUInt32(ChangeNumberCursor);
+        _worldPacket.WriteUInt32(ChangeNumberTombstone);
+        _worldPacket.WriteInt32(Items.Count);
 
-		foreach (var item in Items)
-			item.Write(_worldPacket);
-	}
+        foreach (var item in Items)
+            item.Write(_worldPacket);
+    }
 }

@@ -5,16 +5,16 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct AuraInfo
 {
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt8(Slot);
-		data.WriteBit(AuraData != null);
-		data.FlushBits();
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt8(Slot);
+        data.WriteBit(AuraData != null);
+        data.FlushBits();
 
-		if (AuraData != null)
-			AuraData.Write(data);
-	}
+        if (AuraData != null)
+            AuraData.Write(data);
+    }
 
-	public byte Slot;
-	public AuraDataInfo AuraData;
+    public byte Slot;
+    public AuraDataInfo AuraData;
 }

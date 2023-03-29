@@ -11,27 +11,27 @@ namespace Scripts.Spells.Mage;
 [SpellScript(198928)]
 public class spell_mage_cinderstorm : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDamage(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleDamage(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (target.HasAura(MageSpells.IGNITE_DOT))
-		{
-			//    int32 pct = Global.SpellMgr->GetSpellInfo(CINDERSTORM, Difficulty.None)->GetEffect(0).CalcValue(caster);
-			var dmg = HitDamage;
-			// MathFunctions.AddPct(ref dmg, pct);
-			HitDamage = dmg;
-		}
-	}
+        if (target.HasAura(MageSpells.IGNITE_DOT))
+        {
+            //    int32 pct = Global.SpellMgr->GetSpellInfo(CINDERSTORM, Difficulty.None)->GetEffect(0).CalcValue(caster);
+            var dmg = HitDamage;
+            // MathFunctions.AddPct(ref dmg, pct);
+            HitDamage = dmg;
+        }
+    }
 }

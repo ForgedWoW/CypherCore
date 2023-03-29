@@ -7,12 +7,12 @@ namespace Forged.MapServer.DataStorage;
 
 public struct CharacterTemplateClass
 {
-	public CharacterTemplateClass(FactionMasks factionGroup, byte classID)
-	{
-		FactionGroup = factionGroup;
-		ClassID = classID;
-	}
+    public CharacterTemplateClass(FactionMasks factionGroup, byte classID)
+    {
+        FactionGroup = factionGroup;
+        ClassID = classID;
+    }
 
-	public FactionMasks FactionGroup;
-	public byte ClassID;
+    public FactionMasks FactionGroup;
+    public byte ClassID;
 }

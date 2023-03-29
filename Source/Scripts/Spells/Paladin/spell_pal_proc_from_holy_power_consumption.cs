@@ -12,19 +12,19 @@ namespace Scripts.Spells.Paladin;
 // 85804 - Selfless Healer
 [SpellScript(new uint[]
 {
-	271580, 85804
+    271580, 85804
 })]
 public class spell_pal_proc_from_holy_power_consumption : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var procSpell = eventInfo.ProcSpell;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var procSpell = eventInfo.ProcSpell;
 
-		if (procSpell == null)
-			return false;
+        if (procSpell == null)
+            return false;
 
-		var cost = SpellInfo.CalcPowerCost(PowerType.HolyPower, false, Caster, SpellInfo.GetSchoolMask(), null);
+        var cost = SpellInfo.CalcPowerCost(PowerType.HolyPower, false, Caster, SpellInfo.GetSchoolMask(), null);
 
-		return cost != null && cost.Amount > 0;
-	}
+        return cost != null && cost.Amount > 0;
+    }
 }

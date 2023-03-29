@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ITransport;
 
 public interface ITransportOnRelocate : IScriptObject
 {
-	void OnRelocate(Transport transport, uint mapId, double x, double y, double z);
+    void OnRelocate(Transport transport, uint mapId, double x, double y, double z);
 }

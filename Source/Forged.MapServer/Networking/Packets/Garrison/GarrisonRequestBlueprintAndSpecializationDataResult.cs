@@ -8,23 +8,23 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonRequestBlueprintAndSpecializationDataResult : ServerPacket
 {
-	public GarrisonType GarrTypeID;
-	public List<uint> SpecializationsKnown = null;
-	public List<uint> BlueprintsKnown = null;
-	public GarrisonRequestBlueprintAndSpecializationDataResult() : base(ServerOpcodes.GarrisonRequestBlueprintAndSpecializationDataResult, ConnectionType.Instance) { }
+    public GarrisonType GarrTypeID;
+    public List<uint> SpecializationsKnown = null;
+    public List<uint> BlueprintsKnown = null;
+    public GarrisonRequestBlueprintAndSpecializationDataResult() : base(ServerOpcodes.GarrisonRequestBlueprintAndSpecializationDataResult, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32((uint)GarrTypeID);
-		_worldPacket.WriteInt32(BlueprintsKnown != null ? BlueprintsKnown.Count : 0);
-		_worldPacket.WriteInt32(SpecializationsKnown != null ? SpecializationsKnown.Count : 0);
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32((uint)GarrTypeID);
+        _worldPacket.WriteInt32(BlueprintsKnown != null ? BlueprintsKnown.Count : 0);
+        _worldPacket.WriteInt32(SpecializationsKnown != null ? SpecializationsKnown.Count : 0);
 
-		if (BlueprintsKnown != null)
-			foreach (var blueprint in BlueprintsKnown)
-				_worldPacket.WriteUInt32(blueprint);
+        if (BlueprintsKnown != null)
+            foreach (var blueprint in BlueprintsKnown)
+                _worldPacket.WriteUInt32(blueprint);
 
-		if (SpecializationsKnown != null)
-			foreach (var specialization in SpecializationsKnown)
-				_worldPacket.WriteUInt32(specialization);
-	}
+        if (SpecializationsKnown != null)
+            foreach (var specialization in SpecializationsKnown)
+                _worldPacket.WriteUInt32(specialization);
+    }
 }

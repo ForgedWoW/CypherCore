@@ -8,9 +8,9 @@ namespace Framework.Constants;
 [Flags]
 public enum CriteriaFlagsCu
 {
-	Player = 0x1,
-	Account = 0x2,
-	Guild = 0x4,
-	Scenario = 0x8,
-	QuestObjective = 0x10
+    Player = 0x1,
+    Account = 0x2,
+    Guild = 0x4,
+    Scenario = 0x8,
+    QuestObjective = 0x10
 }

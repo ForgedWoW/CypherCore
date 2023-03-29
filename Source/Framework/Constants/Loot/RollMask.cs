@@ -8,11 +8,11 @@ namespace Framework.Constants;
 [Flags]
 public enum RollMask
 {
-	Pass = 0x01,
-	Need = 0x02,
-	Greed = 0x04,
-	Disenchant = 0x08,
+    Pass = 0x01,
+    Need = 0x02,
+    Greed = 0x04,
+    Disenchant = 0x08,
 
-	AllNoDisenchant = 0x07,
-	AllMask = 0x0f
+    AllNoDisenchant = 0x07,
+    AllMask = 0x0f
 }

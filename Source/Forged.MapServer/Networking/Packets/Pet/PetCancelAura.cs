@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetCancelAura : ClientPacket
 {
-	public ObjectGuid PetGUID;
-	public uint SpellID;
-	public PetCancelAura(WorldPacket packet) : base(packet) { }
+    public ObjectGuid PetGUID;
+    public uint SpellID;
+    public PetCancelAura(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PetGUID = _worldPacket.ReadPackedGuid();
-		SpellID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        PetGUID = _worldPacket.ReadPackedGuid();
+        SpellID = _worldPacket.ReadUInt32();
+    }
 }

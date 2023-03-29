@@ -7,16 +7,16 @@ namespace Framework.Database;
 
 public class MySqlConnectionInfo
 {
-	public string Host;
-	public string PortOrSocket;
-	public bool UseSSL;
-	public string Username;
-	public string Password;
-	public string Database;
-	public int Poolsize;
+    public string Host;
+    public string PortOrSocket;
+    public bool UseSSL;
+    public string Username;
+    public string Password;
+    public string Database;
+    public int Poolsize;
 
-	public MySqlConnection GetConnection()
-	{
-		return new MySqlConnection($"Server={Host};Port={PortOrSocket};User Id={Username};Password={Password};Database={Database};Allow User Variables=True;Pooling=true;ConnectionIdleTimeout=1800;Command Timeout=0");
-	}
+    public MySqlConnection GetConnection()
+    {
+        return new MySqlConnection($"Server={Host};Port={PortOrSocket};User Id={Username};Password={Password};Database={Database};Allow User Variables=True;Pooling=true;ConnectionIdleTimeout=1800;Command Timeout=0");
+    }
 }

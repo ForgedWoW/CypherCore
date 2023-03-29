@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class ItemExpirePurchaseRefund : ServerPacket
 {
-	public ObjectGuid ItemGUID;
-	public ItemExpirePurchaseRefund() : base(ServerOpcodes.ItemExpirePurchaseRefund, ConnectionType.Instance) { }
+    public ObjectGuid ItemGUID;
+    public ItemExpirePurchaseRefund() : base(ServerOpcodes.ItemExpirePurchaseRefund, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ItemGUID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ItemGUID);
+    }
 }

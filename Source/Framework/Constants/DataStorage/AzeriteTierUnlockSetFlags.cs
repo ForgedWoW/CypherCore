@@ -5,5 +5,5 @@ namespace Framework.Constants;
 
 public enum AzeriteTierUnlockSetFlags
 {
-	Default = 0x01
+    Default = 0x01
 }

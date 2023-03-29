@@ -13,41 +13,41 @@ public class CreatureTextLocalizer : IDoWork<Player>
     private readonly MessageBuilder _builder;
     private readonly ChatMsg _msgType;
 
-	public CreatureTextLocalizer(MessageBuilder builder, ChatMsg msgType)
-	{
-		_builder = builder;
-		_msgType = msgType;
-	}
+    public CreatureTextLocalizer(MessageBuilder builder, ChatMsg msgType)
+    {
+        _builder = builder;
+        _msgType = msgType;
+    }
 
-	public void Invoke(Player player)
-	{
-		var loc_idx = player.Session.SessionDbLocaleIndex;
-		ChatPacketSender sender;
+    public void Invoke(Player player)
+    {
+        var loc_idx = player.Session.SessionDbLocaleIndex;
+        ChatPacketSender sender;
 
-		// create if not cached yet
-		if (!_packetCache.ContainsKey(loc_idx))
-		{
-			sender = _builder.Invoke(loc_idx);
-			_packetCache[loc_idx] = sender;
-		}
-		else
-		{
-			sender = _packetCache[loc_idx];
-		}
+        // create if not cached yet
+        if (!_packetCache.ContainsKey(loc_idx))
+        {
+            sender = _builder.Invoke(loc_idx);
+            _packetCache[loc_idx] = sender;
+        }
+        else
+        {
+            sender = _packetCache[loc_idx];
+        }
 
-		switch (_msgType)
-		{
-			case ChatMsg.MonsterWhisper:
-			case ChatMsg.RaidBossWhisper:
-				var message = sender.UntranslatedPacket;
-				message.SetReceiver(player, loc_idx);
-				player.SendPacket(message);
+        switch (_msgType)
+        {
+            case ChatMsg.MonsterWhisper:
+            case ChatMsg.RaidBossWhisper:
+                var message = sender.UntranslatedPacket;
+                message.SetReceiver(player, loc_idx);
+                player.SendPacket(message);
 
-				break;
-			default:
-				break;
-		}
+                break;
+            default:
+                break;
+        }
 
-		sender.Invoke(player);
-	}
+        sender.Invoke(player);
+    }
 }

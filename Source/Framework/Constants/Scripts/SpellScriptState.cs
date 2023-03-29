@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum SpellScriptState
 {
-	None = 0,
-	Registration,
-	Loading,
-	Unloading,
+    None = 0,
+    Registration,
+    Loading,
+    Unloading,
 }

@@ -14,27 +14,27 @@ internal class ChannelUserlistRemoveBuilder : MessageBuilder
     private readonly Channel _source;
     private readonly ObjectGuid _guid;
 
-	public ChannelUserlistRemoveBuilder(Channel source, ObjectGuid guid)
-	{
-		_source = source;
-		_guid = guid;
-	}
+    public ChannelUserlistRemoveBuilder(Channel source, ObjectGuid guid)
+    {
+        _source = source;
+        _guid = guid;
+    }
 
-	public override PacketSenderOwning<UserlistRemove> Invoke(Locale locale = Locale.enUS)
-	{
-		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+    public override PacketSenderOwning<UserlistRemove> Invoke(Locale locale = Locale.enUS)
+    {
+        var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
-		PacketSenderOwning<UserlistRemove> userlistRemove = new()
-		{
-			Data =
-			{
-				RemovedUserGUID = _guid,
-				ChannelFlags = _source.GetFlags(),
-				ChannelID = _source.GetChannelId(),
-				ChannelName = _source.GetName(localeIdx)
-			}
-		};
+        PacketSenderOwning<UserlistRemove> userlistRemove = new()
+        {
+            Data =
+            {
+                RemovedUserGUID = _guid,
+                ChannelFlags = _source.GetFlags(),
+                ChannelID = _source.GetChannelId(),
+                ChannelName = _source.GetName(localeIdx)
+            }
+        };
 
-		return userlistRemove;
-	}
+        return userlistRemove;
+    }
 }

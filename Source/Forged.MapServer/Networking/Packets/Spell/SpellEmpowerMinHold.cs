@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class SpellEmpowerMinHold : ClientPacket
 {
-	public float HoldPct;
-	public SpellEmpowerMinHold(WorldPacket packet) : base(packet) { }
+    public float HoldPct;
+    public SpellEmpowerMinHold(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		HoldPct = _worldPacket.ReadFloat();
-	}
+    public override void Read()
+    {
+        HoldPct = _worldPacket.ReadFloat();
+    }
 }

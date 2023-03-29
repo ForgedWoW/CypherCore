@@ -5,12 +5,12 @@ namespace Framework.Constants;
 
 public enum ItemSubClassJunk
 {
-	Junk = 0,
-	Reagent = 1,
-	CompanionPet = 2,
-	Holiday = 3,
-	Other = 4,
-	Mount = 5,
-	MountEquipment = 6,
-	Max
+    Junk = 0,
+    Reagent = 1,
+    CompanionPet = 2,
+    Holiday = 3,
+    Other = 4,
+    Mount = 5,
+    MountEquipment = 6,
+    Max
 }

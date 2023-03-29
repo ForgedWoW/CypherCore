@@ -13,16 +13,16 @@ namespace Scripts.Spells.Items;
 [Script] // 71564 - Deadly Precision
 internal class spell_item_deadly_precision : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleStackDrop, 0, AuraType.ModRating, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleStackDrop, 0, AuraType.ModRating, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleStackDrop(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		Target.RemoveAuraFromStack(Id, Target.GUID);
-	}
+    private void HandleStackDrop(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        Target.RemoveAuraFromStack(Id, Target.GUID);
+    }
 }

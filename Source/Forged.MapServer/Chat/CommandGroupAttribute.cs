@@ -8,5 +8,5 @@ namespace Forged.MapServer.Chat;
 [AttributeUsage(AttributeTargets.Class)]
 public class CommandGroupAttribute : CommandAttribute
 {
-	public CommandGroupAttribute(string command) : base(command) { }
+    public CommandGroupAttribute(string command) : base(command) { }
 }

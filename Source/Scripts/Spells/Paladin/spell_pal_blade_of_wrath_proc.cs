@@ -14,20 +14,20 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(231832)]
 public class spell_pal_blade_of_wrath_proc : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		caster.SpellHistory.ResetCooldown(PaladinSpells.BLADE_OF_JUSTICE, true);
-	}
+        caster.SpellHistory.ResetCooldown(PaladinSpells.BLADE_OF_JUSTICE, true);
+    }
 }

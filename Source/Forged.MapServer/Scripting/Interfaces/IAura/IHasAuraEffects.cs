@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IHasAuraEffects
 {
-	List<IAuraEffectHandler> AuraEffects { get; }
+    List<IAuraEffectHandler> AuraEffects { get; }
 }

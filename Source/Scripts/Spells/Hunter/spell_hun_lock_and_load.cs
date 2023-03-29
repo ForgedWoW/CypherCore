@@ -10,11 +10,11 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(194595)]
 public class spell_hun_lock_and_load : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo.Id == HunterSpells.AUTO_SHOT)
-			return true;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo.Id == HunterSpells.AUTO_SHOT)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

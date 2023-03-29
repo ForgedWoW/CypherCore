@@ -7,37 +7,37 @@ namespace Framework.Database;
 
 public class TransactionWithResultTask : TransactionTask
 {
-	public bool? Result { get; private set; } = null;
-	public TransactionWithResultTask(SQLTransaction trans) : base(trans) { }
+    public bool? Result { get; private set; } = null;
+    public TransactionWithResultTask(SQLTransaction trans) : base(trans) { }
 
-	public override bool Execute<T>(MySqlBase<T> mySqlBase)
-	{
-		var errorCode = TryExecute(mySqlBase);
+    public override bool Execute<T>(MySqlBase<T> mySqlBase)
+    {
+        var errorCode = TryExecute(mySqlBase);
 
-		if (errorCode == MySqlErrorCode.None)
-		{
-			Result = true;
+        if (errorCode == MySqlErrorCode.None)
+        {
+            Result = true;
 
-			return true;
-		}
+            return true;
+        }
 
-		if (errorCode == MySqlErrorCode.LockDeadlock)
-			// Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
-			lock (_deadlockLock)
-			{
-				byte loopBreaker = 5; // Handle MySQL Errno 1213 without extending deadlock to the core itself
+        if (errorCode == MySqlErrorCode.LockDeadlock)
+            // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
+            lock (_deadlockLock)
+            {
+                byte loopBreaker = 5; // Handle MySQL Errno 1213 without extending deadlock to the core itself
 
-				for (byte i = 0; i < loopBreaker; ++i)
-					if (TryExecute(mySqlBase) == MySqlErrorCode.None)
-					{
-						Result = true;
+                for (byte i = 0; i < loopBreaker; ++i)
+                    if (TryExecute(mySqlBase) == MySqlErrorCode.None)
+                    {
+                        Result = true;
 
-						return true;
-					}
-			}
+                        return true;
+                    }
+            }
 
-		Result = false;
+        Result = false;
 
-		return false;
-	}
+        return false;
+    }
 }

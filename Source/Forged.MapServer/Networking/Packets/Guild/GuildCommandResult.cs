@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildCommandResult : ServerPacket
 {
-	public string Name;
-	public GuildCommandError Result;
-	public GuildCommandType Command;
-	public GuildCommandResult() : base(ServerOpcodes.GuildCommandResult) { }
+    public string Name;
+    public GuildCommandError Result;
+    public GuildCommandType Command;
+    public GuildCommandResult() : base(ServerOpcodes.GuildCommandResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32((uint)Result);
-		_worldPacket.WriteUInt32((uint)Command);
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32((uint)Result);
+        _worldPacket.WriteUInt32((uint)Command);
 
-		_worldPacket.WriteBits(Name.GetByteCount(), 8);
-		_worldPacket.WriteString(Name);
-	}
+        _worldPacket.WriteBits(Name.GetByteCount(), 8);
+        _worldPacket.WriteString(Name);
+    }
 }

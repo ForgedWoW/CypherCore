@@ -13,18 +13,18 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(17767)]
 public class spell_warl_shadow_bulwark : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ModIncreaseHealthPercent));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ModIncreaseHealthPercent));
+    }
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		var caster = Caster;
+    private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			amount.Value = caster.CountPctFromMaxHealth(amount);
-	}
+        if (caster != null)
+            amount.Value = caster.CountPctFromMaxHealth(amount);
+    }
 }

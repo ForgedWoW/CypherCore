@@ -5,10 +5,10 @@ namespace Forged.MapServer.Scripting.Interfaces;
 
 public interface IScriptObject
 {
-	string GetName();
+    string GetName();
 
-	bool IsDatabaseBound()
-	{
-		return false;
-	}
+    bool IsDatabaseBound()
+    {
+        return false;
+    }
 }

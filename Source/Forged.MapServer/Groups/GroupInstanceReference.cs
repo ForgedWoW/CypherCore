@@ -8,18 +8,18 @@ namespace Forged.MapServer.Groups;
 
 public class GroupInstanceReference : Reference<PlayerGroup, InstanceMap>
 {
-	public new GroupInstanceReference Next()
-	{
-		return (GroupInstanceReference)base.Next();
-	}
+    public new GroupInstanceReference Next()
+    {
+        return (GroupInstanceReference)base.Next();
+    }
 
-	public override void TargetObjectBuildLink()
-	{
-		Target.LinkOwnedInstance(this);
-	}
+    public override void TargetObjectBuildLink()
+    {
+        Target.LinkOwnedInstance(this);
+    }
 
-	~GroupInstanceReference()
-	{
-		Unlink();
-	}
+    ~GroupInstanceReference()
+    {
+        Unlink();
+    }
 }

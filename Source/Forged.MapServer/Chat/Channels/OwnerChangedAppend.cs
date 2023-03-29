@@ -9,17 +9,17 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct OwnerChangedAppend : IChannelAppender
 {
-	public OwnerChangedAppend(ObjectGuid guid)
-	{
-		_guid = guid;
-	}
+    public OwnerChangedAppend(ObjectGuid guid)
+    {
+        _guid = guid;
+    }
 
-	public ChatNotify GetNotificationType() => ChatNotify.OwnerChangedNotice;
+    public ChatNotify GetNotificationType() => ChatNotify.OwnerChangedNotice;
 
-	public void Append(ChannelNotify data)
-	{
-		data.SenderGuid = _guid;
-	}
+    public void Append(ChannelNotify data)
+    {
+        data.SenderGuid = _guid;
+    }
 
     private readonly ObjectGuid _guid;
 }

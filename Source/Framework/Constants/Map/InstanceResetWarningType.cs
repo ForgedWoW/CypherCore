@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum InstanceResetWarningType
 {
-	WarningHours = 1,   // WARNING! %s is scheduled to reset in %d hour(s).
-	WarningMin = 2,     // WARNING! %s is scheduled to reset in %d minute(s)!
-	WarningMinSoon = 3, // WARNING! %s is scheduled to reset in %d minute(s). Please exit the zone or you will be returned to your bind location!
-	Welcome = 4,        // Welcome to %s. This raid instance is scheduled to reset in %s.
-	Expired = 5
+    WarningHours = 1,   // WARNING! %s is scheduled to reset in %d hour(s).
+    WarningMin = 2,     // WARNING! %s is scheduled to reset in %d minute(s)!
+    WarningMinSoon = 3, // WARNING! %s is scheduled to reset in %d minute(s). Please exit the zone or you will be returned to your bind location!
+    Welcome = 4,        // Welcome to %s. This raid instance is scheduled to reset in %s.
+    Expired = 5
 }

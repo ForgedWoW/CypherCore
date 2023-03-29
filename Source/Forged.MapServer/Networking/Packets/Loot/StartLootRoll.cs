@@ -9,26 +9,26 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class StartLootRoll : ServerPacket
 {
-	public ObjectGuid LootObj;
-	public int MapID;
-	public uint RollTime;
-	public LootMethod Method;
-	public RollMask ValidRolls;
-	public Array<LootRollIneligibilityReason> LootRollIneligibleReason = new(4);
-	public LootItemData Item = new();
-	public StartLootRoll() : base(ServerOpcodes.StartLootRoll) { }
+    public ObjectGuid LootObj;
+    public int MapID;
+    public uint RollTime;
+    public LootMethod Method;
+    public RollMask ValidRolls;
+    public Array<LootRollIneligibilityReason> LootRollIneligibleReason = new(4);
+    public LootItemData Item = new();
+    public StartLootRoll() : base(ServerOpcodes.StartLootRoll) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(LootObj);
-		_worldPacket.WriteInt32(MapID);
-		_worldPacket.WriteUInt32(RollTime);
-		_worldPacket.WriteUInt8((byte)ValidRolls);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(LootObj);
+        _worldPacket.WriteInt32(MapID);
+        _worldPacket.WriteUInt32(RollTime);
+        _worldPacket.WriteUInt8((byte)ValidRolls);
 
-		foreach (var reason in LootRollIneligibleReason)
-			_worldPacket.WriteUInt32((uint)reason);
+        foreach (var reason in LootRollIneligibleReason)
+            _worldPacket.WriteUInt32((uint)reason);
 
-		_worldPacket.WriteUInt8((byte)Method);
-		Item.Write(_worldPacket);
-	}
+        _worldPacket.WriteUInt8((byte)Method);
+        Item.Write(_worldPacket);
+    }
 }

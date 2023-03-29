@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetStableResult : ServerPacket
 {
-	public StableResult Result;
-	public PetStableResult() : base(ServerOpcodes.PetStableResult, ConnectionType.Instance) { }
+    public StableResult Result;
+    public PetStableResult() : base(ServerOpcodes.PetStableResult, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt8((byte)Result);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt8((byte)Result);
+    }
 }

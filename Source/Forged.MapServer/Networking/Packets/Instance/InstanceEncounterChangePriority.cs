@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class InstanceEncounterChangePriority : ServerPacket
 {
-	public ObjectGuid Unit;
-	public byte TargetFramePriority; // used to update the position of the unit's current frame
-	public InstanceEncounterChangePriority() : base(ServerOpcodes.InstanceEncounterChangePriority, ConnectionType.Instance) { }
+    public ObjectGuid Unit;
+    public byte TargetFramePriority; // used to update the position of the unit's current frame
+    public InstanceEncounterChangePriority() : base(ServerOpcodes.InstanceEncounterChangePriority, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Unit);
-		_worldPacket.WriteUInt8(TargetFramePriority);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Unit);
+        _worldPacket.WriteUInt8(TargetFramePriority);
+    }
 }

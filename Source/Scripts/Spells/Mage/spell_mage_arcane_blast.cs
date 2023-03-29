@@ -9,16 +9,16 @@ namespace Scripts.Spells.Mage;
 [SpellScript(30451)]
 public class spell_mage_arcane_blast : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var threes = caster.GetAura(MageSpells.RULE_OF_THREES_BUFF);
+        if (caster != null)
+        {
+            var threes = caster.GetAura(MageSpells.RULE_OF_THREES_BUFF);
 
-			if (threes != null)
-				threes.Remove();
-		}
-	}
+            if (threes != null)
+                threes.Remove();
+        }
+    }
 }

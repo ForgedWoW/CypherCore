@@ -12,21 +12,21 @@ internal class NearestPlayerInObjectRangeCheck : ICheck<Player>
     private readonly WorldObject _obj;
     private float _range;
 
-	public NearestPlayerInObjectRangeCheck(WorldObject obj, float range)
-	{
-		_obj = obj;
-		_range = range;
-	}
+    public NearestPlayerInObjectRangeCheck(WorldObject obj, float range)
+    {
+        _obj = obj;
+        _range = range;
+    }
 
-	public bool Invoke(Player pl)
-	{
-		if (pl.IsAlive && _obj.IsWithinDist(pl, _range))
-		{
-			_range = _obj.GetDistance(pl);
+    public bool Invoke(Player pl)
+    {
+        if (pl.IsAlive && _obj.IsWithinDist(pl, _range))
+        {
+            _range = _obj.GetDistance(pl);
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

@@ -12,18 +12,18 @@ namespace Scripts.Spells.Priest;
 [Script] // 205369 - Mind Bomb
 internal class spell_pri_mind_bomb : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(RemoveEffect, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(RemoveEffect, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void RemoveEffect(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		if (TargetApplication.RemoveMode == AuraRemoveMode.Death ||
-			TargetApplication.RemoveMode == AuraRemoveMode.Expire)
-			Caster?.CastSpell(Target.Location, PriestSpells.MIND_BOMB_STUN, new CastSpellExtraArgs(true));
-	}
+    private void RemoveEffect(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        if (TargetApplication.RemoveMode == AuraRemoveMode.Death ||
+            TargetApplication.RemoveMode == AuraRemoveMode.Expire)
+            Caster?.CastSpell(Target.Location, PriestSpells.MIND_BOMB_STUN, new CastSpellExtraArgs(true));
+    }
 }

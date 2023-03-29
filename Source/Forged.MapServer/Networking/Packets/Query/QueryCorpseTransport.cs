@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class QueryCorpseTransport : ClientPacket
 {
-	public ObjectGuid Player;
-	public ObjectGuid Transport;
-	public QueryCorpseTransport(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Player;
+    public ObjectGuid Transport;
+    public QueryCorpseTransport(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Player = _worldPacket.ReadPackedGuid();
-		Transport = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Player = _worldPacket.ReadPackedGuid();
+        Transport = _worldPacket.ReadPackedGuid();
+    }
 }

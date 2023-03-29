@@ -11,24 +11,24 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_gadgetzan_transporter_backfire : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
-		var r = RandomHelper.IRand(0, 119);
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
+        var r = RandomHelper.IRand(0, 119);
 
-		if (r < 20) // Transporter Malfunction - 1/6 polymorph
-			caster.CastSpell(caster, GenericSpellIds.TransporterMalfunctionPolymorph, true);
-		else if (r < 100) // Evil Twin               - 4/6 evil twin
-			caster.CastSpell(caster, GenericSpellIds.TransporterEviltwin, true);
-		else // Transporter Malfunction - 1/6 miss the Target
-			caster.CastSpell(caster, GenericSpellIds.TransporterMalfunctionMiss, true);
-	}
+        if (r < 20) // Transporter Malfunction - 1/6 polymorph
+            caster.CastSpell(caster, GenericSpellIds.TransporterMalfunctionPolymorph, true);
+        else if (r < 100) // Evil Twin               - 4/6 evil twin
+            caster.CastSpell(caster, GenericSpellIds.TransporterEviltwin, true);
+        else // Transporter Malfunction - 1/6 miss the Target
+            caster.CastSpell(caster, GenericSpellIds.TransporterMalfunctionMiss, true);
+    }
 }

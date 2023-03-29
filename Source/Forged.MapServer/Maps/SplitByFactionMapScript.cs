@@ -9,11 +9,11 @@ namespace Forged.MapServer.Maps;
 
 internal class SplitByFactionMapScript : WorldMapScript, IMapOnCreate<Map>
 {
-	public SplitByFactionMapScript(string name, uint mapId) : base(name, mapId) { }
+    public SplitByFactionMapScript(string name, uint mapId) : base(name, mapId) { }
 
-	public void OnCreate(Map map)
-	{
-		Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceAlliance, map.InstanceId == TeamIds.Alliance ? 1 : 0, false, map);
-		Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceHorde, map.InstanceId == TeamIds.Horde ? 1 : 0, false, map);
-	}
+    public void OnCreate(Map map)
+    {
+        Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceAlliance, map.InstanceId == TeamIds.Alliance ? 1 : 0, false, map);
+        Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceHorde, map.InstanceId == TeamIds.Horde ? 1 : 0, false, map);
+    }
 }

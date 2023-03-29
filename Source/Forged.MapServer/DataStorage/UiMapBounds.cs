@@ -5,8 +5,8 @@ namespace Forged.MapServer.DataStorage;
 
 internal class UiMapBounds
 {
-	// these coords are mixed when calculated and used... its a mess
-	public float[] Bounds = new float[4];
-	public bool IsUiAssignment;
-	public bool IsUiLink;
+    // these coords are mixed when calculated and used... its a mess
+    public float[] Bounds = new float[4];
+    public bool IsUiAssignment;
+    public bool IsUiLink;
 }

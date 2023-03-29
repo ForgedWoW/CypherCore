@@ -9,21 +9,21 @@ namespace Forged.MapServer.Networking.Packets.Hotfix;
 
 public class DBReply : ServerPacket
 {
-	public uint TableHash;
-	public uint Timestamp;
-	public uint RecordID;
-	public HotfixRecord.Status Status = HotfixRecord.Status.Invalid;
+    public uint TableHash;
+    public uint Timestamp;
+    public uint RecordID;
+    public HotfixRecord.Status Status = HotfixRecord.Status.Invalid;
 
-	public ByteBuffer Data = new();
-	public DBReply() : base(ServerOpcodes.DbReply) { }
+    public ByteBuffer Data = new();
+    public DBReply() : base(ServerOpcodes.DbReply) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(TableHash);
-		_worldPacket.WriteUInt32(RecordID);
-		_worldPacket.WriteUInt32(Timestamp);
-		_worldPacket.WriteBits((byte)Status, 3);
-		_worldPacket.WriteUInt32(Data.GetSize());
-		_worldPacket.WriteBytes(Data.GetData());
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(TableHash);
+        _worldPacket.WriteUInt32(RecordID);
+        _worldPacket.WriteUInt32(Timestamp);
+        _worldPacket.WriteBits((byte)Status, 3);
+        _worldPacket.WriteUInt32(Data.GetSize());
+        _worldPacket.WriteBytes(Data.GetData());
+    }
 }

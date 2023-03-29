@@ -7,16 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverStatusPkt : ServerPacket
 {
-	public QuestGiverInfo QuestGiver;
+    public QuestGiverInfo QuestGiver;
 
-	public QuestGiverStatusPkt() : base(ServerOpcodes.QuestGiverStatus, ConnectionType.Instance)
-	{
-		QuestGiver = new QuestGiverInfo();
-	}
+    public QuestGiverStatusPkt() : base(ServerOpcodes.QuestGiverStatus, ConnectionType.Instance)
+    {
+        QuestGiver = new QuestGiverInfo();
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(QuestGiver.Guid);
-		_worldPacket.WriteUInt32((uint)QuestGiver.Status);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(QuestGiver.Guid);
+        _worldPacket.WriteUInt32((uint)QuestGiver.Status);
+    }
 }

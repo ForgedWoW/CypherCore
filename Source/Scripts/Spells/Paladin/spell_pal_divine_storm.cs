@@ -9,8 +9,8 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(224239)] // 224239 - Divine Storm
 internal class spell_pal_divine_storm : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		Caster.SendPlaySpellVisualKit(PaladinSpellVisualKit.DivineStorm, 0, 0);
-	}
+    public void OnCast()
+    {
+        Caster.SendPlaySpellVisualKit(PaladinSpellVisualKit.DivineStorm, 0, 0);
+    }
 }

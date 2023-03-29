@@ -11,24 +11,24 @@ namespace Scripts.Spells.Quest;
 [Script] // 76245 - Area Restrict Abom
 internal class spell_q13264_q13276_q13288_q13289_area_restrict_abom : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var creature = HitCreature;
+    private void HandleScript(int effIndex)
+    {
+        var creature = HitCreature;
 
-		if (creature != null)
-		{
-			var area = creature.Area;
+        if (creature != null)
+        {
+            var area = creature.Area;
 
-			if (area != Misc.AreaTheBrokenFront &&
-				area != Misc.AreaMordRetharTheDeathGate)
-				creature.DespawnOrUnsummon();
-		}
-	}
+            if (area != Misc.AreaTheBrokenFront &&
+                area != Misc.AreaMordRetharTheDeathGate)
+                creature.DespawnOrUnsummon();
+        }
+    }
 }

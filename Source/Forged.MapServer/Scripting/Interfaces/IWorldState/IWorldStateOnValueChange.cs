@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IWorldState;
 
 public interface IWorldStateOnValueChange : IScriptObject
 {
-	void OnValueChange(int worldStateId, int oldValue, int newValue, Map map);
+    void OnValueChange(int worldStateId, int oldValue, int newValue, Map map);
 }

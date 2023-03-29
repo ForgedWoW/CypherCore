@@ -7,26 +7,26 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class TargetLocation
 {
-	public ObjectGuid Transport;
-	public Position Location;
+    public ObjectGuid Transport;
+    public Position Location;
 
-	public void Read(WorldPacket data)
-	{
-		Transport = data.ReadPackedGuid();
+    public void Read(WorldPacket data)
+    {
+        Transport = data.ReadPackedGuid();
 
-		Location = new Position
-		{
-			X = data.ReadFloat(),
-			Y = data.ReadFloat(),
-			Z = data.ReadFloat()
-		};
-	}
+        Location = new Position
+        {
+            X = data.ReadFloat(),
+            Y = data.ReadFloat(),
+            Z = data.ReadFloat()
+        };
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WritePackedGuid(Transport);
-		data.WriteFloat(Location.X);
-		data.WriteFloat(Location.Y);
-		data.WriteFloat(Location.Z);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WritePackedGuid(Transport);
+        data.WriteFloat(Location.X);
+        data.WriteFloat(Location.Y);
+        data.WriteFloat(Location.Z);
+    }
 }

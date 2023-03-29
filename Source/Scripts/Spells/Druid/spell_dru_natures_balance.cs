@@ -14,42 +14,42 @@ namespace Scripts.Spells.Druid;
 [SpellScript(202430)]
 public class spell_dru_natures_balance : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicEnergize));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicEnergize));
+    }
 
-	private void HandlePeriodic(AuraEffect aurEff)
-	{
-		var caster = Caster;
+    private void HandlePeriodic(AuraEffect aurEff)
+    {
+        var caster = Caster;
 
-		if (caster == null || !caster.IsAlive || caster.GetMaxPower(PowerType.LunarPower) == 0)
-			return;
+        if (caster == null || !caster.IsAlive || caster.GetMaxPower(PowerType.LunarPower) == 0)
+            return;
 
-		if (caster.IsInCombat)
-		{
-			var amount = Math.Max(caster.GetAuraEffect(Spells.NATURES_BALANCE, 0).Amount, 0);
+        if (caster.IsInCombat)
+        {
+            var amount = Math.Max(caster.GetAuraEffect(Spells.NATURES_BALANCE, 0).Amount, 0);
 
-			// don't regen when permanent aura target has full power
-			if (caster.GetPower(PowerType.LunarPower) == caster.GetMaxPower(PowerType.LunarPower))
-				return;
+            // don't regen when permanent aura target has full power
+            if (caster.GetPower(PowerType.LunarPower) == caster.GetMaxPower(PowerType.LunarPower))
+                return;
 
-			caster.ModifyPower(PowerType.LunarPower, amount);
-		}
-		else
-		{
-			if (caster.GetPower(PowerType.LunarPower) > 500)
-				return;
+            caster.ModifyPower(PowerType.LunarPower, amount);
+        }
+        else
+        {
+            if (caster.GetPower(PowerType.LunarPower) > 500)
+                return;
 
-			caster.SetPower(PowerType.LunarPower, 500);
-		}
-	}
+            caster.SetPower(PowerType.LunarPower, 500);
+        }
+    }
 
-	private struct Spells
-	{
-		public const uint NATURES_BALANCE = 202430;
-	}
+    private struct Spells
+    {
+        public const uint NATURES_BALANCE = 202430;
+    }
 }

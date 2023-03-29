@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class InstanceInfoPkt : ServerPacket
 {
-	public List<InstanceLockPkt> LockList = new();
-	public InstanceInfoPkt() : base(ServerOpcodes.InstanceInfo) { }
+    public List<InstanceLockPkt> LockList = new();
+    public InstanceInfoPkt() : base(ServerOpcodes.InstanceInfo) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(LockList.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(LockList.Count);
 
-		foreach (var lockInfos in LockList)
-			lockInfos.Write(_worldPacket);
-	}
+        foreach (var lockInfos in LockList)
+            lockInfos.Write(_worldPacket);
+    }
 }

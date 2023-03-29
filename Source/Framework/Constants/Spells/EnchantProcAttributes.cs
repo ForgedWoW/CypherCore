@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum EnchantProcAttributes
 {
-	WhiteHit = 0x01, // enchant shall only proc off white hits (not abilities)
-	Limit60 = 0x02   // enchant effects shall be reduced past lvl 60
+    WhiteHit = 0x01, // enchant shall only proc off white hits (not abilities)
+    Limit60 = 0x02   // enchant effects shall be reduced past lvl 60
 }

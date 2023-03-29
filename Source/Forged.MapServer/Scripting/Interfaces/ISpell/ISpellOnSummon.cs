@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellOnSummon : ISpellScript
 {
-	void OnSummon(Creature creature);
+    void OnSummon(Creature creature);
 }

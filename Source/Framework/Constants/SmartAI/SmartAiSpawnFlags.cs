@@ -8,8 +8,8 @@ namespace Framework.Constants;
 [Flags]
 public enum SmartAiSpawnFlags
 {
-	None = 0x00,
-	IgnoreRespawn = 0x01,
-	ForceSpawn = 0x02,
-	NosaveRespawn = 0x04,
+    None = 0x00,
+    IgnoreRespawn = 0x01,
+    ForceSpawn = 0x02,
+    NosaveRespawn = 0x04,
 }

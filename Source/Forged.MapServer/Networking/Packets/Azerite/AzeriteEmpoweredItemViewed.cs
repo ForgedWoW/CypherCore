@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Azerite;
 
 internal class AzeriteEmpoweredItemViewed : ClientPacket
 {
-	public ObjectGuid ItemGUID;
-	public AzeriteEmpoweredItemViewed(WorldPacket packet) : base(packet) { }
+    public ObjectGuid ItemGUID;
+    public AzeriteEmpoweredItemViewed(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ItemGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        ItemGUID = _worldPacket.ReadPackedGuid();
+    }
 }

@@ -12,44 +12,44 @@ namespace Scripts.Spells.Generic;
 [Script] // 147066 - (Serverside/Non-DB2) Generic - Mount Check Aura
 internal class spell_gen_mount_check_aura : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnPeriodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnPeriodic, 0, AuraType.PeriodicDummy));
+    }
 
-	private void OnPeriodic(AuraEffect aurEff)
-	{
-		var target = Target;
-		uint mountDisplayId = 0;
+    private void OnPeriodic(AuraEffect aurEff)
+    {
+        var target = Target;
+        uint mountDisplayId = 0;
 
-		var tempSummon = target.ToTempSummon();
+        var tempSummon = target.ToTempSummon();
 
-		if (tempSummon == null)
-			return;
+        if (tempSummon == null)
+            return;
 
-		var summoner = tempSummon.GetSummoner()?.AsPlayer;
+        var summoner = tempSummon.GetSummoner()?.AsPlayer;
 
-		if (summoner == null)
-			return;
+        if (summoner == null)
+            return;
 
-		if (summoner.IsMounted &&
-			(!summoner.IsInCombat || summoner.IsFlying))
-		{
-			var summonedData = Global.ObjectMgr.GetCreatureSummonedData(tempSummon.Entry);
+        if (summoner.IsMounted &&
+            (!summoner.IsInCombat || summoner.IsFlying))
+        {
+            var summonedData = Global.ObjectMgr.GetCreatureSummonedData(tempSummon.Entry);
 
-			if (summonedData != null)
-			{
-				if (summoner.IsFlying &&
-					summonedData.FlyingMountDisplayId.HasValue)
-					mountDisplayId = summonedData.FlyingMountDisplayId.Value;
-				else if (summonedData.GroundMountDisplayId.HasValue)
-					mountDisplayId = summonedData.GroundMountDisplayId.Value;
-			}
-		}
+            if (summonedData != null)
+            {
+                if (summoner.IsFlying &&
+                    summonedData.FlyingMountDisplayId.HasValue)
+                    mountDisplayId = summonedData.FlyingMountDisplayId.Value;
+                else if (summonedData.GroundMountDisplayId.HasValue)
+                    mountDisplayId = summonedData.GroundMountDisplayId.Value;
+            }
+        }
 
-		if (mountDisplayId != target.MountDisplayId)
-			target.MountDisplayId = mountDisplayId;
-	}
+        if (mountDisplayId != target.MountDisplayId)
+            target.MountDisplayId = mountDisplayId;
+    }
 }

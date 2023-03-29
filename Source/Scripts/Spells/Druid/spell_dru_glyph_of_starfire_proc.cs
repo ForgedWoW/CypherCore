@@ -13,17 +13,17 @@ namespace Scripts.Spells.Druid;
 [SpellScript(54845)]
 public class spell_dru_glyph_of_starfire_proc : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		Target.CastSpell(eventInfo.ProcTarget, DruidSpells.GLYPH_OF_STARFIRE, true);
-	}
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        Target.CastSpell(eventInfo.ProcTarget, DruidSpells.GLYPH_OF_STARFIRE, true);
+    }
 }

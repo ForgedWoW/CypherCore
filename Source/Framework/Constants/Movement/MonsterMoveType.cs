@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum MonsterMoveType
 {
-	Normal = 0,
-	FacingSpot = 1,
-	FacingTarget = 2,
-	FacingAngle = 3
+    Normal = 0,
+    FacingSpot = 1,
+    FacingTarget = 2,
+    FacingAngle = 3
 }

@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Forged.MapServer.Server;
-using Forged.MapServer.Services;
 using Framework.Constants;
 using Serilog;
 
@@ -10,59 +9,59 @@ namespace Forged.MapServer.Networking;
 
 public abstract class ServerPacket
 {
-	protected WorldPacket _worldPacket;
+    protected WorldPacket _worldPacket;
     private readonly ConnectionType connectionType;
 
     private byte[] buffer;
 
-	protected ServerPacket(ServerOpcodes opcode)
-	{
-		connectionType = ConnectionType.Realm;
-		_worldPacket = new WorldPacket(opcode);
-	}
+    protected ServerPacket(ServerOpcodes opcode)
+    {
+        connectionType = ConnectionType.Realm;
+        _worldPacket = new WorldPacket(opcode);
+    }
 
-	protected ServerPacket(ServerOpcodes opcode, ConnectionType type = ConnectionType.Realm)
-	{
-		connectionType = type;
-		_worldPacket = new WorldPacket(opcode);
-	}
+    protected ServerPacket(ServerOpcodes opcode, ConnectionType type = ConnectionType.Realm)
+    {
+        connectionType = type;
+        _worldPacket = new WorldPacket(opcode);
+    }
 
-	public void Clear()
-	{
-		_worldPacket.Clear();
-		buffer = null;
-	}
+    public void Clear()
+    {
+        _worldPacket.Clear();
+        buffer = null;
+    }
 
-	public ServerOpcodes GetOpcode()
-	{
-		return (ServerOpcodes)_worldPacket.GetOpcode();
-	}
+    public ServerOpcodes GetOpcode()
+    {
+        return (ServerOpcodes)_worldPacket.GetOpcode();
+    }
 
-	public byte[] GetData()
-	{
-		return buffer;
-	}
+    public byte[] GetData()
+    {
+        return buffer;
+    }
 
-	public void LogPacket(WorldSession session)
-	{
-		Log.Logger.Debug("Sent ServerOpcode: {0} To: {1}", GetOpcode(), session != null ? session.GetPlayerInfo() : "");
-	}
+    public void LogPacket(WorldSession session)
+    {
+        Log.Logger.Debug("Sent ServerOpcode: {0} To: {1}", GetOpcode(), session != null ? session.GetPlayerInfo() : "");
+    }
 
-	public abstract void Write();
+    public abstract void Write();
 
-	public void WritePacketData()
-	{
-		if (buffer != null)
-			return;
+    public void WritePacketData()
+    {
+        if (buffer != null)
+            return;
 
-		Write();
+        Write();
 
-		buffer = _worldPacket.GetData();
-		_worldPacket.Dispose();
-	}
+        buffer = _worldPacket.GetData();
+        _worldPacket.Dispose();
+    }
 
-	public ConnectionType GetConnection()
-	{
-		return connectionType;
-	}
+    public ConnectionType GetConnection()
+    {
+        return connectionType;
+    }
 }

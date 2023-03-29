@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class SetRole : ClientPacket
 {
-	public sbyte PartyIndex;
-	public ObjectGuid TargetGUID;
-	public int Role;
-	public SetRole(WorldPacket packet) : base(packet) { }
+    public sbyte PartyIndex;
+    public ObjectGuid TargetGUID;
+    public int Role;
+    public SetRole(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PartyIndex = _worldPacket.ReadInt8();
-		TargetGUID = _worldPacket.ReadPackedGuid();
-		Role = _worldPacket.ReadInt32();
-	}
+    public override void Read()
+    {
+        PartyIndex = _worldPacket.ReadInt8();
+        TargetGUID = _worldPacket.ReadPackedGuid();
+        Role = _worldPacket.ReadInt32();
+    }
 }

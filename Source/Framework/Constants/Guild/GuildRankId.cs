@@ -5,5 +5,5 @@ namespace Framework.Constants;
 
 public enum GuildRankId
 {
-	GuildMaster = 0
+    GuildMaster = 0
 }

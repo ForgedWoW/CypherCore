@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class SetFactionVisible : ServerPacket
 {
-	public uint FactionIndex;
-	public SetFactionVisible(bool visible) : base(visible ? ServerOpcodes.SetFactionVisible : ServerOpcodes.SetFactionNotVisible, ConnectionType.Instance) { }
+    public uint FactionIndex;
+    public SetFactionVisible(bool visible) : base(visible ? ServerOpcodes.SetFactionVisible : ServerOpcodes.SetFactionNotVisible, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(FactionIndex);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(FactionIndex);
+    }
 }

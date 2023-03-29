@@ -7,18 +7,18 @@ namespace Forged.MapServer.DataStorage;
 
 public struct HotfixId
 {
-	public int PushID;
-	public uint UniqueID;
+    public int PushID;
+    public uint UniqueID;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(PushID);
-		data.WriteUInt32(UniqueID);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(PushID);
+        data.WriteUInt32(UniqueID);
+    }
 
-	public void Read(WorldPacket data)
-	{
-		PushID = data.ReadInt32();
-		UniqueID = data.ReadUInt32();
-	}
+    public void Read(WorldPacket data)
+    {
+        PushID = data.ReadInt32();
+        UniqueID = data.ReadUInt32();
+    }
 }

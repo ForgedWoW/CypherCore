@@ -7,21 +7,21 @@ namespace Forged.MapServer.Entities.Items;
 
 public class ItemPosCount
 {
-	public ushort Pos;
-	public uint Count;
+    public ushort Pos;
+    public uint Count;
 
-	public ItemPosCount(ushort pos, uint count)
-	{
-		Pos = pos;
-		Count = count;
-	}
+    public ItemPosCount(ushort pos, uint count)
+    {
+        Pos = pos;
+        Count = count;
+    }
 
-	public bool IsContainedIn(List<ItemPosCount> vec)
-	{
-		foreach (var posCount in vec)
-			if (posCount.Pos == Pos)
-				return true;
+    public bool IsContainedIn(List<ItemPosCount> vec)
+    {
+        foreach (var posCount in vec)
+            if (posCount.Pos == Pos)
+                return true;
 
-		return false;
-	}
+        return false;
+    }
 }

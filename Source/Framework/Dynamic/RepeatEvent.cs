@@ -10,19 +10,19 @@ public class RepeatEvent : BasicEvent
     private readonly Func<TimeSpan> _event;
     private readonly EventSystem _eventSystem;
 
-	public RepeatEvent(EventSystem eventSystem, Func<TimeSpan> func) : base()
-	{
-		_event = func;
-		_eventSystem = eventSystem;
-	}
+    public RepeatEvent(EventSystem eventSystem, Func<TimeSpan> func) : base()
+    {
+        _event = func;
+        _eventSystem = eventSystem;
+    }
 
-	public override bool Execute(ulong etime, uint pTime)
-	{
-		var ts = _event.Invoke();
+    public override bool Execute(ulong etime, uint pTime)
+    {
+        var ts = _event.Invoke();
 
-		if (ts != default)
-			_eventSystem.AddEventAtOffset(this, ts);
+        if (ts != default)
+            _eventSystem.AddEventAtOffset(this, ts);
 
-		return true;
-	}
+        return true;
+    }
 }

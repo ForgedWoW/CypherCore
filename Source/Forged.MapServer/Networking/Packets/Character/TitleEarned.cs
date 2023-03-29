@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class TitleEarned : ServerPacket
 {
-	public uint Index;
-	public TitleEarned(ServerOpcodes opcode) : base(opcode) { }
+    public uint Index;
+    public TitleEarned(ServerOpcodes opcode) : base(opcode) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(Index);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(Index);
+    }
 }

@@ -13,29 +13,29 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(185244)]
 public class spell_demon_hunter_pain : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ModPowerDisplay, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ModPowerDisplay, AuraScriptHookType.EffectProc));
+    }
 
-	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
-	{
-		var caster = Caster;
+    private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+    {
+        var caster = Caster;
 
-		if (caster == null || eventInfo.DamageInfo != null)
-			return;
+        if (caster == null || eventInfo.DamageInfo != null)
+            return;
 
-		if (eventInfo.SpellInfo != null && eventInfo.SpellInfo.IsPositive)
-			return;
+        if (eventInfo.SpellInfo != null && eventInfo.SpellInfo.IsPositive)
+            return;
 
-		var damageTaken = eventInfo.DamageInfo.Damage;
+        var damageTaken = eventInfo.DamageInfo.Damage;
 
-		if (damageTaken <= 0)
-			return;
+        if (damageTaken <= 0)
+            return;
 
-		var painAmount = (50.0f * (double)damageTaken) / (double)caster.MaxHealth;
-		caster.CastSpell(caster, DemonHunterSpells.REWARD_PAIN, (int)painAmount);
-	}
+        var painAmount = (50.0f * (double)damageTaken) / (double)caster.MaxHealth;
+        caster.CastSpell(caster, DemonHunterSpells.REWARD_PAIN, (int)painAmount);
+    }
 }

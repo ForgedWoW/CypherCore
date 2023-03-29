@@ -7,16 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Inspect;
 
 public struct TraitInspectInfo
 {
-	public int Level;
-	public int ChrSpecializationID;
-	public TraitConfigPacket Config;
+    public int Level;
+    public int ChrSpecializationID;
+    public TraitConfigPacket Config;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(Level);
-		data.WriteInt32(ChrSpecializationID);
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(Level);
+        data.WriteInt32(ChrSpecializationID);
 
-		if (Config != null)
-			Config.Write(data);
-	}
+        if (Config != null)
+            Config.Write(data);
+    }
 }

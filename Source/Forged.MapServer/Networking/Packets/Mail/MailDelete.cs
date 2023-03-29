@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailDelete : ClientPacket
 {
-	public ulong MailID;
-	public int DeleteReason;
-	public MailDelete(WorldPacket packet) : base(packet) { }
+    public ulong MailID;
+    public int DeleteReason;
+    public MailDelete(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		MailID = _worldPacket.ReadUInt64();
-		DeleteReason = _worldPacket.ReadInt32();
-	}
+    public override void Read()
+    {
+        MailID = _worldPacket.ReadUInt64();
+        DeleteReason = _worldPacket.ReadInt32();
+    }
 }

@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class HearthAndResurrect : ClientPacket
 {
-	public HearthAndResurrect(WorldPacket packet) : base(packet) { }
+    public HearthAndResurrect(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

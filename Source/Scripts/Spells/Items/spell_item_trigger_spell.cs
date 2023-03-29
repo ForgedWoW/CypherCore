@@ -15,27 +15,27 @@ namespace Scripts.Spells.Items;
 [Script("spell_item_mithril_mechanical_dragonling", ItemSpellIds.MithrilMechanicalDragonling)]
 internal class spell_item_trigger_spell : SpellScript, IHasSpellEffects
 {
-	private readonly uint _triggeredSpellId;
+    private readonly uint _triggeredSpellId;
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public spell_item_trigger_spell(uint triggeredSpellId)
-	{
-		_triggeredSpellId = triggeredSpellId;
-	}
+    public spell_item_trigger_spell(uint triggeredSpellId)
+    {
+        _triggeredSpellId = triggeredSpellId;
+    }
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
-		var item = CastItem;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
+        var item = CastItem;
 
-		if (item)
-			caster.CastSpell(caster, _triggeredSpellId, new CastSpellExtraArgs(item));
-	}
+        if (item)
+            caster.CastSpell(caster, _triggeredSpellId, new CastSpellExtraArgs(item));
+    }
 }

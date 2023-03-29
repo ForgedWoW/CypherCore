@@ -13,37 +13,37 @@ namespace Scripts.Spells.Shaman;
 [CreatureScript(60561)]
 public class npc_earth_grab_totem : ScriptedAI
 {
-	public List<ObjectGuid> alreadyRooted = new();
+    public List<ObjectGuid> alreadyRooted = new();
 
-	public npc_earth_grab_totem(Creature creature) : base(creature) { }
+    public npc_earth_grab_totem(Creature creature) : base(creature) { }
 
-	public override void Reset()
-	{
-		var time = TimeSpan.FromSeconds(2);
+    public override void Reset()
+    {
+        var time = TimeSpan.FromSeconds(2);
 
-		Me.Events.AddRepeatEventAtOffset(() =>
-										{
-											var unitList = new List<Unit>();
-											Me.GetAttackableUnitListInRange(unitList, 10.0f);
+        Me.Events.AddRepeatEventAtOffset(() =>
+                                         {
+                                             var unitList = new List<Unit>();
+                                             Me.GetAttackableUnitListInRange(unitList, 10.0f);
 
-											foreach (var target in unitList)
-											{
-												if (target.HasAura(TotemSpells.TOTEM_EARTH_GRAB_ROOT_EFFECT))
-													continue;
+                                             foreach (var target in unitList)
+                                             {
+                                                 if (target.HasAura(TotemSpells.TOTEM_EARTH_GRAB_ROOT_EFFECT))
+                                                     continue;
 
-												if (!alreadyRooted.Contains(target.GUID))
-												{
-													alreadyRooted.Add(target.GUID);
-													Me.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_ROOT_EFFECT, true);
-												}
-												else
-												{
-													Me.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_SLOW_EFFECT, true);
-												}
-											}
+                                                 if (!alreadyRooted.Contains(target.GUID))
+                                                 {
+                                                     alreadyRooted.Add(target.GUID);
+                                                     Me.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_ROOT_EFFECT, true);
+                                                 }
+                                                 else
+                                                 {
+                                                     Me.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_SLOW_EFFECT, true);
+                                                 }
+                                             }
 
-											return time;
-										},
-										time);
-	}
+                                             return time;
+                                         },
+                                         time);
+    }
 }

@@ -7,23 +7,23 @@ namespace Forged.MapServer.DataStorage.Structs.V;
 
 public sealed class VehicleRecord
 {
-	public uint Id;
-	public VehicleFlags Flags;
-	public byte FlagsB;
-	public float TurnSpeed;
-	public float PitchSpeed;
-	public float PitchMin;
-	public float PitchMax;
-	public float MouseLookOffsetPitch;
-	public float CameraFadeDistScalarMin;
-	public float CameraFadeDistScalarMax;
-	public float CameraPitchOffset;
-	public float FacingLimitRight;
-	public float FacingLimitLeft;
-	public float CameraYawOffset;
-	public ushort VehicleUIIndicatorID;
-	public int MissileTargetingID;
-	public ushort VehiclePOITypeID;
-	public ushort[] SeatID = new ushort[8];
-	public ushort[] PowerDisplayID = new ushort[3];
+    public uint Id;
+    public VehicleFlags Flags;
+    public byte FlagsB;
+    public float TurnSpeed;
+    public float PitchSpeed;
+    public float PitchMin;
+    public float PitchMax;
+    public float MouseLookOffsetPitch;
+    public float CameraFadeDistScalarMin;
+    public float CameraFadeDistScalarMax;
+    public float CameraPitchOffset;
+    public float FacingLimitRight;
+    public float FacingLimitLeft;
+    public float CameraYawOffset;
+    public ushort VehicleUIIndicatorID;
+    public int MissileTargetingID;
+    public ushort VehiclePOITypeID;
+    public ushort[] SeatID = new ushort[8];
+    public ushort[] PowerDisplayID = new ushort[3];
 }

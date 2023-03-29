@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class NotifyReceivedMail : ServerPacket
 {
-	public float Delay = 0.0f;
-	public NotifyReceivedMail() : base(ServerOpcodes.NotifyReceivedMail) { }
+    public float Delay = 0.0f;
+    public NotifyReceivedMail() : base(ServerOpcodes.NotifyReceivedMail) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteFloat(Delay);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteFloat(Delay);
+    }
 }

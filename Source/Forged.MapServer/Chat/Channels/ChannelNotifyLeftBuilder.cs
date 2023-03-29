@@ -13,26 +13,26 @@ internal class ChannelNotifyLeftBuilder : MessageBuilder
     private readonly Channel _source;
     private readonly bool _suspended;
 
-	public ChannelNotifyLeftBuilder(Channel source, bool suspend)
-	{
-		_source = source;
-		_suspended = suspend;
-	}
+    public ChannelNotifyLeftBuilder(Channel source, bool suspend)
+    {
+        _source = source;
+        _suspended = suspend;
+    }
 
-	public override PacketSenderOwning<ChannelNotifyLeft> Invoke(Locale locale = Locale.enUS)
-	{
-		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+    public override PacketSenderOwning<ChannelNotifyLeft> Invoke(Locale locale = Locale.enUS)
+    {
+        var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
-		PacketSenderOwning<ChannelNotifyLeft> notify = new()
-		{
-			Data =
-			{
-				Channel = _source.GetName(localeIdx),
-				ChatChannelID = _source.GetChannelId(),
-				Suspended = _suspended
-			}
-		};
+        PacketSenderOwning<ChannelNotifyLeft> notify = new()
+        {
+            Data =
+            {
+                Channel = _source.GetName(localeIdx),
+                ChatChannelID = _source.GetChannelId(),
+                Suspended = _suspended
+            }
+        };
 
-		return notify;
-	}
+        return notify;
+    }
 }

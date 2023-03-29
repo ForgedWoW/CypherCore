@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAuctionHouse;
 
 public interface IAuctionHouseOnAcutionRemove : IScriptObject
 {
-	void OnAuctionRemove(AuctionHouseObject ah, AuctionPosting auction);
+    void OnAuctionRemove(AuctionHouseObject ah, AuctionPosting auction);
 }

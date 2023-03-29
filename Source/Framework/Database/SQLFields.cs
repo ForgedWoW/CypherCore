@@ -9,36 +9,36 @@ public class SQLFields
 {
     private readonly object[] _currentRow;
 
-	public SQLFields(object[] row)
-	{
-		_currentRow = row;
-	}
+    public SQLFields(object[] row)
+    {
+        _currentRow = row;
+    }
 
-	public T Read<T>(int column)
-	{
-		var value = _currentRow[column];
+    public T Read<T>(int column)
+    {
+        var value = _currentRow[column];
 
-		if (value == DBNull.Value)
-			return default;
+        if (value == DBNull.Value)
+            return default;
 
-		if (value.GetType() != typeof(T))
-			return (T)Convert.ChangeType(value, typeof(T)); //todo remove me when all fields are the right type  this is super slow
+        if (value.GetType() != typeof(T))
+            return (T)Convert.ChangeType(value, typeof(T)); //todo remove me when all fields are the right type  this is super slow
 
-		return (T)value;
-	}
+        return (T)value;
+    }
 
-	public T[] ReadValues<T>(int startIndex, int numColumns)
-	{
-		var values = new T[numColumns];
+    public T[] ReadValues<T>(int startIndex, int numColumns)
+    {
+        var values = new T[numColumns];
 
-		for (var c = 0; c < numColumns; ++c)
-			values[c] = Read<T>(startIndex + c);
+        for (var c = 0; c < numColumns; ++c)
+            values[c] = Read<T>(startIndex + c);
 
-		return values;
-	}
+        return values;
+    }
 
-	public bool IsNull(int column)
-	{
-		return _currentRow[column] == DBNull.Value;
-	}
+    public bool IsNull(int column)
+    {
+        return _currentRow[column] == DBNull.Value;
+    }
 }

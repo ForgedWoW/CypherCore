@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellCalculateBonusCoefficient : ISpellScript
 {
-	public double CalcBonusCoefficient(double bonusCoefficient);
+    public double CalcBonusCoefficient(double bonusCoefficient);
 }

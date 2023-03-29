@@ -5,14 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Trait;
 
 internal class ClassTalentsSetStarterBuildActive : ClientPacket
 {
-	public int ConfigID;
-	public bool Active;
+    public int ConfigID;
+    public bool Active;
 
-	public ClassTalentsSetStarterBuildActive(WorldPacket packet) : base(packet) { }
+    public ClassTalentsSetStarterBuildActive(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ConfigID = _worldPacket.ReadInt32();
-		Active = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        ConfigID = _worldPacket.ReadInt32();
+        Active = _worldPacket.HasBit();
+    }
 }

@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum TrainerSpellState
 {
-	Known = 0,
-	Available = 1,
-	Unavailable = 2,
+    Known = 0,
+    Available = 1,
+    Unavailable = 2,
 }

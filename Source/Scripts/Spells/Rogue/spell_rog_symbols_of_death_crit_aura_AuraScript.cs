@@ -13,16 +13,16 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(227151)]
 public class spell_rog_symbols_of_death_crit_aura_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleAfterProc, 0, AuraType.AddFlatModifier, AuraScriptHookType.EffectAfterProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleAfterProc, 0, AuraType.AddFlatModifier, AuraScriptHookType.EffectAfterProc));
+    }
 
 
-	private void HandleAfterProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		Remove();
-	}
+    private void HandleAfterProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        Remove();
+    }
 }

@@ -8,5 +8,5 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class PageTextLocale
 {
-	public StringArray Text { get; set; } = new((int)Locale.Total);
+    public StringArray Text { get; set; } = new((int)Locale.Total);
 }

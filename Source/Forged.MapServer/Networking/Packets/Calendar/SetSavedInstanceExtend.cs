@@ -5,15 +5,15 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class SetSavedInstanceExtend : ClientPacket
 {
-	public int MapID;
-	public bool Extend;
-	public uint DifficultyID;
-	public SetSavedInstanceExtend(WorldPacket packet) : base(packet) { }
+    public int MapID;
+    public bool Extend;
+    public uint DifficultyID;
+    public SetSavedInstanceExtend(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		MapID = _worldPacket.ReadInt32();
-		DifficultyID = _worldPacket.ReadUInt32();
-		Extend = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        MapID = _worldPacket.ReadInt32();
+        DifficultyID = _worldPacket.ReadUInt32();
+        Extend = _worldPacket.HasBit();
+    }
 }

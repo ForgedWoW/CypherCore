@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class ReclaimCorpse : ClientPacket
 {
-	public ObjectGuid CorpseGUID;
-	public ReclaimCorpse(WorldPacket packet) : base(packet) { }
+    public ObjectGuid CorpseGUID;
+    public ReclaimCorpse(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		CorpseGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        CorpseGUID = _worldPacket.ReadPackedGuid();
+    }
 }

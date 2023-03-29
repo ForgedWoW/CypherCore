@@ -11,17 +11,17 @@ namespace Scripts.Spells.Druid;
 [SpellScript(61391)]
 public class spell_dru_typhoon : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleKnockBack, 0, SpellEffectName.KnockBack, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleKnockBack, 0, SpellEffectName.KnockBack, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleKnockBack(int effIndex)
-	{
-		// Glyph of Typhoon
-		if (Caster.HasAura(DruidSpells.GLYPH_OF_TYPHOON))
-			PreventHitDefaultEffect(effIndex);
-	}
+    private void HandleKnockBack(int effIndex)
+    {
+        // Glyph of Typhoon
+        if (Caster.HasAura(DruidSpells.GLYPH_OF_TYPHOON))
+            PreventHitDefaultEffect(effIndex);
+    }
 }

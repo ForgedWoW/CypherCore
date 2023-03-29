@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildBankBuyTab : ClientPacket
 {
-	public ObjectGuid Banker;
-	public byte BankTab;
-	public GuildBankBuyTab(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Banker;
+    public byte BankTab;
+    public GuildBankBuyTab(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Banker = _worldPacket.ReadPackedGuid();
-		BankTab = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        Banker = _worldPacket.ReadPackedGuid();
+        BankTab = _worldPacket.ReadUInt8();
+    }
 }

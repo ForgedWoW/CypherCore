@@ -10,79 +10,79 @@ namespace Scripts.Spells.Hunter;
 
 [SpellScript(new uint[]
 {
-	120755, 120756
+    120755, 120756
 })]
 public class spell_hun_glaive_toss_missile : SpellScript, ISpellOnHit, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		if (SpellInfo.Id == HunterSpells.GLAIVE_TOSS_RIGHT)
-		{
-			var plr = Caster.AsPlayer;
+    public void AfterCast()
+    {
+        if (SpellInfo.Id == HunterSpells.GLAIVE_TOSS_RIGHT)
+        {
+            var plr = Caster.AsPlayer;
 
-			if (plr != null)
-			{
-				plr.CastSpell(plr, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
-			}
-			else if (OriginalCaster)
-			{
-				var caster = OriginalCaster.AsPlayer;
+            if (plr != null)
+            {
+                plr.CastSpell(plr, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
+            }
+            else if (OriginalCaster)
+            {
+                var caster = OriginalCaster.AsPlayer;
 
-				if (caster != null)
-					caster.CastSpell(caster, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
-			}
-		}
-		else
-		{
-			var plr = Caster.AsPlayer;
+                if (caster != null)
+                    caster.CastSpell(caster, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
+            }
+        }
+        else
+        {
+            var plr = Caster.AsPlayer;
 
-			if (plr != null)
-			{
-				plr.CastSpell(plr, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
-			}
-			else if (OriginalCaster)
-			{
-				var caster = OriginalCaster.AsPlayer;
+            if (plr != null)
+            {
+                plr.CastSpell(plr, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
+            }
+            else if (OriginalCaster)
+            {
+                var caster = OriginalCaster.AsPlayer;
 
-				if (caster != null)
-					caster.CastSpell(caster, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
-			}
-		}
+                if (caster != null)
+                    caster.CastSpell(caster, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
+            }
+        }
 
-		var target = ExplTargetUnit;
+        var target = ExplTargetUnit;
 
-		if (target != null)
-			if (Caster == OriginalCaster)
-				Caster.AddAura(HunterSpells.GLAIVE_TOSS_AURA, target);
-	}
+        if (target != null)
+            if (Caster == OriginalCaster)
+                Caster.AddAura(HunterSpells.GLAIVE_TOSS_AURA, target);
+    }
 
-	public void OnHit()
-	{
-		if (SpellInfo.Id == HunterSpells.GLAIVE_TOSS_RIGHT)
-		{
-			var caster = Caster;
+    public void OnHit()
+    {
+        if (SpellInfo.Id == HunterSpells.GLAIVE_TOSS_RIGHT)
+        {
+            var caster = Caster;
 
-			if (caster != null)
-			{
-				var target = HitUnit;
+            if (caster != null)
+            {
+                var target = HitUnit;
 
-				if (target != null)
-					if (caster == OriginalCaster)
-						target.CastSpell(caster, HunterSpells.GLAIVE_TOSS_LEFT, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GUID));
-			}
-		}
-		else
-		{
-			var caster = Caster;
+                if (target != null)
+                    if (caster == OriginalCaster)
+                        target.CastSpell(caster, HunterSpells.GLAIVE_TOSS_LEFT, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GUID));
+            }
+        }
+        else
+        {
+            var caster = Caster;
 
-			if (caster != null)
-			{
-				var target = HitUnit;
+            if (caster != null)
+            {
+                var target = HitUnit;
 
-				if (target != null)
-					if (caster == OriginalCaster)
-						target.CastSpell(caster, HunterSpells.GLAIVE_TOSS_RIGHT, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GUID));
-			}
-		}
-	}
+                if (target != null)
+                    if (caster == OriginalCaster)
+                        target.CastSpell(caster, HunterSpells.GLAIVE_TOSS_RIGHT, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GUID));
+            }
+        }
+    }
 }

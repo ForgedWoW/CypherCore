@@ -1,13 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.DataStorage;
+using System.Collections.Generic;
+using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using static Game.AI.PlayerAI;
-using System.Collections.Generic;
-using Framework.Constants;
 using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
@@ -34,6 +32,7 @@ internal class spell_evoker_life_givers_flame_cast : SpellScript, ISpellAfterCas
             // cast on targets
             var args = new CastSpellExtraArgs(TriggerCastFlags.TriggeredAllowProc);
             args.AddSpellMod(SpellValueMod.BasePoint0, aura.GetEffect(0).Amount * (SpellManager.Instance.GetSpellInfo(EvokerSpells.LIFE_GIVERS_FLAME).GetEffect(0).BasePoints * 0.01));
+
             foreach (var target in targetList)
                 caster.CastSpell(target, EvokerSpells.LIFE_GIVERS_FLAME_HEAL, args);
 

@@ -13,33 +13,33 @@ namespace Scripts.Spells.Generic;
 [Script] // Blood Reserve - 64568
 internal class spell_gen_blood_reserve : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var caster = eventInfo.ActionTarget;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var caster = eventInfo.ActionTarget;
 
-		if (caster != null)
-			if (caster.HealthBelowPct(35))
-				return true;
+        if (caster != null)
+            if (caster.HealthBelowPct(35))
+                return true;
 
-		return false;
-	}
+        return false;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var caster = eventInfo.ActionTarget;
-		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount);
-		caster.CastSpell(caster, GenericSpellIds.BloodReserveHeal, args);
-		caster.RemoveAura(GenericSpellIds.BloodReserveAura);
-	}
+        var caster = eventInfo.ActionTarget;
+        CastSpellExtraArgs args = new(aurEff);
+        args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount);
+        caster.CastSpell(caster, GenericSpellIds.BloodReserveHeal, args);
+        caster.RemoveAura(GenericSpellIds.BloodReserveAura);
+    }
 }

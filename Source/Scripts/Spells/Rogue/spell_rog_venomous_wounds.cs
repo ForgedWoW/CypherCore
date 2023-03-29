@@ -13,16 +13,16 @@ namespace Scripts.Spells.Rogue;
 [Script] // 79134 - Venomous Wounds - VENOMOUS_WOUNDS
 internal class spell_rog_venomous_wounds : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		var extraEnergy = aurEff.Amount;
-		Target.ModifyPower(PowerType.Energy, extraEnergy);
-	}
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        var extraEnergy = aurEff.Amount;
+        Target.ModifyPower(PowerType.Energy, extraEnergy);
+    }
 }

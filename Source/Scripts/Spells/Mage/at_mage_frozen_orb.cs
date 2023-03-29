@@ -10,13 +10,8 @@ namespace Scripts.Spells.Mage;
 [Script]
 public class at_mage_frozen_orb : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
 {
-	public uint damageInterval;
-	public bool procDone = false;
-
-    public void OnInitialize()
-	{
-		damageInterval = 500;
-    }
+    public uint damageInterval;
+    public bool procDone = false;
 
     public void OnCreate()
     {
@@ -30,41 +25,46 @@ public class at_mage_frozen_orb : AreaTriggerScript, IAreaTriggerOnInitialize, I
         At.SetDestination(4000, pos);
     }
 
+    public void OnInitialize()
+    {
+        damageInterval = 500;
+    }
+
     public void OnUpdate(uint diff)
-	{
-		var caster = At.GetCaster();
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || !caster.IsPlayer)
-			return;
+        if (caster == null || !caster.IsPlayer)
+            return;
 
-		if (damageInterval <= diff)
-		{
-			if (!procDone)
-				foreach (var guid in At.InsideUnits)
-				{
-					var unit = ObjectAccessor.Instance.GetUnit(caster, guid);
+        if (damageInterval <= diff)
+        {
+            if (!procDone)
+                foreach (var guid in At.InsideUnits)
+                {
+                    var unit = ObjectAccessor.Instance.GetUnit(caster, guid);
 
-					if (unit != null)
-						if (caster.IsValidAttackTarget(unit))
-						{
-							if (caster.HasAura(MageSpells.FINGERS_OF_FROST_AURA))
-								caster.CastSpell(caster, MageSpells.FINGERS_OF_FROST_VISUAL_UI, true);
+                    if (unit != null)
+                        if (caster.IsValidAttackTarget(unit))
+                        {
+                            if (caster.HasAura(MageSpells.FINGERS_OF_FROST_AURA))
+                                caster.CastSpell(caster, MageSpells.FINGERS_OF_FROST_VISUAL_UI, true);
 
-							caster.CastSpell(caster, MageSpells.FINGERS_OF_FROST_AURA, true);
+                            caster.CastSpell(caster, MageSpells.FINGERS_OF_FROST_AURA, true);
 
-							// at->UpdateTimeToTarget(8000); TODO
-							procDone = true;
+                            // at->UpdateTimeToTarget(8000); TODO
+                            procDone = true;
 
-							break;
-						}
-				}
+                            break;
+                        }
+                }
 
-			caster.CastSpell(At.Location, MageSpells.FROZEN_ORB_DAMAGE, true);
-			damageInterval = 500;
-		}
-		else
-		{
-			damageInterval -= diff;
-		}
-	}
+            caster.CastSpell(At.Location, MageSpells.FROZEN_ORB_DAMAGE, true);
+            damageInterval = 500;
+        }
+        else
+        {
+            damageInterval -= diff;
+        }
+    }
 }

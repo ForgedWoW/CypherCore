@@ -9,18 +9,18 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class PassiveAI : CreatureAI
 {
-	public PassiveAI(Creature creature) : base(creature)
-	{
-		creature.ReactState = ReactStates.Passive;
-	}
+    public PassiveAI(Creature creature) : base(creature)
+    {
+        creature.ReactState = ReactStates.Passive;
+    }
 
-	public override void UpdateAI(uint diff)
-	{
-		if (Me.IsEngaged && !Me.IsInCombat)
-			EnterEvadeMode(EvadeReason.NoHostiles);
-	}
+    public override void UpdateAI(uint diff)
+    {
+        if (Me.IsEngaged && !Me.IsInCombat)
+            EnterEvadeMode(EvadeReason.NoHostiles);
+    }
 
-	public override void AttackStart(Unit victim) { }
+    public override void AttackStart(Unit victim) { }
 
-	public override void MoveInLineOfSight(Unit who) { }
+    public override void MoveInLineOfSight(Unit who) { }
 }

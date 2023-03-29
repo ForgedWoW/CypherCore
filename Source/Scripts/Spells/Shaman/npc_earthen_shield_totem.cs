@@ -11,10 +11,10 @@ namespace Scripts.Spells.Shaman;
 [CreatureScript(100943)]
 public class npc_earthen_shield_totem : ScriptedAI
 {
-	public npc_earthen_shield_totem(Creature creature) : base(creature) { }
+    public npc_earthen_shield_totem(Creature creature) : base(creature) { }
 
-	public override void Reset()
-	{
-		Me.CastSpell(Me, ShamanSpells.AT_EARTHEN_SHIELD_TOTEM, true);
-	}
+    public override void Reset()
+    {
+        Me.CastSpell(Me, ShamanSpells.AT_EARTHEN_SHIELD_TOTEM, true);
+    }
 }

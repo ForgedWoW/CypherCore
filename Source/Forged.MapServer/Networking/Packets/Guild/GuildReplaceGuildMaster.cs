@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 internal class GuildReplaceGuildMaster : ClientPacket
 {
-	public GuildReplaceGuildMaster(WorldPacket packet) : base(packet) { }
+    public GuildReplaceGuildMaster(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

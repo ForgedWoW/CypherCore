@@ -14,23 +14,23 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_gift_of_naaru : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.PeriodicHeal));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.PeriodicHeal));
+    }
 
-	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		if (!Caster ||
-			aurEff.GetTotalTicks() == 0)
-			return;
+    private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        if (!Caster ||
+            aurEff.GetTotalTicks() == 0)
+            return;
 
-		var healPct = GetEffectInfo(1).CalcValue() / 100.0f;
-		var heal = healPct * Caster.MaxHealth;
-		var healTick = Math.Floor(heal / aurEff.GetTotalTicks());
-		amount.Value += healTick;
-	}
+        var healPct = GetEffectInfo(1).CalcValue() / 100.0f;
+        var heal = healPct * Caster.MaxHealth;
+        var healTick = Math.Floor(heal / aurEff.GetTotalTicks());
+        amount.Value += healTick;
+    }
 }

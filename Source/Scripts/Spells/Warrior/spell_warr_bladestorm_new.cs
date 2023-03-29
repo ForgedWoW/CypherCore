@@ -13,15 +13,15 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(222634)]
 public class spell_warr_bladestorm_new : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodicDummy, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodicDummy, 0, AuraType.PeriodicDummy));
+    }
 
-	private void HandlePeriodicDummy(AuraEffect UnnamedParameter)
-	{
-		Caster.CastSpell(Caster, 50622, true); // Bladestorm main hand damage
-	}
+    private void HandlePeriodicDummy(AuraEffect UnnamedParameter)
+    {
+        Caster.CastSpell(Caster, 50622, true); // Bladestorm main hand damage
+    }
 }

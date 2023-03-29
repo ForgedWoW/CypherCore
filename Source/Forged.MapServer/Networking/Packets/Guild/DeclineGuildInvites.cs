@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class DeclineGuildInvites : ClientPacket
 {
-	public bool Allow;
-	public DeclineGuildInvites(WorldPacket packet) : base(packet) { }
+    public bool Allow;
+    public DeclineGuildInvites(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Allow = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        Allow = _worldPacket.HasBit();
+    }
 }

@@ -12,16 +12,16 @@ namespace Scripts.Spells.DeathKnight;
 [Script]
 public class npc_dk_defile : ScriptedAI
 {
-	public npc_dk_defile(Creature creature) : base(creature)
-	{
-		SetCombatMovement(false);
-		Me.ReactState = ReactStates.Passive;
-		Me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
-		Me.AddUnitState(UnitState.Root);
-	}
+    public npc_dk_defile(Creature creature) : base(creature)
+    {
+        SetCombatMovement(false);
+        Me.ReactState = ReactStates.Passive;
+        Me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
+        Me.AddUnitState(UnitState.Root);
+    }
 
-	public override void Reset()
-	{
-		Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(11));
-	}
+    public override void Reset()
+    {
+        Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(11));
+    }
 }

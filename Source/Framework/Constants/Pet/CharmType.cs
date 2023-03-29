@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum CharmType
 {
-	Charm,
-	Possess,
-	Vehicle,
-	Convert
+    Charm,
+    Possess,
+    Vehicle,
+    Convert
 }

@@ -9,21 +9,21 @@ namespace Forged.MapServer.Collision;
 
 public class WModelRayCallBack : WorkerCallback
 {
-	public bool Hit;
+    public bool Hit;
 
     private readonly List<GroupModel> _models;
 
-	public WModelRayCallBack(List<GroupModel> mod)
-	{
-		_models = mod;
-		Hit = false;
-	}
+    public WModelRayCallBack(List<GroupModel> mod)
+    {
+        _models = mod;
+        Hit = false;
+    }
 
-	public override bool Invoke(Ray ray, int entry, ref float distance, bool pStopAtFirstHit)
-	{
-		var result = _models[entry].IntersectRay(ray, ref distance, pStopAtFirstHit);
-		if (result) Hit = true;
+    public override bool Invoke(Ray ray, int entry, ref float distance, bool pStopAtFirstHit)
+    {
+        var result = _models[entry].IntersectRay(ray, ref distance, pStopAtFirstHit);
+        if (result) Hit = true;
 
-		return Hit;
-	}
+        return Hit;
+    }
 }

@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 
 public interface IPlayerOnModifyPower : IScriptObject, IClassRescriction
 {
-	void OnModifyPower(Player player, PowerType power, int oldValue, ref int newValue, bool regen);
+    void OnModifyPower(Player player, PowerType power, int oldValue, ref int newValue, bool regen);
 }

@@ -13,17 +13,17 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 207346 - Necrosis
 internal class spell_dk_necrosis : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		Target.CastSpell(eventInfo.ProcTarget, DeathKnightSpells.NecrosisEffect, true);
-	}
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        Target.CastSpell(eventInfo.ProcTarget, DeathKnightSpells.NecrosisEffect, true);
+    }
 }

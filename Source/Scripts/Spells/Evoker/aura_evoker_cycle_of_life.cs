@@ -10,20 +10,20 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.CYCLE_OF_LIFE_AURA)]
 public class aura_evoker_cycle_of_life : AuraScript, IAuraOnProc, IAuraOnApply
 {
-	double _multiplier = 0;
+    double _multiplier = 0;
 
-	public void AuraApply()
-	{
-		_multiplier = SpellManager.Instance.GetSpellInfo(EvokerSpells.CYCLE_OF_LIFE).GetEffect(0).BasePoints * 0.01;
-	}
+    public void AuraApply()
+    {
+        _multiplier = SpellManager.Instance.GetSpellInfo(EvokerSpells.CYCLE_OF_LIFE).GetEffect(0).BasePoints * 0.01;
+    }
 
-	public void OnProc(ProcEventInfo info)
-	{
-		if (info.HealInfo == null)
-			return;
+    public void OnProc(ProcEventInfo info)
+    {
+        if (info.HealInfo == null)
+            return;
 
-		var eff = Aura.AuraEffects[0];
+        var eff = Aura.AuraEffects[0];
 
-		eff.ChangeAmount(eff.Amount + info.HealInfo.Heal * _multiplier);
-	}
+        eff.ChangeAmount(eff.Amount + info.HealInfo.Heal * _multiplier);
+    }
 }

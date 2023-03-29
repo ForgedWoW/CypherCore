@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
 internal class UnlockVoidStorage : ClientPacket
 {
-	public ObjectGuid Npc;
-	public UnlockVoidStorage(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Npc;
+    public UnlockVoidStorage(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Npc = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Npc = _worldPacket.ReadPackedGuid();
+    }
 }

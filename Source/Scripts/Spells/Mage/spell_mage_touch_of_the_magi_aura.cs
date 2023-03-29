@@ -13,40 +13,40 @@ namespace Scripts.Spells.Mage;
 [Script] // 210824 - Touch of the Magi (Aura)
 internal class spell_mage_touch_of_the_magi_aura : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+        AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		var damageInfo = eventInfo.DamageInfo;
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        var damageInfo = eventInfo.DamageInfo;
 
-		if (damageInfo != null)
-			if (damageInfo.Attacker == Caster &&
-				damageInfo.Victim == Target)
-			{
-				var extra = MathFunctions.CalculatePct(damageInfo.Damage, 25);
+        if (damageInfo != null)
+            if (damageInfo.Attacker == Caster &&
+                damageInfo.Victim == Target)
+            {
+                var extra = MathFunctions.CalculatePct(damageInfo.Damage, 25);
 
-				if (extra > 0)
-					aurEff.ChangeAmount(aurEff.Amount + (int)extra);
-			}
-	}
+                if (extra > 0)
+                    aurEff.ChangeAmount(aurEff.Amount + (int)extra);
+            }
+    }
 
-	private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var amount = aurEff.Amount;
+    private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var amount = aurEff.Amount;
 
-		if (amount == 0 ||
-			TargetApplication.RemoveMode != AuraRemoveMode.Expire)
-			return;
+        if (amount == 0 ||
+            TargetApplication.RemoveMode != AuraRemoveMode.Expire)
+            return;
 
-		var caster = Caster;
+        var caster = Caster;
 
-		caster?.CastSpell(Target, MageSpells.TouchOfTheMagiExplode, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, amount));
-	}
+        caster?.CastSpell(Target, MageSpells.TouchOfTheMagiExplode, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, amount));
+    }
 }

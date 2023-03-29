@@ -12,33 +12,33 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(276023)]
 public class spell_dk_harbinger_of_doom_aura : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
+    }
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var player = caster.AsPlayer;
+        if (caster != null)
+        {
+            var player = caster.AsPlayer;
 
-			if (player != null)
-			{
-				var spell = Target.FindCurrentSpellBySpellId(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM);
-				spell.SpellInfo.ProcBasePpm = MathFunctions.CalculatePct(spell.SpellInfo.ProcBasePpm, 100 - 30);
-			}
-		}
-	}
+            if (player != null)
+            {
+                var spell = Target.FindCurrentSpellBySpellId(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM);
+                spell.SpellInfo.ProcBasePpm = MathFunctions.CalculatePct(spell.SpellInfo.ProcBasePpm, 100 - 30);
+            }
+        }
+    }
 
-	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var spell = Target.FindCurrentSpellBySpellId(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM);
-		spell.SpellInfo.ProcBasePpm = Global.SpellMgr.GetSpellInfo(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM).ProcBasePpm;
-	}
+    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var spell = Target.FindCurrentSpellBySpellId(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM);
+        spell.SpellInfo.ProcBasePpm = Global.SpellMgr.GetSpellInfo(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM).ProcBasePpm;
+    }
 }

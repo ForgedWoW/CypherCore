@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum MotionMasterFlags
 {
-	None = 0x0,
-	Update = 0x1,                      // Update in progress
-	StaticInitializationPending = 0x2, // Static movement (MOTION_SLOT_DEFAULT) hasn't been initialized
-	InitializationPending = 0x4,       // MotionMaster is stalled until signaled
-	Initializing = 0x8,                // MotionMaster is initializing
+    None = 0x0,
+    Update = 0x1,                      // Update in progress
+    StaticInitializationPending = 0x2, // Static movement (MOTION_SLOT_DEFAULT) hasn't been initialized
+    InitializationPending = 0x4,       // MotionMaster is stalled until signaled
+    Initializing = 0x8,                // MotionMaster is initializing
 
-	Delayed = Update | InitializationPending
+    Delayed = Update | InitializationPending
 }

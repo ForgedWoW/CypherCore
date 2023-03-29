@@ -10,54 +10,54 @@ namespace Scripts.Spells.Hunter;
 [Script]
 public class at_hun_freezing_trapAI : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter
 {
-	public enum UsedSpells
-	{
-		FREEZING_TRAP_STUN = 3355
-	}
+    public enum UsedSpells
+    {
+        FREEZING_TRAP_STUN = 3355
+    }
 
-	public int timeInterval;
+    public int timeInterval;
 
-	public void OnCreate()
-	{
-		timeInterval = 200;
-		var caster = At.GetCaster();
+    public void OnCreate()
+    {
+        timeInterval = 200;
+        var caster = At.GetCaster();
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		foreach (var itr in At.InsideUnits)
-		{
-			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
+        foreach (var itr in At.InsideUnits)
+        {
+            var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 
-			if (!caster.IsFriendlyTo(target))
-			{
-				caster.CastSpell(target, UsedSpells.FREEZING_TRAP_STUN, true);
-				At.Remove();
+            if (!caster.IsFriendlyTo(target))
+            {
+                caster.CastSpell(target, UsedSpells.FREEZING_TRAP_STUN, true);
+                At.Remove();
 
-				return;
-			}
-		}
-	}
+                return;
+            }
+        }
+    }
 
-	public void OnUnitEnter(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitEnter(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		if (!caster.IsFriendlyTo(unit))
-		{
-			caster.CastSpell(unit, UsedSpells.FREEZING_TRAP_STUN, true);
-			At.Remove();
+        if (!caster.IsFriendlyTo(unit))
+        {
+            caster.CastSpell(unit, UsedSpells.FREEZING_TRAP_STUN, true);
+            At.Remove();
 
-			return;
-		}
-	}
+            return;
+        }
+    }
 }

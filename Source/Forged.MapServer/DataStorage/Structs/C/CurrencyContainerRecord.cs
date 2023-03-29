@@ -7,13 +7,13 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class CurrencyContainerRecord
 {
-	public uint Id;
-	public LocalizedString ContainerName;
-	public LocalizedString ContainerDescription;
-	public int MinAmount;
-	public int MaxAmount;
-	public int ContainerIconID;
-	public int ContainerQuality;
-	public int OnLootSpellVisualKitID;
-	public uint CurrencyTypesID;
+    public uint Id;
+    public LocalizedString ContainerName;
+    public LocalizedString ContainerDescription;
+    public int MinAmount;
+    public int MaxAmount;
+    public int ContainerIconID;
+    public int ContainerQuality;
+    public int OnLootSpellVisualKitID;
+    public uint CurrencyTypesID;
 }

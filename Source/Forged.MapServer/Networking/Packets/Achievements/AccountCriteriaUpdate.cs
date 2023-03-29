@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 internal class AccountCriteriaUpdate : ServerPacket
 {
-	public CriteriaProgressPkt Progress;
-	public AccountCriteriaUpdate() : base(ServerOpcodes.AccountCriteriaUpdate) { }
+    public CriteriaProgressPkt Progress;
+    public AccountCriteriaUpdate() : base(ServerOpcodes.AccountCriteriaUpdate) { }
 
-	public override void Write()
-	{
-		Progress.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        Progress.Write(_worldPacket);
+    }
 }

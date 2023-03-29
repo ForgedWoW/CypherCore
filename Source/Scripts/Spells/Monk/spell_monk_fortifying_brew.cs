@@ -11,18 +11,18 @@ namespace Scripts.Spells.Monk;
 [SpellScript(115203)]
 public class spell_monk_fortifying_brew : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster != null && caster.TypeId == TypeId.Player)
-			caster.CastSpell(caster, MonkSpells.FORTIFYING_BREW, true);
-	}
+        if (caster != null && caster.TypeId == TypeId.Player)
+            caster.CastSpell(caster, MonkSpells.FORTIFYING_BREW, true);
+    }
 }

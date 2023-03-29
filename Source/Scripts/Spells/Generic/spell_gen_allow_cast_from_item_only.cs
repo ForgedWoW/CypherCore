@@ -10,11 +10,11 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_allow_cast_from_item_only : SpellScript, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		if (!CastItem)
-			return SpellCastResult.CantDoThatRightNow;
+    public SpellCastResult CheckCast()
+    {
+        if (!CastItem)
+            return SpellCastResult.CantDoThatRightNow;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

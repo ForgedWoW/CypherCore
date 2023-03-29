@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum GuildMemberData
 {
-	ZoneId,
-	AchievementPoints,
-	Level,
+    ZoneId,
+    AchievementPoints,
+    Level,
 }

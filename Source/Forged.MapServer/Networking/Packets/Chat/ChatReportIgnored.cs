@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 internal class ChatReportIgnored : ClientPacket
 {
-	public ObjectGuid IgnoredGUID;
-	public byte Reason;
-	public ChatReportIgnored(WorldPacket packet) : base(packet) { }
+    public ObjectGuid IgnoredGUID;
+    public byte Reason;
+    public ChatReportIgnored(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		IgnoredGUID = _worldPacket.ReadPackedGuid();
-		Reason = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        IgnoredGUID = _worldPacket.ReadPackedGuid();
+        Reason = _worldPacket.ReadUInt8();
+    }
 }

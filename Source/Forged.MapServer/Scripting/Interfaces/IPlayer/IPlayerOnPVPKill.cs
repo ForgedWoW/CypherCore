@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 
 public interface IPlayerOnPVPKill : IScriptObject
 {
-	void OnPVPKill(Player killer, Player killed);
+    void OnPVPKill(Player killer, Player killed);
 }

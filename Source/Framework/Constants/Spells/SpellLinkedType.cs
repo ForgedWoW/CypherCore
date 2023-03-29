@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum SpellLinkedType
 {
-	Cast = 0, // +: cast; -: remove
-	Hit = 1,
-	Aura = 2, // +: aura; -: immune
-	Remove = 3
+    Cast = 0, // +: cast; -: remove
+    Hit = 1,
+    Aura = 2, // +: aura; -: immune
+    Remove = 3
 }

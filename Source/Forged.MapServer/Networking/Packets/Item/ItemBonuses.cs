@@ -9,64 +9,64 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class ItemBonuses
 {
-	public ItemContext Context;
-	public List<uint> BonusListIDs = new();
+    public ItemContext Context;
+    public List<uint> BonusListIDs = new();
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt8((byte)Context);
-		data.WriteInt32(BonusListIDs.Count);
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt8((byte)Context);
+        data.WriteInt32(BonusListIDs.Count);
 
-		foreach (var bonusID in BonusListIDs)
-			data.WriteUInt32(bonusID);
-	}
+        foreach (var bonusID in BonusListIDs)
+            data.WriteUInt32(bonusID);
+    }
 
-	public void Read(WorldPacket data)
-	{
-		Context = (ItemContext)data.ReadUInt8();
-		var bonusListIdSize = data.ReadUInt32();
+    public void Read(WorldPacket data)
+    {
+        Context = (ItemContext)data.ReadUInt8();
+        var bonusListIdSize = data.ReadUInt32();
 
-		BonusListIDs = new List<uint>();
+        BonusListIDs = new List<uint>();
 
-		for (var i = 0u; i < bonusListIdSize; ++i)
-		{
-			var bonusId = data.ReadUInt32();
-			BonusListIDs.Add(bonusId);
-		}
-	}
+        for (var i = 0u; i < bonusListIdSize; ++i)
+        {
+            var bonusId = data.ReadUInt32();
+            BonusListIDs.Add(bonusId);
+        }
+    }
 
-	public override int GetHashCode()
-	{
-		return Context.GetHashCode() ^ BonusListIDs.GetHashCode();
-	}
+    public override int GetHashCode()
+    {
+        return Context.GetHashCode() ^ BonusListIDs.GetHashCode();
+    }
 
-	public override bool Equals(object obj)
-	{
-		if (obj is ItemBonuses)
-			return (ItemBonuses)obj == this;
+    public override bool Equals(object obj)
+    {
+        if (obj is ItemBonuses)
+            return (ItemBonuses)obj == this;
 
-		return false;
-	}
+        return false;
+    }
 
-	public static bool operator ==(ItemBonuses left, ItemBonuses right)
-	{
-		if (ReferenceEquals(left, right))
-			return true;
+    public static bool operator ==(ItemBonuses left, ItemBonuses right)
+    {
+        if (ReferenceEquals(left, right))
+            return true;
 
-		if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
-			return false;
+        if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+            return false;
 
-		if (left.Context != right.Context)
-			return false;
+        if (left.Context != right.Context)
+            return false;
 
-		if (left.BonusListIDs.Count != right.BonusListIDs.Count)
-			return false;
+        if (left.BonusListIDs.Count != right.BonusListIDs.Count)
+            return false;
 
-		return left.BonusListIDs.SequenceEqual(right.BonusListIDs);
-	}
+        return left.BonusListIDs.SequenceEqual(right.BonusListIDs);
+    }
 
-	public static bool operator !=(ItemBonuses left, ItemBonuses right)
-	{
-		return !(left == right);
-	}
+    public static bool operator !=(ItemBonuses left, ItemBonuses right)
+    {
+        return !(left == right);
+    }
 }

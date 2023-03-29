@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetAbandon : ClientPacket
 {
-	public ObjectGuid Pet;
-	public PetAbandon(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Pet;
+    public PetAbandon(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Pet = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Pet = _worldPacket.ReadPackedGuid();
+    }
 }

@@ -9,9 +9,9 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_trigger_exclude_caster_aura_spell : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		// Blizz seems to just apply aura without bothering to cast
-		Caster.AddAura(SpellInfo.ExcludeCasterAuraSpell, Caster);
-	}
+    public void AfterCast()
+    {
+        // Blizz seems to just apply aura without bothering to cast
+        Caster.AddAura(SpellInfo.ExcludeCasterAuraSpell, Caster);
+    }
 }

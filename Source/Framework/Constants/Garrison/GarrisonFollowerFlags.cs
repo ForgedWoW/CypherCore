@@ -5,5 +5,5 @@ namespace Framework.Constants;
 
 internal enum GarrisonFollowerFlags
 {
-	Unique = 0x1
+    Unique = 0x1
 }

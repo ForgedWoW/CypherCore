@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class ReadyCheckStarted : ServerPacket
 {
-	public sbyte PartyIndex;
-	public ObjectGuid PartyGUID;
-	public ObjectGuid InitiatorGUID;
-	public uint Duration;
-	public ReadyCheckStarted() : base(ServerOpcodes.ReadyCheckStarted) { }
+    public sbyte PartyIndex;
+    public ObjectGuid PartyGUID;
+    public ObjectGuid InitiatorGUID;
+    public uint Duration;
+    public ReadyCheckStarted() : base(ServerOpcodes.ReadyCheckStarted) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt8(PartyIndex);
-		_worldPacket.WritePackedGuid(PartyGUID);
-		_worldPacket.WritePackedGuid(InitiatorGUID);
-		_worldPacket.WriteUInt32(Duration);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt8(PartyIndex);
+        _worldPacket.WritePackedGuid(PartyGUID);
+        _worldPacket.WritePackedGuid(InitiatorGUID);
+        _worldPacket.WriteUInt32(Duration);
+    }
 }

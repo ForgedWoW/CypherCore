@@ -11,27 +11,27 @@ namespace Scripts.Spells.Druid;
 [SpellScript(18562)]
 public class spell_dru_swiftmend : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
-	}
-
-
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster;
-
-		if (caster != null)
-			if (caster.HasAura(Spells.SOUL_OF_THE_FOREST))
-				caster.AddAura(Spells.SOUL_OF_THE_FOREST_TRIGGERED, caster);
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
+    }
 
 
-	private struct Spells
-	{
-		public static readonly uint SOUL_OF_THE_FOREST = 158478;
-		public static readonly uint SOUL_OF_THE_FOREST_TRIGGERED = 114108;
-	}
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster;
+
+        if (caster != null)
+            if (caster.HasAura(Spells.SOUL_OF_THE_FOREST))
+                caster.AddAura(Spells.SOUL_OF_THE_FOREST_TRIGGERED, caster);
+    }
+
+
+    private struct Spells
+    {
+        public static readonly uint SOUL_OF_THE_FOREST = 158478;
+        public static readonly uint SOUL_OF_THE_FOREST_TRIGGERED = 114108;
+    }
 }

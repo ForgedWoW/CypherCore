@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum CreatureChaseMovementType
 {
-	Run,
-	CanWalk,
-	AlwaysWalk,
+    Run,
+    CanWalk,
+    AlwaysWalk,
 
-	Max
+    Max
 }

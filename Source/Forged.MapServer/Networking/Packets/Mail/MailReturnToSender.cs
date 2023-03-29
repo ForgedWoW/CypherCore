@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailReturnToSender : ClientPacket
 {
-	public ulong MailID;
-	public ObjectGuid SenderGUID;
-	public MailReturnToSender(WorldPacket packet) : base(packet) { }
+    public ulong MailID;
+    public ObjectGuid SenderGUID;
+    public MailReturnToSender(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		MailID = _worldPacket.ReadUInt64();
-		SenderGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        MailID = _worldPacket.ReadUInt64();
+        SenderGUID = _worldPacket.ReadPackedGuid();
+    }
 }

@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class QueryCorpseLocationFromClient : ClientPacket
 {
-	public ObjectGuid Player;
-	public QueryCorpseLocationFromClient(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Player;
+    public QueryCorpseLocationFromClient(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Player = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Player = _worldPacket.ReadPackedGuid();
+    }
 }

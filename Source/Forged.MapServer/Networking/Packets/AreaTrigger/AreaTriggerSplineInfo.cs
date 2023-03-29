@@ -8,19 +8,19 @@ namespace Forged.MapServer.Networking.Packets.AreaTrigger;
 
 internal class AreaTriggerSplineInfo
 {
-	public uint TimeToTarget;
-	public uint ElapsedTimeForMovement;
-	public List<Vector3> Points = new();
+    public uint TimeToTarget;
+    public uint ElapsedTimeForMovement;
+    public List<Vector3> Points = new();
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(TimeToTarget);
-		data.WriteUInt32(ElapsedTimeForMovement);
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(TimeToTarget);
+        data.WriteUInt32(ElapsedTimeForMovement);
 
-		data.WriteBits(Points.Count, 16);
-		data.FlushBits();
+        data.WriteBits(Points.Count, 16);
+        data.FlushBits();
 
-		foreach (var point in Points)
-			data.WriteVector3(point);
-	}
+        foreach (var point in Points)
+            data.WriteVector3(point);
+    }
 }

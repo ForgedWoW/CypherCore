@@ -10,11 +10,11 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(203556)]
 public class spell_dh_master_of_the_glaive : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo.Id == DemonHunterSpells.THROW_GLAIVE)
-			return true;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo.Id == DemonHunterSpells.THROW_GLAIVE)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

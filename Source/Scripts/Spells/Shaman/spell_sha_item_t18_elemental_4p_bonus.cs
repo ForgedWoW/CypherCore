@@ -13,18 +13,18 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(189063)]
 internal class spell_sha_item_t18_elemental_4p_bonus : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(DiminishHaste, 1, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(DiminishHaste, 1, AuraType.PeriodicDummy));
+    }
 
-	private void DiminishHaste(AuraEffect aurEff)
-	{
-		PreventDefaultAction();
-		var hasteBuff = GetEffect(0);
+    private void DiminishHaste(AuraEffect aurEff)
+    {
+        PreventDefaultAction();
+        var hasteBuff = GetEffect(0);
 
-		hasteBuff?.ChangeAmount(hasteBuff.Amount - aurEff.Amount);
-	}
+        hasteBuff?.ChangeAmount(hasteBuff.Amount - aurEff.Amount);
+    }
 }

@@ -12,23 +12,23 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_mark_of_kazrogal_hellfire : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitSrcAreaEnemy));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitSrcAreaEnemy));
+    }
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		targets.RemoveAll(target =>
-		{
-			var unit = target.AsUnit;
+    private void FilterTargets(List<WorldObject> targets)
+    {
+        targets.RemoveAll(target =>
+        {
+            var unit = target.AsUnit;
 
-			if (unit)
-				return unit.DisplayPowerType != PowerType.Mana;
+            if (unit)
+                return unit.DisplayPowerType != PowerType.Mana;
 
-			return false;
-		});
-	}
+            return false;
+        });
+    }
 }

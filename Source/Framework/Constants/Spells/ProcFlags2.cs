@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum ProcFlags2
 {
-	None = 0x00,
-	TargetDies = 0x01,
-	Knockback = 0x02,
-	CastSuccessful = 0x04
+    None = 0x00,
+    TargetDies = 0x01,
+    Knockback = 0x02,
+    CastSuccessful = 0x04
 }

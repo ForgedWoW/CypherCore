@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class RequestCemeteryList : ClientPacket
 {
-	public RequestCemeteryList(WorldPacket packet) : base(packet) { }
+    public RequestCemeteryList(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

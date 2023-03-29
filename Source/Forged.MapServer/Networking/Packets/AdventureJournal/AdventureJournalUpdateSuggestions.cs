@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.AdventureJournal;
 
 internal class AdventureJournalUpdateSuggestions : ClientPacket
 {
-	public bool OnLevelUp;
-	public AdventureJournalUpdateSuggestions(WorldPacket packet) : base(packet) { }
+    public bool OnLevelUp;
+    public AdventureJournalUpdateSuggestions(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		OnLevelUp = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        OnLevelUp = _worldPacket.HasBit();
+    }
 }

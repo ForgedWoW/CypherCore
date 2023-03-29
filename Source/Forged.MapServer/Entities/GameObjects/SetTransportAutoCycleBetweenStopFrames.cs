@@ -7,16 +7,16 @@ internal class SetTransportAutoCycleBetweenStopFrames : GameObjectTypeBase.Custo
 {
     private readonly bool _on;
 
-	public SetTransportAutoCycleBetweenStopFrames(bool on)
-	{
-		_on = on;
-	}
+    public SetTransportAutoCycleBetweenStopFrames(bool on)
+    {
+        _on = on;
+    }
 
-	public override void Execute(GameObjectTypeBase type)
-	{
-		var transport = (Transport)type;
+    public override void Execute(GameObjectTypeBase type)
+    {
+        var transport = (Transport)type;
 
-		if (transport != null)
-			transport.SetAutoCycleBetweenStopFrames(_on);
-	}
+        if (transport != null)
+            transport.SetAutoCycleBetweenStopFrames(_on);
+    }
 }

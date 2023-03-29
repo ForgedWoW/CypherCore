@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 public enum RideType
 {
-	None = 0,
-	Battlegrounds = 1,
-	Lfg = 2
+    None = 0,
+    Battlegrounds = 1,
+    Lfg = 2
 }

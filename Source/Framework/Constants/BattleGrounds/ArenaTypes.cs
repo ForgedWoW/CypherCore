@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum ArenaTypes
 {
-	BG = 0,
-	Team2v2 = 2,
-	Team3v3 = 3,
-	Team5v5 = 5
+    BG = 0,
+    Team2v2 = 2,
+    Team3v3 = 3,
+    Team5v5 = 5
 }

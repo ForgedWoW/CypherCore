@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetStopAttack : ClientPacket
 {
-	public ObjectGuid PetGUID;
-	public PetStopAttack(WorldPacket packet) : base(packet) { }
+    public ObjectGuid PetGUID;
+    public PetStopAttack(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PetGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        PetGUID = _worldPacket.ReadPackedGuid();
+    }
 }

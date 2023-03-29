@@ -11,21 +11,21 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(6201)] // 6201 - Create Healthstone
 internal class spell_warl_create_healthstone : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override bool Load()
-	{
-		return Caster.IsTypeId(TypeId.Player);
-	}
+    public override bool Load()
+    {
+        return Caster.IsTypeId(TypeId.Player);
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScriptEffect(int effIndex)
-	{
-		Caster.CastSpell(Caster, WarlockSpells.CREATE_HEALTHSTONE, true);
-	}
+    private void HandleScriptEffect(int effIndex)
+    {
+        Caster.CastSpell(Caster, WarlockSpells.CREATE_HEALTHSTONE, true);
+    }
 }

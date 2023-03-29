@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.Azerite;
 
 internal class PlayerAzeriteItemEquippedStatusChanged : ServerPacket
 {
-	public bool IsHeartEquipped;
-	public PlayerAzeriteItemEquippedStatusChanged() : base(ServerOpcodes.PlayerAzeriteItemEquippedStatusChanged) { }
+    public bool IsHeartEquipped;
+    public PlayerAzeriteItemEquippedStatusChanged() : base(ServerOpcodes.PlayerAzeriteItemEquippedStatusChanged) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(IsHeartEquipped);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBit(IsHeartEquipped);
+        _worldPacket.FlushBits();
+    }
 }

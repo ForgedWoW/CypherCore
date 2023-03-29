@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum ItemSubClassQuiver
 {
-	Quiver0 = 0, // Obsolete
-	Quiver1 = 1, // Obsolete
-	Quiver = 2,
-	AmmoPouch = 3,
-	Max = 4,
+    Quiver0 = 0, // Obsolete
+    Quiver1 = 1, // Obsolete
+    Quiver = 2,
+    AmmoPouch = 3,
+    Max = 4,
 }

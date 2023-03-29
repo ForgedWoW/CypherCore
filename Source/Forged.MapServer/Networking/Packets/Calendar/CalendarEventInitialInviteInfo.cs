@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarEventInitialInviteInfo
 {
-	public ObjectGuid InviteGuid;
-	public byte Level = 100;
+    public ObjectGuid InviteGuid;
+    public byte Level = 100;
 
-	public CalendarEventInitialInviteInfo(ObjectGuid inviteGuid, byte level)
-	{
-		InviteGuid = inviteGuid;
-		Level = level;
-	}
+    public CalendarEventInitialInviteInfo(ObjectGuid inviteGuid, byte level)
+    {
+        InviteGuid = inviteGuid;
+        Level = level;
+    }
 }

@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class GameObjectPlaySpellVisual : ServerPacket
 {
-	public ObjectGuid ObjectGUID;
-	public ObjectGuid ActivatorGUID;
-	public uint SpellVisualID;
-	public GameObjectPlaySpellVisual() : base(ServerOpcodes.GameObjectPlaySpellVisual) { }
+    public ObjectGuid ObjectGUID;
+    public ObjectGuid ActivatorGUID;
+    public uint SpellVisualID;
+    public GameObjectPlaySpellVisual() : base(ServerOpcodes.GameObjectPlaySpellVisual) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ObjectGUID);
-		_worldPacket.WritePackedGuid(ActivatorGUID);
-		_worldPacket.WriteUInt32(SpellVisualID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ObjectGUID);
+        _worldPacket.WritePackedGuid(ActivatorGUID);
+        _worldPacket.WriteUInt32(SpellVisualID);
+    }
 }

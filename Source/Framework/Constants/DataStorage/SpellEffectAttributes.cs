@@ -8,11 +8,11 @@ namespace Framework.Constants;
 [Flags]
 public enum SpellEffectAttributes
 {
-	None = 0,
-	UnaffectedByInvulnerability = 0x01, // not cancelled by immunities
-	NoScaleWithStack = 0x40,
-	ChainFromInitialTarget = 0x80,
-	StackAuraAmountOnRecast = 0x8000, // refreshing periodic auras with this attribute will add remaining damage to new aura
-	AllowAnyExplicitTarget = 0x100000,
-	IgnoreDuringCooldownTimeRateCalculation = 0x800000
+    None = 0,
+    UnaffectedByInvulnerability = 0x01, // not cancelled by immunities
+    NoScaleWithStack = 0x40,
+    ChainFromInitialTarget = 0x80,
+    StackAuraAmountOnRecast = 0x8000, // refreshing periodic auras with this attribute will add remaining damage to new aura
+    AllowAnyExplicitTarget = 0x100000,
+    IgnoreDuringCooldownTimeRateCalculation = 0x800000
 }

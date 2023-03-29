@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class SetSelection : ClientPacket
 {
-	public ObjectGuid Selection; // Target
-	public SetSelection(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Selection; // Target
+    public SetSelection(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Selection = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Selection = _worldPacket.ReadPackedGuid();
+    }
 }

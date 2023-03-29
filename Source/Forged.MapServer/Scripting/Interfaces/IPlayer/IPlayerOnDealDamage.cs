@@ -9,5 +9,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 
 public interface IPlayerOnDealDamage : IScriptObject, IClassRescriction
 {
-	void OnDamage(Player caster, Unit target, ref double damage, SpellInfo spellProto);
+    void OnDamage(Player caster, Unit target, ref double damage, SpellInfo spellProto);
 }

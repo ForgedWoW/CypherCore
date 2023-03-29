@@ -5,14 +5,14 @@ namespace Forged.MapServer.DataStorage.Structs.H;
 
 public sealed class HeirloomRecord
 {
-	public string SourceText;
-	public uint Id;
-	public uint ItemID;
-	public int LegacyUpgradedItemID;
-	public uint StaticUpgradedItemID;
-	public sbyte SourceTypeEnum;
-	public byte Flags;
-	public int LegacyItemID;
-	public int[] UpgradeItemID = new int[6];
-	public ushort[] UpgradeItemBonusListID = new ushort[6];
+    public string SourceText;
+    public uint Id;
+    public uint ItemID;
+    public int LegacyUpgradedItemID;
+    public uint StaticUpgradedItemID;
+    public sbyte SourceTypeEnum;
+    public byte Flags;
+    public int LegacyItemID;
+    public int[] UpgradeItemID = new int[6];
+    public ushort[] UpgradeItemBonusListID = new ushort[6];
 }

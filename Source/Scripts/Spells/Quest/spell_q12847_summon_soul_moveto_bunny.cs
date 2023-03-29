@@ -13,17 +13,17 @@ namespace Scripts.Spells.Quest;
 [Script] // 12601 - Second Chances: Summon Landgren's Soul Moveto Target Bunny
 internal class spell_q12847_summon_soul_moveto_bunny : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new DestinationTargetSelectHandler(SetDest, 0, Targets.DestCaster));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new DestinationTargetSelectHandler(SetDest, 0, Targets.DestCaster));
+    }
 
-	private void SetDest(SpellDestination dest)
-	{
-		// Adjust effect summon position
-		Position offset = new(0.0f, 0.0f, 2.5f, 0.0f);
-		dest.RelocateOffset(offset);
-	}
+    private void SetDest(SpellDestination dest)
+    {
+        // Adjust effect summon position
+        Position offset = new(0.0f, 0.0f, 2.5f, 0.0f);
+        dest.RelocateOffset(offset);
+    }
 }

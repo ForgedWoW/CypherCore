@@ -11,37 +11,37 @@ namespace Scripts.Spells.Mage;
 [Script] // 1449 - Arcane Explosion
 internal class spell_mage_arcane_explosion : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(CheckRequiredAuraForBaselineEnergize, 0, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new EffectHandler(HandleReverberate, 2, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(CheckRequiredAuraForBaselineEnergize, 0, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
+        SpellEffects.Add(new EffectHandler(HandleReverberate, 2, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void CheckRequiredAuraForBaselineEnergize(int effIndex)
-	{
-		if (GetUnitTargetCountForEffect(1) == 0 ||
-			!Caster.HasAura(MageSpells.ArcaneMage))
-			PreventHitDefaultEffect(effIndex);
-	}
+    private void CheckRequiredAuraForBaselineEnergize(int effIndex)
+    {
+        if (GetUnitTargetCountForEffect(1) == 0 ||
+            !Caster.HasAura(MageSpells.ArcaneMage))
+            PreventHitDefaultEffect(effIndex);
+    }
 
-	private void HandleReverberate(int effIndex)
-	{
-		var procTriggered = false;
+    private void HandleReverberate(int effIndex)
+    {
+        var procTriggered = false;
 
-		var caster = Caster;
-		var triggerChance = caster.GetAuraEffect(MageSpells.Reverberate, 0);
+        var caster = Caster;
+        var triggerChance = caster.GetAuraEffect(MageSpells.Reverberate, 0);
 
-		if (triggerChance != null)
-		{
-			var requiredTargets = caster.GetAuraEffect(MageSpells.Reverberate, 1);
+        if (triggerChance != null)
+        {
+            var requiredTargets = caster.GetAuraEffect(MageSpells.Reverberate, 1);
 
-			if (requiredTargets != null)
-				procTriggered = GetUnitTargetCountForEffect(1) >= requiredTargets.Amount && RandomHelper.randChance(triggerChance.Amount);
-		}
+            if (requiredTargets != null)
+                procTriggered = GetUnitTargetCountForEffect(1) >= requiredTargets.Amount && RandomHelper.randChance(triggerChance.Amount);
+        }
 
-		if (!procTriggered)
-			PreventHitDefaultEffect(effIndex);
-	}
+        if (!procTriggered)
+            PreventHitDefaultEffect(effIndex);
+    }
 }

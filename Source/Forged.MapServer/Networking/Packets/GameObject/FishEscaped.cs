@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class FishEscaped : ServerPacket
 {
-	public FishEscaped() : base(ServerOpcodes.FishEscaped) { }
+    public FishEscaped() : base(ServerOpcodes.FishEscaped) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

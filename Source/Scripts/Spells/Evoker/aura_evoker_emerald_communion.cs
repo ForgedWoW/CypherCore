@@ -13,17 +13,17 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.GREEN_EMERALD_COMMUNION)]
 internal class aura_evoker_emerald_communion : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 7, AuraType.PeriodicHeal));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 7, AuraType.PeriodicHeal));
+    }
 
-	private void CalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> recalculate)
-	{
-		recalculate.Value = false;
+    private void CalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> recalculate)
+    {
+        recalculate.Value = false;
 
-		amount.Value = (Caster.MaxHealth * (GetEffect(4).BaseAmount * 0.01)) / (Aura.Duration / aurEff.Period);
-	}
+        amount.Value = (Caster.MaxHealth * (GetEffect(4).BaseAmount * 0.01)) / (Aura.Duration / aurEff.Period);
+    }
 }

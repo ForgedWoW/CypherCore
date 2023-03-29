@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IFormula;
 
 public interface IFormulaOnColorCodeCaclculation : IScriptObject
 {
-	void OnColorCodeCalculation(XPColorChar color, uint playerLevel, uint mobLevel);
+    void OnColorCodeCalculation(XPColorChar color, uint playerLevel, uint mobLevel);
 }

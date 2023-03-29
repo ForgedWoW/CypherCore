@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum MovementWalkRunSpeedSelectionMode
 {
-	Default,
-	ForceRun,
-	ForceWalk
+    Default,
+    ForceRun,
+    ForceWalk
 };

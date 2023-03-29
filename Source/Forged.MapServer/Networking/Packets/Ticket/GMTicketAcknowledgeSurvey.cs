@@ -6,10 +6,10 @@ namespace Forged.MapServer.Networking.Packets.Ticket;
 public class GMTicketAcknowledgeSurvey : ClientPacket
 {
     private int CaseID;
-	public GMTicketAcknowledgeSurvey(WorldPacket packet) : base(packet) { }
+    public GMTicketAcknowledgeSurvey(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		CaseID = _worldPacket.ReadInt32();
-	}
+    public override void Read()
+    {
+        CaseID = _worldPacket.ReadInt32();
+    }
 }

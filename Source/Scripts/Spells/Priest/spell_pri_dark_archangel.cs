@@ -13,23 +13,23 @@ namespace Scripts.Spells.Priest;
 [SpellScript(197871)]
 public class spell_pri_dark_archangel : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 1, Targets.UnitDestAreaAlly));
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 1, Targets.UnitDestAreaAlly));
+        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		targets.Remove(Caster);
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(false, PriestSpells.ATONEMENT_AURA, Caster.GUID));
-	}
+    private void FilterTargets(List<WorldObject> targets)
+    {
+        targets.Remove(Caster);
+        targets.RemoveIf(new UnitAuraCheck<WorldObject>(false, PriestSpells.ATONEMENT_AURA, Caster.GUID));
+    }
 
-	private void HandleScriptEffect(int effIndex)
-	{
-		Caster.CastSpell(HitUnit, PriestSpells.DARK_ARCHANGEL_BUFF, true);
-	}
+    private void HandleScriptEffect(int effIndex)
+    {
+        Caster.CastSpell(HitUnit, PriestSpells.DARK_ARCHANGEL_BUFF, true);
+    }
 }

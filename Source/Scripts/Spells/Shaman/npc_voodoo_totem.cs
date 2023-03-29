@@ -12,10 +12,10 @@ namespace Scripts.Spells.Shaman;
 [CreatureScript(100099)]
 public class npc_voodoo_totem : ScriptedAI
 {
-	public npc_voodoo_totem(Creature creature) : base(creature) { }
+    public npc_voodoo_totem(Creature creature) : base(creature) { }
 
-	public override void Reset()
-	{
-		Me.CastSpell(null, TotemSpells.TOTEM_VOODOO_AT, true);
-	}
+    public override void Reset()
+    {
+        Me.CastSpell(null, TotemSpells.TOTEM_VOODOO_AT, true);
+    }
 }

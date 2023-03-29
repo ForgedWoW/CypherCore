@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Vehicle;
 
 public class MoveSetVehicleRecID : ServerPacket
 {
-	public ObjectGuid MoverGUID;
-	public uint SequenceIndex;
-	public uint VehicleRecID;
-	public MoveSetVehicleRecID() : base(ServerOpcodes.MoveSetVehicleRecId) { }
+    public ObjectGuid MoverGUID;
+    public uint SequenceIndex;
+    public uint VehicleRecID;
+    public MoveSetVehicleRecID() : base(ServerOpcodes.MoveSetVehicleRecId) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(MoverGUID);
-		_worldPacket.WriteUInt32(SequenceIndex);
-		_worldPacket.WriteUInt32(VehicleRecID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(MoverGUID);
+        _worldPacket.WriteUInt32(SequenceIndex);
+        _worldPacket.WriteUInt32(VehicleRecID);
+    }
 }

@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildDelete : ClientPacket
 {
-	public GuildDelete(WorldPacket packet) : base(packet) { }
+    public GuildDelete(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

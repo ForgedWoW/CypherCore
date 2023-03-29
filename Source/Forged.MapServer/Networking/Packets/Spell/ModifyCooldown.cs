@@ -7,18 +7,18 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class ModifyCooldown : ServerPacket
 {
-	public bool IsPet;
-	public bool WithoutCategoryCooldown;
-	public int DeltaTime;
-	public uint SpellID;
-	public ModifyCooldown() : base(ServerOpcodes.ModifyCooldown, ConnectionType.Instance) { }
+    public bool IsPet;
+    public bool WithoutCategoryCooldown;
+    public int DeltaTime;
+    public uint SpellID;
+    public ModifyCooldown() : base(ServerOpcodes.ModifyCooldown, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(SpellID);
-		_worldPacket.WriteInt32(DeltaTime);
-		_worldPacket.WriteBit(IsPet);
-		_worldPacket.WriteBit(WithoutCategoryCooldown);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(SpellID);
+        _worldPacket.WriteInt32(DeltaTime);
+        _worldPacket.WriteBit(IsPet);
+        _worldPacket.WriteBit(WithoutCategoryCooldown);
+        _worldPacket.FlushBits();
+    }
 }

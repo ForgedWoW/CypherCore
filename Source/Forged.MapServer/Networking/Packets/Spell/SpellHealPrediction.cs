@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellHealPrediction
 {
-	public ObjectGuid BeaconGUID;
-	public uint Points;
-	public byte Type;
+    public ObjectGuid BeaconGUID;
+    public uint Points;
+    public byte Type;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(Points);
-		data.WriteUInt8(Type);
-		data.WritePackedGuid(BeaconGUID);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(Points);
+        data.WriteUInt8(Type);
+        data.WritePackedGuid(BeaconGUID);
+    }
 }

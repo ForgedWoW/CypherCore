@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class DismissCritter : ClientPacket
 {
-	public ObjectGuid CritterGUID;
-	public DismissCritter(WorldPacket packet) : base(packet) { }
+    public ObjectGuid CritterGUID;
+    public DismissCritter(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		CritterGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        CritterGUID = _worldPacket.ReadPackedGuid();
+    }
 }
 
 //Structs

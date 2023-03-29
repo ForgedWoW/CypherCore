@@ -8,15 +8,15 @@ namespace Forged.MapServer.Spells;
 
 public class ItemTargetInfo : TargetInfoBase
 {
-	public Item TargetItem;
+    public Item TargetItem;
 
-	public override void DoTargetSpellHit(Spell spell, SpellEffectInfo spellEffectInfo)
-	{
-		spell.CallScriptBeforeHitHandlers(SpellMissInfo.None);
+    public override void DoTargetSpellHit(Spell spell, SpellEffectInfo spellEffectInfo)
+    {
+        spell.CallScriptBeforeHitHandlers(SpellMissInfo.None);
 
-		spell.HandleEffects(null, TargetItem, null, null, spellEffectInfo, SpellEffectHandleMode.HitTarget);
+        spell.HandleEffects(null, TargetItem, null, null, spellEffectInfo, SpellEffectHandleMode.HitTarget);
 
-		spell.CallScriptOnHitHandlers();
-		spell.CallScriptAfterHitHandlers();
-	}
+        spell.CallScriptOnHitHandlers();
+        spell.CallScriptAfterHitHandlers();
+    }
 }

@@ -9,21 +9,21 @@ namespace Scripts.EasternKingdoms.Deadmines.Spells;
 [SpellScript(89268, 89740, 90561, 90562, 90563, 90564, 90565, 90582, 90583, 90584, 90585, 90586)]
 public class spell_captain_cookie_throw_food_targeting : SpellScript, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		if (!Caster || !HitUnit)
-			return;
+    public void AfterHit()
+    {
+        if (!Caster || !HitUnit)
+            return;
 
-		uint spellId = 0;
+        uint spellId = 0;
 
-		var spellInfo = SpellInfo;
+        var spellInfo = SpellInfo;
 
-		if (spellInfo != null)
-			spellId = (uint)spellInfo.GetEffect(0).BasePoints;
+        if (spellInfo != null)
+            spellId = (uint)spellInfo.GetEffect(0).BasePoints;
 
-		if (Global.SpellMgr.GetSpellInfo(spellId, CastDifficulty) != null)
-			return;
+        if (Global.SpellMgr.GetSpellInfo(spellId, CastDifficulty) != null)
+            return;
 
-		Caster.CastSpell(HitUnit, spellId);
-	}
+        Caster.CastSpell(HitUnit, spellId);
+    }
 }

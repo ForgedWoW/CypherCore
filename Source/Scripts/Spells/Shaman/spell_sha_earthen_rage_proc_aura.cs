@@ -13,30 +13,30 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(170377)]
 internal class spell_sha_earthen_rage_proc_aura : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
+    }
 
-	private void HandleEffectPeriodic(AuraEffect aurEff)
-	{
-		PreventDefaultAction();
-		var aura = Caster.GetAura(ShamanSpells.EarthenRagePassive);
+    private void HandleEffectPeriodic(AuraEffect aurEff)
+    {
+        PreventDefaultAction();
+        var aura = Caster.GetAura(ShamanSpells.EarthenRagePassive);
 
-		if (aura != null)
-		{
-			var earthen_rage_script = aura.GetScript<spell_sha_earthen_rage_passive>();
+        if (aura != null)
+        {
+            var earthen_rage_script = aura.GetScript<spell_sha_earthen_rage_passive>();
 
-			if (earthen_rage_script != null)
-			{
-				var procTarget = Global.ObjAccessor.GetUnit(Caster, earthen_rage_script.GetProcTargetGuid());
+            if (earthen_rage_script != null)
+            {
+                var procTarget = Global.ObjAccessor.GetUnit(Caster, earthen_rage_script.GetProcTargetGuid());
 
-				if (procTarget)
-					Target.CastSpell(procTarget, ShamanSpells.EarthenRageDamage, true);
-			}
-		}
-	}
+                if (procTarget)
+                    Target.CastSpell(procTarget, ShamanSpells.EarthenRageDamage, true);
+            }
+        }
+    }
 }

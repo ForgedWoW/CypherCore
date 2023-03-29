@@ -10,26 +10,26 @@ public class SQLQueryHolderCallback<R> : ISqlCallback
     private readonly SQLQueryHolderTask<R> _future;
     private Action<SQLQueryHolder<R>> _callback;
 
-	public SQLQueryHolderCallback(SQLQueryHolderTask<R> future)
-	{
-		_future = future;
-	}
+    public SQLQueryHolderCallback(SQLQueryHolderTask<R> future)
+    {
+        _future = future;
+    }
 
-	public bool InvokeIfReady()
-	{
-		return _callback == null;
-	}
+    public bool InvokeIfReady()
+    {
+        return _callback == null;
+    }
 
-	public void AfterComplete(Action<SQLQueryHolder<R>> callback)
-	{
-		_callback = callback;
-	}
+    public void AfterComplete(Action<SQLQueryHolder<R>> callback)
+    {
+        _callback = callback;
+    }
 
-	public virtual void QueryExecuted(bool success)
-	{
-		if (success && _future.QueryResults != null)
-			_callback(_future.QueryResults);
+    public virtual void QueryExecuted(bool success)
+    {
+        if (success && _future.QueryResults != null)
+            _callback(_future.QueryResults);
 
-		_callback = null;
-	}
+        _callback = null;
+    }
 }

@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class GameObjectDespawn : ServerPacket
 {
-	public ObjectGuid ObjectGUID;
-	public GameObjectDespawn() : base(ServerOpcodes.GameObjectDespawn) { }
+    public ObjectGuid ObjectGUID;
+    public GameObjectDespawn() : base(ServerOpcodes.GameObjectDespawn) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ObjectGUID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ObjectGUID);
+    }
 }

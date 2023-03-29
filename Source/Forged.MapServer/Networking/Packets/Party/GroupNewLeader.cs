@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class GroupNewLeader : ServerPacket
 {
-	public sbyte PartyIndex;
-	public string Name;
-	public GroupNewLeader() : base(ServerOpcodes.GroupNewLeader) { }
+    public sbyte PartyIndex;
+    public string Name;
+    public GroupNewLeader() : base(ServerOpcodes.GroupNewLeader) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt8(PartyIndex);
-		_worldPacket.WriteBits(Name.GetByteCount(), 9);
-		_worldPacket.WriteString(Name);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt8(PartyIndex);
+        _worldPacket.WriteBits(Name.GetByteCount(), 9);
+        _worldPacket.WriteString(Name);
+    }
 }

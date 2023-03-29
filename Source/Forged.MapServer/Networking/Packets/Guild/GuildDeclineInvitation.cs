@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildDeclineInvitation : ClientPacket
 {
-	public GuildDeclineInvitation(WorldPacket packet) : base(packet) { }
+    public GuildDeclineInvitation(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

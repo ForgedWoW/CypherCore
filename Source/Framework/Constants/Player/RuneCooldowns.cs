@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public struct RuneCooldowns
 {
-	public const int Base = 10000;
-	public const int Miss = 1500; // cooldown applied on runes when the spell misses
+    public const int Base = 10000;
+    public const int Miss = 1500; // cooldown applied on runes when the spell misses
 }

@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraOnUpdate : IAuraScript
 {
-	void AuraOnUpdate(uint diff);
+    void AuraOnUpdate(uint diff);
 }

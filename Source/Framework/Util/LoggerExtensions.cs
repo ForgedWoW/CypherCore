@@ -3,13 +3,12 @@
 
 using System;
 
-namespace Serilog
+namespace Serilog;
+
+public static class LoggerExtensions
 {
-    public static class LoggerExtensions
+    public static void Error(this ILogger logger, Exception ex)
     {
-        public static void Error(this ILogger logger, Exception ex)
-        {
-            logger.Error(ex, string.Empty);
-        }
+        logger.Error(ex, string.Empty);
     }
 }

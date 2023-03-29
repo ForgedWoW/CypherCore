@@ -5,18 +5,18 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal struct GarrisonRemoteBuildingInfo
 {
-	public GarrisonRemoteBuildingInfo(uint plotInstanceId, uint buildingId)
-	{
-		GarrPlotInstanceID = plotInstanceId;
-		GarrBuildingID = buildingId;
-	}
+    public GarrisonRemoteBuildingInfo(uint plotInstanceId, uint buildingId)
+    {
+        GarrPlotInstanceID = plotInstanceId;
+        GarrBuildingID = buildingId;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(GarrPlotInstanceID);
-		data.WriteUInt32(GarrBuildingID);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(GarrPlotInstanceID);
+        data.WriteUInt32(GarrBuildingID);
+    }
 
-	public uint GarrPlotInstanceID;
-	public uint GarrBuildingID;
+    public uint GarrPlotInstanceID;
+    public uint GarrBuildingID;
 }

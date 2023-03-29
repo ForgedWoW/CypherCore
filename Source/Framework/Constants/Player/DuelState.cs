@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum DuelState
 {
-	Challenged,
-	Countdown,
-	InProgress,
-	Completed
+    Challenged,
+    Countdown,
+    InProgress,
+    Completed
 }

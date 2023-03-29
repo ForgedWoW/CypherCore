@@ -9,21 +9,21 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(19574)]
 public class spell_hun_bestial_wrath : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var player = caster.AsPlayer;
+        if (caster != null)
+        {
+            var player = caster.AsPlayer;
 
-			if (player != null)
-			{
-				var pet = player.CurrentPet;
+            if (player != null)
+            {
+                var pet = player.CurrentPet;
 
-				if (pet != null)
-					pet.AddAura(19574, pet);
-			}
-		}
-	}
+                if (pet != null)
+                    pet.AddAura(19574, pet);
+            }
+        }
+    }
 }

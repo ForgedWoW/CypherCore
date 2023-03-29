@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum AchievementFaction : sbyte
 {
-	Horde = 0,
-	Alliance = 1,
-	Any = -1,
+    Horde = 0,
+    Alliance = 1,
+    Any = -1,
 }

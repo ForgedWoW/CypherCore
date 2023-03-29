@@ -12,19 +12,19 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(201845)]
 public class spell_sha_stormbringer : AuraScript, IAuraCheckProc, IAuraOnProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.DamageInfo.AttackType == WeaponAttackType.BaseAttack;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.DamageInfo.AttackType == WeaponAttackType.BaseAttack;
+    }
 
-	public void OnProc(ProcEventInfo info)
-	{
-		var caster = Caster;
+    public void OnProc(ProcEventInfo info)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			caster.CastSpell(caster, ShamanSpells.STORMBRINGER_PROC, true);
-			caster.SpellHistory.ResetCooldown(ShamanSpells.STORMSTRIKE, true);
-		}
-	}
+        if (caster != null)
+        {
+            caster.CastSpell(caster, ShamanSpells.STORMBRINGER_PROC, true);
+            caster.SpellHistory.ResetCooldown(ShamanSpells.STORMSTRIKE, true);
+        }
+    }
 }

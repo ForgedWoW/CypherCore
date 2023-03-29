@@ -13,15 +13,15 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 55233 - Vampiric Blood
 internal class spell_dk_vampiric_blood : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.ModIncreaseHealth2));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.ModIncreaseHealth2));
+    }
 
-	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		amount.Value = OwnerAsUnit.CountPctFromMaxHealth(amount);
-	}
+    private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        amount.Value = OwnerAsUnit.CountPctFromMaxHealth(amount);
+    }
 }

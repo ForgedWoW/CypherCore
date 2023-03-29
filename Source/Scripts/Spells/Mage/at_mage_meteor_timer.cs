@@ -12,39 +12,39 @@ namespace Scripts.Spells.Mage;
 [Script]
 public class at_mage_meteor_timer : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnRemove
 {
-	public void OnCreate()
-	{
-		var caster = At.GetCaster();
+    public void OnCreate()
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var tempSumm = caster.SummonCreature(12999, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(5));
+        var tempSumm = caster.SummonCreature(12999, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(5));
 
-		if (tempSumm != null)
-		{
-			tempSumm.Faction = caster.Faction;
-			tempSumm.SetSummonerGUID(caster.GUID);
-			PhasingHandler.InheritPhaseShift(tempSumm, caster);
-			caster.CastSpell(tempSumm, MageSpells.METEOR_VISUAL, true);
-		}
-	}
+        if (tempSumm != null)
+        {
+            tempSumm.Faction = caster.Faction;
+            tempSumm.SetSummonerGUID(caster.GUID);
+            PhasingHandler.InheritPhaseShift(tempSumm, caster);
+            caster.CastSpell(tempSumm, MageSpells.METEOR_VISUAL, true);
+        }
+    }
 
-	public void OnRemove()
-	{
-		var caster = At.GetCaster();
+    public void OnRemove()
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var tempSumm = caster.SummonCreature(12999, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(5));
+        var tempSumm = caster.SummonCreature(12999, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(5));
 
-		if (tempSumm != null)
-		{
-			tempSumm.Faction = caster.Faction;
-			tempSumm.SetSummonerGUID(caster.GUID);
-			PhasingHandler.InheritPhaseShift(tempSumm, caster);
-			caster.CastSpell(tempSumm, MageSpells.METEOR_DAMAGE, true);
-		}
-	}
+        if (tempSumm != null)
+        {
+            tempSumm.Faction = caster.Faction;
+            tempSumm.SetSummonerGUID(caster.GUID);
+            PhasingHandler.InheritPhaseShift(tempSumm, caster);
+            caster.CastSpell(tempSumm, MageSpells.METEOR_DAMAGE, true);
+        }
+    }
 }

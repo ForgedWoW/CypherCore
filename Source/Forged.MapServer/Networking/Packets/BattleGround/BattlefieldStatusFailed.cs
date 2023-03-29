@@ -9,17 +9,17 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class BattlefieldStatusFailed : ServerPacket
 {
-	public ulong QueueID;
-	public ObjectGuid ClientID;
-	public int Reason;
-	public RideTicket Ticket = new();
-	public BattlefieldStatusFailed() : base(ServerOpcodes.BattlefieldStatusFailed) { }
+    public ulong QueueID;
+    public ObjectGuid ClientID;
+    public int Reason;
+    public RideTicket Ticket = new();
+    public BattlefieldStatusFailed() : base(ServerOpcodes.BattlefieldStatusFailed) { }
 
-	public override void Write()
-	{
-		Ticket.Write(_worldPacket);
-		_worldPacket.WriteUInt64(QueueID);
-		_worldPacket.WriteInt32(Reason);
-		_worldPacket.WritePackedGuid(ClientID);
-	}
+    public override void Write()
+    {
+        Ticket.Write(_worldPacket);
+        _worldPacket.WriteUInt64(QueueID);
+        _worldPacket.WriteInt32(Reason);
+        _worldPacket.WritePackedGuid(ClientID);
+    }
 }

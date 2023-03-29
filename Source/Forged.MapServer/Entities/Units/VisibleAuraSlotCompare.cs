@@ -8,8 +8,8 @@ namespace Forged.MapServer.Entities.Units;
 
 internal class VisibleAuraSlotCompare : IComparer<AuraApplication>
 {
-	public int Compare(AuraApplication x, AuraApplication y)
-	{
-		return x.Slot.CompareTo(y.Slot);
-	}
+    public int Compare(AuraApplication x, AuraApplication y)
+    {
+        return x.Slot.CompareTo(y.Slot);
+    }
 }

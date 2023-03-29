@@ -14,31 +14,31 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(207778)]
 internal class spell_sha_downpour : SpellScript, ISpellAfterCast, ISpellAfterHit, IHasSpellEffects
 {
-	private int _healedTargets = 0;
+    private int _healedTargets = 0;
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public void AfterCast()
-	{
-		var cooldown = TimeSpan.FromMilliseconds(SpellInfo.RecoveryTime) + TimeSpan.FromSeconds(GetEffectInfo(1).CalcValue() * _healedTargets);
-		Caster.SpellHistory.StartCooldown(SpellInfo, 0, Spell, false, cooldown);
-	}
+    public void AfterCast()
+    {
+        var cooldown = TimeSpan.FromMilliseconds(SpellInfo.RecoveryTime) + TimeSpan.FromSeconds(GetEffectInfo(1).CalcValue() * _healedTargets);
+        Caster.SpellHistory.StartCooldown(SpellInfo, 0, Spell, false, cooldown);
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
+    }
 
-	public void AfterHit()
-	{
-		// Cooldown increased for each Target effectively healed
-		if (HitHeal != 0)
-			++_healedTargets;
-	}
+    public void AfterHit()
+    {
+        // Cooldown increased for each Target effectively healed
+        if (HitHeal != 0)
+            ++_healedTargets;
+    }
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		SelectRandomInjuredTargets(targets, 6, true);
-	}
+    private void FilterTargets(List<WorldObject> targets)
+    {
+        SelectRandomInjuredTargets(targets, 6, true);
+    }
 }

@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IMap;
 
 public interface IMapOnDestroy<T> : IScriptObject where T : Map
 {
-	void OnDestroy(T map);
+    void OnDestroy(T map);
 }

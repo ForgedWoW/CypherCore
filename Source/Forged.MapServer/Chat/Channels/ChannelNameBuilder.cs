@@ -14,31 +14,31 @@ internal class ChannelNameBuilder : MessageBuilder
     private readonly Channel _source;
     private readonly IChannelAppender _modifier;
 
-	public ChannelNameBuilder(Channel source, IChannelAppender modifier)
-	{
-		_source = source;
-		_modifier = modifier;
-	}
+    public ChannelNameBuilder(Channel source, IChannelAppender modifier)
+    {
+        _source = source;
+        _modifier = modifier;
+    }
 
-	public override PacketSenderOwning<ChannelNotify> Invoke(Locale locale = Locale.enUS)
-	{
-		// LocalizedPacketDo sends client DBC locale, we need to get available to server locale
-		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+    public override PacketSenderOwning<ChannelNotify> Invoke(Locale locale = Locale.enUS)
+    {
+        // LocalizedPacketDo sends client DBC locale, we need to get available to server locale
+        var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
-		PacketSenderOwning<ChannelNotify> sender = new()
-		{
-			Data =
-			{
-				Type = _modifier.GetNotificationType(),
-				Channel = _source.GetName(localeIdx)
-			}
-		};
+        PacketSenderOwning<ChannelNotify> sender = new()
+        {
+            Data =
+            {
+                Type = _modifier.GetNotificationType(),
+                Channel = _source.GetName(localeIdx)
+            }
+        };
 
-		_modifier.Append(sender.Data);
-		sender.Data.Write();
+        _modifier.Append(sender.Data);
+        sender.Data.Write();
 
-		return sender;
-	}
+        return sender;
+    }
 }
 
 //Appenders

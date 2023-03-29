@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IConversation;
 
 public interface IConversationOnConversationLineStarted : IScriptObject
 {
-	void OnConversationLineStarted(Conversation conversation, uint lineId, Player sender);
+    void OnConversationLineStarted(Conversation conversation, uint lineId, Player sender);
 }

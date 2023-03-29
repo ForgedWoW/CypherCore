@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class DungeonDifficultySet : ServerPacket
 {
-	public int DifficultyID;
-	public DungeonDifficultySet() : base(ServerOpcodes.SetDungeonDifficulty) { }
+    public int DifficultyID;
+    public DungeonDifficultySet() : base(ServerOpcodes.SetDungeonDifficulty) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(DifficultyID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(DifficultyID);
+    }
 }

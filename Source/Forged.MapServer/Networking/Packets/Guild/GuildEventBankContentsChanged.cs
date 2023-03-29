@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventBankContentsChanged : ServerPacket
 {
-	public GuildEventBankContentsChanged() : base(ServerOpcodes.GuildEventBankContentsChanged) { }
+    public GuildEventBankContentsChanged() : base(ServerOpcodes.GuildEventBankContentsChanged) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

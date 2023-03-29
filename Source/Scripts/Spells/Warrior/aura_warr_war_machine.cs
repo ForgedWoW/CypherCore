@@ -13,27 +13,27 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(215556)]
 public class aura_warr_war_machine : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ProcTriggerSpell, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ProcTriggerSpell, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ProcTriggerSpell, AuraEffectHandleModes.Real));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ProcTriggerSpell, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			caster.CastSpell(caster, WarriorSpells.WAR_MACHINE_AURA, true);
-	}
+        if (caster != null)
+            caster.CastSpell(caster, WarriorSpells.WAR_MACHINE_AURA, true);
+    }
 
-	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			caster.RemoveAura(WarriorSpells.WAR_MACHINE_AURA);
-	}
+        if (caster != null)
+            caster.RemoveAura(WarriorSpells.WAR_MACHINE_AURA);
+    }
 }

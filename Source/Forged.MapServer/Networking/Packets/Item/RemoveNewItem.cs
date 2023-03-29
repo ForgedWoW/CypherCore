@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class RemoveNewItem : ClientPacket
 {
-	public ObjectGuid ItemGuid { get; set; }
-	public RemoveNewItem(WorldPacket packet) : base(packet) { }
+    public ObjectGuid ItemGuid { get; set; }
+    public RemoveNewItem(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ItemGuid = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        ItemGuid = _worldPacket.ReadPackedGuid();
+    }
 }

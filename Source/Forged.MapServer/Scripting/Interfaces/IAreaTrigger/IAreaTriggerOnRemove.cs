@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 public interface IAreaTriggerOnRemove : IAreaTriggerScript
 {
-	public void OnRemove();
+    public void OnRemove();
 }

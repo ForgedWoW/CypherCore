@@ -13,29 +13,29 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(196912)]
 public class spell_rog_shadow_techniques_AuraScript : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.DamageInfo.AttackType == WeaponAttackType.BaseAttack)
-			return true;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.DamageInfo.AttackType == WeaponAttackType.BaseAttack)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (RandomHelper.randChance(40))
-			caster.CastSpell(caster, RogueSpells.SHADOW_TENCHNIQUES_POWER, true);
-	}
+        if (RandomHelper.randChance(40))
+            caster.CastSpell(caster, RogueSpells.SHADOW_TENCHNIQUES_POWER, true);
+    }
 }

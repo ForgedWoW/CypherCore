@@ -13,38 +13,38 @@ namespace Scripts.Spells.Priest;
 [Script] // 41635 - Prayer of Mending (Aura) - PRAYER_OF_MENDING_AURA
 internal class spell_pri_prayer_of_mending_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleHeal, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleHeal, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleHeal(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		// Caster: player (priest) that cast the Prayer of Mending
-		// Target: player that currently has Prayer of Mending aura on him
-		var target = Target;
-		var caster = Caster;
+    private void HandleHeal(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        // Caster: player (priest) that cast the Prayer of Mending
+        // Target: player that currently has Prayer of Mending aura on him
+        var target = Target;
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			// Cast the spell to heal the owner
-			caster.CastSpell(target, PriestSpells.PRAYER_OF_MENDING_HEAL, new CastSpellExtraArgs(aurEff));
+        if (caster != null)
+        {
+            // Cast the spell to heal the owner
+            caster.CastSpell(target, PriestSpells.PRAYER_OF_MENDING_HEAL, new CastSpellExtraArgs(aurEff));
 
-			// Only cast Jump if stack is higher than 0
-			int stackAmount = StackAmount;
+            // Only cast Jump if stack is higher than 0
+            int stackAmount = StackAmount;
 
-			if (stackAmount > 1)
-			{
-				CastSpellExtraArgs args = new(aurEff);
-				args.OriginalCaster = caster.GUID;
-				args.AddSpellMod(SpellValueMod.BasePoint0, stackAmount - 1);
-				target.CastSpell(target, PriestSpells.PRAYER_OF_MENDING_JUMP, args);
-			}
+            if (stackAmount > 1)
+            {
+                CastSpellExtraArgs args = new(aurEff);
+                args.OriginalCaster = caster.GUID;
+                args.AddSpellMod(SpellValueMod.BasePoint0, stackAmount - 1);
+                target.CastSpell(target, PriestSpells.PRAYER_OF_MENDING_JUMP, args);
+            }
 
-			Remove();
-		}
-	}
+            Remove();
+        }
+    }
 }

@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class SetFactionInactive : ClientPacket
 {
-	public uint Index;
-	public bool State;
-	public SetFactionInactive(WorldPacket packet) : base(packet) { }
+    public uint Index;
+    public bool State;
+    public SetFactionInactive(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Index = _worldPacket.ReadUInt32();
-		State = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        Index = _worldPacket.ReadUInt32();
+        State = _worldPacket.HasBit();
+    }
 }

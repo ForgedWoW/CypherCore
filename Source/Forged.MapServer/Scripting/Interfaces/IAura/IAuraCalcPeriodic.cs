@@ -10,20 +10,20 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraCalcPeriodic : IAuraEffectHandler
 {
-	void CalcPeriodic(AuraEffect aura, BoxedValue<bool> isPeriodic, BoxedValue<int> amplitude);
+    void CalcPeriodic(AuraEffect aura, BoxedValue<bool> isPeriodic, BoxedValue<int> amplitude);
 }
 
 public class AuraEffectCalcPeriodicHandler : AuraEffectHandler, IAuraCalcPeriodic
 {
-	private readonly Action<AuraEffect, BoxedValue<bool>, BoxedValue<int>> _fn;
+    private readonly Action<AuraEffect, BoxedValue<bool>, BoxedValue<int>> _fn;
 
-	public AuraEffectCalcPeriodicHandler(Action<AuraEffect, BoxedValue<bool>, BoxedValue<int>> fn, int effectIndex, AuraType auraType) : base(effectIndex, auraType, AuraScriptHookType.EffectCalcPeriodic)
-	{
-		_fn = fn;
-	}
+    public AuraEffectCalcPeriodicHandler(Action<AuraEffect, BoxedValue<bool>, BoxedValue<int>> fn, int effectIndex, AuraType auraType) : base(effectIndex, auraType, AuraScriptHookType.EffectCalcPeriodic)
+    {
+        _fn = fn;
+    }
 
-	public void CalcPeriodic(AuraEffect aura, BoxedValue<bool> isPeriodic, BoxedValue<int> amplitude)
-	{
-		_fn(aura, isPeriodic, amplitude);
-	}
+    public void CalcPeriodic(AuraEffect aura, BoxedValue<bool> isPeriodic, BoxedValue<int> amplitude)
+    {
+        _fn(aura, isPeriodic, amplitude);
+    }
 }

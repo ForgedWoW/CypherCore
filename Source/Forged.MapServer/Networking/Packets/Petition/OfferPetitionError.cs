@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class OfferPetitionError : ServerPacket
 {
-	public ObjectGuid PlayerGUID;
-	public OfferPetitionError() : base(ServerOpcodes.OfferPetitionError) { }
+    public ObjectGuid PlayerGUID;
+    public OfferPetitionError() : base(ServerOpcodes.OfferPetitionError) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(PlayerGUID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(PlayerGUID);
+    }
 }

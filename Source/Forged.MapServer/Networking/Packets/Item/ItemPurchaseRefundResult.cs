@@ -8,19 +8,19 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class ItemPurchaseRefundResult : ServerPacket
 {
-	public byte Result;
-	public ObjectGuid ItemGUID;
-	public ItemPurchaseContents Contents;
-	public ItemPurchaseRefundResult() : base(ServerOpcodes.ItemPurchaseRefundResult, ConnectionType.Instance) { }
+    public byte Result;
+    public ObjectGuid ItemGUID;
+    public ItemPurchaseContents Contents;
+    public ItemPurchaseRefundResult() : base(ServerOpcodes.ItemPurchaseRefundResult, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ItemGUID);
-		_worldPacket.WriteUInt8(Result);
-		_worldPacket.WriteBit(Contents != null);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ItemGUID);
+        _worldPacket.WriteUInt8(Result);
+        _worldPacket.WriteBit(Contents != null);
+        _worldPacket.FlushBits();
 
-		if (Contents != null)
-			Contents.Write(_worldPacket);
-	}
+        if (Contents != null)
+            Contents.Write(_worldPacket);
+    }
 }

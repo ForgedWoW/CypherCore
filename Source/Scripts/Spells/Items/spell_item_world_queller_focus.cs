@@ -12,16 +12,16 @@ namespace Scripts.Spells.Items;
 [Script] // 90900 - World-Queller Focus
 internal class spell_item_world_queller_focus : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ProcTriggerSpell, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ProcTriggerSpell, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void OnRemove(AuraEffect effect, AuraEffectHandleModes mode)
-	{
-		Target.RemoveAura(effect.GetSpellEffectInfo().TriggerSpell);
-	}
+    private void OnRemove(AuraEffect effect, AuraEffectHandleModes mode)
+    {
+        Target.RemoveAura(effect.GetSpellEffectInfo().TriggerSpell);
+    }
 }

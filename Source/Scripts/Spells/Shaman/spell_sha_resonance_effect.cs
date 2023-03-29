@@ -13,21 +13,21 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(202192)]
 public class spell_sha_resonance_effect : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicEnergize));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicEnergize));
+    }
 
-	private void HandlePeriodic(AuraEffect UnnamedParameter)
-	{
-		var caster = Caster;
+    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (caster.OwnerUnit)
-			caster.OwnerUnit.ModifyPower(PowerType.Maelstrom, +1);
-	}
+        if (caster.OwnerUnit)
+            caster.OwnerUnit.ModifyPower(PowerType.Maelstrom, +1);
+    }
 }

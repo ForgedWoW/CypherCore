@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class CloseInteraction : ClientPacket
 {
-	public ObjectGuid SourceGuid;
-	public CloseInteraction(WorldPacket packet) : base(packet) { }
+    public ObjectGuid SourceGuid;
+    public CloseInteraction(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		SourceGuid = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        SourceGuid = _worldPacket.ReadPackedGuid();
+    }
 }

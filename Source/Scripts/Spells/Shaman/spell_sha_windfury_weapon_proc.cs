@@ -14,19 +14,19 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(319773)]
 internal class spell_sha_windfury_weapon_proc : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		for (uint i = 0; i < 2; ++i)
-			eventInfo.Actor.CastSpell(eventInfo.ProcTarget, ShamanSpells.WindfuryAttack, new CastSpellExtraArgs(aurEff));
-	}
+        for (uint i = 0; i < 2; ++i)
+            eventInfo.Actor.CastSpell(eventInfo.ProcTarget, ShamanSpells.WindfuryAttack, new CastSpellExtraArgs(aurEff));
+    }
 }

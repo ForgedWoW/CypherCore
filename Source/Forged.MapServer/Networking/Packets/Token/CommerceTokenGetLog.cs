@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Token;
 
 internal class CommerceTokenGetLog : ClientPacket
 {
-	public uint UnkInt;
-	public CommerceTokenGetLog(WorldPacket packet) : base(packet) { }
+    public uint UnkInt;
+    public CommerceTokenGetLog(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		UnkInt = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        UnkInt = _worldPacket.ReadUInt32();
+    }
 }

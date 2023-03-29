@@ -8,7 +8,7 @@ namespace Forged.MapServer.Spells;
 
 public class SpellFlatModifierByLabel : SpellModifier
 {
-	public SpellFlatModByLabel Value = new();
+    public SpellFlatModByLabel Value = new();
 
-	public SpellFlatModifierByLabel(Aura ownerAura) : base(ownerAura) { }
+    public SpellFlatModifierByLabel(Aura ownerAura) : base(ownerAura) { }
 }

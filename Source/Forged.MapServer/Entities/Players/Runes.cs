@@ -8,27 +8,27 @@ namespace Forged.MapServer.Entities.Players;
 
 public class Runes
 {
-	public List<byte> CooldownOrder { get; set; } = new();
-	public uint[] Cooldown { get; set; } = new uint[PlayerConst.MaxRunes];
-	public byte RuneState { get; set; } // mask of available runes
+    public List<byte> CooldownOrder { get; set; } = new();
+    public uint[] Cooldown { get; set; } = new uint[PlayerConst.MaxRunes];
+    public byte RuneState { get; set; } // mask of available runes
 
-	public void SetRuneState(byte index, bool set = true)
-	{
-		var foundRune = CooldownOrder.Contains(index);
+    public void SetRuneState(byte index, bool set = true)
+    {
+        var foundRune = CooldownOrder.Contains(index);
 
-		if (set)
-		{
-			RuneState |= (byte)(1 << index); // usable
+        if (set)
+        {
+            RuneState |= (byte)(1 << index); // usable
 
-			if (foundRune)
-				CooldownOrder.Remove(index);
-		}
-		else
-		{
-			RuneState &= (byte)~(1 << index); // on cooldown
+            if (foundRune)
+                CooldownOrder.Remove(index);
+        }
+        else
+        {
+            RuneState &= (byte)~(1 << index); // on cooldown
 
-			if (!foundRune)
-				CooldownOrder.Add(index);
-		}
-	}
+            if (!foundRune)
+                CooldownOrder.Add(index);
+        }
+    }
 }

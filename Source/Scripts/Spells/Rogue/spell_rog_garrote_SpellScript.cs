@@ -10,23 +10,23 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(703)]
 public class spell_rog_garrote_SpellScript : SpellScript, ISpellOnHit
 {
-	private bool _stealthed;
+    private bool _stealthed;
 
 
-	public override bool Load()
-	{
-		if (Caster.HasAuraType(AuraType.ModStealth))
-			_stealthed = true;
+    public override bool Load()
+    {
+        if (Caster.HasAuraType(AuraType.ModStealth))
+            _stealthed = true;
 
-		return true;
-	}
+        return true;
+    }
 
-	public void OnHit()
-	{
-		var caster = Caster;
-		var target = ExplTargetUnit;
+    public void OnHit()
+    {
+        var caster = Caster;
+        var target = ExplTargetUnit;
 
-		if (_stealthed)
-			caster.CastSpell(target, RogueSpells.GARROTE_SILENCE, true);
-	}
+        if (_stealthed)
+            caster.CastSpell(target, RogueSpells.GARROTE_SILENCE, true);
+    }
 }

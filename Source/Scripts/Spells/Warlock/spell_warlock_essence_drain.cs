@@ -14,46 +14,46 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(221711)]
 public class spell_warlock_essence_drain : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.Dummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.Dummy));
+    }
 
-	private void PeriodicTick(AuraEffect UnnamedParameter)
-	{
-		var caster = Caster;
-		var target = OwnerAsUnit;
+    private void PeriodicTick(AuraEffect UnnamedParameter)
+    {
+        var caster = Caster;
+        var target = OwnerAsUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (caster.HasAura(WarlockSpells.ESSENCE_DRAIN))
-			caster.CastSpell(target, WarlockSpells.ESSENCE_DRAIN_DEBUFF, true);
+        if (caster.HasAura(WarlockSpells.ESSENCE_DRAIN))
+            caster.CastSpell(target, WarlockSpells.ESSENCE_DRAIN_DEBUFF, true);
 
-		var durationBonus = caster.GetAuraEffectAmount(WarlockSpells.ROT_AND_DECAY, 0);
+        var durationBonus = caster.GetAuraEffectAmount(WarlockSpells.ROT_AND_DECAY, 0);
 
-		if (durationBonus != 0)
-		{
-			var dots = new List<uint>()
-			{
-				(uint)WarlockSpells.AGONY,
-				(uint)WarlockSpells.CORRUPTION_TRIGGERED,
-				(uint)WarlockSpells.UNSTABLE_AFFLICTION_DOT1,
-				(uint)WarlockSpells.UNSTABLE_AFFLICTION_DOT2,
-				(uint)WarlockSpells.UNSTABLE_AFFLICTION_DOT3,
-				(uint)WarlockSpells.UNSTABLE_AFFLICTION_DOT4,
-				(uint)WarlockSpells.UNSTABLE_AFFLICTION_DOT5
-			};
+        if (durationBonus != 0)
+        {
+            var dots = new List<uint>()
+            {
+                (uint)WarlockSpells.AGONY,
+                (uint)WarlockSpells.CORRUPTION_TRIGGERED,
+                (uint)WarlockSpells.UNSTABLE_AFFLICTION_DOT1,
+                (uint)WarlockSpells.UNSTABLE_AFFLICTION_DOT2,
+                (uint)WarlockSpells.UNSTABLE_AFFLICTION_DOT3,
+                (uint)WarlockSpells.UNSTABLE_AFFLICTION_DOT4,
+                (uint)WarlockSpells.UNSTABLE_AFFLICTION_DOT5
+            };
 
-			foreach (var dot in dots)
-			{
-				var aur = target.GetAura(dot, caster.GUID);
+            foreach (var dot in dots)
+            {
+                var aur = target.GetAura(dot, caster.GUID);
 
-				if (aur != null)
-					aur.ModDuration(durationBonus);
-			}
-		}
-	}
+                if (aur != null)
+                    aur.ModDuration(durationBonus);
+            }
+        }
+    }
 }

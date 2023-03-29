@@ -13,27 +13,27 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 61257 - Runic Power Back on Snare/Root
 internal class spell_dk_pvp_4p_bonus : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var spellInfo = eventInfo.SpellInfo;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var spellInfo = eventInfo.SpellInfo;
 
-		if (spellInfo == null)
-			return false;
+        if (spellInfo == null)
+            return false;
 
-		return (spellInfo.GetAllEffectsMechanicMask() & ((1 << (int)Mechanics.Root) | (1 << (int)Mechanics.Snare))) != 0;
-	}
+        return (spellInfo.GetAllEffectsMechanicMask() & ((1 << (int)Mechanics.Root) | (1 << (int)Mechanics.Snare))) != 0;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		eventInfo.ActionTarget.CastSpell((Unit)null, DeathKnightSpells.RunicReturn, true);
-	}
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        eventInfo.ActionTarget.CastSpell((Unit)null, DeathKnightSpells.RunicReturn, true);
+    }
 }

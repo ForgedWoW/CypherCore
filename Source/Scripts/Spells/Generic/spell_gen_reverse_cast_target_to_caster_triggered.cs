@@ -11,15 +11,15 @@ namespace Scripts.Spells.Generic;
 [Script] // 83781 - Reverse Cast Ride Vehicle
 internal class spell_gen_reverse_cast_target_to_caster_triggered : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		HitUnit.CastSpell(Caster, (uint)SpellInfo.GetEffect(effIndex).CalcValue(), true);
-	}
+    private void HandleScript(int effIndex)
+    {
+        HitUnit.CastSpell(Caster, (uint)SpellInfo.GetEffect(effIndex).CalcValue(), true);
+    }
 }

@@ -10,13 +10,13 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.BURNOUT)]
 public class aura_evoker_burnout : AuraScript, IAuraCheckProc, IAuraOnProc
 {
-	public bool CheckProc(ProcEventInfo info)
-	{
-		return info.SpellInfo.Id == EvokerSpells.RED_FIRE_BREATH_CHARGED;
-	}
+    public bool CheckProc(ProcEventInfo info)
+    {
+        return info.SpellInfo.Id == EvokerSpells.RED_FIRE_BREATH_CHARGED;
+    }
 
-	public void OnProc(ProcEventInfo info)
-	{
-		Caster.AddAura(EvokerSpells.BURNOUT_AURA);
-	}
+    public void OnProc(ProcEventInfo info)
+    {
+        Caster.AddAura(EvokerSpells.BURNOUT_AURA);
+    }
 }

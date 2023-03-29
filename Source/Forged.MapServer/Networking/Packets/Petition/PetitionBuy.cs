@@ -7,17 +7,17 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class PetitionBuy : ClientPacket
 {
-	public ObjectGuid Unit;
-	public string Title;
-	public uint Unused910;
-	public PetitionBuy(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Unit;
+    public string Title;
+    public uint Unused910;
+    public PetitionBuy(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var titleLen = _worldPacket.ReadBits<uint>(7);
+    public override void Read()
+    {
+        var titleLen = _worldPacket.ReadBits<uint>(7);
 
-		Unit = _worldPacket.ReadPackedGuid();
-		Unused910 = _worldPacket.ReadUInt32();
-		Title = _worldPacket.ReadString(titleLen);
-	}
+        Unit = _worldPacket.ReadPackedGuid();
+        Unused910 = _worldPacket.ReadUInt32();
+        Title = _worldPacket.ReadString(titleLen);
+    }
 }

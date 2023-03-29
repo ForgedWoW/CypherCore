@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum BattlegroundMarksCount
 {
-	WinnterCount = 3,
-	LoserCount = 1
+    WinnterCount = 3,
+    LoserCount = 1
 }

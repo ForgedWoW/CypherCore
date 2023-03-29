@@ -9,8 +9,8 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(25912)] // 25912 - Holy Shock
 internal class spell_pal_holy_shock_damage_visual : SpellScript, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		Caster.SendPlaySpellVisual(HitUnit, IsHitCrit ? SpellVisual.HolyShockDamageCrit : SpellVisual.HolyShockDamage, 0, 0, 0.0f, false);
-	}
+    public void AfterHit()
+    {
+        Caster.SendPlaySpellVisual(HitUnit, IsHitCrit ? SpellVisual.HolyShockDamageCrit : SpellVisual.HolyShockDamage, 0, 0, 0.0f, false);
+    }
 }

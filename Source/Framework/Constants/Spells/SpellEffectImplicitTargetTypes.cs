@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum SpellEffectImplicitTargetTypes
 {
-	None = 0,
-	Explicit,
-	Caster
+    None = 0,
+    Explicit,
+    Caster
 }

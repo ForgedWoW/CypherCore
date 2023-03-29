@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IGroup;
 
 public interface IGroupOnChangeLeader : IScriptObject
 {
-	void OnChangeLeader(PlayerGroup group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid);
+    void OnChangeLeader(PlayerGroup group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid);
 }

@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class ChatAddonMessage : ClientPacket
 {
-	public ChatAddonMessageParams Params = new();
-	public ChatAddonMessage(WorldPacket packet) : base(packet) { }
+    public ChatAddonMessageParams Params = new();
+    public ChatAddonMessage(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Params.Read(_worldPacket);
-	}
+    public override void Read()
+    {
+        Params.Read(_worldPacket);
+    }
 }

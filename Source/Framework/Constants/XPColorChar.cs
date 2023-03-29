@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum XPColorChar
 {
-	Red,
-	Orange,
-	Yellow,
-	Green,
-	Gray
+    Red,
+    Orange,
+    Yellow,
+    Green,
+    Gray
 }

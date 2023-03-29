@@ -8,18 +8,18 @@ namespace Forged.MapServer.Networking.Packets.Talent;
 
 internal class ActiveGlyphs : ServerPacket
 {
-	public List<GlyphBinding> Glyphs = new();
-	public bool IsFullUpdate;
-	public ActiveGlyphs() : base(ServerOpcodes.ActiveGlyphs) { }
+    public List<GlyphBinding> Glyphs = new();
+    public bool IsFullUpdate;
+    public ActiveGlyphs() : base(ServerOpcodes.ActiveGlyphs) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Glyphs.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Glyphs.Count);
 
-		foreach (var glyph in Glyphs)
-			glyph.Write(_worldPacket);
+        foreach (var glyph in Glyphs)
+            glyph.Write(_worldPacket);
 
-		_worldPacket.WriteBit(IsFullUpdate);
-		_worldPacket.FlushBits();
-	}
+        _worldPacket.WriteBit(IsFullUpdate);
+        _worldPacket.FlushBits();
+    }
 }

@@ -7,5 +7,5 @@ namespace Forged.MapServer.Entities;
 
 public class VehicleTemplate
 {
-	public TimeSpan DespawnDelay;
+    public TimeSpan DespawnDelay;
 }

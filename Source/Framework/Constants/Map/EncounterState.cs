@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum EncounterState
 {
-	NotStarted = 0,
-	InProgress = 1,
-	Fail = 2,
-	Done = 3,
-	Special = 4,
-	ToBeDecided = 5
+    NotStarted = 0,
+    InProgress = 1,
+    Fail = 2,
+    Done = 3,
+    Special = 4,
+    ToBeDecided = 5
 }

@@ -13,29 +13,29 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(104773)]
 internal class spell_warlock_unending_resolve : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(PreventEffectIfCastingCircle, 0, AuraType.MechanicImmunity, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(PreventEffectIfCastingCircle, 0, AuraType.MechanicImmunity, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-		AuraEffects.Add(new AuraEffectApplyHandler(PreventEffectIfCastingCircle, 3, AuraType.MechanicImmunity, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(PreventEffectIfCastingCircle, 3, AuraType.MechanicImmunity, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(PreventEffectIfCastingCircle, 0, AuraType.MechanicImmunity, AuraEffectHandleModes.Real));
+        AuraEffects.Add(new AuraEffectApplyHandler(PreventEffectIfCastingCircle, 0, AuraType.MechanicImmunity, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+        AuraEffects.Add(new AuraEffectApplyHandler(PreventEffectIfCastingCircle, 3, AuraType.MechanicImmunity, AuraEffectHandleModes.Real));
+        AuraEffects.Add(new AuraEffectApplyHandler(PreventEffectIfCastingCircle, 3, AuraType.MechanicImmunity, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void PreventEffectIfCastingCircle(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void PreventEffectIfCastingCircle(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null || caster.AsPlayer)
-			return;
+        if (caster == null || caster.AsPlayer)
+            return;
 
-		var pCaster = caster.AsPlayer;
+        var pCaster = caster.AsPlayer;
 
-		if (pCaster == null)
-			return;
+        if (pCaster == null)
+            return;
 
-		if (pCaster.HasSpell(WarlockSpells.CASTING_CIRCLE))
-			PreventDefaultAction();
-	}
+        if (pCaster.HasSpell(WarlockSpells.CASTING_CIRCLE))
+            PreventDefaultAction();
+    }
 }

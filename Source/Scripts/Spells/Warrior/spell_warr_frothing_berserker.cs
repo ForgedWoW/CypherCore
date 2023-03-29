@@ -14,18 +14,18 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(215571)]
 public class spell_warr_frothing_berserker : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.AddFlatModifier, AuraScriptHookType.EffectProc));
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 2, AuraType.AddFlatModifier, AuraScriptHookType.EffectProc));
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 3, AuraType.AddFlatModifier, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.AddFlatModifier, AuraScriptHookType.EffectProc));
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 2, AuraType.AddFlatModifier, AuraScriptHookType.EffectProc));
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 3, AuraType.AddFlatModifier, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		Caster.CastSpell(Caster, WarriorSpells.FROTHING_BERSERKER, true);
-	}
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        Caster.CastSpell(Caster, WarriorSpells.FROTHING_BERSERKER, true);
+    }
 }

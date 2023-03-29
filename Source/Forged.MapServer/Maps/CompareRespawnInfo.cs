@@ -7,17 +7,17 @@ namespace Forged.MapServer.Maps;
 
 internal struct CompareRespawnInfo : IComparer<RespawnInfo>
 {
-	public int Compare(RespawnInfo a, RespawnInfo b)
-	{
-		if (a == b)
-			return 0;
+    public int Compare(RespawnInfo a, RespawnInfo b)
+    {
+        if (a == b)
+            return 0;
 
-		if (a.RespawnTime != b.RespawnTime)
-			return a.RespawnTime.CompareTo(b.RespawnTime);
+        if (a.RespawnTime != b.RespawnTime)
+            return a.RespawnTime.CompareTo(b.RespawnTime);
 
-		if (a.SpawnId != b.SpawnId)
-			return a.SpawnId.CompareTo(b.SpawnId);
+        if (a.SpawnId != b.SpawnId)
+            return a.SpawnId.CompareTo(b.SpawnId);
 
-		return a.ObjectType.CompareTo(b.ObjectType);
-	}
+        return a.ObjectType.CompareTo(b.ObjectType);
+    }
 }

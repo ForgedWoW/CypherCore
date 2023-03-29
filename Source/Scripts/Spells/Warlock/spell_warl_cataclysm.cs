@@ -12,25 +12,25 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(152108)]
 internal class spell_warl_cataclysm : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		if (Caster.AsPlayer.GetPrimarySpecialization() == TalentSpecialization.WarlockDestruction)
-			caster.CastSpell(target, WarlockSpells.IMMOLATE_DOT, true);
-	}
+        if (Caster.AsPlayer.GetPrimarySpecialization() == TalentSpecialization.WarlockDestruction)
+            caster.CastSpell(target, WarlockSpells.IMMOLATE_DOT, true);
+    }
 }

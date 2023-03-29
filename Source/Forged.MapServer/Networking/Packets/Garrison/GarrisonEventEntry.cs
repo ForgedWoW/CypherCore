@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal struct GarrisonEventEntry
 {
-	public int EntryID;
-	public long EventValue;
+    public int EntryID;
+    public long EventValue;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt64(EventValue);
-		data.WriteInt32(EntryID);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt64(EventValue);
+        data.WriteInt32(EntryID);
+    }
 }

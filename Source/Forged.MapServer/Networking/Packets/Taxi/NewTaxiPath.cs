@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Taxi;
 
 internal class NewTaxiPath : ServerPacket
 {
-	public NewTaxiPath() : base(ServerOpcodes.NewTaxiPath) { }
+    public NewTaxiPath() : base(ServerOpcodes.NewTaxiPath) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

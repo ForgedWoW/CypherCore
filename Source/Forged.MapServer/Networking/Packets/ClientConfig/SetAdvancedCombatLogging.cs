@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.ClientConfig;
 
 internal class SetAdvancedCombatLogging : ClientPacket
 {
-	public bool Enable;
-	public SetAdvancedCombatLogging(WorldPacket packet) : base(packet) { }
+    public bool Enable;
+    public SetAdvancedCombatLogging(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Enable = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        Enable = _worldPacket.HasBit();
+    }
 }

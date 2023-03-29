@@ -8,6 +8,6 @@ namespace Forged.MapServer.Networking.Packets.Scenario;
 
 internal struct ScenarioPOIData
 {
-	public int CriteriaTreeID;
-	public List<ScenarioPOI> ScenarioPOIs;
+    public int CriteriaTreeID;
+    public List<ScenarioPOI> ScenarioPOIs;
 }

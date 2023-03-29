@@ -11,29 +11,29 @@ namespace Scripts.Spells.Generic;
 [Script] // 34779 - Freezing Circle
 internal class spell_freezing_circle : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDamage, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDamage(int effIndex)
-	{
-		var caster = Caster;
-		uint spellId = 0;
-		var map = caster.Map;
+    private void HandleDamage(int effIndex)
+    {
+        var caster = Caster;
+        uint spellId = 0;
+        var map = caster.Map;
 
-		if (map.IsDungeon)
-			spellId = map.IsHeroic ? GenericSpellIds.FreezingCirclePitOfSaronHeroic : GenericSpellIds.FreezingCirclePitOfSaronNormal;
-		else
-			spellId = map.Id == Misc.MapIdBloodInTheSnowScenario ? GenericSpellIds.FreezingCircleScenario : GenericSpellIds.FreezingCircle;
+        if (map.IsDungeon)
+            spellId = map.IsHeroic ? GenericSpellIds.FreezingCirclePitOfSaronHeroic : GenericSpellIds.FreezingCirclePitOfSaronNormal;
+        else
+            spellId = map.Id == Misc.MapIdBloodInTheSnowScenario ? GenericSpellIds.FreezingCircleScenario : GenericSpellIds.FreezingCircle;
 
-		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, CastDifficulty);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, CastDifficulty);
 
-		if (spellInfo != null)
-			if (!spellInfo.Effects.Empty())
-				HitDamage = spellInfo.GetEffect(0).CalcValue();
-	}
+        if (spellInfo != null)
+            if (!spellInfo.Effects.Empty())
+                HitDamage = spellInfo.GetEffect(0).CalcValue();
+    }
 }

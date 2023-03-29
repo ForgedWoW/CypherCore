@@ -15,49 +15,49 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(40463)]
 internal class spell_sha_item_t6_trinket : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var spellInfo = eventInfo.SpellInfo;
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var spellInfo = eventInfo.SpellInfo;
 
-		if (spellInfo == null)
-			return;
+        if (spellInfo == null)
+            return;
 
-		uint spellId;
-		int chance;
+        uint spellId;
+        int chance;
 
-		// Lesser Healing Wave
-		if (spellInfo.SpellFamilyFlags[0].HasAnyFlag(0x00000080u))
-		{
-			spellId = ShamanSpells.EnergySurge;
-			chance = 10;
-		}
-		// Lightning Bolt
-		else if (spellInfo.SpellFamilyFlags[0].HasAnyFlag(0x00000001u))
-		{
-			spellId = ShamanSpells.EnergySurge;
-			chance = 15;
-		}
-		// Stormstrike
-		else if (spellInfo.SpellFamilyFlags[1].HasAnyFlag(0x00000010u))
-		{
-			spellId = ShamanSpells.PowerSurge;
-			chance = 50;
-		}
-		else
-		{
-			return;
-		}
+        // Lesser Healing Wave
+        if (spellInfo.SpellFamilyFlags[0].HasAnyFlag(0x00000080u))
+        {
+            spellId = ShamanSpells.EnergySurge;
+            chance = 10;
+        }
+        // Lightning Bolt
+        else if (spellInfo.SpellFamilyFlags[0].HasAnyFlag(0x00000001u))
+        {
+            spellId = ShamanSpells.EnergySurge;
+            chance = 15;
+        }
+        // Stormstrike
+        else if (spellInfo.SpellFamilyFlags[1].HasAnyFlag(0x00000010u))
+        {
+            spellId = ShamanSpells.PowerSurge;
+            chance = 50;
+        }
+        else
+        {
+            return;
+        }
 
-		if (RandomHelper.randChance(chance))
-			eventInfo.Actor.CastSpell((Unit)null, spellId, true);
-	}
+        if (RandomHelper.randChance(chance))
+            eventInfo.Actor.CastSpell((Unit)null, spellId, true);
+    }
 }

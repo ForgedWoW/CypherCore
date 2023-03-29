@@ -12,26 +12,26 @@ namespace Scripts.Spells.Warlock;
 // 603 - Doom
 public class spell_warlock_doom : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicDamage));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicDamage));
+    }
 
-	private void PeriodicTick(AuraEffect aurEff)
-	{
-		var caster = Caster;
+    private void PeriodicTick(AuraEffect aurEff)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		caster.CastSpell(caster, WarlockSpells.DOOM_ENERGIZE, true);
+        caster.CastSpell(caster, WarlockSpells.DOOM_ENERGIZE, true);
 
-		if (caster.HasAura(WarlockSpells.IMPENDING_DOOM))
-			caster.CastSpell(Target, WarlockSpells.WILD_IMP_SUMMON, true);
+        if (caster.HasAura(WarlockSpells.IMPENDING_DOOM))
+            caster.CastSpell(Target, WarlockSpells.WILD_IMP_SUMMON, true);
 
-		if (caster.HasAura(WarlockSpells.DOOM_DOUBLED) && RandomHelper.randChance(25))
-			GetEffect(0).SetAmount(aurEff.Amount * 2);
-	}
+        if (caster.HasAura(WarlockSpells.DOOM_DOUBLED) && RandomHelper.randChance(25))
+            GetEffect(0).SetAmount(aurEff.Amount * 2);
+    }
 }

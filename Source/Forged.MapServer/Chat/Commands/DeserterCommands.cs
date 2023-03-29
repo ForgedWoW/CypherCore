@@ -9,75 +9,75 @@ namespace Forged.MapServer.Chat.Commands;
 internal class DeserterCommands
 {
     private static bool HandleDeserterAdd(CommandHandler handler, uint time, bool isInstance)
-	{
-		var player = handler.SelectedPlayer;
+    {
+        var player = handler.SelectedPlayer;
 
-		if (!player)
-		{
-			handler.SendSysMessage(CypherStrings.NoCharSelected);
+        if (!player)
+        {
+            handler.SendSysMessage(CypherStrings.NoCharSelected);
 
-			return false;
-		}
+            return false;
+        }
 
-		var aura = player.AddAura(isInstance ? Spells.LFGDundeonDeserter : Spells.BGDeserter, player);
+        var aura = player.AddAura(isInstance ? Spells.LFGDundeonDeserter : Spells.BGDeserter, player);
 
-		if (aura == null)
-		{
-			handler.SendSysMessage(CypherStrings.BadValue);
+        if (aura == null)
+        {
+            handler.SendSysMessage(CypherStrings.BadValue);
 
-			return false;
-		}
+            return false;
+        }
 
-		aura.SetDuration((int)(time * Time.InMilliseconds));
+        aura.SetDuration((int)(time * Time.InMilliseconds));
 
-		return true;
-	}
+        return true;
+    }
 
     private static bool HandleDeserterRemove(CommandHandler handler, bool isInstance)
-	{
-		var player = handler.SelectedPlayer;
+    {
+        var player = handler.SelectedPlayer;
 
-		if (!player)
-		{
-			handler.SendSysMessage(CypherStrings.NoCharSelected);
+        if (!player)
+        {
+            handler.SendSysMessage(CypherStrings.NoCharSelected);
 
-			return false;
-		}
+            return false;
+        }
 
-		player.RemoveAura(isInstance ? Spells.LFGDundeonDeserter : Spells.BGDeserter);
+        player.RemoveAura(isInstance ? Spells.LFGDundeonDeserter : Spells.BGDeserter);
 
-		return true;
-	}
+        return true;
+    }
 
-	[CommandGroup("instance")]
+    [CommandGroup("instance")]
     private class DeserterInstanceCommands
-	{
-		[Command("add", RBACPermissions.CommandDeserterInstanceAdd)]
+    {
+        [Command("add", RBACPermissions.CommandDeserterInstanceAdd)]
         private static bool HandleDeserterInstanceAdd(CommandHandler handler, uint time)
-		{
-			return HandleDeserterAdd(handler, time, true);
-		}
+        {
+            return HandleDeserterAdd(handler, time, true);
+        }
 
-		[Command("remove", RBACPermissions.CommandDeserterInstanceRemove)]
+        [Command("remove", RBACPermissions.CommandDeserterInstanceRemove)]
         private static bool HandleDeserterInstanceRemove(CommandHandler handler)
-		{
-			return HandleDeserterRemove(handler, true);
-		}
-	}
+        {
+            return HandleDeserterRemove(handler, true);
+        }
+    }
 
-	[CommandGroup("bg")]
+    [CommandGroup("bg")]
     private class DeserterBGCommands
-	{
-		[Command("add", RBACPermissions.CommandDeserterBgAdd)]
+    {
+        [Command("add", RBACPermissions.CommandDeserterBgAdd)]
         private static bool HandleDeserterBGAdd(CommandHandler handler, uint time)
-		{
-			return HandleDeserterAdd(handler, time, false);
-		}
+        {
+            return HandleDeserterAdd(handler, time, false);
+        }
 
-		[Command("remove", RBACPermissions.CommandDeserterBgRemove)]
+        [Command("remove", RBACPermissions.CommandDeserterBgRemove)]
         private static bool HandleDeserterBGRemove(CommandHandler handler)
-		{
-			return HandleDeserterRemove(handler, false);
-		}
-	}
+        {
+            return HandleDeserterRemove(handler, false);
+        }
+    }
 }

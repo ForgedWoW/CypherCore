@@ -10,22 +10,22 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(31935)]
 public class spell_pal_avengers_shield : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    public void OnHit()
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (target == null)
-			return;
+        if (target == null)
+            return;
 
-		if (caster.HasAura(PaladinSpells.GRAND_CRUSADER_PROC))
-			caster.RemoveAura(PaladinSpells.GRAND_CRUSADER_PROC);
+        if (caster.HasAura(PaladinSpells.GRAND_CRUSADER_PROC))
+            caster.RemoveAura(PaladinSpells.GRAND_CRUSADER_PROC);
 
-		var damage = HitDamage;
+        var damage = HitDamage;
 
-		if (caster.HasAura(PaladinSpells.FIRST_AVENGER))
-			MathFunctions.AddPct(ref damage, 50);
+        if (caster.HasAura(PaladinSpells.FIRST_AVENGER))
+            MathFunctions.AddPct(ref damage, 50);
 
-		HitDamage = damage;
-	}
+        HitDamage = damage;
+    }
 }

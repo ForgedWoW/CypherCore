@@ -5,18 +5,18 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public struct QuestCompleteDisplaySpell
 {
-	public uint SpellID;
-	public uint PlayerConditionID;
+    public uint SpellID;
+    public uint PlayerConditionID;
 
-	public QuestCompleteDisplaySpell(uint spellID, uint playerConditionID)
-	{
-		SpellID = spellID;
-		PlayerConditionID = playerConditionID;
-	}
+    public QuestCompleteDisplaySpell(uint spellID, uint playerConditionID)
+    {
+        SpellID = spellID;
+        PlayerConditionID = playerConditionID;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(SpellID);
-		data.WriteUInt32(PlayerConditionID);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(SpellID);
+        data.WriteUInt32(PlayerConditionID);
+    }
 }

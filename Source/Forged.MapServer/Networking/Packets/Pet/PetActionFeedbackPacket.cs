@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetActionFeedbackPacket : ServerPacket
 {
-	public uint SpellID;
-	public PetActionFeedback Response;
-	public PetActionFeedbackPacket() : base(ServerOpcodes.PetStableResult) { }
+    public uint SpellID;
+    public PetActionFeedback Response;
+    public PetActionFeedbackPacket() : base(ServerOpcodes.PetStableResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(SpellID);
-		_worldPacket.WriteUInt8((byte)Response);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(SpellID);
+        _worldPacket.WriteUInt8((byte)Response);
+    }
 }

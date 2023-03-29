@@ -11,21 +11,21 @@ namespace Scripts.Spells.Generic;
 [Script] // 83477 - Eject Passengers 3-8
 internal class spell_gen_eject_passengers_3_8 : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScriptEffect(int effIndex)
-	{
-		var vehicle = HitUnit.VehicleKit1;
+    private void HandleScriptEffect(int effIndex)
+    {
+        var vehicle = HitUnit.VehicleKit1;
 
-		if (vehicle == null)
-			return;
+        if (vehicle == null)
+            return;
 
-		for (sbyte i = 2; i < 8; i++)
-			vehicle.GetPassenger(i)?.ExitVehicle();
-	}
+        for (sbyte i = 2; i < 8; i++)
+            vehicle.GetPassenger(i)?.ExitVehicle();
+    }
 }

@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class QueryPetition : ClientPacket
 {
-	public ObjectGuid ItemGUID;
-	public uint PetitionID;
-	public QueryPetition(WorldPacket packet) : base(packet) { }
+    public ObjectGuid ItemGUID;
+    public uint PetitionID;
+    public QueryPetition(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PetitionID = _worldPacket.ReadUInt32();
-		ItemGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        PetitionID = _worldPacket.ReadUInt32();
+        ItemGUID = _worldPacket.ReadPackedGuid();
+    }
 }

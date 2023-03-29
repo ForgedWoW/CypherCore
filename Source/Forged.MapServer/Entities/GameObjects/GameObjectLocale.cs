@@ -8,7 +8,7 @@ namespace Forged.MapServer.Entities.GameObjects;
 
 public class GameObjectLocale
 {
-	public StringArray Name = new((int)Locale.Total);
-	public StringArray CastBarCaption = new((int)Locale.Total);
-	public StringArray Unk1 = new((int)Locale.Total);
+    public StringArray Name = new((int)Locale.Total);
+    public StringArray CastBarCaption = new((int)Locale.Total);
+    public StringArray Unk1 = new((int)Locale.Total);
 }

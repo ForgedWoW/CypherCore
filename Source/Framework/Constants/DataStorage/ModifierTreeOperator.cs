@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum ModifierTreeOperator
 {
-	SingleTrue = 2,
-	SingleFalse = 3,
-	All = 4,
-	Some = 8
+    SingleTrue = 2,
+    SingleFalse = 3,
+    All = 4,
+    Some = 8
 }

@@ -12,28 +12,28 @@ namespace Scripts.Spells.Mage;
 [Script] // 82691 - Ring of Frost (freeze efect)
 internal class spell_mage_ring_of_frost_freeze : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaEnemy));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaEnemy));
+    }
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		var dest = ExplTargetDest;
-		var outRadius = Global.SpellMgr.GetSpellInfo(MageSpells.RingOfFrostSummon, CastDifficulty).GetEffect(0).CalcRadius();
-		var inRadius = 6.5f;
+    private void FilterTargets(List<WorldObject> targets)
+    {
+        var dest = ExplTargetDest;
+        var outRadius = Global.SpellMgr.GetSpellInfo(MageSpells.RingOfFrostSummon, CastDifficulty).GetEffect(0).CalcRadius();
+        var inRadius = 6.5f;
 
-		targets.RemoveAll(target =>
-		{
-			var unit = target.AsUnit;
+        targets.RemoveAll(target =>
+        {
+            var unit = target.AsUnit;
 
-			if (!unit)
-				return true;
+            if (!unit)
+                return true;
 
-			return unit.HasAura(MageSpells.RingOfFrostDummy) || unit.HasAura(MageSpells.RingOfFrostFreeze) || unit.Location.GetExactDist(dest) > outRadius || unit.Location.GetExactDist(dest) < inRadius;
-		});
-	}
+            return unit.HasAura(MageSpells.RingOfFrostDummy) || unit.HasAura(MageSpells.RingOfFrostFreeze) || unit.Location.GetExactDist(dest) > outRadius || unit.Location.GetExactDist(dest) < inRadius;
+        });
+    }
 }

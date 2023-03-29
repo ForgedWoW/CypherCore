@@ -11,15 +11,15 @@ namespace Scripts.Spells.Monk;
 [SpellScript(124081)]
 public class spell_monk_zen_pulse : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(OnHit, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(OnHit, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void OnHit(int effIndex)
-	{
-		Caster.CastSpell(Caster, MonkSpells.ZEN_PULSE_HEAL, true);
-	}
+    private void OnHit(int effIndex)
+    {
+        Caster.CastSpell(Caster, MonkSpells.ZEN_PULSE_HEAL, true);
+    }
 }

@@ -17,46 +17,46 @@ public class AnyGroupedUnitInObjectRangeCheck : ICheck<Unit>
     private readonly bool _incOwnRadius;
     private readonly bool _incTargetRadius;
 
-	public AnyGroupedUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, bool raid, bool playerOnly = false, bool incOwnRadius = true, bool incTargetRadius = true)
-	{
-		_source = obj;
-		_refUnit = funit;
-		_range = range;
-		_raid = raid;
-		_playerOnly = playerOnly;
-		_incOwnRadius = incOwnRadius;
-		_incTargetRadius = incTargetRadius;
-	}
+    public AnyGroupedUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, bool raid, bool playerOnly = false, bool incOwnRadius = true, bool incTargetRadius = true)
+    {
+        _source = obj;
+        _refUnit = funit;
+        _range = range;
+        _raid = raid;
+        _playerOnly = playerOnly;
+        _incOwnRadius = incOwnRadius;
+        _incTargetRadius = incTargetRadius;
+    }
 
-	public bool Invoke(Unit u)
-	{
-		if (_playerOnly && !u.IsPlayer)
-			return false;
+    public bool Invoke(Unit u)
+    {
+        if (_playerOnly && !u.IsPlayer)
+            return false;
 
-		if (_raid)
-		{
-			if (!_refUnit.IsInRaidWith(u))
-				return false;
-		}
-		else if (!_refUnit.IsInPartyWith(u))
-		{
-			return false;
-		}
+        if (_raid)
+        {
+            if (!_refUnit.IsInRaidWith(u))
+                return false;
+        }
+        else if (!_refUnit.IsInPartyWith(u))
+        {
+            return false;
+        }
 
-		if (_refUnit.IsHostileTo(u))
-			return false;
+        if (_refUnit.IsHostileTo(u))
+            return false;
 
-		if (!u.IsAlive)
-			return false;
+        if (!u.IsAlive)
+            return false;
 
-		var searchRadius = _range;
+        var searchRadius = _range;
 
-		if (_incOwnRadius)
-			searchRadius += _source.CombatReach;
+        if (_incOwnRadius)
+            searchRadius += _source.CombatReach;
 
-		if (_incTargetRadius)
-			searchRadius += u.CombatReach;
+        if (_incTargetRadius)
+            searchRadius += u.CombatReach;
 
-		return u.IsInMap(_source) && u.InSamePhase(_source) && u.Location.IsWithinDoubleVerticalCylinder(_source.Location, searchRadius, searchRadius);
-	}
+        return u.IsInMap(_source) && u.InSamePhase(_source) && u.Location.IsWithinDoubleVerticalCylinder(_source.Location, searchRadius, searchRadius);
+    }
 }

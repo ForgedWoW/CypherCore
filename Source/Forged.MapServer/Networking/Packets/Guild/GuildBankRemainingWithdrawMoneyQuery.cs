@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildBankRemainingWithdrawMoneyQuery : ClientPacket
 {
-	public GuildBankRemainingWithdrawMoneyQuery(WorldPacket packet) : base(packet) { }
+    public GuildBankRemainingWithdrawMoneyQuery(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

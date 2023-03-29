@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Authentication;
 
 internal class WaitQueueUpdate : ServerPacket
 {
-	public AuthWaitInfo WaitInfo;
-	public WaitQueueUpdate() : base(ServerOpcodes.WaitQueueUpdate) { }
+    public AuthWaitInfo WaitInfo;
+    public WaitQueueUpdate() : base(ServerOpcodes.WaitQueueUpdate) { }
 
-	public override void Write()
-	{
-		WaitInfo.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        WaitInfo.Write(_worldPacket);
+    }
 }

@@ -8,17 +8,17 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct PlayerInvitedAppend : IChannelAppender
 {
-	public PlayerInvitedAppend(string playerName)
-	{
-		_playerName = playerName;
-	}
+    public PlayerInvitedAppend(string playerName)
+    {
+        _playerName = playerName;
+    }
 
-	public ChatNotify GetNotificationType() => ChatNotify.PlayerInvitedNotice;
+    public ChatNotify GetNotificationType() => ChatNotify.PlayerInvitedNotice;
 
-	public void Append(ChannelNotify data)
-	{
-		data.Sender = _playerName;
-	}
+    public void Append(ChannelNotify data)
+    {
+        data.Sender = _playerName;
+    }
 
     private readonly string _playerName;
 }

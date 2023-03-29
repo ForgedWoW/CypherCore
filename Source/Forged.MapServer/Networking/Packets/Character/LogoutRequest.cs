@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class LogoutRequest : ClientPacket
 {
-	public bool IdleLogout;
-	public LogoutRequest(WorldPacket packet) : base(packet) { }
+    public bool IdleLogout;
+    public LogoutRequest(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		IdleLogout = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        IdleLogout = _worldPacket.HasBit();
+    }
 }

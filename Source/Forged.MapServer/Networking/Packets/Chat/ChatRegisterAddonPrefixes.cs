@@ -5,14 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 internal class ChatRegisterAddonPrefixes : ClientPacket
 {
-	public string[] Prefixes = new string[64];
-	public ChatRegisterAddonPrefixes(WorldPacket packet) : base(packet) { }
+    public string[] Prefixes = new string[64];
+    public ChatRegisterAddonPrefixes(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var count = _worldPacket.ReadInt32();
+    public override void Read()
+    {
+        var count = _worldPacket.ReadInt32();
 
-		for (var i = 0; i < count && i < 64; ++i)
-			Prefixes[i] = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(5));
-	}
+        for (var i = 0; i < count && i < 64; ++i)
+            Prefixes[i] = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(5));
+    }
 }

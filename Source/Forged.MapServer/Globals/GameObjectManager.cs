@@ -16,6 +16,7 @@ using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.LootManagement;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
@@ -30,7 +31,6 @@ using Framework.Database;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Globals;
 

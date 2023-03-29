@@ -5,6 +5,6 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public struct NpcTextData
 {
-	public float Probability;
-	public uint BroadcastTextID;
+    public float Probability;
+    public uint BroadcastTextID;
 }

@@ -7,19 +7,19 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 internal class MoveGuildBankItem : ClientPacket
 {
-	public ObjectGuid Banker;
-	public byte BankTab;
-	public byte BankSlot;
-	public byte BankTab1;
-	public byte BankSlot1;
-	public MoveGuildBankItem(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Banker;
+    public byte BankTab;
+    public byte BankSlot;
+    public byte BankTab1;
+    public byte BankSlot1;
+    public MoveGuildBankItem(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Banker = _worldPacket.ReadPackedGuid();
-		BankTab = _worldPacket.ReadUInt8();
-		BankSlot = _worldPacket.ReadUInt8();
-		BankTab1 = _worldPacket.ReadUInt8();
-		BankSlot1 = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        Banker = _worldPacket.ReadPackedGuid();
+        BankTab = _worldPacket.ReadUInt8();
+        BankSlot = _worldPacket.ReadUInt8();
+        BankTab1 = _worldPacket.ReadUInt8();
+        BankSlot1 = _worldPacket.ReadUInt8();
+    }
 }

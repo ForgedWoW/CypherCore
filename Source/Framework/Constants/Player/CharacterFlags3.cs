@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum CharacterFlags3 : uint
 {
-	LockedByRevokedVasTransaction = 0x100000,
-	LockedByRevokedCharacterUpgrade = 0x80000000,
+    LockedByRevokedVasTransaction = 0x100000,
+    LockedByRevokedCharacterUpgrade = 0x80000000,
 }

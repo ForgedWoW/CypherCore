@@ -12,30 +12,30 @@ namespace Scripts.Spells.Rogue;
 [Script] // 51690 - Killing Spree
 internal class spell_rog_killing_spree_SpellScript : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 1, Targets.UnitDestAreaEnemy));
-		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 1, Targets.UnitDestAreaEnemy));
+        SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		if (targets.Empty() ||
-			Caster.VehicleBase)
-			FinishCast(SpellCastResult.OutOfRange);
-	}
+    private void FilterTargets(List<WorldObject> targets)
+    {
+        if (targets.Empty() ||
+            Caster.VehicleBase)
+            FinishCast(SpellCastResult.OutOfRange);
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var aura = Caster.GetAura(RogueSpells.KillingSpree);
+    private void HandleDummy(int effIndex)
+    {
+        var aura = Caster.GetAura(RogueSpells.KillingSpree);
 
-		if (aura != null)
-		{
-			var script = aura.GetScript<spell_rog_killing_spree_AuraScript>();
+        if (aura != null)
+        {
+            var script = aura.GetScript<spell_rog_killing_spree_AuraScript>();
 
-			script?.AddTarget(HitUnit);
-		}
-	}
+            script?.AddTarget(HitUnit);
+        }
+    }
 }

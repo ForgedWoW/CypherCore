@@ -8,18 +8,18 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class ClearCooldowns : ServerPacket
 {
-	public List<uint> SpellID = new();
-	public bool IsPet;
-	public ClearCooldowns() : base(ServerOpcodes.ClearCooldowns, ConnectionType.Instance) { }
+    public List<uint> SpellID = new();
+    public bool IsPet;
+    public ClearCooldowns() : base(ServerOpcodes.ClearCooldowns, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(SpellID.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(SpellID.Count);
 
-		if (!SpellID.Empty())
-			SpellID.ForEach(p => _worldPacket.WriteUInt32(p));
+        if (!SpellID.Empty())
+            SpellID.ForEach(p => _worldPacket.WriteUInt32(p));
 
-		_worldPacket.WriteBit(IsPet);
-		_worldPacket.FlushBits();
-	}
+        _worldPacket.WriteBit(IsPet);
+        _worldPacket.FlushBits();
+    }
 }

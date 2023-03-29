@@ -10,17 +10,17 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class at_monk_song_of_chiji : AreaTriggerScript, IAreaTriggerOnUnitEnter
 {
-	public void OnUnitEnter(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitEnter(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		if (unit != caster && caster.IsValidAttackTarget(unit))
-			caster.CastSpell(unit, MonkSpells.SONG_OF_CHIJI, true);
-	}
+        if (unit != caster && caster.IsValidAttackTarget(unit))
+            caster.CastSpell(unit, MonkSpells.SONG_OF_CHIJI, true);
+    }
 }

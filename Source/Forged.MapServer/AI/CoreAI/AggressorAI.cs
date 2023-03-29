@@ -7,13 +7,13 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class AggressorAI : CreatureAI
 {
-	public AggressorAI(Creature c) : base(c) { }
+    public AggressorAI(Creature c) : base(c) { }
 
-	public override void UpdateAI(uint diff)
-	{
-		if (!UpdateVictim())
-			return;
+    public override void UpdateAI(uint diff)
+    {
+        if (!UpdateVictim())
+            return;
 
-		DoMeleeAttackIfReady();
-	}
+        DoMeleeAttackIfReady();
+    }
 }

@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class SetAnimTier : ServerPacket
 {
-	public ObjectGuid Unit;
-	public int Tier;
-	public SetAnimTier() : base(ServerOpcodes.SetAnimTier, ConnectionType.Instance) { }
+    public ObjectGuid Unit;
+    public int Tier;
+    public SetAnimTier() : base(ServerOpcodes.SetAnimTier, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Unit);
-		_worldPacket.WriteBits(Tier, 3);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Unit);
+        _worldPacket.WriteBits(Tier, 3);
+        _worldPacket.FlushBits();
+    }
 }

@@ -12,16 +12,16 @@ namespace Scripts.Spells.Quest;
 [Script] // 53350 - Quenching Mist
 internal class spell_q12730_quenching_mist : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicHeal));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicHeal));
+    }
 
-	private void HandleEffectPeriodic(AuraEffect aurEff)
-	{
-		Target.RemoveAura(QuestSpellIds.FlickeringFlames);
-	}
+    private void HandleEffectPeriodic(AuraEffect aurEff)
+    {
+        Target.RemoveAura(QuestSpellIds.FlickeringFlames);
+    }
 }

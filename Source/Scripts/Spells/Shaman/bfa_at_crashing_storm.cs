@@ -11,38 +11,38 @@ namespace Scripts.Spells.Shaman;
 [Script]
 public class bfa_at_crashing_storm : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnUpdate
 {
-	public uint damageTimer;
+    public uint damageTimer;
 
-	public void OnInitialize()
-	{
-		damageTimer = 0;
-	}
+    public void OnInitialize()
+    {
+        damageTimer = 0;
+    }
 
-	public void OnUpdate(uint diff)
-	{
-		damageTimer += diff;
+    public void OnUpdate(uint diff)
+    {
+        damageTimer += diff;
 
-		if (damageTimer >= 2 * Time.InMilliseconds)
-		{
-			CheckPlayers();
-			damageTimer = 0;
-		}
-	}
+        if (damageTimer >= 2 * Time.InMilliseconds)
+        {
+            CheckPlayers();
+            damageTimer = 0;
+        }
+    }
 
-	public void CheckPlayers()
-	{
-		var caster = At.GetCaster();
+    public void CheckPlayers()
+    {
+        var caster = At.GetCaster();
 
-		if (caster != null)
-		{
-			var radius = 2.5f;
+        if (caster != null)
+        {
+            var radius = 2.5f;
 
-			var targetList = caster.GetPlayerListInGrid(radius);
+            var targetList = caster.GetPlayerListInGrid(radius);
 
-			if (targetList.Count != 0)
-				foreach (Player player in targetList)
-					if (!player.IsGameMaster)
-						caster.CastSpell(player, ShamanSpells.CRASHING_STORM_TALENT_DAMAGE, true);
-		}
-	}
+            if (targetList.Count != 0)
+                foreach (Player player in targetList)
+                    if (!player.IsGameMaster)
+                        caster.CastSpell(player, ShamanSpells.CRASHING_STORM_TALENT_DAMAGE, true);
+        }
+    }
 }

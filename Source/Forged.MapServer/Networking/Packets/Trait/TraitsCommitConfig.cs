@@ -5,16 +5,16 @@ namespace Forged.MapServer.Networking.Packets.Trait;
 
 internal class TraitsCommitConfig : ClientPacket
 {
-	public TraitConfigPacket Config = new();
-	public int SavedConfigID;
-	public int SavedLocalIdentifier;
+    public TraitConfigPacket Config = new();
+    public int SavedConfigID;
+    public int SavedLocalIdentifier;
 
-	public TraitsCommitConfig(WorldPacket packet) : base(packet) { }
+    public TraitsCommitConfig(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Config.Read(_worldPacket);
-		SavedConfigID = _worldPacket.ReadInt32();
-		SavedLocalIdentifier = _worldPacket.ReadInt32();
-	}
+    public override void Read()
+    {
+        Config.Read(_worldPacket);
+        SavedConfigID = _worldPacket.ReadInt32();
+        SavedLocalIdentifier = _worldPacket.ReadInt32();
+    }
 }

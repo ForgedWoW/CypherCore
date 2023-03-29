@@ -7,6 +7,6 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class CharacterRenameInfo
 {
-	public string NewName;
-	public ObjectGuid Guid;
+    public string NewName;
+    public ObjectGuid Guid;
 }

@@ -12,44 +12,44 @@ namespace Scripts.Spells.Items;
 [Script] // 71905 - Soul Fragment
 internal class spell_item_shadowmourne_soul_fragment : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnStackChange, 0, AuraType.ModStat, AuraEffectHandleModes.Real | AuraEffectHandleModes.Reapply, AuraScriptHookType.EffectAfterApply));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ModStat, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnStackChange, 0, AuraType.ModStat, AuraEffectHandleModes.Real | AuraEffectHandleModes.Reapply, AuraScriptHookType.EffectAfterApply));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ModStat, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void OnStackChange(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var target = Target;
+    private void OnStackChange(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var target = Target;
 
-		switch (StackAmount)
-		{
-			case 1:
-				target.CastSpell(target, ItemSpellIds.ShadowmourneVisualLow, true);
+        switch (StackAmount)
+        {
+            case 1:
+                target.CastSpell(target, ItemSpellIds.ShadowmourneVisualLow, true);
 
-				break;
-			case 6:
-				target.RemoveAura(ItemSpellIds.ShadowmourneVisualLow);
-				target.CastSpell(target, ItemSpellIds.ShadowmourneVisualHigh, true);
+                break;
+            case 6:
+                target.RemoveAura(ItemSpellIds.ShadowmourneVisualLow);
+                target.CastSpell(target, ItemSpellIds.ShadowmourneVisualHigh, true);
 
-				break;
-			case 10:
-				target.RemoveAura(ItemSpellIds.ShadowmourneVisualHigh);
-				target.CastSpell(target, ItemSpellIds.ShadowmourneChaosBaneBuff, true);
+                break;
+            case 10:
+                target.RemoveAura(ItemSpellIds.ShadowmourneVisualHigh);
+                target.CastSpell(target, ItemSpellIds.ShadowmourneChaosBaneBuff, true);
 
-				break;
-			default:
-				break;
-		}
-	}
+                break;
+            default:
+                break;
+        }
+    }
 
-	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var target = Target;
-		target.RemoveAura(ItemSpellIds.ShadowmourneVisualLow);
-		target.RemoveAura(ItemSpellIds.ShadowmourneVisualHigh);
-	}
+    private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var target = Target;
+        target.RemoveAura(ItemSpellIds.ShadowmourneVisualLow);
+        target.RemoveAura(ItemSpellIds.ShadowmourneVisualHigh);
+    }
 }

@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Trade;
 
 public class InitiateTrade : ClientPacket
 {
-	public ObjectGuid Guid;
-	public InitiateTrade(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Guid;
+    public InitiateTrade(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Guid = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Guid = _worldPacket.ReadPackedGuid();
+    }
 }

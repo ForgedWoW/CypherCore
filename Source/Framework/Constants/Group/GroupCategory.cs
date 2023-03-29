@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum GroupCategory
 {
-	Home = 0,
-	Instance = 1,
+    Home = 0,
+    Instance = 1,
 
-	Max
+    Max
 }

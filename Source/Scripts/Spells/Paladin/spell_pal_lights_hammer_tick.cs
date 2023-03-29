@@ -14,25 +14,25 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(114918)]
 public class spell_pal_lights_hammer_tick : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDummy));
+    }
 
-	private void OnTick(AuraEffect UnnamedParameter)
-	{
-		var caster = Caster;
+    private void OnTick(AuraEffect UnnamedParameter)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			if (caster.OwnerUnit)
-			{
-				var args = new CastSpellExtraArgs();
-				args.SetTriggerFlags(TriggerCastFlags.FullMask);
-				args.SetOriginalCaster(caster.OwnerUnit.GUID);
-				caster.CastSpell(new Position(caster.Location.X, caster.Location.Y, caster.Location.Z), PaladinSpells.ARCING_LIGHT_HEAL, args);
-				caster.CastSpell(new Position(caster.Location.X, caster.Location.Y, caster.Location.Z), PaladinSpells.ARCING_LIGHT_DAMAGE, args);
-			}
-	}
+        if (caster != null)
+            if (caster.OwnerUnit)
+            {
+                var args = new CastSpellExtraArgs();
+                args.SetTriggerFlags(TriggerCastFlags.FullMask);
+                args.SetOriginalCaster(caster.OwnerUnit.GUID);
+                caster.CastSpell(new Position(caster.Location.X, caster.Location.Y, caster.Location.Z), PaladinSpells.ARCING_LIGHT_HEAL, args);
+                caster.CastSpell(new Position(caster.Location.X, caster.Location.Y, caster.Location.Z), PaladinSpells.ARCING_LIGHT_DAMAGE, args);
+            }
+    }
 }

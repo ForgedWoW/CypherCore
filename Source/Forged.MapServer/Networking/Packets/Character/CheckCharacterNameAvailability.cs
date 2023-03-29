@@ -5,14 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class CheckCharacterNameAvailability : ClientPacket
 {
-	public uint SequenceIndex;
-	public string Name;
+    public uint SequenceIndex;
+    public string Name;
 
-	public CheckCharacterNameAvailability(WorldPacket packet) : base(packet) { }
+    public CheckCharacterNameAvailability(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		SequenceIndex = _worldPacket.ReadUInt32();
-		Name = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(6));
-	}
+    public override void Read()
+    {
+        SequenceIndex = _worldPacket.ReadUInt32();
+        Name = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(6));
+    }
 }

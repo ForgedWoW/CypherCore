@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
 internal class VoidStorageFailed : ServerPacket
 {
-	public byte Reason = 0;
-	public VoidStorageFailed() : base(ServerOpcodes.VoidStorageFailed, ConnectionType.Instance) { }
+    public byte Reason = 0;
+    public VoidStorageFailed() : base(ServerOpcodes.VoidStorageFailed, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt8(Reason);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt8(Reason);
+    }
 }

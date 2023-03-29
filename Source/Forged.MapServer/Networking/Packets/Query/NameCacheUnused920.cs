@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class NameCacheUnused920
 {
-	public uint Unused1;
-	public ObjectGuid Unused2;
-	public string Unused3 = "";
+    public uint Unused1;
+    public ObjectGuid Unused2;
+    public string Unused3 = "";
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(Unused1);
-		data.WritePackedGuid(Unused2);
-		data.WriteBits(Unused3.GetByteCount(), 7);
-		data.FlushBits();
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(Unused1);
+        data.WritePackedGuid(Unused2);
+        data.WriteBits(Unused3.GetByteCount(), 7);
+        data.FlushBits();
 
-		data.WriteString(Unused3);
-	}
+        data.WriteString(Unused3);
+    }
 }

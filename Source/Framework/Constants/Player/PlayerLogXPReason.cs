@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum PlayerLogXPReason
 {
-	Kill = 0,
-	NoKill = 1
+    Kill = 0,
+    NoKill = 1
 }

@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class TriggerCinematic : ServerPacket
 {
-	public uint CinematicID;
-	public ObjectGuid ConversationGuid;
-	public TriggerCinematic() : base(ServerOpcodes.TriggerCinematic) { }
+    public uint CinematicID;
+    public ObjectGuid ConversationGuid;
+    public TriggerCinematic() : base(ServerOpcodes.TriggerCinematic) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(CinematicID);
-		_worldPacket.WritePackedGuid(ConversationGuid);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(CinematicID);
+        _worldPacket.WritePackedGuid(ConversationGuid);
+    }
 }

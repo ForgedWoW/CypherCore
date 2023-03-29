@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class SetAssistantLeader : ClientPacket
 {
-	public ObjectGuid Target;
-	public byte PartyIndex;
-	public bool Apply;
-	public SetAssistantLeader(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Target;
+    public byte PartyIndex;
+    public bool Apply;
+    public SetAssistantLeader(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PartyIndex = _worldPacket.ReadUInt8();
-		Target = _worldPacket.ReadPackedGuid();
-		Apply = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        PartyIndex = _worldPacket.ReadUInt8();
+        Target = _worldPacket.ReadPackedGuid();
+        Apply = _worldPacket.HasBit();
+    }
 }

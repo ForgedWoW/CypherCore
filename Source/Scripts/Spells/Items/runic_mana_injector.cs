@@ -12,12 +12,12 @@ namespace Scripts.Spells.Items;
 [SpellScript(42545)]
 internal class runic_mana_injector : SpellScript, ISpellEnergizedBySpell
 {
-	public void EnergizeBySpell(Unit target, SpellInfo spellInfo, ref double amount, PowerType powerType)
-	{
-		var player = target.AsPlayer;
+    public void EnergizeBySpell(Unit target, SpellInfo spellInfo, ref double amount, PowerType powerType)
+    {
+        var player = target.AsPlayer;
 
-		if (player != null)
-			if (player.HasSkill(SkillType.Engineering))
-				MathFunctions.AddPct(ref amount, 25);
-	}
+        if (player != null)
+            if (player.HasSkill(SkillType.Engineering))
+                MathFunctions.AddPct(ref amount, 25);
+    }
 }

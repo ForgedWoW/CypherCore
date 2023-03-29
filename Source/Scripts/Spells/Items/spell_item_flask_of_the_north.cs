@@ -11,57 +11,57 @@ namespace Scripts.Spells.Items;
 [Script] // 67019 Flask of the North
 internal class spell_item_flask_of_the_north : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
-		List<uint> possibleSpells = new();
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
+        List<uint> possibleSpells = new();
 
-		switch (caster.Class)
-		{
-			case PlayerClass.Warlock:
-			case PlayerClass.Mage:
-			case PlayerClass.Priest:
-				possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthSp);
+        switch (caster.Class)
+        {
+            case PlayerClass.Warlock:
+            case PlayerClass.Mage:
+            case PlayerClass.Priest:
+                possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthSp);
 
-				break;
-			case PlayerClass.Deathknight:
-			case PlayerClass.Warrior:
-				possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthStr);
+                break;
+            case PlayerClass.Deathknight:
+            case PlayerClass.Warrior:
+                possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthStr);
 
-				break;
-			case PlayerClass.Rogue:
-			case PlayerClass.Hunter:
-				possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthAp);
+                break;
+            case PlayerClass.Rogue:
+            case PlayerClass.Hunter:
+                possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthAp);
 
-				break;
-			case PlayerClass.Druid:
-			case PlayerClass.Paladin:
-				possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthSp);
-				possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthStr);
+                break;
+            case PlayerClass.Druid:
+            case PlayerClass.Paladin:
+                possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthSp);
+                possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthStr);
 
-				break;
-			case PlayerClass.Shaman:
-				possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthSp);
-				possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthAp);
+                break;
+            case PlayerClass.Shaman:
+                possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthSp);
+                possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthAp);
 
-				break;
-		}
+                break;
+        }
 
-		if (possibleSpells.Empty())
-		{
-			Log.Logger.Warning("Missing spells for class {0} in script spell_item_flask_of_the_north", caster.Class);
+        if (possibleSpells.Empty())
+        {
+            Log.Logger.Warning("Missing spells for class {0} in script spell_item_flask_of_the_north", caster.Class);
 
-			return;
-		}
+            return;
+        }
 
-		caster.CastSpell(caster, possibleSpells.SelectRandom(), true);
-	}
+        caster.CastSpell(caster, possibleSpells.SelectRandom(), true);
+    }
 }

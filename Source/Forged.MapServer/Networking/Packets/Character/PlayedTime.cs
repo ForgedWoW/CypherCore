@@ -7,16 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class PlayedTime : ServerPacket
 {
-	public uint TotalTime;
-	public uint LevelTime;
-	public bool TriggerEvent;
-	public PlayedTime() : base(ServerOpcodes.PlayedTime, ConnectionType.Instance) { }
+    public uint TotalTime;
+    public uint LevelTime;
+    public bool TriggerEvent;
+    public PlayedTime() : base(ServerOpcodes.PlayedTime, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(TotalTime);
-		_worldPacket.WriteUInt32(LevelTime);
-		_worldPacket.WriteBit(TriggerEvent);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(TotalTime);
+        _worldPacket.WriteUInt32(LevelTime);
+        _worldPacket.WriteBit(TriggerEvent);
+        _worldPacket.FlushBits();
+    }
 }

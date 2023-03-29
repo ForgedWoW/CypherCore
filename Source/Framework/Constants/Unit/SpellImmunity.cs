@@ -5,12 +5,12 @@ namespace Framework.Constants;
 
 public enum SpellImmunity
 {
-	Effect = 0,   // enum SpellEffects
-	State = 1,    // enum AuraType
-	School = 2,   // enum SpellSchoolMask
-	Damage = 3,   // enum SpellSchoolMask
-	Dispel = 4,   // enum DispelType
-	Mechanic = 5, // enum Mechanics
-	Id = 6,
-	Max = 7
+    Effect = 0,   // enum SpellEffects
+    State = 1,    // enum AuraType
+    School = 2,   // enum SpellSchoolMask
+    Damage = 3,   // enum SpellSchoolMask
+    Dispel = 4,   // enum DispelType
+    Mechanic = 5, // enum Mechanics
+    Id = 6,
+    Max = 7
 }

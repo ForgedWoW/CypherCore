@@ -15,42 +15,42 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(201633)]
 public class spell_sha_earthen_shield_absorb : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAbsorb, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAbsorb, 0, AuraType.SchoolAbsorb));
+        AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0));
+    }
 
-	private void CalcAbsorb(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		if (!Caster)
-			return;
+    private void CalcAbsorb(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        if (!Caster)
+            return;
 
-		amount.Value = Caster.Health;
-	}
+        amount.Value = Caster.Health;
+    }
 
-	private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
-	{
-		var caster = Caster;
+    private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
+    {
+        var caster = Caster;
 
-		if (caster == null || !caster.IsTotem)
-			return absorbAmount;
+        if (caster == null || !caster.IsTotem)
+            return absorbAmount;
 
-		var owner = caster.OwnerUnit;
+        var owner = caster.OwnerUnit;
 
-		if (owner == null)
-			return absorbAmount;
+        if (owner == null)
+            return absorbAmount;
 
-		if (dmgInfo.Damage - owner.GetTotalSpellPowerValue(SpellSchoolMask.All, true) > 0)
-			absorbAmount = owner.GetTotalSpellPowerValue(SpellSchoolMask.All, true);
-		else
-			absorbAmount = dmgInfo.Damage;
+        if (dmgInfo.Damage - owner.GetTotalSpellPowerValue(SpellSchoolMask.All, true) > 0)
+            absorbAmount = owner.GetTotalSpellPowerValue(SpellSchoolMask.All, true);
+        else
+            absorbAmount = dmgInfo.Damage;
 
-		//201657 - The damager
-		caster.CastSpell(caster, 201657, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorbAmount));
+        //201657 - The damager
+        caster.CastSpell(caster, 201657, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorbAmount));
 
-		return absorbAmount;
-	}
+        return absorbAmount;
+    }
 }

@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class GossipComplete : ServerPacket
 {
-	public bool SuppressSound;
+    public bool SuppressSound;
 
-	public GossipComplete() : base(ServerOpcodes.GossipComplete) { }
+    public GossipComplete() : base(ServerOpcodes.GossipComplete) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(SuppressSound);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBit(SuppressSound);
+        _worldPacket.FlushBits();
+    }
 }

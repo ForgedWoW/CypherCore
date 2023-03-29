@@ -7,17 +7,17 @@ namespace Forged.MapServer.Networking.Packets.Token;
 
 internal class CommerceTokenGetMarketPriceResponse : ServerPacket
 {
-	public ulong CurrentMarketPrice;
-	public uint UnkInt; // send CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE
-	public TokenResult Result;
-	public uint AuctionDuration; // preset auction duration enum
-	public CommerceTokenGetMarketPriceResponse() : base(ServerOpcodes.CommerceTokenGetMarketPriceResponse) { }
+    public ulong CurrentMarketPrice;
+    public uint UnkInt; // send CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE
+    public TokenResult Result;
+    public uint AuctionDuration; // preset auction duration enum
+    public CommerceTokenGetMarketPriceResponse() : base(ServerOpcodes.CommerceTokenGetMarketPriceResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt64(CurrentMarketPrice);
-		_worldPacket.WriteUInt32(UnkInt);
-		_worldPacket.WriteUInt32((uint)Result);
-		_worldPacket.WriteUInt32(AuctionDuration);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt64(CurrentMarketPrice);
+        _worldPacket.WriteUInt32(UnkInt);
+        _worldPacket.WriteUInt32((uint)Result);
+        _worldPacket.WriteUInt32(AuctionDuration);
+    }
 }

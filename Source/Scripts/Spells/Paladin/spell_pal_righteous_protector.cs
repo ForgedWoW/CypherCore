@@ -14,33 +14,33 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(204074)] // 204074 - Righteous Protector
 internal class spell_pal_righteous_protector : AuraScript, IHasAuraEffects
 {
-	private SpellPowerCost _baseHolyPowerCost;
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    private SpellPowerCost _baseHolyPowerCost;
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraCheckEffectProcHandler(CheckEffectProc, 0, AuraType.Dummy));
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraCheckEffectProcHandler(CheckEffectProc, 0, AuraType.Dummy));
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private bool CheckEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		var procSpell = eventInfo.SpellInfo;
+    private bool CheckEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        var procSpell = eventInfo.SpellInfo;
 
-		if (procSpell != null)
-			_baseHolyPowerCost = procSpell.CalcPowerCost(PowerType.HolyPower, false, eventInfo.Actor, eventInfo.SchoolMask);
-		else
-			_baseHolyPowerCost = null;
+        if (procSpell != null)
+            _baseHolyPowerCost = procSpell.CalcPowerCost(PowerType.HolyPower, false, eventInfo.Actor, eventInfo.SchoolMask);
+        else
+            _baseHolyPowerCost = null;
 
-		return _baseHolyPowerCost != null;
-	}
+        return _baseHolyPowerCost != null;
+    }
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		var value = aurEff.Amount * 100 * _baseHolyPowerCost.Amount;
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        var value = aurEff.Amount * 100 * _baseHolyPowerCost.Amount;
 
-		Target.SpellHistory.ModifyCooldown(PaladinSpells.AvengingWrath, TimeSpan.FromMilliseconds(-value));
-		Target.SpellHistory.ModifyCooldown(PaladinSpells.GuardianOfAcientKings, TimeSpan.FromMilliseconds(-value));
-	}
+        Target.SpellHistory.ModifyCooldown(PaladinSpells.AvengingWrath, TimeSpan.FromMilliseconds(-value));
+        Target.SpellHistory.ModifyCooldown(PaladinSpells.GuardianOfAcientKings, TimeSpan.FromMilliseconds(-value));
+    }
 }

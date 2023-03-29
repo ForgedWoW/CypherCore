@@ -14,43 +14,43 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(157504)]
 public class spell_sha_cloudburst_effect : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void OnProc(AuraEffect p_AurEff, ProcEventInfo p_EventInfo)
-	{
-		PreventDefaultAction();
+    private void OnProc(AuraEffect p_AurEff, ProcEventInfo p_EventInfo)
+    {
+        PreventDefaultAction();
 
-		var l_HealInfo = p_EventInfo.HealInfo;
+        var l_HealInfo = p_EventInfo.HealInfo;
 
-		if (l_HealInfo == null)
-			return;
+        if (l_HealInfo == null)
+            return;
 
-		if (Global.SpellMgr.GetSpellInfo(TotemSpells.TOTEM_CLOUDBURST, Difficulty.None) != null)
-		{
-			var l_SpellInfo = Global.SpellMgr.GetSpellInfo(TotemSpells.TOTEM_CLOUDBURST, Difficulty.None);
-			GetEffect((byte)p_AurEff.EffIndex).SetAmount(p_AurEff.Amount + (int)MathFunctions.CalculatePct(l_HealInfo.Heal, l_SpellInfo.GetEffect(0).BasePoints));
-		}
-	}
+        if (Global.SpellMgr.GetSpellInfo(TotemSpells.TOTEM_CLOUDBURST, Difficulty.None) != null)
+        {
+            var l_SpellInfo = Global.SpellMgr.GetSpellInfo(TotemSpells.TOTEM_CLOUDBURST, Difficulty.None);
+            GetEffect((byte)p_AurEff.EffIndex).SetAmount(p_AurEff.Amount + (int)MathFunctions.CalculatePct(l_HealInfo.Heal, l_SpellInfo.GetEffect(0).BasePoints));
+        }
+    }
 
-	private void OnRemove(AuraEffect p_AurEff, AuraEffectHandleModes UnnamedParameter)
-	{
-		var l_Owner = Owner.AsUnit;
+    private void OnRemove(AuraEffect p_AurEff, AuraEffectHandleModes UnnamedParameter)
+    {
+        var l_Owner = Owner.AsUnit;
 
-		if (l_Owner != null)
-		{
-			var l_Amount = p_AurEff.Amount;
+        if (l_Owner != null)
+        {
+            var l_Amount = p_AurEff.Amount;
 
-			if (p_AurEff.Amount != 0)
-			{
-				l_Owner.CastSpell(l_Owner, TotemSpells.TOTEM_CLOUDBURST, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)l_Amount));
-				GetEffect((byte)p_AurEff.EffIndex).SetAmount(0);
-			}
-		}
-	}
+            if (p_AurEff.Amount != 0)
+            {
+                l_Owner.CastSpell(l_Owner, TotemSpells.TOTEM_CLOUDBURST, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)l_Amount));
+                GetEffect((byte)p_AurEff.EffIndex).SetAmount(0);
+            }
+        }
+    }
 }

@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverRequestReward : ClientPacket
 {
-	public ObjectGuid QuestGiverGUID;
-	public uint QuestID;
-	public QuestGiverRequestReward(WorldPacket packet) : base(packet) { }
+    public ObjectGuid QuestGiverGUID;
+    public uint QuestID;
+    public QuestGiverRequestReward(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		QuestGiverGUID = _worldPacket.ReadPackedGuid();
-		QuestID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        QuestGiverGUID = _worldPacket.ReadPackedGuid();
+        QuestID = _worldPacket.ReadUInt32();
+    }
 }

@@ -11,10 +11,10 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(216860)]
 public class spell_pal_judgement_of_the_pure : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var spellinfo = eventInfo.SpellInfo;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var spellinfo = eventInfo.SpellInfo;
 
-		return spellinfo != null && eventInfo.SpellInfo.Id == PaladinSpells.JUDGMENT;
-	}
+        return spellinfo != null && eventInfo.SpellInfo.Id == PaladinSpells.JUDGMENT;
+    }
 }

@@ -5,5 +5,5 @@ namespace System.Collections.Generic;
 
 public interface IDoWork<in T>
 {
-	void Invoke(T obj);
+    void Invoke(T obj);
 }

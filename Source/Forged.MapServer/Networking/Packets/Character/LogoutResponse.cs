@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class LogoutResponse : ServerPacket
 {
-	public int LogoutResult;
-	public bool Instant = false;
-	public LogoutResponse() : base(ServerOpcodes.LogoutResponse, ConnectionType.Instance) { }
+    public int LogoutResult;
+    public bool Instant = false;
+    public LogoutResponse() : base(ServerOpcodes.LogoutResponse, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(LogoutResult);
-		_worldPacket.WriteBit(Instant);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(LogoutResult);
+        _worldPacket.WriteBit(Instant);
+        _worldPacket.FlushBits();
+    }
 }

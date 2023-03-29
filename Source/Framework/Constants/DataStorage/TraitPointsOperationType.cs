@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum TraitPointsOperationType
 {
-	None = -1,
-	Set = 0,
-	Multiply = 1
+    None = -1,
+    Set = 0,
+    Multiply = 1
 }

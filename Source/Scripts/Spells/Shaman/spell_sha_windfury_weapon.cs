@@ -12,23 +12,23 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(33757)]
 internal class spell_sha_windfury_weapon : SpellScript, ISpellOnCast, ISpellCheckCast
 {
-	Item _item;
+    Item _item;
 
-	public SpellCastResult CheckCast()
-	{
-		_item = Caster.AsPlayer.GetWeaponForAttack(WeaponAttackType.BaseAttack, false);
+    public SpellCastResult CheckCast()
+    {
+        _item = Caster.AsPlayer.GetWeaponForAttack(WeaponAttackType.BaseAttack, false);
 
-		return _item == null || !_item.Template.IsWeapon ? SpellCastResult.TargetNoWeapons : SpellCastResult.SpellCastOk;
-	}
+        return _item == null || !_item.Template.IsWeapon ? SpellCastResult.TargetNoWeapons : SpellCastResult.SpellCastOk;
+    }
 
 
-	public override bool Load()
-	{
-		return Caster.IsPlayer;
-	}
+    public override bool Load()
+    {
+        return Caster.IsPlayer;
+    }
 
-	public void OnCast()
-	{
-		Caster.CastSpell(_item, ShamanSpells.WindfuryEnchantment, Spell);
-	}
+    public void OnCast()
+    {
+        Caster.CastSpell(_item, ShamanSpells.WindfuryEnchantment, Spell);
+    }
 }

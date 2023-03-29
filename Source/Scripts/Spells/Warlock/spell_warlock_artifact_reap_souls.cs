@@ -12,33 +12,33 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(216698)]
 public class spell_warlock_artifact_reap_souls : SpellScript, IHasSpellEffects, ISpellCheckCast
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public SpellCastResult CheckCast()
-	{
-		var caster = Caster;
+    public SpellCastResult CheckCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return SpellCastResult.DontReport;
+        if (caster == null)
+            return SpellCastResult.DontReport;
 
-		if (!caster.HasAura(WarlockSpells.TORMENTED_SOULS))
-			return SpellCastResult.CantDoThatRightNow;
+        if (!caster.HasAura(WarlockSpells.TORMENTED_SOULS))
+            return SpellCastResult.CantDoThatRightNow;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		caster.CastSpell(caster, WarlockSpells.DEADWIND_HARVERST, true);
-	}
+        caster.CastSpell(caster, WarlockSpells.DEADWIND_HARVERST, true);
+    }
 }

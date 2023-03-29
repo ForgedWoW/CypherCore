@@ -9,12 +9,12 @@ namespace Scripts.Spells.Hunter;
 [Script] // 781 - Disengage
 internal class spell_hun_posthaste : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		if (Caster.HasAura(HunterSpells.PosthasteTalent))
-		{
-			Caster.RemoveMovementImpairingAuras(true);
-			Caster.CastSpell(Caster, HunterSpells.PosthasteIncreaseSpeed, Spell);
-		}
-	}
+    public void AfterCast()
+    {
+        if (Caster.HasAura(HunterSpells.PosthasteTalent))
+        {
+            Caster.RemoveMovementImpairingAuras(true);
+            Caster.CastSpell(Caster, HunterSpells.PosthasteIncreaseSpeed, Spell);
+        }
+    }
 }

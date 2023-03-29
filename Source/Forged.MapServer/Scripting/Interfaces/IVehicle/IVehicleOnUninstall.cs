@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IVehicle;
 
 public interface IVehicleOnUninstall : IScriptObject
 {
-	void OnUninstall(Vehicle veh);
+    void OnUninstall(Vehicle veh);
 }

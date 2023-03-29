@@ -5,15 +5,15 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class MinimapPingClient : ClientPacket
 {
-	public sbyte PartyIndex;
-	public float PositionX;
-	public float PositionY;
-	public MinimapPingClient(WorldPacket packet) : base(packet) { }
+    public sbyte PartyIndex;
+    public float PositionX;
+    public float PositionY;
+    public MinimapPingClient(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PositionX = _worldPacket.ReadFloat();
-		PositionY = _worldPacket.ReadFloat();
-		PartyIndex = _worldPacket.ReadInt8();
-	}
+    public override void Read()
+    {
+        PositionX = _worldPacket.ReadFloat();
+        PositionY = _worldPacket.ReadFloat();
+        PartyIndex = _worldPacket.ReadInt8();
+    }
 }

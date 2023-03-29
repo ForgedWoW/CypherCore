@@ -5,5 +5,5 @@ namespace Framework.Database;
 
 public interface ISqlOperation
 {
-	bool Execute<T>(MySqlBase<T> mySqlBase);
+    bool Execute<T>(MySqlBase<T> mySqlBase);
 }

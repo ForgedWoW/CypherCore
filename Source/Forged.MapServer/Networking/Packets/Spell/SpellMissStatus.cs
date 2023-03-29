@@ -7,22 +7,22 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellMissStatus
 {
-	public SpellMissStatus(SpellMissInfo reason, SpellMissInfo reflectStatus)
-	{
-		Reason = reason;
-		ReflectStatus = reflectStatus;
-	}
+    public SpellMissStatus(SpellMissInfo reason, SpellMissInfo reflectStatus)
+    {
+        Reason = reason;
+        ReflectStatus = reflectStatus;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteBits((byte)Reason, 4);
+    public void Write(WorldPacket data)
+    {
+        data.WriteBits((byte)Reason, 4);
 
-		if (Reason == SpellMissInfo.Reflect)
-			data.WriteBits(ReflectStatus, 4);
+        if (Reason == SpellMissInfo.Reflect)
+            data.WriteBits(ReflectStatus, 4);
 
-		data.FlushBits();
-	}
+        data.FlushBits();
+    }
 
-	public SpellMissInfo Reason;
-	public SpellMissInfo ReflectStatus;
+    public SpellMissInfo Reason;
+    public SpellMissInfo ReflectStatus;
 }

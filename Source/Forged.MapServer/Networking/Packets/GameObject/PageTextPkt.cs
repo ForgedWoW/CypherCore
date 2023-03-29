@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class PageTextPkt : ServerPacket
 {
-	public ObjectGuid GameObjectGUID;
-	public PageTextPkt() : base(ServerOpcodes.PageText) { }
+    public ObjectGuid GameObjectGUID;
+    public PageTextPkt() : base(ServerOpcodes.PageText) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(GameObjectGUID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(GameObjectGUID);
+    }
 }

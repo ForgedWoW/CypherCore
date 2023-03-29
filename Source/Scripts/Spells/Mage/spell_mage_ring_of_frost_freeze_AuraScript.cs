@@ -12,18 +12,18 @@ namespace Scripts.Spells.Mage;
 [Script]
 internal class spell_mage_ring_of_frost_freeze_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ModStun, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ModStun, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)
-			if (Caster)
-				Caster.CastSpell(Target, MageSpells.RingOfFrostDummy, true);
-	}
+    private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)
+            if (Caster)
+                Caster.CastSpell(Target, MageSpells.RingOfFrostDummy, true);
+    }
 }

@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventRanksUpdated : ServerPacket
 {
-	public GuildEventRanksUpdated() : base(ServerOpcodes.GuildEventRanksUpdated) { }
+    public GuildEventRanksUpdated() : base(ServerOpcodes.GuildEventRanksUpdated) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

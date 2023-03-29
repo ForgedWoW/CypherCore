@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Reputation;
 
 internal class SetForcedReactions : ServerPacket
 {
-	public List<ForcedReaction> Reactions = new();
-	public SetForcedReactions() : base(ServerOpcodes.SetForcedReactions, ConnectionType.Instance) { }
+    public List<ForcedReaction> Reactions = new();
+    public SetForcedReactions() : base(ServerOpcodes.SetForcedReactions, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Reactions.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Reactions.Count);
 
-		foreach (var reaction in Reactions)
-			reaction.Write(_worldPacket);
-	}
+        foreach (var reaction in Reactions)
+            reaction.Write(_worldPacket);
+    }
 }

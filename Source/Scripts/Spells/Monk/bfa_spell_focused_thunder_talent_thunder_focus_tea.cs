@@ -13,26 +13,26 @@ namespace Scripts.Spells.Monk;
 [SpellScript(116680)]
 public class bfa_spell_focused_thunder_talent_thunder_focus_tea : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.AddFlatModifier, AuraEffectHandleModes.Real));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.AddFlatModifier, AuraEffectHandleModes.Real));
+    }
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		Unit caster = Caster.AsPlayer;
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        Unit caster = Caster.AsPlayer;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (caster.HasAura(MonkSpells.FOCUSED_THUNDER_TALENT))
-		{
-			var thunder = caster.GetAura(MonkSpells.THUNDER_FOCUS_TEA);
+        if (caster.HasAura(MonkSpells.FOCUSED_THUNDER_TALENT))
+        {
+            var thunder = caster.GetAura(MonkSpells.THUNDER_FOCUS_TEA);
 
-			if (thunder != null)
-				thunder.SetStackAmount(2);
-		}
-	}
+            if (thunder != null)
+                thunder.SetStackAmount(2);
+        }
+    }
 }

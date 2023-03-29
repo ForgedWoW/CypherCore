@@ -11,62 +11,62 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockCaverns.AscendantLo
 
 internal struct SpellIds
 {
-	public const uint ManaTap = 36021;
-	public const uint ArcaneTorrent = 36022;
-	public const uint Domination = 35280;
+    public const uint ManaTap = 36021;
+    public const uint ArcaneTorrent = 36022;
+    public const uint Domination = 35280;
 }
 
 internal struct TextIds
 {
-	public const uint YellAggro = 0;
-	public const uint YellKill = 1;
-	public const uint YellSwitchingShadows = 2;
-	public const uint YellDeath = 3;
+    public const uint YellAggro = 0;
+    public const uint YellKill = 1;
+    public const uint YellSwitchingShadows = 2;
+    public const uint YellDeath = 3;
 
-	public const uint EmoteSwitchingShadows = 4;
+    public const uint EmoteSwitchingShadows = 4;
 }
 
 [Script]
 internal class boss_ascendant_lord_obsidius : BossAI
 {
-	public boss_ascendant_lord_obsidius(Creature creature) : base(creature, DataTypes.AscendantLordObsidius) { }
+    public boss_ascendant_lord_obsidius(Creature creature) : base(creature, DataTypes.AscendantLordObsidius) { }
 
-	public override void Reset()
-	{
-		_Reset();
-	}
+    public override void Reset()
+    {
+        _Reset();
+    }
 
-	public override void JustEngagedWith(Unit who)
-	{
-		base.JustEngagedWith(who);
+    public override void JustEngagedWith(Unit who)
+    {
+        base.JustEngagedWith(who);
 
-		Scheduler.Schedule(TimeSpan.FromSeconds(30),
-							ScheduleTasks =>
-							{
-								DoCastVictim(SpellIds.ManaTap, new CastSpellExtraArgs(true));
-								ScheduleTasks.Repeat(TimeSpan.FromSeconds(14), TimeSpan.FromSeconds(22));
-							});
+        Scheduler.Schedule(TimeSpan.FromSeconds(30),
+                           ScheduleTasks =>
+                           {
+                               DoCastVictim(SpellIds.ManaTap, new CastSpellExtraArgs(true));
+                               ScheduleTasks.Repeat(TimeSpan.FromSeconds(14), TimeSpan.FromSeconds(22));
+                           });
 
-		Talk(TextIds.YellAggro);
-	}
+        Talk(TextIds.YellAggro);
+    }
 
-	public override void KilledUnit(Unit who)
-	{
-		if (who.IsPlayer)
-			Talk(TextIds.YellKill);
-	}
+    public override void KilledUnit(Unit who)
+    {
+        if (who.IsPlayer)
+            Talk(TextIds.YellKill);
+    }
 
-	public override void JustDied(Unit killer)
-	{
-		_JustDied();
-		Talk(TextIds.YellDeath);
-	}
+    public override void JustDied(Unit killer)
+    {
+        _JustDied();
+        Talk(TextIds.YellDeath);
+    }
 
-	public override void UpdateAI(uint diff)
-	{
-		if (!UpdateVictim())
-			return;
+    public override void UpdateAI(uint diff)
+    {
+        if (!UpdateVictim())
+            return;
 
-		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
-	}
+        Scheduler.Update(diff, () => DoMeleeAttackIfReady());
+    }
 }

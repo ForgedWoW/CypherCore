@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum GarrisonFollowerType
 {
-	Garrison = 1,
-	Shipyard = 2,
-	ClassOrder = 4,
-	WarCampaign = 11,
-	Covenant = 123
+    Garrison = 1,
+    Shipyard = 2,
+    ClassOrder = 4,
+    WarCampaign = 11,
+    Covenant = 123
 }

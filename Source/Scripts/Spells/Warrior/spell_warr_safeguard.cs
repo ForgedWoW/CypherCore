@@ -10,13 +10,13 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(223657)]
 public class spell_warr_safeguard : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
+    public void OnHit()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		caster.RemoveMovementImpairingAuras(true);
-	}
+        caster.RemoveMovementImpairingAuras(true);
+    }
 }

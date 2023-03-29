@@ -8,19 +8,19 @@ namespace Forged.MapServer.Phasing;
 
 public class PhaseRef
 {
-	public PhaseFlags Flags;
-	public int References;
-	public List<Condition> AreaConditions;
+    public PhaseFlags Flags;
+    public int References;
+    public List<Condition> AreaConditions;
 
-	public PhaseRef(PhaseFlags flags, List<Condition> conditions)
-	{
-		Flags = flags;
-		References = 0;
-		AreaConditions = conditions;
-	}
+    public PhaseRef(PhaseFlags flags, List<Condition> conditions)
+    {
+        Flags = flags;
+        References = 0;
+        AreaConditions = conditions;
+    }
 
-	public bool IsPersonal()
-	{
-		return Flags.HasFlag(PhaseFlags.Personal);
-	}
+    public bool IsPersonal()
+    {
+        return Flags.HasFlag(PhaseFlags.Personal);
+    }
 }

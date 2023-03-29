@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class ResyncRunes : ServerPacket
 {
-	public RuneData Runes = new();
-	public ResyncRunes() : base(ServerOpcodes.ResyncRunes) { }
+    public RuneData Runes = new();
+    public ResyncRunes() : base(ServerOpcodes.ResyncRunes) { }
 
-	public override void Write()
-	{
-		Runes.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        Runes.Write(_worldPacket);
+    }
 }

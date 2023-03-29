@@ -14,21 +14,21 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(219415)]
 public class spell_warlock_artifact_dimension_ripper : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		PreventDefaultAction();
-		var caster = Caster;
+    private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        PreventDefaultAction();
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		caster.SpellHistory.RestoreCharge(Global.SpellMgr.GetSpellInfo(WarlockSpells.DIMENSIONAL_RIFT, Difficulty.None).ChargeCategoryId);
-	}
+        caster.SpellHistory.RestoreCharge(Global.SpellMgr.GetSpellInfo(WarlockSpells.DIMENSIONAL_RIFT, Difficulty.None).ChargeCategoryId);
+    }
 }

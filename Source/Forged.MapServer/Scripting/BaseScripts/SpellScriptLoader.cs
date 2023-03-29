@@ -7,19 +7,19 @@ namespace Forged.MapServer.Scripting.BaseScripts;
 
 public class SpellScriptLoader : ScriptObject, ISpellScriptLoaderGetSpellScript
 {
-	public SpellScriptLoader(string name) : base(name)
-	{
-		Global.ScriptMgr.AddScript(this);
-	}
+    public SpellScriptLoader(string name) : base(name)
+    {
+        Global.ScriptMgr.AddScript(this);
+    }
 
-	public override bool IsDatabaseBound()
-	{
-		return true;
-	}
+    public override bool IsDatabaseBound()
+    {
+        return true;
+    }
 
-	// Should return a fully valid SpellScript.
-	public virtual SpellScript GetSpellScript()
-	{
-		return null;
-	}
+    // Should return a fully valid SpellScript.
+    public virtual SpellScript GetSpellScript()
+    {
+        return null;
+    }
 }

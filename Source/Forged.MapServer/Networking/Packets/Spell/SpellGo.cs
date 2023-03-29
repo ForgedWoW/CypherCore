@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class SpellGo : CombatLogServerPacket
 {
-	public SpellCastData Cast = new();
-	public SpellGo() : base(ServerOpcodes.SpellGo, ConnectionType.Instance) { }
+    public SpellCastData Cast = new();
+    public SpellGo() : base(ServerOpcodes.SpellGo, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		Cast.Write(_worldPacket);
+    public override void Write()
+    {
+        Cast.Write(_worldPacket);
 
-		WriteLogDataBit();
-		FlushBits();
+        WriteLogDataBit();
+        FlushBits();
 
-		WriteLogData();
-	}
+        WriteLogData();
+    }
 }

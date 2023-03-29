@@ -9,13 +9,13 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(207810)]
 public class spell_dh_nether_bond : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		caster.CastSpell(caster, DemonHunterSpells.NETHER_BOND_PERIODIC, true);
-	}
+        caster.CastSpell(caster, DemonHunterSpells.NETHER_BOND_PERIODIC, true);
+    }
 }

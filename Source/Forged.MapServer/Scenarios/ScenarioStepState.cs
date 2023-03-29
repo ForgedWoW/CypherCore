@@ -5,8 +5,8 @@ namespace Forged.MapServer.Scenarios;
 
 public enum ScenarioStepState
 {
-	Invalid = 0,
-	NotStarted = 1,
-	InProgress = 2,
-	Done = 3
+    Invalid = 0,
+    NotStarted = 1,
+    InProgress = 2,
+    Done = 3
 }

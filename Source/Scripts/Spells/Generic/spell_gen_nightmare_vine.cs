@@ -11,22 +11,22 @@ namespace Scripts.Spells.Generic;
 [Script] // 28720 - Nightmare Vine
 internal class spell_gen_nightmare_vine : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		var target = HitUnit;
+    private void HandleScript(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        var target = HitUnit;
 
-		if (target)
-			// 25% chance of casting Nightmare Pollen
-			if (RandomHelper.randChance(25))
-				target.CastSpell(target, GenericSpellIds.NightmarePollen, true);
-	}
+        if (target)
+            // 25% chance of casting Nightmare Pollen
+            if (RandomHelper.randChance(25))
+                target.CastSpell(target, GenericSpellIds.NightmarePollen, true);
+    }
 }

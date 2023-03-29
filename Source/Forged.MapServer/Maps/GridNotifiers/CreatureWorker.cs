@@ -15,23 +15,23 @@ public class CreatureWorker : IGridNotifierCreature
     private readonly PhaseShift _phaseShift;
     private readonly IDoWork<Creature> _doWork;
 
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public CreatureWorker(WorldObject searcher, IDoWork<Creature> work, GridType gridType)
-	{
-		_phaseShift = searcher.PhaseShift;
-		_doWork = work;
-		GridType = gridType;
-	}
+    public CreatureWorker(WorldObject searcher, IDoWork<Creature> work, GridType gridType)
+    {
+        _phaseShift = searcher.PhaseShift;
+        _doWork = work;
+        GridType = gridType;
+    }
 
-	public void Visit(IList<Creature> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var creature = objs[i];
+    public void Visit(IList<Creature> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var creature = objs[i];
 
-			if (creature.InSamePhase(_phaseShift))
-				_doWork.Invoke(creature);
-		}
-	}
+            if (creature.InSamePhase(_phaseShift))
+                _doWork.Invoke(creature);
+        }
+    }
 }

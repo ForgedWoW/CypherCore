@@ -13,20 +13,20 @@ namespace Scripts.Spells.Warrior;
 [Script]
 internal class spell_warr_sudden_death : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply)); // correct?
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply)); // correct?
+    }
 
-	private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		// Remove cooldown on Colossus Smash
-		var player = Target.AsPlayer;
+    private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        // Remove cooldown on Colossus Smash
+        var player = Target.AsPlayer;
 
-		if (player)
-			player.SpellHistory.ResetCooldown(WarriorSpells.COLOSSUS_SMASH, true);
-	}
+        if (player)
+            player.SpellHistory.ResetCooldown(WarriorSpells.COLOSSUS_SMASH, true);
+    }
 }

@@ -13,30 +13,30 @@ namespace Scripts.Spells.Items;
 [Script] // 45043 - Power Circle (Shifting Naaru Sliver)
 internal class spell_item_power_circle : AuraScript, IAuraCheckAreaTarget, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckAreaTarget(Unit target)
-	{
-		return target.GUID == CasterGUID;
-	}
+    public bool CheckAreaTarget(Unit target)
+    {
+        return target.GUID == CasterGUID;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.CastSpell(null, ItemSpellIds.LimitlessPower, true);
-		var buff = Target.GetAura(ItemSpellIds.LimitlessPower);
+    private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.CastSpell(null, ItemSpellIds.LimitlessPower, true);
+        var buff = Target.GetAura(ItemSpellIds.LimitlessPower);
 
-		buff?.SetDuration(Duration);
-	}
+        buff?.SetDuration(Duration);
+    }
 
-	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.RemoveAura(ItemSpellIds.LimitlessPower);
-	}
+    private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.RemoveAura(ItemSpellIds.LimitlessPower);
+    }
 }

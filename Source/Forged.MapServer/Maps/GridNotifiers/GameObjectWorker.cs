@@ -15,23 +15,23 @@ public class GameObjectWorker : IGridNotifierGameObject
     private readonly PhaseShift _phaseShift;
     private readonly IDoWork<GameObject> _doWork;
 
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public GameObjectWorker(WorldObject searcher, IDoWork<GameObject> work, GridType gridType)
-	{
-		_phaseShift = searcher.PhaseShift;
-		_doWork = work;
-		GridType = gridType;
-	}
+    public GameObjectWorker(WorldObject searcher, IDoWork<GameObject> work, GridType gridType)
+    {
+        _phaseShift = searcher.PhaseShift;
+        _doWork = work;
+        GridType = gridType;
+    }
 
-	public void Visit(IList<GameObject> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var gameObject = objs[i];
+    public void Visit(IList<GameObject> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var gameObject = objs[i];
 
-			if (gameObject.InSamePhase(_phaseShift))
-				_doWork.Invoke(gameObject);
-		}
-	}
+            if (gameObject.InSamePhase(_phaseShift))
+                _doWork.Invoke(gameObject);
+        }
+    }
 }

@@ -13,9 +13,9 @@ public class spell_evoker_resonating_sphere : SpellScript, ISpellCalculateBonusC
     {
         var aura = Spell.TriggeredByAuraSpell;
 
-		if (aura != null && aura.Id == EvokerSpells.RESONATING_SPHERE)
-			bonusCoefficient *= aura.GetEffect(0).BasePoints * 0.01;
+        if (aura != null && aura.Id == EvokerSpells.RESONATING_SPHERE)
+            bonusCoefficient *= aura.GetEffect(0).BasePoints * 0.01;
 
-		return bonusCoefficient;
+        return bonusCoefficient;
     }
 }

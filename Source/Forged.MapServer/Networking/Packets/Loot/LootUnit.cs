@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootUnit : ClientPacket
 {
-	public ObjectGuid Unit;
-	public bool IsSoftInteract;
-	public LootUnit(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Unit;
+    public bool IsSoftInteract;
+    public LootUnit(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Unit = _worldPacket.ReadPackedGuid();
-		IsSoftInteract = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        Unit = _worldPacket.ReadPackedGuid();
+        IsSoftInteract = _worldPacket.HasBit();
+    }
 }
 
 //Structs

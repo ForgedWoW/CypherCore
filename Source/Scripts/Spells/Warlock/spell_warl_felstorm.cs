@@ -12,27 +12,27 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(119914)]
 public class spell_warl_felstorm : SpellScript, ISpellAfterHit, ISpellCheckCast
 {
-	public void AfterHit()
-	{
-		var caster = Caster;
+    public void AfterHit()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		caster.AsPlayer.SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(45));
-	}
+        caster.AsPlayer.SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(45));
+    }
 
-	public SpellCastResult CheckCast()
-	{
-		var caster = Caster;
-		var pet = caster.GetGuardianPet();
+    public SpellCastResult CheckCast()
+    {
+        var caster = Caster;
+        var pet = caster.GetGuardianPet();
 
-		if (caster == null || pet == null)
-			return SpellCastResult.DontReport;
+        if (caster == null || pet == null)
+            return SpellCastResult.DontReport;
 
-		if (pet.SpellHistory.HasCooldown(WarlockSpells.FELGUARD_FELSTORM))
-			return SpellCastResult.CantDoThatRightNow;
+        if (pet.SpellHistory.HasCooldown(WarlockSpells.FELGUARD_FELSTORM))
+            return SpellCastResult.CantDoThatRightNow;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

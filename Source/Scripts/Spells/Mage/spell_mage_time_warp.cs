@@ -13,27 +13,27 @@ namespace Scripts.Spells.Mage;
 [Script] // 80353 - Time Warp
 internal class spell_mage_time_warp : SpellScript, ISpellAfterHit, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public void AfterHit()
-	{
-		var target = HitUnit;
+    public void AfterHit()
+    {
+        var target = HitUnit;
 
-		if (target)
-			target.CastSpell(target, MageSpells.TemporalDisplacement, true);
-	}
+        if (target)
+            target.CastSpell(target, MageSpells.TemporalDisplacement, true);
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, SpellConst.EffectAll, Targets.UnitCasterAreaRaid));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, SpellConst.EffectAll, Targets.UnitCasterAreaRaid));
+    }
 
-	private void RemoveInvalidTargets(List<WorldObject> targets)
-	{
-		targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.TemporalDisplacement));
-		targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.HunterInsanity));
-		targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.ShamanExhaustion));
-		targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.ShamanSated));
-	}
+    private void RemoveInvalidTargets(List<WorldObject> targets)
+    {
+        targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.TemporalDisplacement));
+        targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.HunterInsanity));
+        targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.ShamanExhaustion));
+        targets.RemoveAll(new UnitAuraCheck<WorldObject>(true, MageSpells.ShamanSated));
+    }
 }

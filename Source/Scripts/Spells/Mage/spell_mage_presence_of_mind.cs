@@ -10,11 +10,11 @@ namespace Scripts.Spells.Mage;
 [SpellScript(205025)]
 public class spell_mage_presence_of_mind : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo.Id == MageSpells.ARCANE_BLAST)
-			return true;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo.Id == MageSpells.ARCANE_BLAST)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

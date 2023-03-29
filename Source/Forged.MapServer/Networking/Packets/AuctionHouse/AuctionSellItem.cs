@@ -9,31 +9,31 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionSellItem : ClientPacket
 {
-	public ulong BuyoutPrice;
-	public ObjectGuid Auctioneer;
-	public ulong MinBid;
-	public uint RunTime;
-	public AddOnInfo? TaintedBy;
-	public Array<AuctionItemForSale> Items = new(1);
+    public ulong BuyoutPrice;
+    public ObjectGuid Auctioneer;
+    public ulong MinBid;
+    public uint RunTime;
+    public AddOnInfo? TaintedBy;
+    public Array<AuctionItemForSale> Items = new(1);
 
-	public AuctionSellItem(WorldPacket packet) : base(packet) { }
+    public AuctionSellItem(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Auctioneer = _worldPacket.ReadPackedGuid();
-		MinBid = _worldPacket.ReadUInt64();
-		BuyoutPrice = _worldPacket.ReadUInt64();
-		RunTime = _worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        Auctioneer = _worldPacket.ReadPackedGuid();
+        MinBid = _worldPacket.ReadUInt64();
+        BuyoutPrice = _worldPacket.ReadUInt64();
+        RunTime = _worldPacket.ReadUInt32();
 
-		if (_worldPacket.HasBit())
-			TaintedBy = new AddOnInfo();
+        if (_worldPacket.HasBit())
+            TaintedBy = new AddOnInfo();
 
-		var itemCount = _worldPacket.ReadBits<uint>(6);
+        var itemCount = _worldPacket.ReadBits<uint>(6);
 
-		if (TaintedBy.HasValue)
-			TaintedBy.Value.Read(_worldPacket);
+        if (TaintedBy.HasValue)
+            TaintedBy.Value.Read(_worldPacket);
 
-		for (var i = 0; i < itemCount; ++i)
-			Items[i] = new AuctionItemForSale(_worldPacket);
-	}
+        for (var i = 0; i < itemCount; ++i)
+            Items[i] = new AuctionItemForSale(_worldPacket);
+    }
 }

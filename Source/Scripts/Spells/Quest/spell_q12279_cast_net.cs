@@ -11,15 +11,15 @@ namespace Scripts.Spells.Quest;
 [Script]
 internal class spell_q12279_cast_net : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleActiveObject, 1, SpellEffectName.ActivateObject, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleActiveObject, 1, SpellEffectName.ActivateObject, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleActiveObject(int effIndex)
-	{
-		HitGObj.SetLootState(LootState.JustDeactivated);
-	}
+    private void HandleActiveObject(int effIndex)
+    {
+        HitGObj.SetLootState(LootState.JustDeactivated);
+    }
 }

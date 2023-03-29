@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class CorpseReclaimDelay : ServerPacket
 {
-	public uint Remaining;
-	public CorpseReclaimDelay() : base(ServerOpcodes.CorpseReclaimDelay, ConnectionType.Instance) { }
+    public uint Remaining;
+    public CorpseReclaimDelay() : base(ServerOpcodes.CorpseReclaimDelay, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(Remaining);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(Remaining);
+    }
 }

@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Social;
 
 public class AddIgnore : ClientPacket
 {
-	public string Name;
-	public ObjectGuid AccountGUID;
-	public AddIgnore(WorldPacket packet) : base(packet) { }
+    public string Name;
+    public ObjectGuid AccountGUID;
+    public AddIgnore(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var nameLength = _worldPacket.ReadBits<uint>(9);
-		AccountGUID = _worldPacket.ReadPackedGuid();
-		Name = _worldPacket.ReadString(nameLength);
-	}
+    public override void Read()
+    {
+        var nameLength = _worldPacket.ReadBits<uint>(9);
+        AccountGUID = _worldPacket.ReadPackedGuid();
+        Name = _worldPacket.ReadString(nameLength);
+    }
 }

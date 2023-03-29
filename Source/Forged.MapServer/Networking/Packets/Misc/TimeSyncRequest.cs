@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class TimeSyncRequest : ServerPacket
 {
-	public uint SequenceIndex;
-	public TimeSyncRequest() : base(ServerOpcodes.TimeSyncRequest, ConnectionType.Instance) { }
+    public uint SequenceIndex;
+    public TimeSyncRequest() : base(ServerOpcodes.TimeSyncRequest, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(SequenceIndex);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(SequenceIndex);
+    }
 }

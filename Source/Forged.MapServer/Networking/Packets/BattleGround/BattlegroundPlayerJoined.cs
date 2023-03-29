@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class BattlegroundPlayerJoined : ServerPacket
 {
-	public ObjectGuid Guid;
-	public BattlegroundPlayerJoined() : base(ServerOpcodes.BattlegroundPlayerJoined, ConnectionType.Instance) { }
+    public ObjectGuid Guid;
+    public BattlegroundPlayerJoined() : base(ServerOpcodes.BattlegroundPlayerJoined, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Guid);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Guid);
+    }
 }

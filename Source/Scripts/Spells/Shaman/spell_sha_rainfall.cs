@@ -10,11 +10,11 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(215864)]
 public class spell_sha_rainfall_SpellScript : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var pos = HitDest;
+    public void OnHit()
+    {
+        var pos = HitDest;
 
-		if (pos != null)
-			Caster.SummonCreature(ShamanNpcs.NPC_RAINFALL, pos);
-	}
+        if (pos != null)
+            Caster.SummonCreature(ShamanNpcs.NPC_RAINFALL, pos);
+    }
 }

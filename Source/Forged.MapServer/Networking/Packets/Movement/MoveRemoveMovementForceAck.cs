@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class MoveRemoveMovementForceAck : ClientPacket
 {
-	public MovementAck Ack = new();
-	public ObjectGuid ID;
-	public MoveRemoveMovementForceAck(WorldPacket packet) : base(packet) { }
+    public MovementAck Ack = new();
+    public ObjectGuid ID;
+    public MoveRemoveMovementForceAck(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Ack.Read(_worldPacket);
-		ID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Ack.Read(_worldPacket);
+        ID = _worldPacket.ReadPackedGuid();
+    }
 }

@@ -10,58 +10,58 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.BlackwingLair.Flamegor;
 
 internal struct SpellIds
 {
-	public const uint Shadowflame = 22539;
-	public const uint Wingbuffet = 23339;
-	public const uint Frenzy = 23342; //This spell periodically triggers fire nova
+    public const uint Shadowflame = 22539;
+    public const uint Wingbuffet = 23339;
+    public const uint Frenzy = 23342; //This spell periodically triggers fire nova
 }
 
 internal struct TextIds
 {
-	public const uint EmoteFrenzy = 0;
+    public const uint EmoteFrenzy = 0;
 }
 
 [Script]
 internal class boss_flamegor : BossAI
 {
-	public boss_flamegor(Creature creature) : base(creature, DataTypes.Flamegor) { }
+    public boss_flamegor(Creature creature) : base(creature, DataTypes.Flamegor) { }
 
-	public override void JustEngagedWith(Unit who)
-	{
-		base.JustEngagedWith(who);
+    public override void JustEngagedWith(Unit who)
+    {
+        base.JustEngagedWith(who);
 
-		Scheduler.Schedule(TimeSpan.FromSeconds(10),
-							TimeSpan.FromSeconds(20),
-							task =>
-							{
-								DoCastVictim(SpellIds.Shadowflame);
-								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
-							});
+        Scheduler.Schedule(TimeSpan.FromSeconds(10),
+                           TimeSpan.FromSeconds(20),
+                           task =>
+                           {
+                               DoCastVictim(SpellIds.Shadowflame);
+                               task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
+                           });
 
-		Scheduler.Schedule(TimeSpan.FromSeconds(30),
-							task =>
-							{
-								DoCastVictim(SpellIds.Wingbuffet);
+        Scheduler.Schedule(TimeSpan.FromSeconds(30),
+                           task =>
+                           {
+                               DoCastVictim(SpellIds.Wingbuffet);
 
-								if (GetThreat(Me.Victim) != 0)
-									ModifyThreatByPercent(Me.Victim, -75);
+                               if (GetThreat(Me.Victim) != 0)
+                                   ModifyThreatByPercent(Me.Victim, -75);
 
-								task.Repeat(TimeSpan.FromSeconds(30));
-							});
+                               task.Repeat(TimeSpan.FromSeconds(30));
+                           });
 
-		Scheduler.Schedule(TimeSpan.FromSeconds(10),
-							task =>
-							{
-								Talk(TextIds.EmoteFrenzy);
-								DoCast(Me, SpellIds.Frenzy);
-								task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(10));
-							});
-	}
+        Scheduler.Schedule(TimeSpan.FromSeconds(10),
+                           task =>
+                           {
+                               Talk(TextIds.EmoteFrenzy);
+                               DoCast(Me, SpellIds.Frenzy);
+                               task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(10));
+                           });
+    }
 
-	public override void UpdateAI(uint diff)
-	{
-		if (!UpdateVictim())
-			return;
+    public override void UpdateAI(uint diff)
+    {
+        if (!UpdateVictim())
+            return;
 
-		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
-	}
+        Scheduler.Update(diff, () => DoMeleeAttackIfReady());
+    }
 }

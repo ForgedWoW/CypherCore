@@ -8,8 +8,8 @@ namespace Framework.Constants;
 [Flags]
 public enum CurrencyGainFlags
 {
-	None = 0x00,
-	BonusAward = 0x01,
-	DroppedFromDeath = 0x02,
-	FromAccountServer = 0x04
+    None = 0x00,
+    BonusAward = 0x01,
+    DroppedFromDeath = 0x02,
+    FromAccountServer = 0x04
 }

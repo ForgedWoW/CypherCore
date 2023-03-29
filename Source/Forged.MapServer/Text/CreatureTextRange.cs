@@ -5,10 +5,10 @@ namespace Forged.MapServer.Text;
 
 public enum CreatureTextRange
 {
-	Normal = 0,
-	Area = 1,
-	Zone = 2,
-	Map = 3,
-	World = 4,
-	Personal = 5
+    Normal = 0,
+    Area = 1,
+    Zone = 2,
+    Map = 3,
+    World = 4,
+    Personal = 5
 }

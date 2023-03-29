@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverStatusQuery : ClientPacket
 {
-	public ObjectGuid QuestGiverGUID;
-	public QuestGiverStatusQuery(WorldPacket packet) : base(packet) { }
+    public ObjectGuid QuestGiverGUID;
+    public QuestGiverStatusQuery(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		QuestGiverGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        QuestGiverGUID = _worldPacket.ReadPackedGuid();
+    }
 }
 
 //Structs

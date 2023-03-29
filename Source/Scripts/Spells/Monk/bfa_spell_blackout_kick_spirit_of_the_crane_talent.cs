@@ -10,14 +10,14 @@ namespace Scripts.Spells.Monk;
 [SpellScript(210802)]
 public class bfa_spell_blackout_kick_spirit_of_the_crane_talent : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		var caster = Caster.AsPlayer;
+    public void AfterCast()
+    {
+        var caster = Caster.AsPlayer;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (caster.HasAura(MonkSpells.SPIRIT_OF_THE_CRANE))
-			caster.SetPower(PowerType.Mana, caster.GetPower(PowerType.Mana) + ((caster.GetMaxPower(PowerType.Mana) * 0.65f) / 100));
-	}
+        if (caster.HasAura(MonkSpells.SPIRIT_OF_THE_CRANE))
+            caster.SetPower(PowerType.Mana, caster.GetPower(PowerType.Mana) + ((caster.GetMaxPower(PowerType.Mana) * 0.65f) / 100));
+    }
 }

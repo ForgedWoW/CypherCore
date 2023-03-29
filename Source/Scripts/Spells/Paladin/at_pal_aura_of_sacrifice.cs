@@ -12,23 +12,23 @@ namespace Scripts.Spells.Paladin;
 [Script]
 public class at_pal_aura_of_sacrifice : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnCreate
 {
-	public void OnCreate()
-	{
-		At.SetPeriodicProcTimer(1000);
-	}
+    public void OnCreate()
+    {
+        At.SetPeriodicProcTimer(1000);
+    }
 
-	public void OnUnitEnter(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitEnter(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster != null)
-			if (unit.IsPlayer && caster.IsPlayer && caster != unit)
-				if (caster.AsPlayer.IsInSameRaidWith(unit.AsPlayer))
-					caster.CastSpell(unit, PaladinSpells.AURA_OF_SACRIFICE_ALLY, true);
-	}
+        if (caster != null)
+            if (unit.IsPlayer && caster.IsPlayer && caster != unit)
+                if (caster.AsPlayer.IsInSameRaidWith(unit.AsPlayer))
+                    caster.CastSpell(unit, PaladinSpells.AURA_OF_SACRIFICE_ALLY, true);
+    }
 
-	public void OnUnitExit(Unit unit)
-	{
-		unit.RemoveAura(PaladinSpells.AURA_OF_SACRIFICE_ALLY);
-	}
+    public void OnUnitExit(Unit unit)
+    {
+        unit.RemoveAura(PaladinSpells.AURA_OF_SACRIFICE_ALLY);
+    }
 }

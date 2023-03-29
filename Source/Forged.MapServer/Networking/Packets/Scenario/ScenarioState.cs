@@ -10,47 +10,47 @@ namespace Forged.MapServer.Networking.Packets.Scenario;
 
 internal class ScenarioState : ServerPacket
 {
-	public int ScenarioID;
-	public int CurrentStep = -1;
-	public uint DifficultyID;
-	public uint WaveCurrent;
-	public uint WaveMax;
-	public uint TimerDuration;
-	public List<CriteriaProgressPkt> CriteriaProgress = new();
-	public List<BonusObjectiveData> BonusObjectives = new();
-	public List<uint> PickedSteps = new();
-	public List<ScenarioSpellUpdate> Spells = new();
-	public ObjectGuid PlayerGUID;
-	public bool ScenarioComplete = false;
-	public ScenarioState() : base(ServerOpcodes.ScenarioState, ConnectionType.Instance) { }
+    public int ScenarioID;
+    public int CurrentStep = -1;
+    public uint DifficultyID;
+    public uint WaveCurrent;
+    public uint WaveMax;
+    public uint TimerDuration;
+    public List<CriteriaProgressPkt> CriteriaProgress = new();
+    public List<BonusObjectiveData> BonusObjectives = new();
+    public List<uint> PickedSteps = new();
+    public List<ScenarioSpellUpdate> Spells = new();
+    public ObjectGuid PlayerGUID;
+    public bool ScenarioComplete = false;
+    public ScenarioState() : base(ServerOpcodes.ScenarioState, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(ScenarioID);
-		_worldPacket.WriteInt32(CurrentStep);
-		_worldPacket.WriteUInt32(DifficultyID);
-		_worldPacket.WriteUInt32(WaveCurrent);
-		_worldPacket.WriteUInt32(WaveMax);
-		_worldPacket.WriteUInt32(TimerDuration);
-		_worldPacket.WriteInt32(CriteriaProgress.Count);
-		_worldPacket.WriteInt32(BonusObjectives.Count);
-		_worldPacket.WriteInt32(PickedSteps.Count);
-		_worldPacket.WriteInt32(Spells.Count);
-		_worldPacket.WritePackedGuid(PlayerGUID);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(ScenarioID);
+        _worldPacket.WriteInt32(CurrentStep);
+        _worldPacket.WriteUInt32(DifficultyID);
+        _worldPacket.WriteUInt32(WaveCurrent);
+        _worldPacket.WriteUInt32(WaveMax);
+        _worldPacket.WriteUInt32(TimerDuration);
+        _worldPacket.WriteInt32(CriteriaProgress.Count);
+        _worldPacket.WriteInt32(BonusObjectives.Count);
+        _worldPacket.WriteInt32(PickedSteps.Count);
+        _worldPacket.WriteInt32(Spells.Count);
+        _worldPacket.WritePackedGuid(PlayerGUID);
 
-		for (var i = 0; i < PickedSteps.Count; ++i)
-			_worldPacket.WriteUInt32(PickedSteps[i]);
+        for (var i = 0; i < PickedSteps.Count; ++i)
+            _worldPacket.WriteUInt32(PickedSteps[i]);
 
-		_worldPacket.WriteBit(ScenarioComplete);
-		_worldPacket.FlushBits();
+        _worldPacket.WriteBit(ScenarioComplete);
+        _worldPacket.FlushBits();
 
-		foreach (var progress in CriteriaProgress)
-			progress.Write(_worldPacket);
+        foreach (var progress in CriteriaProgress)
+            progress.Write(_worldPacket);
 
-		foreach (var bonusObjective in BonusObjectives)
-			bonusObjective.Write(_worldPacket);
+        foreach (var bonusObjective in BonusObjectives)
+            bonusObjective.Write(_worldPacket);
 
-		foreach (var spell in Spells)
-			spell.Write(_worldPacket);
-	}
+        foreach (var spell in Spells)
+            spell.Write(_worldPacket);
+    }
 }

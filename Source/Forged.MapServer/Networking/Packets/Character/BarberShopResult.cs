@@ -7,23 +7,23 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class BarberShopResult : ServerPacket
 {
-	public enum ResultEnum
-	{
-		Success = 0,
-		NoMoney = 1,
-		NotOnChair = 2,
-		NoMoney2 = 3
-	}
+    public enum ResultEnum
+    {
+        Success = 0,
+        NoMoney = 1,
+        NotOnChair = 2,
+        NoMoney2 = 3
+    }
 
-	public ResultEnum Result;
+    public ResultEnum Result;
 
-	public BarberShopResult(ResultEnum result) : base(ServerOpcodes.BarberShopResult)
-	{
-		Result = result;
-	}
+    public BarberShopResult(ResultEnum result) : base(ServerOpcodes.BarberShopResult)
+    {
+        Result = result;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32((int)Result);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32((int)Result);
+    }
 }

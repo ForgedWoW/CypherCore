@@ -13,29 +13,29 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(207771)]
 public class spell_dh_fiery_brand_dot : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 2, AuraType.PeriodicDamage));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 2, AuraType.PeriodicDamage));
+    }
 
-	private void PeriodicTick(AuraEffect aurEff)
-	{
-		var caster = Caster;
+    private void PeriodicTick(AuraEffect aurEff)
+    {
+        var caster = Caster;
 
-		if (caster == null || !caster.HasAura(DemonHunterSpells.BURNING_ALIVE))
-			return;
+        if (caster == null || !caster.HasAura(DemonHunterSpells.BURNING_ALIVE))
+            return;
 
-		var unitList = new List<Unit>();
-		Target.GetAnyUnitListInRange(unitList, 8.0f);
+        var unitList = new List<Unit>();
+        Target.GetAnyUnitListInRange(unitList, 8.0f);
 
-		foreach (var target in unitList)
-			if (!target.HasAura(DemonHunterSpells.FIERY_BRAND_DOT) && !target.HasAura(DemonHunterSpells.FIERY_BRAND_MARKER) && !caster.IsFriendlyTo(target))
-			{
-				caster.CastSpell(target, DemonHunterSpells.FIERY_BRAND_MARKER, true);
+        foreach (var target in unitList)
+            if (!target.HasAura(DemonHunterSpells.FIERY_BRAND_DOT) && !target.HasAura(DemonHunterSpells.FIERY_BRAND_MARKER) && !caster.IsFriendlyTo(target))
+            {
+                caster.CastSpell(target, DemonHunterSpells.FIERY_BRAND_MARKER, true);
 
-				break;
-			}
-	}
+                break;
+            }
+    }
 }

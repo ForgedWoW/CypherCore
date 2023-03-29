@@ -10,32 +10,32 @@ namespace Forged.MapServer.Networking.Packets.Hotfix;
 
 internal class HotfixConnect : ServerPacket
 {
-	public List<HotfixData> Hotfixes = new();
-	public ByteBuffer HotfixContent = new();
-	public HotfixConnect() : base(ServerOpcodes.HotfixConnect) { }
+    public List<HotfixData> Hotfixes = new();
+    public ByteBuffer HotfixContent = new();
+    public HotfixConnect() : base(ServerOpcodes.HotfixConnect) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Hotfixes.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Hotfixes.Count);
 
-		foreach (var hotfix in Hotfixes)
-			hotfix.Write(_worldPacket);
+        foreach (var hotfix in Hotfixes)
+            hotfix.Write(_worldPacket);
 
-		_worldPacket.WriteUInt32(HotfixContent.GetSize());
-		_worldPacket.WriteBytes(HotfixContent);
-	}
+        _worldPacket.WriteUInt32(HotfixContent.GetSize());
+        _worldPacket.WriteBytes(HotfixContent);
+    }
 
-	public class HotfixData
-	{
-		public HotfixRecord Record = new();
-		public uint Size;
+    public class HotfixData
+    {
+        public HotfixRecord Record = new();
+        public uint Size;
 
-		public void Write(WorldPacket data)
-		{
-			Record.Write(data);
-			data.WriteUInt32(Size);
-			data.WriteBits((byte)Record.HotfixStatus, 3);
-			data.FlushBits();
-		}
-	}
+        public void Write(WorldPacket data)
+        {
+            Record.Write(data);
+            data.WriteUInt32(Size);
+            data.WriteBits((byte)Record.HotfixStatus, 3);
+            data.FlushBits();
+        }
+    }
 }

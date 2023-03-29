@@ -9,39 +9,39 @@ namespace Forged.MapServer.Networking.Packets.Channel;
 
 public class ChannelNotify : ServerPacket
 {
-	public string Sender = "";
-	public ObjectGuid SenderGuid;
-	public ObjectGuid SenderAccountID;
-	public ChatNotify Type;
-	public ChannelMemberFlags OldFlags;
-	public ChannelMemberFlags NewFlags;
-	public string Channel;
-	public uint SenderVirtualRealm;
-	public ObjectGuid TargetGuid;
-	public uint TargetVirtualRealm;
-	public int ChatChannelID;
-	public ChannelNotify() : base(ServerOpcodes.ChannelNotify) { }
+    public string Sender = "";
+    public ObjectGuid SenderGuid;
+    public ObjectGuid SenderAccountID;
+    public ChatNotify Type;
+    public ChannelMemberFlags OldFlags;
+    public ChannelMemberFlags NewFlags;
+    public string Channel;
+    public uint SenderVirtualRealm;
+    public ObjectGuid TargetGuid;
+    public uint TargetVirtualRealm;
+    public int ChatChannelID;
+    public ChannelNotify() : base(ServerOpcodes.ChannelNotify) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(Type, 6);
-		_worldPacket.WriteBits(Channel.GetByteCount(), 7);
-		_worldPacket.WriteBits(Sender.GetByteCount(), 6);
+    public override void Write()
+    {
+        _worldPacket.WriteBits(Type, 6);
+        _worldPacket.WriteBits(Channel.GetByteCount(), 7);
+        _worldPacket.WriteBits(Sender.GetByteCount(), 6);
 
-		_worldPacket.WritePackedGuid(SenderGuid);
-		_worldPacket.WritePackedGuid(SenderAccountID);
-		_worldPacket.WriteUInt32(SenderVirtualRealm);
-		_worldPacket.WritePackedGuid(TargetGuid);
-		_worldPacket.WriteUInt32(TargetVirtualRealm);
-		_worldPacket.WriteInt32(ChatChannelID);
+        _worldPacket.WritePackedGuid(SenderGuid);
+        _worldPacket.WritePackedGuid(SenderAccountID);
+        _worldPacket.WriteUInt32(SenderVirtualRealm);
+        _worldPacket.WritePackedGuid(TargetGuid);
+        _worldPacket.WriteUInt32(TargetVirtualRealm);
+        _worldPacket.WriteInt32(ChatChannelID);
 
-		if (Type == ChatNotify.ModeChangeNotice)
-		{
-			_worldPacket.WriteUInt8((byte)OldFlags);
-			_worldPacket.WriteUInt8((byte)NewFlags);
-		}
+        if (Type == ChatNotify.ModeChangeNotice)
+        {
+            _worldPacket.WriteUInt8((byte)OldFlags);
+            _worldPacket.WriteUInt8((byte)NewFlags);
+        }
 
-		_worldPacket.WriteString(Channel);
-		_worldPacket.WriteString(Sender);
-	}
+        _worldPacket.WriteString(Channel);
+        _worldPacket.WriteString(Sender);
+    }
 }

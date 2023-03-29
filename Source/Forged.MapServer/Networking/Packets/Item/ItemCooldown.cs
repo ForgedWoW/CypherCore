@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class ItemCooldown : ServerPacket
 {
-	public ObjectGuid ItemGuid;
-	public uint SpellID;
-	public uint Cooldown;
-	public ItemCooldown() : base(ServerOpcodes.ItemCooldown) { }
+    public ObjectGuid ItemGuid;
+    public uint SpellID;
+    public uint Cooldown;
+    public ItemCooldown() : base(ServerOpcodes.ItemCooldown) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ItemGuid);
-		_worldPacket.WriteUInt32(SpellID);
-		_worldPacket.WriteUInt32(Cooldown);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ItemGuid);
+        _worldPacket.WriteUInt32(SpellID);
+        _worldPacket.WriteUInt32(Cooldown);
+    }
 }

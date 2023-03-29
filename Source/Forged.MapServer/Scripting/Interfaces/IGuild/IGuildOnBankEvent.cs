@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IGuild;
 
 public interface IGuildOnBankEvent : IScriptObject
 {
-	void OnBankEvent(Guild guild, byte eventType, byte tabId, ulong playerGuid, uint itemOrMoney, ushort itemStackCount, byte destTabId);
+    void OnBankEvent(Guild guild, byte eventType, byte tabId, ulong playerGuid, uint itemOrMoney, ushort itemStackCount, byte destTabId);
 }

@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Scenario;
 
 internal class ScenarioSpellUpdate
 {
-	public uint SpellID;
-	public bool Usable = true;
+    public uint SpellID;
+    public bool Usable = true;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(SpellID);
-		data.WriteBit(Usable);
-		data.FlushBits();
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(SpellID);
+        data.WriteBit(Usable);
+        data.FlushBits();
+    }
 }

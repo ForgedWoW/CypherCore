@@ -11,31 +11,31 @@ namespace Scripts.Spells.Warlock;
 
 [SpellScript(new uint[]
 {
-	67518, 19505
+    67518, 19505
 })] // 67518, 19505 - Devour Magic
 internal class spell_warl_devour_magic : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(OnSuccessfulDispel, 0, SpellEffectName.Dispel, SpellScriptHookType.EffectSuccessfulDispel));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(OnSuccessfulDispel, 0, SpellEffectName.Dispel, SpellScriptHookType.EffectSuccessfulDispel));
+    }
 
-	private void OnSuccessfulDispel(int effIndex)
-	{
-		var caster = Caster;
-		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-		args.AddSpellMod(SpellValueMod.BasePoint0, GetEffectInfo(1).CalcValue(caster));
+    private void OnSuccessfulDispel(int effIndex)
+    {
+        var caster = Caster;
+        CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+        args.AddSpellMod(SpellValueMod.BasePoint0, GetEffectInfo(1).CalcValue(caster));
 
-		caster.CastSpell(caster, WarlockSpells.DEVOUR_MAGIC_HEAL, args);
+        caster.CastSpell(caster, WarlockSpells.DEVOUR_MAGIC_HEAL, args);
 
-		// Glyph of Felhunter
-		var owner = caster.OwnerUnit;
+        // Glyph of Felhunter
+        var owner = caster.OwnerUnit;
 
-		if (owner)
-			if (owner.GetAura(WarlockSpells.GLYPH_OF_DEMON_TRAINING) != null)
-				owner.CastSpell(owner, WarlockSpells.DEVOUR_MAGIC_HEAL, args);
-	}
+        if (owner)
+            if (owner.GetAura(WarlockSpells.GLYPH_OF_DEMON_TRAINING) != null)
+                owner.CastSpell(owner, WarlockSpells.DEVOUR_MAGIC_HEAL, args);
+    }
 }

@@ -11,15 +11,15 @@ namespace Scripts.Spells.Priest;
 [SpellScript(2060)]
 public class spell_pri_heal_flash_heal : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		var caster = Caster.AsPlayer;
+    public void AfterCast()
+    {
+        var caster = Caster.AsPlayer;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		if (caster.GetPrimarySpecialization() == TalentSpecialization.PriestHoly)
-			if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_SERENITY))
-				caster.SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_SERENITY, TimeSpan.FromSeconds(-6 * Time.InMilliseconds));
-	}
+        if (caster.GetPrimarySpecialization() == TalentSpecialization.PriestHoly)
+            if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_SERENITY))
+                caster.SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_SERENITY, TimeSpan.FromSeconds(-6 * Time.InMilliseconds));
+    }
 }

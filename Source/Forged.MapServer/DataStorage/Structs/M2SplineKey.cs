@@ -8,14 +8,14 @@ namespace Forged.MapServer.DataStorage.Structs;
 
 public struct M2SplineKey
 {
-	public M2SplineKey(BinaryReader reader)
-	{
-		p0 = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-		p1 = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-		p2 = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-	}
+    public M2SplineKey(BinaryReader reader)
+    {
+        p0 = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+        p1 = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+        p2 = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+    }
 
-	public Vector3 p0;
-	public Vector3 p1;
-	public Vector3 p2;
+    public Vector3 p0;
+    public Vector3 p1;
+    public Vector3 p2;
 }

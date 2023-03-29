@@ -5,6 +5,6 @@ namespace Forged.MapServer.DataStorage;
 
 public class ConversationActorTalkingHeadTemplate
 {
-	public uint CreatureId;
-	public uint CreatureDisplayInfoId;
+    public uint CreatureId;
+    public uint CreatureDisplayInfoId;
 }

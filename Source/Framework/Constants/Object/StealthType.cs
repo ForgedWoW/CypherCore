@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum StealthType
 {
-	General = 0,
-	Trap = 1,
+    General = 0,
+    Trap = 1,
 
-	Max = 2
+    Max = 2
 }

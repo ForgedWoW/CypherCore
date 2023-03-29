@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class RequestRaidInfo : ClientPacket
 {
-	public RequestRaidInfo(WorldPacket packet) : base(packet) { }
+    public RequestRaidInfo(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

@@ -11,37 +11,37 @@ namespace Scripts.Spells.Druid;
 [SpellScript(106785)]
 public class spell_dru_swipe : SpellScript, IHasSpellEffects
 {
-	private bool _awardComboPoint = true;
+    private bool _awardComboPoint = true;
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
 
-	private void HandleOnHit(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleOnHit(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		var damage = HitDamage;
-		var casterLevel = caster.GetLevelForTarget(caster);
+        var damage = HitDamage;
+        var casterLevel = caster.GetLevelForTarget(caster);
 
-		// This prevent awarding multiple Combo Points when multiple targets hit with Swipe AoE
-		if (_awardComboPoint)
-			// Awards the caster 1 Combo Point (get value from the spell data)
-			caster.ModifyPower(PowerType.ComboPoints, Global.SpellMgr.GetSpellInfo(DruidSpells.SWIPE_CAT, Difficulty.None).GetEffect(0).BasePoints);
+        // This prevent awarding multiple Combo Points when multiple targets hit with Swipe AoE
+        if (_awardComboPoint)
+            // Awards the caster 1 Combo Point (get value from the spell data)
+            caster.ModifyPower(PowerType.ComboPoints, Global.SpellMgr.GetSpellInfo(DruidSpells.SWIPE_CAT, Difficulty.None).GetEffect(0).BasePoints);
 
-		// If caster is level >= 44 and the target is bleeding, deals 20% increased damage (get value from the spell data)
-		if ((casterLevel >= 44) && target.HasAuraState(AuraStateType.Bleed))
-			MathFunctions.AddPct(ref damage, Global.SpellMgr.GetSpellInfo(DruidSpells.SWIPE_CAT, Difficulty.None).GetEffect(1).BasePoints);
+        // If caster is level >= 44 and the target is bleeding, deals 20% increased damage (get value from the spell data)
+        if ((casterLevel >= 44) && target.HasAuraState(AuraStateType.Bleed))
+            MathFunctions.AddPct(ref damage, Global.SpellMgr.GetSpellInfo(DruidSpells.SWIPE_CAT, Difficulty.None).GetEffect(1).BasePoints);
 
-		HitDamage = damage;
-		_awardComboPoint = false;
-	}
+        HitDamage = damage;
+        _awardComboPoint = false;
+    }
 }

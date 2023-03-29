@@ -13,15 +13,15 @@ namespace Scripts.Spells.Monk;
 [SpellScript(MonkSpells.FISTS_OF_FURY)]
 public class spell_monk_fists_of_fury_visual_filter : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, 1, Targets.UnitConeEnemy24));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, 1, Targets.UnitConeEnemy24));
+    }
 
-	private void RemoveInvalidTargets(List<WorldObject> targets)
-	{
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, 123154, Caster.GUID));
-	}
+    private void RemoveInvalidTargets(List<WorldObject> targets)
+    {
+        targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, 123154, Caster.GUID));
+    }
 }

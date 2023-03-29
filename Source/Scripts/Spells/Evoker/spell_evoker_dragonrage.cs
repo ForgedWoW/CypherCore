@@ -11,19 +11,19 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.RED_DRAGONRAGE_EFFECT)]
 internal class spell_evoker_dragonrage : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		// get targets
-		var targetList = new List<Unit>();
-		caster.GetEnemiesWithinRange(targetList, SpellInfo.GetMaxRange());
+        // get targets
+        var targetList = new List<Unit>();
+        caster.GetEnemiesWithinRange(targetList, SpellInfo.GetMaxRange());
 
-		// reduce targetList to the number allowed
-		targetList.RandomResize(SpellInfo.GetEffect(0).BasePoints);
+        // reduce targetList to the number allowed
+        targetList.RandomResize(SpellInfo.GetEffect(0).BasePoints);
 
-		// cast on targets
-		foreach (var target in targetList)
-			caster.CastSpell(target, EvokerSpells.RED_PYRE_MISSILE, true);
-	}
+        // cast on targets
+        foreach (var target in targetList)
+            caster.CastSpell(target, EvokerSpells.RED_PYRE_MISSILE, true);
+    }
 }

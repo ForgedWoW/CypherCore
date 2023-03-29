@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 internal class PvPCredit : ServerPacket
 {
-	public int OriginalHonor;
-	public int Honor;
-	public ObjectGuid Target;
-	public uint Rank;
-	public PvPCredit() : base(ServerOpcodes.PvpCredit) { }
+    public int OriginalHonor;
+    public int Honor;
+    public ObjectGuid Target;
+    public uint Rank;
+    public PvPCredit() : base(ServerOpcodes.PvpCredit) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(OriginalHonor);
-		_worldPacket.WriteInt32(Honor);
-		_worldPacket.WritePackedGuid(Target);
-		_worldPacket.WriteUInt32(Rank);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(OriginalHonor);
+        _worldPacket.WriteInt32(Honor);
+        _worldPacket.WritePackedGuid(Target);
+        _worldPacket.WriteUInt32(Rank);
+    }
 }

@@ -8,10 +8,10 @@ namespace Framework.Constants;
 [Flags]
 public enum InstanceSpawnGroupFlags
 {
-	ActivateSpawn = 0x01,
-	BlockSpawn = 0x02,
-	AllianceOnly = 0x04,
-	HordeOnly = 0x08,
+    ActivateSpawn = 0x01,
+    BlockSpawn = 0x02,
+    AllianceOnly = 0x04,
+    HordeOnly = 0x08,
 
-	All = ActivateSpawn | BlockSpawn | AllianceOnly | HordeOnly
+    All = ActivateSpawn | BlockSpawn | AllianceOnly | HordeOnly
 }

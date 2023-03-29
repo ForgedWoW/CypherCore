@@ -5,15 +5,15 @@ namespace Framework.Constants;
 
 public enum SpellTargetDirectionTypes
 {
-	None,
-	Front,
-	Back,
-	Right,
-	Left,
-	FrontRight,
-	BackRight,
-	BackLeft,
-	FrontLeft,
-	Random,
-	Entry
+    None,
+    Front,
+    Back,
+    Right,
+    Left,
+    FrontRight,
+    BackRight,
+    BackLeft,
+    FrontLeft,
+    Random,
+    Entry
 }

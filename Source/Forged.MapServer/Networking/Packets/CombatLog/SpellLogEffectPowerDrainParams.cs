@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 public struct SpellLogEffectPowerDrainParams
 {
-	public ObjectGuid Victim;
-	public uint Points;
-	public uint PowerType;
-	public float Amplitude;
+    public ObjectGuid Victim;
+    public uint Points;
+    public uint PowerType;
+    public float Amplitude;
 }

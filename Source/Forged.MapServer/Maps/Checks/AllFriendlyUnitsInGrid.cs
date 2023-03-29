@@ -10,16 +10,16 @@ internal class AllFriendlyUnitsInGrid : ICheck<Unit>
 {
     private readonly Unit _unit;
 
-	public AllFriendlyUnitsInGrid(Unit obj)
-	{
-		_unit = obj;
-	}
+    public AllFriendlyUnitsInGrid(Unit obj)
+    {
+        _unit = obj;
+    }
 
-	public bool Invoke(Unit u)
-	{
-		if (u.IsAlive && u.IsVisible() && u.IsFriendlyTo(_unit))
-			return true;
+    public bool Invoke(Unit u)
+    {
+        if (u.IsAlive && u.IsVisible() && u.IsFriendlyTo(_unit))
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

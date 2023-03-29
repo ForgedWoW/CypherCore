@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IUnit;
 
 public interface IUnitModifyMeleeDamage : IScriptObject
 {
-	void ModifyMeleeDamage(Unit target, Unit attacker, ref double damage);
+    void ModifyMeleeDamage(Unit target, Unit attacker, ref double damage);
 }

@@ -8,5 +8,5 @@ namespace Framework.Constants;
 [Flags]
 public enum SkillLineAbilityFlags
 {
-	CanFallbackToLearnedOnSkillLearn = 0x80, // The skill is rewarded from a quest if player started on exile's reach
+    CanFallbackToLearnedOnSkillLearn = 0x80, // The skill is rewarded from a quest if player started on exile's reach
 }

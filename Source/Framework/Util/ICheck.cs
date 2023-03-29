@@ -5,5 +5,5 @@ namespace System.Collections.Generic;
 
 public interface ICheck<in T>
 {
-	bool Invoke(T obj);
+    bool Invoke(T obj);
 }

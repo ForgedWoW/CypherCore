@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum ConnectToSerial
 {
-	None = 0,
-	Realm = 14,
-	WorldAttempt1 = 17,
-	WorldAttempt2 = 35,
-	WorldAttempt3 = 53,
-	WorldAttempt4 = 71,
-	WorldAttempt5 = 89
+    None = 0,
+    Realm = 14,
+    WorldAttempt1 = 17,
+    WorldAttempt2 = 35,
+    WorldAttempt3 = 53,
+    WorldAttempt4 = 71,
+    WorldAttempt5 = 89
 }

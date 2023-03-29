@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum AuctionHouseSortOrder
 {
-	Price = 0,
-	Name = 1,
-	Level = 2,
-	Bid = 3,
-	Buyout = 4
+    Price = 0,
+    Name = 1,
+    Level = 2,
+    Bid = 3,
+    Buyout = 4
 }

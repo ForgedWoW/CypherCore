@@ -11,19 +11,19 @@ namespace Scripts.Spells.Druid;
 [SpellScript(58180)]
 public class spell_dru_infected_wounds : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		if (!Caster)
-			return;
+    private void HandleDummy(int effIndex)
+    {
+        if (!Caster)
+            return;
 
-		if (Caster.HasAura(SpellInfo.Id))
-			Caster.RemoveAura(SpellInfo.Id);
-	}
+        if (Caster.HasAura(SpellInfo.Id))
+            Caster.RemoveAura(SpellInfo.Id);
+    }
 }

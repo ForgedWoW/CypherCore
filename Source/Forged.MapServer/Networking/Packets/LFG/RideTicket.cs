@@ -7,29 +7,29 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 public class RideTicket
 {
-	public ObjectGuid RequesterGuid;
-	public uint Id;
-	public RideType Type;
-	public long Time;
-	public bool Unknown925;
+    public ObjectGuid RequesterGuid;
+    public uint Id;
+    public RideType Type;
+    public long Time;
+    public bool Unknown925;
 
-	public void Read(WorldPacket data)
-	{
-		RequesterGuid = data.ReadPackedGuid();
-		Id = data.ReadUInt32();
-		Type = (RideType)data.ReadUInt32();
-		Time = data.ReadInt64();
-		Unknown925 = data.HasBit();
-		data.ResetBitPos();
-	}
+    public void Read(WorldPacket data)
+    {
+        RequesterGuid = data.ReadPackedGuid();
+        Id = data.ReadUInt32();
+        Type = (RideType)data.ReadUInt32();
+        Time = data.ReadInt64();
+        Unknown925 = data.HasBit();
+        data.ResetBitPos();
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WritePackedGuid(RequesterGuid);
-		data.WriteUInt32(Id);
-		data.WriteUInt32((uint)Type);
-		data.WriteInt64(Time);
-		data.WriteBit(Unknown925);
-		data.FlushBits();
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WritePackedGuid(RequesterGuid);
+        data.WriteUInt32(Id);
+        data.WriteUInt32((uint)Type);
+        data.WriteInt64(Time);
+        data.WriteBit(Unknown925);
+        data.FlushBits();
+    }
 }

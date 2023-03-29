@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class QuestPushResult : ClientPacket
 {
-	public ObjectGuid SenderGUID;
-	public uint QuestID;
-	public QuestPushReason Result;
-	public QuestPushResult(WorldPacket packet) : base(packet) { }
+    public ObjectGuid SenderGUID;
+    public uint QuestID;
+    public QuestPushReason Result;
+    public QuestPushResult(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		SenderGUID = _worldPacket.ReadPackedGuid();
-		QuestID = _worldPacket.ReadUInt32();
-		Result = (QuestPushReason)_worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        SenderGUID = _worldPacket.ReadPackedGuid();
+        QuestID = _worldPacket.ReadUInt32();
+        Result = (QuestPushReason)_worldPacket.ReadUInt8();
+    }
 }

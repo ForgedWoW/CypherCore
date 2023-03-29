@@ -8,8 +8,8 @@ namespace Framework.Constants;
 [Flags]
 public enum TraitCombatConfigFlags
 {
-	None = 0x0,
-	ActiveForSpec = 0x1,
-	StarterBuild = 0x2,
-	SharedActionBars = 0x4
+    None = 0x0,
+    ActiveForSpec = 0x1,
+    StarterBuild = 0x2,
+    SharedActionBars = 0x4
 }

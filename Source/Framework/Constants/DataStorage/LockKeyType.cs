@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum LockKeyType
 {
-	None = 0,
-	Item = 1,
-	Skill = 2,
-	Spell = 3
+    None = 0,
+    Item = 1,
+    Skill = 2,
+    Spell = 3
 }

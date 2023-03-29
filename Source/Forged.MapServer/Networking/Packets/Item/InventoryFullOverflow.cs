@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class InventoryFullOverflow : ServerPacket
 {
-	public InventoryFullOverflow() : base(ServerOpcodes.InventoryFullOverflow) { }
+    public InventoryFullOverflow() : base(ServerOpcodes.InventoryFullOverflow) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

@@ -8,19 +8,19 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildSendRankChange : ServerPacket
 {
-	public ObjectGuid Other;
-	public ObjectGuid Officer;
-	public bool Promote;
-	public uint RankID;
-	public GuildSendRankChange() : base(ServerOpcodes.GuildSendRankChange) { }
+    public ObjectGuid Other;
+    public ObjectGuid Officer;
+    public bool Promote;
+    public uint RankID;
+    public GuildSendRankChange() : base(ServerOpcodes.GuildSendRankChange) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Officer);
-		_worldPacket.WritePackedGuid(Other);
-		_worldPacket.WriteUInt32(RankID);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Officer);
+        _worldPacket.WritePackedGuid(Other);
+        _worldPacket.WriteUInt32(RankID);
 
-		_worldPacket.WriteBit(Promote);
-		_worldPacket.FlushBits();
-	}
+        _worldPacket.WriteBit(Promote);
+        _worldPacket.FlushBits();
+    }
 }

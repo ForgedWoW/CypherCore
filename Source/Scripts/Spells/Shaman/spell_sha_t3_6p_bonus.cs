@@ -14,49 +14,49 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(28823)]
 internal class spell_sha_t3_6p_bonus : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		uint spellId;
-		var caster = eventInfo.Actor;
-		var target = eventInfo.ProcTarget;
+        uint spellId;
+        var caster = eventInfo.Actor;
+        var target = eventInfo.ProcTarget;
 
-		switch (target.Class)
-		{
-			case PlayerClass.Paladin:
-			case PlayerClass.Priest:
-			case PlayerClass.Shaman:
-			case PlayerClass.Druid:
-				spellId = ShamanSpells.TotemicPowerMp5;
+        switch (target.Class)
+        {
+            case PlayerClass.Paladin:
+            case PlayerClass.Priest:
+            case PlayerClass.Shaman:
+            case PlayerClass.Druid:
+                spellId = ShamanSpells.TotemicPowerMp5;
 
-				break;
-			case PlayerClass.Mage:
-			case PlayerClass.Warlock:
-				spellId = ShamanSpells.TotemicPowerSpellPower;
+                break;
+            case PlayerClass.Mage:
+            case PlayerClass.Warlock:
+                spellId = ShamanSpells.TotemicPowerSpellPower;
 
-				break;
-			case PlayerClass.Hunter:
-			case PlayerClass.Rogue:
-				spellId = ShamanSpells.TotemicPowerAttackPower;
+                break;
+            case PlayerClass.Hunter:
+            case PlayerClass.Rogue:
+                spellId = ShamanSpells.TotemicPowerAttackPower;
 
-				break;
-			case PlayerClass.Warrior:
-				spellId = ShamanSpells.TotemicPowerArmor;
+                break;
+            case PlayerClass.Warrior:
+                spellId = ShamanSpells.TotemicPowerArmor;
 
-				break;
-			default:
-				return;
-		}
+                break;
+            default:
+                return;
+        }
 
-		caster.CastSpell(target, spellId, new CastSpellExtraArgs(aurEff));
-	}
+        caster.CastSpell(target, spellId, new CastSpellExtraArgs(aurEff));
+    }
 }

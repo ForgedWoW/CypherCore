@@ -5,5 +5,5 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 public struct SpellLogEffectFeedPetParams
 {
-	public int ItemID;
+    public int ItemID;
 }

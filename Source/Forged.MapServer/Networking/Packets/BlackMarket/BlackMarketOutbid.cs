@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.BlackMarket;
 
 internal class BlackMarketOutbid : ServerPacket
 {
-	public uint MarketID;
-	public ItemInstance Item;
-	public uint RandomPropertiesID;
-	public BlackMarketOutbid() : base(ServerOpcodes.BlackMarketOutbid) { }
+    public uint MarketID;
+    public ItemInstance Item;
+    public uint RandomPropertiesID;
+    public BlackMarketOutbid() : base(ServerOpcodes.BlackMarketOutbid) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(MarketID);
-		_worldPacket.WriteUInt32(RandomPropertiesID);
-		Item.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(MarketID);
+        _worldPacket.WriteUInt32(RandomPropertiesID);
+        Item.Write(_worldPacket);
+    }
 }

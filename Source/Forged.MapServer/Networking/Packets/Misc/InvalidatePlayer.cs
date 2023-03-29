@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class InvalidatePlayer : ServerPacket
 {
-	public ObjectGuid Guid;
-	public InvalidatePlayer() : base(ServerOpcodes.InvalidatePlayer) { }
+    public ObjectGuid Guid;
+    public InvalidatePlayer() : base(ServerOpcodes.InvalidatePlayer) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Guid);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Guid);
+    }
 }

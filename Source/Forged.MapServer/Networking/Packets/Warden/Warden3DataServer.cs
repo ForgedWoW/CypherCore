@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Warden;
 
 internal class Warden3DataServer : ServerPacket
 {
-	public ByteBuffer Data;
-	public Warden3DataServer() : base(ServerOpcodes.Warden3Data) { }
+    public ByteBuffer Data;
+    public Warden3DataServer() : base(ServerOpcodes.Warden3Data) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBytes(Data);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBytes(Data);
+    }
 }

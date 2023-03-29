@@ -12,20 +12,20 @@ namespace Scripts.Spells.Priest;
 [Script] // 129250 - Power Word: Solace
 internal class spell_pri_power_word_solace : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(RestoreMana, 1, SpellEffectName.Dummy, SpellScriptHookType.Launch));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(RestoreMana, 1, SpellEffectName.Dummy, SpellScriptHookType.Launch));
+    }
 
-	private void RestoreMana(int effIndex)
-	{
-		Caster
-			.CastSpell(Caster,
-						PriestSpells.POWER_WORD_SOLACE_ENERGIZE,
-						new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell)
-																					.AddSpellMod(SpellValueMod.BasePoint0, EffectValue / 100));
-	}
+    private void RestoreMana(int effIndex)
+    {
+        Caster
+            .CastSpell(Caster,
+                       PriestSpells.POWER_WORD_SOLACE_ENERGIZE,
+                       new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell)
+                                                                                    .AddSpellMod(SpellValueMod.BasePoint0, EffectValue / 100));
+    }
 }

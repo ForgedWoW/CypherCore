@@ -11,17 +11,17 @@ namespace Scripts.Spells.Druid;
 [Script] // 106839 - Skull Bash
 internal class spell_dru_skull_bash : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		Caster.CastSpell(HitUnit, DruidSpellIds.SkullBashCharge, true);
-		Caster.CastSpell(HitUnit, DruidSpellIds.SkullBashInterrupt, true);
-	}
+    private void HandleDummy(int effIndex)
+    {
+        Caster.CastSpell(HitUnit, DruidSpellIds.SkullBashCharge, true);
+        Caster.CastSpell(HitUnit, DruidSpellIds.SkullBashInterrupt, true);
+    }
 }

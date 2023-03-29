@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class MissileCancel : ServerPacket
 {
-	public ObjectGuid OwnerGUID;
-	public bool Reverse;
-	public uint SpellID;
-	public MissileCancel() : base(ServerOpcodes.MissileCancel) { }
+    public ObjectGuid OwnerGUID;
+    public bool Reverse;
+    public uint SpellID;
+    public MissileCancel() : base(ServerOpcodes.MissileCancel) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(OwnerGUID);
-		_worldPacket.WriteUInt32(SpellID);
-		_worldPacket.WriteBit(Reverse);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(OwnerGUID);
+        _worldPacket.WriteUInt32(SpellID);
+        _worldPacket.WriteBit(Reverse);
+        _worldPacket.FlushBits();
+    }
 }

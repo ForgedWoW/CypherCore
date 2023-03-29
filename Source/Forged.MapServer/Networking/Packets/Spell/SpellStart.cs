@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellStart : ServerPacket
 {
-	public SpellCastData Cast;
+    public SpellCastData Cast;
 
-	public SpellStart() : base(ServerOpcodes.SpellStart, ConnectionType.Instance)
-	{
-		Cast = new SpellCastData();
-	}
+    public SpellStart() : base(ServerOpcodes.SpellStart, ConnectionType.Instance)
+    {
+        Cast = new SpellCastData();
+    }
 
-	public override void Write()
-	{
-		Cast.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        Cast.Write(_worldPacket);
+    }
 }

@@ -10,17 +10,17 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 [CreatureScript(49552)]
 public class npc_rope_ship : ScriptedAI
 {
-	public npc_rope_ship(Creature creature) : base(creature) { }
+    public npc_rope_ship(Creature creature) : base(creature) { }
 
-	public override void Reset()
-	{
-		if (Me.IsSummon)
-		{
-			var summoner = Me.ToTempSummon().GetSummoner();
+    public override void Reset()
+    {
+        if (Me.IsSummon)
+        {
+            var summoner = Me.ToTempSummon().GetSummoner();
 
-			if (summoner != null)
-				if (summoner)
-					Me.CastSpell(summoner, 43785, true);
-		}
-	}
+            if (summoner != null)
+                if (summoner)
+                    Me.CastSpell(summoner, 43785, true);
+        }
+    }
 }

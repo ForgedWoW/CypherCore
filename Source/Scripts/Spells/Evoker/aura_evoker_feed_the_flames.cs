@@ -12,13 +12,13 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.AZURE_RUBY_ESSENCE_BURST_AURA)]
 public class aura_evoker_feed_the_flames : AuraScript, IAuraOnRemove
 {
-	public void AuraRemoved(AuraRemoveMode removeMode)
-	{
-		if (removeMode == AuraRemoveMode.Default && TryGetCasterAsPlayer(out var player) && player.IsAlive && player.HasSpell(EvokerSpells.FEED_THE_FLAMES))
-		{
-			var cdr = TimeSpan.FromSeconds(SpellManager.Instance.GetSpellInfo(EvokerSpells.FEED_THE_FLAMES).GetEffect(0).BasePoints);
-			player.SpellHistory.ModifyCooldown(EvokerSpells.RED_FIRE_BREATH, -cdr);
-			player.SpellHistory.ModifyCooldown(EvokerSpells.RED_FIRE_BREATH_2, -cdr);
-		}
-	}
+    public void AuraRemoved(AuraRemoveMode removeMode)
+    {
+        if (removeMode == AuraRemoveMode.Default && TryGetCasterAsPlayer(out var player) && player.IsAlive && player.HasSpell(EvokerSpells.FEED_THE_FLAMES))
+        {
+            var cdr = TimeSpan.FromSeconds(SpellManager.Instance.GetSpellInfo(EvokerSpells.FEED_THE_FLAMES).GetEffect(0).BasePoints);
+            player.SpellHistory.ModifyCooldown(EvokerSpells.RED_FIRE_BREATH, -cdr);
+            player.SpellHistory.ModifyCooldown(EvokerSpells.RED_FIRE_BREATH_2, -cdr);
+        }
+    }
 }

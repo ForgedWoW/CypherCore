@@ -12,25 +12,25 @@ namespace Scripts.Spells.Generic;
 [Script] // 59262 Grievous Wound
 internal class spell_gen_remove_on_full_health : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicDamage));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicDamage));
+    }
 
-	private void PeriodicTick(AuraEffect aurEff)
-	{
-		// if it has only periodic effect, allow 1 tick
-		var onlyEffect = SpellInfo.Effects.Count == 1;
+    private void PeriodicTick(AuraEffect aurEff)
+    {
+        // if it has only periodic effect, allow 1 tick
+        var onlyEffect = SpellInfo.Effects.Count == 1;
 
-		if (onlyEffect && aurEff.GetTickNumber() <= 1)
-			return;
+        if (onlyEffect && aurEff.GetTickNumber() <= 1)
+            return;
 
-		if (Target.IsFullHealth)
-		{
-			Remove(AuraRemoveMode.EnemySpell);
-			PreventDefaultAction();
-		}
-	}
+        if (Target.IsFullHealth)
+        {
+            Remove(AuraRemoveMode.EnemySpell);
+            PreventDefaultAction();
+        }
+    }
 }

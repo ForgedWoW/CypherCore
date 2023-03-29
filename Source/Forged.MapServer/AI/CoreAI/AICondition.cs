@@ -5,7 +5,7 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public enum AICondition
 {
-	Aggro,
-	Combat,
-	Die
+    Aggro,
+    Combat,
+    Die
 }

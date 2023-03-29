@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum GMTicketSystemStatus
 {
-	Disabled = 0,
-	Enabled = 1
+    Disabled = 0,
+    Enabled = 1
 }

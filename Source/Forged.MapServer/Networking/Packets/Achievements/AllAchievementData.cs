@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class AllAchievementData : ServerPacket
 {
-	public AllAchievements Data = new();
-	public AllAchievementData() : base(ServerOpcodes.AllAchievementData, ConnectionType.Instance) { }
+    public AllAchievements Data = new();
+    public AllAchievementData() : base(ServerOpcodes.AllAchievementData, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		Data.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        Data.Write(_worldPacket);
+    }
 }
 
 //Structs

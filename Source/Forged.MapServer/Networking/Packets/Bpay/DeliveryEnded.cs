@@ -9,18 +9,18 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class DeliveryEnded : ServerPacket
 {
-	public List<ItemInstance> Item { get; set; } = new();
-	public ulong DistributionID { get; set; } = 0;
+    public List<ItemInstance> Item { get; set; } = new();
+    public ulong DistributionID { get; set; } = 0;
 
-	public DeliveryEnded() : base(ServerOpcodes.BattlePayDeliveryEnded) { }
+    public DeliveryEnded() : base(ServerOpcodes.BattlePayDeliveryEnded) { }
 
-	public override void Write()
-	{
-		_worldPacket.Write(DistributionID);
+    public override void Write()
+    {
+        _worldPacket.Write(DistributionID);
 
-		_worldPacket.Write(Item.Count);
+        _worldPacket.Write(Item.Count);
 
-		foreach (var itemData in Item)
-			itemData.Write(_worldPacket);
-	}
+        foreach (var itemData in Item)
+            itemData.Write(_worldPacket);
+    }
 }

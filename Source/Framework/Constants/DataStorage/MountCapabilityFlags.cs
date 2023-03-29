@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum MountCapabilityFlags : byte
 {
-	Ground = 0x1,
-	Flying = 0x2,
-	Float = 0x4,
-	Underwater = 0x8,
-	IgnoreRestrictions = 0x20
+    Ground = 0x1,
+    Flying = 0x2,
+    Float = 0x4,
+    Underwater = 0x8,
+    IgnoreRestrictions = 0x20
 }

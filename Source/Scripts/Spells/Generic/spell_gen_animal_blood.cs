@@ -13,29 +13,29 @@ namespace Scripts.Spells.Generic;
 [Script] // 46221 - Animal Blood
 internal class spell_gen_animal_blood : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.PeriodicTriggerSpell, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.PeriodicTriggerSpell, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.PeriodicTriggerSpell, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.PeriodicTriggerSpell, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		// Remove all Auras with spell Id 46221, except the one currently being applied
-		Aura aur;
+    private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        // Remove all Auras with spell Id 46221, except the one currently being applied
+        Aura aur;
 
-		while ((aur = OwnerAsUnit.GetOwnedAura(GenericSpellIds.AnimalBlood, ObjectGuid.Empty, ObjectGuid.Empty, Aura)) != null)
-			OwnerAsUnit.RemoveOwnedAura(aur);
-	}
+        while ((aur = OwnerAsUnit.GetOwnedAura(GenericSpellIds.AnimalBlood, ObjectGuid.Empty, ObjectGuid.Empty, Aura)) != null)
+            OwnerAsUnit.RemoveOwnedAura(aur);
+    }
 
-	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var owner = OwnerAsUnit;
+    private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var owner = OwnerAsUnit;
 
-		if (owner)
-			owner.CastSpell(owner, GenericSpellIds.SpawnBloodPool, true);
-	}
+        if (owner)
+            owner.CastSpell(owner, GenericSpellIds.SpawnBloodPool, true);
+    }
 }

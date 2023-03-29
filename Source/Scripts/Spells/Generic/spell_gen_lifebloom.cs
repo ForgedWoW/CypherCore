@@ -16,29 +16,29 @@ namespace Scripts.Spells.Generic;
 [Script("spell_faction_champion_dru_lifebloom", GenericSpellIds.FactionChampionsDru)]
 internal class spell_gen_lifebloom : AuraScript, IHasAuraEffects
 {
-	private readonly uint _spellId;
+    private readonly uint _spellId;
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public spell_gen_lifebloom(uint spellId)
-	{
-		_spellId = spellId;
-	}
+    public spell_gen_lifebloom(uint spellId)
+    {
+        _spellId = spellId;
+    }
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		// Final heal only on duration end
-		if (TargetApplication.RemoveMode != AuraRemoveMode.Expire &&
-			TargetApplication.RemoveMode != AuraRemoveMode.EnemySpell)
-			return;
+    private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        // Final heal only on duration end
+        if (TargetApplication.RemoveMode != AuraRemoveMode.Expire &&
+            TargetApplication.RemoveMode != AuraRemoveMode.EnemySpell)
+            return;
 
-		// final heal
-		Target.CastSpell(Target, _spellId, new CastSpellExtraArgs(aurEff).SetOriginalCaster(CasterGUID));
-	}
+        // final heal
+        Target.CastSpell(Target, _spellId, new CastSpellExtraArgs(aurEff).SetOriginalCaster(CasterGUID));
+    }
 }

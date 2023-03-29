@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum GameObjectSummonType
 {
-	TimedOrCorpseDespawn = 0, // despawns after a specified time OR when the summoner dies
-	TimedDespawn = 1          // despawns after a specified time
+    TimedOrCorpseDespawn = 0, // despawns after a specified time OR when the summoner dies
+    TimedDespawn = 1          // despawns after a specified time
 }

@@ -5,19 +5,19 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureModel
 {
-	public static CreatureModel DefaultInvisibleModel = new(11686, 1.0f, 1.0f);
-	public static CreatureModel DefaultVisibleModel = new(17519, 1.0f, 1.0f);
+    public static CreatureModel DefaultInvisibleModel = new(11686, 1.0f, 1.0f);
+    public static CreatureModel DefaultVisibleModel = new(17519, 1.0f, 1.0f);
 
-	public uint CreatureDisplayId;
-	public float DisplayScale;
-	public float Probability;
+    public uint CreatureDisplayId;
+    public float DisplayScale;
+    public float Probability;
 
-	public CreatureModel() { }
+    public CreatureModel() { }
 
-	public CreatureModel(uint creatureDisplayId, float displayScale, float probability)
-	{
-		CreatureDisplayId = creatureDisplayId;
-		DisplayScale = displayScale;
-		Probability = probability;
-	}
+    public CreatureModel(uint creatureDisplayId, float displayScale, float probability)
+    {
+        CreatureDisplayId = creatureDisplayId;
+        DisplayScale = displayScale;
+        Probability = probability;
+    }
 }

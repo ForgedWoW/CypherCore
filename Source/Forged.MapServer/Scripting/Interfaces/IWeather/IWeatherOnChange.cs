@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IWeather;
 
 public interface IWeatherOnChange : IScriptObject
 {
-	void OnChange(Weather.Weather weather, WeatherState state, float grade);
+    void OnChange(Weather.Weather weather, WeatherState state, float grade);
 }

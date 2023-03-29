@@ -14,21 +14,21 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(196305)]
 public class spell_warlock_artifact_eternal_struggle : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpellWithValue, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpellWithValue, AuraScriptHookType.EffectProc));
+    }
 
-	private void OnProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
-	{
-		PreventDefaultAction();
-		var caster = Caster;
+    private void OnProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
+    {
+        PreventDefaultAction();
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		caster.CastSpell(caster, WarlockSpells.ETERNAL_STRUGGLE_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)aurEff.Amount));
-	}
+        caster.CastSpell(caster, WarlockSpells.ETERNAL_STRUGGLE_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)aurEff.Amount));
+    }
 }

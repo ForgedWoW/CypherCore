@@ -11,38 +11,38 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_demon_broiled_surprise : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override bool Load()
-	{
-		return Caster.TypeId == TypeId.Player;
-	}
+    public override bool Load()
+    {
+        return Caster.TypeId == TypeId.Player;
+    }
 
-	public SpellCastResult CheckCast()
-	{
-		var player = Caster.AsPlayer;
+    public SpellCastResult CheckCast()
+    {
+        var player = Caster.AsPlayer;
 
-		if (player.GetQuestStatus(QuestIds.SuperHotStew) != QuestStatus.Incomplete)
-			return SpellCastResult.CantDoThatRightNow;
+        if (player.GetQuestStatus(QuestIds.SuperHotStew) != QuestStatus.Incomplete)
+            return SpellCastResult.CantDoThatRightNow;
 
-		var creature = player.FindNearestCreature(CreatureIds.AbyssalFlamebringer, 10, false);
+        var creature = player.FindNearestCreature(CreatureIds.AbyssalFlamebringer, 10, false);
 
-		if (creature)
-			if (creature.IsDead)
-				return SpellCastResult.SpellCastOk;
+        if (creature)
+            if (creature.IsDead)
+                return SpellCastResult.SpellCastOk;
 
-		return SpellCastResult.NotHere;
-	}
+        return SpellCastResult.NotHere;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var player = Caster;
-		player.CastSpell(player, ItemSpellIds.CreateDemonBroiledSurprise, false);
-	}
+    private void HandleDummy(int effIndex)
+    {
+        var player = Caster;
+        player.CastSpell(player, ItemSpellIds.CreateDemonBroiledSurprise, false);
+    }
 }

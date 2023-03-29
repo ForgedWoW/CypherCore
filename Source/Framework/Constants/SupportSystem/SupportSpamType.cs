@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum SupportSpamType
 {
-	Mail = 0,
-	Chat = 1,
-	Calendar = 2
+    Mail = 0,
+    Chat = 1,
+    Calendar = 2
 }

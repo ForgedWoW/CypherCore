@@ -7,24 +7,24 @@ namespace Forged.MapServer.Networking.Packets.MythicPlus;
 
 public class DungeonScoreSeasonData
 {
-	public int Season;
-	public List<DungeonScoreMapData> SeasonMaps = new();
-	public List<DungeonScoreMapData> LadderMaps = new();
-	public float SeasonScore;
-	public float LadderScore = 0.0f;
+    public int Season;
+    public List<DungeonScoreMapData> SeasonMaps = new();
+    public List<DungeonScoreMapData> LadderMaps = new();
+    public float SeasonScore;
+    public float LadderScore = 0.0f;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(Season);
-		data.WriteInt32(SeasonMaps.Count);
-		data.WriteInt32(LadderMaps.Count);
-		data.WriteFloat(SeasonScore);
-		data.WriteFloat(LadderScore);
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(Season);
+        data.WriteInt32(SeasonMaps.Count);
+        data.WriteInt32(LadderMaps.Count);
+        data.WriteFloat(SeasonScore);
+        data.WriteFloat(LadderScore);
 
-		foreach (var map in SeasonMaps)
-			map.Write(data);
+        foreach (var map in SeasonMaps)
+            map.Write(data);
 
-		foreach (var map in LadderMaps)
-			map.Write(data);
-	}
+        foreach (var map in LadderMaps)
+            map.Write(data);
+    }
 }

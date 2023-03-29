@@ -12,21 +12,21 @@ namespace Scripts.Spells.Generic;
 [Script] // 71316 - Glacial Strike
 internal class spell_gen_remove_on_full_health_pct : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 2, AuraType.PeriodicDamagePercent));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 2, AuraType.PeriodicDamagePercent));
+    }
 
-	private void PeriodicTick(AuraEffect aurEff)
-	{
-		// they apply Damage so no need to check for ticks here
+    private void PeriodicTick(AuraEffect aurEff)
+    {
+        // they apply Damage so no need to check for ticks here
 
-		if (Target.IsFullHealth)
-		{
-			Remove(AuraRemoveMode.EnemySpell);
-			PreventDefaultAction();
-		}
-	}
+        if (Target.IsFullHealth)
+        {
+            Remove(AuraRemoveMode.EnemySpell);
+            PreventDefaultAction();
+        }
+    }
 }

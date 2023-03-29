@@ -7,24 +7,24 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 public class SpellLogMissEntry
 {
-	public ObjectGuid Victim;
-	public byte MissReason;
+    public ObjectGuid Victim;
+    public byte MissReason;
     private SpellLogMissDebug? Debug;
 
-	public SpellLogMissEntry(ObjectGuid victim, byte missReason)
-	{
-		Victim = victim;
-		MissReason = missReason;
-	}
+    public SpellLogMissEntry(ObjectGuid victim, byte missReason)
+    {
+        Victim = victim;
+        MissReason = missReason;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WritePackedGuid(Victim);
-		data.WriteUInt8(MissReason);
+    public void Write(WorldPacket data)
+    {
+        data.WritePackedGuid(Victim);
+        data.WriteUInt8(MissReason);
 
-		if (data.WriteBit(Debug.HasValue))
-			Debug.Value.Write(data);
+        if (data.WriteBit(Debug.HasValue))
+            Debug.Value.Write(data);
 
-		data.FlushBits();
-	}
+        data.FlushBits();
+    }
 }

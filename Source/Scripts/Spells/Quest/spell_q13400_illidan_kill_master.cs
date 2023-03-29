@@ -11,24 +11,24 @@ namespace Scripts.Spells.Quest;
 [Script] // 61752 - Illidan Kill Credit Master
 internal class spell_q13400_illidan_kill_master : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster.IsVehicle)
-		{
-			var passenger = caster.VehicleKit1.GetPassenger(0);
+        if (caster.IsVehicle)
+        {
+            var passenger = caster.VehicleKit1.GetPassenger(0);
 
-			if (passenger)
-				passenger.CastSpell(passenger, QuestSpellIds.IllidanKillCredit, true);
-		}
-	}
+            if (passenger)
+                passenger.CastSpell(passenger, QuestSpellIds.IllidanKillCredit, true);
+        }
+    }
 }

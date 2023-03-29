@@ -14,43 +14,43 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(211714)]
 public class spell_warlock_artifact_thalkiels_consumption : SpellScript, IHasSpellEffects
 {
-	private uint _damage = 0;
+    private uint _damage = 0;
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(SaveDamage, 1, Targets.UnitCasterAndSummons));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(SaveDamage, 1, Targets.UnitCasterAndSummons));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (target == null || caster == null)
-			return;
+        if (target == null || caster == null)
+            return;
 
-		caster.CastSpell(target, WarlockSpells.THALKIELS_CONSUMPTION_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)_damage));
-	}
+        caster.CastSpell(target, WarlockSpells.THALKIELS_CONSUMPTION_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)_damage));
+    }
 
-	private void SaveDamage(List<WorldObject> targets)
-	{
-		targets.RemoveIf((WorldObject target) =>
-		{
-			if (!target.AsUnit || target.AsPlayer)
-				return true;
+    private void SaveDamage(List<WorldObject> targets)
+    {
+        targets.RemoveIf((WorldObject target) =>
+        {
+            if (!target.AsUnit || target.AsPlayer)
+                return true;
 
-			if (target.AsCreature.CreatureType != CreatureType.Demon)
-				return true;
+            if (target.AsCreature.CreatureType != CreatureType.Demon)
+                return true;
 
-			return false;
-		});
+            return false;
+        });
 
-		var basePoints = SpellInfo.GetEffect(1).BasePoints;
+        var basePoints = SpellInfo.GetEffect(1).BasePoints;
 
-		foreach (var pet in targets)
-			_damage += (uint)pet.AsUnit.CountPctFromMaxHealth(basePoints);
-	}
+        foreach (var pet in targets)
+            _damage += (uint)pet.AsUnit.CountPctFromMaxHealth(basePoints);
+    }
 }

@@ -14,72 +14,72 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(111771)]
 public class spell_warl_demonic_gateway : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public SpellCastResult CheckCast()
-	{
-		// don't allow during Arena Preparation
-		if (Caster.HasAura(BattlegroundConst.SpellArenaPreparation))
-			return SpellCastResult.CantDoThatRightNow;
+    public SpellCastResult CheckCast()
+    {
+        // don't allow during Arena Preparation
+        if (Caster.HasAura(BattlegroundConst.SpellArenaPreparation))
+            return SpellCastResult.CantDoThatRightNow;
 
-		// check if player can reach the location
-		var spell = Spell;
+        // check if player can reach the location
+        var spell = Spell;
 
-		if (spell.Targets.HasDst)
-		{
-			var pos = spell.Targets.Dst.Position;
-			var caster = Caster;
+        if (spell.Targets.HasDst)
+        {
+            var pos = spell.Targets.Dst.Position;
+            var caster = Caster;
 
-			if (caster.Location.Z + 6.0f < pos.Z || caster.Location.Z - 6.0f > pos.Z)
-				return SpellCastResult.NoPath;
-		}
+            if (caster.Location.Z + 6.0f < pos.Z || caster.Location.Z - 6.0f > pos.Z)
+                return SpellCastResult.NoPath;
+        }
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleVisual, 0, SpellEffectName.Summon, SpellScriptHookType.Launch));
-		SpellEffects.Add(new EffectHandler(HandleLaunch, 1, SpellEffectName.Dummy, SpellScriptHookType.Launch));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleVisual, 0, SpellEffectName.Summon, SpellScriptHookType.Launch));
+        SpellEffects.Add(new EffectHandler(HandleLaunch, 1, SpellEffectName.Dummy, SpellScriptHookType.Launch));
+    }
 
-	private void HandleLaunch(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleLaunch(int effIndex)
+    {
+        var caster = Caster;
 
-		// despawn all other gateways
-		var targets1 = new List<Creature>();
-		var targets2 = new List<Creature>();
-		targets1 = caster.GetCreatureListWithEntryInGrid(WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN, 200.0f);
-		targets2 = caster.GetCreatureListWithEntryInGrid(WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_PURPLE, 200.0f);
+        // despawn all other gateways
+        var targets1 = new List<Creature>();
+        var targets2 = new List<Creature>();
+        targets1 = caster.GetCreatureListWithEntryInGrid(WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN, 200.0f);
+        targets2 = caster.GetCreatureListWithEntryInGrid(WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_PURPLE, 200.0f);
 
-		targets1.AddRange(targets2);
+        targets1.AddRange(targets2);
 
-		foreach (var target in targets1)
-		{
-			if (target.OwnerGUID != caster.GUID)
-				continue;
+        foreach (var target in targets1)
+        {
+            if (target.OwnerGUID != caster.GUID)
+                continue;
 
-			target.DespawnOrUnsummon(TimeSpan.FromMilliseconds(100)); // despawn at next tick
-		}
+            target.DespawnOrUnsummon(TimeSpan.FromMilliseconds(100)); // despawn at next tick
+        }
 
-		var dest = ExplTargetDest;
+        var dest = ExplTargetDest;
 
-		if (dest != null)
-		{
-			caster.CastSpell(caster, WarlockSpells.DEMONIC_GATEWAY_SUMMON_PURPLE, true);
-			caster.CastSpell(dest, WarlockSpells.DEMONIC_GATEWAY_SUMMON_GREEN, true);
-		}
-	}
+        if (dest != null)
+        {
+            caster.CastSpell(caster, WarlockSpells.DEMONIC_GATEWAY_SUMMON_PURPLE, true);
+            caster.CastSpell(dest, WarlockSpells.DEMONIC_GATEWAY_SUMMON_GREEN, true);
+        }
+    }
 
-	private void HandleVisual(int effIndex)
-	{
-		var caster = Caster;
-		var pos = ExplTargetDest;
+    private void HandleVisual(int effIndex)
+    {
+        var caster = Caster;
+        var pos = ExplTargetDest;
 
-		if (caster == null || pos == null)
-			return;
+        if (caster == null || pos == null)
+            return;
 
-		caster.SendPlaySpellVisual(pos, 20.0f, 63644, 0, 0, 2.0f);
-	}
+        caster.SendPlaySpellVisual(pos, 20.0f, 63644, 0, 0, 2.0f);
+    }
 }

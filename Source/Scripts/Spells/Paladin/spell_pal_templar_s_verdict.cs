@@ -11,16 +11,16 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(85256)] // 85256 - Templar's Verdict
 internal class spell_pal_templar_s_verdict : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHitTarget(int effIndex)
-	{
-		Caster.CastSpell(HitUnit, PaladinSpells.TemplarVerdictDamage, true);
-	}
+    private void HandleHitTarget(int effIndex)
+    {
+        Caster.CastSpell(HitUnit, PaladinSpells.TemplarVerdictDamage, true);
+    }
 }

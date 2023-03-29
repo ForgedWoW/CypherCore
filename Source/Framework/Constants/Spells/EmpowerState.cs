@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum EmpowerState
 {
-	None = 0,
+    None = 0,
     CanceledStartup = 1,
     Prepared = 2,
     Empowering = 3,

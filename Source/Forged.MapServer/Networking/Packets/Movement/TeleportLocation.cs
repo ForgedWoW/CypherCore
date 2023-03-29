@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class TeleportLocation
 {
-	public Position Pos;
-	public int Unused901_1 = -1;
-	public int Unused901_2 = -1;
+    public Position Pos;
+    public int Unused901_1 = -1;
+    public int Unused901_2 = -1;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteXYZO(Pos);
-		data.WriteInt32(Unused901_1);
-		data.WriteInt32(Unused901_2);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteXYZO(Pos);
+        data.WriteInt32(Unused901_1);
+        data.WriteInt32(Unused901_2);
+    }
 }

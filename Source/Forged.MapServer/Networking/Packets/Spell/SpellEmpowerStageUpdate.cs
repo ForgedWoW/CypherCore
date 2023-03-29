@@ -9,22 +9,22 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellEmpowerStageUpdate : ServerPacket
 {
-	public ObjectGuid CastID;
-	public ObjectGuid Caster;
-	public int TimeRemaining;
-	public bool Unk;
-	public List<uint> RemainingStageDurations = new();
-	public SpellEmpowerStageUpdate() : base(ServerOpcodes.SpellEmpowerUpdate, ConnectionType.Instance) { }
+    public ObjectGuid CastID;
+    public ObjectGuid Caster;
+    public int TimeRemaining;
+    public bool Unk;
+    public List<uint> RemainingStageDurations = new();
+    public SpellEmpowerStageUpdate() : base(ServerOpcodes.SpellEmpowerUpdate, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(CastID);
-		_worldPacket.WritePackedGuid(Caster);
-		_worldPacket.Write(TimeRemaining);
-		_worldPacket.Write((uint)RemainingStageDurations.Count);
-		_worldPacket.Write(Unk);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(CastID);
+        _worldPacket.WritePackedGuid(Caster);
+        _worldPacket.Write(TimeRemaining);
+        _worldPacket.Write((uint)RemainingStageDurations.Count);
+        _worldPacket.Write(Unk);
 
-		foreach (var stageDuration in RemainingStageDurations)
-			_worldPacket.Write(stageDuration);
-	}
+        foreach (var stageDuration in RemainingStageDurations)
+            _worldPacket.Write(stageDuration);
+    }
 }

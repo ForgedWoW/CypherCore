@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class SpellEmpowerRelease : ClientPacket
 {
-	public uint SpellID;
-	public SpellEmpowerRelease(WorldPacket packet) : base(packet) { }
+    public uint SpellID;
+    public SpellEmpowerRelease(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		SpellID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        SpellID = _worldPacket.ReadUInt32();
+    }
 }

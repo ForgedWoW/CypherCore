@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum Gender : sbyte
 {
-	Unknown = -1,
-	Male = 0,
-	Female = 1,
-	None = 2
+    Unknown = -1,
+    Male = 0,
+    Female = 1,
+    None = 2
 }

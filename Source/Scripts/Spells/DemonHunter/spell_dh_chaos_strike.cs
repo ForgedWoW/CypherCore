@@ -13,20 +13,20 @@ namespace Scripts.Spells.DemonHunter;
 [Script] // 197125 - Chaos Strike
 internal class spell_dh_chaos_strike : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-		args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount);
-		args.SetTriggeringAura(aurEff);
-		Target.CastSpell(Target, DemonHunterSpells.ChaosStrikeEnergize, args);
-	}
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+        args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount);
+        args.SetTriggeringAura(aurEff);
+        Target.CastSpell(Target, DemonHunterSpells.ChaosStrikeEnergize, args);
+    }
 }

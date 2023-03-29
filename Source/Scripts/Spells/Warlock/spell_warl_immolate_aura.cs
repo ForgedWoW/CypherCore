@@ -12,17 +12,17 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(193541)]
 public class spell_warl_immolate_aura : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo != null && eventInfo.SpellInfo.Id == WarlockSpells.IMMOLATE_DOT)
-		{
-			var rollChance = SpellInfo.GetEffect(0).BasePoints;
-			rollChance = Caster.ModifyPower(PowerType.SoulShards, 25);
-			var crit = (eventInfo.HitMask & ProcFlagsHit.Critical) != 0;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo != null && eventInfo.SpellInfo.Id == WarlockSpells.IMMOLATE_DOT)
+        {
+            var rollChance = SpellInfo.GetEffect(0).BasePoints;
+            rollChance = Caster.ModifyPower(PowerType.SoulShards, 25);
+            var crit = (eventInfo.HitMask & ProcFlagsHit.Critical) != 0;
 
-			return crit ? RandomHelper.randChance(rollChance * 2) : RandomHelper.randChance(rollChance);
-		}
+            return crit ? RandomHelper.randChance(rollChance * 2) : RandomHelper.randChance(rollChance);
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

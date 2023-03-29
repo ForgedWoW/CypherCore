@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 public interface IAreaTriggerOverrideCreateProperties : IAreaTriggerScript
 {
-	AreaTriggerCreateProperties AreaTriggerCreateProperties { get; }
+    AreaTriggerCreateProperties AreaTriggerCreateProperties { get; }
 }

@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventEntry
 {
-	public ObjectGuid PlayerGUID;
-	public ObjectGuid OtherGUID;
-	public byte TransactionType;
-	public byte RankID;
-	public uint TransactionDate;
+    public ObjectGuid PlayerGUID;
+    public ObjectGuid OtherGUID;
+    public byte TransactionType;
+    public byte RankID;
+    public uint TransactionDate;
 }

@@ -11,55 +11,55 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class GuardAI : ScriptedAI.ScriptedAI
 {
-	public GuardAI(Creature creature) : base(creature) { }
+    public GuardAI(Creature creature) : base(creature) { }
 
-	public override void UpdateAI(uint diff)
-	{
-		if (!UpdateVictim())
-			return;
+    public override void UpdateAI(uint diff)
+    {
+        if (!UpdateVictim())
+            return;
 
-		DoMeleeAttackIfReady();
-	}
+        DoMeleeAttackIfReady();
+    }
 
-	public override bool CanSeeAlways(WorldObject obj)
-	{
-		var unit = obj.AsUnit;
+    public override bool CanSeeAlways(WorldObject obj)
+    {
+        var unit = obj.AsUnit;
 
-		if (unit != null)
-			if (unit.IsControlledByPlayer && Me.IsEngagedBy(unit))
-				return true;
+        if (unit != null)
+            if (unit.IsControlledByPlayer && Me.IsEngagedBy(unit))
+                return true;
 
-		return false;
-	}
+        return false;
+    }
 
-	public override void EnterEvadeMode(EvadeReason why)
-	{
-		if (!Me.IsAlive)
-		{
-			Me.MotionMaster.MoveIdle();
-			Me.CombatStop(true);
-			EngagementOver();
+    public override void EnterEvadeMode(EvadeReason why)
+    {
+        if (!Me.IsAlive)
+        {
+            Me.MotionMaster.MoveIdle();
+            Me.CombatStop(true);
+            EngagementOver();
 
-			return;
-		}
+            return;
+        }
 
-		Log.Logger.Verbose($"GuardAI::EnterEvadeMode: {Me.GUID} enters evade mode.");
+        Log.Logger.Verbose($"GuardAI::EnterEvadeMode: {Me.GUID} enters evade mode.");
 
-		Me.RemoveAllAuras();
-		Me.CombatStop(true);
-		EngagementOver();
+        Me.RemoveAllAuras();
+        Me.CombatStop(true);
+        EngagementOver();
 
-		Me.MotionMaster.MoveTargetedHome();
-	}
+        Me.MotionMaster.MoveTargetedHome();
+    }
 
-	public override void JustDied(Unit killer)
-	{
-		if (killer != null)
-		{
-			var player = killer.CharmerOrOwnerPlayerOrPlayerItself;
+    public override void JustDied(Unit killer)
+    {
+        if (killer != null)
+        {
+            var player = killer.CharmerOrOwnerPlayerOrPlayerItself;
 
-			if (player != null)
-				Me.SendZoneUnderAttackMessage(player);
-		}
-	}
+            if (player != null)
+                Me.SendZoneUnderAttackMessage(player);
+        }
+    }
 }

@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum LfgRoleCheckState
 {
-	Default = 0,      // Internal Use = Not Initialized.
-	Finished = 1,     // Role Check Finished
-	Initialiting = 2, // Role Check Begins
-	MissingRole = 3,  // Someone Didn'T Selected A Role After 2 Mins
-	WrongRoles = 4,   // Can'T Form A Group With That Role Selection
-	Aborted = 5,      // Someone Leave The Group
-	NoRole = 6        // Someone Selected No Role
+    Default = 0,      // Internal Use = Not Initialized.
+    Finished = 1,     // Role Check Finished
+    Initialiting = 2, // Role Check Begins
+    MissingRole = 3,  // Someone Didn'T Selected A Role After 2 Mins
+    WrongRoles = 4,   // Can'T Form A Group With That Role Selection
+    Aborted = 5,      // Someone Leave The Group
+    NoRole = 6        // Someone Selected No Role
 }

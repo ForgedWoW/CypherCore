@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAuctionHouse;
 
 public interface IAuctionHouseOnAuctionExpire : IScriptObject
 {
-	void OnAuctionExpire(AuctionHouseObject ah, AuctionPosting auction);
+    void OnAuctionExpire(AuctionHouseObject ah, AuctionPosting auction);
 }

@@ -7,22 +7,22 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 internal class AutoGuildBankItem : ClientPacket
 {
-	public ObjectGuid Banker;
-	public byte BankTab;
-	public byte BankSlot;
-	public byte? ContainerSlot;
-	public byte ContainerItemSlot;
-	public AutoGuildBankItem(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Banker;
+    public byte BankTab;
+    public byte BankSlot;
+    public byte? ContainerSlot;
+    public byte ContainerItemSlot;
+    public AutoGuildBankItem(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Banker = _worldPacket.ReadPackedGuid();
-		BankTab = _worldPacket.ReadUInt8();
-		BankSlot = _worldPacket.ReadUInt8();
-		;
-		ContainerItemSlot = _worldPacket.ReadUInt8();
+    public override void Read()
+    {
+        Banker = _worldPacket.ReadPackedGuid();
+        BankTab = _worldPacket.ReadUInt8();
+        BankSlot = _worldPacket.ReadUInt8();
+        ;
+        ContainerItemSlot = _worldPacket.ReadUInt8();
 
-		if (_worldPacket.HasBit())
-			ContainerSlot = _worldPacket.ReadUInt8();
-	}
+        if (_worldPacket.HasBit())
+            ContainerSlot = _worldPacket.ReadUInt8();
+    }
 }

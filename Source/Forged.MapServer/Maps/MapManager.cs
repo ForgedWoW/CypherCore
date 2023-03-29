@@ -12,7 +12,6 @@ using Forged.MapServer.Garrisons;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Scenarios;
-using Forged.MapServer.Scripting;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
@@ -35,12 +34,12 @@ public class MapManager
     private readonly IntervalTimer _timer = new();
     private readonly object _mapsLock = new();
     private readonly BitSet _freeInstanceIds = new(1);
+    private readonly LimitedThreadTaskManager _updater;
     private uint _gridCleanUpDelay;
     private uint _nextInstanceId;
-    private readonly LimitedThreadTaskManager _updater;
     private uint _scheduledScripts;
 
-	public MapManager(IConfiguration configuration, CliDB cliDB, InstanceLockManager instanceLockManager, DB2Manager db2Manager, 
+    public MapManager(IConfiguration configuration, CliDB cliDB, InstanceLockManager instanceLockManager, DB2Manager db2Manager,
                       CharacterDatabase characterDatabase, ScenarioManager scenarioManager)
     {
         _configuration = configuration;
@@ -73,149 +72,149 @@ public class MapManager
         }
     }
 
-	/// <summary>
-	///  create the instance if it's not created already
-	///  the player is not actually added to the instance(only in InstanceMap::Add)
-	/// </summary>
-	/// <param name="mapId"> </param>
-	/// <param name="player"> </param>
-	/// <returns> the right instance for the object, based on its InstanceId </returns>
-	public Map CreateMap(uint mapId, Player player)
-	{
-		if (!player)
-			return null;
+    /// <summary>
+    ///     create the instance if it's not created already
+    ///     the player is not actually added to the instance(only in InstanceMap::Add)
+    /// </summary>
+    /// <param name="mapId"> </param>
+    /// <param name="player"> </param>
+    /// <returns> the right instance for the object, based on its InstanceId </returns>
+    public Map CreateMap(uint mapId, Player player)
+    {
+        if (!player)
+            return null;
 
-		var entry = _cliDB.MapStorage.LookupByKey(mapId);
+        var entry = _cliDB.MapStorage.LookupByKey(mapId);
 
-		if (entry == null)
-			return null;
+        if (entry == null)
+            return null;
 
-		lock (_mapsLock)
-		{
-			Map map;
-			uint newInstanceId = 0; // instanceId of the resulting map
+        lock (_mapsLock)
+        {
+            Map map;
+            uint newInstanceId = 0; // instanceId of the resulting map
 
-			if (entry.IsBattlegroundOrArena())
-			{
-				// instantiate or find existing bg map for player
-				// the instance id is set in battlegroundid
-				newInstanceId = player.BattlegroundId;
+            if (entry.IsBattlegroundOrArena())
+            {
+                // instantiate or find existing bg map for player
+                // the instance id is set in battlegroundid
+                newInstanceId = player.BattlegroundId;
 
-				if (newInstanceId == 0)
-					return null;
+                if (newInstanceId == 0)
+                    return null;
 
-				map = FindMap_i(mapId, newInstanceId);
+                map = FindMap_i(mapId, newInstanceId);
 
-				if (!map)
-				{
-					var bg = player.Battleground;
+                if (!map)
+                {
+                    var bg = player.Battleground;
 
-					if (bg != null)
-					{
-						map = CreateBattleground(mapId, newInstanceId, bg);
-					}
-					else
-					{
-						player.TeleportToBGEntryPoint();
+                    if (bg != null)
+                    {
+                        map = CreateBattleground(mapId, newInstanceId, bg);
+                    }
+                    else
+                    {
+                        player.TeleportToBGEntryPoint();
 
-						return null;
-					}
-				}
-			}
-			else if (entry.IsDungeon())
-			{
-				var group = player.Group;
-				var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyId(entry);
-				MapDb2Entries entries = new(entry, _db2Manager.GetDownscaledMapDifficultyData(mapId, ref difficulty));
-				var instanceOwnerGuid = group != null ? group.GetRecentInstanceOwner(mapId) : player.GUID;
-				var instanceLock = _instanceLockManager.FindActiveInstanceLock(instanceOwnerGuid, entries);
+                        return null;
+                    }
+                }
+            }
+            else if (entry.IsDungeon())
+            {
+                var group = player.Group;
+                var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyId(entry);
+                MapDb2Entries entries = new(entry, _db2Manager.GetDownscaledMapDifficultyData(mapId, ref difficulty));
+                var instanceOwnerGuid = group != null ? group.GetRecentInstanceOwner(mapId) : player.GUID;
+                var instanceLock = _instanceLockManager.FindActiveInstanceLock(instanceOwnerGuid, entries);
 
-				if (instanceLock != null)
-				{
-					newInstanceId = instanceLock.GetInstanceId();
+                if (instanceLock != null)
+                {
+                    newInstanceId = instanceLock.GetInstanceId();
 
-					// Reset difficulty to the one used in instance lock
-					if (!entries.Map.IsFlexLocking())
-						difficulty = instanceLock.GetDifficultyId();
-				}
-				else
-				{
-					// Try finding instance id for normal dungeon
-					if (!entries.MapDifficulty.HasResetSchedule())
-						newInstanceId = group != null ? group.GetRecentInstanceId(mapId) : player.GetRecentInstanceId(mapId);
+                    // Reset difficulty to the one used in instance lock
+                    if (!entries.Map.IsFlexLocking())
+                        difficulty = instanceLock.GetDifficultyId();
+                }
+                else
+                {
+                    // Try finding instance id for normal dungeon
+                    if (!entries.MapDifficulty.HasResetSchedule())
+                        newInstanceId = group != null ? group.GetRecentInstanceId(mapId) : player.GetRecentInstanceId(mapId);
 
-					// If not found or instance is not a normal dungeon, generate new one
-					if (newInstanceId == 0)
-						newInstanceId = GenerateInstanceId();
+                    // If not found or instance is not a normal dungeon, generate new one
+                    if (newInstanceId == 0)
+                        newInstanceId = GenerateInstanceId();
 
-					instanceLock = _instanceLockManager.CreateInstanceLockForNewInstance(instanceOwnerGuid, entries, newInstanceId);
-				}
+                    instanceLock = _instanceLockManager.CreateInstanceLockForNewInstance(instanceOwnerGuid, entries, newInstanceId);
+                }
 
-				// it is possible that the save exists but the map doesn't
-				map = FindMap_i(mapId, newInstanceId);
+                // it is possible that the save exists but the map doesn't
+                map = FindMap_i(mapId, newInstanceId);
 
-				// is is also possible that instance id is already in use by another group for boss-based locks
-				if (!entries.IsInstanceIdBound() && instanceLock != null && map != null && map.ToInstanceMap.InstanceLock != instanceLock)
-				{
-					newInstanceId = GenerateInstanceId();
-					instanceLock.SetInstanceId(newInstanceId);
-					map = null;
-				}
+                // is is also possible that instance id is already in use by another group for boss-based locks
+                if (!entries.IsInstanceIdBound() && instanceLock != null && map != null && map.ToInstanceMap.InstanceLock != instanceLock)
+                {
+                    newInstanceId = GenerateInstanceId();
+                    instanceLock.SetInstanceId(newInstanceId);
+                    map = null;
+                }
 
-				if (!map)
-				{
-					map = CreateInstance(mapId, newInstanceId, instanceLock, difficulty, player.TeamId, group);
+                if (!map)
+                {
+                    map = CreateInstance(mapId, newInstanceId, instanceLock, difficulty, player.TeamId, group);
 
-					if (group != null)
-						group.SetRecentInstance(mapId, instanceOwnerGuid, newInstanceId);
-					else
-						player.SetRecentInstance(mapId, newInstanceId);
-				}
-			}
-			else if (entry.IsGarrison())
-			{
-				newInstanceId = (uint)player.GUID.Counter;
-				map = FindMap_i(mapId, newInstanceId);
+                    if (group != null)
+                        group.SetRecentInstance(mapId, instanceOwnerGuid, newInstanceId);
+                    else
+                        player.SetRecentInstance(mapId, newInstanceId);
+                }
+            }
+            else if (entry.IsGarrison())
+            {
+                newInstanceId = (uint)player.GUID.Counter;
+                map = FindMap_i(mapId, newInstanceId);
 
-				if (!map)
-					map = CreateGarrison(mapId, newInstanceId, player);
-			}
-			else
-			{
-				newInstanceId = 0;
+                if (!map)
+                    map = CreateGarrison(mapId, newInstanceId, player);
+            }
+            else
+            {
+                newInstanceId = 0;
 
-				if (entry.IsSplitByFaction())
-					newInstanceId = (uint)player.TeamId;
+                if (entry.IsSplitByFaction())
+                    newInstanceId = (uint)player.TeamId;
 
-				map = FindMap_i(mapId, newInstanceId);
+                map = FindMap_i(mapId, newInstanceId);
 
-				if (!map)
-					map = CreateWorldMap(mapId, newInstanceId);
-			}
+                if (!map)
+                    map = CreateWorldMap(mapId, newInstanceId);
+            }
 
-			if (map != null)
-				_maps.Add(map.Id, map.InstanceId, map);
+            if (map != null)
+                _maps.Add(map.Id, map.InstanceId, map);
 
-			return map;
-		}
-	}
+            return map;
+        }
+    }
 
-	public Map FindMap(uint mapId, uint instanceId)
-	{
-		lock (_mapsLock)
-		{
-			return FindMap_i(mapId, instanceId);
-		}
-	}
+    public Map FindMap(uint mapId, uint instanceId)
+    {
+        lock (_mapsLock)
+        {
+            return FindMap_i(mapId, instanceId);
+        }
+    }
 
-	public uint FindInstanceIdForPlayer(uint mapId, Player player)
-	{
-		var entry = _cliDB.MapStorage.LookupByKey(mapId);
+    public uint FindInstanceIdForPlayer(uint mapId, Player player)
+    {
+        var entry = _cliDB.MapStorage.LookupByKey(mapId);
 
-		if (entry == null)
-			return 0;
+        if (entry == null)
+            return 0;
 
-		if (entry.IsBattlegroundOrArena())
+        if (entry.IsBattlegroundOrArena())
             return player.BattlegroundId;
 
         if (entry.IsDungeon())
@@ -257,14 +256,14 @@ public class MapManager
         }
     }
 
-	public void Update(uint diff)
-	{
-		_timer.Update(diff);
+    public void Update(uint diff)
+    {
+        _timer.Update(diff);
 
-		if (!_timer.Passed)
-			return;
+        if (!_timer.Passed)
+            return;
 
-		var time = (uint)_timer.Current;
+        var time = (uint)_timer.Current;
 
         lock (_mapsLock)
         {
@@ -296,17 +295,17 @@ public class MapManager
         }
 
         _updater.Wait();
-		_timer.Current = 0;
-	}
+        _timer.Current = 0;
+    }
 
-	public bool IsValidMap(uint mapId)
-	{
-		return _cliDB.MapStorage.ContainsKey(mapId);
-	}
+    public bool IsValidMap(uint mapId)
+    {
+        return _cliDB.MapStorage.ContainsKey(mapId);
+    }
 
-	public void UnloadAll()
-	{
-		// first unload maps
+    public void UnloadAll()
+    {
+        // first unload maps
         lock (_mapsLock)
         {
             foreach (var pair in _maps.Values)
@@ -321,136 +320,136 @@ public class MapManager
         }
 
         if (_updater != null)
-			_updater.Deactivate();
-	}
+            _updater.Deactivate();
+    }
 
-	public uint GetNumInstances()
-	{
-		lock (_mapsLock)
-		{
-			return (uint)_maps.Sum(pair => pair.Value.Count(kvp => kvp.Value.IsDungeon));
-		}
-	}
+    public uint GetNumInstances()
+    {
+        lock (_mapsLock)
+        {
+            return (uint)_maps.Sum(pair => pair.Value.Count(kvp => kvp.Value.IsDungeon));
+        }
+    }
 
-	public uint GetNumPlayersInInstances()
-	{
-		lock (_mapsLock)
-		{
-			return (uint)_maps.Sum(pair => pair.Value.Sum(kvp => kvp.Value.IsDungeon ? kvp.Value.Players.Count : 0));
-		}
-	}
+    public uint GetNumPlayersInInstances()
+    {
+        lock (_mapsLock)
+        {
+            return (uint)_maps.Sum(pair => pair.Value.Sum(kvp => kvp.Value.IsDungeon ? kvp.Value.Players.Count : 0));
+        }
+    }
 
-	public void InitInstanceIds()
-	{
-		_nextInstanceId = 1;
+    public void InitInstanceIds()
+    {
+        _nextInstanceId = 1;
 
-		ulong maxExistingInstanceId = 0;
-		var result = _characterDatabase.Query("SELECT IFNULL(MAX(instanceId), 0) FROM instance");
+        ulong maxExistingInstanceId = 0;
+        var result = _characterDatabase.Query("SELECT IFNULL(MAX(instanceId), 0) FROM instance");
 
-		if (!result.IsEmpty())
-			maxExistingInstanceId = Math.Max(maxExistingInstanceId, result.Read<ulong>(0));
+        if (!result.IsEmpty())
+            maxExistingInstanceId = Math.Max(maxExistingInstanceId, result.Read<ulong>(0));
 
-		result = _characterDatabase.Query("SELECT IFNULL(MAX(instanceId), 0) FROM character_instance_lock");
+        result = _characterDatabase.Query("SELECT IFNULL(MAX(instanceId), 0) FROM character_instance_lock");
 
-		if (!result.IsEmpty())
-			maxExistingInstanceId = Math.Max(maxExistingInstanceId, result.Read<ulong>(0));
+        if (!result.IsEmpty())
+            maxExistingInstanceId = Math.Max(maxExistingInstanceId, result.Read<ulong>(0));
 
-		_freeInstanceIds.Length = (int)(maxExistingInstanceId + 2); // make space for one extra to be able to access [_nextInstanceId] index in case all slots are taken
+        _freeInstanceIds.Length = (int)(maxExistingInstanceId + 2); // make space for one extra to be able to access [_nextInstanceId] index in case all slots are taken
 
-		// never allow 0 id
-		_freeInstanceIds[0] = false;
-	}
+        // never allow 0 id
+        _freeInstanceIds[0] = false;
+    }
 
-	public void RegisterInstanceId(uint instanceId)
-	{
-		_freeInstanceIds[(int)instanceId] = false;
+    public void RegisterInstanceId(uint instanceId)
+    {
+        _freeInstanceIds[(int)instanceId] = false;
 
-		// Instances are pulled in ascending order from db and nextInstanceId is initialized with 1,
-		// so if the instance id is used, increment until we find the first unused one for a potential new instance
-		if (_nextInstanceId == instanceId)
-			++_nextInstanceId;
-	}
+        // Instances are pulled in ascending order from db and nextInstanceId is initialized with 1,
+        // so if the instance id is used, increment until we find the first unused one for a potential new instance
+        if (_nextInstanceId == instanceId)
+            ++_nextInstanceId;
+    }
 
-	public uint GenerateInstanceId()
-	{
-		if (_nextInstanceId == uint.MaxValue)
+    public uint GenerateInstanceId()
+    {
+        if (_nextInstanceId == uint.MaxValue)
             _nextInstanceId = 1;
 
         var newInstanceId = _nextInstanceId;
-		_freeInstanceIds[(int)newInstanceId] = false;
+        _freeInstanceIds[(int)newInstanceId] = false;
 
-		// Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
-		var nextFreeId = -1;
+        // Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
+        var nextFreeId = -1;
 
-		for (var i = (int)_nextInstanceId++; i < _freeInstanceIds.Length; i++)
-			if (_freeInstanceIds[i])
-			{
-				nextFreeId = i;
+        for (var i = (int)_nextInstanceId++; i < _freeInstanceIds.Length; i++)
+            if (_freeInstanceIds[i])
+            {
+                nextFreeId = i;
 
-				break;
-			}
+                break;
+            }
 
-		if (nextFreeId == -1)
-		{
-			_nextInstanceId = (uint)_freeInstanceIds.Length;
-			_freeInstanceIds.Length += 1;
-			_freeInstanceIds[(int)_nextInstanceId] = true;
-		}
-		else
-		{
-			_nextInstanceId = (uint)nextFreeId;
-		}
+        if (nextFreeId == -1)
+        {
+            _nextInstanceId = (uint)_freeInstanceIds.Length;
+            _freeInstanceIds.Length += 1;
+            _freeInstanceIds[(int)_nextInstanceId] = true;
+        }
+        else
+        {
+            _nextInstanceId = (uint)nextFreeId;
+        }
 
-		return newInstanceId;
-	}
+        return newInstanceId;
+    }
 
-	public void FreeInstanceId(uint instanceId)
-	{
-		// If freed instance id is lower than the next id available for new instances, use the freed one instead
-		_nextInstanceId = Math.Min(instanceId, _nextInstanceId);
-		_freeInstanceIds[(int)instanceId] = true;
-	}
+    public void FreeInstanceId(uint instanceId)
+    {
+        // If freed instance id is lower than the next id available for new instances, use the freed one instead
+        _nextInstanceId = Math.Min(instanceId, _nextInstanceId);
+        _freeInstanceIds[(int)instanceId] = true;
+    }
 
-	public void SetGridCleanUpDelay(uint t)
-	{
-		if (t < MapConst.MinGridDelay)
-			_gridCleanUpDelay = MapConst.MinGridDelay;
-		else
-			_gridCleanUpDelay = t;
-	}
+    public void SetGridCleanUpDelay(uint t)
+    {
+        if (t < MapConst.MinGridDelay)
+            _gridCleanUpDelay = MapConst.MinGridDelay;
+        else
+            _gridCleanUpDelay = t;
+    }
 
-	public void SetMapUpdateInterval(int t)
-	{
-		if (t < MapConst.MinMapUpdateDelay)
-			t = MapConst.MinMapUpdateDelay;
+    public void SetMapUpdateInterval(int t)
+    {
+        if (t < MapConst.MinMapUpdateDelay)
+            t = MapConst.MinMapUpdateDelay;
 
-		_timer.Interval = t;
-		_timer.Reset();
-	}
+        _timer.Interval = t;
+        _timer.Reset();
+    }
 
-	public uint GetNextInstanceId()
-	{
-		return _nextInstanceId;
-	}
+    public uint GetNextInstanceId()
+    {
+        return _nextInstanceId;
+    }
 
-	public void SetNextInstanceId(uint nextInstanceId)
-	{
-		_nextInstanceId = nextInstanceId;
-	}
+    public void SetNextInstanceId(uint nextInstanceId)
+    {
+        _nextInstanceId = nextInstanceId;
+    }
 
-	public void DoForAllMaps(Action<Map> worker)
-	{
-		lock (_mapsLock)
-		{
-			foreach (var kvp in _maps.Values)
-				foreach (var map in kvp.Values)
-					worker(map);
-		}
-	}
+    public void DoForAllMaps(Action<Map> worker)
+    {
+        lock (_mapsLock)
+        {
+            foreach (var kvp in _maps.Values)
+                foreach (var map in kvp.Values)
+                    worker(map);
+        }
+    }
 
-	public void DoForAllMapsWithMapId(uint mapId, Action<Map> worker)
-	{
-		lock (_mapsLock)
+    public void DoForAllMapsWithMapId(uint mapId, Action<Map> worker)
+    {
+        lock (_mapsLock)
         {
             if (!_maps.TryGetValue(mapId, out var instanceDict))
                 return;
@@ -458,116 +457,116 @@ public class MapManager
             foreach (var kvp in instanceDict)
                 worker(kvp.Value);
         }
-	}
+    }
 
     public void IncreaseScheduledScriptsCount()
-	{
-		++_scheduledScripts;
-	}
+    {
+        ++_scheduledScripts;
+    }
 
-	public void DecreaseScheduledScriptCount()
-	{
-		--_scheduledScripts;
-	}
+    public void DecreaseScheduledScriptCount()
+    {
+        --_scheduledScripts;
+    }
 
-	public void DecreaseScheduledScriptCount(uint count)
-	{
-		_scheduledScripts -= count;
-	}
+    public void DecreaseScheduledScriptCount(uint count)
+    {
+        _scheduledScripts -= count;
+    }
 
-	public bool IsScriptScheduled()
-	{
-		return _scheduledScripts > 0;
-	}
+    public bool IsScriptScheduled()
+    {
+        return _scheduledScripts > 0;
+    }
 
     private Map FindMap_i(uint mapId, uint instanceId)
-	{
-		return _maps.TryGetValue(mapId, instanceId, out var map) ? map : null;
-	}
+    {
+        return _maps.TryGetValue(mapId, instanceId, out var map) ? map : null;
+    }
 
     private Map CreateWorldMap(uint mapId, uint instanceId)
-	{
-		var map = new Map(mapId, _gridCleanUpDelay, instanceId, Difficulty.None);
-		map.LoadRespawnTimes();
-		map.LoadCorpseData();
+    {
+        var map = new Map(mapId, _gridCleanUpDelay, instanceId, Difficulty.None);
+        map.LoadRespawnTimes();
+        map.LoadCorpseData();
 
-		if (_configuration.GetDefaultValue("BaseMapLoadAllGrids", false))
-			map.LoadAllCells();
+        if (_configuration.GetDefaultValue("BaseMapLoadAllGrids", false))
+            map.LoadAllCells();
 
-		return map;
-	}
+        return map;
+    }
 
     private InstanceMap CreateInstance(uint mapId, uint instanceId, InstanceLock instanceLock, Difficulty difficulty, int team, PlayerGroup group)
-	{
-		// make sure we have a valid map id
-		var entry = _cliDB.MapStorage.LookupByKey(mapId);
+    {
+        // make sure we have a valid map id
+        var entry = _cliDB.MapStorage.LookupByKey(mapId);
 
-		if (entry == null)
-		{
-			Log.Logger.Error($"CreateInstance: no entry for map {mapId}");
+        if (entry == null)
+        {
+            Log.Logger.Error($"CreateInstance: no entry for map {mapId}");
 
-			//ABORT();
-			return null;
-		}
+            //ABORT();
+            return null;
+        }
 
-		// some instances only have one difficulty
-		_db2Manager.GetDownscaledMapDifficultyData(mapId, ref difficulty);
+        // some instances only have one difficulty
+        _db2Manager.GetDownscaledMapDifficultyData(mapId, ref difficulty);
 
-		Log.Logger.Debug($"MapInstanced::CreateInstance: {(instanceLock?.GetInstanceId() != 0 ? "" : "new ")}map instance {instanceId} for {mapId} created with difficulty {difficulty}");
+        Log.Logger.Debug($"MapInstanced::CreateInstance: {(instanceLock?.GetInstanceId() != 0 ? "" : "new ")}map instance {instanceId} for {mapId} created with difficulty {difficulty}");
 
-		var map = new InstanceMap(mapId, _gridCleanUpDelay, instanceId, difficulty, team, instanceLock);
+        var map = new InstanceMap(mapId, _gridCleanUpDelay, instanceId, difficulty, team, instanceLock);
 
-		map.LoadRespawnTimes();
-		map.LoadCorpseData();
+        map.LoadRespawnTimes();
+        map.LoadCorpseData();
 
-		if (group != null)
-			map.TrySetOwningGroup(group);
+        if (group != null)
+            map.TrySetOwningGroup(group);
 
-		map.CreateInstanceData();
-		map.SetInstanceScenario(_scenarioManager.CreateInstanceScenario(map, team));
+        map.CreateInstanceData();
+        map.SetInstanceScenario(_scenarioManager.CreateInstanceScenario(map, team));
 
-		if (_configuration.GetDefaultValue("InstanceMapLoadAllGrids", false))
-			map.LoadAllCells();
+        if (_configuration.GetDefaultValue("InstanceMapLoadAllGrids", false))
+            map.LoadAllCells();
 
-		return map;
-	}
+        return map;
+    }
 
     private BattlegroundMap CreateBattleground(uint mapId, uint instanceId, Battleground bg)
-	{
-		Log.Logger.Debug($"MapInstanced::CreateBattleground: map bg {instanceId} for {mapId} created.");
+    {
+        Log.Logger.Debug($"MapInstanced::CreateBattleground: map bg {instanceId} for {mapId} created.");
 
-		var map = new BattlegroundMap(mapId, _gridCleanUpDelay, instanceId, Difficulty.None);
-		map.SetBG(bg);
-		bg.SetBgMap(map);
+        var map = new BattlegroundMap(mapId, _gridCleanUpDelay, instanceId, Difficulty.None);
+        map.SetBG(bg);
+        bg.SetBgMap(map);
 
-		return map;
-	}
+        return map;
+    }
 
     private GarrisonMap CreateGarrison(uint mapId, uint instanceId, Player owner)
-	{
-		var map = new GarrisonMap(mapId, _gridCleanUpDelay, instanceId, owner.GUID);
+    {
+        var map = new GarrisonMap(mapId, _gridCleanUpDelay, instanceId, owner.GUID);
 
-		return map;
-	}
+        return map;
+    }
 
     private bool DestroyMap(Map map)
-	{
-		map.RemoveAllPlayers();
+    {
+        map.RemoveAllPlayers();
 
-		if (map.HavePlayers)
-			return false;
+        if (map.HavePlayers)
+            return false;
 
-		map.UnloadAll();
+        map.UnloadAll();
 
-		// Free up the instance id and allow it to be reused for normal dungeons, bgs and arenas
-		if (map.IsBattlegroundOrArena || (map.IsDungeon && !map.MapDifficulty.HasResetSchedule()))
-			FreeInstanceId(map.InstanceId);
+        // Free up the instance id and allow it to be reused for normal dungeons, bgs and arenas
+        if (map.IsBattlegroundOrArena || (map.IsDungeon && !map.MapDifficulty.HasResetSchedule()))
+            FreeInstanceId(map.InstanceId);
 
-		// erase map
-		map.Dispose();
+        // erase map
+        map.Dispose();
 
-		return true;
-	}
+        return true;
+    }
 }
 
 // hack to allow conditions to access what faction owns the map (these worldstates should not be set on these maps)

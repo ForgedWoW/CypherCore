@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.Channel;
 
 public class ChannelNotifyLeft : ServerPacket
 {
-	public string Channel;
-	public uint ChatChannelID;
-	public bool Suspended;
-	public ChannelNotifyLeft() : base(ServerOpcodes.ChannelNotifyLeft) { }
+    public string Channel;
+    public uint ChatChannelID;
+    public bool Suspended;
+    public ChannelNotifyLeft() : base(ServerOpcodes.ChannelNotifyLeft) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(Channel.GetByteCount(), 7);
-		_worldPacket.WriteBit(Suspended);
-		_worldPacket.WriteUInt32(ChatChannelID);
-		_worldPacket.WriteString(Channel);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBits(Channel.GetByteCount(), 7);
+        _worldPacket.WriteBit(Suspended);
+        _worldPacket.WriteUInt32(ChatChannelID);
+        _worldPacket.WriteString(Channel);
+    }
 }

@@ -5,15 +5,15 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class RandomRollClient : ClientPacket
 {
-	public uint Min;
-	public uint Max;
-	public byte PartyIndex;
-	public RandomRollClient(WorldPacket packet) : base(packet) { }
+    public uint Min;
+    public uint Max;
+    public byte PartyIndex;
+    public RandomRollClient(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Min = _worldPacket.ReadUInt32();
-		Max = _worldPacket.ReadUInt32();
-		PartyIndex = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        Min = _worldPacket.ReadUInt32();
+        Max = _worldPacket.ReadUInt32();
+        PartyIndex = _worldPacket.ReadUInt8();
+    }
 }

@@ -14,23 +14,23 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(267344)]
 internal class spell_pal_art_of_war : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraCheckEffectProcHandler(CheckProc, 0, AuraType.Dummy));
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraCheckEffectProcHandler(CheckProc, 0, AuraType.Dummy));
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		return RandomHelper.randChance(aurEff.Amount);
-	}
+    private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        return RandomHelper.randChance(aurEff.Amount);
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		Target.SpellHistory.ResetCooldown(PaladinSpells.BLADE_OF_JUSTICE, true);
-		Target.CastSpell(Target, PaladinSpells.ArtOfWarTriggered, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
-	}
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        Target.SpellHistory.ResetCooldown(PaladinSpells.BLADE_OF_JUSTICE, true);
+        Target.CastSpell(Target, PaladinSpells.ArtOfWarTriggered, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+    }
 }

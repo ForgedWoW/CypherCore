@@ -9,21 +9,21 @@ namespace Forged.MapServer.Collision;
 
 public class LocationInfoCallback : WorkerCallback
 {
-	public bool Result;
+    public bool Result;
 
     private readonly ModelInstance[] _prims;
     private readonly LocationInfo _locInfo;
 
-	public LocationInfoCallback(ModelInstance[] val, LocationInfo info)
-	{
-		_prims = val;
-		_locInfo = info;
-		Result = false;
-	}
+    public LocationInfoCallback(ModelInstance[] val, LocationInfo info)
+    {
+        _prims = val;
+        _locInfo = info;
+        Result = false;
+    }
 
-	public override void Invoke(Vector3 point, int entry)
-	{
-		if (_prims[entry] != null && _prims[entry].GetLocationInfo(point, _locInfo))
-			Result = true;
-	}
+    public override void Invoke(Vector3 point, int entry)
+    {
+        if (_prims[entry] != null && _prims[entry].GetLocationInfo(point, _locInfo))
+            Result = true;
+    }
 }

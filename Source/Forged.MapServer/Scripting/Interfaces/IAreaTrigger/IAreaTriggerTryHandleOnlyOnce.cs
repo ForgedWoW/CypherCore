@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 public interface IAreaTriggerTryHandleOnlyOnce : IScriptObject
 {
-	bool TryHandleOnce(Player player, AreaTriggerRecord trigger);
+    bool TryHandleOnce(Player player, AreaTriggerRecord trigger);
 }

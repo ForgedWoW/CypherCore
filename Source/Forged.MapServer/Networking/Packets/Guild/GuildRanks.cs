@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildRanks : ServerPacket
 {
-	public List<GuildRankData> Ranks;
+    public List<GuildRankData> Ranks;
 
-	public GuildRanks() : base(ServerOpcodes.GuildRanks)
-	{
-		Ranks = new List<GuildRankData>();
-	}
+    public GuildRanks() : base(ServerOpcodes.GuildRanks)
+    {
+        Ranks = new List<GuildRankData>();
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Ranks.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Ranks.Count);
 
-		Ranks.ForEach(p => p.Write(_worldPacket));
-	}
+        Ranks.ForEach(p => p.Write(_worldPacket));
+    }
 }

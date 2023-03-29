@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class InstanceEncounterDisengageUnit : ServerPacket
 {
-	public ObjectGuid Unit;
-	public InstanceEncounterDisengageUnit() : base(ServerOpcodes.InstanceEncounterDisengageUnit, ConnectionType.Instance) { }
+    public ObjectGuid Unit;
+    public InstanceEncounterDisengageUnit() : base(ServerOpcodes.InstanceEncounterDisengageUnit, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Unit);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Unit);
+    }
 }

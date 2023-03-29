@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Social;
 
 internal class SocialContractRequest : ClientPacket
 {
-	public SocialContractRequest(WorldPacket packet) : base(packet) { }
+    public SocialContractRequest(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

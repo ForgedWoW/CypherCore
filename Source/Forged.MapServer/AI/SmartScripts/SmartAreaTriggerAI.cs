@@ -12,30 +12,30 @@ public class SmartAreaTriggerAI : AreaTriggerAI
 {
     private readonly SmartScript _script = new();
 
-	public SmartAreaTriggerAI(AreaTrigger areaTrigger) : base(areaTrigger) { }
+    public SmartAreaTriggerAI(AreaTrigger areaTrigger) : base(areaTrigger) { }
 
-	public override void OnInitialize()
-	{
-		GetScript().OnInitialize(At);
-	}
+    public override void OnInitialize()
+    {
+        GetScript().OnInitialize(At);
+    }
 
-	public override void OnUpdate(uint diff)
-	{
-		GetScript().OnUpdate(diff);
-	}
+    public override void OnUpdate(uint diff)
+    {
+        GetScript().OnUpdate(diff);
+    }
 
-	public override void OnUnitEnter(Unit unit)
-	{
-		GetScript().ProcessEventsFor(SmartEvents.AreatriggerOntrigger, unit);
-	}
+    public override void OnUnitEnter(Unit unit)
+    {
+        GetScript().ProcessEventsFor(SmartEvents.AreatriggerOntrigger, unit);
+    }
 
-	public void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker)
-	{
-		GetScript().SetTimedActionList(e, entry, invoker);
-	}
+    public void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker)
+    {
+        GetScript().SetTimedActionList(e, entry, invoker);
+    }
 
-	public SmartScript GetScript()
-	{
-		return _script;
-	}
+    public SmartScript GetScript()
+    {
+        return _script;
+    }
 }

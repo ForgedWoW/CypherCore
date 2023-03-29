@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class OverrideScreenFlash : ClientPacket
 {
-	public bool ScreenFlashEnabled;
+    public bool ScreenFlashEnabled;
 
-	public OverrideScreenFlash(WorldPacket packet) : base(packet) { }
+    public OverrideScreenFlash(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ScreenFlashEnabled = _worldPacket.ReadBit() == 1;
-	}
+    public override void Read()
+    {
+        ScreenFlashEnabled = _worldPacket.ReadBit() == 1;
+    }
 }

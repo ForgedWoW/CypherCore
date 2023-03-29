@@ -14,54 +14,54 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(193359)]
 public class spell_rog_true_bearing_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var finishers = new List<uint>()
-		{
-			(uint)TrueBearingIDs.BETWEEN_THE_EYES,
-			(uint)RogueSpells.ROLL_THE_BONES,
-			(uint)RogueSpells.EVISCERATE
-		};
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var finishers = new List<uint>()
+        {
+            (uint)TrueBearingIDs.BETWEEN_THE_EYES,
+            (uint)RogueSpells.ROLL_THE_BONES,
+            (uint)RogueSpells.EVISCERATE
+        };
 
-		foreach (var finisher in finishers)
-			if (eventInfo.SpellInfo.Id == finisher)
-				return true;
+        foreach (var finisher in finishers)
+            if (eventInfo.SpellInfo.Id == finisher)
+                return true;
 
-		return false;
-	}
+        return false;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.AddFlatModifier, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.AddFlatModifier, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var cp = caster.GetPower(PowerType.ComboPoints) + 1;
+        var cp = caster.GetPower(PowerType.ComboPoints) + 1;
 
-		var spellIds = new List<uint>()
-		{
-			(uint)RogueSpells.ADRENALINE_RUSH,
-			(uint)RogueSpells.SPRINT,
-			(uint)TrueBearingIDs.BETWEEN_THE_EYES,
-			(uint)TrueBearingIDs.VANISH,
-			(uint)TrueBearingIDs.BLIND,
-			(uint)TrueBearingIDs.CLOAK_OF_SHADOWS,
-			(uint)TrueBearingIDs.RIPOSTE,
-			(uint)TrueBearingIDs.GRAPPLING_HOOK,
-			(uint)RogueSpells.KILLING_SPREE,
-			(uint)TrueBearingIDs.MARKED_FOR_DEATH,
-			(uint)TrueBearingIDs.DEATH_FROM_ABOVE
-		};
+        var spellIds = new List<uint>()
+        {
+            (uint)RogueSpells.ADRENALINE_RUSH,
+            (uint)RogueSpells.SPRINT,
+            (uint)TrueBearingIDs.BETWEEN_THE_EYES,
+            (uint)TrueBearingIDs.VANISH,
+            (uint)TrueBearingIDs.BLIND,
+            (uint)TrueBearingIDs.CLOAK_OF_SHADOWS,
+            (uint)TrueBearingIDs.RIPOSTE,
+            (uint)TrueBearingIDs.GRAPPLING_HOOK,
+            (uint)RogueSpells.KILLING_SPREE,
+            (uint)TrueBearingIDs.MARKED_FOR_DEATH,
+            (uint)TrueBearingIDs.DEATH_FROM_ABOVE
+        };
 
-		foreach (var spell in spellIds)
-			caster.SpellHistory.ModifyCooldown(spell, TimeSpan.FromSeconds(-2000 * cp));
-	}
+        foreach (var spell in spellIds)
+            caster.SpellHistory.ModifyCooldown(spell, TimeSpan.FromSeconds(-2000 * cp));
+    }
 }

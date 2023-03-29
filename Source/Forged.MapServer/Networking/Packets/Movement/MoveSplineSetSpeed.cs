@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MoveSplineSetSpeed : ServerPacket
 {
-	public ObjectGuid MoverGUID;
-	public float Speed = 1.0f;
-	public MoveSplineSetSpeed(ServerOpcodes opcode) : base(opcode, ConnectionType.Instance) { }
+    public ObjectGuid MoverGUID;
+    public float Speed = 1.0f;
+    public MoveSplineSetSpeed(ServerOpcodes opcode) : base(opcode, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(MoverGUID);
-		_worldPacket.WriteFloat(Speed);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(MoverGUID);
+        _worldPacket.WriteFloat(Speed);
+    }
 }

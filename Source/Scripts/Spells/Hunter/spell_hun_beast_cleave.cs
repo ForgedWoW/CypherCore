@@ -9,17 +9,17 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(115939)]
 public class spell_hun_beast_cleave : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		var player = Caster.AsPlayer;
+    public void AfterCast()
+    {
+        var player = Caster.AsPlayer;
 
-		if (player != null)
-			if (player.HasAura(HunterSpells.BEAST_CLEAVE_AURA))
-			{
-				var pet = player.CurrentPet;
+        if (player != null)
+            if (player.HasAura(HunterSpells.BEAST_CLEAVE_AURA))
+            {
+                var pet = player.CurrentPet;
 
-				if (pet != null)
-					player.CastSpell(pet, HunterSpells.BEAST_CLEAVE_PROC, true);
-			}
-	}
+                if (pet != null)
+                    player.CastSpell(pet, HunterSpells.BEAST_CLEAVE_PROC, true);
+            }
+    }
 }

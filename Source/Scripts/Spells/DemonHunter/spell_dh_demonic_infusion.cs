@@ -10,15 +10,15 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(236189)]
 public class spell_dh_demonic_infusion : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		caster.SpellHistory.ResetCharges(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId);
-		caster.CastSpell(caster, DemonHunterSpells.DEMON_SPIKES, true);
-		caster.SpellHistory.ResetCharges(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId);
-	}
+        caster.SpellHistory.ResetCharges(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId);
+        caster.CastSpell(caster, DemonHunterSpells.DEMON_SPIKES, true);
+        caster.SpellHistory.ResetCharges(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId);
+    }
 }

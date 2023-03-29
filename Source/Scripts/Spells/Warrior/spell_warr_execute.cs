@@ -13,35 +13,35 @@ namespace Scripts.Spells.Warrior;
 // 281000  - Execute
 [SpellScript(new uint[]
 {
-	163201, 217955, 281000
+    163201, 217955, 281000
 })]
 public class spell_warr_execute : SpellScript, ISpellAfterHit, ISpellOnTakePower
 {
-	private int m_powerTaken = 0;
+    private int m_powerTaken = 0;
 
-	public void AfterHit()
-	{
-		var caster = Caster;
+    public void AfterHit()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		//basepoint on effect 1 is 20 on all spells listed above
-		var target = HitUnit;
+        //basepoint on effect 1 is 20 on all spells listed above
+        var target = HitUnit;
 
-		if (target != null)
-			if (target.IsAlive && caster != null)
-				caster.SetPower(PowerType.Rage, m_powerTaken + 20);
+        if (target != null)
+            if (target.IsAlive && caster != null)
+                caster.SetPower(PowerType.Rage, m_powerTaken + 20);
 
-		caster.VariableStorage.Remove("spell_warr_execute_damages::multiplier");
-		caster.RemoveAura(WarriorSpells.SUDDEN_DEATH);
-	}
+        caster.VariableStorage.Remove("spell_warr_execute_damages::multiplier");
+        caster.RemoveAura(WarriorSpells.SUDDEN_DEATH);
+    }
 
-	public void TakePower(SpellPowerCost powerCost)
-	{
-		m_powerTaken = powerCost.Amount;
-		var requiredAmount = powerCost.Amount - powerCost.Amount;
-		double dmgMultiplier = powerCost.Amount / (requiredAmount != 0 ? requiredAmount : 1);
-		Caster.VariableStorage.Set("spell_warr_execute_damages::multiplier", dmgMultiplier);
-	}
+    public void TakePower(SpellPowerCost powerCost)
+    {
+        m_powerTaken = powerCost.Amount;
+        var requiredAmount = powerCost.Amount - powerCost.Amount;
+        double dmgMultiplier = powerCost.Amount / (requiredAmount != 0 ? requiredAmount : 1);
+        Caster.VariableStorage.Set("spell_warr_execute_damages::multiplier", dmgMultiplier);
+    }
 }

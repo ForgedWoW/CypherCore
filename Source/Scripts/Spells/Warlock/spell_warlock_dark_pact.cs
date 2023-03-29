@@ -14,17 +14,17 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(108416)]
 public class spell_warlock_dark_pact : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+    }
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		var sacrifiedHealth = Caster.CountPctFromCurHealth(SpellInfo.GetEffect(1).BasePoints);
-		Caster.ModifyHealth((long)sacrifiedHealth * -1);
-		amount.Value = MathFunctions.CalculatePct(sacrifiedHealth, SpellInfo.GetEffect(2).BasePoints);
-	}
+    private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        var sacrifiedHealth = Caster.CountPctFromCurHealth(SpellInfo.GetEffect(1).BasePoints);
+        Caster.ModifyHealth((long)sacrifiedHealth * -1);
+        amount.Value = MathFunctions.CalculatePct(sacrifiedHealth, SpellInfo.GetEffect(2).BasePoints);
+    }
 }

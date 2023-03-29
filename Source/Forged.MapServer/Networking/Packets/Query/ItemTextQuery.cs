@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 internal class ItemTextQuery : ClientPacket
 {
-	public ObjectGuid Id;
-	public ItemTextQuery(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Id;
+    public ItemTextQuery(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Id = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Id = _worldPacket.ReadPackedGuid();
+    }
 }

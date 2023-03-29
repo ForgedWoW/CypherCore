@@ -8,36 +8,36 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 public class CombatLogServerPacket : ServerPacket
 {
-	internal SpellCastLogData LogData;
+    internal SpellCastLogData LogData;
     private bool _includeLogData;
 
-	public CombatLogServerPacket(ServerOpcodes opcode, ConnectionType connection = ConnectionType.Realm) : base(opcode, connection)
-	{
-		LogData = new SpellCastLogData();
-	}
+    public CombatLogServerPacket(ServerOpcodes opcode, ConnectionType connection = ConnectionType.Realm) : base(opcode, connection)
+    {
+        LogData = new SpellCastLogData();
+    }
 
-	public override void Write() { }
+    public override void Write() { }
 
-	public void SetAdvancedCombatLogging(bool value)
-	{
-		_includeLogData = value;
-	}
+    public void SetAdvancedCombatLogging(bool value)
+    {
+        _includeLogData = value;
+    }
 
-	public void WriteLogDataBit()
-	{
-		_worldPacket.WriteBit(_includeLogData);
-	}
+    public void WriteLogDataBit()
+    {
+        _worldPacket.WriteBit(_includeLogData);
+    }
 
-	public void FlushBits()
-	{
-		_worldPacket.FlushBits();
-	}
+    public void FlushBits()
+    {
+        _worldPacket.FlushBits();
+    }
 
-	public void WriteLogData()
-	{
-		if (_includeLogData)
-			LogData.Write(_worldPacket);
-	}
+    public void WriteLogData()
+    {
+        if (_includeLogData)
+            LogData.Write(_worldPacket);
+    }
 }
 
 //Structs

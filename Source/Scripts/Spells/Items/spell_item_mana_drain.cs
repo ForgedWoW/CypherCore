@@ -13,25 +13,25 @@ namespace Scripts.Spells.Items;
 [Script] // 27522, 40336 - Mana Drain
 internal class spell_item_mana_drain : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.PeriodicTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.PeriodicTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var caster = eventInfo.Actor;
-		var target = eventInfo.ActionTarget;
+        var caster = eventInfo.Actor;
+        var target = eventInfo.ActionTarget;
 
-		if (caster.IsAlive)
-			caster.CastSpell(caster, ItemSpellIds.ManaDrainEnergize, new CastSpellExtraArgs(aurEff));
+        if (caster.IsAlive)
+            caster.CastSpell(caster, ItemSpellIds.ManaDrainEnergize, new CastSpellExtraArgs(aurEff));
 
-		if (target && target.IsAlive)
-			caster.CastSpell(target, ItemSpellIds.ManaDrainLeech, new CastSpellExtraArgs(aurEff));
-	}
+        if (target && target.IsAlive)
+            caster.CastSpell(target, ItemSpellIds.ManaDrainLeech, new CastSpellExtraArgs(aurEff));
+    }
 }

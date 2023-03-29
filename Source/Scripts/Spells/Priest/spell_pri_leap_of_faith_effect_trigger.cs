@@ -12,21 +12,21 @@ namespace Scripts.Spells.Priest;
 [Script] // 92833 - Leap of Faith
 internal class spell_pri_leap_of_faith_effect_trigger : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleEffectDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleEffectDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleEffectDummy(int effIndex)
-	{
-		var destPos = HitDest;
+    private void HandleEffectDummy(int effIndex)
+    {
+        var destPos = HitDest;
 
-		SpellCastTargets targets = new();
-		targets.SetDst(destPos);
-		targets.UnitTarget = Caster;
-		HitUnit.CastSpell(targets, (uint)EffectValue, new CastSpellExtraArgs(CastDifficulty));
-	}
+        SpellCastTargets targets = new();
+        targets.SetDst(destPos);
+        targets.UnitTarget = Caster;
+        HitUnit.CastSpell(targets, (uint)EffectValue, new CastSpellExtraArgs(CastDifficulty));
+    }
 }

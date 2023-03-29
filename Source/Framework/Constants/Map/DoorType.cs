@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum DoorType
 {
-	Room = 0,      // Door can open if encounter is not in progress
-	Passage = 1,   // Door can open if encounter is done
-	SpawnHole = 2, // Door can open if encounter is in progress, typically used for spawning places
-	Max
+    Room = 0,      // Door can open if encounter is not in progress
+    Passage = 1,   // Door can open if encounter is done
+    SpawnHole = 2, // Door can open if encounter is in progress, typically used for spawning places
+    Max
 }

@@ -14,22 +14,22 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(126)]
 public class spell_warlock_eye_of_kilrogg : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.ModInvisibilityDetect, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.ModInvisibilityDetect, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
 
-	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null || !caster.AsPlayer)
-			return;
+        if (caster == null || !caster.AsPlayer)
+            return;
 
-		if (caster.AsPlayer.CurrentPet)
-			caster.Events.AddEventAtOffset(() => { caster.AsPlayer.PetSpellInitialize(); }, TimeSpan.FromMilliseconds(250));
-	}
+        if (caster.AsPlayer.CurrentPet)
+            caster.Events.AddEventAtOffset(() => { caster.AsPlayer.PetSpellInitialize(); }, TimeSpan.FromMilliseconds(250));
+    }
 }

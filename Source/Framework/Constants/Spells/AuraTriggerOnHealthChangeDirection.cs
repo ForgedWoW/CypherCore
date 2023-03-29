@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum AuraTriggerOnHealthChangeDirection
 {
-	Above = 0,
-	Below = 1,
+    Above = 0,
+    Below = 1,
 }

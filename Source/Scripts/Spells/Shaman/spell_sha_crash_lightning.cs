@@ -14,33 +14,33 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(187874)]
 internal class spell_sha_crash_lightning : SpellScript, ISpellAfterCast, IHasSpellEffects
 {
-	private int _targetsHit;
+    private int _targetsHit;
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public void AfterCast()
-	{
-		if (_targetsHit >= 2)
-			Caster.CastSpell(Caster, ShamanSpells.CrashLightningCleave, true);
+    public void AfterCast()
+    {
+        if (_targetsHit >= 2)
+            Caster.CastSpell(Caster, ShamanSpells.CrashLightningCleave, true);
 
-		var gatheringStorms = Caster.GetAuraEffect(ShamanSpells.GatheringStorms, 0);
+        var gatheringStorms = Caster.GetAuraEffect(ShamanSpells.GatheringStorms, 0);
 
-		if (gatheringStorms != null)
-		{
-			CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-			args.AddSpellMod(SpellValueMod.BasePoint0, (int)(gatheringStorms.Amount * _targetsHit));
-			Caster.CastSpell(Caster, ShamanSpells.GatheringStormsBuff, args);
-		}
-	}
+        if (gatheringStorms != null)
+        {
+            CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+            args.AddSpellMod(SpellValueMod.BasePoint0, (int)(gatheringStorms.Amount * _targetsHit));
+            Caster.CastSpell(Caster, ShamanSpells.GatheringStormsBuff, args);
+        }
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CountTargets, 0, Targets.UnitConeCasterToDestEnemy));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(CountTargets, 0, Targets.UnitConeCasterToDestEnemy));
+    }
 
-	private void CountTargets(List<WorldObject> targets)
-	{
-		_targetsHit = targets.Count;
-	}
+    private void CountTargets(List<WorldObject> targets)
+    {
+        _targetsHit = targets.Count;
+    }
 }

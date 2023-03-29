@@ -7,16 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetSetAction : ClientPacket
 {
-	public ObjectGuid PetGUID;
-	public uint Index;
-	public uint Action;
-	public PetSetAction(WorldPacket packet) : base(packet) { }
+    public ObjectGuid PetGUID;
+    public uint Index;
+    public uint Action;
+    public PetSetAction(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PetGUID = _worldPacket.ReadPackedGuid();
+    public override void Read()
+    {
+        PetGUID = _worldPacket.ReadPackedGuid();
 
-		Index = _worldPacket.ReadUInt32();
-		Action = _worldPacket.ReadUInt32();
-	}
+        Index = _worldPacket.ReadUInt32();
+        Action = _worldPacket.ReadUInt32();
+    }
 }

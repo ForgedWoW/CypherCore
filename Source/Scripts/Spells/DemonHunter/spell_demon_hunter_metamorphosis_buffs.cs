@@ -12,32 +12,32 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(162264)]
 public class spell_demon_hunter_metamorphosis_buffs : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Transform, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Transform, AuraEffectHandleModes.Real));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Transform, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Transform, AuraEffectHandleModes.Real));
+    }
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		caster.RemoveAura(DemonHunterSpells.DEMONIC_ORIGINS_BUFF);
-	}
+        caster.RemoveAura(DemonHunterSpells.DEMONIC_ORIGINS_BUFF);
+    }
 
-	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (caster.HasAura(DemonHunterSpells.DEMONIC_ORIGINS))
-			caster.CastSpell(caster, DemonHunterSpells.DEMONIC_ORIGINS_BUFF, true);
-	}
+        if (caster.HasAura(DemonHunterSpells.DEMONIC_ORIGINS))
+            caster.CastSpell(caster, DemonHunterSpells.DEMONIC_ORIGINS_BUFF, true);
+    }
 }

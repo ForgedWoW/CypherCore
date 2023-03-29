@@ -9,115 +9,115 @@ public class MultiMapHashSet<TKey, TValue>
 {
     private static readonly HashSet<object> _emptyList = new();
 
-	private readonly Dictionary<TKey, HashSet<TValue>> _interalStorage = new();
+    private readonly Dictionary<TKey, HashSet<TValue>> _interalStorage = new();
 
-	public HashSet<TValue> this[TKey key]
-	{
-		get
-		{
-			if (!_interalStorage.TryGetValue(key, out var val))
-				return _emptyList.Cast<TValue>().ToHashSet();
+    public HashSet<TValue> this[TKey key]
+    {
+        get
+        {
+            if (!_interalStorage.TryGetValue(key, out var val))
+                return _emptyList.Cast<TValue>().ToHashSet();
 
-			return val;
-		}
-		set
-		{
-			if (!_interalStorage.ContainsKey(key))
-				_interalStorage.Add(key, value);
-			else
-				_interalStorage[key] = value;
-		}
-	}
+            return val;
+        }
+        set
+        {
+            if (!_interalStorage.ContainsKey(key))
+                _interalStorage.Add(key, value);
+            else
+                _interalStorage[key] = value;
+        }
+    }
 
-	public int Count
-	{
-		get
-		{
-			var count = 0;
+    public int Count
+    {
+        get
+        {
+            var count = 0;
 
-			foreach (var item in _interalStorage)
-				count += item.Value.Count;
+            foreach (var item in _interalStorage)
+                count += item.Value.Count;
 
-			return count;
-		}
-	}
+            return count;
+        }
+    }
 
-	public MultiMapHashSet() { }
+    public MultiMapHashSet() { }
 
-	public MultiMapHashSet(IEqualityComparer<TKey> keyComparer)
-	{
-		_interalStorage = new Dictionary<TKey, HashSet<TValue>>(keyComparer);
-	}
+    public MultiMapHashSet(IEqualityComparer<TKey> keyComparer)
+    {
+        _interalStorage = new Dictionary<TKey, HashSet<TValue>>(keyComparer);
+    }
 
-	public MultiMapHashSet(IEnumerable<KeyValuePair<TKey, TValue>> initialData)
-	{
-		foreach (var item in initialData)
-			Add(item);
-	}
+    public MultiMapHashSet(IEnumerable<KeyValuePair<TKey, TValue>> initialData)
+    {
+        foreach (var item in initialData)
+            Add(item);
+    }
 
-	public void Add(TKey key, TValue value)
-	{
-		_interalStorage.AddToList(key, value);
-	}
+    public void Add(TKey key, TValue value)
+    {
+        _interalStorage.AddToList(key, value);
+    }
 
-	public void Add(KeyValuePair<TKey, TValue> item)
-	{
-		Add(item.Key, item.Value);
-	}
+    public void Add(KeyValuePair<TKey, TValue> item)
+    {
+        Add(item.Key, item.Value);
+    }
 
-	public bool Remove(TKey key)
-	{
-		return _interalStorage.Remove(key);
-	}
+    public bool Remove(TKey key)
+    {
+        return _interalStorage.Remove(key);
+    }
 
 
-	public bool Remove(TKey key, TValue value)
-	{
-		return _interalStorage.Remove(key, value);
-	}
+    public bool Remove(TKey key, TValue value)
+    {
+        return _interalStorage.Remove(key, value);
+    }
 
-	public bool ContainsKey(TKey key)
-	{
-		return _interalStorage.ContainsKey(key);
-	}
+    public bool ContainsKey(TKey key)
+    {
+        return _interalStorage.ContainsKey(key);
+    }
 
-	public bool Contains(TKey key, TValue item)
-	{
-		if (!_interalStorage.ContainsKey(key)) return false;
+    public bool Contains(TKey key, TValue item)
+    {
+        if (!_interalStorage.ContainsKey(key)) return false;
 
-		return _interalStorage[key].Contains(item);
-	}
+        return _interalStorage[key].Contains(item);
+    }
 
-	public HashSet<TValue> LookupByKey(TKey key)
-	{
-		if (_interalStorage.TryGetValue(key, out var values))
-			return values;
+    public HashSet<TValue> LookupByKey(TKey key)
+    {
+        if (_interalStorage.TryGetValue(key, out var values))
+            return values;
 
-		return _emptyList.Cast<TValue>().ToHashSet();
-	}
+        return _emptyList.Cast<TValue>().ToHashSet();
+    }
 
-	public HashSet<TValue> LookupByKey(object key)
-	{
-		var newkey = (TKey)Convert.ChangeType(key, typeof(TKey));
+    public HashSet<TValue> LookupByKey(object key)
+    {
+        var newkey = (TKey)Convert.ChangeType(key, typeof(TKey));
 
-		if (_interalStorage.TryGetValue(newkey, out var values))
-			return values;
+        if (_interalStorage.TryGetValue(newkey, out var values))
+            return values;
 
-		return _emptyList.Cast<TValue>().ToHashSet();
-	}
+        return _emptyList.Cast<TValue>().ToHashSet();
+    }
 
-	public bool TryGetValue(TKey key, out HashSet<TValue> value)
-	{
-		return _interalStorage.TryGetValue(key, out value);
-	}
+    public bool TryGetValue(TKey key, out HashSet<TValue> value)
+    {
+        return _interalStorage.TryGetValue(key, out value);
+    }
 
-	public void Clear()
-	{
-		_interalStorage.Clear();
-	}
+    public void Clear()
+    {
+        _interalStorage.Clear();
+    }
 
-	public bool Empty()
-	{
-		return _interalStorage == null || _interalStorage.Count == 0;
-	}
+    public bool Empty()
+    {
+        return _interalStorage == null || _interalStorage.Count == 0;
+    }
 }

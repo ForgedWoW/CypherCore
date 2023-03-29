@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAreaTrigger;
-using System.Collections.Generic;
 
 namespace Scripts.Spells.Evoker;
 
@@ -13,16 +13,9 @@ public class at_evoker_temporal_anomaly : AreaTriggerScript, IAreaTriggerOverrid
 {
     double _amount = 0;
     int _targets = 0;
-    List<Unit> _hit = new();
-    
-    public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; } = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.BRONZE_TEMPORAL_ANOMALY);
+    readonly List<Unit> _hit = new();
 
-    public void OnInitialize()
-    {
-        AreaTriggerCreateProperties.Shape.TriggerType = Framework.Constants.AreaTriggerTypes.Sphere;
-        AreaTriggerCreateProperties.Shape.SphereDatas = new AreaTriggerData.spheredatas();
-        AreaTriggerCreateProperties.Shape.SphereDatas.Radius = 3;
-    }
+    public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; } = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.BRONZE_TEMPORAL_ANOMALY);
 
     public void OnCreate()
     {
@@ -37,6 +30,13 @@ public class at_evoker_temporal_anomaly : AreaTriggerScript, IAreaTriggerOverrid
 
         _amount = caster.GetTotalSpellPowerValue(Framework.Constants.SpellSchoolMask.Arcane, true) * 1.75 * (1 + caster.ActivePlayerData.VersatilityBonus.Value);
         _targets = (int)SpellManager.Instance.GetSpellInfo(EvokerSpells.BRONZE_TEMPORAL_ANOMALY).GetEffect(1).BasePoints;
+    }
+
+    public void OnInitialize()
+    {
+        AreaTriggerCreateProperties.Shape.TriggerType = Framework.Constants.AreaTriggerTypes.Sphere;
+        AreaTriggerCreateProperties.Shape.SphereDatas = new AreaTriggerData.spheredatas();
+        AreaTriggerCreateProperties.Shape.SphereDatas.Radius = 3;
     }
 
     public void OnUnitEnter(Unit unit)

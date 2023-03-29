@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Trade;
 
 public class AcceptTrade : ClientPacket
 {
-	public uint StateIndex;
-	public AcceptTrade(WorldPacket packet) : base(packet) { }
+    public uint StateIndex;
+    public AcceptTrade(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		StateIndex = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        StateIndex = _worldPacket.ReadUInt32();
+    }
 }

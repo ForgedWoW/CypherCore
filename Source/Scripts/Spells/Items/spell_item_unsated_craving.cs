@@ -11,22 +11,22 @@ namespace Scripts.Spells.Items;
 [Script] // 71169 - Shadow's Fate (Shadowmourne questline)
 internal class spell_item_unsated_craving : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo procInfo)
-	{
-		var caster = procInfo.Actor;
+    public bool CheckProc(ProcEventInfo procInfo)
+    {
+        var caster = procInfo.Actor;
 
-		if (!caster ||
-			caster.TypeId != TypeId.Player)
-			return false;
+        if (!caster ||
+            caster.TypeId != TypeId.Player)
+            return false;
 
-		var target = procInfo.ActionTarget;
+        var target = procInfo.ActionTarget;
 
-		if (!target ||
-			target.TypeId != TypeId.Unit ||
-			target.IsCritter ||
-			(target.Entry != CreatureIds.Sindragosa && target.IsSummon))
-			return false;
+        if (!target ||
+            target.TypeId != TypeId.Unit ||
+            target.IsCritter ||
+            (target.Entry != CreatureIds.Sindragosa && target.IsSummon))
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 }

@@ -9,17 +9,17 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct PlayerAlreadyMemberAppend : IChannelAppender
 {
-	public PlayerAlreadyMemberAppend(ObjectGuid guid)
-	{
-		_guid = guid;
-	}
+    public PlayerAlreadyMemberAppend(ObjectGuid guid)
+    {
+        _guid = guid;
+    }
 
-	public ChatNotify GetNotificationType() => ChatNotify.PlayerAlreadyMemberNotice;
+    public ChatNotify GetNotificationType() => ChatNotify.PlayerAlreadyMemberNotice;
 
-	public void Append(ChannelNotify data)
-	{
-		data.SenderGuid = _guid;
-	}
+    public void Append(ChannelNotify data)
+    {
+        data.SenderGuid = _guid;
+    }
 
     private readonly ObjectGuid _guid;
 }

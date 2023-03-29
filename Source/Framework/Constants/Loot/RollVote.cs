@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum RollVote
 {
-	Pass = 0,
-	Need = 1,
-	Greed = 2,
-	Disenchant = 3,
-	NotEmitedYet = 4,
-	NotValid = 5
+    Pass = 0,
+    Need = 1,
+    Greed = 2,
+    Disenchant = 3,
+    NotEmitedYet = 4,
+    NotValid = 5
 }

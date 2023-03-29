@@ -7,19 +7,19 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class CooldownEvent : ServerPacket
 {
-	public bool IsPet;
-	public uint SpellID;
+    public bool IsPet;
+    public uint SpellID;
 
-	public CooldownEvent(bool isPet, uint spellId) : base(ServerOpcodes.CooldownEvent, ConnectionType.Instance)
-	{
-		IsPet = isPet;
-		SpellID = spellId;
-	}
+    public CooldownEvent(bool isPet, uint spellId) : base(ServerOpcodes.CooldownEvent, ConnectionType.Instance)
+    {
+        IsPet = isPet;
+        SpellID = spellId;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(SpellID);
-		_worldPacket.WriteBit(IsPet);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(SpellID);
+        _worldPacket.WriteBit(IsPet);
+        _worldPacket.FlushBits();
+    }
 }

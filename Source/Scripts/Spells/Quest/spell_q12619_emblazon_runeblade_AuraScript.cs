@@ -12,19 +12,19 @@ namespace Scripts.Spells.Quest;
 [Script] // 51769 - Emblazon Runeblade
 internal class spell_q12619_emblazon_runeblade_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicTriggerSpell));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicTriggerSpell));
+    }
 
-	private void HandleEffectPeriodic(AuraEffect aurEff)
-	{
-		PreventDefaultAction();
-		var caster = Caster;
+    private void HandleEffectPeriodic(AuraEffect aurEff)
+    {
+        PreventDefaultAction();
+        var caster = Caster;
 
-		if (caster)
-			caster.CastSpell(caster, aurEff.GetSpellEffectInfo().TriggerSpell, new CastSpellExtraArgs(aurEff));
-	}
+        if (caster)
+            caster.CastSpell(caster, aurEff.GetSpellEffectInfo().TriggerSpell, new CastSpellExtraArgs(aurEff));
+    }
 }

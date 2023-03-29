@@ -14,23 +14,23 @@ namespace Scripts.Spells.Druid;
 [SpellScript(22842)]
 public class aura_dru_frenzied_regeneration : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ObsModHealth));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ObsModHealth));
+    }
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		var frenzied = Caster.GetAura(22842);
+    private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        var frenzied = Caster.GetAura(22842);
 
-		//if (frenzied != null)
-		//	frenzied.MaxDuration;
+        //if (frenzied != null)
+        //	frenzied.MaxDuration;
 
-		var healAmount = MathFunctions.CalculatePct(Caster.GetDamageOverLastSeconds(5), 50);
-		var minHealAmount = MathFunctions.CalculatePct(Caster.MaxHealth, 5);
-		healAmount = Math.Max(healAmount, minHealAmount);
-		amount.Value = healAmount;
-	}
+        var healAmount = MathFunctions.CalculatePct(Caster.GetDamageOverLastSeconds(5), 50);
+        var minHealAmount = MathFunctions.CalculatePct(Caster.MaxHealth, 5);
+        healAmount = Math.Max(healAmount, minHealAmount);
+        amount.Value = healAmount;
+    }
 }

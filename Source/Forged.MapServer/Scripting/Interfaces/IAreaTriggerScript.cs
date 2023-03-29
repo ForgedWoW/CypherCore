@@ -7,16 +7,16 @@ namespace Forged.MapServer.Scripting.Interfaces;
 
 public interface IAreaTriggerScript
 {
-	AreaTrigger At { get; }
-	byte CurrentScriptState { get; set; }
-	string ScriptName { get; set; }
-	uint ScriptAreaTriggerId { get; set; }
+    AreaTrigger At { get; }
+    byte CurrentScriptState { get; set; }
+    string ScriptName { get; set; }
+    uint ScriptAreaTriggerId { get; set; }
 
-	bool Load();
-	void Register();
-	void Unload();
-	string _GetScriptName();
-	void _Init(string scriptname, uint sreaTriggerId);
-	void _Register();
-	void _Unload();
+    bool Load();
+    void Register();
+    void Unload();
+    string _GetScriptName();
+    void _Init(string scriptname, uint sreaTriggerId);
+    void _Register();
+    void _Unload();
 }

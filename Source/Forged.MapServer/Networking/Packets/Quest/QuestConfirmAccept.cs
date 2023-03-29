@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class QuestConfirmAccept : ClientPacket
 {
-	public uint QuestID;
-	public QuestConfirmAccept(WorldPacket packet) : base(packet) { }
+    public uint QuestID;
+    public QuestConfirmAccept(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		QuestID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        QuestID = _worldPacket.ReadUInt32();
+    }
 }

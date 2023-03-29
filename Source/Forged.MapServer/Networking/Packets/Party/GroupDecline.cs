@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class GroupDecline : ServerPacket
 {
-	public string Name;
+    public string Name;
 
-	public GroupDecline(string name) : base(ServerOpcodes.GroupDecline)
-	{
-		Name = name;
-	}
+    public GroupDecline(string name) : base(ServerOpcodes.GroupDecline)
+    {
+        Name = name;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(Name.GetByteCount(), 9);
-		_worldPacket.FlushBits();
-		_worldPacket.WriteString(Name);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBits(Name.GetByteCount(), 9);
+        _worldPacket.FlushBits();
+        _worldPacket.WriteString(Name);
+    }
 }

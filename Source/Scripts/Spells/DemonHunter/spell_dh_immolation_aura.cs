@@ -9,16 +9,16 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(258920)]
 public class spell_dh_immolation_aura : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		if (caster.HasAura(DemonHunterSpells.CLEANSED_BY_FLAME))
-			caster.CastSpell(caster, DemonHunterSpells.CLEANSED_BY_FLAME_DISPEL, true);
+        if (caster.HasAura(DemonHunterSpells.CLEANSED_BY_FLAME))
+            caster.CastSpell(caster, DemonHunterSpells.CLEANSED_BY_FLAME_DISPEL, true);
 
-		/*
-			if (RandomHelper.randChance(40) && caster->HasAura(FALLOUT))
-			    caster->CastSpell(caster, SHATTERED_SOULS_MISSILE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)LESSER_SOUL_SHARD));
-			*/
-	}
+        /*
+            if (RandomHelper.randChance(40) && caster->HasAura(FALLOUT))
+                caster->CastSpell(caster, SHATTERED_SOULS_MISSILE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)LESSER_SOUL_SHARD));
+            */
+    }
 }

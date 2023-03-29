@@ -9,30 +9,30 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionListBucketsByBucketKeys : ClientPacket
 {
-	public ObjectGuid Auctioneer;
-	public AddOnInfo? TaintedBy;
-	public Array<AuctionBucketKey> BucketKeys = new(100);
-	public Array<AuctionSortDef> Sorts = new(2);
+    public ObjectGuid Auctioneer;
+    public AddOnInfo? TaintedBy;
+    public Array<AuctionBucketKey> BucketKeys = new(100);
+    public Array<AuctionSortDef> Sorts = new(2);
 
-	public AuctionListBucketsByBucketKeys(WorldPacket packet) : base(packet) { }
+    public AuctionListBucketsByBucketKeys(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Auctioneer = _worldPacket.ReadPackedGuid();
+    public override void Read()
+    {
+        Auctioneer = _worldPacket.ReadPackedGuid();
 
-		if (_worldPacket.HasBit())
-			TaintedBy = new AddOnInfo();
+        if (_worldPacket.HasBit())
+            TaintedBy = new AddOnInfo();
 
-		var bucketKeysCount = _worldPacket.ReadBits<uint>(7);
-		var sortCount = _worldPacket.ReadBits<uint>(2);
+        var bucketKeysCount = _worldPacket.ReadBits<uint>(7);
+        var sortCount = _worldPacket.ReadBits<uint>(2);
 
-		for (var i = 0; i < sortCount; ++i)
-			Sorts[i] = new AuctionSortDef(_worldPacket);
+        for (var i = 0; i < sortCount; ++i)
+            Sorts[i] = new AuctionSortDef(_worldPacket);
 
-		if (TaintedBy.HasValue)
-			TaintedBy.Value.Read(_worldPacket);
+        if (TaintedBy.HasValue)
+            TaintedBy.Value.Read(_worldPacket);
 
-		for (var i = 0; i < bucketKeysCount; ++i)
-			BucketKeys[i] = new AuctionBucketKey(_worldPacket);
-	}
+        for (var i = 0; i < bucketKeysCount; ++i)
+            BucketKeys[i] = new AuctionBucketKey(_worldPacket);
+    }
 }

@@ -14,83 +14,83 @@ public class DosProtection
     private readonly WorldSession Session;
     private readonly Dictionary<uint, PacketCounter> _PacketThrottlingMap = new();
 
-	public DosProtection(WorldSession s)
-	{
-		Session = s;
-		_policy = (Policy)GetDefaultValue("PacketSpoof.Policy", 1);
-	}
+    public DosProtection(WorldSession s)
+    {
+        Session = s;
+        _policy = (Policy)GetDefaultValue("PacketSpoof.Policy", 1);
+    }
 
-	//todo fix me
-	public bool EvaluateOpcode(WorldPacket packet, long time)
-	{
-		uint maxPacketCounterAllowed = 0; // GetMaxPacketCounterAllowed(p.GetOpcode());
+    //todo fix me
+    public bool EvaluateOpcode(WorldPacket packet, long time)
+    {
+        uint maxPacketCounterAllowed = 0; // GetMaxPacketCounterAllowed(p.GetOpcode());
 
-		// Return true if there no limit for the opcode
-		if (maxPacketCounterAllowed == 0)
-			return true;
+        // Return true if there no limit for the opcode
+        if (maxPacketCounterAllowed == 0)
+            return true;
 
-		if (!_PacketThrottlingMap.ContainsKey(packet.GetOpcode()))
-			_PacketThrottlingMap[packet.GetOpcode()] = new PacketCounter();
+        if (!_PacketThrottlingMap.ContainsKey(packet.GetOpcode()))
+            _PacketThrottlingMap[packet.GetOpcode()] = new PacketCounter();
 
-		var packetCounter = _PacketThrottlingMap[packet.GetOpcode()];
+        var packetCounter = _PacketThrottlingMap[packet.GetOpcode()];
 
-		if (packetCounter.LastReceiveTime != time)
-		{
-			packetCounter.LastReceiveTime = time;
-			packetCounter.AmountCounter = 0;
-		}
+        if (packetCounter.LastReceiveTime != time)
+        {
+            packetCounter.LastReceiveTime = time;
+            packetCounter.AmountCounter = 0;
+        }
 
-		// Check if player is flooding some packets
-		if (++packetCounter.AmountCounter <= maxPacketCounterAllowed)
-			return true;
+        // Check if player is flooding some packets
+        if (++packetCounter.AmountCounter <= maxPacketCounterAllowed)
+            return true;
 
-		Log.Logger.Warning("AntiDOS: Account {0}, IP: {1}, Ping: {2}, Character: {3}, flooding packet (opc: {4} (0x{4}), count: {5})",
-							Session.AccountId,
-							Session.RemoteAddress,
-							Session.Latency,
-							Session.PlayerName,
-							packet.GetOpcode(),
-							packetCounter.AmountCounter);
+        Log.Logger.Warning("AntiDOS: Account {0}, IP: {1}, Ping: {2}, Character: {3}, flooding packet (opc: {4} (0x{4}), count: {5})",
+                           Session.AccountId,
+                           Session.RemoteAddress,
+                           Session.Latency,
+                           Session.PlayerName,
+                           packet.GetOpcode(),
+                           packetCounter.AmountCounter);
 
-		switch (_policy)
-		{
-			case Policy.Log:
-				return true;
-			case Policy.Kick:
-				Log.Logger.Information("AntiDOS: Player kicked!");
+        switch (_policy)
+        {
+            case Policy.Log:
+                return true;
+            case Policy.Kick:
+                Log.Logger.Information("AntiDOS: Player kicked!");
 
-				return false;
-			case Policy.Ban:
-				var bm = (BanMode)GetDefaultValue("PacketSpoof.BanMode", (int)BanMode.Account);
-				var duration = GetDefaultValue("PacketSpoof.BanDuration", 86400); // in seconds
-				var nameOrIp = "";
+                return false;
+            case Policy.Ban:
+                var bm = (BanMode)GetDefaultValue("PacketSpoof.BanMode", (int)BanMode.Account);
+                var duration = GetDefaultValue("PacketSpoof.BanDuration", 86400); // in seconds
+                var nameOrIp = "";
 
-				switch (bm)
-				{
-					case BanMode.Character: // not supported, ban account
-					case BanMode.Account:
-						Global.AccountMgr.GetName(Session.AccountId, out nameOrIp);
+                switch (bm)
+                {
+                    case BanMode.Character: // not supported, ban account
+                    case BanMode.Account:
+                        Global.AccountMgr.GetName(Session.AccountId, out nameOrIp);
 
-						break;
-					case BanMode.IP:
-						nameOrIp = Session.RemoteAddress;
+                        break;
+                    case BanMode.IP:
+                        nameOrIp = Session.RemoteAddress;
 
-						break;
-				}
+                        break;
+                }
 
-				Global.WorldMgr.BanAccount(bm, nameOrIp, duration, "DOS (Packet Flooding/Spoofing", "Server: AutoDOS");
-				Log.Logger.Information("AntiDOS: Player automatically banned for {0} seconds.", duration);
+                Global.WorldMgr.BanAccount(bm, nameOrIp, duration, "DOS (Packet Flooding/Spoofing", "Server: AutoDOS");
+                Log.Logger.Information("AntiDOS: Player automatically banned for {0} seconds.", duration);
 
-				return false;
-		}
+                return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
     private enum Policy
-	{
-		Log,
-		Kick,
-		Ban,
-	}
+    {
+        Log,
+        Kick,
+        Ban,
+    }
 }

@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public struct GuildCriteriaProgress
 {
-	public uint CriteriaID;
-	public long DateCreated;
-	public long DateStarted;
-	public long DateUpdated;
-	public ulong Quantity;
-	public ObjectGuid PlayerGUID;
-	public int Flags;
+    public uint CriteriaID;
+    public long DateCreated;
+    public long DateStarted;
+    public long DateUpdated;
+    public ulong Quantity;
+    public ObjectGuid PlayerGUID;
+    public int Flags;
 }

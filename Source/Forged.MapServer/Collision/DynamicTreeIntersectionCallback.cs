@@ -14,21 +14,21 @@ public class DynamicTreeIntersectionCallback : WorkerCallback
 
     private bool _didHit;
 
-	public DynamicTreeIntersectionCallback(PhaseShift phaseShift)
-	{
-		_didHit = false;
-		_phaseShift = phaseShift;
-	}
+    public DynamicTreeIntersectionCallback(PhaseShift phaseShift)
+    {
+        _didHit = false;
+        _phaseShift = phaseShift;
+    }
 
-	public override bool Invoke(Ray r, IModel obj, ref float distance)
-	{
-		_didHit = obj.IntersectRay(r, ref distance, true, _phaseShift, ModelIgnoreFlags.Nothing);
+    public override bool Invoke(Ray r, IModel obj, ref float distance)
+    {
+        _didHit = obj.IntersectRay(r, ref distance, true, _phaseShift, ModelIgnoreFlags.Nothing);
 
-		return _didHit;
-	}
+        return _didHit;
+    }
 
-	public bool DidHit()
-	{
-		return _didHit;
-	}
+    public bool DidHit()
+    {
+        return _didHit;
+    }
 }

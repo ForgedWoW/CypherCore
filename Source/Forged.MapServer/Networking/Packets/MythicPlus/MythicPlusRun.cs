@@ -7,36 +7,36 @@ namespace Forged.MapServer.Networking.Packets.MythicPlus;
 
 public class MythicPlusRun
 {
-	public int MapChallengeModeID;
-	public bool Completed;
-	public uint Level;
-	public int DurationMs;
-	public long StartDate;
-	public long CompletionDate;
-	public int Season;
-	public List<MythicPlusMember> Members = new();
-	public float RunScore;
-	public int[] KeystoneAffixIDs = new int[4];
+    public int MapChallengeModeID;
+    public bool Completed;
+    public uint Level;
+    public int DurationMs;
+    public long StartDate;
+    public long CompletionDate;
+    public int Season;
+    public List<MythicPlusMember> Members = new();
+    public float RunScore;
+    public int[] KeystoneAffixIDs = new int[4];
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(MapChallengeModeID);
-		data.WriteUInt32(Level);
-		data.WriteInt32(DurationMs);
-		data.WriteInt64(StartDate);
-		data.WriteInt64(CompletionDate);
-		data.WriteInt32(Season);
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(MapChallengeModeID);
+        data.WriteUInt32(Level);
+        data.WriteInt32(DurationMs);
+        data.WriteInt64(StartDate);
+        data.WriteInt64(CompletionDate);
+        data.WriteInt32(Season);
 
-		foreach (var id in KeystoneAffixIDs)
-			data.WriteInt32(id);
+        foreach (var id in KeystoneAffixIDs)
+            data.WriteInt32(id);
 
-		data.WriteInt32(Members.Count);
-		data.WriteFloat(RunScore);
+        data.WriteInt32(Members.Count);
+        data.WriteFloat(RunScore);
 
-		foreach (var member in Members)
-			member.Write(data);
+        foreach (var member in Members)
+            member.Write(data);
 
-		data.WriteBit(Completed);
-		data.FlushBits();
-	}
+        data.WriteBit(Completed);
+        data.FlushBits();
+    }
 }

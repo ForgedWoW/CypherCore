@@ -13,9 +13,9 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(24532)]
 internal class spell_rog_burst_of_energy : SpellScript, ISpellEnergizedBySpell
 {
-	public void EnergizeBySpell(Unit target, SpellInfo spellInfo, ref double amount, PowerType powerType)
-	{
-		// Instantly increases your energy by ${60-4*$max(0,$min(15,$PL-60))}.
-		amount -= 4 * Math.Max(0, Math.Min(15, target.Level - 60));
-	}
+    public void EnergizeBySpell(Unit target, SpellInfo spellInfo, ref double amount, PowerType powerType)
+    {
+        // Instantly increases your energy by ${60-4*$max(0,$min(15,$PL-60))}.
+        amount -= 4 * Math.Max(0, Math.Min(15, target.Level - 60));
+    }
 }

@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Artifact;
 
 internal class ConfirmArtifactRespec : ClientPacket
 {
-	public ObjectGuid ArtifactGUID;
-	public ObjectGuid NpcGUID;
-	public ConfirmArtifactRespec(WorldPacket packet) : base(packet) { }
+    public ObjectGuid ArtifactGUID;
+    public ObjectGuid NpcGUID;
+    public ConfirmArtifactRespec(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ArtifactGUID = _worldPacket.ReadPackedGuid();
-		NpcGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        ArtifactGUID = _worldPacket.ReadPackedGuid();
+        NpcGUID = _worldPacket.ReadPackedGuid();
+    }
 }

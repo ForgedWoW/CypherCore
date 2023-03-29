@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class TreasureLootList
 {
-	public List<TreasureItem> Items = new();
+    public List<TreasureItem> Items = new();
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(Items.Count);
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(Items.Count);
 
-		foreach (var treasureItem in Items)
-			treasureItem.Write(data);
-	}
+        foreach (var treasureItem in Items)
+            treasureItem.Write(data);
+    }
 }

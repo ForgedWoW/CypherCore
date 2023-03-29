@@ -12,22 +12,22 @@ namespace Scripts.Spells.Shaman;
 [Script]
 public class at_sha_voodoo_totem : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	public void OnUnitEnter(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitEnter(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		if (caster.IsValidAttackTarget(unit))
-		{
-			caster.CastSpell(unit, TotemSpells.TOTEM_VOODOO_EFFECT, true);
-			caster.CastSpell(unit, TotemSpells.TOTEM_VOODOO_COOLDOWN, true);
-		}
-	}
+        if (caster.IsValidAttackTarget(unit))
+        {
+            caster.CastSpell(unit, TotemSpells.TOTEM_VOODOO_EFFECT, true);
+            caster.CastSpell(unit, TotemSpells.TOTEM_VOODOO_COOLDOWN, true);
+        }
+    }
 
-	public void OnUnitExit(Unit unit)
-	{
-		unit.RemoveAurasDueToSpell(TotemSpells.TOTEM_VOODOO_EFFECT, At.CasterGuid);
-	}
+    public void OnUnitExit(Unit unit)
+    {
+        unit.RemoveAurasDueToSpell(TotemSpells.TOTEM_VOODOO_EFFECT, At.CasterGuid);
+    }
 }

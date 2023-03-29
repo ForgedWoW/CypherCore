@@ -13,51 +13,51 @@ namespace Scripts.Spells.Priest;
 [SpellScript(208771)]
 public class spell_pri_smite_absorb : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0));
+    }
 
-	private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
-	{
-		var caster = Caster;
-		var attacker = dmgInfo.Attacker;
+    private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
+    {
+        var caster = Caster;
+        var attacker = dmgInfo.Attacker;
 
-		if (caster == null || attacker == null)
-			return absorbAmount;
+        if (caster == null || attacker == null)
+            return absorbAmount;
 
-		if (!attacker.HasAura(PriestSpells.SMITE_AURA, caster.GUID))
-		{
-			absorbAmount = 0;
-		}
-		else
-		{
-			var aur = attacker.GetAura(PriestSpells.SMITE_AURA, caster.GUID);
+        if (!attacker.HasAura(PriestSpells.SMITE_AURA, caster.GUID))
+        {
+            absorbAmount = 0;
+        }
+        else
+        {
+            var aur = attacker.GetAura(PriestSpells.SMITE_AURA, caster.GUID);
 
-			if (aur != null)
-			{
-				var aurEff = aur.GetEffect(0);
+            if (aur != null)
+            {
+                var aurEff = aur.GetEffect(0);
 
-				if (aurEff != null)
-				{
-					var absorb = Math.Max(0, aurEff.Amount - (int)dmgInfo.Damage);
+                if (aurEff != null)
+                {
+                    var absorb = Math.Max(0, aurEff.Amount - (int)dmgInfo.Damage);
 
-					if (absorb <= 0)
-					{
-						absorbAmount = (uint)aurEff.Amount;
-						aur.Remove();
-					}
-					else
-					{
-						aurEff.SetAmount(absorb);
-						aur.SetNeedClientUpdateForTargets();
-					}
-				}
-			}
-		}
+                    if (absorb <= 0)
+                    {
+                        absorbAmount = (uint)aurEff.Amount;
+                        aur.Remove();
+                    }
+                    else
+                    {
+                        aurEff.SetAmount(absorb);
+                        aur.SetNeedClientUpdateForTargets();
+                    }
+                }
+            }
+        }
 
-		return absorbAmount;
-	}
+        return absorbAmount;
+    }
 }

@@ -8,24 +8,24 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class AchievementEarned : ServerPacket
 {
-	public ObjectGuid Earner;
-	public uint EarnerNativeRealm;
-	public uint EarnerVirtualRealm;
-	public uint AchievementID;
-	public long Time;
-	public bool Initial;
-	public ObjectGuid Sender;
-	public AchievementEarned() : base(ServerOpcodes.AchievementEarned, ConnectionType.Instance) { }
+    public ObjectGuid Earner;
+    public uint EarnerNativeRealm;
+    public uint EarnerVirtualRealm;
+    public uint AchievementID;
+    public long Time;
+    public bool Initial;
+    public ObjectGuid Sender;
+    public AchievementEarned() : base(ServerOpcodes.AchievementEarned, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Sender);
-		_worldPacket.WritePackedGuid(Earner);
-		_worldPacket.WriteUInt32(AchievementID);
-		_worldPacket.WritePackedTime(Time);
-		_worldPacket.WriteUInt32(EarnerNativeRealm);
-		_worldPacket.WriteUInt32(EarnerVirtualRealm);
-		_worldPacket.WriteBit(Initial);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Sender);
+        _worldPacket.WritePackedGuid(Earner);
+        _worldPacket.WriteUInt32(AchievementID);
+        _worldPacket.WritePackedTime(Time);
+        _worldPacket.WriteUInt32(EarnerNativeRealm);
+        _worldPacket.WriteUInt32(EarnerVirtualRealm);
+        _worldPacket.WriteBit(Initial);
+        _worldPacket.FlushBits();
+    }
 }

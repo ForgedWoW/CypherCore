@@ -12,20 +12,20 @@ namespace Scripts.Spells.Generic;
 [Script] // 63471 -Spawn Blood Pool
 internal class spell_spawn_blood_pool : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new DestinationTargetSelectHandler(SetDest, 0, Targets.DestCaster));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new DestinationTargetSelectHandler(SetDest, 0, Targets.DestCaster));
+    }
 
-	private void SetDest(SpellDestination dest)
-	{
-		var caster = Caster;
-		var summonPos = caster.Location;
+    private void SetDest(SpellDestination dest)
+    {
+        var caster = Caster;
+        var summonPos = caster.Location;
 
-		if (caster.Map.GetLiquidStatus(caster.PhaseShift, caster.Location.X, caster.Location.Y, caster.Location.Z, LiquidHeaderTypeFlags.AllLiquids, out var liquidStatus, caster.CollisionHeight) != ZLiquidStatus.NoWater)
+        if (caster.Map.GetLiquidStatus(caster.PhaseShift, caster.Location.X, caster.Location.Y, caster.Location.Z, LiquidHeaderTypeFlags.AllLiquids, out var liquidStatus, caster.CollisionHeight) != ZLiquidStatus.NoWater)
 
-			dest.Relocate(summonPos);
-	}
+            dest.Relocate(summonPos);
+    }
 }

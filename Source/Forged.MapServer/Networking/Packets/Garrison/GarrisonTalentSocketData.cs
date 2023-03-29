@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal struct GarrisonTalentSocketData
 {
-	public int SoulbindConduitID;
-	public int SoulbindConduitRank;
+    public int SoulbindConduitID;
+    public int SoulbindConduitRank;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(SoulbindConduitID);
-		data.WriteInt32(SoulbindConduitRank);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(SoulbindConduitID);
+        data.WriteInt32(SoulbindConduitRank);
+    }
 }

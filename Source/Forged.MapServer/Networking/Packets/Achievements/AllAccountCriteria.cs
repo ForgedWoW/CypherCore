@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 internal class AllAccountCriteria : ServerPacket
 {
-	public List<CriteriaProgressPkt> Progress = new();
-	public AllAccountCriteria() : base(ServerOpcodes.AllAccountCriteria, ConnectionType.Instance) { }
+    public List<CriteriaProgressPkt> Progress = new();
+    public AllAccountCriteria() : base(ServerOpcodes.AllAccountCriteria, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Progress.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Progress.Count);
 
-		foreach (var progress in Progress)
-			progress.Write(_worldPacket);
-	}
+        foreach (var progress in Progress)
+            progress.Write(_worldPacket);
+    }
 }

@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Battlenet;
 
 internal class ChangeRealmTicket : ClientPacket
 {
-	public uint Token;
-	public Array<byte> Secret = new(32);
-	public ChangeRealmTicket(WorldPacket packet) : base(packet) { }
+    public uint Token;
+    public Array<byte> Secret = new(32);
+    public ChangeRealmTicket(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Token = _worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        Token = _worldPacket.ReadUInt32();
 
-		for (var i = 0; i < Secret.GetLimit(); ++i)
-			Secret[i] = _worldPacket.ReadUInt8();
-	}
+        for (var i = 0; i < Secret.GetLimit(); ++i)
+            Secret[i] = _worldPacket.ReadUInt8();
+    }
 }

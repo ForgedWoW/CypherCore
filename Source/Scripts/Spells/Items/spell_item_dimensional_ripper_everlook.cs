@@ -11,31 +11,31 @@ namespace Scripts.Spells.Items;
 [Script] // 23442 - Dimensional Ripper - Everlook
 internal class spell_item_dimensional_ripper_everlook : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override bool Load()
-	{
-		return Caster.IsPlayer;
-	}
+    public override bool Load()
+    {
+        return Caster.IsPlayer;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.TeleportUnits, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.TeleportUnits, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var r = RandomHelper.IRand(0, 119);
+    private void HandleScript(int effIndex)
+    {
+        var r = RandomHelper.IRand(0, 119);
 
-		if (r <= 70) // 7/12 success
-			return;
+        if (r <= 70) // 7/12 success
+            return;
 
-		var caster = Caster;
+        var caster = Caster;
 
-		if (r < 100) // 4/12 evil twin
-			caster.CastSpell(caster, ItemSpellIds.EvilTwin, true);
-		else // 1/12 fire
-			caster.CastSpell(caster, ItemSpellIds.TransporterMalfunctionFire, true);
-	}
+        if (r < 100) // 4/12 evil twin
+            caster.CastSpell(caster, ItemSpellIds.EvilTwin, true);
+        else // 1/12 fire
+            caster.CastSpell(caster, ItemSpellIds.TransporterMalfunctionFire, true);
+    }
 }

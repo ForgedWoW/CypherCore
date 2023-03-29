@@ -11,8 +11,8 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(203316)]
 public class spell_pal_the_fire_of_justice : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.SpellInfo.Id == PaladinSpells.CRUSADER_STRIKE;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.SpellInfo.Id == PaladinSpells.CRUSADER_STRIKE;
+    }
 }

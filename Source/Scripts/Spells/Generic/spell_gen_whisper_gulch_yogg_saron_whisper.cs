@@ -13,17 +13,17 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_whisper_gulch_yogg_saron_whisper : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
+    }
 
-	private void HandleEffectPeriodic(AuraEffect aurEff)
-	{
-		PreventDefaultAction();
-		Target.CastSpell((Unit)null, GenericSpellIds.YoggSaronWhisperDummy, true);
-	}
+    private void HandleEffectPeriodic(AuraEffect aurEff)
+    {
+        PreventDefaultAction();
+        Target.CastSpell((Unit)null, GenericSpellIds.YoggSaronWhisperDummy, true);
+    }
 }

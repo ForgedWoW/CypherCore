@@ -11,55 +11,55 @@ namespace Forged.MapServer.Entities.AreaTriggers;
 [StructLayout(LayoutKind.Explicit)]
 public class AreaTriggerScaleInfo
 {
-	[FieldOffset(0)] public StructuredData Structured;
+    [FieldOffset(0)] public StructuredData Structured;
 
-	[FieldOffset(0)] public RawData Raw;
+    [FieldOffset(0)] public RawData Raw;
 
-	[StructLayout(LayoutKind.Explicit)]
-	public struct StructuredData
-	{
-		[FieldOffset(0)] public uint StartTimeOffset;
+    [StructLayout(LayoutKind.Explicit)]
+    public struct StructuredData
+    {
+        [FieldOffset(0)] public uint StartTimeOffset;
 
-		[FieldOffset(4)] public float X;
+        [FieldOffset(4)] public float X;
 
-		[FieldOffset(8)] public float Y;
+        [FieldOffset(8)] public float Y;
 
-		[FieldOffset(12)] public float Z;
+        [FieldOffset(12)] public float Z;
 
-		[FieldOffset(16)] public float W;
+        [FieldOffset(16)] public float W;
 
-		[FieldOffset(20)] public uint CurveParameters;
+        [FieldOffset(20)] public uint CurveParameters;
 
-		[FieldOffset(24)] public uint OverrideActive;
+        [FieldOffset(24)] public uint OverrideActive;
 
-		public struct curveparameters
-		{
-			public uint Raw;
+        public struct curveparameters
+        {
+            public uint Raw;
 
-			public uint NoData
-			{
-				get { return Raw & 1; }
-			}
+            public uint NoData
+            {
+                get { return Raw & 1; }
+            }
 
-			public uint InterpolationMode
-			{
-				get { return (Raw & 0x7) << 1; }
-			}
+            public uint InterpolationMode
+            {
+                get { return (Raw & 0x7) << 1; }
+            }
 
-			public uint FirstPointOffset
-			{
-				get { return (Raw & 0x7FFFFF) << 4; }
-			}
+            public uint FirstPointOffset
+            {
+                get { return (Raw & 0x7FFFFF) << 4; }
+            }
 
-			public uint PointCount
-			{
-				get { return (Raw & 0x1F) << 27; }
-			}
-		}
-	}
+            public uint PointCount
+            {
+                get { return (Raw & 0x1F) << 27; }
+            }
+        }
+    }
 
-	public unsafe struct RawData
-	{
-		public fixed uint Data[SharedConst.MaxAreatriggerScale];
-	}
+    public unsafe struct RawData
+    {
+        public fixed uint Data[SharedConst.MaxAreatriggerScale];
+    }
 }

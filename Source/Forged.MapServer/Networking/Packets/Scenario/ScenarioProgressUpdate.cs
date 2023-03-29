@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Scenario;
 
 internal class ScenarioProgressUpdate : ServerPacket
 {
-	public CriteriaProgressPkt CriteriaProgress;
-	public ScenarioProgressUpdate() : base(ServerOpcodes.ScenarioProgressUpdate, ConnectionType.Instance) { }
+    public CriteriaProgressPkt CriteriaProgress;
+    public ScenarioProgressUpdate() : base(ServerOpcodes.ScenarioProgressUpdate, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		CriteriaProgress.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        CriteriaProgress.Write(_worldPacket);
+    }
 }

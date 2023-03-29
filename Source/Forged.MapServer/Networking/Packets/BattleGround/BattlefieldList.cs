@@ -9,28 +9,28 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class BattlefieldList : ServerPacket
 {
-	public ObjectGuid BattlemasterGuid;
-	public int BattlemasterListID;
-	public byte MinLevel;
-	public byte MaxLevel;
-	public List<int> Battlefields = new(); // Players cannot join a specific Battleground instance anymore - this is always empty
-	public bool PvpAnywhere;
-	public bool HasRandomWinToday;
-	public BattlefieldList() : base(ServerOpcodes.BattlefieldList) { }
+    public ObjectGuid BattlemasterGuid;
+    public int BattlemasterListID;
+    public byte MinLevel;
+    public byte MaxLevel;
+    public List<int> Battlefields = new(); // Players cannot join a specific Battleground instance anymore - this is always empty
+    public bool PvpAnywhere;
+    public bool HasRandomWinToday;
+    public BattlefieldList() : base(ServerOpcodes.BattlefieldList) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(BattlemasterGuid);
-		_worldPacket.WriteInt32(BattlemasterListID);
-		_worldPacket.WriteUInt8(MinLevel);
-		_worldPacket.WriteUInt8(MaxLevel);
-		_worldPacket.WriteInt32(Battlefields.Count);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(BattlemasterGuid);
+        _worldPacket.WriteInt32(BattlemasterListID);
+        _worldPacket.WriteUInt8(MinLevel);
+        _worldPacket.WriteUInt8(MaxLevel);
+        _worldPacket.WriteInt32(Battlefields.Count);
 
-		foreach (var field in Battlefields)
-			_worldPacket.WriteInt32(field);
+        foreach (var field in Battlefields)
+            _worldPacket.WriteInt32(field);
 
-		_worldPacket.WriteBit(PvpAnywhere);
-		_worldPacket.WriteBit(HasRandomWinToday);
-		_worldPacket.FlushBits();
-	}
+        _worldPacket.WriteBit(PvpAnywhere);
+        _worldPacket.WriteBit(HasRandomWinToday);
+        _worldPacket.FlushBits();
+    }
 }

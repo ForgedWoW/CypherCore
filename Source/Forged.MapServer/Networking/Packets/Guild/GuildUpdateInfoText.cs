@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildUpdateInfoText : ClientPacket
 {
-	public string InfoText;
-	public GuildUpdateInfoText(WorldPacket packet) : base(packet) { }
+    public string InfoText;
+    public GuildUpdateInfoText(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var textLen = _worldPacket.ReadBits<uint>(11);
-		InfoText = _worldPacket.ReadString(textLen);
-	}
+    public override void Read()
+    {
+        var textLen = _worldPacket.ReadBits<uint>(11);
+        InfoText = _worldPacket.ReadString(textLen);
+    }
 }

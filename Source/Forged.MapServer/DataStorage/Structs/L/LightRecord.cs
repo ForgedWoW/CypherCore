@@ -7,10 +7,10 @@ namespace Forged.MapServer.DataStorage.Structs.L;
 
 public sealed class LightRecord
 {
-	public uint Id;
-	public Vector3 GameCoords;
-	public float GameFalloffStart;
-	public float GameFalloffEnd;
-	public short ContinentID;
-	public ushort[] LightParamsID = new ushort[8];
+    public uint Id;
+    public Vector3 GameCoords;
+    public float GameFalloffStart;
+    public float GameFalloffEnd;
+    public short ContinentID;
+    public ushort[] LightParamsID = new ushort[8];
 }

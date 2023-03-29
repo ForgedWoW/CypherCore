@@ -8,5 +8,5 @@ namespace Forged.MapServer.Maps.Interfaces;
 
 public interface IGridNotifierConversation : IGridNotifier
 {
-	void Visit(IList<Conversation> objs);
+    void Visit(IList<Conversation> objs);
 }

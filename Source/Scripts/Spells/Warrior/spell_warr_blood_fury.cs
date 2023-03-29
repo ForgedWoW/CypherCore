@@ -13,9 +13,9 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(24571)]
 internal class spell_warr_blood_fury : SpellScript, ISpellEnergizedBySpell
 {
-	public void EnergizeBySpell(Unit target, SpellInfo spellInfo, ref double amount, PowerType powerType)
-	{
-		// Instantly increases your rage by ${(300-10*$max(0,$PL-60))/10}.
-		amount -= 10 * Math.Max(0, Math.Min(30, target.Level - 60));
-	}
+    public void EnergizeBySpell(Unit target, SpellInfo spellInfo, ref double amount, PowerType powerType)
+    {
+        // Instantly increases your rage by ${(300-10*$max(0,$PL-60))/10}.
+        amount -= 10 * Math.Max(0, Math.Min(30, target.Level - 60));
+    }
 }

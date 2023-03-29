@@ -7,25 +7,25 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildRewardItem
 {
-	public uint ItemID;
-	public uint Unk4;
-	public List<uint> AchievementsRequired = new();
-	public ulong RaceMask;
-	public int MinGuildLevel;
-	public int MinGuildRep;
-	public ulong Cost;
+    public uint ItemID;
+    public uint Unk4;
+    public List<uint> AchievementsRequired = new();
+    public ulong RaceMask;
+    public int MinGuildLevel;
+    public int MinGuildRep;
+    public ulong Cost;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(ItemID);
-		data.WriteUInt32(Unk4);
-		data.WriteInt32(AchievementsRequired.Count);
-		data.WriteUInt64(RaceMask);
-		data.WriteInt32(MinGuildLevel);
-		data.WriteInt32(MinGuildRep);
-		data.WriteUInt64(Cost);
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(ItemID);
+        data.WriteUInt32(Unk4);
+        data.WriteInt32(AchievementsRequired.Count);
+        data.WriteUInt64(RaceMask);
+        data.WriteInt32(MinGuildLevel);
+        data.WriteInt32(MinGuildRep);
+        data.WriteUInt64(Cost);
 
-		foreach (var achievementId in AchievementsRequired)
-			data.WriteUInt32(achievementId);
-	}
+        foreach (var achievementId in AchievementsRequired)
+            data.WriteUInt32(achievementId);
+    }
 }

@@ -11,16 +11,16 @@ namespace Scripts.Spells.Druid;
 [Script] //  8921 - Moonfire
 internal class spell_dru_moonfire : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleOnHit(int effIndex)
-	{
-		Caster.CastSpell(HitUnit, DruidSpellIds.MoonfireDamage, true);
-	}
+    private void HandleOnHit(int effIndex)
+    {
+        Caster.CastSpell(HitUnit, DruidSpellIds.MoonfireDamage, true);
+    }
 }

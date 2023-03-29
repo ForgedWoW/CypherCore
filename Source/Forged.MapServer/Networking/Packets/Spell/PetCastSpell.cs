@@ -7,17 +7,17 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class PetCastSpell : ClientPacket
 {
-	public ObjectGuid PetGUID;
-	public SpellCastRequest Cast;
+    public ObjectGuid PetGUID;
+    public SpellCastRequest Cast;
 
-	public PetCastSpell(WorldPacket packet) : base(packet)
-	{
-		Cast = new SpellCastRequest();
-	}
+    public PetCastSpell(WorldPacket packet) : base(packet)
+    {
+        Cast = new SpellCastRequest();
+    }
 
-	public override void Read()
-	{
-		PetGUID = _worldPacket.ReadPackedGuid();
-		Cast.Read(_worldPacket);
-	}
+    public override void Read()
+    {
+        PetGUID = _worldPacket.ReadPackedGuid();
+        Cast.Read(_worldPacket);
+    }
 }

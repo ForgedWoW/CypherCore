@@ -5,14 +5,14 @@ namespace Framework.Constants;
 
 public enum ItemTransmogrificationWeaponCategory
 {
-	// Two-handed
-	Melee2H,
-	Ranged,
+    // Two-handed
+    Melee2H,
+    Ranged,
 
-	// One-handed
-	AxeMaceSword1H,
-	Dagger,
-	Fist,
+    // One-handed
+    AxeMaceSword1H,
+    Dagger,
+    Fist,
 
-	Invalid
+    Invalid
 }

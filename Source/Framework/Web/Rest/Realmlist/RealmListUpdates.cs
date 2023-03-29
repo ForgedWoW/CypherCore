@@ -4,12 +4,10 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace Framework.Web
+namespace Framework.Web;
+
+[DataContract]
+public class RealmListUpdates
 {
-    [DataContract]
-    public class RealmListUpdates
-    {
-        [DataMember(Name = "updates")]
-        public IList<RealmListUpdate> Updates { get; set; } = new List<RealmListUpdate>();
-    }
+    [DataMember(Name = "updates")] public IList<RealmListUpdate> Updates { get; set; } = new List<RealmListUpdate>();
 }

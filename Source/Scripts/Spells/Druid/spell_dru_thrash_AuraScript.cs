@@ -12,20 +12,20 @@ namespace Scripts.Spells.Druid;
 [Script] // 192090 - Thrash (Aura) - THRASH_BEAR_AURA
 internal class spell_dru_thrash_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDamage));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDamage));
+    }
 
-	private void HandlePeriodic(AuraEffect aurEff)
-	{
-		var caster = Caster;
+    private void HandlePeriodic(AuraEffect aurEff)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			if (caster.HasAura(DruidSpellIds.BloodFrenzyAura))
-				caster.CastSpell(caster, DruidSpellIds.BloodFrenzyRageGain, true);
-	}
+        if (caster != null)
+            if (caster.HasAura(DruidSpellIds.BloodFrenzyAura))
+                caster.CastSpell(caster, DruidSpellIds.BloodFrenzyRageGain, true);
+    }
 }

@@ -12,39 +12,39 @@ namespace Forged.MapServer.Scripting.Interfaces;
 
 public interface IAuraScript : IBaseSpellScript
 {
-	Aura Aura { get; }
+    Aura Aura { get; }
 
-	Difficulty CastDifficulty { get; }
-	Unit Caster { get; }
-	ObjectGuid CasterGUID { get; }
+    Difficulty CastDifficulty { get; }
+    Unit Caster { get; }
+    ObjectGuid CasterGUID { get; }
 
-	int Duration { get; }
-	GameObject GObjCaster { get; }
-	uint Id { get; }
+    int Duration { get; }
+    GameObject GObjCaster { get; }
+    uint Id { get; }
 
-	int MaxDuration { get; set; }
-	WorldObject Owner { get; }
-	SpellInfo SpellInfo { get; }
+    int MaxDuration { get; set; }
+    WorldObject Owner { get; }
+    SpellInfo SpellInfo { get; }
 
-	byte StackAmount { get; }
+    byte StackAmount { get; }
 
-	Unit Target { get; }
+    Unit Target { get; }
 
-	AuraApplication TargetApplication { get; }
-	Unit OwnerAsUnit { get; }
-	bool IsExpired { get; }
+    AuraApplication TargetApplication { get; }
+    Unit OwnerAsUnit { get; }
+    bool IsExpired { get; }
 
-	AuraEffect GetEffect(byte effIndex);
-	SpellEffectInfo GetEffectInfo(int effIndex);
+    AuraEffect GetEffect(byte effIndex);
+    SpellEffectInfo GetEffectInfo(int effIndex);
 
-	bool HasEffect(byte effIndex);
+    bool HasEffect(byte effIndex);
 
-	bool ModStackAmount(int num, AuraRemoveMode removeMode = AuraRemoveMode.Default);
-	void PreventDefaultAction();
-	void Remove(AuraRemoveMode removeMode = AuraRemoveMode.None);
-	void SetDuration(int duration, bool withMods = false);
-	void _FinishScriptCall();
-	bool _IsDefaultActionPrevented();
-	bool _Load(Aura aura);
-	void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication aurApp = null);
+    bool ModStackAmount(int num, AuraRemoveMode removeMode = AuraRemoveMode.Default);
+    void PreventDefaultAction();
+    void Remove(AuraRemoveMode removeMode = AuraRemoveMode.None);
+    void SetDuration(int duration, bool withMods = false);
+    void _FinishScriptCall();
+    bool _IsDefaultActionPrevented();
+    bool _Load(Aura aura);
+    void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication aurApp = null);
 }

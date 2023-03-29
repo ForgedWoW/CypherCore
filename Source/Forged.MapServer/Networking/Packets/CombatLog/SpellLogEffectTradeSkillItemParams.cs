@@ -5,5 +5,5 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 public struct SpellLogEffectTradeSkillItemParams
 {
-	public int ItemID;
+    public int ItemID;
 }

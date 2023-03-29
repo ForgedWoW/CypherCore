@@ -13,23 +13,23 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(197690)]
 public class spell_defensive_state : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModDamagePercentTaken, AuraEffectHandleModes.Real));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModDamagePercentTaken, AuraEffectHandleModes.Real));
+    }
 
-	private void OnApply(AuraEffect aura, AuraEffectHandleModes auraMode)
-	{
-		var caster = Caster;
+    private void OnApply(AuraEffect aura, AuraEffectHandleModes auraMode)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var defensiveState = caster?.GetAura(197690)?.GetEffect(0);
+        if (caster != null)
+        {
+            var defensiveState = caster?.GetAura(197690)?.GetEffect(0);
 
-			//if (defensiveState != null)
-			//	defensiveState.Amount;
-		}
-	}
+            //if (defensiveState != null)
+            //	defensiveState.Amount;
+        }
+    }
 }

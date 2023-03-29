@@ -13,21 +13,21 @@ public class WorldObjectSpellLineTargetCheck : WorldObjectSpellAreaTargetCheck
     private readonly Position _position;
     private readonly float _lineWidth;
 
-	public WorldObjectSpellLineTargetCheck(Position srcPosition, Position dstPosition, float lineWidth, float range, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
-		: base(range, caster.Location, caster, caster, spellInfo, selectionType, condList, objectType)
-	{
-		_position = srcPosition;
-		_lineWidth = lineWidth;
+    public WorldObjectSpellLineTargetCheck(Position srcPosition, Position dstPosition, float lineWidth, float range, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
+        : base(range, caster.Location, caster, caster, spellInfo, selectionType, condList, objectType)
+    {
+        _position = srcPosition;
+        _lineWidth = lineWidth;
 
-		if (dstPosition != null && srcPosition != dstPosition)
-			_position.Orientation = srcPosition.GetAbsoluteAngle(dstPosition);
-	}
+        if (dstPosition != null && srcPosition != dstPosition)
+            _position.Orientation = srcPosition.GetAbsoluteAngle(dstPosition);
+    }
 
-	public override bool Invoke(WorldObject target)
-	{
-		if (!_position.HasInLine(target.Location, target.CombatReach, _lineWidth))
-			return false;
+    public override bool Invoke(WorldObject target)
+    {
+        if (!_position.HasInLine(target.Location, target.CombatReach, _lineWidth))
+            return false;
 
-		return base.Invoke(target);
-	}
+        return base.Invoke(target);
+    }
 }

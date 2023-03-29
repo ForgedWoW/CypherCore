@@ -11,11 +11,11 @@ namespace Scripts.Spells.Shaman;
 [CreatureScript(78001)]
 public class npc_cloudburst_totem : ScriptedAI
 {
-	public npc_cloudburst_totem(Creature creature) : base(creature) { }
+    public npc_cloudburst_totem(Creature creature) : base(creature) { }
 
-	public override void Reset()
-	{
-		if (Me.OwnerUnit)
-			Me.CastSpell(Me.OwnerUnit, TotemSpells.TOTEM_CLOUDBURST_EFFECT, true);
-	}
+    public override void Reset()
+    {
+        if (Me.OwnerUnit)
+            Me.CastSpell(Me.OwnerUnit, TotemSpells.TOTEM_CLOUDBURST_EFFECT, true);
+    }
 }

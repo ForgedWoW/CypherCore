@@ -9,13 +9,13 @@ internal class Pong : ServerPacket
 {
     private readonly uint Serial;
 
-	public Pong(uint serial) : base(ServerOpcodes.Pong)
-	{
-		Serial = serial;
-	}
+    public Pong(uint serial) : base(ServerOpcodes.Pong)
+    {
+        Serial = serial;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(Serial);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(Serial);
+    }
 }

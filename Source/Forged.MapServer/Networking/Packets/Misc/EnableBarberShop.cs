@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class EnableBarberShop : ServerPacket
 {
-	public EnableBarberShop() : base(ServerOpcodes.EnableBarberShop) { }
+    public EnableBarberShop() : base(ServerOpcodes.EnableBarberShop) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

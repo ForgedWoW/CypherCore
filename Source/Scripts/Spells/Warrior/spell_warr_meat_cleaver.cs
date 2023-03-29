@@ -10,8 +10,8 @@ namespace Scripts.Spells.Warrior;
 
 public class spell_warr_meat_cleaver : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo UnnamedParameter)
-	{
-		return false;
-	}
+    public bool CheckProc(ProcEventInfo UnnamedParameter)
+    {
+        return false;
+    }
 }

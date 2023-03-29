@@ -7,17 +7,17 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionClosedNotification : ServerPacket
 {
-	public AuctionOwnerNotification Info;
-	public float ProceedsMailDelay;
-	public bool Sold = true;
+    public AuctionOwnerNotification Info;
+    public float ProceedsMailDelay;
+    public bool Sold = true;
 
-	public AuctionClosedNotification() : base(ServerOpcodes.AuctionClosedNotification) { }
+    public AuctionClosedNotification() : base(ServerOpcodes.AuctionClosedNotification) { }
 
-	public override void Write()
-	{
-		Info.Write(_worldPacket);
-		_worldPacket.WriteFloat(ProceedsMailDelay);
-		_worldPacket.WriteBit(Sold);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        Info.Write(_worldPacket);
+        _worldPacket.WriteFloat(ProceedsMailDelay);
+        _worldPacket.WriteBit(Sold);
+        _worldPacket.FlushBits();
+    }
 }

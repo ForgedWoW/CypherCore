@@ -7,27 +7,27 @@ namespace Forged.MapServer.Networking.Packets.Hotfix;
 
 internal class DBQueryBulk : ClientPacket
 {
-	public uint TableHash;
-	public List<DBQueryRecord> Queries = new();
-	public DBQueryBulk(WorldPacket packet) : base(packet) { }
+    public uint TableHash;
+    public List<DBQueryRecord> Queries = new();
+    public DBQueryBulk(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		TableHash = _worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        TableHash = _worldPacket.ReadUInt32();
 
-		var count = _worldPacket.ReadBits<uint>(13);
+        var count = _worldPacket.ReadBits<uint>(13);
 
-		for (uint i = 0; i < count; ++i)
-			Queries.Add(new DBQueryRecord(_worldPacket.ReadUInt32()));
-	}
+        for (uint i = 0; i < count; ++i)
+            Queries.Add(new DBQueryRecord(_worldPacket.ReadUInt32()));
+    }
 
-	public struct DBQueryRecord
-	{
-		public DBQueryRecord(uint recordId)
-		{
-			RecordID = recordId;
-		}
+    public struct DBQueryRecord
+    {
+        public DBQueryRecord(uint recordId)
+        {
+            RecordID = recordId;
+        }
 
-		public uint RecordID;
-	}
+        public uint RecordID;
+    }
 }

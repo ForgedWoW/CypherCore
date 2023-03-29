@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Azerite;
 
 internal class AzeriteEssenceUnlockMilestone : ClientPacket
 {
-	public int AzeriteItemMilestonePowerID;
-	public AzeriteEssenceUnlockMilestone(WorldPacket packet) : base(packet) { }
+    public int AzeriteItemMilestonePowerID;
+    public AzeriteEssenceUnlockMilestone(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		AzeriteItemMilestonePowerID = _worldPacket.ReadInt32();
-	}
+    public override void Read()
+    {
+        AzeriteItemMilestonePowerID = _worldPacket.ReadInt32();
+    }
 }

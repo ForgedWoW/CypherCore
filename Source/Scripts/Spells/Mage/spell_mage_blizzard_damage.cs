@@ -12,16 +12,16 @@ namespace Scripts.Spells.Mage;
 [Script] // 190357 - Blizzard (Damage)
 internal class spell_mage_blizzard_damage : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleSlow, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleSlow, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleSlow(int effIndex)
-	{
-		Caster.CastSpell(HitUnit, MageSpells.BlizzardSlow, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
-	}
+    private void HandleSlow(int effIndex)
+    {
+        Caster.CastSpell(HitUnit, MageSpells.BlizzardSlow, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+    }
 }

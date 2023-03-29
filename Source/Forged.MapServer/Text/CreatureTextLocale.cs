@@ -8,5 +8,5 @@ namespace Forged.MapServer.Text;
 
 public class CreatureTextLocale
 {
-	public StringArray Text = new((int)Locale.Total);
+    public StringArray Text = new((int)Locale.Total);
 }

@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellDelayed : ServerPacket
 {
-	public ObjectGuid Caster;
-	public int ActualDelay;
-	public SpellDelayed() : base(ServerOpcodes.SpellDelayed, ConnectionType.Instance) { }
+    public ObjectGuid Caster;
+    public int ActualDelay;
+    public SpellDelayed() : base(ServerOpcodes.SpellDelayed, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Caster);
-		_worldPacket.WriteInt32(ActualDelay);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Caster);
+        _worldPacket.WriteInt32(ActualDelay);
+    }
 }

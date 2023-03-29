@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum PetTalk
 {
-	SpecialSpell = 0,
-	Attack = 1
+    SpecialSpell = 0,
+    Attack = 1
 }

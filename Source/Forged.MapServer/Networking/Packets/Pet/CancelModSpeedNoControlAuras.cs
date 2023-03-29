@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class CancelModSpeedNoControlAuras : ClientPacket
 {
-	public ObjectGuid TargetGUID;
+    public ObjectGuid TargetGUID;
 
-	public CancelModSpeedNoControlAuras(WorldPacket packet) : base(packet) { }
+    public CancelModSpeedNoControlAuras(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		TargetGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        TargetGUID = _worldPacket.ReadPackedGuid();
+    }
 }

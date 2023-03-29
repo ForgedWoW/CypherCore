@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum BuyBankSlotResult
 {
-	FailedTooMany = 0,
-	InsufficientFunds = 1,
-	NotBanker = 2,
-	OK = 3
+    FailedTooMany = 0,
+    InsufficientFunds = 1,
+    NotBanker = 2,
+    OK = 3
 }

@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class ItemPurchaseRefund : ClientPacket
 {
-	public ObjectGuid ItemGUID;
-	public ItemPurchaseRefund(WorldPacket packet) : base(packet) { }
+    public ObjectGuid ItemGUID;
+    public ItemPurchaseRefund(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ItemGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        ItemGUID = _worldPacket.ReadPackedGuid();
+    }
 }

@@ -10,102 +10,102 @@ namespace Forged.MapServer.Networking.Packets.Inspect;
 
 public class InspectItemData
 {
-	public ObjectGuid CreatorGUID;
-	public ItemInstance Item;
-	public byte Index;
-	public bool Usable;
-	public List<InspectEnchantData> Enchants = new();
-	public List<ItemGemData> Gems = new();
-	public List<int> AzeritePowers = new();
-	public List<AzeriteEssenceData> AzeriteEssences = new();
+    public ObjectGuid CreatorGUID;
+    public ItemInstance Item;
+    public byte Index;
+    public bool Usable;
+    public List<InspectEnchantData> Enchants = new();
+    public List<ItemGemData> Gems = new();
+    public List<int> AzeritePowers = new();
+    public List<AzeriteEssenceData> AzeriteEssences = new();
 
-	public InspectItemData(Entities.Items.Item item, byte index)
-	{
-		CreatorGUID = item.Creator;
+    public InspectItemData(Entities.Items.Item item, byte index)
+    {
+        CreatorGUID = item.Creator;
 
-		Item = new ItemInstance(item);
-		Index = index;
-		Usable = true; // @todo
+        Item = new ItemInstance(item);
+        Index = index;
+        Usable = true; // @todo
 
-		for (EnchantmentSlot enchant = 0; enchant < EnchantmentSlot.Max; ++enchant)
-		{
-			var enchId = item.GetEnchantmentId(enchant);
+        for (EnchantmentSlot enchant = 0; enchant < EnchantmentSlot.Max; ++enchant)
+        {
+            var enchId = item.GetEnchantmentId(enchant);
 
-			if (enchId != 0)
-				Enchants.Add(new InspectEnchantData(enchId, (byte)enchant));
-		}
+            if (enchId != 0)
+                Enchants.Add(new InspectEnchantData(enchId, (byte)enchant));
+        }
 
-		byte i = 0;
+        byte i = 0;
 
-		foreach (var gemData in item.ItemData.Gems)
-		{
-			if (gemData.ItemId != 0)
-			{
-				ItemGemData gem = new()
-				{
-					Slot = i,
-					Item = new ItemInstance(gemData)
-				};
+        foreach (var gemData in item.ItemData.Gems)
+        {
+            if (gemData.ItemId != 0)
+            {
+                ItemGemData gem = new()
+                {
+                    Slot = i,
+                    Item = new ItemInstance(gemData)
+                };
 
-				Gems.Add(gem);
-			}
+                Gems.Add(gem);
+            }
 
-			++i;
-		}
+            ++i;
+        }
 
-		var azeriteItem = item.AsAzeriteItem;
+        var azeriteItem = item.AsAzeriteItem;
 
-		if (azeriteItem != null)
-		{
-			var essences = azeriteItem.GetSelectedAzeriteEssences();
+        if (azeriteItem != null)
+        {
+            var essences = azeriteItem.GetSelectedAzeriteEssences();
 
-			if (essences != null)
-				for (byte slot = 0; slot < essences.AzeriteEssenceID.GetSize(); ++slot)
-				{
-					AzeriteEssenceData essence = new()
-					{
-						Index = slot,
-						AzeriteEssenceID = essences.AzeriteEssenceID[slot]
-					};
+            if (essences != null)
+                for (byte slot = 0; slot < essences.AzeriteEssenceID.GetSize(); ++slot)
+                {
+                    AzeriteEssenceData essence = new()
+                    {
+                        Index = slot,
+                        AzeriteEssenceID = essences.AzeriteEssenceID[slot]
+                    };
 
-					if (essence.AzeriteEssenceID != 0)
-					{
-						essence.Rank = azeriteItem.GetEssenceRank(essence.AzeriteEssenceID);
-						essence.SlotUnlocked = true;
-					}
-					else
-					{
-						essence.SlotUnlocked = azeriteItem.HasUnlockedEssenceSlot(slot);
-					}
+                    if (essence.AzeriteEssenceID != 0)
+                    {
+                        essence.Rank = azeriteItem.GetEssenceRank(essence.AzeriteEssenceID);
+                        essence.SlotUnlocked = true;
+                    }
+                    else
+                    {
+                        essence.SlotUnlocked = azeriteItem.HasUnlockedEssenceSlot(slot);
+                    }
 
-					AzeriteEssences.Add(essence);
-				}
-		}
-	}
+                    AzeriteEssences.Add(essence);
+                }
+        }
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WritePackedGuid(CreatorGUID);
-		data.WriteUInt8(Index);
-		data.WriteInt32(AzeritePowers.Count);
-		data.WriteInt32(AzeriteEssences.Count);
+    public void Write(WorldPacket data)
+    {
+        data.WritePackedGuid(CreatorGUID);
+        data.WriteUInt8(Index);
+        data.WriteInt32(AzeritePowers.Count);
+        data.WriteInt32(AzeriteEssences.Count);
 
-		foreach (var id in AzeritePowers)
-			data.WriteInt32(id);
+        foreach (var id in AzeritePowers)
+            data.WriteInt32(id);
 
-		Item.Write(data);
-		data.WriteBit(Usable);
-		data.WriteBits(Enchants.Count, 4);
-		data.WriteBits(Gems.Count, 2);
-		data.FlushBits();
+        Item.Write(data);
+        data.WriteBit(Usable);
+        data.WriteBits(Enchants.Count, 4);
+        data.WriteBits(Gems.Count, 2);
+        data.FlushBits();
 
-		foreach (var azeriteEssenceData in AzeriteEssences)
-			azeriteEssenceData.Write(data);
+        foreach (var azeriteEssenceData in AzeriteEssences)
+            azeriteEssenceData.Write(data);
 
-		foreach (var enchantData in Enchants)
-			enchantData.Write(data);
+        foreach (var enchantData in Enchants)
+            enchantData.Write(data);
 
-		foreach (var gem in Gems)
-			gem.Write(data);
-	}
+        foreach (var gem in Gems)
+            gem.Write(data);
+    }
 }

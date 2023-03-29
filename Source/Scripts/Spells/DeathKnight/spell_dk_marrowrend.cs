@@ -9,17 +9,17 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(195182)]
 public class spell_dk_marrowrend : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			caster.CastSpell(null, DeathKnightSpells.BONE_SHIELD, true);
-			var boneShield = caster.GetAura(DeathKnightSpells.BONE_SHIELD);
+        if (caster != null)
+        {
+            caster.CastSpell(null, DeathKnightSpells.BONE_SHIELD, true);
+            var boneShield = caster.GetAura(DeathKnightSpells.BONE_SHIELD);
 
-			if (boneShield != null)
-				boneShield.SetStackAmount(3);
-		}
-	}
+            if (boneShield != null)
+                boneShield.SetStackAmount(3);
+        }
+    }
 }

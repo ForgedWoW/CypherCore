@@ -7,13 +7,13 @@ namespace Forged.MapServer.Battlepay;
 
 public class Purchase
 {
-	public ObjectGuid TargetCharacter = new();
-	public ulong DistributionId;
-	public ulong PurchaseID;
-	public ulong CurrentPrice;
-	public uint ClientToken;
-	public uint ServerToken;
-	public uint ProductID;
-	public ushort Status;
-	public bool Lock;
+    public ObjectGuid TargetCharacter = new();
+    public ulong DistributionId;
+    public ulong PurchaseID;
+    public ulong CurrentPrice;
+    public uint ClientToken;
+    public uint ServerToken;
+    public uint ProductID;
+    public ushort Status;
+    public bool Lock;
 }

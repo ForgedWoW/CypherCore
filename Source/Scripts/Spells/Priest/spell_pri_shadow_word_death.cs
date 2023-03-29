@@ -11,23 +11,23 @@ namespace Scripts.Spells.Priest;
 [SpellScript(32379)]
 public class spell_pri_shadow_word_death : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDamage(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleDamage(int effIndex)
+    {
+        var target = HitUnit;
 
-		if (target != null)
-		{
-			if (target.Health < HitDamage)
-				Caster.CastSpell(Caster, PriestSpells.SHADOW_WORD_DEATH_ENERGIZE_KILL, true);
-			else
-				Caster.ModifyPower(PowerType.Insanity, SpellInfo.GetEffect(2).BasePoints);
-		}
-	}
+        if (target != null)
+        {
+            if (target.Health < HitDamage)
+                Caster.CastSpell(Caster, PriestSpells.SHADOW_WORD_DEATH_ENERGIZE_KILL, true);
+            else
+                Caster.ModifyPower(PowerType.Insanity, SpellInfo.GetEffect(2).BasePoints);
+        }
+    }
 }

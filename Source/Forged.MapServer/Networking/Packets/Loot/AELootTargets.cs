@@ -9,13 +9,13 @@ internal class AELootTargets : ServerPacket
 {
     private readonly uint Count;
 
-	public AELootTargets(uint count) : base(ServerOpcodes.AeLootTargets, ConnectionType.Instance)
-	{
-		Count = count;
-	}
+    public AELootTargets(uint count) : base(ServerOpcodes.AeLootTargets, ConnectionType.Instance)
+    {
+        Count = count;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(Count);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(Count);
+    }
 }

@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonPurchaseBuilding : ClientPacket
 {
-	public ObjectGuid NpcGUID;
-	public uint BuildingID;
-	public uint PlotInstanceID;
-	public GarrisonPurchaseBuilding(WorldPacket packet) : base(packet) { }
+    public ObjectGuid NpcGUID;
+    public uint BuildingID;
+    public uint PlotInstanceID;
+    public GarrisonPurchaseBuilding(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		NpcGUID = _worldPacket.ReadPackedGuid();
-		PlotInstanceID = _worldPacket.ReadUInt32();
-		BuildingID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        NpcGUID = _worldPacket.ReadPackedGuid();
+        PlotInstanceID = _worldPacket.ReadUInt32();
+        BuildingID = _worldPacket.ReadUInt32();
+    }
 }

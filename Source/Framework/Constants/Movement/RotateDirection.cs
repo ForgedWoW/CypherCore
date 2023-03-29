@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum RotateDirection
 {
-	Left,
-	Right
+    Left,
+    Right
 }

@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class SetPlayerDeclinedNamesResult : ServerPacket
 {
-	public ObjectGuid Player;
-	public DeclinedNameResult ResultCode;
-	public SetPlayerDeclinedNamesResult() : base(ServerOpcodes.SetPlayerDeclinedNamesResult) { }
+    public ObjectGuid Player;
+    public DeclinedNameResult ResultCode;
+    public SetPlayerDeclinedNamesResult() : base(ServerOpcodes.SetPlayerDeclinedNamesResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32((int)ResultCode);
-		_worldPacket.WritePackedGuid(Player);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32((int)ResultCode);
+        _worldPacket.WritePackedGuid(Player);
+    }
 }

@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventLogQuery : ClientPacket
 {
-	public GuildEventLogQuery(WorldPacket packet) : base(packet) { }
+    public GuildEventLogQuery(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

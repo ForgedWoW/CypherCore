@@ -12,43 +12,43 @@ namespace Scripts.Spells.DeathKnight;
 [Script]
 public class spell_dk_runic_empowerment : ScriptObjectAutoAdd, IPlayerOnModifyPower
 {
-	public PlayerClass PlayerClass { get; } = PlayerClass.Deathknight;
+    public PlayerClass PlayerClass { get; } = PlayerClass.Deathknight;
 
-	public spell_dk_runic_empowerment() : base("spell_dk_runic_empowerment") { }
+    public spell_dk_runic_empowerment() : base("spell_dk_runic_empowerment") { }
 
-	public void OnModifyPower(Player p_Player, PowerType p_Power, int p_OldValue, ref int p_NewValue, bool p_Regen)
-	{
-		if (p_Player.Class != PlayerClass.Deathknight || p_Power != PowerType.RunicPower || p_Regen || p_NewValue > p_OldValue)
-			return;
+    public void OnModifyPower(Player p_Player, PowerType p_Power, int p_OldValue, ref int p_NewValue, bool p_Regen)
+    {
+        if (p_Player.Class != PlayerClass.Deathknight || p_Power != PowerType.RunicPower || p_Regen || p_NewValue > p_OldValue)
+            return;
 
-		var l_RunicEmpowerment = p_Player.GetAuraEffect(eSpells.RunicEmpowerment, 0);
+        var l_RunicEmpowerment = p_Player.GetAuraEffect(eSpells.RunicEmpowerment, 0);
 
-		if (l_RunicEmpowerment != null)
-		{
-			/// 1.00% chance per Runic Power spent
-			var l_Chance = (l_RunicEmpowerment.Amount / 100.0f);
+        if (l_RunicEmpowerment != null)
+        {
+            /// 1.00% chance per Runic Power spent
+            var l_Chance = (l_RunicEmpowerment.Amount / 100.0f);
 
-			if (RandomHelper.randChance(l_Chance))
-			{
-				var l_LstRunesUsed = new List<byte>();
+            if (RandomHelper.randChance(l_Chance))
+            {
+                var l_LstRunesUsed = new List<byte>();
 
-				for (byte i = 0; i < PlayerConst.MaxRunes; ++i)
-					if (p_Player.GetRuneCooldown(i) != 0)
-						l_LstRunesUsed.Add(i);
+                for (byte i = 0; i < PlayerConst.MaxRunes; ++i)
+                    if (p_Player.GetRuneCooldown(i) != 0)
+                        l_LstRunesUsed.Add(i);
 
-				if (l_LstRunesUsed.Count == 0)
-					return;
+                if (l_LstRunesUsed.Count == 0)
+                    return;
 
-				var l_RuneRandom = l_LstRunesUsed.SelectRandom();
+                var l_RuneRandom = l_LstRunesUsed.SelectRandom();
 
-				p_Player.SetRuneCooldown(l_RuneRandom, 0);
-				p_Player.ResyncRunes();
-			}
-		}
-	}
+                p_Player.SetRuneCooldown(l_RuneRandom, 0);
+                p_Player.ResyncRunes();
+            }
+        }
+    }
 
-	public struct eSpells
-	{
-		public const uint RunicEmpowerment = 81229;
-	}
+    public struct eSpells
+    {
+        public const uint RunicEmpowerment = 81229;
+    }
 }

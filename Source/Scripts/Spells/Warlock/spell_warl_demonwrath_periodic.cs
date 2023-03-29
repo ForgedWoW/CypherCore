@@ -13,23 +13,23 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(193440)]
 public class spell_warl_demonwrath_periodic : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 1, AuraType.PeriodicTriggerSpell));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 1, AuraType.PeriodicTriggerSpell));
+    }
 
-	private void HandlePeriodic(AuraEffect UnnamedParameter)
-	{
-		var caster = Caster;
+    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var rollChance = SpellInfo.GetEffect(2).BasePoints;
+        var rollChance = SpellInfo.GetEffect(2).BasePoints;
 
-		if (RandomHelper.randChance(rollChance))
-			caster.CastSpell(caster, WarlockSpells.DEMONWRATH_SOULSHARD, true);
-	}
+        if (RandomHelper.randChance(rollChance))
+            caster.CastSpell(caster, WarlockSpells.DEMONWRATH_SOULSHARD, true);
+    }
 }

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAreaTrigger;
-using System.Collections.Generic;
 
 namespace Scripts.Spells.Evoker;
 
@@ -12,11 +12,11 @@ namespace Scripts.Spells.Evoker;
 public class at_evoker_fluttering_seedling : AreaTriggerScript, IAreaTriggerOnRemove
 {
     public void OnRemove()
-	{
-		var caster = At.GetCaster();
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
         if (!caster.TryGetAura(EvokerSpells.FLUTTERING_SEEDLINGS, out var fsAura))
             return;

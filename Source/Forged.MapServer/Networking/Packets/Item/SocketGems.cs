@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class SocketGems : ClientPacket
 {
-	public ObjectGuid ItemGuid;
-	public ObjectGuid[] GemItem = new ObjectGuid[ItemConst.MaxGemSockets];
-	public SocketGems(WorldPacket packet) : base(packet) { }
+    public ObjectGuid ItemGuid;
+    public ObjectGuid[] GemItem = new ObjectGuid[ItemConst.MaxGemSockets];
+    public SocketGems(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ItemGuid = _worldPacket.ReadPackedGuid();
+    public override void Read()
+    {
+        ItemGuid = _worldPacket.ReadPackedGuid();
 
-		for (var i = 0; i < ItemConst.MaxGemSockets; ++i)
-			GemItem[i] = _worldPacket.ReadPackedGuid();
-	}
+        for (var i = 0; i < ItemConst.MaxGemSockets; ++i)
+            GemItem[i] = _worldPacket.ReadPackedGuid();
+    }
 }

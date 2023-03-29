@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Vehicle;
 
 public class OnCancelExpectedRideVehicleAura : ServerPacket
 {
-	public OnCancelExpectedRideVehicleAura() : base(ServerOpcodes.OnCancelExpectedRideVehicleAura, ConnectionType.Instance) { }
+    public OnCancelExpectedRideVehicleAura() : base(ServerOpcodes.OnCancelExpectedRideVehicleAura, ConnectionType.Instance) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

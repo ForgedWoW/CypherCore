@@ -10,29 +10,29 @@ public class GroupReference : Reference<PlayerGroup, Player>
 {
     private byte _iSubGroup;
 
-	public byte SubGroup
-	{
-		get => _iSubGroup;
-		set => _iSubGroup = value;
-	}
+    public byte SubGroup
+    {
+        get => _iSubGroup;
+        set => _iSubGroup = value;
+    }
 
-	public GroupReference()
-	{
-		_iSubGroup = 0;
-	}
+    public GroupReference()
+    {
+        _iSubGroup = 0;
+    }
 
-	public override void TargetObjectBuildLink()
-	{
-		Target.LinkMember(this);
-	}
+    public override void TargetObjectBuildLink()
+    {
+        Target.LinkMember(this);
+    }
 
-	public new GroupReference Next()
-	{
-		return (GroupReference)base.Next();
-	}
+    public new GroupReference Next()
+    {
+        return (GroupReference)base.Next();
+    }
 
-	~GroupReference()
-	{
-		Unlink();
-	}
+    ~GroupReference()
+    {
+        Unlink();
+    }
 }

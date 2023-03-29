@@ -11,18 +11,18 @@ namespace Scripts.Spells.Quest;
 [Script] // 50546 - The Focus on the Beach: Ley Line Focus Control Ring Effect
 internal class spell_q12066_bunny_kill_credit : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var target = HitCreature;
+    private void HandleDummy(int effIndex)
+    {
+        var target = HitCreature;
 
-		if (target)
-			target.CastSpell(Caster, QuestSpellIds.BunnyCreditBeam, false);
-	}
+        if (target)
+            target.CastSpell(Caster, QuestSpellIds.BunnyCreditBeam, false);
+    }
 }

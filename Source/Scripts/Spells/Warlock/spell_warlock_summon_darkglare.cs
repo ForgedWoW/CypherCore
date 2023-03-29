@@ -12,28 +12,28 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(205180)]
 public class spell_warlock_summon_darkglare : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleOnHitTarget(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleOnHitTarget(int effIndex)
+    {
+        var target = HitUnit;
 
-		if (target != null)
-		{
-			var effectList = target.GetAuraEffectsByType(AuraType.PeriodicDamage);
+        if (target != null)
+        {
+            var effectList = target.GetAuraEffectsByType(AuraType.PeriodicDamage);
 
-			foreach (var effect in effectList)
-			{
-				var aura = effect.Base;
+            foreach (var effect in effectList)
+            {
+                var aura = effect.Base;
 
-				if (aura != null)
-					aura.ModDuration(8 * Time.InMilliseconds);
-			}
-		}
-	}
+                if (aura != null)
+                    aura.ModDuration(8 * Time.InMilliseconds);
+            }
+        }
+    }
 }

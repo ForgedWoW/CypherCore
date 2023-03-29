@@ -13,16 +13,16 @@ namespace Scripts.Spells.Warrior;
 [Script]
 internal class spell_warr_intimidating_shout : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 1, Targets.UnitSrcAreaEnemy));
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 2, Targets.UnitSrcAreaEnemy));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 1, Targets.UnitSrcAreaEnemy));
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 2, Targets.UnitSrcAreaEnemy));
+    }
 
-	private void FilterTargets(List<WorldObject> unitList)
-	{
-		unitList.Remove(ExplTargetWorldObject);
-	}
+    private void FilterTargets(List<WorldObject> unitList)
+    {
+        unitList.Remove(ExplTargetWorldObject);
+    }
 }

@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum SceneType
 {
-	Normal = 0,
-	PetBattle = 1
+    Normal = 0,
+    PetBattle = 1
 }

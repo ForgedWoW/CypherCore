@@ -12,16 +12,16 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(343294)]
 public class spell_dk_soul_reaper : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDamage));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDamage));
+    }
 
-	private void HandlePeriodic(AuraEffect UnnamedParameter)
-	{
-		if (Caster && Target && Target.IsDead)
-			Caster.CastSpell(DeathKnightSpells.SOUL_REAPER_MOD_HASTE, true);
-	}
+    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    {
+        if (Caster && Target && Target.IsDead)
+            Caster.CastSpell(DeathKnightSpells.SOUL_REAPER_MOD_HASTE, true);
+    }
 }

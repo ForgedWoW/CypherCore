@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IGuild;
 
 public interface IGuildOnMemberDepositMoney : IScriptObject
 {
-	void OnMemberDepositMoney(Guild guild, Player player, ulong amount);
+    void OnMemberDepositMoney(Guild guild, Player player, ulong amount);
 }

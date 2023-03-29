@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Vehicle;
 
 public class EjectPassenger : ClientPacket
 {
-	public ObjectGuid Passenger;
-	public EjectPassenger(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Passenger;
+    public EjectPassenger(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Passenger = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Passenger = _worldPacket.ReadPackedGuid();
+    }
 }

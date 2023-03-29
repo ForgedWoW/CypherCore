@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class GameObjectCloseInteraction : ServerPacket
 {
-	public PlayerInteractionType InteractionType;
+    public PlayerInteractionType InteractionType;
 
-	public GameObjectCloseInteraction() : base(ServerOpcodes.GameObjectCloseInteraction) { }
+    public GameObjectCloseInteraction() : base(ServerOpcodes.GameObjectCloseInteraction) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32((int)InteractionType);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32((int)InteractionType);
+    }
 }

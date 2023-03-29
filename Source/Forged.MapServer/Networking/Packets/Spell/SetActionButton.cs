@@ -5,23 +5,23 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SetActionButton : ClientPacket
 {
-	public ulong Action; // two packed values (action and type)
-	public byte Index;
-	public SetActionButton(WorldPacket packet) : base(packet) { }
+    public ulong Action; // two packed values (action and type)
+    public byte Index;
+    public SetActionButton(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Action = _worldPacket.ReadUInt64();
-		Index = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        Action = _worldPacket.ReadUInt64();
+        Index = _worldPacket.ReadUInt8();
+    }
 
-	public uint GetButtonAction()
-	{
-		return (uint)(Action & 0x00FFFFFFFFFFFFFF);
-	}
+    public uint GetButtonAction()
+    {
+        return (uint)(Action & 0x00FFFFFFFFFFFFFF);
+    }
 
-	public uint GetButtonType()
-	{
-		return (uint)((Action & 0xFF00000000000000) >> 56);
-	}
+    public uint GetButtonType()
+    {
+        return (uint)((Action & 0xFF00000000000000) >> 56);
+    }
 }

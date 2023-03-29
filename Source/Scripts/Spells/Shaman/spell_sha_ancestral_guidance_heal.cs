@@ -13,16 +13,16 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(114911)]
 internal class spell_sha_ancestral_guidance_heal : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(ResizeTargets, 0, Targets.UnitDestAreaAlly));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(ResizeTargets, 0, Targets.UnitDestAreaAlly));
+    }
 
-	private void ResizeTargets(List<WorldObject> targets)
-	{
-		SelectRandomInjuredTargets(targets, 3, true);
-	}
+    private void ResizeTargets(List<WorldObject> targets)
+    {
+        SelectRandomInjuredTargets(targets, 3, true);
+    }
 }

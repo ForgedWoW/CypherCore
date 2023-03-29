@@ -14,38 +14,38 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(185314)]
 public class spell_rog_deepening_shadows_AuraScript : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	private int _cp;
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    private int _cp;
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var caster = Caster;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var maxcp = caster.HasAura(RogueSpells.DEEPER_STRATAGEM) ? 6 : 5;
-			_cp = Math.Min(caster.GetPower(PowerType.ComboPoints) + 1, maxcp);
-		}
+        if (caster != null)
+        {
+            var maxcp = caster.HasAura(RogueSpells.DEEPER_STRATAGEM) ? 6 : 5;
+            _cp = Math.Min(caster.GetPower(PowerType.ComboPoints) + 1, maxcp);
+        }
 
-		if (eventInfo.SpellInfo.Id == 196819)
-			return true;
+        if (eventInfo.SpellInfo.Id == 196819)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (Caster.HasAura(RogueSpells.DEEPENING_SHADOWS))
-			Caster.SpellHistory.ModifyCooldown(RogueSpells.SHADOW_DANCE, TimeSpan.FromMilliseconds(_cp * -3000));
-	}
+        if (Caster.HasAura(RogueSpells.DEEPENING_SHADOWS))
+            Caster.SpellHistory.ModifyCooldown(RogueSpells.SHADOW_DANCE, TimeSpan.FromMilliseconds(_cp * -3000));
+    }
 }

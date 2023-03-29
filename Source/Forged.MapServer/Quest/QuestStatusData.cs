@@ -7,8 +7,8 @@ namespace Forged.MapServer.Quest;
 
 public class QuestStatusData
 {
-	public ushort Slot = SharedConst.MaxQuestLogSize;
-	public QuestStatus Status;
-	public uint Timer;
-	public bool Explored;
+    public ushort Slot = SharedConst.MaxQuestLogSize;
+    public QuestStatus Status;
+    public uint Timer;
+    public bool Explored;
 }

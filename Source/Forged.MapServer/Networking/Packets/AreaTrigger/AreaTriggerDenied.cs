@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.AreaTrigger;
 
 internal class AreaTriggerDenied : ServerPacket
 {
-	public int AreaTriggerID;
-	public bool Entered;
-	public AreaTriggerDenied() : base(ServerOpcodes.AreaTriggerDenied) { }
+    public int AreaTriggerID;
+    public bool Entered;
+    public AreaTriggerDenied() : base(ServerOpcodes.AreaTriggerDenied) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(AreaTriggerID);
-		_worldPacket.WriteBit(Entered);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(AreaTriggerID);
+        _worldPacket.WriteBit(Entered);
+        _worldPacket.FlushBits();
+    }
 }

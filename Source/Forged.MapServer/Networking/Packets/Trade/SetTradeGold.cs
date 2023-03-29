@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Trade;
 
 public class SetTradeGold : ClientPacket
 {
-	public ulong Coinage;
-	public SetTradeGold(WorldPacket packet) : base(packet) { }
+    public ulong Coinage;
+    public SetTradeGold(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Coinage = _worldPacket.ReadUInt64();
-	}
+    public override void Read()
+    {
+        Coinage = _worldPacket.ReadUInt64();
+    }
 }

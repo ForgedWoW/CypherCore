@@ -14,30 +14,30 @@ namespace Scripts.Spells.Items;
 [Script("spell_item_gnomish_army_knife", 67u, 0u)]
 internal class spell_item_defibrillate : SpellScript, IHasSpellEffects
 {
-	private readonly uint _chance;
-	private readonly uint _failSpell;
+    private readonly uint _chance;
+    private readonly uint _failSpell;
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public spell_item_defibrillate(uint chance, uint failSpell)
-	{
-		_chance = chance;
-		_failSpell = failSpell;
-	}
+    public spell_item_defibrillate(uint chance, uint failSpell)
+    {
+        _chance = chance;
+        _failSpell = failSpell;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.Resurrect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.Resurrect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		if (RandomHelper.randChance(_chance))
-		{
-			PreventHitDefaultEffect(effIndex);
+    private void HandleScript(int effIndex)
+    {
+        if (RandomHelper.randChance(_chance))
+        {
+            PreventHitDefaultEffect(effIndex);
 
-			if (_failSpell != 0)
-				Caster.CastSpell(Caster, _failSpell, new CastSpellExtraArgs(CastItem));
-		}
-	}
+            if (_failSpell != 0)
+                Caster.CastSpell(Caster, _failSpell, new CastSpellExtraArgs(CastItem));
+        }
+    }
 }

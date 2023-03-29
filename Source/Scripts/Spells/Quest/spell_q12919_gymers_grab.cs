@@ -12,22 +12,22 @@ namespace Scripts.Spells.Quest;
 [Script] // 55516 - Gymer's Grab
 internal class spell_q12919_gymers_grab : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		if (!HitCreature)
-			return;
+    private void HandleScript(int effIndex)
+    {
+        if (!HitCreature)
+            return;
 
-		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-		args.AddSpellMod(SpellValueMod.BasePoint0, 2);
-		HitCreature.CastSpell(Caster, QuestSpellIds.RideGymer, args);
-		HitCreature.CastSpell(HitCreature, QuestSpellIds.Grabbed, true);
-	}
+        CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+        args.AddSpellMod(SpellValueMod.BasePoint0, 2);
+        HitCreature.CastSpell(Caster, QuestSpellIds.RideGymer, args);
+        HitCreature.CastSpell(HitCreature, QuestSpellIds.Grabbed, true);
+    }
 }

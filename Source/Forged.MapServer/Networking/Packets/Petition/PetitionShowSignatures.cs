@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class PetitionShowSignatures : ClientPacket
 {
-	public ObjectGuid Item;
-	public PetitionShowSignatures(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Item;
+    public PetitionShowSignatures(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Item = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Item = _worldPacket.ReadPackedGuid();
+    }
 }

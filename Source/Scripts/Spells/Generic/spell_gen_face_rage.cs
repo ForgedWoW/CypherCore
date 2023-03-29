@@ -12,16 +12,16 @@ namespace Scripts.Spells.Generic;
 [Script] // 99947 - Face Rage
 internal class spell_gen_face_rage : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ModStun, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ModStun, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void OnRemove(AuraEffect effect, AuraEffectHandleModes mode)
-	{
-		Target.RemoveAura(GetEffectInfo(2).TriggerSpell);
-	}
+    private void OnRemove(AuraEffect effect, AuraEffectHandleModes mode)
+    {
+        Target.RemoveAura(GetEffectInfo(2).TriggerSpell);
+    }
 }

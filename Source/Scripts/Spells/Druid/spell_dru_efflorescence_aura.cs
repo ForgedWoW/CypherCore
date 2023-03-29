@@ -12,25 +12,25 @@ namespace Scripts.Spells.Druid;
 [SpellScript(81262)]
 public class spell_dru_efflorescence_aura : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleHeal, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleHeal, 0, AuraType.PeriodicDummy));
+    }
 
-	private void HandleHeal(AuraEffect UnnamedParameter)
-	{
-		if (Caster && Caster.OwnerUnit)
-		{
-			Caster.OwnerUnit.CastSpell(Caster.Location, EfflorescenceSpells.EFFLORESCENCE_HEAL);
+    private void HandleHeal(AuraEffect UnnamedParameter)
+    {
+        if (Caster && Caster.OwnerUnit)
+        {
+            Caster.OwnerUnit.CastSpell(Caster.Location, EfflorescenceSpells.EFFLORESCENCE_HEAL);
 
-			var playerList = Caster.GetPlayerListInGrid(11.2f);
+            var playerList = Caster.GetPlayerListInGrid(11.2f);
 
-			foreach (var targets in playerList)
-				if (Caster.OwnerUnit.HasAura(DruidSpells.SPRING_BLOSSOMS))
-					if (!targets.HasAura(DruidSpells.SPRING_BLOSSOMS_HEAL))
-						Caster.OwnerUnit.CastSpell(targets, DruidSpells.SPRING_BLOSSOMS_HEAL, true);
-		}
-	}
+            foreach (var targets in playerList)
+                if (Caster.OwnerUnit.HasAura(DruidSpells.SPRING_BLOSSOMS))
+                    if (!targets.HasAura(DruidSpells.SPRING_BLOSSOMS_HEAL))
+                        Caster.OwnerUnit.CastSpell(targets, DruidSpells.SPRING_BLOSSOMS_HEAL, true);
+        }
+    }
 }

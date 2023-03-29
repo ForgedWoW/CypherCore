@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public class CancelAutoRepeat : ServerPacket
 {
-	public ObjectGuid Guid;
-	public CancelAutoRepeat() : base(ServerOpcodes.CancelAutoRepeat) { }
+    public ObjectGuid Guid;
+    public CancelAutoRepeat() : base(ServerOpcodes.CancelAutoRepeat) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Guid);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Guid);
+    }
 }

@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class SpellClick : ClientPacket
 {
-	public ObjectGuid SpellClickUnitGuid;
-	public bool TryAutoDismount;
-	public bool IsSoftInteract;
-	public SpellClick(WorldPacket packet) : base(packet) { }
+    public ObjectGuid SpellClickUnitGuid;
+    public bool TryAutoDismount;
+    public bool IsSoftInteract;
+    public SpellClick(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		SpellClickUnitGuid = _worldPacket.ReadPackedGuid();
-		TryAutoDismount = _worldPacket.HasBit();
-		IsSoftInteract = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        SpellClickUnitGuid = _worldPacket.ReadPackedGuid();
+        TryAutoDismount = _worldPacket.HasBit();
+        IsSoftInteract = _worldPacket.HasBit();
+    }
 }

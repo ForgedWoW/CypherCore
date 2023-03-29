@@ -7,5 +7,5 @@ namespace Forged.MapServer.Collision.Models;
 
 public class StaticModelList
 {
-	public static readonly Dictionary<uint, GameobjectModelData> Models = new();
+    public static readonly Dictionary<uint, GameobjectModelData> Models = new();
 }

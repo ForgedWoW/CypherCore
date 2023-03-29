@@ -7,18 +7,18 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildSetMemberNote : ClientPacket
 {
-	public ObjectGuid NoteeGUID;
-	public bool IsPublic; // 0 == Officer, 1 == Public
-	public string Note;
-	public GuildSetMemberNote(WorldPacket packet) : base(packet) { }
+    public ObjectGuid NoteeGUID;
+    public bool IsPublic; // 0 == Officer, 1 == Public
+    public string Note;
+    public GuildSetMemberNote(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		NoteeGUID = _worldPacket.ReadPackedGuid();
+    public override void Read()
+    {
+        NoteeGUID = _worldPacket.ReadPackedGuid();
 
-		var noteLen = _worldPacket.ReadBits<uint>(8);
-		IsPublic = _worldPacket.HasBit();
+        var noteLen = _worldPacket.ReadBits<uint>(8);
+        IsPublic = _worldPacket.HasBit();
 
-		Note = _worldPacket.ReadString(noteLen);
-	}
+        Note = _worldPacket.ReadString(noteLen);
+    }
 }

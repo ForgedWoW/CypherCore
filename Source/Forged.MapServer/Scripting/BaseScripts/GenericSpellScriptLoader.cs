@@ -7,15 +7,15 @@ namespace Forged.MapServer.Scripting.BaseScripts;
 
 public class GenericSpellScriptLoader<S> : SpellScriptLoader where S : SpellScript
 {
-	private readonly object[] _args;
+    private readonly object[] _args;
 
-	public GenericSpellScriptLoader(string name, object[] args) : base(name)
-	{
-		_args = args;
-	}
+    public GenericSpellScriptLoader(string name, object[] args) : base(name)
+    {
+        _args = args;
+    }
 
-	public override SpellScript GetSpellScript()
-	{
-		return Activator.CreateInstance(typeof(S), _args) as S;
-	}
+    public override SpellScript GetSpellScript()
+    {
+        return Activator.CreateInstance(typeof(S), _args) as S;
+    }
 }

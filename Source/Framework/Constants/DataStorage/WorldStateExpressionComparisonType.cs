@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum WorldStateExpressionComparisonType
 {
-	None = 0,
-	Equal = 1,
-	NotEqual = 2,
-	Less = 3,
-	LessOrEqual = 4,
-	Greater = 5,
-	GreaterOrEqual = 6,
+    None = 0,
+    Equal = 1,
+    NotEqual = 2,
+    Less = 3,
+    LessOrEqual = 4,
+    Greater = 5,
+    GreaterOrEqual = 6,
 }

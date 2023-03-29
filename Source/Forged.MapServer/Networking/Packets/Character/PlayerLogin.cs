@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class PlayerLogin : ClientPacket
 {
-	public ObjectGuid Guid; // Guid of the player that is logging in
-	public float FarClip;   // Visibility distance (for terrain)
-	public PlayerLogin(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Guid; // Guid of the player that is logging in
+    public float FarClip;   // Visibility distance (for terrain)
+    public PlayerLogin(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Guid = _worldPacket.ReadPackedGuid();
-		FarClip = _worldPacket.ReadFloat();
-	}
+    public override void Read()
+    {
+        Guid = _worldPacket.ReadPackedGuid();
+        FarClip = _worldPacket.ReadFloat();
+    }
 }

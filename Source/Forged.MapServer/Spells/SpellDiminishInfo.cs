@@ -7,8 +7,8 @@ namespace Forged.MapServer.Spells;
 
 internal class SpellDiminishInfo
 {
-	public DiminishingGroup DiminishGroup = DiminishingGroup.None;
-	public DiminishingReturnsType DiminishReturnType = DiminishingReturnsType.None;
-	public DiminishingLevels DiminishMaxLevel = DiminishingLevels.Immune;
-	public int DiminishDurationLimit;
+    public DiminishingGroup DiminishGroup = DiminishingGroup.None;
+    public DiminishingReturnsType DiminishReturnType = DiminishingReturnsType.None;
+    public DiminishingLevels DiminishMaxLevel = DiminishingLevels.Immune;
+    public int DiminishDurationLimit;
 }

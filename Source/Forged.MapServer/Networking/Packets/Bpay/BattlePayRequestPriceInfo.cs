@@ -5,9 +5,9 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public sealed class BattlePayRequestPriceInfo : ClientPacket
 {
-	public byte UnkByte { get; set; } = 0;
+    public byte UnkByte { get; set; } = 0;
 
-	public BattlePayRequestPriceInfo(WorldPacket packet) : base(packet) { }
+    public BattlePayRequestPriceInfo(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

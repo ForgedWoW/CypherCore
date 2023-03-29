@@ -13,17 +13,17 @@ namespace Scripts.Spells.Items;
 [Script] // 23780 - Aegis of Preservation
 internal class spell_item_aegis_of_preservation : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.PeriodicTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.PeriodicTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		Target.CastSpell(Target, ItemSpellIds.AegisHeal, new CastSpellExtraArgs(aurEff));
-	}
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        Target.CastSpell(Target, ItemSpellIds.AegisHeal, new CastSpellExtraArgs(aurEff));
+    }
 }

@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAchievement;
 
 public interface IAchievementCriteriaOnCheck : IScriptObject
 {
-	bool OnCheck(Player source, Unit target);
+    bool OnCheck(Player source, Unit target);
 }

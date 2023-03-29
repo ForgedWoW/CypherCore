@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class LoadingScreenNotify : ClientPacket
 {
-	public int MapID = -1;
-	public bool Showing;
-	public LoadingScreenNotify(WorldPacket packet) : base(packet) { }
+    public int MapID = -1;
+    public bool Showing;
+    public LoadingScreenNotify(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		MapID = _worldPacket.ReadInt32();
-		Showing = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        MapID = _worldPacket.ReadInt32();
+        Showing = _worldPacket.HasBit();
+    }
 }

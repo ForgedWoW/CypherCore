@@ -8,18 +8,18 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class UnlearnedSpells : ServerPacket
 {
-	public List<uint> SpellID = new();
-	public bool SuppressMessaging;
-	public UnlearnedSpells() : base(ServerOpcodes.UnlearnedSpells, ConnectionType.Instance) { }
+    public List<uint> SpellID = new();
+    public bool SuppressMessaging;
+    public UnlearnedSpells() : base(ServerOpcodes.UnlearnedSpells, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(SpellID.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(SpellID.Count);
 
-		foreach (var spellId in SpellID)
-			_worldPacket.WriteUInt32(spellId);
+        foreach (var spellId in SpellID)
+            _worldPacket.WriteUInt32(spellId);
 
-		_worldPacket.WriteBit(SuppressMessaging);
-		_worldPacket.FlushBits();
-	}
+        _worldPacket.WriteBit(SuppressMessaging);
+        _worldPacket.FlushBits();
+    }
 }

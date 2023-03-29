@@ -5,10 +5,10 @@ namespace Forged.MapServer.Weather;
 
 public enum WeatherType
 {
-	Fine = 0,
-	Rain = 1,
-	Snow = 2,
-	Storm = 3,
-	Thunders = 86,
-	BlackRain = 90
+    Fine = 0,
+    Rain = 1,
+    Snow = 2,
+    Storm = 3,
+    Thunders = 86,
+    BlackRain = 90
 }

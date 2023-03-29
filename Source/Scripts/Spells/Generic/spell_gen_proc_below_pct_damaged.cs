@@ -15,19 +15,19 @@ namespace Scripts.Spells.Generic;
 [Script("spell_item_petrified_twilight_scale_heroic")]
 internal class spell_gen_proc_below_pct_damaged : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var damageInfo = eventInfo.DamageInfo;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var damageInfo = eventInfo.DamageInfo;
 
-		if (damageInfo == null ||
-			damageInfo.Damage == 0)
-			return false;
+        if (damageInfo == null ||
+            damageInfo.Damage == 0)
+            return false;
 
-		var pct = SpellInfo.GetEffect(0).CalcValue();
+        var pct = SpellInfo.GetEffect(0).CalcValue();
 
-		if (eventInfo.ActionTarget.HealthBelowPctDamaged(pct, damageInfo.Damage))
-			return true;
+        if (eventInfo.ActionTarget.HealthBelowPctDamaged(pct, damageInfo.Damage))
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

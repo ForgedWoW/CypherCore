@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class InitiateRolePoll : ClientPacket
 {
-	public sbyte PartyIndex;
-	public InitiateRolePoll(WorldPacket packet) : base(packet) { }
+    public sbyte PartyIndex;
+    public InitiateRolePoll(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PartyIndex = _worldPacket.ReadInt8();
-	}
+    public override void Read()
+    {
+        PartyIndex = _worldPacket.ReadInt8();
+    }
 }

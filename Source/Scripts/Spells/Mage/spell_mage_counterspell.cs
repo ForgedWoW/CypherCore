@@ -17,8 +17,6 @@ public class spell_mage_counterspell : SpellScript, ISpellOnSucessfulInterrupt
         var spellInfo = Global.SpellMgr.GetSpellInfo(2139);
 
         if (Caster.TryGetAura(MageSpells.QUICK_WITTED, out var quickWitted))
-        {
             Caster.Events.AddEventAtOffset(() => spellHistory.ModifyCooldown(2139, System.TimeSpan.FromMilliseconds(-4000)), System.TimeSpan.FromMilliseconds(1));
-        }
     }
 }

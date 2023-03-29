@@ -9,10 +9,10 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(344865)]
 public class spell_dh_fel_rush_specless : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		caster.CastSpell(DemonHunterSpells.FEL_RUSH, true);
-	}
+        caster.CastSpell(DemonHunterSpells.FEL_RUSH, true);
+    }
 }

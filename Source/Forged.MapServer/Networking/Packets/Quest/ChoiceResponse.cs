@@ -5,15 +5,15 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class ChoiceResponse : ClientPacket
 {
-	public int ChoiceID;
-	public int ResponseIdentifier;
-	public bool IsReroll;
-	public ChoiceResponse(WorldPacket packet) : base(packet) { }
+    public int ChoiceID;
+    public int ResponseIdentifier;
+    public bool IsReroll;
+    public ChoiceResponse(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ChoiceID = _worldPacket.ReadInt32();
-		ResponseIdentifier = _worldPacket.ReadInt32();
-		IsReroll = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        ChoiceID = _worldPacket.ReadInt32();
+        ResponseIdentifier = _worldPacket.ReadInt32();
+        IsReroll = _worldPacket.HasBit();
+    }
 }

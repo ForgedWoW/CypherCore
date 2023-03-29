@@ -13,29 +13,29 @@ namespace Scripts.Spells.Generic;
 [Script] // 118301 - Summon Battle Pet
 internal class spell_summon_battle_pet : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleSummon, 0, SpellEffectName.Summon, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleSummon, 0, SpellEffectName.Summon, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleSummon(int effIndex)
-	{
-		var creatureId = (uint)SpellValue.EffectBasePoints[effIndex];
+    private void HandleSummon(int effIndex)
+    {
+        var creatureId = (uint)SpellValue.EffectBasePoints[effIndex];
 
-		if (Global.ObjectMgr.GetCreatureTemplate(creatureId) != null)
-		{
-			PreventHitDefaultEffect(effIndex);
+        if (Global.ObjectMgr.GetCreatureTemplate(creatureId) != null)
+        {
+            PreventHitDefaultEffect(effIndex);
 
-			var caster = Caster;
-			var properties = CliDB.SummonPropertiesStorage.LookupByKey((uint)EffectInfo.MiscValueB);
-			var duration = (uint)SpellInfo.CalcDuration(caster);
-			var pos = HitDest;
+            var caster = Caster;
+            var properties = CliDB.SummonPropertiesStorage.LookupByKey((uint)EffectInfo.MiscValueB);
+            var duration = (uint)SpellInfo.CalcDuration(caster);
+            var pos = HitDest;
 
-			Creature summon = caster.Map.SummonCreature(creatureId, pos, properties, duration, caster, SpellInfo.Id);
+            Creature summon = caster.Map.SummonCreature(creatureId, pos, properties, duration, caster, SpellInfo.Id);
 
-			summon?.SetImmuneToAll(true);
-		}
-	}
+            summon?.SetImmuneToAll(true);
+        }
+    }
 }

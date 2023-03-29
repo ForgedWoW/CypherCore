@@ -10,16 +10,16 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(47484)]
 public class spell_dk_ghoul_huddle : SpellScript, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		var caster = Caster;
+    public void AfterHit()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		Unit owner = caster.OwnerUnit.AsPlayer;
+        Unit owner = caster.OwnerUnit.AsPlayer;
 
-		if (owner != null)
-			caster.CastSpell(caster.HasAura(DeathKnightSpells.DARK_TRANSFORMATION) ? DeathKnightSpells.DT_GHOUL_HUDDLE : DeathKnightSpells.GHOUL_HUDDLE, true);
-	}
+        if (owner != null)
+            caster.CastSpell(caster.HasAura(DeathKnightSpells.DARK_TRANSFORMATION) ? DeathKnightSpells.DT_GHOUL_HUDDLE : DeathKnightSpells.GHOUL_HUDDLE, true);
+    }
 }

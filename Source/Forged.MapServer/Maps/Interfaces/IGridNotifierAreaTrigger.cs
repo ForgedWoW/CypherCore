@@ -8,5 +8,5 @@ namespace Forged.MapServer.Maps.Interfaces;
 
 public interface IGridNotifierAreaTrigger : IGridNotifier
 {
-	void Visit(IList<AreaTrigger> objs);
+    void Visit(IList<AreaTrigger> objs);
 }

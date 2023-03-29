@@ -12,25 +12,25 @@ namespace Scripts.Spells.Warrior;
 // 64380, 65941 - Shattering Throw
 [SpellScript(new uint[]
 {
-	64380, 65941
+    64380, 65941
 })]
 public class spell_warr_shattering_throw : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
+    private void HandleScript(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
 
-		// remove shields, will still display immune to damage part
-		var target = HitUnit;
+        // remove shields, will still display immune to damage part
+        var target = HitUnit;
 
-		if (target != null)
-			target.RemoveAurasWithMechanic((ulong)Mechanics.ImmuneShield, AuraRemoveMode.EnemySpell);
-	}
+        if (target != null)
+            target.RemoveAurasWithMechanic((ulong)Mechanics.ImmuneShield, AuraRemoveMode.EnemySpell);
+    }
 }

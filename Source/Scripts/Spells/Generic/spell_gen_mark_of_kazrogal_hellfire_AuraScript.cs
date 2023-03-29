@@ -12,23 +12,23 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_mark_of_kazrogal_hellfire_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnPeriodic, 0, AuraType.PowerBurn));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnPeriodic, 0, AuraType.PowerBurn));
+    }
 
-	private void OnPeriodic(AuraEffect aurEff)
-	{
-		var target = Target;
+    private void OnPeriodic(AuraEffect aurEff)
+    {
+        var target = Target;
 
-		if (target.GetPower(PowerType.Mana) == 0)
-		{
-			target.CastSpell(target, GenericSpellIds.MarkOfKazrogalDamageHellfire, new CastSpellExtraArgs(aurEff));
-			// Remove aura
-			SetDuration(0);
-		}
-	}
+        if (target.GetPower(PowerType.Mana) == 0)
+        {
+            target.CastSpell(target, GenericSpellIds.MarkOfKazrogalDamageHellfire, new CastSpellExtraArgs(aurEff));
+            // Remove aura
+            SetDuration(0);
+        }
+    }
 }

@@ -12,39 +12,39 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_book_of_glyph_mastery : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		return Caster.TypeId == TypeId.Player;
-	}
+    public override bool Load()
+    {
+        return Caster.TypeId == TypeId.Player;
+    }
 
-	public SpellCastResult CheckCast()
-	{
-		if (SkillDiscovery.HasDiscoveredAllSpells(SpellInfo.Id, Caster.AsPlayer))
-		{
-			SetCustomCastResultMessage(SpellCustomErrors.LearnedEverything);
+    public SpellCastResult CheckCast()
+    {
+        if (SkillDiscovery.HasDiscoveredAllSpells(SpellInfo.Id, Caster.AsPlayer))
+        {
+            SetCustomCastResultMessage(SpellCustomErrors.LearnedEverything);
 
-			return SpellCastResult.CustomError;
-		}
+            return SpellCastResult.CustomError;
+        }
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var caster = Caster.AsPlayer;
-		var spellId = SpellInfo.Id;
+    private void HandleScript(int effIndex)
+    {
+        var caster = Caster.AsPlayer;
+        var spellId = SpellInfo.Id;
 
-		// learn random explicit discovery recipe (if any)
-		var discoveredSpellId = SkillDiscovery.GetExplicitDiscoverySpell(spellId, caster);
+        // learn random explicit discovery recipe (if any)
+        var discoveredSpellId = SkillDiscovery.GetExplicitDiscoverySpell(spellId, caster);
 
-		if (discoveredSpellId != 0)
-			caster.LearnSpell(discoveredSpellId, false);
-	}
+        if (discoveredSpellId != 0)
+            caster.LearnSpell(discoveredSpellId, false);
+    }
 }

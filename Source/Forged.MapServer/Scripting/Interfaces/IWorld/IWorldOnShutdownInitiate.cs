@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IWorld;
 
 public interface IWorldOnShutdownInitiate : IScriptObject
 {
-	void OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask);
+    void OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask);
 }

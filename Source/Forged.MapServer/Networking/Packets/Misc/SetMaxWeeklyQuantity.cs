@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class SetMaxWeeklyQuantity : ServerPacket
 {
-	public uint MaxWeeklyQuantity;
-	public uint Type;
-	public SetMaxWeeklyQuantity() : base(ServerOpcodes.SetMaxWeeklyQuantity, ConnectionType.Instance) { }
+    public uint MaxWeeklyQuantity;
+    public uint Type;
+    public SetMaxWeeklyQuantity() : base(ServerOpcodes.SetMaxWeeklyQuantity, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(Type);
-		_worldPacket.WriteUInt32(MaxWeeklyQuantity);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(Type);
+        _worldPacket.WriteUInt32(MaxWeeklyQuantity);
+    }
 }

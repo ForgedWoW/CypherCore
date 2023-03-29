@@ -14,87 +14,87 @@ public class MultiPersonalPhaseTracker
 {
     private readonly Dictionary<ObjectGuid, PlayerPersonalPhasesTracker> _playerData = new();
 
-	public void LoadGrid(PhaseShift phaseShift, Grid grid, Map map, Cell cell)
-	{
-		if (!phaseShift.HasPersonalPhase)
-			return;
+    public void LoadGrid(PhaseShift phaseShift, Grid grid, Map map, Cell cell)
+    {
+        if (!phaseShift.HasPersonalPhase)
+            return;
 
-		PersonalPhaseGridLoader loader = new(grid, map, cell, phaseShift.PersonalGuid, Framework.Constants.GridType.Grid);
-		var playerTracker = _playerData[phaseShift.PersonalGuid];
+        PersonalPhaseGridLoader loader = new(grid, map, cell, phaseShift.PersonalGuid, Framework.Constants.GridType.Grid);
+        var playerTracker = _playerData[phaseShift.PersonalGuid];
 
-		foreach (var phaseRef in phaseShift.Phases)
-		{
-			if (!phaseRef.Value.IsPersonal())
-				continue;
+        foreach (var phaseRef in phaseShift.Phases)
+        {
+            if (!phaseRef.Value.IsPersonal())
+                continue;
 
-			if (!Global.ObjectMgr.HasPersonalSpawns(map.Id, map.DifficultyID, phaseRef.Key))
-				continue;
+            if (!Global.ObjectMgr.HasPersonalSpawns(map.Id, map.DifficultyID, phaseRef.Key))
+                continue;
 
-			if (playerTracker.IsGridLoadedForPhase(grid.GetGridId(), phaseRef.Key))
-				continue;
+            if (playerTracker.IsGridLoadedForPhase(grid.GetGridId(), phaseRef.Key))
+                continue;
 
-			Log.Logger.Debug($"Loading personal phase objects (phase {phaseRef.Key}) in {cell} for map {map.Id} instance {map.InstanceId}");
+            Log.Logger.Debug($"Loading personal phase objects (phase {phaseRef.Key}) in {cell} for map {map.Id} instance {map.InstanceId}");
 
-			loader.Load(phaseRef.Key);
+            loader.Load(phaseRef.Key);
 
-			playerTracker.SetGridLoadedForPhase(grid.GetGridId(), phaseRef.Key);
-		}
+            playerTracker.SetGridLoadedForPhase(grid.GetGridId(), phaseRef.Key);
+        }
 
-		if (loader.GetLoadedGameObjects() != 0)
-			map.Balance();
-	}
+        if (loader.GetLoadedGameObjects() != 0)
+            map.Balance();
+    }
 
-	public void UnloadGrid(Grid grid)
-	{
-		foreach (var itr in _playerData.ToList())
-		{
-			itr.Value.SetGridUnloaded(grid.GetGridId());
+    public void UnloadGrid(Grid grid)
+    {
+        foreach (var itr in _playerData.ToList())
+        {
+            itr.Value.SetGridUnloaded(grid.GetGridId());
 
-			if (itr.Value.IsEmpty)
-				_playerData.Remove(itr.Key);
-		}
-	}
+            if (itr.Value.IsEmpty)
+                _playerData.Remove(itr.Key);
+        }
+    }
 
-	public void RegisterTrackedObject(uint phaseId, ObjectGuid phaseOwner, WorldObject obj)
-	{
-		_playerData[phaseOwner].RegisterTrackedObject(phaseId, obj);
-	}
+    public void RegisterTrackedObject(uint phaseId, ObjectGuid phaseOwner, WorldObject obj)
+    {
+        _playerData[phaseOwner].RegisterTrackedObject(phaseId, obj);
+    }
 
-	public void UnregisterTrackedObject(WorldObject obj)
-	{
-		var playerTracker = _playerData.LookupByKey(obj.PhaseShift.PersonalGuid);
+    public void UnregisterTrackedObject(WorldObject obj)
+    {
+        var playerTracker = _playerData.LookupByKey(obj.PhaseShift.PersonalGuid);
 
-		if (playerTracker != null)
-			playerTracker.UnregisterTrackedObject(obj);
-	}
+        if (playerTracker != null)
+            playerTracker.UnregisterTrackedObject(obj);
+    }
 
-	public void OnOwnerPhaseChanged(WorldObject phaseOwner, Grid grid, Map map, Cell cell)
-	{
-		var playerTracker = _playerData.LookupByKey(phaseOwner.GUID);
+    public void OnOwnerPhaseChanged(WorldObject phaseOwner, Grid grid, Map map, Cell cell)
+    {
+        var playerTracker = _playerData.LookupByKey(phaseOwner.GUID);
 
-		if (playerTracker != null)
-			playerTracker.OnOwnerPhasesChanged(phaseOwner);
+        if (playerTracker != null)
+            playerTracker.OnOwnerPhasesChanged(phaseOwner);
 
-		if (grid != null)
-			LoadGrid(phaseOwner.PhaseShift, grid, map, cell);
-	}
+        if (grid != null)
+            LoadGrid(phaseOwner.PhaseShift, grid, map, cell);
+    }
 
-	public void MarkAllPhasesForDeletion(ObjectGuid phaseOwner)
-	{
-		var playerTracker = _playerData.LookupByKey(phaseOwner);
+    public void MarkAllPhasesForDeletion(ObjectGuid phaseOwner)
+    {
+        var playerTracker = _playerData.LookupByKey(phaseOwner);
 
-		if (playerTracker != null)
-			playerTracker.MarkAllPhasesForDeletion();
-	}
+        if (playerTracker != null)
+            playerTracker.MarkAllPhasesForDeletion();
+    }
 
-	public void Update(Map map, uint diff)
-	{
-		foreach (var itr in _playerData.ToList())
-		{
-			itr.Value.Update(map, diff);
+    public void Update(Map map, uint diff)
+    {
+        foreach (var itr in _playerData.ToList())
+        {
+            itr.Value.Update(map, diff);
 
-			if (itr.Value.IsEmpty)
-				_playerData.Remove(itr.Key);
-		}
-	}
+            if (itr.Value.IsEmpty)
+                _playerData.Remove(itr.Key);
+        }
+    }
 }

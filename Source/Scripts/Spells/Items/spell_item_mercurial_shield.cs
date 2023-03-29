@@ -11,16 +11,16 @@ namespace Scripts.Spells.Items;
 [Script] // 26465 - Mercurial Shield
 internal class spell_item_mercurial_shield : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		HitUnit.RemoveAuraFromStack(ItemSpellIds.MercurialShield);
-	}
+    private void HandleScript(int effIndex)
+    {
+        HitUnit.RemoveAuraFromStack(ItemSpellIds.MercurialShield);
+    }
 }

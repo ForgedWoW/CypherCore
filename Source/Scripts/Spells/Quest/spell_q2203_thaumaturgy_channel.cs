@@ -12,20 +12,20 @@ namespace Scripts.Spells.Quest;
 [Script] // 9712 - Thaumaturgy Channel
 internal class spell_q2203_thaumaturgy_channel : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicTriggerSpell));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicTriggerSpell));
+    }
 
-	private void HandleEffectPeriodic(AuraEffect aurEff)
-	{
-		PreventDefaultAction();
-		var caster = Caster;
+    private void HandleEffectPeriodic(AuraEffect aurEff)
+    {
+        PreventDefaultAction();
+        var caster = Caster;
 
-		if (caster)
-			caster.CastSpell(caster, QuestSpellIds.ThaumaturgyChannel, false);
-	}
+        if (caster)
+            caster.CastSpell(caster, QuestSpellIds.ThaumaturgyChannel, false);
+    }
 }

@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class InitialSetup : ServerPacket
 {
-	public byte ServerExpansionTier;
-	public byte ServerExpansionLevel;
-	public InitialSetup() : base(ServerOpcodes.InitialSetup, ConnectionType.Instance) { }
+    public byte ServerExpansionTier;
+    public byte ServerExpansionLevel;
+    public InitialSetup() : base(ServerOpcodes.InitialSetup, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt8(ServerExpansionLevel);
-		_worldPacket.WriteUInt8(ServerExpansionTier);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt8(ServerExpansionLevel);
+        _worldPacket.WriteUInt8(ServerExpansionTier);
+    }
 }

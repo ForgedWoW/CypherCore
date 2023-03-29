@@ -13,46 +13,46 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(222703)]
 public class spell_dh_fel_barrage_aura : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	//Blade Dance    //Chaos Strike   //Fel Barrage
-	readonly List<uint> _removeSpellIds = new()
-	{
-		199552,
-		210153,
-		222031,
-		227518,
-		211052
-	};
+    //Blade Dance    //Chaos Strike   //Fel Barrage
+    readonly List<uint> _removeSpellIds = new()
+    {
+        199552,
+        210153,
+        222031,
+        227518,
+        211052
+    };
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		// Blade Dance, Chaos Strike and Annihilation have many damagers,
-		// so we accept only 1 of those, and we remove the others
-		// Also we remove fel barrage itself too.
-		if (eventInfo.SpellInfo != null)
-			return false;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        // Blade Dance, Chaos Strike and Annihilation have many damagers,
+        // so we accept only 1 of those, and we remove the others
+        // Also we remove fel barrage itself too.
+        if (eventInfo.SpellInfo != null)
+            return false;
 
-		return !_removeSpellIds.Contains(eventInfo.SpellInfo.Id);
-	}
+        return !_removeSpellIds.Contains(eventInfo.SpellInfo.Id);
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        PreventDefaultAction();
 
-		var caster = Caster;
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var chargeCatId = Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FEL_BARRAGE, Difficulty.None).ChargeCategoryId;
+        var chargeCatId = Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FEL_BARRAGE, Difficulty.None).ChargeCategoryId;
 
-		if (chargeCatId != 0)
-			caster.SpellHistory.RestoreCharge(chargeCatId);
-	}
+        if (chargeCatId != 0)
+            caster.SpellHistory.RestoreCharge(chargeCatId);
+    }
 }

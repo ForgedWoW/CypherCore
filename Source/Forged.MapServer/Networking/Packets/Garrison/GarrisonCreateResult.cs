@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonCreateResult : ServerPacket
 {
-	public uint GarrSiteLevelID;
-	public uint Result;
-	public GarrisonCreateResult() : base(ServerOpcodes.GarrisonCreateResult, ConnectionType.Instance) { }
+    public uint GarrSiteLevelID;
+    public uint Result;
+    public GarrisonCreateResult() : base(ServerOpcodes.GarrisonCreateResult, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(Result);
-		_worldPacket.WriteUInt32(GarrSiteLevelID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(Result);
+        _worldPacket.WriteUInt32(GarrSiteLevelID);
+    }
 }
 
 //Structs

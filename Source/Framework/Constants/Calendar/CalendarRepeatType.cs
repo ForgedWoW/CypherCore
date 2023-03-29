@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum CalendarRepeatType
 {
-	Never = 0,
-	Weekly = 1,
-	Biweekly = 2,
-	Monthly = 3
+    Never = 0,
+    Weekly = 1,
+    Biweekly = 2,
+    Monthly = 3
 }

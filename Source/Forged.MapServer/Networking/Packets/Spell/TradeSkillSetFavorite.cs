@@ -5,14 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class TradeSkillSetFavorite : ClientPacket
 {
-	public uint RecipeID;
-	public bool IsFavorite;
+    public uint RecipeID;
+    public bool IsFavorite;
 
-	public TradeSkillSetFavorite(WorldPacket packet) : base(packet) { }
+    public TradeSkillSetFavorite(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		RecipeID = _worldPacket.ReadUInt32();
-		IsFavorite = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        RecipeID = _worldPacket.ReadUInt32();
+        IsFavorite = _worldPacket.HasBit();
+    }
 }

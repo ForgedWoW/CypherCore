@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class GameObjectActivateAnimKit : ServerPacket
 {
-	public ObjectGuid ObjectGUID;
-	public int AnimKitID;
-	public bool Maintain;
-	public GameObjectActivateAnimKit() : base(ServerOpcodes.GameObjectActivateAnimKit, ConnectionType.Instance) { }
+    public ObjectGuid ObjectGUID;
+    public int AnimKitID;
+    public bool Maintain;
+    public GameObjectActivateAnimKit() : base(ServerOpcodes.GameObjectActivateAnimKit, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ObjectGUID);
-		_worldPacket.WriteInt32(AnimKitID);
-		_worldPacket.WriteBit(Maintain);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ObjectGUID);
+        _worldPacket.WriteInt32(AnimKitID);
+        _worldPacket.WriteBit(Maintain);
+        _worldPacket.FlushBits();
+    }
 }

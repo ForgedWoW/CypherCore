@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class RequestLatestSplashScreen : ClientPacket
 {
-	public RequestLatestSplashScreen(WorldPacket packet) : base(packet) { }
+    public RequestLatestSplashScreen(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

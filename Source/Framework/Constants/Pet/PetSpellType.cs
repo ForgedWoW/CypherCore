@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum PetSpellType
 {
-	Normal = 0,
-	Family = 1,
-	Talent = 2
+    Normal = 0,
+    Family = 1,
+    Talent = 2
 }

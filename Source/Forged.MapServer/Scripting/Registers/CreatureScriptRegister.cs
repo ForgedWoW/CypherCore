@@ -9,24 +9,24 @@ namespace Forged.MapServer.Scripting.Registers;
 
 public class CreatureScriptRegister : IScriptRegister
 {
-	public Type AttributeType => typeof(CreatureScriptAttribute);
+    public Type AttributeType => typeof(CreatureScriptAttribute);
 
-	public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
-	{
-		if (attribute is CreatureScriptAttribute { CreatureIds: { } } creatureScript)
-			foreach (var id in creatureScript.CreatureIds)
-			{
-				var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(id);
+    public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
+    {
+        if (attribute is CreatureScriptAttribute { CreatureIds: { } } creatureScript)
+            foreach (var id in creatureScript.CreatureIds)
+            {
+                var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(id);
 
-				if (creatureTemplate == null)
-				{
-					Log.Logger.Error($"CreatureScriptAttribute: Unknown creature id {id} for script name {scriptName}");
+                if (creatureTemplate == null)
+                {
+                    Log.Logger.Error($"CreatureScriptAttribute: Unknown creature id {id} for script name {scriptName}");
 
-					continue;
-				}
+                    continue;
+                }
 
-				if (creatureTemplate.ScriptID == 0) // dont override database
-					creatureTemplate.ScriptID = Global.ObjectMgr.GetScriptId(scriptName);
-			}
-	}
+                if (creatureTemplate.ScriptID == 0) // dont override database
+                    creatureTemplate.ScriptID = Global.ObjectMgr.GetScriptId(scriptName);
+            }
+    }
 }

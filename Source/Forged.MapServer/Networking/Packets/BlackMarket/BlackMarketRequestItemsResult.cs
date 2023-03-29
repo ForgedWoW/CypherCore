@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.BlackMarket;
 
 public class BlackMarketRequestItemsResult : ServerPacket
 {
-	public long LastUpdateID;
-	public List<BlackMarketItem> Items = new();
-	public BlackMarketRequestItemsResult() : base(ServerOpcodes.BlackMarketRequestItemsResult) { }
+    public long LastUpdateID;
+    public List<BlackMarketItem> Items = new();
+    public BlackMarketRequestItemsResult() : base(ServerOpcodes.BlackMarketRequestItemsResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt64(LastUpdateID);
-		_worldPacket.WriteInt32(Items.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt64(LastUpdateID);
+        _worldPacket.WriteInt32(Items.Count);
 
-		foreach (var item in Items)
-			item.Write(_worldPacket);
-	}
+        foreach (var item in Items)
+            item.Write(_worldPacket);
+    }
 }

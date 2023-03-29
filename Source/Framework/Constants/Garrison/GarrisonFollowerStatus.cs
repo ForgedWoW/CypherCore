@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum GarrisonFollowerStatus
 {
-	Favorite = 0x01,
-	Exhausted = 0x02,
-	Inactive = 0x04,
-	Troop = 0x08,
-	NoXpGain = 0x10
+    Favorite = 0x01,
+    Exhausted = 0x02,
+    Inactive = 0x04,
+    Troop = 0x08,
+    NoXpGain = 0x10
 }

@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Bank;
 
 internal class ReagentBank : ClientPacket
 {
-	public ObjectGuid Banker;
-	public ReagentBank(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Banker;
+    public ReagentBank(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Banker = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Banker = _worldPacket.ReadPackedGuid();
+    }
 }

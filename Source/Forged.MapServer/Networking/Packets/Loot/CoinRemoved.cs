@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class CoinRemoved : ServerPacket
 {
-	public ObjectGuid LootObj;
-	public CoinRemoved() : base(ServerOpcodes.CoinRemoved) { }
+    public ObjectGuid LootObj;
+    public CoinRemoved() : base(ServerOpcodes.CoinRemoved) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(LootObj);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(LootObj);
+    }
 }

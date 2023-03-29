@@ -13,37 +13,37 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(51505)]
 internal class spell_sha_lava_burst : SpellScript, ISpellAfterCast, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public void AfterCast()
-	{
-		var caster = Caster;
+    public void AfterCast()
+    {
+        var caster = Caster;
 
-		var lavaSurge = caster.GetAura(ShamanSpells.LavaSurge);
+        var lavaSurge = caster.GetAura(ShamanSpells.LavaSurge);
 
-		if (lavaSurge != null)
-			if (!Spell.AppliedMods.Contains(lavaSurge))
-			{
-				var chargeCategoryId = SpellInfo.ChargeCategoryId;
+        if (lavaSurge != null)
+            if (!Spell.AppliedMods.Contains(lavaSurge))
+            {
+                var chargeCategoryId = SpellInfo.ChargeCategoryId;
 
-				// Ensure we have at least 1 usable charge after cast to allow next cast immediately
-				if (!caster.SpellHistory.HasCharge(chargeCategoryId))
-					caster.SpellHistory.RestoreCharge(chargeCategoryId);
-			}
-	}
+                // Ensure we have at least 1 usable charge after cast to allow next cast immediately
+                if (!caster.SpellHistory.HasCharge(chargeCategoryId))
+                    caster.SpellHistory.RestoreCharge(chargeCategoryId);
+            }
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.TriggerMissile, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.TriggerMissile, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleScript(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster)
-			if (caster.HasAura(ShamanSpells.PathOfFlamesTalent))
-				caster.CastSpell(HitUnit, ShamanSpells.PathOfFlamesSpread, new CastSpellExtraArgs(Spell));
-	}
+        if (caster)
+            if (caster.HasAura(ShamanSpells.PathOfFlamesTalent))
+                caster.CastSpell(HitUnit, ShamanSpells.PathOfFlamesSpread, new CastSpellExtraArgs(Spell));
+    }
 }

@@ -8,12 +8,12 @@ namespace Forged.MapServer.Scripting.Registers;
 
 public class SpellScriptRegister : IScriptRegister
 {
-	public Type AttributeType => typeof(SpellScriptAttribute);
+    public Type AttributeType => typeof(SpellScriptAttribute);
 
-	public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
-	{
-		if (attribute is SpellScriptAttribute { SpellIds: { } } spellScript)
-			foreach (var id in spellScript.SpellIds)
-				Global.ObjectMgr.RegisterSpellScript(id, scriptName, spellScript.AllRanks);
-	}
+    public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
+    {
+        if (attribute is SpellScriptAttribute { SpellIds: { } } spellScript)
+            foreach (var id in spellScript.SpellIds)
+                Global.ObjectMgr.RegisterSpellScript(id, scriptName, spellScript.AllRanks);
+    }
 }

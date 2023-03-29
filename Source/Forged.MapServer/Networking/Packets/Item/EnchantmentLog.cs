@@ -8,21 +8,21 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class EnchantmentLog : ServerPacket
 {
-	public ObjectGuid Owner;
-	public ObjectGuid Caster;
-	public ObjectGuid ItemGUID;
-	public uint ItemID;
-	public uint Enchantment;
-	public uint EnchantSlot;
-	public EnchantmentLog() : base(ServerOpcodes.EnchantmentLog, ConnectionType.Instance) { }
+    public ObjectGuid Owner;
+    public ObjectGuid Caster;
+    public ObjectGuid ItemGUID;
+    public uint ItemID;
+    public uint Enchantment;
+    public uint EnchantSlot;
+    public EnchantmentLog() : base(ServerOpcodes.EnchantmentLog, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Owner);
-		_worldPacket.WritePackedGuid(Caster);
-		_worldPacket.WritePackedGuid(ItemGUID);
-		_worldPacket.WriteUInt32(ItemID);
-		_worldPacket.WriteUInt32(Enchantment);
-		_worldPacket.WriteUInt32(EnchantSlot);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Owner);
+        _worldPacket.WritePackedGuid(Caster);
+        _worldPacket.WritePackedGuid(ItemGUID);
+        _worldPacket.WriteUInt32(ItemID);
+        _worldPacket.WriteUInt32(Enchantment);
+        _worldPacket.WriteUInt32(EnchantSlot);
+    }
 }

@@ -8,19 +8,19 @@ namespace Scripts.Spells.Priest;
 
 public class DelayedAuraRemoveEvent : BasicEvent
 {
-	private readonly Unit _owner;
-	private readonly uint _spellId;
+    private readonly Unit _owner;
+    private readonly uint _spellId;
 
-	public DelayedAuraRemoveEvent(Unit owner, uint spellId)
-	{
-		_owner = owner;
-		_spellId = spellId;
-	}
+    public DelayedAuraRemoveEvent(Unit owner, uint spellId)
+    {
+        _owner = owner;
+        _spellId = spellId;
+    }
 
-	public override bool Execute(ulong etime, uint pTime)
-	{
-		_owner.RemoveAura(_spellId);
+    public override bool Execute(ulong etime, uint pTime)
+    {
+        _owner.RemoveAura(_spellId);
 
-		return true;
-	}
+        return true;
+    }
 }

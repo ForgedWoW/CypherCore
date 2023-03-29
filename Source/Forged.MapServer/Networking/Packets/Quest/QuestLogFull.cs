@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class QuestLogFull : ServerPacket
 {
-	public QuestLogFull() : base(ServerOpcodes.QuestLogFull) { }
+    public QuestLogFull() : base(ServerOpcodes.QuestLogFull) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

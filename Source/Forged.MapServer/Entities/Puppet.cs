@@ -9,27 +9,27 @@ namespace Forged.MapServer.Entities;
 
 public class Puppet : Minion
 {
-	public Puppet(SummonPropertiesRecord propertiesRecord, Unit owner) : base(propertiesRecord, owner, false)
-	{
-		UnitTypeMask |= UnitTypeMask.Puppet;
-	}
+    public Puppet(SummonPropertiesRecord propertiesRecord, Unit owner) : base(propertiesRecord, owner, false)
+    {
+        UnitTypeMask |= UnitTypeMask.Puppet;
+    }
 
-	public override void InitStats(uint duration)
-	{
-		base.InitStats(duration);
+    public override void InitStats(uint duration)
+    {
+        base.InitStats(duration);
 
-		SetLevel(OwnerUnit.Level);
-		ReactState = ReactStates.Passive;
-	}
+        SetLevel(OwnerUnit.Level);
+        ReactState = ReactStates.Passive;
+    }
 
-	public override void Update(uint diff)
-	{
-		base.Update(diff);
+    public override void Update(uint diff)
+    {
+        base.Update(diff);
 
-		//check if caster is channelling?
-		if (IsInWorld)
-			if (!IsAlive)
-				UnSummon();
-		// @todo why long distance .die does not remove it
-	}
+        //check if caster is channelling?
+        if (IsInWorld)
+            if (!IsAlive)
+                UnSummon();
+        // @todo why long distance .die does not remove it
+    }
 }

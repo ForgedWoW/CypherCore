@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionOwnerBidNotification : ServerPacket
 {
-	public AuctionOwnerNotification Info;
-	public ObjectGuid Bidder;
-	public ulong MinIncrement;
+    public AuctionOwnerNotification Info;
+    public ObjectGuid Bidder;
+    public ulong MinIncrement;
 
-	public AuctionOwnerBidNotification() : base(ServerOpcodes.AuctionOwnerBidNotification) { }
+    public AuctionOwnerBidNotification() : base(ServerOpcodes.AuctionOwnerBidNotification) { }
 
-	public override void Write()
-	{
-		Info.Write(_worldPacket);
-		_worldPacket.WriteUInt64(MinIncrement);
-		_worldPacket.WritePackedGuid(Bidder);
-	}
+    public override void Write()
+    {
+        Info.Write(_worldPacket);
+        _worldPacket.WriteUInt64(MinIncrement);
+        _worldPacket.WritePackedGuid(Bidder);
+    }
 }

@@ -8,6 +8,6 @@ namespace Forged.MapServer.Scenarios;
 
 public class ScenarioData
 {
-	public ScenarioRecord Entry;
-	public Dictionary<byte, ScenarioStepRecord> Steps = new();
+    public ScenarioRecord Entry;
+    public Dictionary<byte, ScenarioStepRecord> Steps = new();
 }

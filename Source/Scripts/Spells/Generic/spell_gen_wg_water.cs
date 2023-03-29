@@ -10,11 +10,11 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_wg_water : SpellScript, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		if (!SpellInfo.CheckTargetCreatureType(Caster))
-			return SpellCastResult.DontReport;
+    public SpellCastResult CheckCast()
+    {
+        if (!SpellInfo.CheckTargetCreatureType(Caster))
+            return SpellCastResult.DontReport;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

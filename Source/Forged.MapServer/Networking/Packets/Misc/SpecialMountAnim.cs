@@ -9,18 +9,18 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class SpecialMountAnim : ServerPacket
 {
-	public ObjectGuid UnitGUID;
-	public List<int> SpellVisualKitIDs = new();
-	public int SequenceVariation;
-	public SpecialMountAnim() : base(ServerOpcodes.SpecialMountAnim, ConnectionType.Instance) { }
+    public ObjectGuid UnitGUID;
+    public List<int> SpellVisualKitIDs = new();
+    public int SequenceVariation;
+    public SpecialMountAnim() : base(ServerOpcodes.SpecialMountAnim, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(UnitGUID);
-		_worldPacket.WriteInt32(SpellVisualKitIDs.Count);
-		_worldPacket.WriteInt32(SequenceVariation);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(UnitGUID);
+        _worldPacket.WriteInt32(SpellVisualKitIDs.Count);
+        _worldPacket.WriteInt32(SequenceVariation);
 
-		foreach (var id in SpellVisualKitIDs)
-			_worldPacket.WriteInt32(id);
-	}
+        foreach (var id in SpellVisualKitIDs)
+            _worldPacket.WriteInt32(id);
+    }
 }

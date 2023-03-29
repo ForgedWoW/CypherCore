@@ -9,9 +9,9 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(13877)]
 public class spell_rogue_blade_flurry_SpellScript : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		if (HitUnit == ExplTargetUnit)
-			HitDamage = 0;
-	}
+    public void OnHit()
+    {
+        if (HitUnit == ExplTargetUnit)
+            HitDamage = 0;
+    }
 }

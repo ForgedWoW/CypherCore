@@ -9,8 +9,8 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(686)] // 686 - Shadow Bolt
 internal class spell_warl_shadow_bolt : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		Caster.CastSpell(Caster, WarlockSpells.SHADOW_BOLT_SHOULSHARD, true);
-	}
+    public void AfterCast()
+    {
+        Caster.CastSpell(Caster, WarlockSpells.SHADOW_BOLT_SHOULSHARD, true);
+    }
 }

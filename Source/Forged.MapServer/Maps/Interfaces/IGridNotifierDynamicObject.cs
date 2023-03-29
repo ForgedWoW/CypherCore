@@ -8,5 +8,5 @@ namespace Forged.MapServer.Maps.Interfaces;
 
 public interface IGridNotifierDynamicObject : IGridNotifier
 {
-	void Visit(IList<DynamicObject> objs);
+    void Visit(IList<DynamicObject> objs);
 }

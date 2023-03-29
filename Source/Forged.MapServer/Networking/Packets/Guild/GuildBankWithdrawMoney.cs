@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildBankWithdrawMoney : ClientPacket
 {
-	public ObjectGuid Banker;
-	public ulong Money;
-	public GuildBankWithdrawMoney(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Banker;
+    public ulong Money;
+    public GuildBankWithdrawMoney(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Banker = _worldPacket.ReadPackedGuid();
-		Money = _worldPacket.ReadUInt64();
-	}
+    public override void Read()
+    {
+        Banker = _worldPacket.ReadPackedGuid();
+        Money = _worldPacket.ReadUInt64();
+    }
 }

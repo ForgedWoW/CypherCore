@@ -12,46 +12,46 @@ namespace Scripts.Spells.Druid;
 [SpellScript(197721)]
 public class spell_dru_flourish : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		if (!Caster || !HitUnit)
-			return;
+    private void HandleHit(int effIndex)
+    {
+        if (!Caster || !HitUnit)
+            return;
 
-		var auraEffects = HitUnit.GetAuraEffectsByType(AuraType.PeriodicHeal);
+        var auraEffects = HitUnit.GetAuraEffectsByType(AuraType.PeriodicHeal);
 
-		foreach (var auraEffect in auraEffects)
-			if (auraEffect.CasterGuid == Caster.GUID)
-			{
-				var healAura = auraEffect.Base;
+        foreach (var auraEffect in auraEffects)
+            if (auraEffect.CasterGuid == Caster.GUID)
+            {
+                var healAura = auraEffect.Base;
 
-				if (healAura != null)
-					healAura.SetDuration(healAura.Duration + EffectValue * Time.InMilliseconds);
-			}
-	}
+                if (healAura != null)
+                    healAura.SetDuration(healAura.Duration + EffectValue * Time.InMilliseconds);
+            }
+    }
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		var tempTargets = new List<WorldObject>();
+    private void FilterTargets(List<WorldObject> targets)
+    {
+        var tempTargets = new List<WorldObject>();
 
-		foreach (var target in targets)
-			if (target.IsPlayer)
-				if (target.AsUnit.HasAuraTypeWithCaster(AuraType.PeriodicHeal, Caster.GUID))
-					tempTargets.Add(target);
+        foreach (var target in targets)
+            if (target.IsPlayer)
+                if (target.AsUnit.HasAuraTypeWithCaster(AuraType.PeriodicHeal, Caster.GUID))
+                    tempTargets.Add(target);
 
-		if (tempTargets.Count > 0)
-		{
-			targets.Clear();
+        if (tempTargets.Count > 0)
+        {
+            targets.Clear();
 
-			foreach (var target in tempTargets)
-				targets.Add(target);
-		}
-	}
+            foreach (var target in tempTargets)
+                targets.Add(target);
+        }
+    }
 }

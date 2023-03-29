@@ -8,18 +8,18 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 public class LFGBlackListPkt
 {
-	public ObjectGuid? PlayerGuid;
-	public List<LFGBlackListSlot> Slot = new();
+    public ObjectGuid? PlayerGuid;
+    public List<LFGBlackListSlot> Slot = new();
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteBit(PlayerGuid.HasValue);
-		data.WriteInt32(Slot.Count);
+    public void Write(WorldPacket data)
+    {
+        data.WriteBit(PlayerGuid.HasValue);
+        data.WriteInt32(Slot.Count);
 
-		if (PlayerGuid.HasValue)
-			data.WritePackedGuid(PlayerGuid.Value);
+        if (PlayerGuid.HasValue)
+            data.WritePackedGuid(PlayerGuid.Value);
 
-		foreach (var slot in Slot)
-			slot.Write(data);
-	}
+        foreach (var slot in Slot)
+            slot.Write(data);
+    }
 }

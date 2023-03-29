@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.Duel;
 
 public class DuelComplete : ServerPacket
 {
-	public bool Started;
-	public DuelComplete() : base(ServerOpcodes.DuelComplete, ConnectionType.Instance) { }
+    public bool Started;
+    public DuelComplete() : base(ServerOpcodes.DuelComplete, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(Started);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBit(Started);
+        _worldPacket.FlushBits();
+    }
 }

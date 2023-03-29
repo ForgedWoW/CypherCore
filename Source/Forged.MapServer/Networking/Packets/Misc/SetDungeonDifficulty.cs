@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class SetDungeonDifficulty : ClientPacket
 {
-	public uint DifficultyID;
-	public SetDungeonDifficulty(WorldPacket packet) : base(packet) { }
+    public uint DifficultyID;
+    public SetDungeonDifficulty(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		DifficultyID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        DifficultyID = _worldPacket.ReadUInt32();
+    }
 }

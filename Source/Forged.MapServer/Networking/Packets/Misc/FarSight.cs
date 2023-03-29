@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class FarSight : ClientPacket
 {
-	public bool Enable;
-	public FarSight(WorldPacket packet) : base(packet) { }
+    public bool Enable;
+    public FarSight(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Enable = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        Enable = _worldPacket.HasBit();
+    }
 }

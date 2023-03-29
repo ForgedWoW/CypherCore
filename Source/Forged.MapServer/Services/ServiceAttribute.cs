@@ -9,12 +9,12 @@ namespace Forged.MapServer.Services;
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class ServiceAttribute : Attribute
 {
-	public uint ServiceHash { get; set; }
-	public uint MethodId { get; set; }
+    public uint ServiceHash { get; set; }
+    public uint MethodId { get; set; }
 
-	public ServiceAttribute(OriginalHash serviceHash, uint methodId)
-	{
-		ServiceHash = (uint)serviceHash;
-		MethodId = methodId;
-	}
+    public ServiceAttribute(OriginalHash serviceHash, uint methodId)
+    {
+        ServiceHash = (uint)serviceHash;
+        MethodId = methodId;
+    }
 }

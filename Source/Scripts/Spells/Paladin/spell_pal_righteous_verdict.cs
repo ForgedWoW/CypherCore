@@ -13,16 +13,16 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(267610)] // 267610 - Righteous Verdict
 internal class spell_pal_righteous_verdict : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo procInfo)
-	{
-		procInfo.Actor.CastSpell(procInfo.Actor, PaladinSpells.RighteousVerdictAura, true);
-	}
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo procInfo)
+    {
+        procInfo.Actor.CastSpell(procInfo.Actor, PaladinSpells.RighteousVerdictAura, true);
+    }
 }

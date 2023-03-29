@@ -13,27 +13,27 @@ namespace Scripts.Spells.Monk;
 [SpellScript(125883)]
 public class spell_monk_zen_flight_check_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Load()
-	{
-		return Caster && Caster.TypeId == TypeId.Player;
-	}
+    public override bool Load()
+    {
+        return Caster && Caster.TypeId == TypeId.Player;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.ModIncreaseVehicleFlightSpeed));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.ModIncreaseVehicleFlightSpeed));
+    }
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		if (!Caster)
-			return;
+    private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        if (!Caster)
+            return;
 
-		var caster = Caster.AsPlayer;
+        var caster = Caster.AsPlayer;
 
-		if (caster != null)
-			if (caster.GetSkillValue(SkillType.Riding) >= 375)
-				amount.Value = 310;
-	}
+        if (caster != null)
+            if (caster.GetSkillValue(SkillType.Riding) >= 375)
+                amount.Value = 310;
+    }
 }

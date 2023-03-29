@@ -10,11 +10,11 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class CharRaceOrFactionChangeInfo
 {
-	public Race RaceID = Race.None;
-	public Race InitialRaceID = Race.None;
-	public Gender SexID = Gender.None;
-	public ObjectGuid Guid;
-	public bool FactionChange;
-	public string Name;
-	public Array<ChrCustomizationChoice> Customizations = new(72);
+    public Race RaceID = Race.None;
+    public Race InitialRaceID = Race.None;
+    public Gender SexID = Gender.None;
+    public ObjectGuid Guid;
+    public bool FactionChange;
+    public string Name;
+    public Array<ChrCustomizationChoice> Customizations = new(72);
 }

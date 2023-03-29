@@ -11,13 +11,13 @@ namespace Forged.MapServer.Scripting.Activators;
 
 public class GameObjectAIActivator : IScriptActivator
 {
-	public List<string> ScriptBaseTypes => new()
-	{
-		nameof(GameObjectAI)
-	};
+    public List<string> ScriptBaseTypes => new()
+    {
+        nameof(GameObjectAI)
+    };
 
-	public IScriptObject Activate(Type type, string name, ScriptAttribute attribute)
-	{
-		return (IScriptObject)Activator.CreateInstance(typeof(GenericGameObjectScript<>).MakeGenericType(type), name, attribute.Args);
-	}
+    public IScriptObject Activate(Type type, string name, ScriptAttribute attribute)
+    {
+        return (IScriptObject)Activator.CreateInstance(typeof(GenericGameObjectScript<>).MakeGenericType(type), name, attribute.Args);
+    }
 }

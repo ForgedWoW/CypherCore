@@ -11,18 +11,18 @@ namespace Scripts.Spells.Items;
 [Script] // 23725 - Gift of Life
 internal class spell_item_lifegiving_gem : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
-		caster.CastSpell(caster, ItemSpellIds.GiftOfLife1, true);
-		caster.CastSpell(caster, ItemSpellIds.GiftOfLife2, true);
-	}
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
+        caster.CastSpell(caster, ItemSpellIds.GiftOfLife1, true);
+        caster.CastSpell(caster, ItemSpellIds.GiftOfLife2, true);
+    }
 }

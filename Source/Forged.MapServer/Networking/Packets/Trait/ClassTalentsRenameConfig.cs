@@ -5,15 +5,15 @@ namespace Forged.MapServer.Networking.Packets.Trait;
 
 internal class ClassTalentsRenameConfig : ClientPacket
 {
-	public int ConfigID;
-	public string Name;
+    public int ConfigID;
+    public string Name;
 
-	public ClassTalentsRenameConfig(WorldPacket packet) : base(packet) { }
+    public ClassTalentsRenameConfig(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ConfigID = _worldPacket.ReadInt32();
-		var nameLength = _worldPacket.ReadBits<uint>(9);
-		Name = _worldPacket.ReadString(nameLength);
-	}
+    public override void Read()
+    {
+        ConfigID = _worldPacket.ReadInt32();
+        var nameLength = _worldPacket.ReadBits<uint>(9);
+        Name = _worldPacket.ReadString(nameLength);
+    }
 }

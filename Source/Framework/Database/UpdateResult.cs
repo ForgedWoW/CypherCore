@@ -5,7 +5,7 @@ namespace Framework.Database;
 
 internal struct UpdateResult
 {
-	public int updated;
-	public int recent;
-	public int archived;
+    public int updated;
+    public int recent;
+    public int archived;
 }

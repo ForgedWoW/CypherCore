@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildDemoteMember : ClientPacket
 {
-	public ObjectGuid Demotee;
-	public GuildDemoteMember(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Demotee;
+    public GuildDemoteMember(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Demotee = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Demotee = _worldPacket.ReadPackedGuid();
+    }
 }

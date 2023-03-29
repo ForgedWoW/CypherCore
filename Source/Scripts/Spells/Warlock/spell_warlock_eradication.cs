@@ -11,8 +11,8 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(196412)]
 public class spell_warlock_eradication : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.SpellInfo.Id == WarlockSpells.CHAOS_BOLT;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.SpellInfo.Id == WarlockSpells.CHAOS_BOLT;
+    }
 }

@@ -10,26 +10,26 @@ namespace Scripts.Spells.Monk;
 
 [SpellScript(new uint[]
 {
-	205320, 205414, 222029
+    205320, 205414, 222029
 })]
 public class spell_monk_strike_of_the_windlord : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleDummy(int effIndex)
+    {
+        var target = HitUnit;
 
-		if (target != null)
-		{
-			var damage = EffectValue;
-			MathFunctions.AddPct(ref damage, target.GetTotalAuraModifier(AuraType.ModDamagePercentTaken));
-			HitDamage = damage;
-		}
-	}
+        if (target != null)
+        {
+            var damage = EffectValue;
+            MathFunctions.AddPct(ref damage, target.GetTotalAuraModifier(AuraType.ModDamagePercentTaken));
+            HitDamage = damage;
+        }
+    }
 }

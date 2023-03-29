@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum TraitNodeType
 {
-	Single = 0,
-	Tiered = 1,
-	Selection = 2
+    Single = 0,
+    Tiered = 1,
+    Selection = 2
 }

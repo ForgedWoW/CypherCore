@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildGetRanks : ClientPacket
 {
-	public ObjectGuid GuildGUID;
-	public GuildGetRanks(WorldPacket packet) : base(packet) { }
+    public ObjectGuid GuildGUID;
+    public GuildGetRanks(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		GuildGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        GuildGUID = _worldPacket.ReadPackedGuid();
+    }
 }

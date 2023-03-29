@@ -15,61 +15,61 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(184662)]
 public class spell_pal_shield_of_vengeance : AuraScript, IHasAuraEffects
 {
-	private int absorb;
-	private int currentAbsorb;
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    private int absorb;
+    private int currentAbsorb;
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.SchoolAbsorb, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.SchoolAbsorb, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+        AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
+    }
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		var caster = Caster;
+    private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			canBeRecalculated.Value = false;
+        if (caster != null)
+        {
+            canBeRecalculated.Value = false;
 
-			var ap = caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
-			absorb = (int)(ap * 20);
-			amount.Value += absorb;
-		}
-	}
+            var ap = caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
+            absorb = (int)(ap * 20);
+            amount.Value += absorb;
+        }
+    }
 
-	private double Absorb(AuraEffect aura, DamageInfo damageInfo, double absorbAmount)
-	{
-		var caster = Caster;
+    private double Absorb(AuraEffect aura, DamageInfo damageInfo, double absorbAmount)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return absorbAmount;
+        if (caster == null)
+            return absorbAmount;
 
-		currentAbsorb += (int)damageInfo.Damage;
+        currentAbsorb += (int)damageInfo.Damage;
 
-		return absorbAmount;
-	}
+        return absorbAmount;
+    }
 
-	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (currentAbsorb < absorb)
-			return;
+        if (currentAbsorb < absorb)
+            return;
 
-		var targets = new List<Unit>();
-		caster.GetAttackableUnitListInRange(targets, 8.0f);
+        var targets = new List<Unit>();
+        caster.GetAttackableUnitListInRange(targets, 8.0f);
 
-		var targetSize = (uint)targets.Count;
+        var targetSize = (uint)targets.Count;
 
-		if (targets.Count != 0)
-			absorb /= (int)targetSize;
+        if (targets.Count != 0)
+            absorb /= (int)targetSize;
 
-		caster.CastSpell(caster, PaladinSpells.SHIELD_OF_VENGEANCE_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorb));
-	}
+        caster.CastSpell(caster, PaladinSpells.SHIELD_OF_VENGEANCE_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorb));
+    }
 }

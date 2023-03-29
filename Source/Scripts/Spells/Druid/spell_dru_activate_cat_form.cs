@@ -8,18 +8,18 @@ namespace Scripts.Spells.Druid;
 
 [SpellScript(new uint[]
 {
-	1850, 5215, 102280
+    1850, 5215, 102280
 })]
 public class spell_dru_activate_cat_form : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
+    public void OnHit()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (!caster.HasAura(ShapeshiftFormSpells.CAT_FORM))
-			caster.CastSpell(caster, ShapeshiftFormSpells.CAT_FORM, true);
-	}
+        if (!caster.HasAura(ShapeshiftFormSpells.CAT_FORM))
+            caster.CastSpell(caster, ShapeshiftFormSpells.CAT_FORM, true);
+    }
 }

@@ -5,12 +5,12 @@ namespace Framework.Constants;
 
 public enum SpellTargetSelectionCategories
 {
-	Nyi,
-	Default,
-	Channel,
-	Nearby,
-	Cone,
-	Area,
-	Traj,
-	Line
+    Nyi,
+    Default,
+    Channel,
+    Nearby,
+    Cone,
+    Area,
+    Traj,
+    Line
 }

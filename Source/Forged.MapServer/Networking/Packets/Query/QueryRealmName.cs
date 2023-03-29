@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 internal class QueryRealmName : ClientPacket
 {
-	public uint VirtualRealmAddress;
-	public QueryRealmName(WorldPacket packet) : base(packet) { }
+    public uint VirtualRealmAddress;
+    public QueryRealmName(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		VirtualRealmAddress = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        VirtualRealmAddress = _worldPacket.ReadUInt32();
+    }
 }

@@ -8,18 +8,18 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class PlaySpeakerBoxSound : ServerPacket
 {
-	public ObjectGuid SourceObjectGUID;
-	public uint SoundKitID;
+    public ObjectGuid SourceObjectGUID;
+    public uint SoundKitID;
 
-	public PlaySpeakerBoxSound(ObjectGuid sourceObjectGuid, uint soundKitID) : base(ServerOpcodes.PlaySpeakerbotSound)
-	{
-		SourceObjectGUID = sourceObjectGuid;
-		SoundKitID = soundKitID;
-	}
+    public PlaySpeakerBoxSound(ObjectGuid sourceObjectGuid, uint soundKitID) : base(ServerOpcodes.PlaySpeakerbotSound)
+    {
+        SourceObjectGUID = sourceObjectGuid;
+        SoundKitID = soundKitID;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(SourceObjectGUID);
-		_worldPacket.WriteUInt32(SoundKitID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(SourceObjectGUID);
+        _worldPacket.WriteUInt32(SoundKitID);
+    }
 }

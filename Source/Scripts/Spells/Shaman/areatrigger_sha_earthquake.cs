@@ -13,38 +13,38 @@ namespace Scripts.Spells.Shaman;
 [AreaTriggerScript(8382)] //  8382 - AreaTriggerId
 internal class areatrigger_sha_earthquake : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate, IAreaTriggerScriptValues
 {
-	private TimeSpan _period = TimeSpan.Zero;
-	private TimeSpan _refreshTimer = TimeSpan.FromSeconds(1);
+    private TimeSpan _period = TimeSpan.Zero;
+    private TimeSpan _refreshTimer = TimeSpan.FromSeconds(1);
 
-	public Dictionary<string, object> ScriptValues { get; } = new();
+    public Dictionary<string, object> ScriptValues { get; } = new();
 
-	public void OnCreate()
-	{
-		var caster = At.GetCaster();
+    public void OnCreate()
+    {
+        var caster = At.GetCaster();
 
-		if (caster != null)
-		{
-			var earthquake = caster.GetAuraEffect(ShamanSpells.Earthquake, 1);
+        if (caster != null)
+        {
+            var earthquake = caster.GetAuraEffect(ShamanSpells.Earthquake, 1);
 
-			if (earthquake != null)
-				_period = TimeSpan.FromMilliseconds(earthquake.Period);
-		}
-	}
+            if (earthquake != null)
+                _period = TimeSpan.FromMilliseconds(earthquake.Period);
+        }
+    }
 
-	public void OnUpdate(uint diff)
-	{
-		_refreshTimer -= TimeSpan.FromMilliseconds(diff);
+    public void OnUpdate(uint diff)
+    {
+        _refreshTimer -= TimeSpan.FromMilliseconds(diff);
 
-		while (_refreshTimer <= TimeSpan.Zero)
-		{
-			var caster = At.GetCaster();
+        while (_refreshTimer <= TimeSpan.Zero)
+        {
+            var caster = At.GetCaster();
 
-			caster?.CastSpell(At.Location,
-							ShamanSpells.EarthquakeTick,
-							new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-								.SetOriginalCaster(At.GUID));
+            caster?.CastSpell(At.Location,
+                              ShamanSpells.EarthquakeTick,
+                              new CastSpellExtraArgs(TriggerCastFlags.FullMask)
+                                  .SetOriginalCaster(At.GUID));
 
-			_refreshTimer += _period;
-		}
-	}
+            _refreshTimer += _period;
+        }
+    }
 }

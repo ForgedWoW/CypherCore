@@ -13,19 +13,19 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(269569)] // 269569 - Zeal
 internal class spell_pal_zeal : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo procInfo)
-	{
-		var target = Target;
-		target.CastSpell(target, PaladinSpells.ZealAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, aurEff.Amount));
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo procInfo)
+    {
+        var target = Target;
+        target.CastSpell(target, PaladinSpells.ZealAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, aurEff.Amount));
 
-		PreventDefaultAction();
-	}
+        PreventDefaultAction();
+    }
 }

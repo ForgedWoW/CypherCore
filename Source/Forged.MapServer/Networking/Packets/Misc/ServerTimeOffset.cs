@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class ServerTimeOffset : ServerPacket
 {
-	public long Time;
-	public ServerTimeOffset() : base(ServerOpcodes.ServerTimeOffset) { }
+    public long Time;
+    public ServerTimeOffset() : base(ServerOpcodes.ServerTimeOffset) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt64(Time);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt64(Time);
+    }
 }

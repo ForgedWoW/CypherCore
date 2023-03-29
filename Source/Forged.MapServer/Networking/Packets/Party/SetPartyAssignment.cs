@@ -7,17 +7,17 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class SetPartyAssignment : ClientPacket
 {
-	public byte Assignment;
-	public byte PartyIndex;
-	public ObjectGuid Target;
-	public bool Set;
-	public SetPartyAssignment(WorldPacket packet) : base(packet) { }
+    public byte Assignment;
+    public byte PartyIndex;
+    public ObjectGuid Target;
+    public bool Set;
+    public SetPartyAssignment(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PartyIndex = _worldPacket.ReadUInt8();
-		Assignment = _worldPacket.ReadUInt8();
-		Target = _worldPacket.ReadPackedGuid();
-		Set = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        PartyIndex = _worldPacket.ReadUInt8();
+        Assignment = _worldPacket.ReadUInt8();
+        Target = _worldPacket.ReadPackedGuid();
+        Set = _worldPacket.HasBit();
+    }
 }

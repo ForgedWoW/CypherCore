@@ -7,14 +7,14 @@ namespace Forged.MapServer.Maps;
 
 public class TransferAbortParams
 {
-	public TransferAbortReason Reason { get; set; }
-	public byte Arg { get; set; }
-	public uint MapDifficultyXConditionId { get; set; }
+    public TransferAbortReason Reason { get; set; }
+    public byte Arg { get; set; }
+    public uint MapDifficultyXConditionId { get; set; }
 
-	public TransferAbortParams(TransferAbortReason reason = TransferAbortReason.None, byte arg = 0, uint mapDifficultyXConditionId = 0)
-	{
-		Reason = reason;
-		Arg = arg;
-		MapDifficultyXConditionId = mapDifficultyXConditionId;
-	}
+    public TransferAbortParams(TransferAbortReason reason = TransferAbortReason.None, byte arg = 0, uint mapDifficultyXConditionId = 0)
+    {
+        Reason = reason;
+        Arg = arg;
+        MapDifficultyXConditionId = mapDifficultyXConditionId;
+    }
 }

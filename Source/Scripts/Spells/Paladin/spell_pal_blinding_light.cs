@@ -12,19 +12,19 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(115750)]
 internal class spell_pal_blinding_light : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleDummy(int effIndex)
+    {
+        var target = HitUnit;
 
-		if (target)
-			Caster.CastSpell(target, PaladinSpells.BLINDING_LIGHT_EFFECT, true);
-	}
+        if (target)
+            Caster.CastSpell(target, PaladinSpells.BLINDING_LIGHT_EFFECT, true);
+    }
 }

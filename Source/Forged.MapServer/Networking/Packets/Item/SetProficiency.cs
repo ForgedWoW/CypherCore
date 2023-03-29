@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class SetProficiency : ServerPacket
 {
-	public uint ProficiencyMask;
-	public byte ProficiencyClass;
-	public SetProficiency() : base(ServerOpcodes.SetProficiency, ConnectionType.Instance) { }
+    public uint ProficiencyMask;
+    public byte ProficiencyClass;
+    public SetProficiency() : base(ServerOpcodes.SetProficiency, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(ProficiencyMask);
-		_worldPacket.WriteUInt8(ProficiencyClass);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(ProficiencyMask);
+        _worldPacket.WriteUInt8(ProficiencyClass);
+    }
 }

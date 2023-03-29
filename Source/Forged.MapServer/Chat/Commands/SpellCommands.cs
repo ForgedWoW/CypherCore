@@ -11,146 +11,146 @@ namespace Forged.MapServer.Chat.Commands;
 
 internal class SpellCommands
 {
-	[CommandNonGroup("cooldown", RBACPermissions.CommandCooldown)]
+    [CommandNonGroup("cooldown", RBACPermissions.CommandCooldown)]
     private static bool HandleCooldownCommand(CommandHandler handler, uint? spellIdArg)
-	{
-		var target = handler.SelectedUnit;
+    {
+        var target = handler.SelectedUnit;
 
-		if (!target)
-		{
-			handler.SendSysMessage(CypherStrings.PlayerNotFound);
+        if (!target)
+        {
+            handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
-			return false;
-		}
+            return false;
+        }
 
-		var owner = target.CharmerOrOwnerPlayerOrPlayerItself;
+        var owner = target.CharmerOrOwnerPlayerOrPlayerItself;
 
-		if (!owner)
-		{
-			owner = handler.Session.Player;
-			target = owner;
-		}
+        if (!owner)
+        {
+            owner = handler.Session.Player;
+            target = owner;
+        }
 
-		var nameLink = handler.GetNameLink(owner);
+        var nameLink = handler.GetNameLink(owner);
 
-		if (!spellIdArg.HasValue)
-		{
-			target.SpellHistory.ResetAllCooldowns();
-			target.SpellHistory.ResetAllCharges();
-			handler.SendSysMessage(CypherStrings.RemoveallCooldown, nameLink);
-		}
-		else
-		{
-			var spellInfo = Global.SpellMgr.GetSpellInfo(spellIdArg.Value, target.Map.DifficultyID);
+        if (!spellIdArg.HasValue)
+        {
+            target.SpellHistory.ResetAllCooldowns();
+            target.SpellHistory.ResetAllCharges();
+            handler.SendSysMessage(CypherStrings.RemoveallCooldown, nameLink);
+        }
+        else
+        {
+            var spellInfo = Global.SpellMgr.GetSpellInfo(spellIdArg.Value, target.Map.DifficultyID);
 
-			if (spellInfo == null)
-			{
-				handler.SendSysMessage(CypherStrings.UnknownSpell, owner == handler.Session.Player ? handler.GetCypherString(CypherStrings.You) : nameLink);
+            if (spellInfo == null)
+            {
+                handler.SendSysMessage(CypherStrings.UnknownSpell, owner == handler.Session.Player ? handler.GetCypherString(CypherStrings.You) : nameLink);
 
-				return false;
-			}
+                return false;
+            }
 
-			target.SpellHistory.ResetCooldown(spellInfo.Id, true);
-			target.SpellHistory.ResetCharges(spellInfo.ChargeCategoryId);
-			handler.SendSysMessage(CypherStrings.RemoveallCooldown, spellInfo.Id, owner == handler.Session.Player ? handler.GetCypherString(CypherStrings.You) : nameLink);
-		}
+            target.SpellHistory.ResetCooldown(spellInfo.Id, true);
+            target.SpellHistory.ResetCharges(spellInfo.ChargeCategoryId);
+            handler.SendSysMessage(CypherStrings.RemoveallCooldown, spellInfo.Id, owner == handler.Session.Player ? handler.GetCypherString(CypherStrings.You) : nameLink);
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	[CommandNonGroup("aura", RBACPermissions.CommandAura)]
+    [CommandNonGroup("aura", RBACPermissions.CommandAura)]
     private static bool HandleAuraCommand(CommandHandler handler, uint spellId)
-	{
-		var target = handler.SelectedUnit;
+    {
+        var target = handler.SelectedUnit;
 
-		if (!target)
-		{
-			handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
+        if (!target)
+        {
+            handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
-			return false;
-		}
+            return false;
+        }
 
-		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, target.Map.DifficultyID);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, target.Map.DifficultyID);
 
-		if (spellInfo == null)
-			return false;
+        if (spellInfo == null)
+            return false;
 
-		var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, target.Location.MapId, spellId, target.Map.GenerateLowGuid(HighGuid.Cast));
-		AuraCreateInfo createInfo = new(castId, spellInfo, target.Map.DifficultyID, SpellConst.MaxEffects, target);
-		createInfo.SetCaster(target);
+        var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, target.Location.MapId, spellId, target.Map.GenerateLowGuid(HighGuid.Cast));
+        AuraCreateInfo createInfo = new(castId, spellInfo, target.Map.DifficultyID, SpellConst.MaxEffects, target);
+        createInfo.SetCaster(target);
 
-		Aura.TryRefreshStackOrCreate(createInfo);
+        Aura.TryRefreshStackOrCreate(createInfo);
 
-		return true;
-	}
+        return true;
+    }
 
-	[CommandNonGroup("unaura", RBACPermissions.CommandUnaura)]
+    [CommandNonGroup("unaura", RBACPermissions.CommandUnaura)]
     private static bool HandleUnAuraCommand(CommandHandler handler, uint spellId = 0)
-	{
-		var target = handler.SelectedUnit;
+    {
+        var target = handler.SelectedUnit;
 
-		if (!target)
-		{
-			handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
+        if (!target)
+        {
+            handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
-			return false;
-		}
+            return false;
+        }
 
-		if (spellId == 0)
-		{
-			target.RemoveAllAuras();
+        if (spellId == 0)
+        {
+            target.RemoveAllAuras();
 
-			return true;
-		}
+            return true;
+        }
 
-		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
+        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
 
-		if (spellInfo != null)
-		{
-			target.RemoveAura(spellInfo.Id);
+        if (spellInfo != null)
+        {
+            target.RemoveAura(spellInfo.Id);
 
-			return true;
-		}
+            return true;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	[CommandNonGroup("setskill", RBACPermissions.CommandSetskill)]
+    [CommandNonGroup("setskill", RBACPermissions.CommandSetskill)]
     private static bool HandleSetSkillCommand(CommandHandler handler, uint skillId, uint level, uint? maxSkillArg)
-	{
-		var target = handler.SelectedPlayerOrSelf;
+    {
+        var target = handler.SelectedPlayerOrSelf;
 
-		if (!target)
-		{
-			handler.SendSysMessage(CypherStrings.NoCharSelected);
+        if (!target)
+        {
+            handler.SendSysMessage(CypherStrings.NoCharSelected);
 
-			return false;
-		}
+            return false;
+        }
 
-		var skillLine = CliDB.SkillLineStorage.LookupByKey(skillId);
+        var skillLine = CliDB.SkillLineStorage.LookupByKey(skillId);
 
-		if (skillLine == null)
-		{
-			handler.SendSysMessage(CypherStrings.InvalidSkillId, skillId);
+        if (skillLine == null)
+        {
+            handler.SendSysMessage(CypherStrings.InvalidSkillId, skillId);
 
-			return false;
-		}
+            return false;
+        }
 
-		var targetHasSkill = target.GetSkillValue((SkillType)skillId) != 0;
+        var targetHasSkill = target.GetSkillValue((SkillType)skillId) != 0;
 
-		// If our target does not yet have the skill they are trying to add to them, the chosen level also becomes
-		// the max level of the new profession.
-		var max = (ushort)maxSkillArg.GetValueOrDefault(targetHasSkill ? target.GetPureMaxSkillValue((SkillType)skillId) : level);
+        // If our target does not yet have the skill they are trying to add to them, the chosen level also becomes
+        // the max level of the new profession.
+        var max = (ushort)maxSkillArg.GetValueOrDefault(targetHasSkill ? target.GetPureMaxSkillValue((SkillType)skillId) : level);
 
-		if (level == 0 || level > max)
-			return false;
+        if (level == 0 || level > max)
+            return false;
 
-		// If the player has the skill, we get the current skill step. If they don't have the skill, we
-		// add the skill to the player's book with step 1 (which is the first rank, in most cases something
-		// like 'Apprentice <skill>'.
-		target.SetSkill((SkillType)skillId, (uint)(targetHasSkill ? target.GetSkillStep((SkillType)skillId) : 1), level, max);
-		handler.SendSysMessage(CypherStrings.SetSkill, skillId, skillLine.DisplayName[handler.SessionDbcLocale], handler.GetNameLink(target), level, max);
+        // If the player has the skill, we get the current skill step. If they don't have the skill, we
+        // add the skill to the player's book with step 1 (which is the first rank, in most cases something
+        // like 'Apprentice <skill>'.
+        target.SetSkill((SkillType)skillId, (uint)(targetHasSkill ? target.GetSkillStep((SkillType)skillId) : 1), level, max);
+        handler.SendSysMessage(CypherStrings.SetSkill, skillId, skillLine.DisplayName[handler.SessionDbcLocale], handler.GetNameLink(target), level, max);
 
-		return true;
-	}
+        return true;
+    }
 }

@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Collection;
 
 public enum CollectionType
 {
-	None = -1,
-	Toybox = 1,
-	Appearance = 3,
-	TransmogSet = 4
+    None = -1,
+    Toybox = 1,
+    Appearance = 3,
+    TransmogSet = 4
 }

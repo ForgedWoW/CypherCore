@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildDeleteRank : ClientPacket
 {
-	public int RankOrder;
-	public GuildDeleteRank(WorldPacket packet) : base(packet) { }
+    public int RankOrder;
+    public GuildDeleteRank(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		RankOrder = _worldPacket.ReadInt32();
-	}
+    public override void Read()
+    {
+        RankOrder = _worldPacket.ReadInt32();
+    }
 }

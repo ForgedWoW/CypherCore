@@ -7,24 +7,24 @@ namespace Framework.Constants;
 
 public struct SpellConst
 {
-	public const uint MAX_EFFECT_MASK = 0xFFFFFFFF;
+    public const uint MAX_EFFECT_MASK = 0xFFFFFFFF;
 
-	public static HashSet<int> MaxEffects => new HashSet<int>().Fill(32);
-	public const int MaxReagents = 8;
-	public const int MaxTotems = 2;
-	public const int MaxShapeshift = 8;
+    public static HashSet<int> MaxEffects => new HashSet<int>().Fill(32);
+    public const int MaxReagents = 8;
+    public const int MaxTotems = 2;
+    public const int MaxShapeshift = 8;
 
-	public const int MaxAuras = 255;
+    public const int MaxAuras = 255;
 
-	public const int EffectFirstFound = 254;
-	public const int EffectAll = 255;
+    public const int EffectFirstFound = 254;
+    public const int EffectAll = 255;
 
-	public const float TrajectoryMissileSize = 3.0f;
+    public const float TrajectoryMissileSize = 3.0f;
 
-	public const int MaxPowersPerSpell = 4;
+    public const int MaxPowersPerSpell = 4;
 
-	public const uint VisualKitFood = 406;
-	public const uint VisualKitDrink = 438;
+    public const uint VisualKitFood = 406;
+    public const uint VisualKitDrink = 438;
 }
 
 

@@ -14,22 +14,22 @@ internal class NearestGameObjectTypeInObjectRangeCheck : ICheck<GameObject>
     private readonly GameObjectTypes _type;
     private float _range;
 
-	public NearestGameObjectTypeInObjectRangeCheck(WorldObject obj, GameObjectTypes type, float range)
-	{
-		_obj = obj;
-		_type = type;
-		_range = range;
-	}
+    public NearestGameObjectTypeInObjectRangeCheck(WorldObject obj, GameObjectTypes type, float range)
+    {
+        _obj = obj;
+        _type = type;
+        _range = range;
+    }
 
-	public bool Invoke(GameObject go)
-	{
-		if (go.GoType == _type && _obj.IsWithinDist(go, _range))
-		{
-			_range = _obj.GetDistance(go); // use found GO range as new range limit for next check
+    public bool Invoke(GameObject go)
+    {
+        if (go.GoType == _type && _obj.IsWithinDist(go, _range))
+        {
+            _range = _obj.GetDistance(go); // use found GO range as new range limit for next check
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

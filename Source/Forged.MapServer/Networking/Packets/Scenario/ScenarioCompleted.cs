@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Scenario;
 
 internal class ScenarioCompleted : ServerPacket
 {
-	public uint ScenarioID;
+    public uint ScenarioID;
 
-	public ScenarioCompleted(uint scenarioId) : base(ServerOpcodes.ScenarioCompleted, ConnectionType.Instance)
-	{
-		ScenarioID = scenarioId;
-	}
+    public ScenarioCompleted(uint scenarioId) : base(ServerOpcodes.ScenarioCompleted, ConnectionType.Instance)
+    {
+        ScenarioID = scenarioId;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(ScenarioID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(ScenarioID);
+    }
 }

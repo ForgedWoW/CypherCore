@@ -14,46 +14,46 @@ namespace Scripts.Spells.Quest;
 [Script("spell_q11515_fel_siphon_dummy", SpellEffectName.Dummy, 0u, CreatureIds.FelbloodInitiate, CreatureIds.EmaciatedFelblood, true, 0)]
 internal class spell_generic_quest_update_entry : SpellScript, IHasSpellEffects
 {
-	private readonly uint _despawnTime;
-	private readonly byte _effIndex;
-	private readonly uint _newEntry;
-	private readonly uint _originalEntry;
-	private readonly bool _shouldAttack;
+    private readonly uint _despawnTime;
+    private readonly byte _effIndex;
+    private readonly uint _newEntry;
+    private readonly uint _originalEntry;
+    private readonly bool _shouldAttack;
 
-	private readonly SpellEffectName _spellEffect;
+    private readonly SpellEffectName _spellEffect;
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public spell_generic_quest_update_entry(SpellEffectName spellEffect, uint effIndex, uint originalEntry, uint newEntry, bool shouldAttack, uint despawnTime)
-	{
-		_spellEffect = spellEffect;
-		_effIndex = (byte)effIndex;
-		_originalEntry = originalEntry;
-		_newEntry = newEntry;
-		_shouldAttack = shouldAttack;
-		_despawnTime = despawnTime;
-	}
+    public spell_generic_quest_update_entry(SpellEffectName spellEffect, uint effIndex, uint originalEntry, uint newEntry, bool shouldAttack, uint despawnTime)
+    {
+        _spellEffect = spellEffect;
+        _effIndex = (byte)effIndex;
+        _originalEntry = originalEntry;
+        _newEntry = newEntry;
+        _shouldAttack = shouldAttack;
+        _despawnTime = despawnTime;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, _effIndex, _spellEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, _effIndex, _spellEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var creatureTarget = HitCreature;
+    private void HandleDummy(int effIndex)
+    {
+        var creatureTarget = HitCreature;
 
-		if (creatureTarget)
-			if (!creatureTarget.IsPet &&
-				creatureTarget.Entry == _originalEntry)
-			{
-				creatureTarget.UpdateEntry(_newEntry);
+        if (creatureTarget)
+            if (!creatureTarget.IsPet &&
+                creatureTarget.Entry == _originalEntry)
+            {
+                creatureTarget.UpdateEntry(_newEntry);
 
-				if (_shouldAttack)
-					creatureTarget.EngageWithTarget(Caster);
+                if (_shouldAttack)
+                    creatureTarget.EngageWithTarget(Caster);
 
-				if (_despawnTime != 0)
-					creatureTarget.DespawnOrUnsummon(TimeSpan.FromMilliseconds(_despawnTime));
-			}
-	}
+                if (_despawnTime != 0)
+                    creatureTarget.DespawnOrUnsummon(TimeSpan.FromMilliseconds(_despawnTime));
+            }
+    }
 }

@@ -8,20 +8,20 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventTabModified : ServerPacket
 {
-	public string Icon;
-	public string Name;
-	public int Tab;
-	public GuildEventTabModified() : base(ServerOpcodes.GuildEventTabModified) { }
+    public string Icon;
+    public string Name;
+    public int Tab;
+    public GuildEventTabModified() : base(ServerOpcodes.GuildEventTabModified) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Tab);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Tab);
 
-		_worldPacket.WriteBits(Name.GetByteCount(), 7);
-		_worldPacket.WriteBits(Icon.GetByteCount(), 9);
-		_worldPacket.FlushBits();
+        _worldPacket.WriteBits(Name.GetByteCount(), 7);
+        _worldPacket.WriteBits(Icon.GetByteCount(), 9);
+        _worldPacket.FlushBits();
 
-		_worldPacket.WriteString(Name);
-		_worldPacket.WriteString(Icon);
-	}
+        _worldPacket.WriteString(Name);
+        _worldPacket.WriteString(Icon);
+    }
 }

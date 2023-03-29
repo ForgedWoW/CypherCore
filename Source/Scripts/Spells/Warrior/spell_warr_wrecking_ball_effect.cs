@@ -14,19 +14,19 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(215570)]
 public class spell_warr_wrecking_ball_effect : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.AddPctModifier, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.AddPctModifier, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			if (caster.HasAura(WarriorSpells.WRECKING_BALL_EFFECT))
-				caster.RemoveAura(WarriorSpells.WRECKING_BALL_EFFECT);
-	}
+        if (caster != null)
+            if (caster.HasAura(WarriorSpells.WRECKING_BALL_EFFECT))
+                caster.RemoveAura(WarriorSpells.WRECKING_BALL_EFFECT);
+    }
 }

@@ -12,20 +12,20 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_cannon_blast : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var bp = EffectValue;
-		var target = HitUnit;
-		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-		args.AddSpellMod(SpellValueMod.BasePoint0, bp);
-		target.CastSpell(target, GenericSpellIds.CannonBlastDamage, args);
-	}
+    private void HandleScript(int effIndex)
+    {
+        var bp = EffectValue;
+        var target = HitUnit;
+        CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+        args.AddSpellMod(SpellValueMod.BasePoint0, bp);
+        target.CastSpell(target, GenericSpellIds.CannonBlastDamage, args);
+    }
 }

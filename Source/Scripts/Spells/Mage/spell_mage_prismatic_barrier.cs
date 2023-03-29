@@ -13,19 +13,19 @@ namespace Scripts.Spells.Mage;
 [Script] // 235450 - Prismatic Barrier
 internal class spell_mage_prismatic_barrier : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+    }
 
-	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		canBeRecalculated.Value = false;
-		var caster = Caster;
+    private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        canBeRecalculated.Value = false;
+        var caster = Caster;
 
-		if (caster)
-			amount.Value += (caster.SpellBaseHealingBonusDone(SpellInfo.GetSchoolMask()) * 7.0f);
-	}
+        if (caster)
+            amount.Value += (caster.SpellBaseHealingBonusDone(SpellInfo.GetSchoolMask()) * 7.0f);
+    }
 }

@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Equipment;
 
 internal class DeleteEquipmentSet : ClientPacket
 {
-	public ulong ID;
-	public DeleteEquipmentSet(WorldPacket packet) : base(packet) { }
+    public ulong ID;
+    public DeleteEquipmentSet(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ID = _worldPacket.ReadUInt64();
-	}
+    public override void Read()
+    {
+        ID = _worldPacket.ReadUInt64();
+    }
 }

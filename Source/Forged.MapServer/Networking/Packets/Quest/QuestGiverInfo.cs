@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverInfo
 {
-	public ObjectGuid Guid;
-	public QuestGiverStatus Status = QuestGiverStatus.None;
-	public QuestGiverInfo() { }
+    public ObjectGuid Guid;
+    public QuestGiverStatus Status = QuestGiverStatus.None;
+    public QuestGiverInfo() { }
 
-	public QuestGiverInfo(ObjectGuid guid, QuestGiverStatus status)
-	{
-		Guid = guid;
-		Status = status;
-	}
+    public QuestGiverInfo(ObjectGuid guid, QuestGiverStatus status)
+    {
+        Guid = guid;
+        Status = status;
+    }
 }

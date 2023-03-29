@@ -14,21 +14,21 @@ namespace Scripts.Spells.Warrior;
 // 82368 - Victorious
 [SpellScript(new uint[]
 {
-	32216, 82368
+    32216, 82368
 })]
 public class spell_warr_victorious : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.AddPctModifier, AuraScriptHookType.EffectProc));
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 1, AuraType.AddFlatModifier, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.AddPctModifier, AuraScriptHookType.EffectProc));
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 1, AuraType.AddFlatModifier, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		PreventDefaultAction();
-		Target.RemoveAura(Id);
-	}
+    private void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        PreventDefaultAction();
+        Target.RemoveAura(Id);
+    }
 }

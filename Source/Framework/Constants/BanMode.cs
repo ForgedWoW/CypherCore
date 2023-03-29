@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum BanMode
 {
-	Account,
-	Character,
-	IP
+    Account,
+    Character,
+    IP
 }

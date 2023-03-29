@@ -11,30 +11,30 @@ namespace Scripts.Spells.Priest;
 [SpellScript(527)]
 public class spell_pri_purify : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public SpellCastResult CheckCast()
-	{
-		var caster = Caster;
-		var target = ExplTargetUnit;
+    public SpellCastResult CheckCast()
+    {
+        var caster = Caster;
+        var target = ExplTargetUnit;
 
-		if (caster != target && target.IsFriendlyTo(caster))
-			return SpellCastResult.BadTargets;
+        if (caster != target && target.IsFriendlyTo(caster))
+            return SpellCastResult.BadTargets;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(AfterEffectHit, 0, SpellEffectName.Dispel, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(AfterEffectHit, 0, SpellEffectName.Dispel, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void AfterEffectHit(int effIndex)
-	{
-		if (HitUnit.IsFriendlyTo(Caster))
-		{
-			Caster.CastSpell(HitUnit, PriestSpells.DISPEL_MAGIC_HOSTILE, true);
-			Caster.CastSpell(HitUnit, PriestSpells.CURE_DISEASE, true);
-		}
-	}
+    private void AfterEffectHit(int effIndex)
+    {
+        if (HitUnit.IsFriendlyTo(Caster))
+        {
+            Caster.CastSpell(HitUnit, PriestSpells.DISPEL_MAGIC_HOSTILE, true);
+            Caster.CastSpell(HitUnit, PriestSpells.CURE_DISEASE, true);
+        }
+    }
 }

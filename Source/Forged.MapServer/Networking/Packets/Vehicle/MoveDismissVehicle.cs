@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Vehicle;
 
 public class MoveDismissVehicle : ClientPacket
 {
-	public MovementInfo Status;
-	public MoveDismissVehicle(WorldPacket packet) : base(packet) { }
+    public MovementInfo Status;
+    public MoveDismissVehicle(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Status = MovementExtensions.ReadMovementInfo(_worldPacket);
-	}
+    public override void Read()
+    {
+        Status = MovementExtensions.ReadMovementInfo(_worldPacket);
+    }
 }

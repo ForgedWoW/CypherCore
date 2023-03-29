@@ -10,40 +10,40 @@ namespace Scripts.Spells.DemonHunter;
 [Script]
 public class at_dh_darkness : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnCreate
 {
-	private bool entered;
+    private bool entered;
 
-	public void OnCreate()
-	{
-		At.SetDuration(8000);
-	}
+    public void OnCreate()
+    {
+        At.SetDuration(8000);
+    }
 
-	public void OnUnitEnter(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitEnter(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		if (caster.IsFriendlyTo(unit) && !unit.HasAura(DemonHunterSpells.DARKNESS_ABSORB))
-		{
-			entered = true;
+        if (caster.IsFriendlyTo(unit) && !unit.HasAura(DemonHunterSpells.DARKNESS_ABSORB))
+        {
+            entered = true;
 
-			if (entered)
-			{
-				caster.CastSpell(unit, DemonHunterSpells.DARKNESS_ABSORB, true);
-				entered = false;
-			}
-		}
-	}
+            if (entered)
+            {
+                caster.CastSpell(unit, DemonHunterSpells.DARKNESS_ABSORB, true);
+                entered = false;
+            }
+        }
+    }
 
-	public void OnUnitExit(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitExit(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		if (unit.HasAura(DemonHunterSpells.DARKNESS_ABSORB))
-			unit.RemoveAurasDueToSpell(DemonHunterSpells.DARKNESS_ABSORB, caster.GUID);
-	}
+        if (unit.HasAura(DemonHunterSpells.DARKNESS_ABSORB))
+            unit.RemoveAurasDueToSpell(DemonHunterSpells.DARKNESS_ABSORB, caster.GUID);
+    }
 }

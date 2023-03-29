@@ -16,23 +16,23 @@ public class PlayerWorker : IGridNotifierPlayer
     private readonly PhaseShift _phaseShift;
     private readonly Action<Player> _action;
 
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public PlayerWorker(WorldObject searcher, Action<Player> action, GridType gridType)
-	{
-		_phaseShift = searcher.PhaseShift;
-		_action = action;
-		GridType = gridType;
-	}
+    public PlayerWorker(WorldObject searcher, Action<Player> action, GridType gridType)
+    {
+        _phaseShift = searcher.PhaseShift;
+        _action = action;
+        GridType = gridType;
+    }
 
-	public void Visit(IList<Player> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var player = objs[i];
+    public void Visit(IList<Player> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var player = objs[i];
 
-			if (player.InSamePhase(_phaseShift))
-				_action.Invoke(player);
-		}
-	}
+            if (player.InSamePhase(_phaseShift))
+                _action.Invoke(player);
+        }
+    }
 }

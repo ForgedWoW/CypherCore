@@ -12,62 +12,62 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(198013)]
 public class spell_dh_eye_beam : AuraScript, IHasAuraEffects
 {
-	private bool _firstTick = true;
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    private bool _firstTick = true;
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicTriggerSpell));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 2, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 2, AuraType.Dummy, AuraEffectHandleModes.Real));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicTriggerSpell));
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 2, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 2, AuraType.Dummy, AuraEffectHandleModes.Real));
+    }
 
-	private void HandlePeriodic(AuraEffect UnnamedParameter)
-	{
-		var caster = Caster;
+    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			if (!_firstTick)
-			{
-				caster.CastSpell(caster, DemonHunterSpells.EYE_BEAM_DAMAGE, true);
-				var energize = caster.GetAuraEffectAmount(DemonHunterSpells.BLIND_FURY, 2);
+        if (caster != null)
+            if (!_firstTick)
+            {
+                caster.CastSpell(caster, DemonHunterSpells.EYE_BEAM_DAMAGE, true);
+                var energize = caster.GetAuraEffectAmount(DemonHunterSpells.BLIND_FURY, 2);
 
-				if (energize != 0)
-					caster.ModifyPower(PowerType.Fury, energize * 2.0f / 50.0f);
-			}
+                if (energize != 0)
+                    caster.ModifyPower(PowerType.Fury, energize * 2.0f / 50.0f);
+            }
 
-		_firstTick = false;
-	}
+        _firstTick = false;
+    }
 
-	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			caster.RemoveAura(DemonHunterSpells.EYE_BEAM_VISUAL);
-	}
+        if (caster != null)
+            caster.RemoveAura(DemonHunterSpells.EYE_BEAM_VISUAL);
+    }
 
-	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			if (!caster.HasAura(DemonHunterSpells.DEMONIC))
-				caster.CastSpell(caster, DemonHunterSpells.EYE_BEAM_VISUAL, true);
+        if (caster != null)
+        {
+            if (!caster.HasAura(DemonHunterSpells.DEMONIC))
+                caster.CastSpell(caster, DemonHunterSpells.EYE_BEAM_VISUAL, true);
 
-			if (caster.HasAura(DemonHunterSpells.DEMONIC))
-			{
-				var aur = caster.GetAura(DemonHunterSpells.METAMORPHOSIS_HAVOC);
+            if (caster.HasAura(DemonHunterSpells.DEMONIC))
+            {
+                var aur = caster.GetAura(DemonHunterSpells.METAMORPHOSIS_HAVOC);
 
-				if (aur != null)
-					aur.ModDuration(8 * Time.InMilliseconds);
-				else
-					aur = caster.AddAura(DemonHunterSpells.METAMORPHOSIS_HAVOC, caster);
+                if (aur != null)
+                    aur.ModDuration(8 * Time.InMilliseconds);
+                else
+                    aur = caster.AddAura(DemonHunterSpells.METAMORPHOSIS_HAVOC, caster);
 
-				if (aur != null)
-					aur.SetDuration(10 * Time.InMilliseconds);
-			}
-		}
-	}
+                if (aur != null)
+                    aur.SetDuration(10 * Time.InMilliseconds);
+            }
+        }
+    }
 }

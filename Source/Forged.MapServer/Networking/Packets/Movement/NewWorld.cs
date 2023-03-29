@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class NewWorld : ServerPacket
 {
-	public uint MapID;
-	public uint Reason;
-	public TeleportLocation Loc = new();
-	public Position MovementOffset; // Adjusts all pending movement events by this offset
-	public NewWorld() : base(ServerOpcodes.NewWorld) { }
+    public uint MapID;
+    public uint Reason;
+    public TeleportLocation Loc = new();
+    public Position MovementOffset; // Adjusts all pending movement events by this offset
+    public NewWorld() : base(ServerOpcodes.NewWorld) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(MapID);
-		Loc.Write(_worldPacket);
-		_worldPacket.WriteUInt32(Reason);
-		_worldPacket.WriteXYZ(MovementOffset);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(MapID);
+        Loc.Write(_worldPacket);
+        _worldPacket.WriteUInt32(Reason);
+        _worldPacket.WriteXYZ(MovementOffset);
+    }
 }

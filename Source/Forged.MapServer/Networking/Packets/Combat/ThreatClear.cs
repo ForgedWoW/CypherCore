@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public class ThreatClear : ServerPacket
 {
-	public ObjectGuid UnitGUID;
-	public ThreatClear() : base(ServerOpcodes.ThreatClear) { }
+    public ObjectGuid UnitGUID;
+    public ThreatClear() : base(ServerOpcodes.ThreatClear) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(UnitGUID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(UnitGUID);
+    }
 }

@@ -10,24 +10,24 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraEffectProcHandler : IAuraEffectHandler
 {
-	void HandleProc(AuraEffect aura, ProcEventInfo info);
+    void HandleProc(AuraEffect aura, ProcEventInfo info);
 }
 
 public class AuraEffectProcHandler : AuraEffectHandler, IAuraEffectProcHandler
 {
-	private readonly Action<AuraEffect, ProcEventInfo> _fn;
+    private readonly Action<AuraEffect, ProcEventInfo> _fn;
 
-	public AuraEffectProcHandler(Action<AuraEffect, ProcEventInfo> fn, int effectIndex, AuraType auraType, AuraScriptHookType hookType) : base(effectIndex, auraType, hookType)
-	{
-		_fn = fn;
+    public AuraEffectProcHandler(Action<AuraEffect, ProcEventInfo> fn, int effectIndex, AuraType auraType, AuraScriptHookType hookType) : base(effectIndex, auraType, hookType)
+    {
+        _fn = fn;
 
-		if (hookType != AuraScriptHookType.EffectProc &&
-			hookType != AuraScriptHookType.EffectAfterProc)
-			throw new Exception($"Hook Type {hookType} is not valid for {nameof(AuraEffectProcHandler)}. Use {AuraScriptHookType.EffectProc} or {AuraScriptHookType.EffectAfterProc}");
-	}
+        if (hookType != AuraScriptHookType.EffectProc &&
+            hookType != AuraScriptHookType.EffectAfterProc)
+            throw new Exception($"Hook Type {hookType} is not valid for {nameof(AuraEffectProcHandler)}. Use {AuraScriptHookType.EffectProc} or {AuraScriptHookType.EffectAfterProc}");
+    }
 
-	public void HandleProc(AuraEffect aura, ProcEventInfo info)
-	{
-		_fn(aura, info);
-	}
+    public void HandleProc(AuraEffect aura, ProcEventInfo info)
+    {
+        _fn(aura, info);
+    }
 }

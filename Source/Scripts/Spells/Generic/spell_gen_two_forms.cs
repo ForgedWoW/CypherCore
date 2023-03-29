@@ -12,41 +12,41 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_two_forms : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public SpellCastResult CheckCast()
-	{
-		if (Caster.IsInCombat)
-		{
-			SetCustomCastResultMessage(SpellCustomErrors.CantTransform);
+    public SpellCastResult CheckCast()
+    {
+        if (Caster.IsInCombat)
+        {
+            SetCustomCastResultMessage(SpellCustomErrors.CantTransform);
 
-			return SpellCastResult.CustomError;
-		}
+            return SpellCastResult.CustomError;
+        }
 
-		// Player cannot transform to human form if he is forced to be worgen for some reason (Darkflight)
-		if (Caster.GetAuraEffectsByType(AuraType.WorgenAlteredForm).Count > 1)
-		{
-			SetCustomCastResultMessage(SpellCustomErrors.CantTransform);
+        // Player cannot transform to human form if he is forced to be worgen for some reason (Darkflight)
+        if (Caster.GetAuraEffectsByType(AuraType.WorgenAlteredForm).Count > 1)
+        {
+            SetCustomCastResultMessage(SpellCustomErrors.CantTransform);
 
-			return SpellCastResult.CustomError;
-		}
+            return SpellCastResult.CustomError;
+        }
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleTransform, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleTransform, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleTransform(int effIndex)
-	{
-		var target = HitUnit;
-		PreventHitDefaultEffect(effIndex);
+    private void HandleTransform(int effIndex)
+    {
+        var target = HitUnit;
+        PreventHitDefaultEffect(effIndex);
 
-		if (target.HasAuraType(AuraType.WorgenAlteredForm))
-			target.RemoveAurasByType(AuraType.WorgenAlteredForm);
-		else // Basepoints 1 for this aura control whether to trigger transform transition animation or not.
-			target.CastSpell(target, GenericSpellIds.AlteredForm, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, 1));
-	}
+        if (target.HasAuraType(AuraType.WorgenAlteredForm))
+            target.RemoveAurasByType(AuraType.WorgenAlteredForm);
+        else // Basepoints 1 for this aura control whether to trigger transform transition animation or not.
+            target.CastSpell(target, GenericSpellIds.AlteredForm, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, 1));
+    }
 }

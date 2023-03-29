@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IBattlefield;
 
 public interface IBattlefieldGetBattlefield : IScriptObject
 {
-	BattleField GetBattlefield(Map map);
+    BattleField GetBattlefield(Map map);
 }

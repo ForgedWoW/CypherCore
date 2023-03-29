@@ -7,5 +7,5 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class NpcText
 {
-	public NpcTextData[] Data { get; set; } = new NpcTextData[SharedConst.MaxNpcTextOptions];
+    public NpcTextData[] Data { get; set; } = new NpcTextData[SharedConst.MaxNpcTextOptions];
 }

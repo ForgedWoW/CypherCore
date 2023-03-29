@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum AzeriteItemMilestoneType
 {
-	MajorEssence = 0,
-	MinorEssence = 1,
-	BonusStamina = 2
+    MajorEssence = 0,
+    MinorEssence = 1,
+    BonusStamina = 2
 }

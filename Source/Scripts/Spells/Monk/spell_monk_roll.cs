@@ -12,29 +12,29 @@ namespace Scripts.Spells.Monk;
 [Script] // 109132 - Roll
 internal class spell_monk_roll : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public SpellCastResult CheckCast()
-	{
-		if (Caster.HasUnitState(UnitState.Root))
-			return SpellCastResult.Rooted;
+    public SpellCastResult CheckCast()
+    {
+        if (Caster.HasUnitState(UnitState.Root))
+            return SpellCastResult.Rooted;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		Caster
-			.CastSpell(Caster,
-						Caster.HasUnitMovementFlag(MovementFlag.Backward) ? MonkSpells.RollBackward : MonkSpells.RollForward,
-						new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+    private void HandleDummy(int effIndex)
+    {
+        Caster
+            .CastSpell(Caster,
+                       Caster.HasUnitMovementFlag(MovementFlag.Backward) ? MonkSpells.RollBackward : MonkSpells.RollForward,
+                       new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
 
-		Caster.CastSpell(Caster, MonkSpells.NoFeatherFall, true);
-	}
+        Caster.CastSpell(Caster, MonkSpells.NoFeatherFall, true);
+    }
 }

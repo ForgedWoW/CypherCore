@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class ResurrectResponse : ClientPacket
 {
-	public ObjectGuid Resurrecter;
-	public uint Response;
-	public ResurrectResponse(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Resurrecter;
+    public uint Response;
+    public ResurrectResponse(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Resurrecter = _worldPacket.ReadPackedGuid();
-		Response = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        Resurrecter = _worldPacket.ReadPackedGuid();
+        Response = _worldPacket.ReadUInt32();
+    }
 }

@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal struct FollowerSoftCapInfo
 {
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(GarrFollowerTypeID);
-		data.WriteUInt32(Count);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(GarrFollowerTypeID);
+        data.WriteUInt32(Count);
+    }
 
-	public int GarrFollowerTypeID;
-	public uint Count;
+    public int GarrFollowerTypeID;
+    public uint Count;
 }

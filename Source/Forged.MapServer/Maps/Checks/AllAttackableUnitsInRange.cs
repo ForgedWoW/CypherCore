@@ -11,32 +11,32 @@ internal class AllAttackableUnitsInRange : ICheck<Unit>
     private readonly Unit _unit;
     private readonly float _range;
 
-	public AllAttackableUnitsInRange(Unit obj, float range)
-	{
-		_unit = obj;
-		_range = range;
-	}
+    public AllAttackableUnitsInRange(Unit obj, float range)
+    {
+        _unit = obj;
+        _range = range;
+    }
 
-	public bool Invoke(Unit u)
-	{
-		if (!u.IsAlive)
-			return false;
+    public bool Invoke(Unit u)
+    {
+        if (!u.IsAlive)
+            return false;
 
-		if (!u.IsVisible())
-			return false;
+        if (!u.IsVisible())
+            return false;
 
-		if (!_unit.IsValidAttackTarget(u))
-			return false;
+        if (!_unit.IsValidAttackTarget(u))
+            return false;
 
-		if (_range != 0f)
-		{
-			if (_range > 0.0f && !_unit.IsWithinDist(u, _range, false))
-				return false;
+        if (_range != 0f)
+        {
+            if (_range > 0.0f && !_unit.IsWithinDist(u, _range, false))
+                return false;
 
-			if (_range < 0.0f && _unit.IsWithinDist(u, _range, false))
-				return false;
-		}
+            if (_range < 0.0f && _unit.IsWithinDist(u, _range, false))
+                return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

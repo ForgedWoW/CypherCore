@@ -5,9 +5,9 @@ namespace Forged.MapServer.Spells;
 
 public class SpellTargetPosition
 {
-	public uint TargetMapId;
-	public float X;
-	public float Y;
-	public float Z;
-	public float Orientation;
+    public uint TargetMapId;
+    public float X;
+    public float Y;
+    public float Z;
+    public float Orientation;
 }

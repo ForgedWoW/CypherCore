@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public struct AuctionItemForSale
 {
-	public ObjectGuid Guid;
-	public uint UseCount;
+    public ObjectGuid Guid;
+    public uint UseCount;
 
-	public AuctionItemForSale(WorldPacket data)
-	{
-		Guid = data.ReadPackedGuid();
-		UseCount = data.ReadUInt32();
-	}
+    public AuctionItemForSale(WorldPacket data)
+    {
+        Guid = data.ReadPackedGuid();
+        UseCount = data.ReadUInt32();
+    }
 }

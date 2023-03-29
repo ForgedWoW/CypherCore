@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class QuestUpdateComplete : ServerPacket
 {
-	public uint QuestID;
-	public QuestUpdateComplete() : base(ServerOpcodes.QuestUpdateComplete) { }
+    public uint QuestID;
+    public QuestUpdateComplete() : base(ServerOpcodes.QuestUpdateComplete) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(QuestID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(QuestID);
+    }
 }

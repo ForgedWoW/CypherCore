@@ -12,17 +12,17 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(253593)]
 public class aura_inexorable_assault : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnPeriodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnPeriodic, 0, AuraType.PeriodicDummy));
+    }
 
 
-	private void OnPeriodic(AuraEffect UnnamedParameter)
-	{
-		if (Caster)
-			Caster.CastSpell(null, DeathKnightSpells.INEXORABLE_ASSAULT_STACK, true);
-	}
+    private void OnPeriodic(AuraEffect UnnamedParameter)
+    {
+        if (Caster)
+            Caster.CastSpell(null, DeathKnightSpells.INEXORABLE_ASSAULT_STACK, true);
+    }
 }

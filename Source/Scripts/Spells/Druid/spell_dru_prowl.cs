@@ -10,10 +10,10 @@ namespace Scripts.Spells.Druid;
 [Script] // 5215 - Prowl
 internal class spell_dru_prowl : SpellScript, ISpellBeforeCast
 {
-	public void BeforeCast()
-	{
-		// Change into cat form
-		if (Caster.ShapeshiftForm != ShapeShiftForm.CatForm)
-			Caster.CastSpell(Caster, DruidSpellIds.CatForm, true);
-	}
+    public void BeforeCast()
+    {
+        // Change into cat form
+        if (Caster.ShapeshiftForm != ShapeShiftForm.CatForm)
+            Caster.CastSpell(Caster, DruidSpellIds.CatForm, true);
+    }
 }

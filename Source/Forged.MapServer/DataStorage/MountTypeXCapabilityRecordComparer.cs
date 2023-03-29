@@ -8,11 +8,11 @@ namespace Forged.MapServer.DataStorage;
 
 internal class MountTypeXCapabilityRecordComparer : IComparer<MountTypeXCapabilityRecord>
 {
-	public int Compare(MountTypeXCapabilityRecord left, MountTypeXCapabilityRecord right)
-	{
-		if (left.MountTypeID == right.MountTypeID)
-			return left.OrderIndex.CompareTo(right.OrderIndex);
+    public int Compare(MountTypeXCapabilityRecord left, MountTypeXCapabilityRecord right)
+    {
+        if (left.MountTypeID == right.MountTypeID)
+            return left.OrderIndex.CompareTo(right.OrderIndex);
 
-		return left.Id.CompareTo(right.Id);
-	}
+        return left.Id.CompareTo(right.Id);
+    }
 }

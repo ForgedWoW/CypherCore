@@ -9,15 +9,15 @@ namespace Scripts.Spells.Quest;
 [Script] // 93072 - Get Our Boys Back Dummy
 internal class spell_q28813_get_our_boys_back_dummy : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
-		var injuredStormwindInfantry = caster.FindNearestCreature(CreatureIds.InjuredStormwindInfantry, 5.0f, true);
+    public void OnCast()
+    {
+        var caster = Caster;
+        var injuredStormwindInfantry = caster.FindNearestCreature(CreatureIds.InjuredStormwindInfantry, 5.0f, true);
 
-		if (injuredStormwindInfantry)
-		{
-			injuredStormwindInfantry.SetCreatorGUID(caster.GUID);
-			injuredStormwindInfantry.CastSpell(injuredStormwindInfantry, QuestSpellIds.RenewedLife, true);
-		}
-	}
+        if (injuredStormwindInfantry)
+        {
+            injuredStormwindInfantry.SetCreatorGUID(caster.GUID);
+            injuredStormwindInfantry.CastSpell(injuredStormwindInfantry, QuestSpellIds.RenewedLife, true);
+        }
+    }
 }

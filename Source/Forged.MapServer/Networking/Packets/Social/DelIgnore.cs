@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Social;
 
 public class DelIgnore : ClientPacket
 {
-	public QualifiedGUID Player;
-	public DelIgnore(WorldPacket packet) : base(packet) { }
+    public QualifiedGUID Player;
+    public DelIgnore(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Player.Read(_worldPacket);
-	}
+    public override void Read()
+    {
+        Player.Read(_worldPacket);
+    }
 }

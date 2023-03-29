@@ -10,10 +10,10 @@ namespace Scripts.Spells.Druid;
 [Script] // 99 - Incapacitating Roar
 internal class spell_dru_incapacitating_roar : SpellScript, ISpellBeforeCast
 {
-	public void BeforeCast()
-	{
-		// Change into cat form
-		if (Caster.ShapeshiftForm != ShapeShiftForm.BearForm)
-			Caster.CastSpell(Caster, DruidSpellIds.BearForm, true);
-	}
+    public void BeforeCast()
+    {
+        // Change into cat form
+        if (Caster.ShapeshiftForm != ShapeShiftForm.BearForm)
+            Caster.CastSpell(Caster, DruidSpellIds.BearForm, true);
+    }
 }

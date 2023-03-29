@@ -9,26 +9,26 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class PartyMemberPetStats
 {
-	public ObjectGuid GUID;
-	public string Name;
-	public short ModelId;
+    public ObjectGuid GUID;
+    public string Name;
+    public short ModelId;
 
-	public int CurrentHealth;
-	public int MaxHealth;
+    public int CurrentHealth;
+    public int MaxHealth;
 
-	public List<PartyMemberAuraStates> Auras = new();
+    public List<PartyMemberAuraStates> Auras = new();
 
-	public void Write(WorldPacket data)
-	{
-		data.WritePackedGuid(GUID);
-		data.WriteInt32(ModelId);
-		data.WriteInt32(CurrentHealth);
-		data.WriteInt32(MaxHealth);
-		data.WriteInt32(Auras.Count);
-		Auras.ForEach(p => p.Write(data));
+    public void Write(WorldPacket data)
+    {
+        data.WritePackedGuid(GUID);
+        data.WriteInt32(ModelId);
+        data.WriteInt32(CurrentHealth);
+        data.WriteInt32(MaxHealth);
+        data.WriteInt32(Auras.Count);
+        Auras.ForEach(p => p.Write(data));
 
-		data.WriteBits(Name.GetByteCount(), 8);
-		data.FlushBits();
-		data.WriteString(Name);
-	}
+        data.WriteBits(Name.GetByteCount(), 8);
+        data.FlushBits();
+        data.WriteString(Name);
+    }
 }

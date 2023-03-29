@@ -15,60 +15,60 @@ public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer
 {
     private readonly ICollection<WorldObject> _objects;
 
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public VisibleChangesNotifier(ICollection<WorldObject> objects, GridType gridType)
-	{
-		_objects = objects;
-		GridType = gridType;
-	}
+    public VisibleChangesNotifier(ICollection<WorldObject> objects, GridType gridType)
+    {
+        _objects = objects;
+        GridType = gridType;
+    }
 
-	public void Visit(IList<Creature> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var creature = objs[i];
+    public void Visit(IList<Creature> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var creature = objs[i];
 
-			if (creature == null) continue;
+            if (creature == null) continue;
 
-			foreach (var visionPlayer in creature.GetSharedVisionList())
-				if (visionPlayer.SeerView == creature)
-					visionPlayer.UpdateVisibilityOf(_objects);
-		}
-	}
+            foreach (var visionPlayer in creature.GetSharedVisionList())
+                if (visionPlayer.SeerView == creature)
+                    visionPlayer.UpdateVisibilityOf(_objects);
+        }
+    }
 
-	public void Visit(IList<DynamicObject> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var dynamicObject = objs[i];
-			var caster = dynamicObject.GetCaster();
+    public void Visit(IList<DynamicObject> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var dynamicObject = objs[i];
+            var caster = dynamicObject.GetCaster();
 
-			if (caster)
-			{
-				var pl = caster.AsPlayer;
+            if (caster)
+            {
+                var pl = caster.AsPlayer;
 
-				if (pl && pl.SeerView == dynamicObject)
-					pl.UpdateVisibilityOf(_objects);
-			}
-		}
-	}
+                if (pl && pl.SeerView == dynamicObject)
+                    pl.UpdateVisibilityOf(_objects);
+            }
+        }
+    }
 
-	public void Visit(IList<Player> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var player = objs[i];
+    public void Visit(IList<Player> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var player = objs[i];
 
-			if (player == null) continue;
+            if (player == null) continue;
 
-			player.UpdateVisibilityOf(_objects);
+            player.UpdateVisibilityOf(_objects);
 
-			foreach (var visionPlayer in player.GetSharedVisionList())
-				if (visionPlayer.SeerView == player)
-					visionPlayer.UpdateVisibilityOf(_objects);
-		}
-	}
+            foreach (var visionPlayer in player.GetSharedVisionList())
+                if (visionPlayer.SeerView == player)
+                    visionPlayer.UpdateVisibilityOf(_objects);
+        }
+    }
 }
 
 //Searchers

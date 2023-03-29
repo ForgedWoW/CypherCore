@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class RequestPVPRewards : ClientPacket
 {
-	public RequestPVPRewards(WorldPacket packet) : base(packet) { }
+    public RequestPVPRewards(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

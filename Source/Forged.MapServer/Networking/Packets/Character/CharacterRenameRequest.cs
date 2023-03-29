@@ -5,15 +5,15 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class CharacterRenameRequest : ClientPacket
 {
-	public CharacterRenameInfo RenameInfo;
-	public CharacterRenameRequest(WorldPacket packet) : base(packet) { }
+    public CharacterRenameInfo RenameInfo;
+    public CharacterRenameRequest(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		RenameInfo = new CharacterRenameInfo
-		{
-			Guid = _worldPacket.ReadPackedGuid(),
-			NewName = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(6))
-		};
-	}
+    public override void Read()
+    {
+        RenameInfo = new CharacterRenameInfo
+        {
+            Guid = _worldPacket.ReadPackedGuid(),
+            NewName = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(6))
+        };
+    }
 }

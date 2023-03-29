@@ -10,8 +10,8 @@ namespace Scripts.Spells.DeathKnight;
 [Script]
 public class at_dk_decomposing_aura : AreaTriggerScript, IAreaTriggerOnUnitExit
 {
-	public void OnUnitExit(Unit unit)
-	{
-		unit.RemoveAurasDueToSpell(DeathKnightSpells.DECOMPOSING_AURA_DAMAGE, At.CasterGuid);
-	}
+    public void OnUnitExit(Unit unit)
+    {
+        unit.RemoveAurasDueToSpell(DeathKnightSpells.DECOMPOSING_AURA_DAMAGE, At.CasterGuid);
+    }
 }

@@ -12,26 +12,26 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(108196)]
 public class spell_dk_death_siphon : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
 
-	private void HandleScriptEffect(int effIndex)
-	{
-		var _player = Caster.AsPlayer;
+    private void HandleScriptEffect(int effIndex)
+    {
+        var _player = Caster.AsPlayer;
 
-		if (_player != null)
-			if (HitUnit)
-			{
-				var bp = HitDamage;
-				var args = new CastSpellExtraArgs();
-				args.AddSpellMod(SpellValueMod.BasePoint0, (int)bp);
-				args.SetTriggerFlags(TriggerCastFlags.FullMask);
-				_player.CastSpell(_player, DeathKnightSpells.DEATH_SIPHON_HEAL, args);
-			}
-	}
+        if (_player != null)
+            if (HitUnit)
+            {
+                var bp = HitDamage;
+                var args = new CastSpellExtraArgs();
+                args.AddSpellMod(SpellValueMod.BasePoint0, (int)bp);
+                args.SetTriggerFlags(TriggerCastFlags.FullMask);
+                _player.CastSpell(_player, DeathKnightSpells.DEATH_SIPHON_HEAL, args);
+            }
+    }
 }

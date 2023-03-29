@@ -9,35 +9,35 @@ namespace Forged.MapServer.DataStorage.ClientReader;
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct FieldMetaData
 {
-	public short Bits;
-	public ushort Offset;
+    public short Bits;
+    public ushort Offset;
 
-	public int ByteCount
-	{
-		get
-		{
-			var value = (32 - Bits) >> 3;
+    public int ByteCount
+    {
+        get
+        {
+            var value = (32 - Bits) >> 3;
 
-			return (value < 0 ? Math.Abs(value) + 4 : value);
-		}
-	}
+            return (value < 0 ? Math.Abs(value) + 4 : value);
+        }
+    }
 
-	public int BitCount
-	{
-		get
-		{
-			var bitSize = 32 - Bits;
+    public int BitCount
+    {
+        get
+        {
+            var bitSize = 32 - Bits;
 
-			if (bitSize < 0)
-				bitSize = (bitSize * -1) + 32;
+            if (bitSize < 0)
+                bitSize = (bitSize * -1) + 32;
 
-			return bitSize;
-		}
-	}
+            return bitSize;
+        }
+    }
 
-	public FieldMetaData(short bits, ushort offset)
-	{
-		Bits = bits;
-		Offset = offset;
-	}
+    public FieldMetaData(short bits, ushort offset)
+    {
+        Bits = bits;
+        Offset = offset;
+    }
 }

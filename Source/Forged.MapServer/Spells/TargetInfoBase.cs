@@ -7,9 +7,9 @@ namespace Forged.MapServer.Spells;
 
 public class TargetInfoBase
 {
-	public HashSet<int> Effects;
+    public HashSet<int> Effects;
 
-	public virtual void PreprocessTarget(Spell spell) { }
-	public virtual void DoTargetSpellHit(Spell spell, SpellEffectInfo spellEffectInfo) { }
-	public virtual void DoDamageAndTriggers(Spell spell) { }
+    public virtual void PreprocessTarget(Spell spell) { }
+    public virtual void DoTargetSpellHit(Spell spell, SpellEffectInfo spellEffectInfo) { }
+    public virtual void DoDamageAndTriggers(Spell spell) { }
 }

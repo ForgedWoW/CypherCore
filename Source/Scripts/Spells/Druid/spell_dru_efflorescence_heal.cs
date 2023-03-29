@@ -12,19 +12,19 @@ namespace Scripts.Spells.Druid;
 [SpellScript(81269)]
 public class spell_dru_efflorescence_heal : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(SortTargets, 0, Targets.UnitDestAreaAlly));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(SortTargets, 0, Targets.UnitDestAreaAlly));
+    }
 
 
-	private void SortTargets(List<WorldObject> targets)
-	{
-		targets.Sort(new HealthPctOrderPred());
+    private void SortTargets(List<WorldObject> targets)
+    {
+        targets.Sort(new HealthPctOrderPred());
 
-		if (targets.Count > 3)
-			targets.Resize(3);
-	}
+        if (targets.Count > 3)
+            targets.Resize(3);
+    }
 }

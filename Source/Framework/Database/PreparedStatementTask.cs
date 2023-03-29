@@ -7,32 +7,32 @@ public class PreparedStatementTask : ISqlOperation
 {
     private readonly PreparedStatement m_stmt;
     private readonly bool _needsResult;
-	public SQLResult Result { get; private set; }
+    public SQLResult Result { get; private set; }
 
-	public PreparedStatementTask(PreparedStatement stmt, bool needsResult = false)
-	{
-		m_stmt = stmt;
-		_needsResult = needsResult;
-	}
+    public PreparedStatementTask(PreparedStatement stmt, bool needsResult = false)
+    {
+        m_stmt = stmt;
+        _needsResult = needsResult;
+    }
 
-	public bool Execute<T>(MySqlBase<T> mySqlBase)
-	{
-		if (_needsResult)
-		{
-			var result = mySqlBase.Query(m_stmt);
+    public bool Execute<T>(MySqlBase<T> mySqlBase)
+    {
+        if (_needsResult)
+        {
+            var result = mySqlBase.Query(m_stmt);
 
-			if (result == null)
-			{
-				Result = new SQLResult();
+            if (result == null)
+            {
+                Result = new SQLResult();
 
-				return false;
-			}
+                return false;
+            }
 
-			Result = result;
+            Result = result;
 
-			return true;
-		}
+            return true;
+        }
 
-		return mySqlBase.DirectExecute(m_stmt);
-	}
+        return mySqlBase.DirectExecute(m_stmt);
+    }
 }

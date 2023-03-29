@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class DailyQuestsReset : ServerPacket
 {
-	public int Count;
-	public DailyQuestsReset() : base(ServerOpcodes.DailyQuestsReset) { }
+    public int Count;
+    public DailyQuestsReset() : base(ServerOpcodes.DailyQuestsReset) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Count);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Count);
+    }
 }

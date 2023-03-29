@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum SpawnObjectType
 {
-	Creature = 0,
-	GameObject = 1,
-	AreaTrigger = 2,
+    Creature = 0,
+    GameObject = 1,
+    AreaTrigger = 2,
 
-	NumSpawnTypesWithData,
-	NumSpawnTypes
+    NumSpawnTypesWithData,
+    NumSpawnTypes
 }

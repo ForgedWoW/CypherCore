@@ -8,24 +8,24 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventLogQueryResults : ServerPacket
 {
-	public List<GuildEventEntry> Entry;
+    public List<GuildEventEntry> Entry;
 
-	public GuildEventLogQueryResults() : base(ServerOpcodes.GuildEventLogQueryResults)
-	{
-		Entry = new List<GuildEventEntry>();
-	}
+    public GuildEventLogQueryResults() : base(ServerOpcodes.GuildEventLogQueryResults)
+    {
+        Entry = new List<GuildEventEntry>();
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Entry.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Entry.Count);
 
-		foreach (var entry in Entry)
-		{
-			_worldPacket.WritePackedGuid(entry.PlayerGUID);
-			_worldPacket.WritePackedGuid(entry.OtherGUID);
-			_worldPacket.WriteUInt8(entry.TransactionType);
-			_worldPacket.WriteUInt8(entry.RankID);
-			_worldPacket.WriteUInt32(entry.TransactionDate);
-		}
-	}
+        foreach (var entry in Entry)
+        {
+            _worldPacket.WritePackedGuid(entry.PlayerGUID);
+            _worldPacket.WritePackedGuid(entry.OtherGUID);
+            _worldPacket.WriteUInt8(entry.TransactionType);
+            _worldPacket.WriteUInt8(entry.RankID);
+            _worldPacket.WriteUInt32(entry.TransactionDate);
+        }
+    }
 }

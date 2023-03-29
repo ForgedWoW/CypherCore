@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Scene;
 
 internal class ScenePlaybackComplete : ClientPacket
 {
-	public uint SceneInstanceID;
-	public ScenePlaybackComplete(WorldPacket packet) : base(packet) { }
+    public uint SceneInstanceID;
+    public ScenePlaybackComplete(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		SceneInstanceID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        SceneInstanceID = _worldPacket.ReadUInt32();
+    }
 }

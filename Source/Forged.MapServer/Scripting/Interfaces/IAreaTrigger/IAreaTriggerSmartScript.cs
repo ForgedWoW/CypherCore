@@ -9,25 +9,25 @@ namespace Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 public interface IAreaTriggerSmartScript : IAreaTriggerScript
 {
-	SmartScript _script { get; }
+    SmartScript _script { get; }
 
-	public virtual void OnInitialize()
-	{
-		_script.OnInitialize(At);
-	}
+    public virtual void OnInitialize()
+    {
+        _script.OnInitialize(At);
+    }
 
-	public virtual void OnUpdate(uint diff)
-	{
-		_script.OnUpdate(diff);
-	}
+    public virtual void OnUpdate(uint diff)
+    {
+        _script.OnUpdate(diff);
+    }
 
-	public virtual void OnUnitEnter(Unit unit)
-	{
-		_script.ProcessEventsFor(SmartEvents.AreatriggerOntrigger, unit);
-	}
+    public virtual void OnUnitEnter(Unit unit)
+    {
+        _script.ProcessEventsFor(SmartEvents.AreatriggerOntrigger, unit);
+    }
 
-	public virtual void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker)
-	{
-		_script.SetTimedActionList(e, entry, invoker);
-	}
+    public virtual void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker)
+    {
+        _script.SetTimedActionList(e, entry, invoker);
+    }
 }

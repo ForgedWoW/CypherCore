@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class SocketGemsSuccess : ServerPacket
 {
-	public ObjectGuid Item;
-	public SocketGemsSuccess() : base(ServerOpcodes.SocketGemsSuccess, ConnectionType.Instance) { }
+    public ObjectGuid Item;
+    public SocketGemsSuccess() : base(ServerOpcodes.SocketGemsSuccess, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Item);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Item);
+    }
 }

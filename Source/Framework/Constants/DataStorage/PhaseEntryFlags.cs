@@ -5,14 +5,14 @@ namespace Framework.Constants;
 
 public enum PhaseEntryFlags : ushort
 {
-	ReadOnly = 0x1,
-	InternalPhase = 0x2,
-	Normal = 0x8,
-	Cosmetic = 0x010,
-	Personal = 0x020,
-	Expensive = 0x040,
-	EventsAreObservable = 0x080,
-	UsesPreloadConditions = 0x100,
-	UnshareablePersonal = 0x200,
-	ObjectsAreVisible = 0x400,
+    ReadOnly = 0x1,
+    InternalPhase = 0x2,
+    Normal = 0x8,
+    Cosmetic = 0x010,
+    Personal = 0x020,
+    Expensive = 0x040,
+    EventsAreObservable = 0x080,
+    UsesPreloadConditions = 0x100,
+    UnshareablePersonal = 0x200,
+    ObjectsAreVisible = 0x400,
 }

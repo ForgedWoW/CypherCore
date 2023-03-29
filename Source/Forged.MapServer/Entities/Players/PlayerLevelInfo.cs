@@ -5,5 +5,5 @@ namespace Forged.MapServer.Entities.Players;
 
 public class PlayerLevelInfo
 {
-	public int[] Stats { get; set; } = new int[(int)Framework.Constants.Stats.Max];
+    public int[] Stats { get; set; } = new int[(int)Framework.Constants.Stats.Max];
 }

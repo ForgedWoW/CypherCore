@@ -13,29 +13,29 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(208796)]
 public class spell_dh_jagged_spikes : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
-	{
-		var caster = Caster;
-		var target = eventInfo.Actor;
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+    {
+        var caster = Caster;
+        var target = eventInfo.Actor;
 
-		if (caster == null || eventInfo.DamageInfo != null)
-			return;
+        if (caster == null || eventInfo.DamageInfo != null)
+            return;
 
-		if (caster.IsFriendlyTo(target))
-			return;
+        if (caster.IsFriendlyTo(target))
+            return;
 
-		var pct = caster.GetAuraEffectAmount(DemonHunterSpells.JAGGED_SPIKES, 0);
-		var damage = eventInfo.DamageInfo.Damage;
-		MathFunctions.ApplyPct(ref damage, pct);
+        var pct = caster.GetAuraEffectAmount(DemonHunterSpells.JAGGED_SPIKES, 0);
+        var damage = eventInfo.DamageInfo.Damage;
+        MathFunctions.ApplyPct(ref damage, pct);
 
-		caster.CastSpell(target, DemonHunterSpells.JAGGED_SPIKES_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)damage));
-	}
+        caster.CastSpell(target, DemonHunterSpells.JAGGED_SPIKES_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)damage));
+    }
 }

@@ -12,30 +12,30 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(186265)]
 public class spell_hun_aspect_of_the_turtle : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 1, AuraType.DeflectSpells, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.DeflectSpells, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 1, AuraType.DeflectSpells, AuraEffectHandleModes.Real));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.DeflectSpells, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			caster.SetUnitFlag(UnitFlags.Pacified);
-			caster.AttackStop();
-		}
-	}
+        if (caster != null)
+        {
+            caster.SetUnitFlag(UnitFlags.Pacified);
+            caster.AttackStop();
+        }
+    }
 
-	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			caster.RemoveUnitFlag(UnitFlags.Pacified);
-	}
+        if (caster != null)
+            caster.RemoveUnitFlag(UnitFlags.Pacified);
+    }
 }

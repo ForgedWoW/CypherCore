@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum SpellState
 {
-	None = 0,
-	Preparing = 1,
-	Casting = 2,
-	Finished = 3,
-	Idle = 4,
-	Delayed = 5
+    None = 0,
+    Preparing = 1,
+    Casting = 2,
+    Finished = 3,
+    Idle = 4,
+    Delayed = 5
 }

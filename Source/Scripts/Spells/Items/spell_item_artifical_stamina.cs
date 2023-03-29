@@ -13,24 +13,24 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_artifical_stamina : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override bool Load()
-	{
-		return Owner.IsTypeId(TypeId.Player);
-	}
+    public override bool Load()
+    {
+        return Owner.IsTypeId(TypeId.Player);
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ModTotalStatPercentage));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ModTotalStatPercentage));
+    }
 
-	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		var artifact = Owner.AsPlayer.GetItemByGuid(Aura.CastItemGuid);
+    private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        var artifact = Owner.AsPlayer.GetItemByGuid(Aura.CastItemGuid);
 
-		if (artifact)
-			amount.Value = (GetEffectInfo(1).BasePoints * artifact.GetTotalPurchasedArtifactPowers() / 100);
-	}
+        if (artifact)
+            amount.Value = (GetEffectInfo(1).BasePoints * artifact.GetTotalPurchasedArtifactPowers() / 100);
+    }
 }

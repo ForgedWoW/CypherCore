@@ -13,28 +13,28 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(201472)]
 public class spell_dh_artifact_rage_of_the_illidari : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
 
-	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		var caster = Caster;
+    private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        var caster = Caster;
 
-		if (caster == null || eventInfo.DamageInfo != null)
-			return;
+        if (caster == null || eventInfo.DamageInfo != null)
+            return;
 
-		var damage = MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEff.GetSpellEffectInfo().BasePoints);
+        var damage = MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEff.GetSpellEffectInfo().BasePoints);
 
-		if (damage == 0)
-			return;
+        if (damage == 0)
+            return;
 
-		// damage += caster->VariableStorage.GetValue<int32>("Spells.RageOfTheIllidariDamage");
+        // damage += caster->VariableStorage.GetValue<int32>("Spells.RageOfTheIllidariDamage");
 
-		//  caster->VariableStorage.Set("Spells.RageOfTheIllidariDamage", damage);
-	}
+        //  caster->VariableStorage.Set("Spells.RageOfTheIllidariDamage", damage);
+    }
 }

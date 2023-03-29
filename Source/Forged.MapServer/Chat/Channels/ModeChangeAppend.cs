@@ -9,21 +9,21 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct ModeChangeAppend : IChannelAppender
 {
-	public ModeChangeAppend(ObjectGuid guid, ChannelMemberFlags oldFlags, ChannelMemberFlags newFlags)
-	{
-		_guid = guid;
-		_oldFlags = oldFlags;
-		_newFlags = newFlags;
-	}
+    public ModeChangeAppend(ObjectGuid guid, ChannelMemberFlags oldFlags, ChannelMemberFlags newFlags)
+    {
+        _guid = guid;
+        _oldFlags = oldFlags;
+        _newFlags = newFlags;
+    }
 
-	public ChatNotify GetNotificationType() => ChatNotify.ModeChangeNotice;
+    public ChatNotify GetNotificationType() => ChatNotify.ModeChangeNotice;
 
-	public void Append(ChannelNotify data)
-	{
-		data.SenderGuid = _guid;
-		data.OldFlags = _oldFlags;
-		data.NewFlags = _newFlags;
-	}
+    public void Append(ChannelNotify data)
+    {
+        data.SenderGuid = _guid;
+        data.OldFlags = _oldFlags;
+        data.NewFlags = _newFlags;
+    }
 
     private readonly ObjectGuid _guid;
     private readonly ChannelMemberFlags _oldFlags;

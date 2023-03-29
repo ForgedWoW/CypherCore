@@ -10,9 +10,9 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.GREEN_SPIRITBLOOM, EvokerSpells.GREEN_SPIRITBLOOM_2)]
 internal class spell_evoker_empath : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		if (TryGetCaster(out Player player) && player.HasSpell(EvokerSpells.EMPATH))
-			player.AddAura(EvokerSpells.EMPATH_AURA);
-	}
+    public void AfterCast()
+    {
+        if (TryGetCaster(out Player player) && player.HasSpell(EvokerSpells.EMPATH))
+            player.AddAura(EvokerSpells.EMPATH_AURA);
+    }
 }

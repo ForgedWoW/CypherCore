@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class ReadyCheckResponseClient : ClientPacket
 {
-	public byte PartyIndex;
-	public bool IsReady;
-	public ReadyCheckResponseClient(WorldPacket packet) : base(packet) { }
+    public byte PartyIndex;
+    public bool IsReady;
+    public ReadyCheckResponseClient(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PartyIndex = _worldPacket.ReadUInt8();
-		IsReady = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        PartyIndex = _worldPacket.ReadUInt8();
+        IsReady = _worldPacket.HasBit();
+    }
 }

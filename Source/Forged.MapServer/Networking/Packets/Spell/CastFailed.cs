@@ -7,19 +7,19 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class CastFailed : CastFailedBase
 {
-	public SpellCastVisual Visual;
+    public SpellCastVisual Visual;
 
-	public CastFailed() : base(ServerOpcodes.CastFailed, ConnectionType.Instance) { }
+    public CastFailed() : base(ServerOpcodes.CastFailed, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(CastID);
-		_worldPacket.WriteInt32(SpellID);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(CastID);
+        _worldPacket.WriteInt32(SpellID);
 
-		Visual.Write(_worldPacket);
+        Visual.Write(_worldPacket);
 
-		_worldPacket.WriteInt32((int)Reason);
-		_worldPacket.WriteInt32(FailedArg1);
-		_worldPacket.WriteInt32(FailedArg2);
-	}
+        _worldPacket.WriteInt32((int)Reason);
+        _worldPacket.WriteInt32(FailedArg1);
+        _worldPacket.WriteInt32(FailedArg2);
+    }
 }

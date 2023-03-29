@@ -10,14 +10,14 @@ namespace Scripts.Spells.Priest;
 [SpellScript(48045)]
 public class spell_pri_mind_sear_base : SpellScript, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		var explTarget = ExplTargetUnit;
+    public SpellCastResult CheckCast()
+    {
+        var explTarget = ExplTargetUnit;
 
-		if (explTarget != null)
-			if (explTarget == Caster)
-				return SpellCastResult.BadTargets;
+        if (explTarget != null)
+            if (explTarget == Caster)
+                return SpellCastResult.BadTargets;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

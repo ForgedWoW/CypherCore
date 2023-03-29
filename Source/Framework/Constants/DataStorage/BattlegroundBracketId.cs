@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum BattlegroundBracketId // bracketId for level ranges
 {
-	First = 0,
-	Last = 12,
-	Max
+    First = 0,
+    Last = 12,
+    Max
 }

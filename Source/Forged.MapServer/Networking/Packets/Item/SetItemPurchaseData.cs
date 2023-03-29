@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class SetItemPurchaseData : ServerPacket
 {
-	public uint PurchaseTime;
-	public uint Flags;
-	public ItemPurchaseContents Contents = new();
-	public ObjectGuid ItemGUID;
-	public SetItemPurchaseData() : base(ServerOpcodes.SetItemPurchaseData, ConnectionType.Instance) { }
+    public uint PurchaseTime;
+    public uint Flags;
+    public ItemPurchaseContents Contents = new();
+    public ObjectGuid ItemGUID;
+    public SetItemPurchaseData() : base(ServerOpcodes.SetItemPurchaseData, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ItemGUID);
-		Contents.Write(_worldPacket);
-		_worldPacket.WriteUInt32(Flags);
-		_worldPacket.WriteUInt32(PurchaseTime);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ItemGUID);
+        Contents.Write(_worldPacket);
+        _worldPacket.WriteUInt32(Flags);
+        _worldPacket.WriteUInt32(PurchaseTime);
+    }
 }

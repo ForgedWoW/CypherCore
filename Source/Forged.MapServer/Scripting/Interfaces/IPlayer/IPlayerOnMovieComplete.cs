@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 // Called when a player completes a movie
 public interface IPlayerOnMovieComplete : IScriptObject
 {
-	void OnMovieComplete(Player player, uint movieId);
+    void OnMovieComplete(Player player, uint movieId);
 }

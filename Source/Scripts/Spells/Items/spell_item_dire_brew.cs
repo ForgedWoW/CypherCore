@@ -13,31 +13,31 @@ namespace Scripts.Spells.Items;
 [Script] // 51010 - Dire Brew
 internal class spell_item_dire_brew : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterApply, 0, AuraType.Transform, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(AfterApply, 0, AuraType.Transform, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply));
+    }
 
-	private void AfterApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var target = Target;
+    private void AfterApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var target = Target;
 
-		uint model = 0;
-		var gender = target.Gender;
-		var chrClass = CliDB.ChrClassesStorage.LookupByKey(target.Class);
+        uint model = 0;
+        var gender = target.Gender;
+        var chrClass = CliDB.ChrClassesStorage.LookupByKey(target.Class);
 
-		if ((chrClass.ArmorTypeMask & (1 << (int)ItemSubClassArmor.Plate)) != 0)
-			model = gender == Gender.Male ? ModelIds.ClassPlateMale : ModelIds.ClassPlateFemale;
-		else if ((chrClass.ArmorTypeMask & (1 << (int)ItemSubClassArmor.Mail)) != 0)
-			model = gender == Gender.Male ? ModelIds.ClassMailMale : ModelIds.ClassMailFemale;
-		else if ((chrClass.ArmorTypeMask & (1 << (int)ItemSubClassArmor.Leather)) != 0)
-			model = gender == Gender.Male ? ModelIds.ClassLeatherMale : ModelIds.ClassLeatherFemale;
-		else if ((chrClass.ArmorTypeMask & (1 << (int)ItemSubClassArmor.Cloth)) != 0)
-			model = gender == Gender.Male ? ModelIds.ClassClothMale : ModelIds.ClassClothFemale;
+        if ((chrClass.ArmorTypeMask & (1 << (int)ItemSubClassArmor.Plate)) != 0)
+            model = gender == Gender.Male ? ModelIds.ClassPlateMale : ModelIds.ClassPlateFemale;
+        else if ((chrClass.ArmorTypeMask & (1 << (int)ItemSubClassArmor.Mail)) != 0)
+            model = gender == Gender.Male ? ModelIds.ClassMailMale : ModelIds.ClassMailFemale;
+        else if ((chrClass.ArmorTypeMask & (1 << (int)ItemSubClassArmor.Leather)) != 0)
+            model = gender == Gender.Male ? ModelIds.ClassLeatherMale : ModelIds.ClassLeatherFemale;
+        else if ((chrClass.ArmorTypeMask & (1 << (int)ItemSubClassArmor.Cloth)) != 0)
+            model = gender == Gender.Male ? ModelIds.ClassClothMale : ModelIds.ClassClothFemale;
 
-		if (model != 0)
-			target.SetDisplayId(model);
-	}
+        if (model != 0)
+            target.SetDisplayId(model);
+    }
 }

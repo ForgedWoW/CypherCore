@@ -9,29 +9,29 @@ namespace Forged.MapServer.Networking.Packets.Toy;
 
 internal class AccountToyUpdate : ServerPacket
 {
-	public bool IsFullUpdate = false;
-	public Dictionary<uint, ToyFlags> Toys = new();
-	public AccountToyUpdate() : base(ServerOpcodes.AccountToyUpdate, ConnectionType.Instance) { }
+    public bool IsFullUpdate = false;
+    public Dictionary<uint, ToyFlags> Toys = new();
+    public AccountToyUpdate() : base(ServerOpcodes.AccountToyUpdate, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(IsFullUpdate);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteBit(IsFullUpdate);
+        _worldPacket.FlushBits();
 
-		// all lists have to have the same size
-		_worldPacket.WriteInt32(Toys.Count);
-		_worldPacket.WriteInt32(Toys.Count);
-		_worldPacket.WriteInt32(Toys.Count);
+        // all lists have to have the same size
+        _worldPacket.WriteInt32(Toys.Count);
+        _worldPacket.WriteInt32(Toys.Count);
+        _worldPacket.WriteInt32(Toys.Count);
 
-		foreach (var pair in Toys)
-			_worldPacket.WriteUInt32(pair.Key);
+        foreach (var pair in Toys)
+            _worldPacket.WriteUInt32(pair.Key);
 
-		foreach (var pair in Toys)
-			_worldPacket.WriteBit(pair.Value.HasAnyFlag(ToyFlags.Favorite));
+        foreach (var pair in Toys)
+            _worldPacket.WriteBit(pair.Value.HasAnyFlag(ToyFlags.Favorite));
 
-		foreach (var pair in Toys)
-			_worldPacket.WriteBit(pair.Value.HasAnyFlag(ToyFlags.HasFanfare));
+        foreach (var pair in Toys)
+            _worldPacket.WriteBit(pair.Value.HasAnyFlag(ToyFlags.HasFanfare));
 
-		_worldPacket.FlushBits();
-	}
+        _worldPacket.FlushBits();
+    }
 }

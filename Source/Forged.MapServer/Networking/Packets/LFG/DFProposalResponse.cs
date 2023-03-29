@@ -5,17 +5,17 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class DFProposalResponse : ClientPacket
 {
-	public RideTicket Ticket = new();
-	public ulong InstanceID;
-	public uint ProposalID;
-	public bool Accepted;
-	public DFProposalResponse(WorldPacket packet) : base(packet) { }
+    public RideTicket Ticket = new();
+    public ulong InstanceID;
+    public uint ProposalID;
+    public bool Accepted;
+    public DFProposalResponse(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Ticket.Read(_worldPacket);
-		InstanceID = _worldPacket.ReadUInt64();
-		ProposalID = _worldPacket.ReadUInt32();
-		Accepted = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        Ticket.Read(_worldPacket);
+        InstanceID = _worldPacket.ReadUInt64();
+        ProposalID = _worldPacket.ReadUInt32();
+        Accepted = _worldPacket.HasBit();
+    }
 }

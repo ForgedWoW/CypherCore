@@ -8,19 +8,19 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarInviteRemoved : ServerPacket
 {
-	public ObjectGuid InviteGuid;
-	public ulong EventID;
-	public uint Flags;
-	public bool ClearPending;
-	public CalendarInviteRemoved() : base(ServerOpcodes.CalendarInviteRemoved) { }
+    public ObjectGuid InviteGuid;
+    public ulong EventID;
+    public uint Flags;
+    public bool ClearPending;
+    public CalendarInviteRemoved() : base(ServerOpcodes.CalendarInviteRemoved) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(InviteGuid);
-		_worldPacket.WriteUInt64(EventID);
-		_worldPacket.WriteUInt32(Flags);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(InviteGuid);
+        _worldPacket.WriteUInt64(EventID);
+        _worldPacket.WriteUInt32(Flags);
 
-		_worldPacket.WriteBit(ClearPending);
-		_worldPacket.FlushBits();
-	}
+        _worldPacket.WriteBit(ClearPending);
+        _worldPacket.FlushBits();
+    }
 }

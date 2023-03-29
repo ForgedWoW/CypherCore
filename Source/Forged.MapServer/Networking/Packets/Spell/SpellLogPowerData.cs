@@ -5,14 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellLogPowerData
 {
-	public SpellLogPowerData(int powerType, int amount, int cost)
-	{
-		PowerType = powerType;
-		Amount = amount;
-		Cost = cost;
-	}
+    public SpellLogPowerData(int powerType, int amount, int cost)
+    {
+        PowerType = powerType;
+        Amount = amount;
+        Cost = cost;
+    }
 
-	public int PowerType;
-	public int Amount;
-	public int Cost;
+    public int PowerType;
+    public int Amount;
+    public int Cost;
 }

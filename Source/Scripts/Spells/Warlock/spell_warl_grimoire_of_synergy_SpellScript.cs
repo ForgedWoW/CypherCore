@@ -10,22 +10,22 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(171975, "spell_warl_grimoire_of_synergy")]
 public class spell_warl_grimoire_of_synergy_SpellScript : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var player = caster.AsPlayer;
+        var player = caster.AsPlayer;
 
-		if (caster.AsPlayer)
-		{
-			var pet = player.GetGuardianPet();
-			player.AddAura(SpellInfo.Id, player);
+        if (caster.AsPlayer)
+        {
+            var pet = player.GetGuardianPet();
+            player.AddAura(SpellInfo.Id, player);
 
-			if (pet != null)
-				player.AddAura(SpellInfo.Id, pet);
-		}
-	}
+            if (pet != null)
+                player.AddAura(SpellInfo.Id, pet);
+        }
+    }
 }

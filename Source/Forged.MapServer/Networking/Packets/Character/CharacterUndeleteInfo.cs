@@ -7,10 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class CharacterUndeleteInfo
 {
-	// User specified variables
-	public ObjectGuid CharacterGuid; // Guid of the character to restore
-	public int ClientToken = 0;      // @todo: research
+    // User specified variables
+    public ObjectGuid CharacterGuid; // Guid of the character to restore
+    public int ClientToken = 0;      // @todo: research
 
-	// Server side data
-	public string Name;
+    // Server side data
+    public string Name;
 }

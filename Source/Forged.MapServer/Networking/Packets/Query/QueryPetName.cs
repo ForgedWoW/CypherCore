@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 internal class QueryPetName : ClientPacket
 {
-	public ObjectGuid UnitGUID;
-	public QueryPetName(WorldPacket packet) : base(packet) { }
+    public ObjectGuid UnitGUID;
+    public QueryPetName(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		UnitGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        UnitGUID = _worldPacket.ReadPackedGuid();
+    }
 }

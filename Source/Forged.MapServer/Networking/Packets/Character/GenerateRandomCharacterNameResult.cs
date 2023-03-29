@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class GenerateRandomCharacterNameResult : ServerPacket
 {
-	public string Name;
-	public bool Success;
-	public GenerateRandomCharacterNameResult() : base(ServerOpcodes.GenerateRandomCharacterNameResult) { }
+    public string Name;
+    public bool Success;
+    public GenerateRandomCharacterNameResult() : base(ServerOpcodes.GenerateRandomCharacterNameResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(Success);
-		_worldPacket.WriteBits(Name.GetByteCount(), 6);
+    public override void Write()
+    {
+        _worldPacket.WriteBit(Success);
+        _worldPacket.WriteBits(Name.GetByteCount(), 6);
 
-		_worldPacket.WriteString(Name);
-	}
+        _worldPacket.WriteString(Name);
+    }
 }

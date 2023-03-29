@@ -13,21 +13,21 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(51556)]
 public class spell_sha_earth_shock : SpellScript, IHasSpellEffects, ISpellOnTakePower
 {
-	private int _takenPower = 0;
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    private int _takenPower = 0;
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public void TakePower(SpellPowerCost powerCost)
-	{
-		_takenPower = powerCost.Amount;
-	}
+    public void TakePower(SpellPowerCost powerCost)
+    {
+        _takenPower = powerCost.Amount;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleCalcDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleCalcDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleCalcDamage(int effIndex)
-	{
-		HitDamage = MathFunctions.CalculatePct(HitDamage, _takenPower);
-	}
+    private void HandleCalcDamage(int effIndex)
+    {
+        HitDamage = MathFunctions.CalculatePct(HitDamage, _takenPower);
+    }
 }

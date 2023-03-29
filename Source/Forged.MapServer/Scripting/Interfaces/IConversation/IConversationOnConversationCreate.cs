@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IConversation;
 
 public interface IConversationOnConversationCreate : IScriptObject
 {
-	void OnConversationCreate(Conversation conversation, Unit creator);
+    void OnConversationCreate(Conversation conversation, Unit creator);
 }

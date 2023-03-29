@@ -13,31 +13,31 @@ public class NearestAttackableNoTotemUnitInObjectRangeCheck : ICheck<Unit>
     private readonly WorldObject _obj;
     private float _range;
 
-	public NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject obj, float range)
-	{
-		_obj = obj;
-		_range = range;
-	}
+    public NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject obj, float range)
+    {
+        _obj = obj;
+        _range = range;
+    }
 
-	public bool Invoke(Unit u)
-	{
-		if (!u.IsAlive)
-			return false;
+    public bool Invoke(Unit u)
+    {
+        if (!u.IsAlive)
+            return false;
 
-		if (u.CreatureType == CreatureType.NonCombatPet)
-			return false;
+        if (u.CreatureType == CreatureType.NonCombatPet)
+            return false;
 
-		if (u.IsTypeId(TypeId.Unit) && u.IsTotem)
-			return false;
+        if (u.IsTypeId(TypeId.Unit) && u.IsTotem)
+            return false;
 
-		if (!u.IsTargetableForAttack(false))
-			return false;
+        if (!u.IsTargetableForAttack(false))
+            return false;
 
-		if (!_obj.IsWithinDist(u, _range) || _obj.IsValidAttackTarget(u))
-			return false;
+        if (!_obj.IsWithinDist(u, _range) || _obj.IsValidAttackTarget(u))
+            return false;
 
-		_range = _obj.GetDistance(u);
+        _range = _obj.GetDistance(u);
 
-		return true;
-	}
+        return true;
+    }
 }

@@ -5,9 +5,9 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class EnumCharacters : ClientPacket
 {
-	public EnumCharacters(WorldPacket packet) : base(packet) { }
+    public EnumCharacters(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }
 
 // @todo: CharCustomizeResult

@@ -11,34 +11,34 @@ namespace Scripts.Spells.Generic;
 [Script] // 28702 - Netherbloom
 internal class spell_gen_netherbloom : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		var target = HitUnit;
+    private void HandleScript(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        var target = HitUnit;
 
-		if (target)
-		{
-			// 25% chance of casting a random buff
-			if (RandomHelper.randChance(75))
-				return;
+        if (target)
+        {
+            // 25% chance of casting a random buff
+            if (RandomHelper.randChance(75))
+                return;
 
-			// triggered spells are 28703 to 28707
-			// Note: some sources say, that there was the possibility of
-			//       receiving a debuff. However, this seems to be Removed by a patch.
+            // triggered spells are 28703 to 28707
+            // Note: some sources say, that there was the possibility of
+            //       receiving a debuff. However, this seems to be Removed by a patch.
 
-			// don't overwrite an existing aura
-			for (byte i = 0; i < 5; ++i)
-				if (target.HasAura(GenericSpellIds.NetherBloomPollen1 + i))
-					return;
+            // don't overwrite an existing aura
+            for (byte i = 0; i < 5; ++i)
+                if (target.HasAura(GenericSpellIds.NetherBloomPollen1 + i))
+                    return;
 
-			target.CastSpell(target, GenericSpellIds.NetherBloomPollen1 + RandomHelper.URand(0, 4), true);
-		}
-	}
+            target.CastSpell(target, GenericSpellIds.NetherBloomPollen1 + RandomHelper.URand(0, 4), true);
+        }
+    }
 }

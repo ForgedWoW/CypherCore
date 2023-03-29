@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailGetList : ClientPacket
 {
-	public ObjectGuid Mailbox;
-	public MailGetList(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Mailbox;
+    public MailGetList(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Mailbox = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Mailbox = _worldPacket.ReadPackedGuid();
+    }
 }
 
 //Structs

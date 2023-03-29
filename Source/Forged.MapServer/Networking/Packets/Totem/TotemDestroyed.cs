@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Totem;
 
 internal class TotemDestroyed : ClientPacket
 {
-	public ObjectGuid TotemGUID;
-	public byte Slot;
-	public TotemDestroyed(WorldPacket packet) : base(packet) { }
+    public ObjectGuid TotemGUID;
+    public byte Slot;
+    public TotemDestroyed(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Slot = _worldPacket.ReadUInt8();
-		TotemGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Slot = _worldPacket.ReadUInt8();
+        TotemGUID = _worldPacket.ReadPackedGuid();
+    }
 }

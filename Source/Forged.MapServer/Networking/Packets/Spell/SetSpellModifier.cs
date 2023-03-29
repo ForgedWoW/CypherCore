@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SetSpellModifier : ServerPacket
 {
-	public List<SpellModifierInfo> Modifiers = new();
-	public SetSpellModifier(ServerOpcodes opcode) : base(opcode, ConnectionType.Instance) { }
+    public List<SpellModifierInfo> Modifiers = new();
+    public SetSpellModifier(ServerOpcodes opcode) : base(opcode, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Modifiers.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Modifiers.Count);
 
-		foreach (var spellMod in Modifiers)
-			spellMod.Write(_worldPacket);
-	}
+        foreach (var spellMod in Modifiers)
+            spellMod.Write(_worldPacket);
+    }
 }

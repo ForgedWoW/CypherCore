@@ -5,14 +5,14 @@ namespace Forged.MapServer.DataStorage.Structs.MetaStructs;
 
 public struct WMOAreaTableTripple
 {
-	public WMOAreaTableTripple(int r, int a, int g)
-	{
-		groupId = g;
-		rootId = r;
-		adtId = a;
-	}
+    public WMOAreaTableTripple(int r, int a, int g)
+    {
+        groupId = g;
+        rootId = r;
+        adtId = a;
+    }
 
-	// ordered by entropy; that way memcmp will have a minimal medium runtime
+    // ordered by entropy; that way memcmp will have a minimal medium runtime
     private readonly int groupId;
     private readonly int rootId;
     private readonly int adtId;

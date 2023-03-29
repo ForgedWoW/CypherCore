@@ -7,9 +7,9 @@ using Forged.MapServer.Spells;
 namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 
 /// <summary>
-///  Called when the player casts a spell
+///     Called when the player casts a spell
 /// </summary>
 public interface IPlayerOnSpellCast : IScriptObject, IClassRescriction
 {
-	void OnSpellCast(Player player, Spell spell, bool skipCheck);
+    void OnSpellCast(Player player, Spell spell, bool skipCheck);
 }

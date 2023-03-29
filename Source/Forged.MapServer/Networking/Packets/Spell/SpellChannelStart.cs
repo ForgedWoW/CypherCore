@@ -8,30 +8,30 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellChannelStart : ServerPacket
 {
-	public int SpellID;
-	public SpellCastVisual Visual;
-	public SpellChannelStartInterruptImmunities? InterruptImmunities;
-	public ObjectGuid CasterGUID;
-	public SpellTargetedHealPrediction? HealPrediction;
-	public uint ChannelDuration;
-	public SpellChannelStart() : base(ServerOpcodes.SpellChannelStart, ConnectionType.Instance) { }
+    public int SpellID;
+    public SpellCastVisual Visual;
+    public SpellChannelStartInterruptImmunities? InterruptImmunities;
+    public ObjectGuid CasterGUID;
+    public SpellTargetedHealPrediction? HealPrediction;
+    public uint ChannelDuration;
+    public SpellChannelStart() : base(ServerOpcodes.SpellChannelStart, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(CasterGUID);
-		_worldPacket.WriteInt32(SpellID);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(CasterGUID);
+        _worldPacket.WriteInt32(SpellID);
 
-		Visual.Write(_worldPacket);
+        Visual.Write(_worldPacket);
 
-		_worldPacket.WriteUInt32(ChannelDuration);
-		_worldPacket.WriteBit(InterruptImmunities.HasValue);
-		_worldPacket.WriteBit(HealPrediction.HasValue);
-		_worldPacket.FlushBits();
+        _worldPacket.WriteUInt32(ChannelDuration);
+        _worldPacket.WriteBit(InterruptImmunities.HasValue);
+        _worldPacket.WriteBit(HealPrediction.HasValue);
+        _worldPacket.FlushBits();
 
-		if (InterruptImmunities.HasValue)
-			InterruptImmunities.Value.Write(_worldPacket);
+        if (InterruptImmunities.HasValue)
+            InterruptImmunities.Value.Write(_worldPacket);
 
-		if (HealPrediction.HasValue)
-			HealPrediction.Value.Write(_worldPacket);
-	}
+        if (HealPrediction.HasValue)
+            HealPrediction.Value.Write(_worldPacket);
+    }
 }

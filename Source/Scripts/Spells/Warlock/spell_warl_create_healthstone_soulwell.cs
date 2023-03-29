@@ -12,15 +12,15 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(34130)]
 public class spell_warl_create_healthstone_soulwell : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScriptEffect(int effIndex)
-	{
-		Caster.CastSpell(Caster, 23517, true);
-	}
+    private void HandleScriptEffect(int effIndex)
+    {
+        Caster.CastSpell(Caster, 23517, true);
+    }
 }

@@ -7,29 +7,29 @@ namespace Scripts.Spells.Mage;
 
 [SpellScript(new uint[]
 {
-	157997, 157980
+    157997, 157980
 })]
 public class spell_mage_nova_talent : SpellScript
 {
-	public void OnHit()
-	{
-		var caster = Caster;
-		var target = HitUnit;
-		var explTarget = ExplTargetUnit;
+    public void OnHit()
+    {
+        var caster = Caster;
+        var target = HitUnit;
+        var explTarget = ExplTargetUnit;
 
-		if (target == null || caster == null || explTarget == null)
-			return;
+        if (target == null || caster == null || explTarget == null)
+            return;
 
-		var eff2 = SpellInfo.GetEffect(2).CalcValue();
+        var eff2 = SpellInfo.GetEffect(2).CalcValue();
 
-		if (eff2 != 0)
-		{
-			var dmg = HitDamage;
+        if (eff2 != 0)
+        {
+            var dmg = HitDamage;
 
-			if (target == explTarget)
-				dmg = MathFunctions.CalculatePct(dmg, eff2);
+            if (target == explTarget)
+                dmg = MathFunctions.CalculatePct(dmg, eff2);
 
-			HitDamage = dmg;
-		}
-	}
+            HitDamage = dmg;
+        }
+    }
 }

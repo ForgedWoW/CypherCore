@@ -8,36 +8,36 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class LFGRoleCheckUpdate : ServerPacket
 {
-	public byte PartyIndex;
-	public byte RoleCheckStatus;
-	public List<uint> JoinSlots = new();
-	public List<ulong> BgQueueIDs = new();
-	public int GroupFinderActivityID = 0;
-	public List<LFGRoleCheckUpdateMember> Members = new();
-	public bool IsBeginning;
-	public bool IsRequeue;
-	public LFGRoleCheckUpdate() : base(ServerOpcodes.LfgRoleCheckUpdate) { }
+    public byte PartyIndex;
+    public byte RoleCheckStatus;
+    public List<uint> JoinSlots = new();
+    public List<ulong> BgQueueIDs = new();
+    public int GroupFinderActivityID = 0;
+    public List<LFGRoleCheckUpdateMember> Members = new();
+    public bool IsBeginning;
+    public bool IsRequeue;
+    public LFGRoleCheckUpdate() : base(ServerOpcodes.LfgRoleCheckUpdate) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt8(PartyIndex);
-		_worldPacket.WriteUInt8(RoleCheckStatus);
-		_worldPacket.WriteInt32(JoinSlots.Count);
-		_worldPacket.WriteInt32(BgQueueIDs.Count);
-		_worldPacket.WriteInt32(GroupFinderActivityID);
-		_worldPacket.WriteInt32(Members.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteUInt8(PartyIndex);
+        _worldPacket.WriteUInt8(RoleCheckStatus);
+        _worldPacket.WriteInt32(JoinSlots.Count);
+        _worldPacket.WriteInt32(BgQueueIDs.Count);
+        _worldPacket.WriteInt32(GroupFinderActivityID);
+        _worldPacket.WriteInt32(Members.Count);
 
-		foreach (var slot in JoinSlots)
-			_worldPacket.WriteUInt32(slot);
+        foreach (var slot in JoinSlots)
+            _worldPacket.WriteUInt32(slot);
 
-		foreach (var bgQueueID in BgQueueIDs)
-			_worldPacket.WriteUInt64(bgQueueID);
+        foreach (var bgQueueID in BgQueueIDs)
+            _worldPacket.WriteUInt64(bgQueueID);
 
-		_worldPacket.WriteBit(IsBeginning);
-		_worldPacket.WriteBit(IsRequeue);
-		_worldPacket.FlushBits();
+        _worldPacket.WriteBit(IsBeginning);
+        _worldPacket.WriteBit(IsRequeue);
+        _worldPacket.FlushBits();
 
-		foreach (var member in Members)
-			member.Write(_worldPacket);
-	}
+        foreach (var member in Members)
+            member.Write(_worldPacket);
+    }
 }

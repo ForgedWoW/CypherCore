@@ -13,112 +13,112 @@ namespace Scripts.Spells.Druid;
 [SpellScript(774)]
 public class spell_dru_rejuvenation_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		// Posible Fixed
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(HandleCalculateAmount, 0, AuraType.PeriodicHeal));
+    public override void Register()
+    {
+        // Posible Fixed
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.Real));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(HandleCalculateAmount, 0, AuraType.PeriodicHeal));
 
-		//  OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_rejuvenation::OnPeriodic, 0, AuraType.PeriodicHeal);
-		//  DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rejuvenation::CalculateAmount, 0, AuraType.PeriodicHeal);
-		//  AfterEffectRemove += AuraEffectRemoveFn(spell_dru_rejuvenation::AfterRemove, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.Real);
-	}
+        //  OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_rejuvenation::OnPeriodic, 0, AuraType.PeriodicHeal);
+        //  DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rejuvenation::CalculateAmount, 0, AuraType.PeriodicHeal);
+        //  AfterEffectRemove += AuraEffectRemoveFn(spell_dru_rejuvenation::AfterRemove, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.Real);
+    }
 
-	private void HandleCalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		var l_Caster = Caster;
+    private void HandleCalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        var l_Caster = Caster;
 
-		if (l_Caster != null)
-			///If soul of the forest is activated we increase the heal by 100%
-			if (l_Caster.HasAura(SoulOfTheForestSpells.SOUL_OF_THE_FOREST_RESTO) && !l_Caster.HasAura(DruidSpells.REJUVENATION))
-			{
-				amount.Value *= 2;
-				l_Caster.RemoveAura(SoulOfTheForestSpells.SOUL_OF_THE_FOREST_RESTO);
-			}
-	}
+        if (l_Caster != null)
+            ///If soul of the forest is activated we increase the heal by 100%
+            if (l_Caster.HasAura(SoulOfTheForestSpells.SOUL_OF_THE_FOREST_RESTO) && !l_Caster.HasAura(DruidSpells.REJUVENATION))
+            {
+                amount.Value *= 2;
+                l_Caster.RemoveAura(SoulOfTheForestSpells.SOUL_OF_THE_FOREST_RESTO);
+            }
+    }
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var GlyphOfRejuvenation = caster.GetAuraEffect(Spells.GlyphofRejuvenation, 0);
+        var GlyphOfRejuvenation = caster.GetAuraEffect(Spells.GlyphofRejuvenation, 0);
 
-		if (GlyphOfRejuvenation != null)
-		{
-			GlyphOfRejuvenation.SetAmount(GlyphOfRejuvenation.Amount + 1);
+        if (GlyphOfRejuvenation != null)
+        {
+            GlyphOfRejuvenation.SetAmount(GlyphOfRejuvenation.Amount + 1);
 
-			if (GlyphOfRejuvenation.Amount >= 3)
-				caster.CastSpell(caster, Spells.GlyphofRejuvenationEffect, true);
-		}
-	}
+            if (GlyphOfRejuvenation.Amount >= 3)
+                caster.CastSpell(caster, Spells.GlyphofRejuvenationEffect, true);
+        }
+    }
 
-	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var l_GlyphOfRejuvenation = caster.GetAuraEffect(Spells.GlyphofRejuvenation, 0);
+        var l_GlyphOfRejuvenation = caster.GetAuraEffect(Spells.GlyphofRejuvenation, 0);
 
-		if (l_GlyphOfRejuvenation != null)
-		{
-			l_GlyphOfRejuvenation.SetAmount(l_GlyphOfRejuvenation.Amount - 1);
+        if (l_GlyphOfRejuvenation != null)
+        {
+            l_GlyphOfRejuvenation.SetAmount(l_GlyphOfRejuvenation.Amount - 1);
 
-			if (l_GlyphOfRejuvenation.Amount < 3)
-				caster.RemoveAura(Spells.GlyphofRejuvenationEffect);
-		}
-	}
-
-
-	//Posible Fixed
+            if (l_GlyphOfRejuvenation.Amount < 3)
+                caster.RemoveAura(Spells.GlyphofRejuvenationEffect);
+        }
+    }
 
 
-	// bool Validate(SpellInfo const* spellInfo) override
-	// {
-	//     return ValidateSpellInfo(
-	//         {
-	//             CULTIVATION,
-	//             CULTIVATION_HOT,
-	//             ABUNDANCE,
-	//             ABUNDANCE_BUFF,
-	//         });
-	// }
-	//
-	// void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
-	// {
-	//     if (Unit* caster = GetCaster())
-	//         if (caster->HasAura(ABUNDANCE))
-	//             if (Aura* abundanceBuff = caster->GetAura(ABUNDANCE_BUFF))
-	//                 abundanceBuff->ModStackAmount(-1);
-	// }
-	//
-	// void OnPeriodic(AuraEffect const* aurEff)
-	// {
-	//     if (Unit* target = GetTarget())
-	//         if (GetCaster()->HasAura(CULTIVATION) && !target->HasAura(CULTIVATION_HOT) && target->HealthBelowPct(Global.SpellMgr->GetSpellInfo//(CULTIVATION)->GetEffect(0).BasePoints))
-	//             GetCaster()->CastSpell(target, CULTIVATION_HOT, true);
-	// }
-	//
-	// void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
-	// {
-	//     if (!GetCaster())
-	//         return;
-	//
-	//     amount = MathFunctions.CalculatePct(GetCaster()->SpellBaseHealingBonusDone(SpellSchoolMask.Nature), 60);
-	// }
+    //Posible Fixed
 
-	//Posible Fixed
 
-	private struct Spells
-	{
-		public static readonly uint GlyphofRejuvenation = 17076;
-		public static readonly uint GlyphofRejuvenationEffect = 96206;
-	}
+    // bool Validate(SpellInfo const* spellInfo) override
+    // {
+    //     return ValidateSpellInfo(
+    //         {
+    //             CULTIVATION,
+    //             CULTIVATION_HOT,
+    //             ABUNDANCE,
+    //             ABUNDANCE_BUFF,
+    //         });
+    // }
+    //
+    // void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    // {
+    //     if (Unit* caster = GetCaster())
+    //         if (caster->HasAura(ABUNDANCE))
+    //             if (Aura* abundanceBuff = caster->GetAura(ABUNDANCE_BUFF))
+    //                 abundanceBuff->ModStackAmount(-1);
+    // }
+    //
+    // void OnPeriodic(AuraEffect const* aurEff)
+    // {
+    //     if (Unit* target = GetTarget())
+    //         if (GetCaster()->HasAura(CULTIVATION) && !target->HasAura(CULTIVATION_HOT) && target->HealthBelowPct(Global.SpellMgr->GetSpellInfo//(CULTIVATION)->GetEffect(0).BasePoints))
+    //             GetCaster()->CastSpell(target, CULTIVATION_HOT, true);
+    // }
+    //
+    // void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+    // {
+    //     if (!GetCaster())
+    //         return;
+    //
+    //     amount = MathFunctions.CalculatePct(GetCaster()->SpellBaseHealingBonusDone(SpellSchoolMask.Nature), 60);
+    // }
+
+    //Posible Fixed
+
+    private struct Spells
+    {
+        public static readonly uint GlyphofRejuvenation = 17076;
+        public static readonly uint GlyphofRejuvenationEffect = 96206;
+    }
 }

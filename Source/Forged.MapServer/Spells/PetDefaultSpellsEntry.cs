@@ -5,5 +5,5 @@ namespace Forged.MapServer.Spells;
 
 public class PetDefaultSpellsEntry
 {
-	public uint[] Spellid = new uint[4];
+    public uint[] Spellid = new uint[4];
 }

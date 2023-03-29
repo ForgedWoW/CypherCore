@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum SpellRangeFlag : byte
 {
-	Default = 0,
-	Melee = 1, //melee
-	Ranged = 2 //hunter range and ranged weapon
+    Default = 0,
+    Melee = 1, //melee
+    Ranged = 2 //hunter range and ranged weapon
 }

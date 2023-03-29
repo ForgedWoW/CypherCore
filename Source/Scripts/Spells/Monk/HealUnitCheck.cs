@@ -8,23 +8,23 @@ namespace Scripts.Spells.Monk;
 
 public class HealUnitCheck : ICheck<WorldObject>
 {
-	private readonly Unit m_source;
+    private readonly Unit m_source;
 
-	public HealUnitCheck(Unit source)
-	{
-		m_source = source;
-	}
+    public HealUnitCheck(Unit source)
+    {
+        m_source = source;
+    }
 
-	public bool Invoke(WorldObject @object)
-	{
-		var unit = @object.AsUnit;
+    public bool Invoke(WorldObject @object)
+    {
+        var unit = @object.AsUnit;
 
-		if (unit == null)
-			return true;
+        if (unit == null)
+            return true;
 
-		if (m_source.IsFriendlyTo(unit))
-			return false;
+        if (m_source.IsFriendlyTo(unit))
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 }

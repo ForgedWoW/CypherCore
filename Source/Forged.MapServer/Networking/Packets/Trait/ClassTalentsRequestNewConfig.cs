@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Trait;
 
 internal class ClassTalentsRequestNewConfig : ClientPacket
 {
-	public TraitConfigPacket Config = new();
+    public TraitConfigPacket Config = new();
 
-	public ClassTalentsRequestNewConfig(WorldPacket packet) : base(packet) { }
+    public ClassTalentsRequestNewConfig(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Config.Read(_worldPacket);
-	}
+    public override void Read()
+    {
+        Config.Read(_worldPacket);
+    }
 }

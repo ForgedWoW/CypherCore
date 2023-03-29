@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class LfgPlayerInfo : ServerPacket
 {
-	public LFGBlackList BlackList = new();
-	public List<LfgPlayerDungeonInfo> Dungeons = new();
-	public LfgPlayerInfo() : base(ServerOpcodes.LfgPlayerInfo, ConnectionType.Instance) { }
+    public LFGBlackList BlackList = new();
+    public List<LfgPlayerDungeonInfo> Dungeons = new();
+    public LfgPlayerInfo() : base(ServerOpcodes.LfgPlayerInfo, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Dungeons.Count);
-		BlackList.Write(_worldPacket);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Dungeons.Count);
+        BlackList.Write(_worldPacket);
 
-		foreach (var dungeonInfo in Dungeons)
-			dungeonInfo.Write(_worldPacket);
-	}
+        foreach (var dungeonInfo in Dungeons)
+            dungeonInfo.Write(_worldPacket);
+    }
 }

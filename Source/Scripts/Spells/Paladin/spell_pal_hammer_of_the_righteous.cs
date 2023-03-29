@@ -11,17 +11,17 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(53595)] // 53595 - Hammer of the Righteous
 internal class spell_pal_hammer_of_the_righteous : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleAoEHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleAoEHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleAoEHit(int effIndex)
-	{
-		if (Caster.HasAura(PaladinSpells.ConsecrationProtectionAura))
-			Caster.CastSpell(HitUnit, PaladinSpells.HammerOfTheRighteousAoe);
-	}
+    private void HandleAoEHit(int effIndex)
+    {
+        if (Caster.HasAura(PaladinSpells.ConsecrationProtectionAura))
+            Caster.CastSpell(HitUnit, PaladinSpells.HammerOfTheRighteousAoe);
+    }
 }

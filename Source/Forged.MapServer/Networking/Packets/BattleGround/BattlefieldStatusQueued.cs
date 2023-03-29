@@ -7,24 +7,24 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class BattlefieldStatusQueued : ServerPacket
 {
-	public uint AverageWaitTime;
-	public BattlefieldStatusHeader Hdr = new();
-	public bool AsGroup;
-	public bool SuspendedQueue;
-	public bool EligibleForMatchmaking;
-	public uint WaitTime;
-	public int Unused920;
-	public BattlefieldStatusQueued() : base(ServerOpcodes.BattlefieldStatusQueued) { }
+    public uint AverageWaitTime;
+    public BattlefieldStatusHeader Hdr = new();
+    public bool AsGroup;
+    public bool SuspendedQueue;
+    public bool EligibleForMatchmaking;
+    public uint WaitTime;
+    public int Unused920;
+    public BattlefieldStatusQueued() : base(ServerOpcodes.BattlefieldStatusQueued) { }
 
-	public override void Write()
-	{
-		Hdr.Write(_worldPacket);
-		_worldPacket.WriteUInt32(AverageWaitTime);
-		_worldPacket.WriteUInt32(WaitTime);
-		_worldPacket.WriteInt32(Unused920);
-		_worldPacket.WriteBit(AsGroup);
-		_worldPacket.WriteBit(EligibleForMatchmaking);
-		_worldPacket.WriteBit(SuspendedQueue);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        Hdr.Write(_worldPacket);
+        _worldPacket.WriteUInt32(AverageWaitTime);
+        _worldPacket.WriteUInt32(WaitTime);
+        _worldPacket.WriteInt32(Unused920);
+        _worldPacket.WriteBit(AsGroup);
+        _worldPacket.WriteBit(EligibleForMatchmaking);
+        _worldPacket.WriteBit(SuspendedQueue);
+        _worldPacket.FlushBits();
+    }
 }

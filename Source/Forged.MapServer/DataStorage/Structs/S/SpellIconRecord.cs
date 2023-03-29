@@ -5,6 +5,6 @@ namespace Forged.MapServer.DataStorage.Structs.S;
 
 public sealed class SpellIconRecord
 {
-	public uint Id;
-	public string TextureFilename;
+    public uint Id;
+    public string TextureFilename;
 }

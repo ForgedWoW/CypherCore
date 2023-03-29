@@ -12,21 +12,21 @@ namespace Scripts.Spells.Monk;
 [SpellScript(MonkSpells.FISTS_OF_FURY)]
 public class spell_monk_fists_of_fury : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 2, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 2, AuraType.PeriodicDummy));
+    }
 
-	private void HandlePeriodic(AuraEffect aurEff)
-	{
-		var caster = Caster;
+    private void HandlePeriodic(AuraEffect aurEff)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (aurEff.GetTickNumber() % 6 == 0)
-			caster.CastSpell(Target, MonkSpells.FISTS_OF_FURY_DAMAGE, true);
-	}
+        if (aurEff.GetTickNumber() % 6 == 0)
+            caster.CastSpell(Target, MonkSpells.FISTS_OF_FURY_DAMAGE, true);
+    }
 }

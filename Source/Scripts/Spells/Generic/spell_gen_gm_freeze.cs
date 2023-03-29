@@ -12,63 +12,63 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_gm_freeze : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModStun, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ModStun, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModStun, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ModStun, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		// Do what was done before to the Target in HandleFreezeCommand
-		var player = Target.AsPlayer;
+    private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        // Do what was done before to the Target in HandleFreezeCommand
+        var player = Target.AsPlayer;
 
-		if (player)
-		{
-			// stop combat + make player unattackable + Duel stop + stop some spells
-			player. // stop combat + make player unattackable + Duel stop + stop some spells
-				Faction = 35;
+        if (player)
+        {
+            // stop combat + make player unattackable + Duel stop + stop some spells
+            player. // stop combat + make player unattackable + Duel stop + stop some spells
+                Faction = 35;
 
-			player.CombatStop();
+            player.CombatStop();
 
-			if (player.IsNonMeleeSpellCast(true))
-				player.InterruptNonMeleeSpells(true);
+            if (player.IsNonMeleeSpellCast(true))
+                player.InterruptNonMeleeSpells(true);
 
-			player.SetUnitFlag(UnitFlags.NonAttackable);
+            player.SetUnitFlag(UnitFlags.NonAttackable);
 
-			// if player class = hunter || warlock Remove pet if alive
-			if ((player.Class == PlayerClass.Hunter) ||
-				(player.Class == PlayerClass.Warlock))
-			{
-				var pet = player.CurrentPet;
+            // if player class = hunter || warlock Remove pet if alive
+            if ((player.Class == PlayerClass.Hunter) ||
+                (player.Class == PlayerClass.Warlock))
+            {
+                var pet = player.CurrentPet;
 
-				if (pet)
-				{
-					pet.SavePetToDB(PetSaveMode.AsCurrent);
+                if (pet)
+                {
+                    pet.SavePetToDB(PetSaveMode.AsCurrent);
 
-					// not let dismiss dead pet
-					if (pet.IsAlive)
-						player.RemovePet(pet, PetSaveMode.NotInSlot);
-				}
-			}
-		}
-	}
+                    // not let dismiss dead pet
+                    if (pet.IsAlive)
+                        player.RemovePet(pet, PetSaveMode.NotInSlot);
+                }
+            }
+        }
+    }
 
-	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		// Do what was done before to the Target in HandleUnfreezeCommand
-		var player = Target.AsPlayer;
+    private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        // Do what was done before to the Target in HandleUnfreezeCommand
+        var player = Target.AsPlayer;
 
-		if (player)
-		{
-			// Reset player faction + allow combat + allow duels
-			player.SetFactionForRace(player.Race);
-			player.RemoveUnitFlag(UnitFlags.NonAttackable);
-			// save player
-			player.SaveToDB();
-		}
-	}
+        if (player)
+        {
+            // Reset player faction + allow combat + allow duels
+            player.SetFactionForRace(player.Race);
+            player.RemoveUnitFlag(UnitFlags.NonAttackable);
+            // save player
+            player.SaveToDB();
+        }
+    }
 }

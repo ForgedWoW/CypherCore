@@ -12,14 +12,14 @@ public class ObjectTypeIdCheck : ICheck<WorldObject>
     private readonly TypeId _typeId;
     private readonly bool _equals;
 
-	public ObjectTypeIdCheck(TypeId typeId, bool equals)
-	{
-		_typeId = typeId;
-		_equals = equals;
-	}
+    public ObjectTypeIdCheck(TypeId typeId, bool equals)
+    {
+        _typeId = typeId;
+        _equals = equals;
+    }
 
-	public bool Invoke(WorldObject obj)
-	{
-		return (obj.TypeId == _typeId) == _equals;
-	}
+    public bool Invoke(WorldObject obj)
+    {
+        return (obj.TypeId == _typeId) == _equals;
+    }
 }

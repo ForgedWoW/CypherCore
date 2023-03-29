@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class CapturePointRemoved : ServerPacket
 {
-	public ObjectGuid CapturePointGUID;
+    public ObjectGuid CapturePointGUID;
 
-	public CapturePointRemoved() : base(ServerOpcodes.CapturePointRemoved) { }
+    public CapturePointRemoved() : base(ServerOpcodes.CapturePointRemoved) { }
 
-	public CapturePointRemoved(ObjectGuid capturePointGUID) : base(ServerOpcodes.CapturePointRemoved)
-	{
-		CapturePointGUID = capturePointGUID;
-	}
+    public CapturePointRemoved(ObjectGuid capturePointGUID) : base(ServerOpcodes.CapturePointRemoved)
+    {
+        CapturePointGUID = capturePointGUID;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(CapturePointGUID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(CapturePointGUID);
+    }
 }

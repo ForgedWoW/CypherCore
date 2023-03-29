@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildBankTextQueryResult : ServerPacket
 {
-	public int Tab;
-	public string Text;
-	public GuildBankTextQueryResult() : base(ServerOpcodes.GuildBankTextQueryResult) { }
+    public int Tab;
+    public string Text;
+    public GuildBankTextQueryResult() : base(ServerOpcodes.GuildBankTextQueryResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Tab);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Tab);
 
-		_worldPacket.WriteBits(Text.GetByteCount(), 14);
-		_worldPacket.WriteString(Text);
-	}
+        _worldPacket.WriteBits(Text.GetByteCount(), 14);
+        _worldPacket.WriteString(Text);
+    }
 }

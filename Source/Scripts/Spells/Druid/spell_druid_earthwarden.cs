@@ -14,28 +14,28 @@ namespace Scripts.Spells.Druid;
 [SpellScript(203974)]
 public class spell_druid_earthwarden : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		if (!Caster.AsPlayer.SpellHistory.HasCooldown(Spells.EARTHWARDEN))
-			Caster.AddAura(Spells.EARTHWARDEN_TRIGGERED, Caster);
+        if (!Caster.AsPlayer.SpellHistory.HasCooldown(Spells.EARTHWARDEN))
+            Caster.AddAura(Spells.EARTHWARDEN_TRIGGERED, Caster);
 
-		Caster.AsPlayer.SpellHistory.AddCooldown(Spells.EARTHWARDEN, 0, TimeSpan.FromMicroseconds(500));
-	}
+        Caster.AsPlayer.SpellHistory.AddCooldown(Spells.EARTHWARDEN, 0, TimeSpan.FromMicroseconds(500));
+    }
 
-	private struct Spells
-	{
-		public static readonly uint EARTHWARDEN = 203974;
-		public static readonly uint EARTHWARDEN_TRIGGERED = 203975;
-		public static readonly uint TRASH = 77758;
-	}
+    private struct Spells
+    {
+        public static readonly uint EARTHWARDEN = 203974;
+        public static readonly uint EARTHWARDEN_TRIGGERED = 203975;
+        public static readonly uint TRASH = 77758;
+    }
 }

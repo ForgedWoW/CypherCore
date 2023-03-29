@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class ClearTarget : ServerPacket
 {
-	public ObjectGuid Guid;
-	public ClearTarget() : base(ServerOpcodes.ClearTarget) { }
+    public ObjectGuid Guid;
+    public ClearTarget() : base(ServerOpcodes.ClearTarget) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Guid);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Guid);
+    }
 }

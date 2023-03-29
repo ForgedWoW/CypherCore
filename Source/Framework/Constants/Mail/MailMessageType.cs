@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum MailMessageType
 {
-	Normal = 0,
-	Auction = 2,
-	Creature = 3,
-	Gameobject = 4,
-	Calendar = 5,
-	Blackmarket = 6,
-	CommerceAuction = 7
+    Normal = 0,
+    Auction = 2,
+    Creature = 3,
+    Gameobject = 4,
+    Calendar = 5,
+    Blackmarket = 6,
+    CommerceAuction = 7
 }

@@ -11,16 +11,16 @@ namespace Scripts.Spells.Items;
 [Script] // 24590 - Brittle Armor
 internal class spell_item_brittle_armor : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		HitUnit.RemoveAuraFromStack(ItemSpellIds.BrittleArmor);
-	}
+    private void HandleScript(int effIndex)
+    {
+        HitUnit.RemoveAuraFromStack(ItemSpellIds.BrittleArmor);
+    }
 }

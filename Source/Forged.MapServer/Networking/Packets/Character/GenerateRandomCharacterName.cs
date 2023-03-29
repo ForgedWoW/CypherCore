@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class GenerateRandomCharacterName : ClientPacket
 {
-	public byte Sex;
-	public byte Race;
-	public GenerateRandomCharacterName(WorldPacket packet) : base(packet) { }
+    public byte Sex;
+    public byte Race;
+    public GenerateRandomCharacterName(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Race = _worldPacket.ReadUInt8();
-		Sex = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        Race = _worldPacket.ReadUInt8();
+        Sex = _worldPacket.ReadUInt8();
+    }
 }

@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.Battlenet;
 
 internal class Response : ServerPacket
 {
-	public BattlenetRpcErrorCode BnetStatus = BattlenetRpcErrorCode.Ok;
-	public MethodCall Method;
-	public ByteBuffer Data = new();
-	public Response() : base(ServerOpcodes.BattlenetResponse) { }
+    public BattlenetRpcErrorCode BnetStatus = BattlenetRpcErrorCode.Ok;
+    public MethodCall Method;
+    public ByteBuffer Data = new();
+    public Response() : base(ServerOpcodes.BattlenetResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32((uint)BnetStatus);
-		Method.Write(_worldPacket);
-		_worldPacket.WriteUInt32(Data.GetSize());
-		_worldPacket.WriteBytes(Data);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32((uint)BnetStatus);
+        Method.Write(_worldPacket);
+        _worldPacket.WriteUInt32(Data.GetSize());
+        _worldPacket.WriteBytes(Data);
+    }
 }

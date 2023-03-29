@@ -7,35 +7,35 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarAddEventInfo
 {
-	public ulong ClubId;
-	public string Title;
-	public string Description;
-	public byte EventType;
-	public int TextureID;
-	public long Time;
-	public uint Flags;
-	public CalendarAddEventInviteInfo[] Invites = new CalendarAddEventInviteInfo[(int)SharedConst.CalendarMaxInvites];
+    public ulong ClubId;
+    public string Title;
+    public string Description;
+    public byte EventType;
+    public int TextureID;
+    public long Time;
+    public uint Flags;
+    public CalendarAddEventInviteInfo[] Invites = new CalendarAddEventInviteInfo[(int)SharedConst.CalendarMaxInvites];
 
-	public void Read(WorldPacket data)
-	{
-		ClubId = data.ReadUInt64();
-		EventType = data.ReadUInt8();
-		TextureID = data.ReadInt32();
-		Time = data.ReadPackedTime();
-		Flags = data.ReadUInt32();
-		var InviteCount = data.ReadUInt32();
+    public void Read(WorldPacket data)
+    {
+        ClubId = data.ReadUInt64();
+        EventType = data.ReadUInt8();
+        TextureID = data.ReadInt32();
+        Time = data.ReadPackedTime();
+        Flags = data.ReadUInt32();
+        var InviteCount = data.ReadUInt32();
 
-		var titleLength = data.ReadBits<byte>(8);
-		var descriptionLength = data.ReadBits<ushort>(11);
+        var titleLength = data.ReadBits<byte>(8);
+        var descriptionLength = data.ReadBits<ushort>(11);
 
-		for (var i = 0; i < InviteCount; ++i)
-		{
-			CalendarAddEventInviteInfo invite = new();
-			invite.Read(data);
-			Invites[i] = invite;
-		}
+        for (var i = 0; i < InviteCount; ++i)
+        {
+            CalendarAddEventInviteInfo invite = new();
+            invite.Read(data);
+            Invites[i] = invite;
+        }
 
-		Title = data.ReadString(titleLength);
-		Description = data.ReadString(descriptionLength);
-	}
+        Title = data.ReadString(titleLength);
+        Description = data.ReadString(descriptionLength);
+    }
 }

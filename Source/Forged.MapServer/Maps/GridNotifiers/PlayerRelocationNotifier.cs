@@ -13,41 +13,41 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class PlayerRelocationNotifier : VisibleNotifier, IGridNotifierPlayer, IGridNotifierCreature
 {
-	public PlayerRelocationNotifier(Player player, GridType gridType) : base(player, gridType) { }
+    public PlayerRelocationNotifier(Player player, GridType gridType) : base(player, gridType) { }
 
-	public void Visit(IList<Creature> objs)
-	{
-		Visit(objs.Cast<WorldObject>().ToList());
+    public void Visit(IList<Creature> objs)
+    {
+        Visit(objs.Cast<WorldObject>().ToList());
 
-		var relocated_for_ai = (Player == Player.SeerView);
+        var relocated_for_ai = (Player == Player.SeerView);
 
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var creature = objs[i];
-			VisGuids.Remove(creature.GUID);
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var creature = objs[i];
+            VisGuids.Remove(creature.GUID);
 
-			Player.UpdateVisibilityOf(creature, Data, VisibleNow);
+            Player.UpdateVisibilityOf(creature, Data, VisibleNow);
 
-			if (relocated_for_ai && !creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
-				NotifierHelpers.CreatureUnitRelocationWorker(creature, Player);
-		}
-	}
+            if (relocated_for_ai && !creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
+                NotifierHelpers.CreatureUnitRelocationWorker(creature, Player);
+        }
+    }
 
-	public void Visit(IList<Player> objs)
-	{
-		Visit(objs.Cast<WorldObject>().ToList());
+    public void Visit(IList<Player> objs)
+    {
+        Visit(objs.Cast<WorldObject>().ToList());
 
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var player = objs[i];
-			VisGuids.Remove(player.GUID);
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var player = objs[i];
+            VisGuids.Remove(player.GUID);
 
-			Player.UpdateVisibilityOf(player, Data, VisibleNow);
+            Player.UpdateVisibilityOf(player, Data, VisibleNow);
 
-			if (player.SeerView.IsNeedNotify(NotifyFlags.VisibilityChanged))
-				continue;
+            if (player.SeerView.IsNeedNotify(NotifyFlags.VisibilityChanged))
+                continue;
 
-			player.UpdateVisibilityOf(Player);
-		}
-	}
+            player.UpdateVisibilityOf(Player);
+        }
+    }
 }

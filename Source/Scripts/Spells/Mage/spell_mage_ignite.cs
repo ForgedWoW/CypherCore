@@ -13,30 +13,30 @@ namespace Scripts.Spells.Mage;
 [Script] // 11119 - Ignite
 internal class spell_mage_ignite : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.ProcTarget;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.ProcTarget;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var igniteDot = Global.SpellMgr.GetSpellInfo(MageSpells.Ignite, CastDifficulty);
-		var pct = aurEff.Amount;
+        var igniteDot = Global.SpellMgr.GetSpellInfo(MageSpells.Ignite, CastDifficulty);
+        var pct = aurEff.Amount;
 
-		var amount = (int)(MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, pct) / igniteDot.MaxTicks);
+        var amount = (int)(MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, pct) / igniteDot.MaxTicks);
 
-		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, amount);
-		Target.CastSpell(eventInfo.ProcTarget, MageSpells.Ignite, args);
-	}
+        CastSpellExtraArgs args = new(aurEff);
+        args.AddSpellMod(SpellValueMod.BasePoint0, amount);
+        Target.CastSpell(eventInfo.ProcTarget, MageSpells.Ignite, args);
+    }
 }

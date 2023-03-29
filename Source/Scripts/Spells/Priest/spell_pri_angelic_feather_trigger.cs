@@ -12,29 +12,29 @@ namespace Scripts.Spells.Priest;
 [Script] // 121536 - Angelic Feather talent
 internal class spell_pri_angelic_feather_trigger : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleEffectDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleEffectDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleEffectDummy(int effIndex)
-	{
-		var destPos = HitDest;
-		var radius = EffectInfo.CalcRadius();
+    private void HandleEffectDummy(int effIndex)
+    {
+        var destPos = HitDest;
+        var radius = EffectInfo.CalcRadius();
 
-		// Caster is prioritary
-		if (Caster.IsWithinDist2d(destPos, radius))
-		{
-			Caster.CastSpell(Caster, PriestSpells.ANGELIC_FEATHER_AURA, true);
-		}
-		else
-		{
-			CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-			args.CastDifficulty = CastDifficulty;
-			Caster.CastSpell(destPos, PriestSpells.ANGELIC_FEATHER_AREATRIGGER, args);
-		}
-	}
+        // Caster is prioritary
+        if (Caster.IsWithinDist2d(destPos, radius))
+        {
+            Caster.CastSpell(Caster, PriestSpells.ANGELIC_FEATHER_AURA, true);
+        }
+        else
+        {
+            CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+            args.CastDifficulty = CastDifficulty;
+            Caster.CastSpell(destPos, PriestSpells.ANGELIC_FEATHER_AREATRIGGER, args);
+        }
+    }
 }

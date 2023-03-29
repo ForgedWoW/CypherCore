@@ -13,30 +13,30 @@ internal class AnyAssistCreatureInRangeCheck : ICheck<Creature>
     private readonly Unit _enemy;
     private readonly float _range;
 
-	public AnyAssistCreatureInRangeCheck(Unit funit, Unit enemy, float range)
-	{
-		_funit = funit;
-		_enemy = enemy;
-		_range = range;
-	}
+    public AnyAssistCreatureInRangeCheck(Unit funit, Unit enemy, float range)
+    {
+        _funit = funit;
+        _enemy = enemy;
+        _range = range;
+    }
 
-	public bool Invoke(Creature u)
-	{
-		if (u == _funit)
-			return false;
+    public bool Invoke(Creature u)
+    {
+        if (u == _funit)
+            return false;
 
-		if (!u.CanAssistTo(_funit, _enemy))
-			return false;
+        if (!u.CanAssistTo(_funit, _enemy))
+            return false;
 
-		// too far
-		// Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
-		if (!_funit.IsWithinDist(u, _range, true, false, false))
-			return false;
+        // too far
+        // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
+        if (!_funit.IsWithinDist(u, _range, true, false, false))
+            return false;
 
-		// only if see assisted creature
-		if (!_funit.IsWithinLOSInMap(u))
-			return false;
+        // only if see assisted creature
+        if (!_funit.IsWithinLOSInMap(u))
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 }

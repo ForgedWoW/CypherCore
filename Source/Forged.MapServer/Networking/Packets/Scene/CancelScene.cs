@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Scene;
 
 internal class CancelScene : ServerPacket
 {
-	public uint SceneInstanceID;
-	public CancelScene() : base(ServerOpcodes.CancelScene, ConnectionType.Instance) { }
+    public uint SceneInstanceID;
+    public CancelScene() : base(ServerOpcodes.CancelScene, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(SceneInstanceID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(SceneInstanceID);
+    }
 }

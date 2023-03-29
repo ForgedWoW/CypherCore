@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public struct PowerUpdatePower
 {
-	public PowerUpdatePower(int power, byte powerType)
-	{
-		Power = power;
-		PowerType = powerType;
-	}
+    public PowerUpdatePower(int power, byte powerType)
+    {
+        Power = power;
+        PowerType = powerType;
+    }
 
-	public int Power;
-	public byte PowerType;
+    public int Power;
+    public byte PowerType;
 }

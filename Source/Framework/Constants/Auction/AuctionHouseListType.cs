@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum AuctionHouseListType
 {
-	Commodities = 1,
-	Items = 2
+    Commodities = 1,
+    Items = 2
 }

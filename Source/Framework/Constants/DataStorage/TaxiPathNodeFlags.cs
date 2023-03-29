@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum TaxiPathNodeFlags : byte
 {
-	Teleport = 0x1,
-	Stop = 0x2
+    Teleport = 0x1,
+    Stop = 0x2
 }

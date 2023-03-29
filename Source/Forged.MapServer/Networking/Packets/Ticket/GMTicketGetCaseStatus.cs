@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Ticket;
 
 public class GMTicketGetCaseStatus : ClientPacket
 {
-	public GMTicketGetCaseStatus(WorldPacket packet) : base(packet) { }
+    public GMTicketGetCaseStatus(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

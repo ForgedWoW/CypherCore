@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class PVPMatchStatisticsMessage : ServerPacket
 {
-	public PVPMatchStatistics Data;
-	public PVPMatchStatisticsMessage() : base(ServerOpcodes.PvpMatchStatistics, ConnectionType.Instance) { }
+    public PVPMatchStatistics Data;
+    public PVPMatchStatisticsMessage() : base(ServerOpcodes.PvpMatchStatistics, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		Data.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        Data.Write(_worldPacket);
+    }
 }

@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IMap;
 
 public interface IMapOnPlayerLeave<T> : IScriptObject where T : Map
 {
-	void OnPlayerLeave(T map, Player player);
+    void OnPlayerLeave(T map, Player player);
 }

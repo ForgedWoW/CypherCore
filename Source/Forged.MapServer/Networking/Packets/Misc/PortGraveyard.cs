@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class PortGraveyard : ClientPacket
 {
-	public PortGraveyard(WorldPacket packet) : base(packet) { }
+    public PortGraveyard(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

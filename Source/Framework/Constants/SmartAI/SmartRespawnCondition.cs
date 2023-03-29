@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum SmartRespawnCondition
 {
-	None = 0,
-	Map = 1,
-	Area = 2,
-	End = 3
+    None = 0,
+    Map = 1,
+    Area = 2,
+    End = 3
 }

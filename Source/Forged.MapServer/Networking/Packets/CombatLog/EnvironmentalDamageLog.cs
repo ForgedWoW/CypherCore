@@ -8,23 +8,23 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class EnvironmentalDamageLog : CombatLogServerPacket
 {
-	public ObjectGuid Victim;
-	public EnviromentalDamage Type;
-	public int Amount;
-	public int Resisted;
-	public int Absorbed;
-	public EnvironmentalDamageLog() : base(ServerOpcodes.EnvironmentalDamageLog) { }
+    public ObjectGuid Victim;
+    public EnviromentalDamage Type;
+    public int Amount;
+    public int Resisted;
+    public int Absorbed;
+    public EnvironmentalDamageLog() : base(ServerOpcodes.EnvironmentalDamageLog) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Victim);
-		_worldPacket.WriteUInt8((byte)Type);
-		_worldPacket.WriteInt32(Amount);
-		_worldPacket.WriteInt32(Resisted);
-		_worldPacket.WriteInt32(Absorbed);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Victim);
+        _worldPacket.WriteUInt8((byte)Type);
+        _worldPacket.WriteInt32(Amount);
+        _worldPacket.WriteInt32(Resisted);
+        _worldPacket.WriteInt32(Absorbed);
 
-		WriteLogDataBit();
-		FlushBits();
-		WriteLogData();
-	}
+        WriteLogDataBit();
+        FlushBits();
+        WriteLogData();
+    }
 }

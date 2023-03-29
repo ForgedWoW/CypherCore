@@ -14,18 +14,18 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(200860)]
 public class spell_warr_unrivaled_strenght : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
-	{
-		Caster.CastSpell(Caster, 200977, true);
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
+    {
+        Caster.CastSpell(Caster, 200977, true);
 
-		if (Caster.HasAura(200977))
-			Caster.GetAura(200977).GetEffect(0).SetAmount(aurEff.BaseAmount);
-	}
+        if (Caster.HasAura(200977))
+            Caster.GetAura(200977).GetEffect(0).SetAmount(aurEff.BaseAmount);
+    }
 }

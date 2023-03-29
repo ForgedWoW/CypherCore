@@ -13,24 +13,24 @@ namespace Scripts.Spells.Paladin;
 [Script]
 public class judgment_of_light : ScriptObjectAutoAdd, IUnitOnDamage
 {
-	public judgment_of_light() : base("judgment_of_light") { }
+    public judgment_of_light() : base("judgment_of_light") { }
 
-	public void OnDamage(Unit caster, Unit target, ref double damage)
-	{
-		var player = caster.AsPlayer;
+    public void OnDamage(Unit caster, Unit target, ref double damage)
+    {
+        var player = caster.AsPlayer;
 
-		if (player != null)
-			if (player.Class != PlayerClass.Paladin)
-				return;
+        if (player != null)
+            if (player.Class != PlayerClass.Paladin)
+                return;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (caster.HasAura(PaladinSpells.JUDGMENT_OF_LIGHT) && target.HasAura(PaladinSpells.JUDGMENT_OF_LIGHT_TARGET_DEBUFF))
-			if (caster.IsWithinMeleeRange(target))
-			{
-				caster.CastSpell(PaladinSpells.JUDGMENT_OF_LIGHT_HEAL, true);
-				target.RemoveAura(PaladinSpells.JUDGMENT_OF_LIGHT_TARGET_DEBUFF, AuraRemoveMode.EnemySpell);
-			}
-	}
+        if (caster.HasAura(PaladinSpells.JUDGMENT_OF_LIGHT) && target.HasAura(PaladinSpells.JUDGMENT_OF_LIGHT_TARGET_DEBUFF))
+            if (caster.IsWithinMeleeRange(target))
+            {
+                caster.CastSpell(PaladinSpells.JUDGMENT_OF_LIGHT_HEAL, true);
+                target.RemoveAura(PaladinSpells.JUDGMENT_OF_LIGHT_TARGET_DEBUFF, AuraRemoveMode.EnemySpell);
+            }
+    }
 }

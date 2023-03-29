@@ -14,31 +14,31 @@ public class WorldObjectSpellAreaTargetCheck : WorldObjectSpellTargetCheck
     private readonly float _range;
     private readonly Position _position;
 
-	public WorldObjectSpellAreaTargetCheck(float range, Position position, WorldObject caster, WorldObject referer, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
-		: base(caster, referer, spellInfo, selectionType, condList, objectType)
-	{
-		_range = range;
-		_position = position;
-	}
+    public WorldObjectSpellAreaTargetCheck(float range, Position position, WorldObject caster, WorldObject referer, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
+        : base(caster, referer, spellInfo, selectionType, condList, objectType)
+    {
+        _range = range;
+        _position = position;
+    }
 
-	public override bool Invoke(WorldObject target)
-	{
-		if (target.AsGameObject)
-		{
-			// isInRange including the dimension of the GO
-			var isInRange = target.AsGameObject.IsInRange(_position.X, _position.Y, _position.Z, _range);
+    public override bool Invoke(WorldObject target)
+    {
+        if (target.AsGameObject)
+        {
+            // isInRange including the dimension of the GO
+            var isInRange = target.AsGameObject.IsInRange(_position.X, _position.Y, _position.Z, _range);
 
-			if (!isInRange)
-				return false;
-		}
-		else
-		{
-			var isInsideCylinder = target.IsWithinDist2d(_position, _range) && Math.Abs(target.Location.Z - _position.Z) <= _range;
+            if (!isInRange)
+                return false;
+        }
+        else
+        {
+            var isInsideCylinder = target.IsWithinDist2d(_position, _range) && Math.Abs(target.Location.Z - _position.Z) <= _range;
 
-			if (!isInsideCylinder)
-				return false;
-		}
+            if (!isInsideCylinder)
+                return false;
+        }
 
-		return base.Invoke(target);
-	}
+        return base.Invoke(target);
+    }
 }

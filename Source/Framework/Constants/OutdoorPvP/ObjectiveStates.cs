@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum ObjectiveStates
 {
-	Neutral = 0,
-	Alliance,
-	Horde,
-	NeutralAllianceChallenge,
-	NeutralHordeChallenge,
-	AllianceHordeChallenge,
-	HordeAllianceChallenge
+    Neutral = 0,
+    Alliance,
+    Horde,
+    NeutralAllianceChallenge,
+    NeutralHordeChallenge,
+    AllianceHordeChallenge,
+    HordeAllianceChallenge
 }

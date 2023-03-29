@@ -9,17 +9,17 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct PasswordChangedAppend : IChannelAppender
 {
-	public PasswordChangedAppend(ObjectGuid guid)
-	{
-		_guid = guid;
-	}
+    public PasswordChangedAppend(ObjectGuid guid)
+    {
+        _guid = guid;
+    }
 
-	public ChatNotify GetNotificationType() => ChatNotify.PasswordChangedNotice;
+    public ChatNotify GetNotificationType() => ChatNotify.PasswordChangedNotice;
 
-	public void Append(ChannelNotify data)
-	{
-		data.SenderGuid = _guid;
-	}
+    public void Append(ChannelNotify data)
+    {
+        data.SenderGuid = _guid;
+    }
 
     private readonly ObjectGuid _guid;
 }

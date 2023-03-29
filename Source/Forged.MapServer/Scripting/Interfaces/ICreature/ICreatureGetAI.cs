@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ICreature;
 
 public interface ICreatureGetAI : IScriptObject
 {
-	CreatureAI GetAI(Creature creature);
+    CreatureAI GetAI(Creature creature);
 }

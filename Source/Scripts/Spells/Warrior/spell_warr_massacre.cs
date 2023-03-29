@@ -12,12 +12,12 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(206315)]
 public class spell_warr_massacre : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo procInfo)
-	{
-		if (procInfo.SpellInfo.Id == WarriorSpells.EXECUTE)
-			if ((procInfo.HitMask & ProcFlagsHit.Critical) != 0)
-				return true;
+    public bool CheckProc(ProcEventInfo procInfo)
+    {
+        if (procInfo.SpellInfo.Id == WarriorSpells.EXECUTE)
+            if ((procInfo.HitMask & ProcFlagsHit.Critical) != 0)
+                return true;
 
-		return false;
-	}
+        return false;
+    }
 }

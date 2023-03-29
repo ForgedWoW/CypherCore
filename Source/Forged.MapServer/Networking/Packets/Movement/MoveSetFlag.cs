@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MoveSetFlag : ServerPacket
 {
-	public ObjectGuid MoverGUID;
-	public uint SequenceIndex; // Unit movement packet index, incremented each time
-	public MoveSetFlag(ServerOpcodes opcode) : base(opcode, ConnectionType.Instance) { }
+    public ObjectGuid MoverGUID;
+    public uint SequenceIndex; // Unit movement packet index, incremented each time
+    public MoveSetFlag(ServerOpcodes opcode) : base(opcode, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(MoverGUID);
-		_worldPacket.WriteUInt32(SequenceIndex);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(MoverGUID);
+        _worldPacket.WriteUInt32(SequenceIndex);
+    }
 }

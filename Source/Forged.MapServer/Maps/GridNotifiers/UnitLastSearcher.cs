@@ -18,45 +18,45 @@ public class UnitLastSearcher : IGridNotifierPlayer, IGridNotifierCreature
     private readonly ICheck<Unit> _check;
     private Unit _object;
 
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public UnitLastSearcher(WorldObject searcher, ICheck<Unit> check, GridType gridType)
-	{
-		_phaseShift = searcher.PhaseShift;
-		_check = check;
-		GridType = gridType;
-	}
+    public UnitLastSearcher(WorldObject searcher, ICheck<Unit> check, GridType gridType)
+    {
+        _phaseShift = searcher.PhaseShift;
+        _check = check;
+        GridType = gridType;
+    }
 
-	public void Visit(IList<Creature> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var creature = objs[i];
+    public void Visit(IList<Creature> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var creature = objs[i];
 
-			if (!creature.InSamePhase(_phaseShift))
-				continue;
+            if (!creature.InSamePhase(_phaseShift))
+                continue;
 
-			if (_check.Invoke(creature))
-				_object = creature;
-		}
-	}
+            if (_check.Invoke(creature))
+                _object = creature;
+        }
+    }
 
-	public void Visit(IList<Player> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var player = objs[i];
+    public void Visit(IList<Player> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var player = objs[i];
 
-			if (!player.InSamePhase(_phaseShift))
-				continue;
+            if (!player.InSamePhase(_phaseShift))
+                continue;
 
-			if (_check.Invoke(player))
-				_object = player;
-		}
-	}
+            if (_check.Invoke(player))
+                _object = player;
+        }
+    }
 
-	public Unit GetTarget()
-	{
-		return _object;
-	}
+    public Unit GetTarget()
+    {
+        return _object;
+    }
 }

@@ -9,12 +9,12 @@ namespace Scripts.Spells.Druid;
 [SpellScript(102560)]
 public class spell_dru_incarnation_chosen_of_elune : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var player = Caster.AsPlayer;
+    public void OnCast()
+    {
+        var player = Caster.AsPlayer;
 
-		if (player != null)
-			if (!player.HasAura(ShapeshiftFormSpells.MOONKIN_FORM))
-				player.CastSpell(player, ShapeshiftFormSpells.MOONKIN_FORM, true);
-	}
+        if (player != null)
+            if (!player.HasAura(ShapeshiftFormSpells.MOONKIN_FORM))
+                player.CastSpell(player, ShapeshiftFormSpells.MOONKIN_FORM, true);
+    }
 }

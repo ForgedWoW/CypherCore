@@ -11,19 +11,19 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(204021)]
 public class spell_dh_fiery_brand : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDamage, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDamage(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleDamage(int effIndex)
+    {
+        var target = HitUnit;
 
-		if (target != null)
-			Caster.CastSpell(target, DemonHunterSpells.FIERY_BRAND_DOT, true);
-	}
+        if (target != null)
+            Caster.CastSpell(target, DemonHunterSpells.FIERY_BRAND_DOT, true);
+    }
 }

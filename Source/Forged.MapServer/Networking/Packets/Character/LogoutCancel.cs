@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class LogoutCancel : ClientPacket
 {
-	public LogoutCancel(WorldPacket packet) : base(packet) { }
+    public LogoutCancel(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

@@ -11,14 +11,14 @@ public class ObjectDistanceOrderPred : IComparer<WorldObject>
     private readonly WorldObject _refObj;
     private readonly bool _ascending;
 
-	public ObjectDistanceOrderPred(WorldObject pRefObj, bool ascending = true)
-	{
-		_refObj = pRefObj;
-		_ascending = ascending;
-	}
+    public ObjectDistanceOrderPred(WorldObject pRefObj, bool ascending = true)
+    {
+        _refObj = pRefObj;
+        _ascending = ascending;
+    }
 
-	public int Compare(WorldObject pLeft, WorldObject pRight)
-	{
-		return (_ascending ? _refObj.GetDistanceOrder(pLeft, pRight) : !_refObj.GetDistanceOrder(pLeft, pRight)) ? 1 : 0;
-	}
+    public int Compare(WorldObject pLeft, WorldObject pRight)
+    {
+        return (_ascending ? _refObj.GetDistanceOrder(pLeft, pRight) : !_refObj.GetDistanceOrder(pLeft, pRight)) ? 1 : 0;
+    }
 }

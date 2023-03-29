@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum SpellCategoryFlags : sbyte
 {
-	CooldownScalesWithWeaponSpeed = 0x01, // unused
-	CooldownStartsOnEvent = 0x04,
-	CooldownExpiresAtDailyReset = 0x08
+    CooldownScalesWithWeaponSpeed = 0x01, // unused
+    CooldownStartsOnEvent = 0x04,
+    CooldownExpiresAtDailyReset = 0x08
 }

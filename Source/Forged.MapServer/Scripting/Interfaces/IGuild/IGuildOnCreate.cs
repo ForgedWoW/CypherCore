@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IGuild;
 
 public interface IGuildOnCreate : IScriptObject
 {
-	void OnCreate(Guild guild, Player leader, string name);
+    void OnCreate(Guild guild, Player leader, string name);
 }

@@ -13,32 +13,32 @@ namespace Scripts.Spells.Priest;
 [SpellScript(45243)]
 public class spell_pri_focused_will : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(PreventAction, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(PreventAction, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private bool HandleProc(ProcEventInfo eventInfo)
-	{
-		var caster = Caster;
+    private bool HandleProc(ProcEventInfo eventInfo)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return false;
+        if (caster == null)
+            return false;
 
-		if (eventInfo.DamageInfo.AttackType == WeaponAttackType.BaseAttack || eventInfo.DamageInfo.AttackType == WeaponAttackType.OffAttack)
-		{
-			caster.CastSpell(caster, PriestSpells.FOCUSED_WILL_BUFF, true);
+        if (eventInfo.DamageInfo.AttackType == WeaponAttackType.BaseAttack || eventInfo.DamageInfo.AttackType == WeaponAttackType.OffAttack)
+        {
+            caster.CastSpell(caster, PriestSpells.FOCUSED_WILL_BUFF, true);
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	private void PreventAction(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		PreventDefaultAction();
-	}
+    private void PreventAction(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        PreventDefaultAction();
+    }
 }

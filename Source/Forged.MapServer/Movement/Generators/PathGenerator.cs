@@ -31,1209 +31,1209 @@ public class PathGenerator
     private Vector3 _endPosition;
     private PathType pathType;
 
-	public PathGenerator(WorldObject owner)
-	{
-		_polyLength = 0;
-		pathType = PathType.Blank;
-		_useStraightPath = false;
-		_forceDestination = false;
-		_pointPathLimit = 74;
-		_endPosition = Vector3.Zero;
-		_source = owner;
-		_navMesh = null;
-		_navMeshQuery = null;
-		Log.Logger.Debug("PathGenerator:PathGenerator for {0}", _source.GUID.ToString());
+    public PathGenerator(WorldObject owner)
+    {
+        _polyLength = 0;
+        pathType = PathType.Blank;
+        _useStraightPath = false;
+        _forceDestination = false;
+        _pointPathLimit = 74;
+        _endPosition = Vector3.Zero;
+        _source = owner;
+        _navMesh = null;
+        _navMeshQuery = null;
+        Log.Logger.Debug("PathGenerator:PathGenerator for {0}", _source.GUID.ToString());
 
-		var mapId = PhasingHandler.GetTerrainMapId(_source.PhaseShift, _source.Location.MapId, _source.Map.Terrain, _source.Location.X, _source.Location.Y);
+        var mapId = PhasingHandler.GetTerrainMapId(_source.PhaseShift, _source.Location.MapId, _source.Map.Terrain, _source.Location.X, _source.Location.Y);
 
-		if (Global.DisableMgr.IsPathfindingEnabled(_source.Location.MapId))
-		{
-			_navMesh = Global.MMapMgr.GetNavMesh(mapId);
-			_navMeshQuery = Global.MMapMgr.GetNavMeshQuery(mapId, _source.InstanceId);
-		}
+        if (Global.DisableMgr.IsPathfindingEnabled(_source.Location.MapId))
+        {
+            _navMesh = Global.MMapMgr.GetNavMesh(mapId);
+            _navMeshQuery = Global.MMapMgr.GetNavMeshQuery(mapId, _source.InstanceId);
+        }
 
-		CreateFilter();
-	}
+        CreateFilter();
+    }
 
-	public bool CalculatePath(Position destPos, bool forceDest = false)
-	{
-		if (!GridDefines.IsValidMapCoord(destPos) || !GridDefines.IsValidMapCoord((Position)_source.Location))
-			return false;
+    public bool CalculatePath(Position destPos, bool forceDest = false)
+    {
+        if (!GridDefines.IsValidMapCoord(destPos) || !GridDefines.IsValidMapCoord((Position)_source.Location))
+            return false;
 
-		var dest = destPos.ToVector3();
-		SetEndPosition(dest);
+        var dest = destPos.ToVector3();
+        SetEndPosition(dest);
 
-		var start = _source.Location.ToVector3();
-		SetStartPosition(start);
+        var start = _source.Location.ToVector3();
+        SetStartPosition(start);
 
-		_forceDestination = forceDest;
+        _forceDestination = forceDest;
 
-		Log.Logger.Debug("PathGenerator.CalculatePath() for {0} \n", _source.GUID.ToString());
+        Log.Logger.Debug("PathGenerator.CalculatePath() for {0} \n", _source.GUID.ToString());
 
-		// make sure navMesh works - we can run on map w/o mmap
-		// check if the start and end point have a .mmtile loaded (can we pass via not loaded tile on the way?)
-		var _sourceUnit = _source.AsUnit;
+        // make sure navMesh works - we can run on map w/o mmap
+        // check if the start and end point have a .mmtile loaded (can we pass via not loaded tile on the way?)
+        var _sourceUnit = _source.AsUnit;
 
-		if (_navMesh == null || _navMeshQuery == null || (_sourceUnit != null && _sourceUnit.HasUnitState(UnitState.IgnorePathfinding)) || !HaveTile(start) || !HaveTile(dest))
-		{
-			BuildShortcut();
-			pathType = PathType.Normal | PathType.NotUsingPath;
+        if (_navMesh == null || _navMeshQuery == null || (_sourceUnit != null && _sourceUnit.HasUnitState(UnitState.IgnorePathfinding)) || !HaveTile(start) || !HaveTile(dest))
+        {
+            BuildShortcut();
+            pathType = PathType.Normal | PathType.NotUsingPath;
 
-			return true;
-		}
+            return true;
+        }
 
-		UpdateFilter();
-		BuildPolyPath(start, dest);
+        UpdateFilter();
+        BuildPolyPath(start, dest);
 
-		return true;
-	}
+        return true;
+    }
 
-	public void ShortenPathUntilDist(Position pos, float dist)
-	{
-		ShortenPathUntilDist(new Vector3(pos.X, pos.Y, pos.Z), dist);
-	}
+    public void ShortenPathUntilDist(Position pos, float dist)
+    {
+        ShortenPathUntilDist(new Vector3(pos.X, pos.Y, pos.Z), dist);
+    }
 
-	public void ShortenPathUntilDist(Vector3 target, float dist)
-	{
-		if (GetPathType() == PathType.Blank || _pathPoints.Length < 2)
-		{
-			Log.Logger.Error("PathGenerator.ReducePathLengthByDist called before path was successfully built");
+    public void ShortenPathUntilDist(Vector3 target, float dist)
+    {
+        if (GetPathType() == PathType.Blank || _pathPoints.Length < 2)
+        {
+            Log.Logger.Error("PathGenerator.ReducePathLengthByDist called before path was successfully built");
 
-			return;
-		}
+            return;
+        }
 
-		var distSq = dist * dist;
+        var distSq = dist * dist;
 
-		// the first point of the path must be outside the specified range
-		// (this should have really been checked by the caller...)
-		if ((_pathPoints[0] - target).LengthSquared() < distSq)
-			return;
+        // the first point of the path must be outside the specified range
+        // (this should have really been checked by the caller...)
+        if ((_pathPoints[0] - target).LengthSquared() < distSq)
+            return;
 
-		// check if we even need to do anything
-		if ((_pathPoints[_pathPoints.Length - 1] - target).LengthSquared() >= distSq)
-			return;
+        // check if we even need to do anything
+        if ((_pathPoints[_pathPoints.Length - 1] - target).LengthSquared() >= distSq)
+            return;
 
-		var i = _pathPoints.Length - 1;
-		var collisionHeight = _source.CollisionHeight;
+        var i = _pathPoints.Length - 1;
+        var collisionHeight = _source.CollisionHeight;
 
-		// find the first i s.t.:
-		//  - _pathPoints[i] is still too close
-		//  - _pathPoints[i-1] is too far away
-		// => the end point is somewhere on the line between the two
-		while (true)
-		{
-			// we know that pathPoints[i] is too close already (from the previous iteration)
-			var point = _pathPoints[i - 1];
+        // find the first i s.t.:
+        //  - _pathPoints[i] is still too close
+        //  - _pathPoints[i-1] is too far away
+        // => the end point is somewhere on the line between the two
+        while (true)
+        {
+            // we know that pathPoints[i] is too close already (from the previous iteration)
+            var point = _pathPoints[i - 1];
 
-			if ((point - target).LengthSquared() >= distSq)
-				break; // bingo!
+            if ((point - target).LengthSquared() >= distSq)
+                break; // bingo!
 
-			// check if the shortened path is still in LoS with the target
-			var hitPos = new Position();
-			_source.GetHitSpherePointFor(new Position(point.X, point.Y, point.Z + collisionHeight), hitPos);
+            // check if the shortened path is still in LoS with the target
+            var hitPos = new Position();
+            _source.GetHitSpherePointFor(new Position(point.X, point.Y, point.Z + collisionHeight), hitPos);
 
-			if (!_source.Map.IsInLineOfSight(_source.PhaseShift, hitPos, point.X, point.Y, point.Z + collisionHeight, LineOfSightChecks.All, ModelIgnoreFlags.Nothing))
-			{
-				// whenver we find a point that is not in LoS anymore, simply use last valid path
-				Array.Resize(ref _pathPoints, i + 1);
+            if (!_source.Map.IsInLineOfSight(_source.PhaseShift, hitPos, point.X, point.Y, point.Z + collisionHeight, LineOfSightChecks.All, ModelIgnoreFlags.Nothing))
+            {
+                // whenver we find a point that is not in LoS anymore, simply use last valid path
+                Array.Resize(ref _pathPoints, i + 1);
 
-				return;
-			}
+                return;
+            }
 
-			if (--i == 0)
-			{
-				// no point found that fulfills the condition
-				_pathPoints[0] = _pathPoints[1];
-				Array.Resize(ref _pathPoints, 2);
+            if (--i == 0)
+            {
+                // no point found that fulfills the condition
+                _pathPoints[0] = _pathPoints[1];
+                Array.Resize(ref _pathPoints, 2);
 
-				return;
-			}
-		}
+                return;
+            }
+        }
 
-		// ok, _pathPoints[i] is too close, _pathPoints[i-1] is not, so our target point is somewhere between the two...
-		//   ... settle for a guesstimate since i'm not confident in doing trig on every chase motion tick...
-		// (@todo review this)
-		_pathPoints[i] += (_pathPoints[i - 1] - _pathPoints[i]).direction() * (dist - (_pathPoints[i] - target).Length());
-		Array.Resize(ref _pathPoints, i + 1);
-	}
+        // ok, _pathPoints[i] is too close, _pathPoints[i-1] is not, so our target point is somewhere between the two...
+        //   ... settle for a guesstimate since i'm not confident in doing trig on every chase motion tick...
+        // (@todo review this)
+        _pathPoints[i] += (_pathPoints[i - 1] - _pathPoints[i]).direction() * (dist - (_pathPoints[i] - target).Length());
+        Array.Resize(ref _pathPoints, i + 1);
+    }
 
-	public bool IsInvalidDestinationZ(WorldObject target)
-	{
-		return (target.Location.Z - GetActualEndPosition().Z) > 5.0f;
-	}
+    public bool IsInvalidDestinationZ(WorldObject target)
+    {
+        return (target.Location.Z - GetActualEndPosition().Z) > 5.0f;
+    }
 
-	public Vector3 GetStartPosition()
-	{
-		return _startPosition;
-	}
+    public Vector3 GetStartPosition()
+    {
+        return _startPosition;
+    }
 
-	public Vector3 GetEndPosition()
-	{
-		return _endPosition;
-	}
+    public Vector3 GetEndPosition()
+    {
+        return _endPosition;
+    }
 
-	public Vector3 GetActualEndPosition()
-	{
-		return _actualEndPosition;
-	}
+    public Vector3 GetActualEndPosition()
+    {
+        return _actualEndPosition;
+    }
 
-	public Vector3[] GetPath()
-	{
-		return _pathPoints;
-	}
+    public Vector3[] GetPath()
+    {
+        return _pathPoints;
+    }
 
-	public PathType GetPathType()
-	{
-		return pathType;
-	}
+    public PathType GetPathType()
+    {
+        return pathType;
+    }
 
-	public void SetUseStraightPath(bool useStraightPath)
-	{
-		_useStraightPath = useStraightPath;
-	}
+    public void SetUseStraightPath(bool useStraightPath)
+    {
+        _useStraightPath = useStraightPath;
+    }
 
-	public void SetPathLengthLimit(float distance)
-	{
-		_pointPathLimit = Math.Min((uint)(distance / 4.0f), 74);
-	}
+    public void SetPathLengthLimit(float distance)
+    {
+        _pointPathLimit = Math.Min((uint)(distance / 4.0f), 74);
+    }
 
-	public void SetUseRaycast(bool useRaycast)
-	{
-		_useRaycast = useRaycast;
-	}
+    public void SetUseRaycast(bool useRaycast)
+    {
+        _useRaycast = useRaycast;
+    }
 
     private ulong GetPathPolyByPosition(ulong[] polyPath, uint polyPathSize, float[] point, ref float distance)
-	{
-		if (polyPath == null || polyPathSize == 0)
-			return 0;
+    {
+        if (polyPath == null || polyPathSize == 0)
+            return 0;
 
-		ulong nearestPoly = 0;
-		var minDist = float.MaxValue;
+        ulong nearestPoly = 0;
+        var minDist = float.MaxValue;
 
-		for (uint i = 0; i < polyPathSize; ++i)
-		{
-			var closestPoint = new float[3];
-			var posOverPoly = false;
+        for (uint i = 0; i < polyPathSize; ++i)
+        {
+            var closestPoint = new float[3];
+            var posOverPoly = false;
 
-			if (Detour.dtStatusFailed(_navMeshQuery.closestPointOnPoly(polyPath[i], point, closestPoint, ref posOverPoly)))
-				continue;
+            if (Detour.dtStatusFailed(_navMeshQuery.closestPointOnPoly(polyPath[i], point, closestPoint, ref posOverPoly)))
+                continue;
 
-			var d = Detour.dtVdistSqr(point, closestPoint);
+            var d = Detour.dtVdistSqr(point, closestPoint);
 
-			if (d < minDist)
-			{
-				minDist = d;
-				nearestPoly = polyPath[i];
-			}
+            if (d < minDist)
+            {
+                minDist = d;
+                nearestPoly = polyPath[i];
+            }
 
-			if (minDist < 1.0f) // shortcut out - close enough for us
-				break;
-		}
+            if (minDist < 1.0f) // shortcut out - close enough for us
+                break;
+        }
 
-		distance = (float)Math.Sqrt(minDist);
+        distance = (float)Math.Sqrt(minDist);
 
-		return (minDist < 3.0f) ? nearestPoly : 0u;
-	}
+        return (minDist < 3.0f) ? nearestPoly : 0u;
+    }
 
     private ulong GetPolyByLocation(float[] point, ref float distance)
-	{
-		// first we check the current path
-		// if the current path doesn't contain the current poly,
-		// we need to use the expensive navMesh.findNearestPoly
-		var polyRef = GetPathPolyByPosition(_pathPolyRefs, _polyLength, point, ref distance);
+    {
+        // first we check the current path
+        // if the current path doesn't contain the current poly,
+        // we need to use the expensive navMesh.findNearestPoly
+        var polyRef = GetPathPolyByPosition(_pathPolyRefs, _polyLength, point, ref distance);
 
-		if (polyRef != 0)
-			return polyRef;
+        if (polyRef != 0)
+            return polyRef;
 
-		// we don't have it in our old path
-		// try to get it by findNearestPoly()
-		// first try with low search box
-		float[] extents =
-		{
-			3.0f, 5.0f, 3.0f
-		}; // bounds of poly search area
+        // we don't have it in our old path
+        // try to get it by findNearestPoly()
+        // first try with low search box
+        float[] extents =
+        {
+            3.0f, 5.0f, 3.0f
+        }; // bounds of poly search area
 
-		float[] closestPoint =
-		{
-			0.0f, 0.0f, 0.0f
-		};
+        float[] closestPoint =
+        {
+            0.0f, 0.0f, 0.0f
+        };
 
-		if (Detour.dtStatusSucceed(_navMeshQuery.findNearestPoly(point, extents, _filter, ref polyRef, ref closestPoint)) && polyRef != 0)
-		{
-			distance = Detour.dtVdist(closestPoint, point);
+        if (Detour.dtStatusSucceed(_navMeshQuery.findNearestPoly(point, extents, _filter, ref polyRef, ref closestPoint)) && polyRef != 0)
+        {
+            distance = Detour.dtVdist(closestPoint, point);
 
-			return polyRef;
-		}
+            return polyRef;
+        }
 
-		// still nothing ..
-		// try with bigger search box
-		// Note that the extent should not overlap more than 128 polygons in the navmesh (see dtNavMeshQuery.findNearestPoly)
-		extents[1] = 50.0f;
+        // still nothing ..
+        // try with bigger search box
+        // Note that the extent should not overlap more than 128 polygons in the navmesh (see dtNavMeshQuery.findNearestPoly)
+        extents[1] = 50.0f;
 
-		if (Detour.dtStatusSucceed(_navMeshQuery.findNearestPoly(point, extents, _filter, ref polyRef, ref closestPoint)) && polyRef != 0)
-		{
-			distance = Detour.dtVdist(closestPoint, point);
+        if (Detour.dtStatusSucceed(_navMeshQuery.findNearestPoly(point, extents, _filter, ref polyRef, ref closestPoint)) && polyRef != 0)
+        {
+            distance = Detour.dtVdist(closestPoint, point);
 
-			return polyRef;
-		}
+            return polyRef;
+        }
 
-		distance = float.MaxValue;
+        distance = float.MaxValue;
 
-		return 0;
-	}
+        return 0;
+    }
 
     private void BuildPolyPath(Vector3 startPos, Vector3 endPos)
-	{
-		// *** getting start/end poly logic ***
-
-		float distToStartPoly = 0;
-		float distToEndPoly = 0;
-
-		float[] startPoint =
-		{
-			startPos.Y, startPos.Z, startPos.X
-		};
-
-		float[] endPoint =
-		{
-			endPos.Y, endPos.Z, endPos.X
-		};
-
-		var startPoly = GetPolyByLocation(startPoint, ref distToStartPoly);
-		var endPoly = GetPolyByLocation(endPoint, ref distToEndPoly);
-
-		pathType = PathType.Normal;
-
-		// we have a hole in our mesh
-		// make shortcut path and mark it as NOPATH ( with flying and swimming exception )
-		// its up to caller how he will use this info
-		if (startPoly == 0 || endPoly == 0)
-		{
-			Log.Logger.Debug("++ BuildPolyPath . (startPoly == 0 || endPoly == 0)\n");
-			BuildShortcut();
-			var path = _source.IsTypeId(TypeId.Unit) && _source.AsCreature.CanFly;
-
-			var waterPath = _source.IsTypeId(TypeId.Unit) && _source.AsCreature.CanSwim;
-
-			if (waterPath)
-				// Check both start and end points, if they're both in water, then we can *safely* let the creature move
-				for (uint i = 0; i < _pathPoints.Length; ++i)
-				{
-					var status = _source.Map.GetLiquidStatus(_source.PhaseShift, _pathPoints[i].X, _pathPoints[i].Y, _pathPoints[i].Z, LiquidHeaderTypeFlags.AllLiquids, _source.CollisionHeight);
-
-					// One of the points is not in the water, cancel movement.
-					if (status == ZLiquidStatus.NoWater)
-					{
-						waterPath = false;
-
-						break;
-					}
-				}
-
-			if (path || waterPath)
-			{
-				pathType = PathType.Normal | PathType.NotUsingPath;
-
-				return;
-			}
-
-			// raycast doesn't need endPoly to be valid
-			if (!_useRaycast)
-			{
-				pathType = PathType.NoPath;
-
-				return;
-			}
-		}
-
-		// we may need a better number here
-		var startFarFromPoly = distToStartPoly > 7.0f;
-		var endFarFromPoly = distToEndPoly > 7.0f;
-
-		if (startFarFromPoly || endFarFromPoly)
-		{
-			Log.Logger.Debug("++ BuildPolyPath . farFromPoly distToStartPoly={0:F3} distToEndPoly={1:F3}\n", distToStartPoly, distToEndPoly);
-
-			var buildShotrcut = false;
-			var p = (distToStartPoly > 7.0f) ? startPos : endPos;
-
-			if (_source.Map.IsUnderWater(_source.PhaseShift, p.X, p.Y, p.Z))
-			{
-				Log.Logger.Debug("++ BuildPolyPath :: underWater case");
-				var _sourceUnit = _source.AsUnit;
-
-				if (_sourceUnit is { CanSwim: true })
-					buildShotrcut = true;
-			}
-			else
-			{
-				Log.Logger.Debug("++ BuildPolyPath :: flying case");
-				var _sourceUnit = _source.AsUnit;
-
-				if (_sourceUnit != null)
-				{
-					if (_sourceUnit.CanFly)
-						buildShotrcut = true;
-					// Allow to build a shortcut if the unit is falling and it's trying to move downwards towards a target (i.e. charging)
-					else if (_sourceUnit.IsFalling && endPos.Z < startPos.Z)
-						buildShotrcut = true;
-				}
-			}
-
-			if (buildShotrcut)
-			{
-				BuildShortcut();
-				pathType = PathType.Normal | PathType.NotUsingPath;
-
-				AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
-
-				return;
-			}
-			else
-			{
-				var closestPoint = new float[3];
-				// we may want to use closestPointOnPolyBoundary instead
-				var posOverPoly = false;
-
-				if (Detour.dtStatusSucceed(_navMeshQuery.closestPointOnPoly(endPoly, endPoint, closestPoint, ref posOverPoly)))
-				{
-					Detour.dtVcopy(endPoint, closestPoint);
-					SetActualEndPosition(new Vector3(endPoint[2], endPoint[0], endPoint[1]));
-				}
-
-				pathType = PathType.Incomplete;
-
-				AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
-			}
-		}
-
-		// *** poly path generating logic ***
-
-		// start and end are on same polygon
-		// handle this case as if they were 2 different polygons, building a line path split in some few points
-		if (startPoly == endPoly && !_useRaycast)
-		{
-			Log.Logger.Debug("++ BuildPolyPath . (startPoly == endPoly)\n");
-
-			_pathPolyRefs[0] = startPoly;
-			_polyLength = 1;
-
-			if (startFarFromPoly || endFarFromPoly)
-			{
-				pathType = PathType.Incomplete;
-
-				AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
-			}
-			else
-			{
-				pathType = PathType.Normal;
-			}
-
-			BuildPointPath(startPoint, endPoint);
-
-			return;
-		}
-
-		// look for startPoly/endPoly in current path
-		// @todo we can merge it with getPathPolyByPosition() loop
-		var startPolyFound = false;
-		var endPolyFound = false;
-		uint pathStartIndex = 0;
-		uint pathEndIndex = 0;
-
-		if (_polyLength != 0)
-		{
-			for (; pathStartIndex < _polyLength; ++pathStartIndex)
-			{
-				// here to carch few bugs
-				if (_pathPolyRefs[pathStartIndex] == 0)
-				{
-					Log.Logger.Error("Invalid poly ref in BuildPolyPath. _polyLength: {0}, pathStartIndex: {1}," +
-									" startPos: {2}, endPos: {3}, mapid: {4}",
-									_polyLength,
-									pathStartIndex,
-									startPos,
-									endPos,
-									_source.Location.MapId);
-
-					break;
-				}
-
-				if (_pathPolyRefs[pathStartIndex] == startPoly)
-				{
-					startPolyFound = true;
-
-					break;
-				}
-			}
-
-			for (pathEndIndex = _polyLength - 1; pathEndIndex > pathStartIndex; --pathEndIndex)
-				if (_pathPolyRefs[pathEndIndex] == endPoly)
-				{
-					endPolyFound = true;
-
-					break;
-				}
-		}
-
-		if (startPolyFound && endPolyFound)
-		{
-			Log.Logger.Debug("BuildPolyPath : (startPolyFound && endPolyFound)\n");
-
-			// we moved along the path and the target did not move out of our old poly-path
-			// our path is a simple subpath case, we have all the data we need
-			// just "cut" it out
-
-			_polyLength = pathEndIndex - pathStartIndex + 1;
-			Array.Copy(_pathPolyRefs, pathStartIndex, _pathPolyRefs, 0, _polyLength);
-		}
-		else if (startPolyFound && !endPolyFound)
-		{
-			Log.Logger.Debug("BuildPolyPath : (startPolyFound && !endPolyFound)\n");
-
-			// we are moving on the old path but target moved out
-			// so we have atleast part of poly-path ready
-
-			_polyLength -= pathStartIndex;
-
-			// try to adjust the suffix of the path instead of recalculating entire length
-			// at given interval the target cannot get too far from its last location
-			// thus we have less poly to cover
-			// sub-path of optimal path is optimal
-
-			// take ~80% of the original length
-			// @todo play with the values here
-			var prefixPolyLength = (uint)(_polyLength * 0.8f + 0.5f);
-			Array.Copy(_pathPolyRefs, pathStartIndex, _pathPolyRefs, 0, prefixPolyLength);
-
-			var suffixStartPoly = _pathPolyRefs[prefixPolyLength - 1];
-
-			// we need any point on our suffix start poly to generate poly-path, so we need last poly in prefix data
-			var suffixEndPoint = new float[3];
-			var posOverPoly = false;
-
-			if (Detour.dtStatusFailed(_navMeshQuery.closestPointOnPoly(suffixStartPoly, endPoint, suffixEndPoint, ref posOverPoly)))
-			{
-				// we can hit offmesh connection as last poly - closestPointOnPoly() don't like that
-				// try to recover by using prev polyref
-				--prefixPolyLength;
-				suffixStartPoly = _pathPolyRefs[prefixPolyLength - 1];
-
-				if (Detour.dtStatusFailed(_navMeshQuery.closestPointOnPoly(suffixStartPoly, endPoint, suffixEndPoint, ref posOverPoly)))
-				{
-					// suffixStartPoly is still invalid, error state
-					BuildShortcut();
-					pathType = PathType.NoPath;
-
-					return;
-				}
-			}
-
-			// generate suffix
-			uint suffixPolyLength = 0;
-			var tempPolyRefs = new ulong[_pathPolyRefs.Length];
-
-			uint dtResult;
-
-			if (_useRaycast)
-			{
-				Log.Logger.Error($"PathGenerator::BuildPolyPath() called with _useRaycast with a previous path for unit {_source.GUID}");
-				BuildShortcut();
-				pathType = PathType.NoPath;
-
-				return;
-			}
-			else
-			{
-				dtResult = _navMeshQuery.findPath(suffixStartPoly, // start polygon
-												endPoly,           // end polygon
-												suffixEndPoint,    // start position
-												endPoint,          // end position
-												_filter,           // polygon search filter
-												tempPolyRefs,
-												ref suffixPolyLength,
-												74 - (int)prefixPolyLength);
-			}
-
-			if (suffixPolyLength == 0 || Detour.dtStatusFailed(dtResult))
-				// this is probably an error state, but we'll leave it
-				// and hopefully recover on the next Update
-				// we still need to copy our preffix
-				Log.Logger.Error($"Path Build failed\n{_source.GetDebugInfo()}");
-
-			Log.Logger.Debug("m_polyLength={0} prefixPolyLength={1} suffixPolyLength={2} \n", _polyLength, prefixPolyLength, suffixPolyLength);
-
-			for (var i = 0; i < _pathPolyRefs.Length - (prefixPolyLength - 1); ++i)
-				_pathPolyRefs[(prefixPolyLength - 1) + i] = tempPolyRefs[i];
-
-			// new path = prefix + suffix - overlap
-			_polyLength = prefixPolyLength + suffixPolyLength - 1;
-		}
-		else
-		{
-			Log.Logger.Debug("++ BuildPolyPath . (!startPolyFound && !endPolyFound)\n");
-
-			// either we have no path at all . first run
-			// or something went really wrong . we aren't moving along the path to the target
-			// just generate new path
-
-			// free and invalidate old path data
-			Clear();
-
-			uint dtResult;
-
-			if (_useRaycast)
-			{
-				float hit = 0;
-				var hitNormal = new float[3];
-
-				dtResult = _navMeshQuery.raycast(startPoly,
-												startPoint,
-												endPoint,
-												_filter,
-												ref hit,
-												hitNormal,
-												_pathPolyRefs,
-												ref _polyLength,
-												74);
-
-				if (_polyLength == 0 || Detour.dtStatusFailed(dtResult))
-				{
-					BuildShortcut();
-					pathType = PathType.NoPath;
-					AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
-
-					return;
-				}
-
-				// raycast() sets hit to FLT_MAX if there is a ray between start and end
-				if (hit != float.MaxValue)
-				{
-					var hitPos = new float[3];
-
-					// Walk back a bit from the hit point to make sure it's in the mesh (sometimes the point is actually outside of the polygons due to float precision issues)
-					hit *= 0.99f;
-					Detour.dtVlerp(hitPos, startPoint, endPoint, hit);
-
-					// if it fails again, clamp to poly boundary
-					if (Detour.dtStatusFailed(_navMeshQuery.getPolyHeight(_pathPolyRefs[_polyLength - 1], hitPos, ref hitPos[1])))
-						_navMeshQuery.closestPointOnPolyBoundary(_pathPolyRefs[_polyLength - 1], hitPos, hitPos);
-
-					_pathPoints = new Vector3[2];
-					_pathPoints[0] = GetStartPosition();
-					_pathPoints[1] = new Vector3(hitPos[2], hitPos[0], hitPos[1]);
-
-					NormalizePath();
-					pathType = PathType.Incomplete;
-					AddFarFromPolyFlags(startFarFromPoly, false);
-
-					return;
-				}
-				else
-				{
-					// clamp to poly boundary if we fail to get the height
-					if (Detour.dtStatusFailed(_navMeshQuery.getPolyHeight(_pathPolyRefs[_polyLength - 1], endPoint, ref endPoint[1])))
-						_navMeshQuery.closestPointOnPolyBoundary(_pathPolyRefs[_polyLength - 1], endPoint, endPoint);
-
-					_pathPoints = new Vector3[2];
-					_pathPoints[0] = GetStartPosition();
-					_pathPoints[1] = new Vector3(endPoint[2], endPoint[0], endPoint[1]);
-
-					NormalizePath();
-
-					if (startFarFromPoly || endFarFromPoly)
-					{
-						pathType = PathType.Incomplete;
-
-						AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
-					}
-					else
-					{
-						pathType = PathType.Normal;
-					}
-
-					return;
-				}
-			}
-			else
-			{
-				dtResult = _navMeshQuery.findPath(startPoly,   // start polygon
-												endPoly,       // end polygon
-												startPoint,    // start position
-												endPoint,      // end position
-												_filter,       // polygon search filter
-												_pathPolyRefs, // [out] path
-												ref _polyLength,
-												74); // max number of polygons in output path
-			}
-
-			if (_polyLength == 0 || Detour.dtStatusFailed(dtResult))
-			{
-				// only happens if we passed bad data to findPath(), or navmesh is messed up
-				Log.Logger.Error("{0}'s Path Build failed: 0 length path", _source.GUID.ToString());
-				BuildShortcut();
-				pathType = PathType.NoPath;
-
-				return;
-			}
-		}
-
-		// by now we know what type of path we can get
-		if (_pathPolyRefs[_polyLength - 1] == endPoly && !pathType.HasAnyFlag(PathType.Incomplete))
-			pathType = PathType.Normal;
-		else
-			pathType = PathType.Incomplete;
-
-		AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
-
-		// generate the point-path out of our up-to-date poly-path
-		BuildPointPath(startPoint, endPoint);
-	}
+    {
+        // *** getting start/end poly logic ***
+
+        float distToStartPoly = 0;
+        float distToEndPoly = 0;
+
+        float[] startPoint =
+        {
+            startPos.Y, startPos.Z, startPos.X
+        };
+
+        float[] endPoint =
+        {
+            endPos.Y, endPos.Z, endPos.X
+        };
+
+        var startPoly = GetPolyByLocation(startPoint, ref distToStartPoly);
+        var endPoly = GetPolyByLocation(endPoint, ref distToEndPoly);
+
+        pathType = PathType.Normal;
+
+        // we have a hole in our mesh
+        // make shortcut path and mark it as NOPATH ( with flying and swimming exception )
+        // its up to caller how he will use this info
+        if (startPoly == 0 || endPoly == 0)
+        {
+            Log.Logger.Debug("++ BuildPolyPath . (startPoly == 0 || endPoly == 0)\n");
+            BuildShortcut();
+            var path = _source.IsTypeId(TypeId.Unit) && _source.AsCreature.CanFly;
+
+            var waterPath = _source.IsTypeId(TypeId.Unit) && _source.AsCreature.CanSwim;
+
+            if (waterPath)
+                // Check both start and end points, if they're both in water, then we can *safely* let the creature move
+                for (uint i = 0; i < _pathPoints.Length; ++i)
+                {
+                    var status = _source.Map.GetLiquidStatus(_source.PhaseShift, _pathPoints[i].X, _pathPoints[i].Y, _pathPoints[i].Z, LiquidHeaderTypeFlags.AllLiquids, _source.CollisionHeight);
+
+                    // One of the points is not in the water, cancel movement.
+                    if (status == ZLiquidStatus.NoWater)
+                    {
+                        waterPath = false;
+
+                        break;
+                    }
+                }
+
+            if (path || waterPath)
+            {
+                pathType = PathType.Normal | PathType.NotUsingPath;
+
+                return;
+            }
+
+            // raycast doesn't need endPoly to be valid
+            if (!_useRaycast)
+            {
+                pathType = PathType.NoPath;
+
+                return;
+            }
+        }
+
+        // we may need a better number here
+        var startFarFromPoly = distToStartPoly > 7.0f;
+        var endFarFromPoly = distToEndPoly > 7.0f;
+
+        if (startFarFromPoly || endFarFromPoly)
+        {
+            Log.Logger.Debug("++ BuildPolyPath . farFromPoly distToStartPoly={0:F3} distToEndPoly={1:F3}\n", distToStartPoly, distToEndPoly);
+
+            var buildShotrcut = false;
+            var p = (distToStartPoly > 7.0f) ? startPos : endPos;
+
+            if (_source.Map.IsUnderWater(_source.PhaseShift, p.X, p.Y, p.Z))
+            {
+                Log.Logger.Debug("++ BuildPolyPath :: underWater case");
+                var _sourceUnit = _source.AsUnit;
+
+                if (_sourceUnit is { CanSwim: true })
+                    buildShotrcut = true;
+            }
+            else
+            {
+                Log.Logger.Debug("++ BuildPolyPath :: flying case");
+                var _sourceUnit = _source.AsUnit;
+
+                if (_sourceUnit != null)
+                {
+                    if (_sourceUnit.CanFly)
+                        buildShotrcut = true;
+                    // Allow to build a shortcut if the unit is falling and it's trying to move downwards towards a target (i.e. charging)
+                    else if (_sourceUnit.IsFalling && endPos.Z < startPos.Z)
+                        buildShotrcut = true;
+                }
+            }
+
+            if (buildShotrcut)
+            {
+                BuildShortcut();
+                pathType = PathType.Normal | PathType.NotUsingPath;
+
+                AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
+
+                return;
+            }
+            else
+            {
+                var closestPoint = new float[3];
+                // we may want to use closestPointOnPolyBoundary instead
+                var posOverPoly = false;
+
+                if (Detour.dtStatusSucceed(_navMeshQuery.closestPointOnPoly(endPoly, endPoint, closestPoint, ref posOverPoly)))
+                {
+                    Detour.dtVcopy(endPoint, closestPoint);
+                    SetActualEndPosition(new Vector3(endPoint[2], endPoint[0], endPoint[1]));
+                }
+
+                pathType = PathType.Incomplete;
+
+                AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
+            }
+        }
+
+        // *** poly path generating logic ***
+
+        // start and end are on same polygon
+        // handle this case as if they were 2 different polygons, building a line path split in some few points
+        if (startPoly == endPoly && !_useRaycast)
+        {
+            Log.Logger.Debug("++ BuildPolyPath . (startPoly == endPoly)\n");
+
+            _pathPolyRefs[0] = startPoly;
+            _polyLength = 1;
+
+            if (startFarFromPoly || endFarFromPoly)
+            {
+                pathType = PathType.Incomplete;
+
+                AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
+            }
+            else
+            {
+                pathType = PathType.Normal;
+            }
+
+            BuildPointPath(startPoint, endPoint);
+
+            return;
+        }
+
+        // look for startPoly/endPoly in current path
+        // @todo we can merge it with getPathPolyByPosition() loop
+        var startPolyFound = false;
+        var endPolyFound = false;
+        uint pathStartIndex = 0;
+        uint pathEndIndex = 0;
+
+        if (_polyLength != 0)
+        {
+            for (; pathStartIndex < _polyLength; ++pathStartIndex)
+            {
+                // here to carch few bugs
+                if (_pathPolyRefs[pathStartIndex] == 0)
+                {
+                    Log.Logger.Error("Invalid poly ref in BuildPolyPath. _polyLength: {0}, pathStartIndex: {1}," +
+                                     " startPos: {2}, endPos: {3}, mapid: {4}",
+                                     _polyLength,
+                                     pathStartIndex,
+                                     startPos,
+                                     endPos,
+                                     _source.Location.MapId);
+
+                    break;
+                }
+
+                if (_pathPolyRefs[pathStartIndex] == startPoly)
+                {
+                    startPolyFound = true;
+
+                    break;
+                }
+            }
+
+            for (pathEndIndex = _polyLength - 1; pathEndIndex > pathStartIndex; --pathEndIndex)
+                if (_pathPolyRefs[pathEndIndex] == endPoly)
+                {
+                    endPolyFound = true;
+
+                    break;
+                }
+        }
+
+        if (startPolyFound && endPolyFound)
+        {
+            Log.Logger.Debug("BuildPolyPath : (startPolyFound && endPolyFound)\n");
+
+            // we moved along the path and the target did not move out of our old poly-path
+            // our path is a simple subpath case, we have all the data we need
+            // just "cut" it out
+
+            _polyLength = pathEndIndex - pathStartIndex + 1;
+            Array.Copy(_pathPolyRefs, pathStartIndex, _pathPolyRefs, 0, _polyLength);
+        }
+        else if (startPolyFound && !endPolyFound)
+        {
+            Log.Logger.Debug("BuildPolyPath : (startPolyFound && !endPolyFound)\n");
+
+            // we are moving on the old path but target moved out
+            // so we have atleast part of poly-path ready
+
+            _polyLength -= pathStartIndex;
+
+            // try to adjust the suffix of the path instead of recalculating entire length
+            // at given interval the target cannot get too far from its last location
+            // thus we have less poly to cover
+            // sub-path of optimal path is optimal
+
+            // take ~80% of the original length
+            // @todo play with the values here
+            var prefixPolyLength = (uint)(_polyLength * 0.8f + 0.5f);
+            Array.Copy(_pathPolyRefs, pathStartIndex, _pathPolyRefs, 0, prefixPolyLength);
+
+            var suffixStartPoly = _pathPolyRefs[prefixPolyLength - 1];
+
+            // we need any point on our suffix start poly to generate poly-path, so we need last poly in prefix data
+            var suffixEndPoint = new float[3];
+            var posOverPoly = false;
+
+            if (Detour.dtStatusFailed(_navMeshQuery.closestPointOnPoly(suffixStartPoly, endPoint, suffixEndPoint, ref posOverPoly)))
+            {
+                // we can hit offmesh connection as last poly - closestPointOnPoly() don't like that
+                // try to recover by using prev polyref
+                --prefixPolyLength;
+                suffixStartPoly = _pathPolyRefs[prefixPolyLength - 1];
+
+                if (Detour.dtStatusFailed(_navMeshQuery.closestPointOnPoly(suffixStartPoly, endPoint, suffixEndPoint, ref posOverPoly)))
+                {
+                    // suffixStartPoly is still invalid, error state
+                    BuildShortcut();
+                    pathType = PathType.NoPath;
+
+                    return;
+                }
+            }
+
+            // generate suffix
+            uint suffixPolyLength = 0;
+            var tempPolyRefs = new ulong[_pathPolyRefs.Length];
+
+            uint dtResult;
+
+            if (_useRaycast)
+            {
+                Log.Logger.Error($"PathGenerator::BuildPolyPath() called with _useRaycast with a previous path for unit {_source.GUID}");
+                BuildShortcut();
+                pathType = PathType.NoPath;
+
+                return;
+            }
+            else
+            {
+                dtResult = _navMeshQuery.findPath(suffixStartPoly, // start polygon
+                                                  endPoly,         // end polygon
+                                                  suffixEndPoint,  // start position
+                                                  endPoint,        // end position
+                                                  _filter,         // polygon search filter
+                                                  tempPolyRefs,
+                                                  ref suffixPolyLength,
+                                                  74 - (int)prefixPolyLength);
+            }
+
+            if (suffixPolyLength == 0 || Detour.dtStatusFailed(dtResult))
+                // this is probably an error state, but we'll leave it
+                // and hopefully recover on the next Update
+                // we still need to copy our preffix
+                Log.Logger.Error($"Path Build failed\n{_source.GetDebugInfo()}");
+
+            Log.Logger.Debug("m_polyLength={0} prefixPolyLength={1} suffixPolyLength={2} \n", _polyLength, prefixPolyLength, suffixPolyLength);
+
+            for (var i = 0; i < _pathPolyRefs.Length - (prefixPolyLength - 1); ++i)
+                _pathPolyRefs[(prefixPolyLength - 1) + i] = tempPolyRefs[i];
+
+            // new path = prefix + suffix - overlap
+            _polyLength = prefixPolyLength + suffixPolyLength - 1;
+        }
+        else
+        {
+            Log.Logger.Debug("++ BuildPolyPath . (!startPolyFound && !endPolyFound)\n");
+
+            // either we have no path at all . first run
+            // or something went really wrong . we aren't moving along the path to the target
+            // just generate new path
+
+            // free and invalidate old path data
+            Clear();
+
+            uint dtResult;
+
+            if (_useRaycast)
+            {
+                float hit = 0;
+                var hitNormal = new float[3];
+
+                dtResult = _navMeshQuery.raycast(startPoly,
+                                                 startPoint,
+                                                 endPoint,
+                                                 _filter,
+                                                 ref hit,
+                                                 hitNormal,
+                                                 _pathPolyRefs,
+                                                 ref _polyLength,
+                                                 74);
+
+                if (_polyLength == 0 || Detour.dtStatusFailed(dtResult))
+                {
+                    BuildShortcut();
+                    pathType = PathType.NoPath;
+                    AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
+
+                    return;
+                }
+
+                // raycast() sets hit to FLT_MAX if there is a ray between start and end
+                if (hit != float.MaxValue)
+                {
+                    var hitPos = new float[3];
+
+                    // Walk back a bit from the hit point to make sure it's in the mesh (sometimes the point is actually outside of the polygons due to float precision issues)
+                    hit *= 0.99f;
+                    Detour.dtVlerp(hitPos, startPoint, endPoint, hit);
+
+                    // if it fails again, clamp to poly boundary
+                    if (Detour.dtStatusFailed(_navMeshQuery.getPolyHeight(_pathPolyRefs[_polyLength - 1], hitPos, ref hitPos[1])))
+                        _navMeshQuery.closestPointOnPolyBoundary(_pathPolyRefs[_polyLength - 1], hitPos, hitPos);
+
+                    _pathPoints = new Vector3[2];
+                    _pathPoints[0] = GetStartPosition();
+                    _pathPoints[1] = new Vector3(hitPos[2], hitPos[0], hitPos[1]);
+
+                    NormalizePath();
+                    pathType = PathType.Incomplete;
+                    AddFarFromPolyFlags(startFarFromPoly, false);
+
+                    return;
+                }
+                else
+                {
+                    // clamp to poly boundary if we fail to get the height
+                    if (Detour.dtStatusFailed(_navMeshQuery.getPolyHeight(_pathPolyRefs[_polyLength - 1], endPoint, ref endPoint[1])))
+                        _navMeshQuery.closestPointOnPolyBoundary(_pathPolyRefs[_polyLength - 1], endPoint, endPoint);
+
+                    _pathPoints = new Vector3[2];
+                    _pathPoints[0] = GetStartPosition();
+                    _pathPoints[1] = new Vector3(endPoint[2], endPoint[0], endPoint[1]);
+
+                    NormalizePath();
+
+                    if (startFarFromPoly || endFarFromPoly)
+                    {
+                        pathType = PathType.Incomplete;
+
+                        AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
+                    }
+                    else
+                    {
+                        pathType = PathType.Normal;
+                    }
+
+                    return;
+                }
+            }
+            else
+            {
+                dtResult = _navMeshQuery.findPath(startPoly,     // start polygon
+                                                  endPoly,       // end polygon
+                                                  startPoint,    // start position
+                                                  endPoint,      // end position
+                                                  _filter,       // polygon search filter
+                                                  _pathPolyRefs, // [out] path
+                                                  ref _polyLength,
+                                                  74); // max number of polygons in output path
+            }
+
+            if (_polyLength == 0 || Detour.dtStatusFailed(dtResult))
+            {
+                // only happens if we passed bad data to findPath(), or navmesh is messed up
+                Log.Logger.Error("{0}'s Path Build failed: 0 length path", _source.GUID.ToString());
+                BuildShortcut();
+                pathType = PathType.NoPath;
+
+                return;
+            }
+        }
+
+        // by now we know what type of path we can get
+        if (_pathPolyRefs[_polyLength - 1] == endPoly && !pathType.HasAnyFlag(PathType.Incomplete))
+            pathType = PathType.Normal;
+        else
+            pathType = PathType.Incomplete;
+
+        AddFarFromPolyFlags(startFarFromPoly, endFarFromPoly);
+
+        // generate the point-path out of our up-to-date poly-path
+        BuildPointPath(startPoint, endPoint);
+    }
 
     private void BuildPointPath(float[] startPoint, float[] endPoint)
-	{
-		var pathPoints = new float[74 * 3];
-		var pointCount = 0;
-		uint dtResult;
+    {
+        var pathPoints = new float[74 * 3];
+        var pointCount = 0;
+        uint dtResult;
 
-		if (_useRaycast)
-		{
-			// _straightLine uses raycast and it currently doesn't support building a point path, only a 2-point path with start and hitpoint/end is returned
-			Log.Logger.Error($"PathGenerator::BuildPointPath() called with _useRaycast for unit {_source.GUID}");
-			BuildShortcut();
-			pathType = PathType.NoPath;
+        if (_useRaycast)
+        {
+            // _straightLine uses raycast and it currently doesn't support building a point path, only a 2-point path with start and hitpoint/end is returned
+            Log.Logger.Error($"PathGenerator::BuildPointPath() called with _useRaycast for unit {_source.GUID}");
+            BuildShortcut();
+            pathType = PathType.NoPath;
 
-			return;
-		}
-		else if (_useStraightPath)
-		{
-			dtResult = _navMeshQuery.findStraightPath(startPoint, // start position
-													endPoint,     // end position
-													_pathPolyRefs,
-													(int)_polyLength,
-													pathPoints, // [out] path corner points
-													null,       // [out] flags
-													null,       // [out] shortened path
-													ref pointCount,
-													(int)_pointPathLimit,
-													0); // maximum number of points/polygons to use
-		}
-		else
-		{
-			dtResult = FindSmoothPath(startPoint,   // start position
-									endPoint,       // end position
-									_pathPolyRefs,  // current path
-									_polyLength,    // length of current path
-									out pathPoints, // [out] path corner points
-									out pointCount,
-									_pointPathLimit); // maximum number of points
-		}
+            return;
+        }
+        else if (_useStraightPath)
+        {
+            dtResult = _navMeshQuery.findStraightPath(startPoint, // start position
+                                                      endPoint,   // end position
+                                                      _pathPolyRefs,
+                                                      (int)_polyLength,
+                                                      pathPoints, // [out] path corner points
+                                                      null,       // [out] flags
+                                                      null,       // [out] shortened path
+                                                      ref pointCount,
+                                                      (int)_pointPathLimit,
+                                                      0); // maximum number of points/polygons to use
+        }
+        else
+        {
+            dtResult = FindSmoothPath(startPoint,     // start position
+                                      endPoint,       // end position
+                                      _pathPolyRefs,  // current path
+                                      _polyLength,    // length of current path
+                                      out pathPoints, // [out] path corner points
+                                      out pointCount,
+                                      _pointPathLimit); // maximum number of points
+        }
 
-		// Special case with start and end positions very close to each other
-		if (_polyLength == 1 && pointCount == 1)
-		{
-			// First point is start position, append end position
-			Detour.dtVcopy(pathPoints, 1 * 3, endPoint, 0);
-			pointCount++;
-		}
-		else if (pointCount < 2 || Detour.dtStatusFailed(dtResult))
-		{
-			// only happens if pass bad data to findStraightPath or navmesh is broken
-			// single point paths can be generated here
-			// @todo check the exact cases
-			Log.Logger.Debug("++ PathGenerator.BuildPointPath FAILED! path sized {0} returned\n", pointCount);
-			BuildShortcut();
-			pathType |= PathType.NoPath;
+        // Special case with start and end positions very close to each other
+        if (_polyLength == 1 && pointCount == 1)
+        {
+            // First point is start position, append end position
+            Detour.dtVcopy(pathPoints, 1 * 3, endPoint, 0);
+            pointCount++;
+        }
+        else if (pointCount < 2 || Detour.dtStatusFailed(dtResult))
+        {
+            // only happens if pass bad data to findStraightPath or navmesh is broken
+            // single point paths can be generated here
+            // @todo check the exact cases
+            Log.Logger.Debug("++ PathGenerator.BuildPointPath FAILED! path sized {0} returned\n", pointCount);
+            BuildShortcut();
+            pathType |= PathType.NoPath;
 
-			return;
-		}
-		else if (pointCount == _pointPathLimit)
-		{
-			Log.Logger.Debug("++ PathGenerator.BuildPointPath FAILED! path sized {0} returned, lower than limit set to {1}\n", pointCount, _pointPathLimit);
-			BuildShortcut();
-			pathType |= PathType.Short;
+            return;
+        }
+        else if (pointCount == _pointPathLimit)
+        {
+            Log.Logger.Debug("++ PathGenerator.BuildPointPath FAILED! path sized {0} returned, lower than limit set to {1}\n", pointCount, _pointPathLimit);
+            BuildShortcut();
+            pathType |= PathType.Short;
 
-			return;
-		}
+            return;
+        }
 
-		_pathPoints = new Vector3[pointCount];
+        _pathPoints = new Vector3[pointCount];
 
-		for (uint i = 0; i < pointCount; ++i)
-			_pathPoints[i] = new Vector3(pathPoints[i * 3 + 2], pathPoints[i * 3], pathPoints[i * 3 + 1]);
+        for (uint i = 0; i < pointCount; ++i)
+            _pathPoints[i] = new Vector3(pathPoints[i * 3 + 2], pathPoints[i * 3], pathPoints[i * 3 + 1]);
 
-		NormalizePath();
+        NormalizePath();
 
-		// first point is always our current location - we need the next one
-		SetActualEndPosition(_pathPoints[pointCount - 1]);
+        // first point is always our current location - we need the next one
+        SetActualEndPosition(_pathPoints[pointCount - 1]);
 
-		// force the given destination, if needed
-		if (_forceDestination && (!pathType.HasAnyFlag(PathType.Normal) || !InRange(GetEndPosition(), GetActualEndPosition(), 1.0f, 1.0f)))
-		{
-			// we may want to keep partial subpath
-			if (Dist3DSqr(GetActualEndPosition(), GetEndPosition()) < 0.3f * Dist3DSqr(GetStartPosition(), GetEndPosition()))
-			{
-				SetActualEndPosition(GetEndPosition());
-				_pathPoints[^1] = GetEndPosition();
-			}
-			else
-			{
-				SetActualEndPosition(GetEndPosition());
-				BuildShortcut();
-			}
+        // force the given destination, if needed
+        if (_forceDestination && (!pathType.HasAnyFlag(PathType.Normal) || !InRange(GetEndPosition(), GetActualEndPosition(), 1.0f, 1.0f)))
+        {
+            // we may want to keep partial subpath
+            if (Dist3DSqr(GetActualEndPosition(), GetEndPosition()) < 0.3f * Dist3DSqr(GetStartPosition(), GetEndPosition()))
+            {
+                SetActualEndPosition(GetEndPosition());
+                _pathPoints[^1] = GetEndPosition();
+            }
+            else
+            {
+                SetActualEndPosition(GetEndPosition());
+                BuildShortcut();
+            }
 
-			pathType = (PathType.Normal | PathType.NotUsingPath);
-		}
+            pathType = (PathType.Normal | PathType.NotUsingPath);
+        }
 
-		Log.Logger.Debug("PathGenerator.BuildPointPath path type {0} size {1} poly-size {2}\n", pathType, pointCount, _polyLength);
-	}
+        Log.Logger.Debug("PathGenerator.BuildPointPath path type {0} size {1} poly-size {2}\n", pathType, pointCount, _polyLength);
+    }
 
     private uint FixupCorridor(ulong[] path, uint npath, uint maxPath, ulong[] visited, int nvisited)
-	{
-		var furthestPath = -1;
-		var furthestVisited = -1;
+    {
+        var furthestPath = -1;
+        var furthestVisited = -1;
 
-		// Find furthest common polygon.
-		for (var i = (int)npath - 1; i >= 0; --i)
-		{
-			var found = false;
+        // Find furthest common polygon.
+        for (var i = (int)npath - 1; i >= 0; --i)
+        {
+            var found = false;
 
-			for (var j = (int)nvisited - 1; j >= 0; --j)
-				if (path[i] == visited[j])
-				{
-					furthestPath = i;
-					furthestVisited = j;
-					found = true;
-				}
+            for (var j = (int)nvisited - 1; j >= 0; --j)
+                if (path[i] == visited[j])
+                {
+                    furthestPath = i;
+                    furthestVisited = j;
+                    found = true;
+                }
 
-			if (found)
-				break;
-		}
+            if (found)
+                break;
+        }
 
-		// If no intersection found just return current path.
-		if (furthestPath == -1 || furthestVisited == -1)
-			return npath;
+        // If no intersection found just return current path.
+        if (furthestPath == -1 || furthestVisited == -1)
+            return npath;
 
-		// Concatenate paths.
+        // Concatenate paths.
 
-		// Adjust beginning of the buffer to include the visited.
-		var req = (uint)(nvisited - furthestVisited);
-		var orig = (uint)((furthestPath + 1) < npath ? furthestPath + 1 : (int)npath);
-		var size = npath > orig ? npath - orig : 0;
+        // Adjust beginning of the buffer to include the visited.
+        var req = (uint)(nvisited - furthestVisited);
+        var orig = (uint)((furthestPath + 1) < npath ? furthestPath + 1 : (int)npath);
+        var size = npath > orig ? npath - orig : 0;
 
-		if (req + size > maxPath)
-			size = maxPath - req;
+        if (req + size > maxPath)
+            size = maxPath - req;
 
-		if (size != 0)
-			Array.Copy(path, (int)orig, path, (int)req, (int)size);
+        if (size != 0)
+            Array.Copy(path, (int)orig, path, (int)req, (int)size);
 
-		// Store visited
-		for (uint i = 0; i < req; ++i)
-			path[i] = visited[(nvisited - 1) - i];
+        // Store visited
+        for (uint i = 0; i < req; ++i)
+            path[i] = visited[(nvisited - 1) - i];
 
-		return req + size;
-	}
+        return req + size;
+    }
 
     private bool GetSteerTarget(float[] startPos, float[] endPos, float minTargetDist, ulong[] path, uint pathSize, out float[] steerPos, out Detour.dtStraightPathFlags steerPosFlag, out ulong steerPosRef)
-	{
-		steerPosRef = 0;
-		steerPos = new float[3];
-		steerPosFlag = 0;
+    {
+        steerPosRef = 0;
+        steerPos = new float[3];
+        steerPosFlag = 0;
 
-		// Find steer target.
-		var steerPath = new float[3 * 3];
-		var steerPathFlags = new byte[3];
-		var steerPathPolys = new ulong[3];
-		var nsteerPath = 0;
-		var dtResult = _navMeshQuery.findStraightPath(startPos, endPos, path, (int)pathSize, steerPath, steerPathFlags, steerPathPolys, ref nsteerPath, 3, 0);
+        // Find steer target.
+        var steerPath = new float[3 * 3];
+        var steerPathFlags = new byte[3];
+        var steerPathPolys = new ulong[3];
+        var nsteerPath = 0;
+        var dtResult = _navMeshQuery.findStraightPath(startPos, endPos, path, (int)pathSize, steerPath, steerPathFlags, steerPathPolys, ref nsteerPath, 3, 0);
 
-		if (nsteerPath == 0 || Detour.dtStatusFailed(dtResult))
-			return false;
+        if (nsteerPath == 0 || Detour.dtStatusFailed(dtResult))
+            return false;
 
-		// Find vertex far enough to steer to.
-		uint ns = 0;
+        // Find vertex far enough to steer to.
+        uint ns = 0;
 
-		while (ns < nsteerPath)
-		{
-			Span<float> span = steerPath;
+        while (ns < nsteerPath)
+        {
+            Span<float> span = steerPath;
 
-			// Stop at Off-Mesh link or when point is further than slop away.
-			if ((steerPathFlags[ns].HasAnyFlag((byte)Detour.dtStraightPathFlags.DT_STRAIGHTPATH_OFFMESH_CONNECTION) ||
-				!InRangeYZX(span[((int)ns * 3)..].ToArray(), startPos, minTargetDist, 1000.0f)))
-				break;
+            // Stop at Off-Mesh link or when point is further than slop away.
+            if ((steerPathFlags[ns].HasAnyFlag((byte)Detour.dtStraightPathFlags.DT_STRAIGHTPATH_OFFMESH_CONNECTION) ||
+                 !InRangeYZX(span[((int)ns * 3)..].ToArray(), startPos, minTargetDist, 1000.0f)))
+                break;
 
-			ns++;
-		}
+            ns++;
+        }
 
-		// Failed to find good point to steer to.
-		if (ns >= nsteerPath)
-			return false;
+        // Failed to find good point to steer to.
+        if (ns >= nsteerPath)
+            return false;
 
-		Detour.dtVcopy(steerPos, 0, steerPath, (int)ns * 3);
-		steerPos[1] = startPos[1]; // keep Z value
-		steerPosFlag = (Detour.dtStraightPathFlags)steerPathFlags[ns];
-		steerPosRef = steerPathPolys[ns];
+        Detour.dtVcopy(steerPos, 0, steerPath, (int)ns * 3);
+        steerPos[1] = startPos[1]; // keep Z value
+        steerPosFlag = (Detour.dtStraightPathFlags)steerPathFlags[ns];
+        steerPosRef = steerPathPolys[ns];
 
-		return true;
-	}
+        return true;
+    }
 
     private uint FindSmoothPath(float[] startPos, float[] endPos, ulong[] polyPath, uint polyPathSize, out float[] smoothPath, out int smoothPathSize, uint maxSmoothPathSize)
-	{
-		smoothPathSize = 0;
-		var nsmoothPath = 0;
-		smoothPath = new float[74 * 3];
+    {
+        smoothPathSize = 0;
+        var nsmoothPath = 0;
+        smoothPath = new float[74 * 3];
 
-		var polys = new ulong[74];
-		Array.Copy(polyPath, polys, polyPathSize);
-		var npolys = polyPathSize;
+        var polys = new ulong[74];
+        Array.Copy(polyPath, polys, polyPathSize);
+        var npolys = polyPathSize;
 
-		var iterPos = new float[3];
-		var targetPos = new float[3];
+        var iterPos = new float[3];
+        var targetPos = new float[3];
 
-		if (polyPathSize > 1)
-		{
-			// Pick the closest points on poly border
-			if (Detour.dtStatusFailed(_navMeshQuery.closestPointOnPolyBoundary(polys[0], startPos, iterPos)))
-				return Detour.DT_FAILURE;
+        if (polyPathSize > 1)
+        {
+            // Pick the closest points on poly border
+            if (Detour.dtStatusFailed(_navMeshQuery.closestPointOnPolyBoundary(polys[0], startPos, iterPos)))
+                return Detour.DT_FAILURE;
 
-			if (Detour.dtStatusFailed(_navMeshQuery.closestPointOnPolyBoundary(polys[npolys - 1], endPos, targetPos)))
-				return Detour.DT_FAILURE;
-		}
-		else
-		{
-			// Case where the path is on the same poly
-			Detour.dtVcopy(iterPos, startPos);
-			Detour.dtVcopy(targetPos, endPos);
-		}
+            if (Detour.dtStatusFailed(_navMeshQuery.closestPointOnPolyBoundary(polys[npolys - 1], endPos, targetPos)))
+                return Detour.DT_FAILURE;
+        }
+        else
+        {
+            // Case where the path is on the same poly
+            Detour.dtVcopy(iterPos, startPos);
+            Detour.dtVcopy(targetPos, endPos);
+        }
 
-		Detour.dtVcopy(smoothPath, nsmoothPath * 3, iterPos, 0);
-		nsmoothPath++;
+        Detour.dtVcopy(smoothPath, nsmoothPath * 3, iterPos, 0);
+        nsmoothPath++;
 
-		// Move towards target a small advancement at a time until target reached or
-		// when ran out of memory to store the path.
-		while (npolys != 0 && nsmoothPath < maxSmoothPathSize)
-		{
-			// Find location to steer towards.
-			if (!GetSteerTarget(iterPos, targetPos, 0.3f, polys, npolys, out var steerPos, out var steerPosFlag, out var steerPosRef))
-				break;
+        // Move towards target a small advancement at a time until target reached or
+        // when ran out of memory to store the path.
+        while (npolys != 0 && nsmoothPath < maxSmoothPathSize)
+        {
+            // Find location to steer towards.
+            if (!GetSteerTarget(iterPos, targetPos, 0.3f, polys, npolys, out var steerPos, out var steerPosFlag, out var steerPosRef))
+                break;
 
-			var endOfPath = steerPosFlag.HasAnyFlag(Detour.dtStraightPathFlags.DT_STRAIGHTPATH_END);
-			var offMeshConnection = steerPosFlag.HasAnyFlag(Detour.dtStraightPathFlags.DT_STRAIGHTPATH_OFFMESH_CONNECTION);
+            var endOfPath = steerPosFlag.HasAnyFlag(Detour.dtStraightPathFlags.DT_STRAIGHTPATH_END);
+            var offMeshConnection = steerPosFlag.HasAnyFlag(Detour.dtStraightPathFlags.DT_STRAIGHTPATH_OFFMESH_CONNECTION);
 
-			// Find movement delta.
-			var delta = new float[3];
-			Detour.dtVsub(delta, steerPos, iterPos);
-			var len = (float)Math.Sqrt(Detour.dtVdot(delta, delta));
+            // Find movement delta.
+            var delta = new float[3];
+            Detour.dtVsub(delta, steerPos, iterPos);
+            var len = (float)Math.Sqrt(Detour.dtVdot(delta, delta));
 
-			// If the steer target is end of path or off-mesh link, do not move past the location.
-			if ((endOfPath || offMeshConnection) && len < 4.0f)
-				len = 1.0f;
-			else
-				len = 4.0f / len;
+            // If the steer target is end of path or off-mesh link, do not move past the location.
+            if ((endOfPath || offMeshConnection) && len < 4.0f)
+                len = 1.0f;
+            else
+                len = 4.0f / len;
 
-			var moveTgt = new float[3];
-			Detour.dtVmad(moveTgt, iterPos, delta, len);
+            var moveTgt = new float[3];
+            Detour.dtVmad(moveTgt, iterPos, delta, len);
 
-			// Move
-			var result = new float[3];
-			var MAX_VISIT_POLY = 16;
-			var visited = new ulong[MAX_VISIT_POLY];
+            // Move
+            var result = new float[3];
+            var MAX_VISIT_POLY = 16;
+            var visited = new ulong[MAX_VISIT_POLY];
 
-			var nvisited = 0;
+            var nvisited = 0;
 
-			if (Detour.dtStatusFailed(_navMeshQuery.moveAlongSurface(polys[0], iterPos, moveTgt, _filter, result, visited, ref nvisited, MAX_VISIT_POLY)))
-				return Detour.DT_FAILURE;
+            if (Detour.dtStatusFailed(_navMeshQuery.moveAlongSurface(polys[0], iterPos, moveTgt, _filter, result, visited, ref nvisited, MAX_VISIT_POLY)))
+                return Detour.DT_FAILURE;
 
-			npolys = FixupCorridor(polys, npolys, 74, visited, nvisited);
+            npolys = FixupCorridor(polys, npolys, 74, visited, nvisited);
 
-			if (Detour.dtStatusFailed(_navMeshQuery.getPolyHeight(polys[0], result, ref result[1])))
-				Log.Logger.Debug($"Cannot find height at position X: {result[2]} Y: {result[0]} Z: {result[1]} for {_source.GetDebugInfo()}");
+            if (Detour.dtStatusFailed(_navMeshQuery.getPolyHeight(polys[0], result, ref result[1])))
+                Log.Logger.Debug($"Cannot find height at position X: {result[2]} Y: {result[0]} Z: {result[1]} for {_source.GetDebugInfo()}");
 
-			result[1] += 0.5f;
-			Detour.dtVcopy(iterPos, result);
+            result[1] += 0.5f;
+            Detour.dtVcopy(iterPos, result);
 
-			// Handle end of path and off-mesh links when close enough.
-			if (endOfPath && InRangeYZX(iterPos, steerPos, 0.3f, 1.0f))
-			{
-				// Reached end of path.
-				Detour.dtVcopy(iterPos, targetPos);
+            // Handle end of path and off-mesh links when close enough.
+            if (endOfPath && InRangeYZX(iterPos, steerPos, 0.3f, 1.0f))
+            {
+                // Reached end of path.
+                Detour.dtVcopy(iterPos, targetPos);
 
-				if (nsmoothPath < maxSmoothPathSize)
-				{
-					Detour.dtVcopy(smoothPath, nsmoothPath * 3, iterPos, 0);
-					nsmoothPath++;
-				}
+                if (nsmoothPath < maxSmoothPathSize)
+                {
+                    Detour.dtVcopy(smoothPath, nsmoothPath * 3, iterPos, 0);
+                    nsmoothPath++;
+                }
 
-				break;
-			}
-			else if (offMeshConnection && InRangeYZX(iterPos, steerPos, 0.3f, 1.0f))
-			{
-				// Advance the path up to and over the off-mesh connection.
-				ulong prevRef = 0;
-				var polyRef = polys[0];
-				uint npos = 0;
+                break;
+            }
+            else if (offMeshConnection && InRangeYZX(iterPos, steerPos, 0.3f, 1.0f))
+            {
+                // Advance the path up to and over the off-mesh connection.
+                ulong prevRef = 0;
+                var polyRef = polys[0];
+                uint npos = 0;
 
-				while (npos < npolys && polyRef != steerPosRef)
-				{
-					prevRef = polyRef;
-					polyRef = polys[npos];
-					npos++;
-				}
+                while (npos < npolys && polyRef != steerPosRef)
+                {
+                    prevRef = polyRef;
+                    polyRef = polys[npos];
+                    npos++;
+                }
 
-				for (var i = npos; i < npolys; ++i)
-					polys[i - npos] = polys[i];
+                for (var i = npos; i < npolys; ++i)
+                    polys[i - npos] = polys[i];
 
-				npolys -= npos;
+                npolys -= npos;
 
-				// Handle the connection.
-				var connectionStartPos = new float[3];
-				var connectionEndPos = new float[3];
+                // Handle the connection.
+                var connectionStartPos = new float[3];
+                var connectionEndPos = new float[3];
 
-				if (Detour.dtStatusSucceed(_navMesh.getOffMeshConnectionPolyEndPoints(prevRef, polyRef, connectionStartPos, connectionEndPos)))
-				{
-					if (nsmoothPath < maxSmoothPathSize)
-					{
-						Detour.dtVcopy(smoothPath, nsmoothPath * 3, connectionStartPos, 0);
-						nsmoothPath++;
-					}
+                if (Detour.dtStatusSucceed(_navMesh.getOffMeshConnectionPolyEndPoints(prevRef, polyRef, connectionStartPos, connectionEndPos)))
+                {
+                    if (nsmoothPath < maxSmoothPathSize)
+                    {
+                        Detour.dtVcopy(smoothPath, nsmoothPath * 3, connectionStartPos, 0);
+                        nsmoothPath++;
+                    }
 
-					// Move position at the other side of the off-mesh link.
-					Detour.dtVcopy(iterPos, connectionEndPos);
+                    // Move position at the other side of the off-mesh link.
+                    Detour.dtVcopy(iterPos, connectionEndPos);
 
-					if (Detour.dtStatusFailed(_navMeshQuery.getPolyHeight(polys[0], iterPos, ref iterPos[1])))
-						return Detour.DT_FAILURE;
+                    if (Detour.dtStatusFailed(_navMeshQuery.getPolyHeight(polys[0], iterPos, ref iterPos[1])))
+                        return Detour.DT_FAILURE;
 
-					iterPos[1] += 0.5f;
-				}
-			}
+                    iterPos[1] += 0.5f;
+                }
+            }
 
-			// Store results.
-			if (nsmoothPath < maxSmoothPathSize)
-			{
-				Detour.dtVcopy(smoothPath, nsmoothPath * 3, iterPos, 0);
-				nsmoothPath++;
-			}
-		}
+            // Store results.
+            if (nsmoothPath < maxSmoothPathSize)
+            {
+                Detour.dtVcopy(smoothPath, nsmoothPath * 3, iterPos, 0);
+                nsmoothPath++;
+            }
+        }
 
-		smoothPathSize = nsmoothPath;
+        smoothPathSize = nsmoothPath;
 
-		// this is most likely a loop
-		return nsmoothPath < 74 ? Detour.DT_SUCCESS : Detour.DT_FAILURE;
-	}
+        // this is most likely a loop
+        return nsmoothPath < 74 ? Detour.DT_SUCCESS : Detour.DT_FAILURE;
+    }
 
     private void NormalizePath()
-	{
-		for (uint i = 0; i < _pathPoints.Length; ++i)
-		{
-			var point = _pathPoints[i];
-			point.Z = _source.UpdateAllowedPositionZ(point.X, point.Y, point.Z);
-		}
-	}
+    {
+        for (uint i = 0; i < _pathPoints.Length; ++i)
+        {
+            var point = _pathPoints[i];
+            point.Z = _source.UpdateAllowedPositionZ(point.X, point.Y, point.Z);
+        }
+    }
 
     private void BuildShortcut()
-	{
-		Log.Logger.Debug("BuildShortcut : making shortcut\n");
+    {
+        Log.Logger.Debug("BuildShortcut : making shortcut\n");
 
-		Clear();
+        Clear();
 
-		// make two point path, our curr pos is the start, and dest is the end
-		_pathPoints = new Vector3[2];
+        // make two point path, our curr pos is the start, and dest is the end
+        _pathPoints = new Vector3[2];
 
-		// set start and a default next position
-		_pathPoints[0] = GetStartPosition();
-		_pathPoints[1] = GetActualEndPosition();
+        // set start and a default next position
+        _pathPoints[0] = GetStartPosition();
+        _pathPoints[1] = GetActualEndPosition();
 
-		NormalizePath();
+        NormalizePath();
 
-		pathType = PathType.Shortcut;
-	}
+        pathType = PathType.Shortcut;
+    }
 
     private void CreateFilter()
-	{
-		NavTerrainFlag includeFlags = 0;
-		NavTerrainFlag excludeFlags = 0;
+    {
+        NavTerrainFlag includeFlags = 0;
+        NavTerrainFlag excludeFlags = 0;
 
-		if (_source.IsTypeId(TypeId.Unit))
-		{
-			var creature = _source.AsCreature;
+        if (_source.IsTypeId(TypeId.Unit))
+        {
+            var creature = _source.AsCreature;
 
-			if (creature.CanWalk)
-				includeFlags |= NavTerrainFlag.Ground;
+            if (creature.CanWalk)
+                includeFlags |= NavTerrainFlag.Ground;
 
-			// creatures don't take environmental damage
-			if (creature.CanEnterWater)
-				includeFlags |= (NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime);
-		}
-		else
-		{
-			includeFlags = (NavTerrainFlag.Ground | NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime);
-		}
+            // creatures don't take environmental damage
+            if (creature.CanEnterWater)
+                includeFlags |= (NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime);
+        }
+        else
+        {
+            includeFlags = (NavTerrainFlag.Ground | NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime);
+        }
 
-		_filter.setIncludeFlags((ushort)includeFlags);
-		_filter.setExcludeFlags((ushort)excludeFlags);
+        _filter.setIncludeFlags((ushort)includeFlags);
+        _filter.setExcludeFlags((ushort)excludeFlags);
 
-		UpdateFilter();
-	}
+        UpdateFilter();
+    }
 
     private void UpdateFilter()
-	{
-		// allow creatures to cheat and use different movement types if they are moved
-		// forcefully into terrain they can't normally move in
-		var _sourceUnit = _source.AsUnit;
+    {
+        // allow creatures to cheat and use different movement types if they are moved
+        // forcefully into terrain they can't normally move in
+        var _sourceUnit = _source.AsUnit;
 
-		if (_sourceUnit != null)
-		{
-			if (_sourceUnit.IsInWater || _sourceUnit.IsUnderWater)
-			{
-				var includedFlags = (NavTerrainFlag)_filter.getIncludeFlags();
-				includedFlags |= GetNavTerrain(_source.Location.X, _source.Location.Y, _source.Location.Z);
+        if (_sourceUnit != null)
+        {
+            if (_sourceUnit.IsInWater || _sourceUnit.IsUnderWater)
+            {
+                var includedFlags = (NavTerrainFlag)_filter.getIncludeFlags();
+                includedFlags |= GetNavTerrain(_source.Location.X, _source.Location.Y, _source.Location.Z);
 
-				_filter.setIncludeFlags((ushort)includedFlags);
-			}
+                _filter.setIncludeFlags((ushort)includedFlags);
+            }
 
-			var _sourceCreature = _source.AsCreature;
+            var _sourceCreature = _source.AsCreature;
 
-			if (_sourceCreature != null)
-				if (_sourceCreature.IsInCombat || _sourceCreature.IsInEvadeMode)
-					_filter.setIncludeFlags((ushort)(_filter.getIncludeFlags() | (ushort)NavTerrainFlag.GroundSteep));
-		}
-	}
+            if (_sourceCreature != null)
+                if (_sourceCreature.IsInCombat || _sourceCreature.IsInEvadeMode)
+                    _filter.setIncludeFlags((ushort)(_filter.getIncludeFlags() | (ushort)NavTerrainFlag.GroundSteep));
+        }
+    }
 
     private NavTerrainFlag GetNavTerrain(float x, float y, float z)
-	{
-		var liquidStatus = _source.Map.GetLiquidStatus(_source.PhaseShift, x, y, z, LiquidHeaderTypeFlags.AllLiquids, out var data, _source.CollisionHeight);
+    {
+        var liquidStatus = _source.Map.GetLiquidStatus(_source.PhaseShift, x, y, z, LiquidHeaderTypeFlags.AllLiquids, out var data, _source.CollisionHeight);
 
-		if (liquidStatus == ZLiquidStatus.NoWater)
-			return NavTerrainFlag.Ground;
+        if (liquidStatus == ZLiquidStatus.NoWater)
+            return NavTerrainFlag.Ground;
 
-		data.type_flags &= ~LiquidHeaderTypeFlags.DarkWater;
+        data.type_flags &= ~LiquidHeaderTypeFlags.DarkWater;
 
-		switch (data.type_flags)
-		{
-			case LiquidHeaderTypeFlags.Water:
-			case LiquidHeaderTypeFlags.Ocean:
-				return NavTerrainFlag.Water;
-			case LiquidHeaderTypeFlags.Magma:
-			case LiquidHeaderTypeFlags.Slime:
-				return NavTerrainFlag.MagmaSlime;
-			default:
-				return NavTerrainFlag.Ground;
-		}
-	}
+        switch (data.type_flags)
+        {
+            case LiquidHeaderTypeFlags.Water:
+            case LiquidHeaderTypeFlags.Ocean:
+                return NavTerrainFlag.Water;
+            case LiquidHeaderTypeFlags.Magma:
+            case LiquidHeaderTypeFlags.Slime:
+                return NavTerrainFlag.MagmaSlime;
+            default:
+                return NavTerrainFlag.Ground;
+        }
+    }
 
     private bool InRange(Vector3 p1, Vector3 p2, float r, float h)
-	{
-		var d = p1 - p2;
+    {
+        var d = p1 - p2;
 
-		return (d.X * d.X + d.Y * d.Y) < r * r && Math.Abs(d.Z) < h;
-	}
+        return (d.X * d.X + d.Y * d.Y) < r * r && Math.Abs(d.Z) < h;
+    }
 
     private float Dist3DSqr(Vector3 p1, Vector3 p2)
-	{
-		return (p1 - p2).LengthSquared();
-	}
+    {
+        return (p1 - p2).LengthSquared();
+    }
 
     private void AddFarFromPolyFlags(bool startFarFromPoly, bool endFarFromPoly)
-	{
-		if (startFarFromPoly)
-			pathType |= PathType.FarFromPolyStart;
+    {
+        if (startFarFromPoly)
+            pathType |= PathType.FarFromPolyStart;
 
-		if (endFarFromPoly)
-			pathType |= PathType.FarFromPolyEnd;
-	}
+        if (endFarFromPoly)
+            pathType |= PathType.FarFromPolyEnd;
+    }
 
     private void Clear()
-	{
-		_polyLength = 0;
-		_pathPoints = null;
-	}
+    {
+        _polyLength = 0;
+        _pathPoints = null;
+    }
 
     private bool HaveTile(Vector3 p)
-	{
-		int tx = -1, ty = -1;
+    {
+        int tx = -1, ty = -1;
 
-		float[] point =
-		{
-			p.Y, p.Z, p.X
-		};
+        float[] point =
+        {
+            p.Y, p.Z, p.X
+        };
 
-		_navMesh.calcTileLoc(point, ref tx, ref ty);
+        _navMesh.calcTileLoc(point, ref tx, ref ty);
 
-		// Workaround
-		// For some reason, often the tx and ty variables wont get a valid value
-		// Use this check to prevent getting negative tile coords and crashing on getTileAt
-		if (tx < 0 || ty < 0)
-			return false;
+        // Workaround
+        // For some reason, often the tx and ty variables wont get a valid value
+        // Use this check to prevent getting negative tile coords and crashing on getTileAt
+        if (tx < 0 || ty < 0)
+            return false;
 
-		return (_navMesh.getTileAt(tx, ty, 0) != null);
-	}
+        return (_navMesh.getTileAt(tx, ty, 0) != null);
+    }
 
     private bool InRangeYZX(float[] v1, float[] v2, float r, float h)
-	{
-		var dx = v2[0] - v1[0];
-		var dy = v2[1] - v1[1]; // elevation
-		var dz = v2[2] - v1[2];
+    {
+        var dx = v2[0] - v1[0];
+        var dy = v2[1] - v1[1]; // elevation
+        var dz = v2[2] - v1[2];
 
-		return (dx * dx + dz * dz) < r * r && Math.Abs(dy) < h;
-	}
+        return (dx * dx + dz * dz) < r * r && Math.Abs(dy) < h;
+    }
 
     private void SetStartPosition(Vector3 point)
-	{
-		_startPosition = point;
-	}
+    {
+        _startPosition = point;
+    }
 
     private void SetEndPosition(Vector3 point)
-	{
-		_actualEndPosition = point;
-		_endPosition = point;
-	}
+    {
+        _actualEndPosition = point;
+        _endPosition = point;
+    }
 
     private void SetActualEndPosition(Vector3 point)
-	{
-		_actualEndPosition = point;
-	}
+    {
+        _actualEndPosition = point;
+    }
 }
 
 [Flags]
 public enum PathType
 {
-	Blank = 0x00,                                   // path not built yet
-	Normal = 0x01,                                  // normal path
-	Shortcut = 0x02,                                // travel through obstacles, terrain, air, etc (old behavior)
-	Incomplete = 0x04,                              // we have partial path to follow - getting closer to target
-	NoPath = 0x08,                                  // no valid path at all or error in generating one
-	NotUsingPath = 0x10,                            // used when we are either flying/swiming or on map w/o mmaps
-	Short = 0x20,                                   // path is longer or equal to its limited path length
-	FarFromPolyStart = 0x40,                        // start position is far from the mmap poligon
-	FarFromPolyEnd = 0x80,                          // end positions is far from the mmap poligon
-	FarFromPoly = FarFromPolyStart | FarFromPolyEnd // start or end positions are far from the mmap poligon
+    Blank = 0x00,                                   // path not built yet
+    Normal = 0x01,                                  // normal path
+    Shortcut = 0x02,                                // travel through obstacles, terrain, air, etc (old behavior)
+    Incomplete = 0x04,                              // we have partial path to follow - getting closer to target
+    NoPath = 0x08,                                  // no valid path at all or error in generating one
+    NotUsingPath = 0x10,                            // used when we are either flying/swiming or on map w/o mmaps
+    Short = 0x20,                                   // path is longer or equal to its limited path length
+    FarFromPolyStart = 0x40,                        // start position is far from the mmap poligon
+    FarFromPolyEnd = 0x80,                          // end positions is far from the mmap poligon
+    FarFromPoly = FarFromPolyStart | FarFromPolyEnd // start or end positions are far from the mmap poligon
 }
 
 public enum NavArea
 {
-	Empty = 0,
-	MagmaSlime = 8, // don't need to differentiate between them
-	Water = 9,
-	GroundSteep = 10,
-	Ground = 11,
-	MaxValue = Ground,
-	MinValue = MagmaSlime,
+    Empty = 0,
+    MagmaSlime = 8, // don't need to differentiate between them
+    Water = 9,
+    GroundSteep = 10,
+    Ground = 11,
+    MaxValue = Ground,
+    MinValue = MagmaSlime,
 
-	AllMask = 0x3F // max allowed value
-	// areas 1-60 will be used for destructible areas (currently skipped in vmaps, WMO with flag 1)
-	// ground is the highest value to make recast choose ground over water when merging surfaces very close to each other (shallow water would be walkable) 
+    AllMask = 0x3F // max allowed value
+    // areas 1-60 will be used for destructible areas (currently skipped in vmaps, WMO with flag 1)
+    // ground is the highest value to make recast choose ground over water when merging surfaces very close to each other (shallow water would be walkable) 
 }
 
 public enum NavTerrainFlag
 {
-	Empty = 0x00,
-	Ground = 1 << (NavArea.MaxValue - NavArea.Ground),
-	GroundSteep = 1 << (NavArea.MaxValue - NavArea.GroundSteep),
-	Water = 1 << (NavArea.MaxValue - NavArea.Water),
-	MagmaSlime = 1 << (NavArea.MaxValue - NavArea.MagmaSlime)
+    Empty = 0x00,
+    Ground = 1 << (NavArea.MaxValue - NavArea.Ground),
+    GroundSteep = 1 << (NavArea.MaxValue - NavArea.GroundSteep),
+    Water = 1 << (NavArea.MaxValue - NavArea.Water),
+    MagmaSlime = 1 << (NavArea.MaxValue - NavArea.MagmaSlime)
 }
 
 public enum PolyFlag
 {
-	Walk = 1,
-	Swim = 2
+    Walk = 1,
+    Swim = 2
 }

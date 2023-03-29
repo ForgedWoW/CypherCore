@@ -13,12 +13,10 @@ public class spell_evoker_golden_hour : SpellScript, ISpellOnHit
 {
     public void OnHit()
     {
-        if (Caster.TryGetAura(EvokerSpells.BRONZE_GOLDEN_HOUR, out var gaAura)
-            && ExplTargetUnit.TryGetAsPlayer(out var target))
+        if (Caster.TryGetAura(EvokerSpells.BRONZE_GOLDEN_HOUR, out var gaAura) && ExplTargetUnit.TryGetAsPlayer(out var target))
         {
             var args = new CastSpellExtraArgs(TriggerCastFlags.TriggeredAllowProc);
-            args.AddSpellMod(SpellValueMod.BasePoint0, target.GetDamageOverLastSeconds((uint)gaAura.SpellInfo.GetEffect(1).BasePoints)
-                                                * (gaAura.SpellInfo.GetEffect(0).BasePoints * 0.01));
+            args.AddSpellMod(SpellValueMod.BasePoint0, target.GetDamageOverLastSeconds((uint)gaAura.SpellInfo.GetEffect(1).BasePoints) * (gaAura.SpellInfo.GetEffect(0).BasePoints * 0.01));
             Caster.CastSpell(target, EvokerSpells.BRONZE_GOLDEN_HOUR_HEAL, args);
         }
     }

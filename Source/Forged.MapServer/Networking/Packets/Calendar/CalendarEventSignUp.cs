@@ -5,15 +5,15 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarEventSignUp : ClientPacket
 {
-	public bool Tentative;
-	public ulong EventID;
-	public ulong ClubID;
-	public CalendarEventSignUp(WorldPacket packet) : base(packet) { }
+    public bool Tentative;
+    public ulong EventID;
+    public ulong ClubID;
+    public CalendarEventSignUp(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		EventID = _worldPacket.ReadUInt64();
-		ClubID = _worldPacket.ReadUInt64();
-		Tentative = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        EventID = _worldPacket.ReadUInt64();
+        ClubID = _worldPacket.ReadUInt64();
+        Tentative = _worldPacket.HasBit();
+    }
 }

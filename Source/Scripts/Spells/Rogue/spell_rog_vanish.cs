@@ -12,29 +12,29 @@ namespace Scripts.Spells.Rogue;
 [Script] // 1856 - Vanish - VANISH
 internal class spell_rog_vanish : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(OnLaunchTarget, 1, SpellEffectName.TriggerSpell, SpellScriptHookType.LaunchTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(OnLaunchTarget, 1, SpellEffectName.TriggerSpell, SpellScriptHookType.LaunchTarget));
+    }
 
-	private void OnLaunchTarget(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
+    private void OnLaunchTarget(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
 
-		var target = HitUnit;
+        var target = HitUnit;
 
-		target.RemoveAurasByType(AuraType.ModStalked);
+        target.RemoveAurasByType(AuraType.ModStalked);
 
-		if (!target.IsPlayer)
-			return;
+        if (!target.IsPlayer)
+            return;
 
-		if (target.HasAura(RogueSpells.VanishAura))
-			return;
+        if (target.HasAura(RogueSpells.VanishAura))
+            return;
 
-		target.CastSpell(target, RogueSpells.VanishAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-		target.CastSpell(target, RogueSpells.StealthShapeshiftAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-	}
+        target.CastSpell(target, RogueSpells.VanishAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        target.CastSpell(target, RogueSpells.StealthShapeshiftAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+    }
 }

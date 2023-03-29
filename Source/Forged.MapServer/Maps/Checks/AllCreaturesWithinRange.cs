@@ -12,23 +12,23 @@ public class AllCreaturesWithinRange : ICheck<Creature>
     private readonly WorldObject _pObject;
     private readonly float _fRange;
 
-	public AllCreaturesWithinRange(WorldObject obj, float maxRange = 0f)
-	{
-		_pObject = obj;
-		_fRange = maxRange;
-	}
+    public AllCreaturesWithinRange(WorldObject obj, float maxRange = 0f)
+    {
+        _pObject = obj;
+        _fRange = maxRange;
+    }
 
-	public bool Invoke(Creature creature)
-	{
-		if (_fRange != 0f)
-		{
-			if (_fRange > 0.0f && !_pObject.IsWithinDist(creature, _fRange, false))
-				return false;
+    public bool Invoke(Creature creature)
+    {
+        if (_fRange != 0f)
+        {
+            if (_fRange > 0.0f && !_pObject.IsWithinDist(creature, _fRange, false))
+                return false;
 
-			if (_fRange < 0.0f && _pObject.IsWithinDist(creature, _fRange, false))
-				return false;
-		}
+            if (_fRange < 0.0f && _pObject.IsWithinDist(creature, _fRange, false))
+                return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

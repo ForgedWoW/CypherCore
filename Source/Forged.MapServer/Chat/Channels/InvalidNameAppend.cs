@@ -8,7 +8,7 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct InvalidNameAppend : IChannelAppender
 {
-	public ChatNotify GetNotificationType() => ChatNotify.InvalidNameNotice;
+    public ChatNotify GetNotificationType() => ChatNotify.InvalidNameNotice;
 
-	public void Append(ChannelNotify data) { }
+    public void Append(ChannelNotify data) { }
 }

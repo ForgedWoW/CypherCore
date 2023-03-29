@@ -11,16 +11,16 @@ namespace Scripts.Spells.Items;
 [Script] // 23645 - Hourglass Sand
 internal class spell_item_hourglass_sand : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		Caster.RemoveAura(ItemSpellIds.BroodAfflictionBronze);
-	}
+    private void HandleDummy(int effIndex)
+    {
+        Caster.RemoveAura(ItemSpellIds.BroodAfflictionBronze);
+    }
 }

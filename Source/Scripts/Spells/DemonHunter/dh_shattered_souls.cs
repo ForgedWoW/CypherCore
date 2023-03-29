@@ -12,40 +12,40 @@ namespace Scripts.Spells.DemonHunter;
 [Script]
 public class dh_shattered_souls : ScriptObjectAutoAdd, IPlayerOnCreatureKill
 {
-	public dh_shattered_souls() : base("dh_shattered_souls") { }
+    public dh_shattered_souls() : base("dh_shattered_souls") { }
 
-	public void OnCreatureKill(Player player, Creature victim)
-	{
-		if (player.Class != PlayerClass.DemonHunter)
-			return;
+    public void OnCreatureKill(Player player, Creature victim)
+    {
+        if (player.Class != PlayerClass.DemonHunter)
+            return;
 
-		var fragmentPos = victim.GetRandomNearPosition(5.0f);
+        var fragmentPos = victim.GetRandomNearPosition(5.0f);
 
-		if (victim.CreatureType == CreatureType.Demon && RandomHelper.randChance(30))
-		{
-			player.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE, true);
-			victim.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_DEMON, true);     //at
-			player.CastSpell(ShatteredSoulsSpells.SOUL_FRAGMENT_DEMON_BONUS, true); //buff
-		}
+        if (victim.CreatureType == CreatureType.Demon && RandomHelper.randChance(30))
+        {
+            player.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE, true);
+            victim.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_DEMON, true);     //at
+            player.CastSpell(ShatteredSoulsSpells.SOUL_FRAGMENT_DEMON_BONUS, true); //buff
+        }
 
-		if (victim.CreatureType != CreatureType.Demon && RandomHelper.randChance(30))
-		{
-			victim.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE, true);
-			player.CastSpell(fragmentPos, ShatteredSoulsSpells.SHATTERED_SOULS, true); //10665
-		}
+        if (victim.CreatureType != CreatureType.Demon && RandomHelper.randChance(30))
+        {
+            victim.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE, true);
+            player.CastSpell(fragmentPos, ShatteredSoulsSpells.SHATTERED_SOULS, true); //10665
+        }
 
-		if (player.HasAura(DemonHunterSpells.FEED_THE_DEMON))
-			player.SpellHistory.ModifyCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId, TimeSpan.FromMilliseconds(-1000));
+        if (player.HasAura(DemonHunterSpells.FEED_THE_DEMON))
+            player.SpellHistory.ModifyCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId, TimeSpan.FromMilliseconds(-1000));
 
-		if (player.HasAura(ShatteredSoulsSpells.PAINBRINGER))
-			player.CastSpell(player, ShatteredSoulsSpells.PAINBRINGER_BUFF, true);
+        if (player.HasAura(ShatteredSoulsSpells.PAINBRINGER))
+            player.CastSpell(player, ShatteredSoulsSpells.PAINBRINGER_BUFF, true);
 
-		var soulBarrier = player.GetAuraEffect(DemonHunterSpells.SOUL_BARRIER, 0);
+        var soulBarrier = player.GetAuraEffect(DemonHunterSpells.SOUL_BARRIER, 0);
 
-		if (soulBarrier != null)
-		{
-			var amount = soulBarrier.Amount + ((double)(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.SOUL_BARRIER, Difficulty.None).GetEffect(1).BasePoints) / 100.0f) * player.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
-			soulBarrier.SetAmount(amount);
-		}
-	}
+        if (soulBarrier != null)
+        {
+            var amount = soulBarrier.Amount + ((double)(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.SOUL_BARRIER, Difficulty.None).GetEffect(1).BasePoints) / 100.0f) * player.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
+            soulBarrier.SetAmount(amount);
+        }
+    }
 }

@@ -5,7 +5,7 @@ namespace Forged.MapServer.Maps;
 
 public class TransportPathSegment
 {
-	public uint SegmentEndArrivalTimestamp { get; set; }
-	public uint Delay { get; set; }
-	public double DistanceFromLegStartAtEnd { get; set; }
+    public uint SegmentEndArrivalTimestamp { get; set; }
+    public uint Delay { get; set; }
+    public double DistanceFromLegStartAtEnd { get; set; }
 }

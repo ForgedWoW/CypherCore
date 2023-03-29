@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class CharDelete : ClientPacket
 {
-	public ObjectGuid Guid; // Guid of the character to delete
-	public CharDelete(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Guid; // Guid of the character to delete
+    public CharDelete(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Guid = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Guid = _worldPacket.ReadPackedGuid();
+    }
 }

@@ -12,41 +12,41 @@ namespace Scripts.Spells.Priest;
 [SpellScript(585)]
 public class spell_pri_smite : SpellScript, IHasSpellEffects, ISpellAfterCast
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public void AfterCast()
-	{
-		var caster = Caster.AsPlayer;
+    public void AfterCast()
+    {
+        var caster = Caster.AsPlayer;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (caster.GetPrimarySpecialization() == TalentSpecialization.PriestHoly)
-			if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_CHASTISE))
-				caster.SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_CHASTISE, TimeSpan.FromSeconds(-6 * Time.InMilliseconds));
-	}
+        if (caster.GetPrimarySpecialization() == TalentSpecialization.PriestHoly)
+            if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_CHASTISE))
+                caster.SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_CHASTISE, TimeSpan.FromSeconds(-6 * Time.InMilliseconds));
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster.AsPlayer;
-		var target = HitUnit;
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster.AsPlayer;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (!caster.AsPlayer)
-			return;
+        if (!caster.AsPlayer)
+            return;
 
-		var dmg = HitDamage;
+        var dmg = HitDamage;
 
-		if (caster.HasAura(PriestSpells.HOLY_WORDS) || caster.GetPrimarySpecialization() == TalentSpecialization.PriestHoly)
-			if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_CHASTISE))
-				caster.SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_CHASTISE, TimeSpan.FromSeconds(-4 * Time.InMilliseconds));
-	}
+        if (caster.HasAura(PriestSpells.HOLY_WORDS) || caster.GetPrimarySpecialization() == TalentSpecialization.PriestHoly)
+            if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_CHASTISE))
+                caster.SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_CHASTISE, TimeSpan.FromSeconds(-4 * Time.InMilliseconds));
+    }
 }

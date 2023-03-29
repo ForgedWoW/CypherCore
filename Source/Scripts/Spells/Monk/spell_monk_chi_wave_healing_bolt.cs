@@ -9,19 +9,19 @@ namespace Scripts.Spells.Monk;
 [SpellScript(132464)]
 public class spell_monk_chi_wave_healing_bolt : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		if (!OriginalCaster)
-			return;
+    public void OnHit()
+    {
+        if (!OriginalCaster)
+            return;
 
-		var _player = OriginalCaster.AsPlayer;
+        var _player = OriginalCaster.AsPlayer;
 
-		if (_player != null)
-		{
-			var target = HitUnit;
+        if (_player != null)
+        {
+            var target = HitUnit;
 
-			if (target != null)
-				_player.CastSpell(target, MonkSpells.CHI_WAVE_HEAL, true);
-		}
-	}
+            if (target != null)
+                _player.CastSpell(target, MonkSpells.CHI_WAVE_HEAL, true);
+        }
+    }
 }

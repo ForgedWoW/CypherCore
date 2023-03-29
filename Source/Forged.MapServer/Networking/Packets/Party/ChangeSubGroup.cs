@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class ChangeSubGroup : ClientPacket
 {
-	public ObjectGuid TargetGUID;
-	public sbyte PartyIndex;
-	public byte NewSubGroup;
-	public ChangeSubGroup(WorldPacket packet) : base(packet) { }
+    public ObjectGuid TargetGUID;
+    public sbyte PartyIndex;
+    public byte NewSubGroup;
+    public ChangeSubGroup(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		TargetGUID = _worldPacket.ReadPackedGuid();
-		PartyIndex = _worldPacket.ReadInt8();
-		NewSubGroup = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        TargetGUID = _worldPacket.ReadPackedGuid();
+        PartyIndex = _worldPacket.ReadInt8();
+        NewSubGroup = _worldPacket.ReadUInt8();
+    }
 }

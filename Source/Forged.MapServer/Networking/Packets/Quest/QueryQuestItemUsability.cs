@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QueryQuestItemUsability : ClientPacket
 {
-	public ObjectGuid CreatureGUID;
-	public List<ObjectGuid> ItemGUIDs = new();
+    public ObjectGuid CreatureGUID;
+    public List<ObjectGuid> ItemGUIDs = new();
 
-	public QueryQuestItemUsability(WorldPacket worldPacket) : base(worldPacket) { }
+    public QueryQuestItemUsability(WorldPacket worldPacket) : base(worldPacket) { }
 
-	public override void Read()
-	{
-		CreatureGUID = _worldPacket.ReadPackedGuid();
-		var itemGuidCount = _worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        CreatureGUID = _worldPacket.ReadPackedGuid();
+        var itemGuidCount = _worldPacket.ReadUInt32();
 
-		for (var i = 0; i < itemGuidCount; ++i)
-			ItemGUIDs.Add(_worldPacket.ReadPackedGuid());
-	}
+        for (var i = 0; i < itemGuidCount; ++i)
+            ItemGUIDs.Add(_worldPacket.ReadPackedGuid());
+    }
 }

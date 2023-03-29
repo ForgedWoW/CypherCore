@@ -10,54 +10,54 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockDepths.MoiraBronzeb
 
 internal struct SpellIds
 {
-	public const uint Heal = 10917;
-	public const uint Renew = 10929;
-	public const uint Shield = 10901;
-	public const uint Mindblast = 10947;
-	public const uint Shadowwordpain = 10894;
-	public const uint Smite = 10934;
+    public const uint Heal = 10917;
+    public const uint Renew = 10929;
+    public const uint Shield = 10901;
+    public const uint Mindblast = 10947;
+    public const uint Shadowwordpain = 10894;
+    public const uint Smite = 10934;
 }
 
 [Script]
 internal class boss_moira_bronzebeard : ScriptedAI
 {
-	public boss_moira_bronzebeard(Creature creature) : base(creature) { }
+    public boss_moira_bronzebeard(Creature creature) : base(creature) { }
 
-	public override void Reset()
-	{
-		Scheduler.CancelAll();
-	}
+    public override void Reset()
+    {
+        Scheduler.CancelAll();
+    }
 
-	public override void JustEngagedWith(Unit who)
-	{
-		//Scheduler.Schedule(EventHeal, TimeSpan.FromSeconds(12s)); // not used atm // These times are probably wrong
-		Scheduler.Schedule(TimeSpan.FromSeconds(16),
-							task =>
-							{
-								DoCastVictim(SpellIds.Mindblast);
-								task.Repeat(TimeSpan.FromSeconds(14));
-							});
+    public override void JustEngagedWith(Unit who)
+    {
+        //Scheduler.Schedule(EventHeal, TimeSpan.FromSeconds(12s)); // not used atm // These times are probably wrong
+        Scheduler.Schedule(TimeSpan.FromSeconds(16),
+                           task =>
+                           {
+                               DoCastVictim(SpellIds.Mindblast);
+                               task.Repeat(TimeSpan.FromSeconds(14));
+                           });
 
-		Scheduler.Schedule(TimeSpan.FromSeconds(2),
-							task =>
-							{
-								DoCastVictim(SpellIds.Shadowwordpain);
-								task.Repeat(TimeSpan.FromSeconds(18));
-							});
+        Scheduler.Schedule(TimeSpan.FromSeconds(2),
+                           task =>
+                           {
+                               DoCastVictim(SpellIds.Shadowwordpain);
+                               task.Repeat(TimeSpan.FromSeconds(18));
+                           });
 
-		Scheduler.Schedule(TimeSpan.FromSeconds(8),
-							task =>
-							{
-								DoCastVictim(SpellIds.Smite);
-								task.Repeat(TimeSpan.FromSeconds(10));
-							});
-	}
+        Scheduler.Schedule(TimeSpan.FromSeconds(8),
+                           task =>
+                           {
+                               DoCastVictim(SpellIds.Smite);
+                               task.Repeat(TimeSpan.FromSeconds(10));
+                           });
+    }
 
-	public override void UpdateAI(uint diff)
-	{
-		if (!UpdateVictim())
-			return;
+    public override void UpdateAI(uint diff)
+    {
+        if (!UpdateVictim())
+            return;
 
-		Scheduler.Update(diff);
-	}
+        Scheduler.Update(diff);
+    }
 }

@@ -7,26 +7,26 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class ClientGossipText
 {
-	public uint QuestID;
-	public uint ContentTuningID;
-	public int QuestType;
-	public bool Repeatable;
-	public string QuestTitle;
-	public uint QuestFlags;
-	public uint QuestFlagsEx;
+    public uint QuestID;
+    public uint ContentTuningID;
+    public int QuestType;
+    public bool Repeatable;
+    public string QuestTitle;
+    public uint QuestFlags;
+    public uint QuestFlagsEx;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(QuestID);
-		data.WriteUInt32(ContentTuningID);
-		data.WriteInt32(QuestType);
-		data.WriteUInt32(QuestFlags);
-		data.WriteUInt32(QuestFlagsEx);
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(QuestID);
+        data.WriteUInt32(ContentTuningID);
+        data.WriteInt32(QuestType);
+        data.WriteUInt32(QuestFlags);
+        data.WriteUInt32(QuestFlagsEx);
 
-		data.WriteBit(Repeatable);
-		data.WriteBits(QuestTitle.GetByteCount(), 9);
-		data.FlushBits();
+        data.WriteBit(Repeatable);
+        data.WriteBits(QuestTitle.GetByteCount(), 9);
+        data.FlushBits();
 
-		data.WriteString(QuestTitle);
-	}
+        data.WriteString(QuestTitle);
+    }
 }

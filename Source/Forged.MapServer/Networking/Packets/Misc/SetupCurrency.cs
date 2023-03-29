@@ -8,57 +8,57 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class SetupCurrency : ServerPacket
 {
-	public List<Record> Data = new();
-	public SetupCurrency() : base(ServerOpcodes.SetupCurrency, ConnectionType.Instance) { }
+    public List<Record> Data = new();
+    public SetupCurrency() : base(ServerOpcodes.SetupCurrency, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Data.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Data.Count);
 
-		foreach (var data in Data)
-		{
-			_worldPacket.WriteUInt32(data.Type);
-			_worldPacket.WriteUInt32(data.Quantity);
+        foreach (var data in Data)
+        {
+            _worldPacket.WriteUInt32(data.Type);
+            _worldPacket.WriteUInt32(data.Quantity);
 
-			_worldPacket.WriteBit(data.WeeklyQuantity.HasValue);
-			_worldPacket.WriteBit(data.MaxWeeklyQuantity.HasValue);
-			_worldPacket.WriteBit(data.TrackedQuantity.HasValue);
-			_worldPacket.WriteBit(data.MaxQuantity.HasValue);
-			_worldPacket.WriteBit(data.TotalEarned.HasValue);
-			_worldPacket.WriteBit(data.LastSpendTime.HasValue);
-			_worldPacket.WriteBits(data.Flags, 5);
-			_worldPacket.FlushBits();
+            _worldPacket.WriteBit(data.WeeklyQuantity.HasValue);
+            _worldPacket.WriteBit(data.MaxWeeklyQuantity.HasValue);
+            _worldPacket.WriteBit(data.TrackedQuantity.HasValue);
+            _worldPacket.WriteBit(data.MaxQuantity.HasValue);
+            _worldPacket.WriteBit(data.TotalEarned.HasValue);
+            _worldPacket.WriteBit(data.LastSpendTime.HasValue);
+            _worldPacket.WriteBits(data.Flags, 5);
+            _worldPacket.FlushBits();
 
-			if (data.WeeklyQuantity.HasValue)
-				_worldPacket.WriteUInt32(data.WeeklyQuantity.Value);
+            if (data.WeeklyQuantity.HasValue)
+                _worldPacket.WriteUInt32(data.WeeklyQuantity.Value);
 
-			if (data.MaxWeeklyQuantity.HasValue)
-				_worldPacket.WriteUInt32(data.MaxWeeklyQuantity.Value);
+            if (data.MaxWeeklyQuantity.HasValue)
+                _worldPacket.WriteUInt32(data.MaxWeeklyQuantity.Value);
 
-			if (data.TrackedQuantity.HasValue)
-				_worldPacket.WriteUInt32(data.TrackedQuantity.Value);
+            if (data.TrackedQuantity.HasValue)
+                _worldPacket.WriteUInt32(data.TrackedQuantity.Value);
 
-			if (data.MaxQuantity.HasValue)
-				_worldPacket.WriteInt32(data.MaxQuantity.Value);
+            if (data.MaxQuantity.HasValue)
+                _worldPacket.WriteInt32(data.MaxQuantity.Value);
 
-			if (data.TotalEarned.HasValue)
-				_worldPacket.WriteInt32(data.TotalEarned.Value);
+            if (data.TotalEarned.HasValue)
+                _worldPacket.WriteInt32(data.TotalEarned.Value);
 
-			if (data.LastSpendTime.HasValue)
-				_worldPacket.WriteInt64(data.LastSpendTime.Value);
-		}
-	}
+            if (data.LastSpendTime.HasValue)
+                _worldPacket.WriteInt64(data.LastSpendTime.Value);
+        }
+    }
 
-	public struct Record
-	{
-		public uint Type;
-		public uint Quantity;
-		public uint? WeeklyQuantity;    // Currency count obtained this Week.  
-		public uint? MaxWeeklyQuantity; // Weekly Currency cap.
-		public uint? TrackedQuantity;
-		public int? MaxQuantity;
-		public int? TotalEarned;
-		public long? LastSpendTime;
-		public byte Flags;
-	}
+    public struct Record
+    {
+        public uint Type;
+        public uint Quantity;
+        public uint? WeeklyQuantity;    // Currency count obtained this Week.  
+        public uint? MaxWeeklyQuantity; // Weekly Currency cap.
+        public uint? TrackedQuantity;
+        public int? MaxQuantity;
+        public int? TotalEarned;
+        public long? LastSpendTime;
+        public byte Flags;
+    }
 }

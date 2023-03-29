@@ -8,19 +8,19 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class RoleChangedInform : ServerPacket
 {
-	public sbyte PartyIndex;
-	public ObjectGuid From;
-	public ObjectGuid ChangedUnit;
-	public int OldRole;
-	public int NewRole;
-	public RoleChangedInform() : base(ServerOpcodes.RoleChangedInform) { }
+    public sbyte PartyIndex;
+    public ObjectGuid From;
+    public ObjectGuid ChangedUnit;
+    public int OldRole;
+    public int NewRole;
+    public RoleChangedInform() : base(ServerOpcodes.RoleChangedInform) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt8(PartyIndex);
-		_worldPacket.WritePackedGuid(From);
-		_worldPacket.WritePackedGuid(ChangedUnit);
-		_worldPacket.WriteInt32(OldRole);
-		_worldPacket.WriteInt32(NewRole);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt8(PartyIndex);
+        _worldPacket.WritePackedGuid(From);
+        _worldPacket.WritePackedGuid(ChangedUnit);
+        _worldPacket.WriteInt32(OldRole);
+        _worldPacket.WriteInt32(NewRole);
+    }
 }

@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Reputation;
 
 internal struct ForcedReaction
 {
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(Faction);
-		data.WriteInt32(Reaction);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(Faction);
+        data.WriteInt32(Reaction);
+    }
 
-	public int Faction;
-	public int Reaction;
+    public int Faction;
+    public int Reaction;
 }

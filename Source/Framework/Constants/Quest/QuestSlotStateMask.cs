@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum QuestSlotStateMask
 {
-	None = 0x0000,
-	Complete = 0x0001,
-	Fail = 0x0002
+    None = 0x0000,
+    Complete = 0x0001,
+    Fail = 0x0002
 }

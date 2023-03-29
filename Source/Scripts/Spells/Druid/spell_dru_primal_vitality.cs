@@ -13,39 +13,39 @@ namespace Scripts.Spells.Druid;
 [SpellScript(202808)]
 public class spell_dru_primal_vitality : AuraScript, IHasAuraEffects
 {
-	private const int PRIMAL_VITALITY_PASSIVE = 202808;
-	private const int PRIMAL_VITALITY_EFFECT = 202812;
-	private const int PROWL = 5215;
+    private const int PRIMAL_VITALITY_PASSIVE = 202808;
+    private const int PRIMAL_VITALITY_EFFECT = 202812;
+    private const int PROWL = 5215;
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo != null)
-			return false;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo != null)
+            return false;
 
-		if (eventInfo.DamageInfo != null)
-			return false;
+        if (eventInfo.DamageInfo != null)
+            return false;
 
-		if (eventInfo.SpellInfo.Id != PROWL)
-			return false;
+        if (eventInfo.SpellInfo.Id != PROWL)
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var target = eventInfo.ProcTarget;
+        var target = eventInfo.ProcTarget;
 
-		if (target != null)
-			if (!target.HasAura(PRIMAL_VITALITY_EFFECT))
-				target.AddAura(PRIMAL_VITALITY_EFFECT, target);
-	}
+        if (target != null)
+            if (!target.HasAura(PRIMAL_VITALITY_EFFECT))
+                target.AddAura(PRIMAL_VITALITY_EFFECT, target);
+    }
 }

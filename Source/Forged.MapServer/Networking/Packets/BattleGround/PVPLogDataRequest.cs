@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class PVPLogDataRequest : ClientPacket
 {
-	public PVPLogDataRequest(WorldPacket packet) : base(packet) { }
+    public PVPLogDataRequest(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

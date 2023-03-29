@@ -4,15 +4,12 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace Framework.Web
-{
-    [DataContract]
-    public class AddressFamily
-    {
-        [DataMember(Name = "family")]
-        public int Id { get; set; }
+namespace Framework.Web;
 
-        [DataMember(Name = "addresses")]
-        public IList<Address> Addresses { get; set; } = new List<Address>();
-    }
+[DataContract]
+public class AddressFamily
+{
+    [DataMember(Name = "family")] public int Id { get; set; }
+
+    [DataMember(Name = "addresses")] public IList<Address> Addresses { get; set; } = new List<Address>();
 }

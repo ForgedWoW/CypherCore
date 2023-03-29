@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetSetBattleSlot : ClientPacket
 {
-	public ObjectGuid PetGuid;
-	public byte Slot;
-	public BattlePetSetBattleSlot(WorldPacket packet) : base(packet) { }
+    public ObjectGuid PetGuid;
+    public byte Slot;
+    public BattlePetSetBattleSlot(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PetGuid = _worldPacket.ReadPackedGuid();
-		Slot = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        PetGuid = _worldPacket.ReadPackedGuid();
+        Slot = _worldPacket.ReadUInt8();
+    }
 }

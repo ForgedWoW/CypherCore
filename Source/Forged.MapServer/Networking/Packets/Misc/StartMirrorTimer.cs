@@ -7,31 +7,31 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class StartMirrorTimer : ServerPacket
 {
-	public int Scale;
-	public int MaxValue;
-	public MirrorTimerType Timer;
-	public int SpellID;
-	public int Value;
-	public bool Paused;
+    public int Scale;
+    public int MaxValue;
+    public MirrorTimerType Timer;
+    public int SpellID;
+    public int Value;
+    public bool Paused;
 
-	public StartMirrorTimer(MirrorTimerType timer, int value, int maxValue, int scale, int spellID, bool paused) : base(ServerOpcodes.StartMirrorTimer)
-	{
-		Timer = timer;
-		Value = value;
-		MaxValue = maxValue;
-		Scale = scale;
-		SpellID = spellID;
-		Paused = paused;
-	}
+    public StartMirrorTimer(MirrorTimerType timer, int value, int maxValue, int scale, int spellID, bool paused) : base(ServerOpcodes.StartMirrorTimer)
+    {
+        Timer = timer;
+        Value = value;
+        MaxValue = maxValue;
+        Scale = scale;
+        SpellID = spellID;
+        Paused = paused;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32((int)Timer);
-		_worldPacket.WriteInt32(Value);
-		_worldPacket.WriteInt32(MaxValue);
-		_worldPacket.WriteInt32(Scale);
-		_worldPacket.WriteInt32(SpellID);
-		_worldPacket.WriteBit(Paused);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32((int)Timer);
+        _worldPacket.WriteInt32(Value);
+        _worldPacket.WriteInt32(MaxValue);
+        _worldPacket.WriteInt32(Scale);
+        _worldPacket.WriteInt32(SpellID);
+        _worldPacket.WriteBit(Paused);
+        _worldPacket.FlushBits();
+    }
 }

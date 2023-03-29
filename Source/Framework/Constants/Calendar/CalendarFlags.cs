@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum CalendarFlags
 {
-	AllAllowed = 0x001,
-	InvitesLocked = 0x010,
-	WithoutInvites = 0x040,
-	GuildEvent = 0x400
+    AllAllowed = 0x001,
+    InvitesLocked = 0x010,
+    WithoutInvites = 0x040,
+    GuildEvent = 0x400
 }

@@ -14,70 +14,70 @@ namespace Forged.MapServer.Maps;
 
 internal class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject, IGridNotifierCreature, IGridNotifierAreaTrigger
 {
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public ObjectGridLoader(Grid grid, Map map, Cell cell, GridType gridType) : base(grid, map, cell)
-	{
-		GridType = gridType;
-	}
+    public ObjectGridLoader(Grid grid, Map map, Cell cell, GridType gridType) : base(grid, map, cell)
+    {
+        GridType = gridType;
+    }
 
-	public void Visit(IList<AreaTrigger> objs)
-	{
-		var cellCoord = i_cell.GetCellCoord();
-		var areaTriggers = Global.AreaTriggerDataStorage.GetAreaTriggersForMapAndCell(i_map.Id, cellCoord.GetId());
+    public void Visit(IList<AreaTrigger> objs)
+    {
+        var cellCoord = i_cell.GetCellCoord();
+        var areaTriggers = Global.AreaTriggerDataStorage.GetAreaTriggersForMapAndCell(i_map.Id, cellCoord.GetId());
 
-		if (areaTriggers == null || areaTriggers.Empty())
-			return;
+        if (areaTriggers == null || areaTriggers.Empty())
+            return;
 
-		LoadHelper<AreaTrigger>(areaTriggers, cellCoord, ref i_areaTriggers, i_map);
-	}
+        LoadHelper<AreaTrigger>(areaTriggers, cellCoord, ref i_areaTriggers, i_map);
+    }
 
-	public void Visit(IList<Creature> objs)
-	{
-		var cellCoord = i_cell.GetCellCoord();
-		var cellguids = Global.ObjectMgr.GetCellObjectGuids(i_map.Id, i_map.DifficultyID, cellCoord.GetId());
+    public void Visit(IList<Creature> objs)
+    {
+        var cellCoord = i_cell.GetCellCoord();
+        var cellguids = Global.ObjectMgr.GetCellObjectGuids(i_map.Id, i_map.DifficultyID, cellCoord.GetId());
 
-		if (cellguids == null || cellguids.creatures.Empty())
-			return;
+        if (cellguids == null || cellguids.creatures.Empty())
+            return;
 
-		LoadHelper<Creature>(cellguids.creatures, cellCoord, ref i_creatures, i_map);
-	}
+        LoadHelper<Creature>(cellguids.creatures, cellCoord, ref i_creatures, i_map);
+    }
 
-	public void Visit(IList<GameObject> objs)
-	{
-		var cellCoord = i_cell.GetCellCoord();
-		var cellguids = Global.ObjectMgr.GetCellObjectGuids(i_map.Id, i_map.DifficultyID, cellCoord.GetId());
+    public void Visit(IList<GameObject> objs)
+    {
+        var cellCoord = i_cell.GetCellCoord();
+        var cellguids = Global.ObjectMgr.GetCellObjectGuids(i_map.Id, i_map.DifficultyID, cellCoord.GetId());
 
-		if (cellguids == null || cellguids.gameobjects.Empty())
-			return;
+        if (cellguids == null || cellguids.gameobjects.Empty())
+            return;
 
-		LoadHelper<GameObject>(cellguids.gameobjects, cellCoord, ref i_gameObjects, i_map);
-	}
+        LoadHelper<GameObject>(cellguids.gameobjects, cellCoord, ref i_gameObjects, i_map);
+    }
 
-	public void LoadN()
-	{
-		i_creatures = 0;
-		i_gameObjects = 0;
-		i_corpses = 0;
-		i_cell.Data.Celly = 0;
+    public void LoadN()
+    {
+        i_creatures = 0;
+        i_gameObjects = 0;
+        i_corpses = 0;
+        i_cell.Data.Celly = 0;
 
-		for (uint x = 0; x < MapConst.MaxCells; ++x)
-		{
-			i_cell.Data.Cellx = x;
+        for (uint x = 0; x < MapConst.MaxCells; ++x)
+        {
+            i_cell.Data.Cellx = x;
 
-			for (uint y = 0; y < MapConst.MaxCells; ++y)
-			{
-				i_cell.Data.Celly = y;
+            for (uint y = 0; y < MapConst.MaxCells; ++y)
+            {
+                i_cell.Data.Celly = y;
 
-				i_grid.VisitGrid(x, y, this);
+                i_grid.VisitGrid(x, y, this);
 
-				ObjectWorldLoader worker = new(this, GridType.World);
-				i_grid.VisitGrid(x, y, worker);
-			}
-		}
+                ObjectWorldLoader worker = new(this, GridType.World);
+                i_grid.VisitGrid(x, y, worker);
+            }
+        }
 
-		Log.Logger.Debug($"{i_gameObjects} GameObjects, {i_creatures} Creatures, {i_areaTriggers} AreaTrriggers and {i_corpses} Corpses/Bones loaded for grid {i_grid.GetGridId()} on map {i_map.Id}");
-	}
+        Log.Logger.Debug($"{i_gameObjects} GameObjects, {i_creatures} Creatures, {i_areaTriggers} AreaTrriggers and {i_corpses} Corpses/Bones loaded for grid {i_grid.GetGridId()} on map {i_map.Id}");
+    }
 }
 
 //Stop the creatures before unloading the NGrid

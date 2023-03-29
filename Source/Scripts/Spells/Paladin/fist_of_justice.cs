@@ -13,21 +13,21 @@ namespace Scripts.Spells.Paladin;
 [Script]
 public class fist_of_justice : ScriptObjectAutoAdd, IPlayerOnModifyPower
 {
-	public PlayerClass PlayerClass { get; } = PlayerClass.Paladin;
+    public PlayerClass PlayerClass { get; } = PlayerClass.Paladin;
 
-	public fist_of_justice() : base("fist_of_justice") { }
+    public fist_of_justice() : base("fist_of_justice") { }
 
-	public void OnModifyPower(Player player, PowerType power, int oldValue, ref int newValue, bool regen)
-	{
-		if (player.Class != PlayerClass.Paladin)
-			return;
+    public void OnModifyPower(Player player, PowerType power, int oldValue, ref int newValue, bool regen)
+    {
+        if (player.Class != PlayerClass.Paladin)
+            return;
 
-		if (!player.HasAura(PaladinSpells.FIST_OF_JUSTICE))
-			return;
+        if (!player.HasAura(PaladinSpells.FIST_OF_JUSTICE))
+            return;
 
-		if (player.DisplayPowerType == PowerType.HolyPower)
-			if (newValue < oldValue)
-				if (player.HasAura(PaladinSpells.FIST_OF_JUSTICE))
-					player.SpellHistory.ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-2));
-	}
+        if (player.DisplayPowerType == PowerType.HolyPower)
+            if (newValue < oldValue)
+                if (player.HasAura(PaladinSpells.FIST_OF_JUSTICE))
+                    player.SpellHistory.ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-2));
+    }
 }

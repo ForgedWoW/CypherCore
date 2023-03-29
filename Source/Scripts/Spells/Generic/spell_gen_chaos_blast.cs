@@ -12,25 +12,25 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_chaos_blast : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var basepoints0 = 100;
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleDummy(int effIndex)
+    {
+        var basepoints0 = 100;
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (target)
-		{
-			CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-			args.AddSpellMod(SpellValueMod.BasePoint0, basepoints0);
-			caster.CastSpell(target, GenericSpellIds.ChaosBlast, args);
-		}
-	}
+        if (target)
+        {
+            CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+            args.AddSpellMod(SpellValueMod.BasePoint0, basepoints0);
+            caster.CastSpell(target, GenericSpellIds.ChaosBlast, args);
+        }
+    }
 }

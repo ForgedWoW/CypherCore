@@ -7,9 +7,9 @@ namespace Forged.MapServer.DataStorage.Structs.L;
 
 public sealed class LanguagesRecord
 {
-	public uint Id;
-	public LocalizedString Name;
-	public int Flags;
-	public int UiTextureKitID;
-	public int UiTextureKitElementCount;
+    public uint Id;
+    public LocalizedString Name;
+    public int Flags;
+    public int UiTextureKitID;
+    public int UiTextureKitElementCount;
 }

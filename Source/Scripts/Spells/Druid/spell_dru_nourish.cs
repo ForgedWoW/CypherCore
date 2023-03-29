@@ -8,20 +8,20 @@ namespace Scripts.Spells.Druid;
 [SpellScript(50464)]
 public class spell_dru_nourish : SpellScript
 {
-	private const int NOURISH_PASSIVE = 203374;
-	private const int REJUVENATION = 774;
+    private const int NOURISH_PASSIVE = 203374;
+    private const int REJUVENATION = 774;
 
-	public void OnHit()
-	{
-		var caster = Caster;
+    public void OnHit()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var target = HitUnit;
+        if (caster != null)
+        {
+            var target = HitUnit;
 
-			if (target != null)
-				if (caster.HasAura(NOURISH_PASSIVE))
-					caster.CastSpell(target, REJUVENATION, true);
-		}
-	}
+            if (target != null)
+                if (caster.HasAura(NOURISH_PASSIVE))
+                    caster.CastSpell(target, REJUVENATION, true);
+        }
+    }
 }

@@ -7,6 +7,6 @@ namespace Forged.MapServer.Entities.Players;
 
 internal struct GroupUpdateCounter
 {
-	public ObjectGuid GroupGuid;
-	public int UpdateSequenceNumber;
+    public ObjectGuid GroupGuid;
+    public int UpdateSequenceNumber;
 }

@@ -8,6 +8,6 @@ namespace Forged.MapServer.Achievements;
 
 public class ModifierTreeNode
 {
-	public ModifierTreeRecord Entry;
-	public List<ModifierTreeNode> Children = new();
+    public ModifierTreeRecord Entry;
+    public List<ModifierTreeNode> Children = new();
 }

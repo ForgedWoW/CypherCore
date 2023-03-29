@@ -12,30 +12,30 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(152279)]
 public class spell_dk_breath_of_sindragosa : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicTriggerSpell));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicTriggerSpell));
+    }
 
-	private void OnTick(AuraEffect UnnamedParameter)
-	{
-		var l_Caster = Caster;
+    private void OnTick(AuraEffect UnnamedParameter)
+    {
+        var l_Caster = Caster;
 
-		if (l_Caster == null)
-			return;
+        if (l_Caster == null)
+            return;
 
-		var l_Player = l_Caster.AsPlayer;
+        var l_Player = l_Caster.AsPlayer;
 
-		if (l_Player == null)
-			return;
+        if (l_Player == null)
+            return;
 
-		l_Caster.ModifyPower(PowerType.RunicPower, -130);
-		/*if (l_Caster->ToPlayer())
+        l_Caster.ModifyPower(PowerType.RunicPower, -130);
+        /*if (l_Caster->ToPlayer())
                 l_Caster->ToPlayer()->SendPowerUpdate(PowerType.RunicPower, l_Caster->GetPower(PowerType.RunicPower));*/
 
-		if (l_Caster.GetPower(PowerType.RunicPower) <= 130)
-			l_Caster.RemoveAura(DeathKnightSpells.BREATH_OF_SINDRAGOSA);
-	}
+        if (l_Caster.GetPower(PowerType.RunicPower) <= 130)
+            l_Caster.RemoveAura(DeathKnightSpells.BREATH_OF_SINDRAGOSA);
+    }
 }

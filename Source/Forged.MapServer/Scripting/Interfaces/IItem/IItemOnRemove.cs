@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IItem;
 
 public interface IItemOnRemove : IScriptObject
 {
-	bool OnRemove(Player player, Item item);
+    bool OnRemove(Player player, Item item);
 }

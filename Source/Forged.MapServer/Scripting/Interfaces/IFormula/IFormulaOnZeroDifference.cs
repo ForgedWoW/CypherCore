@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IFormula;
 
 public interface IFormulaOnZeroDifference : IScriptObject
 {
-	void OnZeroDifferenceCalculation(uint diff, uint playerLevel);
+    void OnZeroDifferenceCalculation(uint diff, uint playerLevel);
 }

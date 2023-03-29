@@ -5,14 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Who;
 
 public struct WhoRequestServerInfo
 {
-	public void Read(WorldPacket data)
-	{
-		FactionGroup = data.ReadInt32();
-		Locale = data.ReadInt32();
-		RequesterVirtualRealmAddress = data.ReadUInt32();
-	}
+    public void Read(WorldPacket data)
+    {
+        FactionGroup = data.ReadInt32();
+        Locale = data.ReadInt32();
+        RequesterVirtualRealmAddress = data.ReadUInt32();
+    }
 
-	public int FactionGroup;
-	public int Locale;
-	public uint RequesterVirtualRealmAddress;
+    public int FactionGroup;
+    public int Locale;
+    public uint RequesterVirtualRealmAddress;
 }

@@ -13,33 +13,33 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_nitro_boosts : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		if (!CastItem)
-			return false;
+    public override bool Load()
+    {
+        if (!CastItem)
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
-		var areaEntry = CliDB.AreaTableStorage.LookupByKey(caster.Area);
-		var success = true;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
+        var areaEntry = CliDB.AreaTableStorage.LookupByKey(caster.Area);
+        var success = true;
 
-		if (areaEntry != null &&
-			areaEntry.IsFlyable() &&
-			!caster.Map.IsDungeon)
-			success = RandomHelper.randChance(95);
+        if (areaEntry != null &&
+            areaEntry.IsFlyable() &&
+            !caster.Map.IsDungeon)
+            success = RandomHelper.randChance(95);
 
-		caster.CastSpell(caster, success ? ItemSpellIds.NitroBoostsSuccess : ItemSpellIds.NitroBoostsBackfire, new CastSpellExtraArgs(CastItem));
-	}
+        caster.CastSpell(caster, success ? ItemSpellIds.NitroBoostsSuccess : ItemSpellIds.NitroBoostsBackfire, new CastSpellExtraArgs(CastItem));
+    }
 }

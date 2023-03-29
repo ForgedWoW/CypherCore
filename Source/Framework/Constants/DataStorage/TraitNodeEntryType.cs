@@ -5,14 +5,14 @@ namespace Framework.Constants;
 
 public enum TraitNodeEntryType
 {
-	SpendHex = 0,
-	SpendSquare = 1,
-	SpendCircle = 2,
-	SpendSmallCircle = 3,
-	DeprecatedSelect = 4,
-	DragAndDrop = 5,
-	SpendDiamond = 6,
-	ProfPath = 7,
-	ProfPerk = 8,
-	ProfPathUnlock = 9
+    SpendHex = 0,
+    SpendSquare = 1,
+    SpendCircle = 2,
+    SpendSmallCircle = 3,
+    DeprecatedSelect = 4,
+    DragAndDrop = 5,
+    SpendDiamond = 6,
+    ProfPath = 7,
+    ProfPerk = 8,
+    ProfPathUnlock = 9
 }

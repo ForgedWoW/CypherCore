@@ -8,29 +8,29 @@ namespace Forged.MapServer.Scripting;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class SpellScriptAttribute : ScriptAttribute
 {
-	public uint[] SpellIds { get; private set; }
-	public bool AllRanks { get; private set; }
+    public uint[] SpellIds { get; private set; }
+    public bool AllRanks { get; private set; }
 
-	public SpellScriptAttribute(params uint[] spellId) : base("", new object[0])
-	{
-		SpellIds = spellId;
-	}
+    public SpellScriptAttribute(params uint[] spellId) : base("", new object[0])
+    {
+        SpellIds = spellId;
+    }
 
-	public SpellScriptAttribute(string name = "", params object[] args) : base(name, args) { }
+    public SpellScriptAttribute(string name = "", params object[] args) : base(name, args) { }
 
-	public SpellScriptAttribute(uint spellId, string name = "", bool allRanks = false, params object[] args) : base(name, args)
-	{
-		SpellIds = new[]
-		{
-			spellId
-		};
+    public SpellScriptAttribute(uint spellId, string name = "", bool allRanks = false, params object[] args) : base(name, args)
+    {
+        SpellIds = new[]
+        {
+            spellId
+        };
 
-		AllRanks = allRanks;
-	}
+        AllRanks = allRanks;
+    }
 
-	public SpellScriptAttribute(uint[] spellId, string name = "", bool allRanks = false, params object[] args) : base(name, args)
-	{
-		SpellIds = spellId;
-		AllRanks = allRanks;
-	}
+    public SpellScriptAttribute(uint[] spellId, string name = "", bool allRanks = false, params object[] args) : base(name, args)
+    {
+        SpellIds = spellId;
+        AllRanks = allRanks;
+    }
 }

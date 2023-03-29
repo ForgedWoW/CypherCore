@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellCheckCast : ISpellScript
 {
-	SpellCastResult CheckCast();
+    SpellCastResult CheckCast();
 }

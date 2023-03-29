@@ -9,19 +9,19 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct PlayerBannedAppend : IChannelAppender
 {
-	public PlayerBannedAppend(ObjectGuid moderator, ObjectGuid banned)
-	{
-		_moderator = moderator;
-		_banned = banned;
-	}
+    public PlayerBannedAppend(ObjectGuid moderator, ObjectGuid banned)
+    {
+        _moderator = moderator;
+        _banned = banned;
+    }
 
-	public ChatNotify GetNotificationType() => ChatNotify.PlayerBannedNotice;
+    public ChatNotify GetNotificationType() => ChatNotify.PlayerBannedNotice;
 
-	public void Append(ChannelNotify data)
-	{
-		data.SenderGuid = _moderator;
-		data.TargetGuid = _banned;
-	}
+    public void Append(ChannelNotify data)
+    {
+        data.SenderGuid = _moderator;
+        data.TargetGuid = _banned;
+    }
 
     private readonly ObjectGuid _moderator;
     private readonly ObjectGuid _banned;

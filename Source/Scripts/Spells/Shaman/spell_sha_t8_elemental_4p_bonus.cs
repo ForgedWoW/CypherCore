@@ -14,33 +14,33 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(64928)]
 internal class spell_sha_t8_elemental_4p_bonus : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var damageInfo = eventInfo.DamageInfo;
+        var damageInfo = eventInfo.DamageInfo;
 
-		if (damageInfo == null ||
-			damageInfo.Damage == 0)
-			return;
+        if (damageInfo == null ||
+            damageInfo.Damage == 0)
+            return;
 
-		var spellInfo = Global.SpellMgr.GetSpellInfo(ShamanSpells.Electrified, CastDifficulty);
-		var amount = (int)MathFunctions.CalculatePct(damageInfo.Damage, aurEff.Amount);
-		amount /= (int)spellInfo.MaxTicks;
+        var spellInfo = Global.SpellMgr.GetSpellInfo(ShamanSpells.Electrified, CastDifficulty);
+        var amount = (int)MathFunctions.CalculatePct(damageInfo.Damage, aurEff.Amount);
+        amount /= (int)spellInfo.MaxTicks;
 
-		var caster = eventInfo.Actor;
-		var target = eventInfo.ProcTarget;
+        var caster = eventInfo.Actor;
+        var target = eventInfo.ProcTarget;
 
-		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, amount);
-		caster.CastSpell(target, ShamanSpells.Electrified, args);
-	}
+        CastSpellExtraArgs args = new(aurEff);
+        args.AddSpellMod(SpellValueMod.BasePoint0, amount);
+        caster.CastSpell(target, ShamanSpells.Electrified, args);
+    }
 }

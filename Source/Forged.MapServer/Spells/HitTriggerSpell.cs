@@ -5,17 +5,17 @@ namespace Forged.MapServer.Spells;
 
 public struct HitTriggerSpell
 {
-	public HitTriggerSpell(SpellInfo spellInfo, SpellInfo auraSpellInfo, double procChance)
-	{
-		TriggeredSpell = spellInfo;
-		TriggeredByAura = auraSpellInfo;
-		Chance = procChance;
-	}
+    public HitTriggerSpell(SpellInfo spellInfo, SpellInfo auraSpellInfo, double procChance)
+    {
+        TriggeredSpell = spellInfo;
+        TriggeredByAura = auraSpellInfo;
+        Chance = procChance;
+    }
 
-	public SpellInfo TriggeredSpell;
+    public SpellInfo TriggeredSpell;
 
-	public SpellInfo TriggeredByAura;
+    public SpellInfo TriggeredByAura;
 
-	// ubyte triggeredByEffIdx          This might be needed at a later stage - No need known for now
-	public double Chance;
+    // ubyte triggeredByEffIdx          This might be needed at a later stage - No need known for now
+    public double Chance;
 }

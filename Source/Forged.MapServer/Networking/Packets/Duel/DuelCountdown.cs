@@ -9,13 +9,13 @@ public class DuelCountdown : ServerPacket
 {
     private readonly uint Countdown;
 
-	public DuelCountdown(uint countdown) : base(ServerOpcodes.DuelCountdown)
-	{
-		Countdown = countdown;
-	}
+    public DuelCountdown(uint countdown) : base(ServerOpcodes.DuelCountdown)
+    {
+        Countdown = countdown;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(Countdown);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(Countdown);
+    }
 }

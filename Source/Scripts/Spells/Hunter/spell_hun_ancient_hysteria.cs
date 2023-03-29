@@ -13,31 +13,31 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(90355)]
 public class spell_hun_ancient_hysteria : SpellScript, IHasSpellEffects
 {
-	readonly UnitAuraCheck<WorldObject> _ins = new(true, AncientHysteriaSpells.INSANITY);
-	readonly UnitAuraCheck<WorldObject> _dis = new(true, AncientHysteriaSpells.TEMPORAL_DISPLACEMENT);
-	readonly UnitAuraCheck<WorldObject> _ex = new(true, AncientHysteriaSpells.EXHAUSTION);
-	readonly UnitAuraCheck<WorldObject> _sa = new(true, AncientHysteriaSpells.SATED);
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    readonly UnitAuraCheck<WorldObject> _ins = new(true, AncientHysteriaSpells.INSANITY);
+    readonly UnitAuraCheck<WorldObject> _dis = new(true, AncientHysteriaSpells.TEMPORAL_DISPLACEMENT);
+    readonly UnitAuraCheck<WorldObject> _ex = new(true, AncientHysteriaSpells.EXHAUSTION);
+    readonly UnitAuraCheck<WorldObject> _sa = new(true, AncientHysteriaSpells.SATED);
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, (byte)255, Targets.UnitCasterAreaRaid));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, (byte)255, Targets.UnitCasterAreaRaid));
+    }
 
-	private void RemoveInvalidTargets(List<WorldObject> targets)
-	{
-		targets.RemoveIf(_ins);
-		targets.RemoveIf(_dis);
-		targets.RemoveIf(_ex);
-		targets.RemoveIf(_sa);
-	}
+    private void RemoveInvalidTargets(List<WorldObject> targets)
+    {
+        targets.RemoveIf(_ins);
+        targets.RemoveIf(_dis);
+        targets.RemoveIf(_ex);
+        targets.RemoveIf(_sa);
+    }
 
-	private void ApplyDebuff()
-	{
-		var target = HitUnit;
+    private void ApplyDebuff()
+    {
+        var target = HitUnit;
 
-		if (target != null)
-			target.CastSpell(target, AncientHysteriaSpells.INSANITY, true);
-	}
+        if (target != null)
+            target.CastSpell(target, AncientHysteriaSpells.INSANITY, true);
+    }
 }

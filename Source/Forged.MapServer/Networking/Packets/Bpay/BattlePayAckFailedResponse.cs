@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class BattlePayAckFailedResponse : ClientPacket
 {
-	public uint ServerToken { get; set; } = 0;
+    public uint ServerToken { get; set; } = 0;
 
-	public BattlePayAckFailedResponse(WorldPacket packet) : base(packet) { }
+    public BattlePayAckFailedResponse(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ServerToken = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        ServerToken = _worldPacket.ReadUInt32();
+    }
 }

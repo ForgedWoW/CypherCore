@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SupercededSpells : ServerPacket
 {
-	public List<LearnedSpellInfo> ClientLearnedSpellData = new();
-	public SupercededSpells() : base(ServerOpcodes.SupercededSpells, ConnectionType.Instance) { }
+    public List<LearnedSpellInfo> ClientLearnedSpellData = new();
+    public SupercededSpells() : base(ServerOpcodes.SupercededSpells, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(ClientLearnedSpellData.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(ClientLearnedSpellData.Count);
 
-		foreach (var spell in ClientLearnedSpellData)
-			spell.Write(_worldPacket);
-	}
+        foreach (var spell in ClientLearnedSpellData)
+            spell.Write(_worldPacket);
+    }
 }

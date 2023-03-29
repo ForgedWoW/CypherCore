@@ -7,29 +7,29 @@ namespace Framework.Database;
 
 public class SQLQueryHolder<T>
 {
-	public Dictionary<T, PreparedStatement> m_queries = new();
+    public Dictionary<T, PreparedStatement> m_queries = new();
     private readonly Dictionary<T, SQLResult> _results = new();
 
-	public void SetQuery(T index, string sql, params object[] args)
-	{
-		SetQuery(index, new PreparedStatement(string.Format(sql, args)));
-	}
+    public void SetQuery(T index, string sql, params object[] args)
+    {
+        SetQuery(index, new PreparedStatement(string.Format(sql, args)));
+    }
 
-	public void SetQuery(T index, PreparedStatement stmt)
-	{
-		m_queries[index] = stmt;
-	}
+    public void SetQuery(T index, PreparedStatement stmt)
+    {
+        m_queries[index] = stmt;
+    }
 
-	public void SetResult(T index, SQLResult result)
-	{
-		_results[index] = result;
-	}
+    public void SetResult(T index, SQLResult result)
+    {
+        _results[index] = result;
+    }
 
-	public SQLResult GetResult(T index)
-	{
-		if (!_results.TryGetValue(index, out var result))
-			return new SQLResult();
+    public SQLResult GetResult(T index)
+    {
+        if (!_results.TryGetValue(index, out var result))
+            return new SQLResult();
 
-		return result;
-	}
+        return result;
+    }
 }

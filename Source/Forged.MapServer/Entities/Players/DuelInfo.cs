@@ -7,17 +7,17 @@ namespace Forged.MapServer.Entities.Players;
 
 public class DuelInfo
 {
-	public Player Opponent { get; set; }
-	public Player Initiator { get; set; }
-	public bool IsMounted { get; set; }
-	public DuelState State { get; set; }
-	public long StartTime { get; set; }
-	public long OutOfBoundsTime { get; set; }
+    public Player Opponent { get; set; }
+    public Player Initiator { get; set; }
+    public bool IsMounted { get; set; }
+    public DuelState State { get; set; }
+    public long StartTime { get; set; }
+    public long OutOfBoundsTime { get; set; }
 
-	public DuelInfo(Player opponent, Player initiator, bool isMounted)
-	{
-		Opponent = opponent;
-		Initiator = initiator;
-		IsMounted = isMounted;
-	}
+    public DuelInfo(Player opponent, Player initiator, bool isMounted)
+    {
+        Opponent = opponent;
+        Initiator = initiator;
+        IsMounted = isMounted;
+    }
 }

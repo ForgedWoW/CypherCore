@@ -12,25 +12,25 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(5782)]
 public class spell_warl_fear : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var target = ExplTargetUnit;
+        var target = ExplTargetUnit;
 
-		if (target == null)
-			return;
+        if (target == null)
+            return;
 
-		caster.CastSpell(target, WarlockSpells.FEAR_BUFF, true);
-	}
+        caster.CastSpell(target, WarlockSpells.FEAR_BUFF, true);
+    }
 }

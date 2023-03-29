@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class RequestCategoryCooldowns : ClientPacket
 {
-	public RequestCategoryCooldowns(WorldPacket packet) : base(packet) { }
+    public RequestCategoryCooldowns(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

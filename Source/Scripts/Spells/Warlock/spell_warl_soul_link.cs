@@ -10,17 +10,17 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(WarlockSpells.SOUL_LINK)]
 public class spell_warl_soul_link : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
+    public void OnHit()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var target = HitUnit;
+        if (caster != null)
+        {
+            var target = HitUnit;
 
-			if (target != null)
-				if (!target.HasAura(WarlockSpells.SOUL_LINK_BUFF))
-					caster.CastSpell(caster, WarlockSpells.SOUL_LINK_BUFF, true);
-		}
-	}
+            if (target != null)
+                if (!target.HasAura(WarlockSpells.SOUL_LINK_BUFF))
+                    caster.CastSpell(caster, WarlockSpells.SOUL_LINK_BUFF, true);
+        }
+    }
 }

@@ -5,18 +5,18 @@ namespace Framework.Constants;
 
 public enum AuctionResult
 {
-	Ok = 0,
-	Inventory = 1,
-	DatabaseError = 2,
-	NotEnoughMoney = 3,
-	ItemNotFound = 4,
-	HigherBid = 5,
-	BidIncrement = 7,
-	BidOwn = 10,
-	RestrictedAccountTrial = 13,
-	HasRestriction = 17,
-	AuctionHouseBusy = 18,
-	AuctionHouseUnavailable = 19,
-	CommodityPurchaseFailed = 21,
-	ItemHasQuote = 23
+    Ok = 0,
+    Inventory = 1,
+    DatabaseError = 2,
+    NotEnoughMoney = 3,
+    ItemNotFound = 4,
+    HigherBid = 5,
+    BidIncrement = 7,
+    BidOwn = 10,
+    RestrictedAccountTrial = 13,
+    HasRestriction = 17,
+    AuctionHouseBusy = 18,
+    AuctionHouseUnavailable = 19,
+    CommodityPurchaseFailed = 21,
+    ItemHasQuote = 23
 }

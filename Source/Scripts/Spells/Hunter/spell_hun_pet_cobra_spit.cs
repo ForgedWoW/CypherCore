@@ -11,37 +11,37 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(206685)]
 public class spell_hun_pet_cobra_spit : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
 
-	private void HandleDamage(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDamage(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var owner = caster.OwnerUnit;
+        var owner = caster.OwnerUnit;
 
-		if (owner == null)
-			return;
+        if (owner == null)
+            return;
 
-		var target = ExplTargetUnit;
+        var target = ExplTargetUnit;
 
-		if (target == null)
-			return;
+        if (target == null)
+            return;
 
-		// (1 + AP * 0,2)
-		double dmg = 1 + owner.UnitData.RangedAttackPower * 0.2f;
+        // (1 + AP * 0,2)
+        double dmg = 1 + owner.UnitData.RangedAttackPower * 0.2f;
 
-		dmg = caster.SpellDamageBonusDone(target, SpellInfo, dmg, DamageEffectType.Direct, GetEffectInfo(0), 1, Spell);
-		dmg = target.SpellDamageBonusTaken(caster, SpellInfo, dmg, DamageEffectType.Direct);
+        dmg = caster.SpellDamageBonusDone(target, SpellInfo, dmg, DamageEffectType.Direct, GetEffectInfo(0), 1, Spell);
+        dmg = target.SpellDamageBonusTaken(caster, SpellInfo, dmg, DamageEffectType.Direct);
 
-		HitDamage = dmg;
-	}
+        HitDamage = dmg;
+    }
 }

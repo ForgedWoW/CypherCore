@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class QuickJoinAutoAcceptRequest : ClientPacket
 {
-	public bool AutoAccept;
+    public bool AutoAccept;
 
-	public QuickJoinAutoAcceptRequest(WorldPacket packet) : base(packet) { }
+    public QuickJoinAutoAcceptRequest(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		AutoAccept = _worldPacket.ReadBit() == 1;
-	}
+    public override void Read()
+    {
+        AutoAccept = _worldPacket.ReadBit() == 1;
+    }
 }

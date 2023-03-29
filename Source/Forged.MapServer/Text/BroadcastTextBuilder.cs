@@ -17,20 +17,20 @@ public class BroadcastTextBuilder : MessageBuilder
     private readonly WorldObject _target;
     private readonly uint _achievementId;
 
-	public BroadcastTextBuilder(WorldObject obj, ChatMsg msgtype, uint textId, Gender gender, WorldObject target = null, uint achievementId = 0)
-	{
-		_source = obj;
-		_msgType = msgtype;
-		_textId = textId;
-		_gender = gender;
-		_target = target;
-		_achievementId = achievementId;
-	}
+    public BroadcastTextBuilder(WorldObject obj, ChatMsg msgtype, uint textId, Gender gender, WorldObject target = null, uint achievementId = 0)
+    {
+        _source = obj;
+        _msgType = msgtype;
+        _textId = textId;
+        _gender = gender;
+        _target = target;
+        _achievementId = achievementId;
+    }
 
-	public override ChatPacketSender Invoke(Locale locale = Locale.enUS)
-	{
-		var bct = CliDB.BroadcastTextStorage.LookupByKey(_textId);
+    public override ChatPacketSender Invoke(Locale locale = Locale.enUS)
+    {
+        var bct = CliDB.BroadcastTextStorage.LookupByKey(_textId);
 
-		return new ChatPacketSender(_msgType, bct != null ? (Language)bct.LanguageID : Language.Universal, _source, _target, bct != null ? Global.DB2Mgr.GetBroadcastTextValue(bct, locale, _gender) : "", _achievementId, locale);
-	}
+        return new ChatPacketSender(_msgType, bct != null ? (Language)bct.LanguageID : Language.Universal, _source, _target, bct != null ? Global.DB2Mgr.GetBroadcastTextValue(bct, locale, _gender) : "", _achievementId, locale);
+    }
 }

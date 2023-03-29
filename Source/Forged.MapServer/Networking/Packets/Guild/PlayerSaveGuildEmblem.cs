@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class PlayerSaveGuildEmblem : ServerPacket
 {
-	public GuildEmblemError Error;
-	public PlayerSaveGuildEmblem() : base(ServerOpcodes.PlayerSaveGuildEmblem) { }
+    public GuildEmblemError Error;
+    public PlayerSaveGuildEmblem() : base(ServerOpcodes.PlayerSaveGuildEmblem) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32((uint)Error);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32((uint)Error);
+    }
 }

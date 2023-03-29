@@ -8,23 +8,23 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public struct QuestChoiceItem
 {
-	public LootItemType LootItemType;
-	public ItemInstance Item;
-	public uint Quantity;
+    public LootItemType LootItemType;
+    public ItemInstance Item;
+    public uint Quantity;
 
-	public void Read(WorldPacket data)
-	{
-		data.ResetBitPos();
-		LootItemType = (LootItemType)data.ReadBits<byte>(2);
-		Item = new ItemInstance();
-		Item.Read(data);
-		Quantity = data.ReadUInt32();
-	}
+    public void Read(WorldPacket data)
+    {
+        data.ResetBitPos();
+        LootItemType = (LootItemType)data.ReadBits<byte>(2);
+        Item = new ItemInstance();
+        Item.Read(data);
+        Quantity = data.ReadUInt32();
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteBits((byte)LootItemType, 2);
-		Item.Write(data);
-		data.WriteUInt32(Quantity);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteBits((byte)LootItemType, 2);
+        Item.Write(data);
+        data.WriteUInt32(Quantity);
+    }
 }

@@ -10,14 +10,14 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_running_wild : SpellScript
 {
-	public override bool Load()
-	{
-		// Definitely not a good thing, but currently the only way to do something at cast start
-		// Should be replaced as soon as possible with a new hook: BeforeCastStart
-		Caster.CastSpell(Caster, GenericSpellIds.AlteredForm, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+    public override bool Load()
+    {
+        // Definitely not a good thing, but currently the only way to do something at cast start
+        // Should be replaced as soon as possible with a new hook: BeforeCastStart
+        Caster.CastSpell(Caster, GenericSpellIds.AlteredForm, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
-		return false;
-	}
+        return false;
+    }
 
-	public override void Register() { }
+    public override void Register() { }
 }

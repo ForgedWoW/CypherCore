@@ -13,25 +13,25 @@ namespace Scripts.Spells.Priest;
 [SpellScript(197862)]
 public class spell_pri_archangel : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 2, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 2, Targets.UnitCasterAreaParty));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 2, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 2, Targets.UnitCasterAreaParty));
+    }
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(false, PriestSpells.ATONEMENT_AURA, Caster.GUID));
-	}
+    private void FilterTargets(List<WorldObject> targets)
+    {
+        targets.RemoveIf(new UnitAuraCheck<WorldObject>(false, PriestSpells.ATONEMENT_AURA, Caster.GUID));
+    }
 
-	private void HandleScriptEffect(int effIndex)
-	{
-		var aura = HitUnit.GetAura(PriestSpells.ATONEMENT_AURA, Caster.GUID);
+    private void HandleScriptEffect(int effIndex)
+    {
+        var aura = HitUnit.GetAura(PriestSpells.ATONEMENT_AURA, Caster.GUID);
 
-		if (aura != null)
-			aura.RefreshDuration();
-	}
+        if (aura != null)
+            aura.RefreshDuration();
+    }
 }

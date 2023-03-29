@@ -11,19 +11,19 @@ namespace Scripts.Spells.Generic;
 [Script] // 63984 - Hate to Zero
 internal class spell_gen_hate_to_zero_caster_target : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleDummy(int effIndex)
+    {
+        var target = HitUnit;
 
-		if (target != null)
-			if (target.CanHaveThreatList)
-				target.GetThreatManager().ModifyThreatByPercent(Caster, -100);
-	}
+        if (target != null)
+            if (target.CanHaveThreatList)
+                target.GetThreatManager().ModifyThreatByPercent(Caster, -100);
+    }
 }

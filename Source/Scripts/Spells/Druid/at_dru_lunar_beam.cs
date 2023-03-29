@@ -9,14 +9,14 @@ namespace Scripts.Spells.Druid;
 [Script]
 public class at_dru_lunar_beam : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnPeriodicProc
 {
-	public void OnCreate()
-	{
-		At.SetPeriodicProcTimer(1000);
-	}
+    public void OnCreate()
+    {
+        At.SetPeriodicProcTimer(1000);
+    }
 
-	public void OnPeriodicProc()
-	{
-		if (At.GetCaster())
-			At.GetCaster().CastSpell(At.Location, DruidSpells.LUNAR_BEAM_DAMAGE_HEAL, true);
-	}
+    public void OnPeriodicProc()
+    {
+        if (At.GetCaster())
+            At.GetCaster().CastSpell(At.Location, DruidSpells.LUNAR_BEAM_DAMAGE_HEAL, true);
+    }
 }

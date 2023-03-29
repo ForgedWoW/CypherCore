@@ -12,16 +12,16 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_unusual_compass : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
-		caster.SetFacingTo(RandomHelper.FRand(0.0f, 2.0f * (float)Math.PI));
-	}
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
+        caster.SetFacingTo(RandomHelper.FRand(0.0f, 2.0f * (float)Math.PI));
+    }
 }

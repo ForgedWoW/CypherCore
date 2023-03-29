@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum ItemBondingType
 {
-	None = 0,
-	OnAcquire = 1,
-	OnEquip = 2,
-	OnUse = 3,
-	Quest = 4,
+    None = 0,
+    OnAcquire = 1,
+    OnEquip = 2,
+    OnUse = 3,
+    Quest = 4,
 }

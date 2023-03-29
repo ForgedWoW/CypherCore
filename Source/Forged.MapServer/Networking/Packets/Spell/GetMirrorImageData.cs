@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class GetMirrorImageData : ClientPacket
 {
-	public ObjectGuid UnitGUID;
-	public GetMirrorImageData(WorldPacket packet) : base(packet) { }
+    public ObjectGuid UnitGUID;
+    public GetMirrorImageData(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		UnitGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        UnitGUID = _worldPacket.ReadPackedGuid();
+    }
 }

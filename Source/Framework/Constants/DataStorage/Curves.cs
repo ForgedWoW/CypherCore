@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum Curves
 {
-	ArtifactRelicItemLevelBonus = 1718,
-	AzeriteEmpoweredItemRespecCost = 6785
+    ArtifactRelicItemLevelBonus = 1718,
+    AzeriteEmpoweredItemRespecCost = 6785
 }

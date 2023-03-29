@@ -13,34 +13,34 @@ namespace Scripts.Spells.Mage;
 [Script]
 internal class spell_mage_cauterize_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0, false, AuraScriptHookType.EffectAbsorb));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0, false, AuraScriptHookType.EffectAbsorb));
+    }
 
-	private double HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
-	{
-		var effectInfo = GetEffect(1);
+    private double HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
+    {
+        var effectInfo = GetEffect(1);
 
-		if (effectInfo == null ||
-			!TargetApplication.HasEffect(1) ||
-			dmgInfo.Damage < Target.Health ||
-			dmgInfo.Damage > Target.MaxHealth * 2 ||
-			Target.HasAura(MageSpells.Cauterized))
-		{
-			PreventDefaultAction();
+        if (effectInfo == null ||
+            !TargetApplication.HasEffect(1) ||
+            dmgInfo.Damage < Target.Health ||
+            dmgInfo.Damage > Target.MaxHealth * 2 ||
+            Target.HasAura(MageSpells.Cauterized))
+        {
+            PreventDefaultAction();
 
-			return absorbAmount;
-		}
+            return absorbAmount;
+        }
 
-		Target.SetHealth(Target.CountPctFromMaxHealth(effectInfo.Amount));
-		Target.CastSpell(Target, GetEffectInfo(2).TriggerSpell, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-		Target.CastSpell(Target, MageSpells.CauterizeDot, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-		Target.CastSpell(Target, MageSpells.Cauterized, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        Target.SetHealth(Target.CountPctFromMaxHealth(effectInfo.Amount));
+        Target.CastSpell(Target, GetEffectInfo(2).TriggerSpell, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        Target.CastSpell(Target, MageSpells.CauterizeDot, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        Target.CastSpell(Target, MageSpells.Cauterized, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
-		return absorbAmount;
-	}
+        return absorbAmount;
+    }
 }

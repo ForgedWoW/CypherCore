@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public class HealthUpdate : ServerPacket
 {
-	public ObjectGuid Guid;
-	public long Health;
-	public HealthUpdate() : base(ServerOpcodes.HealthUpdate) { }
+    public ObjectGuid Guid;
+    public long Health;
+    public HealthUpdate() : base(ServerOpcodes.HealthUpdate) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Guid);
-		_worldPacket.WriteInt64(Health);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Guid);
+        _worldPacket.WriteInt64(Health);
+    }
 }

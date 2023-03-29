@@ -10,16 +10,16 @@ namespace Scripts.Spells.Warlock;
 // Demonic Calling - 205145
 public class spell_warl_demonic_calling : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var caster = Caster;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return false;
+        if (caster == null)
+            return false;
 
-		if (eventInfo.SpellInfo != null && (eventInfo.SpellInfo.Id == WarlockSpells.DEMONBOLT || eventInfo.SpellInfo.Id == WarlockSpells.SHADOW_BOLT) && RandomHelper.randChance(20))
-			caster.CastSpell(caster, WarlockSpells.DEMONIC_CALLING_TRIGGER, true);
+        if (eventInfo.SpellInfo != null && (eventInfo.SpellInfo.Id == WarlockSpells.DEMONBOLT || eventInfo.SpellInfo.Id == WarlockSpells.SHADOW_BOLT) && RandomHelper.randChance(20))
+            caster.CastSpell(caster, WarlockSpells.DEMONIC_CALLING_TRIGGER, true);
 
-		return false;
-	}
+        return false;
+    }
 }

@@ -8,21 +8,21 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class AccountMountUpdate : ServerPacket
 {
-	public bool IsFullUpdate = false;
-	public Dictionary<uint, MountStatusFlags> Mounts = new();
-	public AccountMountUpdate() : base(ServerOpcodes.AccountMountUpdate, ConnectionType.Instance) { }
+    public bool IsFullUpdate = false;
+    public Dictionary<uint, MountStatusFlags> Mounts = new();
+    public AccountMountUpdate() : base(ServerOpcodes.AccountMountUpdate, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(IsFullUpdate);
-		_worldPacket.WriteInt32(Mounts.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteBit(IsFullUpdate);
+        _worldPacket.WriteInt32(Mounts.Count);
 
-		foreach (var spell in Mounts)
-		{
-			_worldPacket.WriteUInt32(spell.Key);
-			_worldPacket.WriteBits(spell.Value, 2);
-		}
+        foreach (var spell in Mounts)
+        {
+            _worldPacket.WriteUInt32(spell.Key);
+            _worldPacket.WriteBits(spell.Value, 2);
+        }
 
-		_worldPacket.FlushBits();
-	}
+        _worldPacket.FlushBits();
+    }
 }

@@ -8,12 +8,12 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventMotd : ServerPacket
 {
-	public string MotdText;
-	public GuildEventMotd() : base(ServerOpcodes.GuildEventMotd) { }
+    public string MotdText;
+    public GuildEventMotd() : base(ServerOpcodes.GuildEventMotd) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(MotdText.GetByteCount(), 11);
-		_worldPacket.WriteString(MotdText);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBits(MotdText.GetByteCount(), 11);
+        _worldPacket.WriteString(MotdText);
+    }
 }

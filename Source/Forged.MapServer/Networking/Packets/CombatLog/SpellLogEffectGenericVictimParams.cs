@@ -7,5 +7,5 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 public struct SpellLogEffectGenericVictimParams
 {
-	public ObjectGuid Victim;
+    public ObjectGuid Victim;
 }

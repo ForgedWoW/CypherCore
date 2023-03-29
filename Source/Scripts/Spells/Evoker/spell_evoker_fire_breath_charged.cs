@@ -9,28 +9,28 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.RED_FIRE_BREATH_CHARGED)]
 internal class spell_evoker_fire_breath_charged : SpellScript, ISpellCalculateBonusCoefficient
 {
-	public double CalcBonusCoefficient(double bonusCoefficient)
-	{
-		var multi = 0;
+    public double CalcBonusCoefficient(double bonusCoefficient)
+    {
+        var multi = 0;
 
-		switch (Spell.EmpoweredStage)
-		{
-			case 1:
-				multi = 3;
+        switch (Spell.EmpoweredStage)
+        {
+            case 1:
+                multi = 3;
 
-				break;
-			case 2:
-				multi = 6;
+                break;
+            case 2:
+                multi = 6;
 
-				break;
-			case 3:
-				multi = 9;
+                break;
+            case 3:
+                multi = 9;
 
-				break;
-			default:
-				break;
-		}
+                break;
+            default:
+                break;
+        }
 
-		return bonusCoefficient + (GetEffectInfo(1).BonusCoefficient * multi);
-	}
+        return bonusCoefficient + (GetEffectInfo(1).BonusCoefficient * multi);
+    }
 }

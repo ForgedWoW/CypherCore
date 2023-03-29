@@ -5,12 +5,12 @@ namespace Forged.MapServer.Maps.Instances;
 
 public struct ObjectData
 {
-	public ObjectData(uint entry, uint type)
-	{
-		Entry = entry;
-		Type = type;
-	}
+    public ObjectData(uint entry, uint type)
+    {
+        Entry = entry;
+        Type = type;
+    }
 
-	public uint Entry;
-	public uint Type;
+    public uint Entry;
+    public uint Type;
 }

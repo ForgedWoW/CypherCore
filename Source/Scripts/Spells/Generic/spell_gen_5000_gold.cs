@@ -11,17 +11,17 @@ namespace Scripts.Spells.Generic;
 [Script] // 46642 - 5,000 Gold
 internal class spell_gen_5000_gold : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var target = HitPlayer;
+    private void HandleScript(int effIndex)
+    {
+        var target = HitPlayer;
 
-		target?.ModifyMoney(5000 * MoneyConstants.Gold);
-	}
+        target?.ModifyMoney(5000 * MoneyConstants.Gold);
+    }
 }

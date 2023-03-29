@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetJournalLockDenied : ServerPacket
 {
-	public BattlePetJournalLockDenied() : base(ServerOpcodes.BattlePetJournalLockDenied) { }
+    public BattlePetJournalLockDenied() : base(ServerOpcodes.BattlePetJournalLockDenied) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

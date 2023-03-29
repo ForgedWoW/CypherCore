@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum ZonePVPTypeOverride
 {
-	None = 0,
-	Friendly = 1,
-	Hostile = 2,
-	Contested = 3,
-	Combat = 4
+    None = 0,
+    Friendly = 1,
+    Hostile = 2,
+    Contested = 3,
+    Combat = 4
 }

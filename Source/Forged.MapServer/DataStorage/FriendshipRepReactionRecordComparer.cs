@@ -8,8 +8,8 @@ namespace Forged.MapServer.DataStorage;
 
 internal class FriendshipRepReactionRecordComparer : IComparer<FriendshipRepReactionRecord>
 {
-	public int Compare(FriendshipRepReactionRecord left, FriendshipRepReactionRecord right)
-	{
-		return left.ReactionThreshold.CompareTo(right.ReactionThreshold);
-	}
+    public int Compare(FriendshipRepReactionRecord left, FriendshipRepReactionRecord right)
+    {
+        return left.ReactionThreshold.CompareTo(right.ReactionThreshold);
+    }
 }

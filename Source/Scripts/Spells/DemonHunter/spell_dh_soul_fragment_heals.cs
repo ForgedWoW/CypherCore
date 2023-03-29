@@ -11,38 +11,38 @@ namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(new uint[]
 {
-	178963, 203794, 228532
+    178963, 203794, 228532
 })]
 public class spell_dh_soul_fragment_heals : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.TriggerSpell, SpellScriptHookType.LaunchTarget));
-		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.TriggerSpell, SpellScriptHookType.Launch));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
+        SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.TriggerSpell, SpellScriptHookType.LaunchTarget));
+        SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.TriggerSpell, SpellScriptHookType.Launch));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		if (!Caster.HasAura(DemonHunterSpells.DEMONIC_APPETITE))
-			PreventHitDefaultEffect(effIndex);
-	}
+    private void HandleHit(int effIndex)
+    {
+        if (!Caster.HasAura(DemonHunterSpells.DEMONIC_APPETITE))
+            PreventHitDefaultEffect(effIndex);
+    }
 
-	private void HandleHeal(int UnnamedParameter)
-	{
-		var caster = Caster;
+    private void HandleHeal(int UnnamedParameter)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var reductionTime = caster.GetAuraEffectAmount(DemonHunterSpells.FEAST_ON_THE_SOULS, 0);
+        var reductionTime = caster.GetAuraEffectAmount(DemonHunterSpells.FEAST_ON_THE_SOULS, 0);
 
-		if (reductionTime != 0)
-		{
-			caster.SpellHistory.ModifyCooldown(DemonHunterSpells.CHAOS_NOVA, TimeSpan.FromSeconds(-reductionTime));
-			caster.SpellHistory.ModifyCooldown(DemonHunterSpells.EYE_BEAM, TimeSpan.FromSeconds(-reductionTime));
-		}
-	}
+        if (reductionTime != 0)
+        {
+            caster.SpellHistory.ModifyCooldown(DemonHunterSpells.CHAOS_NOVA, TimeSpan.FromSeconds(-reductionTime));
+            caster.SpellHistory.ModifyCooldown(DemonHunterSpells.EYE_BEAM, TimeSpan.FromSeconds(-reductionTime));
+        }
+    }
 }

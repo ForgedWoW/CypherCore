@@ -7,12 +7,12 @@ namespace Scripts.Spells.DemonHunter;
 
 public class auraData
 {
-	public uint m_id;
-	public ObjectGuid m_casterGuid = new();
+    public uint m_id;
+    public ObjectGuid m_casterGuid = new();
 
-	public auraData(uint id, ObjectGuid casterGUID)
-	{
-		m_id = id;
-		m_casterGuid = casterGUID;
-	}
+    public auraData(uint id, ObjectGuid casterGUID)
+    {
+        m_id = id;
+        m_casterGuid = casterGUID;
+    }
 }

@@ -13,24 +13,24 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(213010)]
 public class spell_dh_artifact_charred_warblades : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		var caster = Caster;
+    private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        var caster = Caster;
 
-		if (caster == null || eventInfo.DamageInfo != null)
-			return;
+        if (caster == null || eventInfo.DamageInfo != null)
+            return;
 
-		if (eventInfo.DamageInfo != null || (eventInfo.DamageInfo.SchoolMask & SpellSchoolMask.Fire) == 0)
-			return;
+        if (eventInfo.DamageInfo != null || (eventInfo.DamageInfo.SchoolMask & SpellSchoolMask.Fire) == 0)
+            return;
 
-		var heal = MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEff.Amount);
-		caster.CastSpell(caster, ShatteredSoulsSpells.CHARRED_WARBLADES_HEAL, (int)heal);
-	}
+        var heal = MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEff.Amount);
+        caster.CastSpell(caster, ShatteredSoulsSpells.CHARRED_WARBLADES_HEAL, (int)heal);
+    }
 }

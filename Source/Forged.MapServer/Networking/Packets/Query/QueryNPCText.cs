@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class QueryNPCText : ClientPacket
 {
-	public ObjectGuid Guid;
-	public uint TextID;
-	public QueryNPCText(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Guid;
+    public uint TextID;
+    public QueryNPCText(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		TextID = _worldPacket.ReadUInt32();
-		Guid = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        TextID = _worldPacket.ReadUInt32();
+        Guid = _worldPacket.ReadPackedGuid();
+    }
 }

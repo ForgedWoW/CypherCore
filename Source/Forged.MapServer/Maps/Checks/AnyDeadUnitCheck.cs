@@ -8,8 +8,8 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class AnyDeadUnitCheck : ICheck<Unit>
 {
-	public bool Invoke(Unit u)
-	{
-		return !u.IsAlive;
-	}
+    public bool Invoke(Unit u)
+    {
+        return !u.IsAlive;
+    }
 }

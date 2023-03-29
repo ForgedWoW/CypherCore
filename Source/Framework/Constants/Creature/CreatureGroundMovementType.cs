@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum CreatureGroundMovementType
 {
-	None,
-	Run,
-	Hover,
+    None,
+    Run,
+    Hover,
 
-	Max
+    Max
 }

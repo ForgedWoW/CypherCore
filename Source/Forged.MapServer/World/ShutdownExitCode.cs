@@ -5,7 +5,7 @@ namespace Forged.MapServer.World;
 
 public enum ShutdownExitCode
 {
-	Shutdown = 0,
-	Error = 1,
-	Restart = 2,
+    Shutdown = 0,
+    Error = 1,
+    Restart = 2,
 }

@@ -11,38 +11,38 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_tournament_duel : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScriptEffect(int effIndex)
-	{
-		var rider = Caster.Charmer;
+    private void HandleScriptEffect(int effIndex)
+    {
+        var rider = Caster.Charmer;
 
-		if (rider)
-		{
-			var playerTarget = HitPlayer;
+        if (rider)
+        {
+            var playerTarget = HitPlayer;
 
-			if (playerTarget)
-			{
-				if (playerTarget.HasAura(GenericSpellIds.OnTournamentMount) &&
-					playerTarget.VehicleBase)
-					rider.CastSpell(playerTarget, GenericSpellIds.MountedDuel, true);
+            if (playerTarget)
+            {
+                if (playerTarget.HasAura(GenericSpellIds.OnTournamentMount) &&
+                    playerTarget.VehicleBase)
+                    rider.CastSpell(playerTarget, GenericSpellIds.MountedDuel, true);
 
-				return;
-			}
+                return;
+            }
 
-			var unitTarget = HitUnit;
+            var unitTarget = HitUnit;
 
-			if (unitTarget)
-				if (unitTarget.Charmer &&
-					unitTarget.Charmer.IsTypeId(TypeId.Player) &&
-					unitTarget.Charmer.HasAura(GenericSpellIds.OnTournamentMount))
-					rider.CastSpell(unitTarget.Charmer, GenericSpellIds.MountedDuel, true);
-		}
-	}
+            if (unitTarget)
+                if (unitTarget.Charmer &&
+                    unitTarget.Charmer.IsTypeId(TypeId.Player) &&
+                    unitTarget.Charmer.HasAura(GenericSpellIds.OnTournamentMount))
+                    rider.CastSpell(unitTarget.Charmer, GenericSpellIds.MountedDuel, true);
+        }
+    }
 }

@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 public class SpellInstakillLog : ServerPacket
 {
-	public ObjectGuid Target;
-	public ObjectGuid Caster;
-	public uint SpellID;
-	public SpellInstakillLog() : base(ServerOpcodes.SpellInstakillLog, ConnectionType.Instance) { }
+    public ObjectGuid Target;
+    public ObjectGuid Caster;
+    public uint SpellID;
+    public SpellInstakillLog() : base(ServerOpcodes.SpellInstakillLog, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Target);
-		_worldPacket.WritePackedGuid(Caster);
-		_worldPacket.WriteUInt32(SpellID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Target);
+        _worldPacket.WritePackedGuid(Caster);
+        _worldPacket.WriteUInt32(SpellID);
+    }
 }

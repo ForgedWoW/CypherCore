@@ -14,39 +14,39 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(273221)]
 internal class spell_sha_aftershock : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraCheckEffectProcHandler(CheckProc, 0, AuraType.Dummy));
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraCheckEffectProcHandler(CheckProc, 0, AuraType.Dummy));
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		var procSpell = eventInfo.ProcSpell;
+    private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        var procSpell = eventInfo.ProcSpell;
 
-		if (procSpell != null)
-		{
-			var cost = procSpell.GetPowerTypeCostAmount(PowerType.Maelstrom);
+        if (procSpell != null)
+        {
+            var cost = procSpell.GetPowerTypeCostAmount(PowerType.Maelstrom);
 
-			if (cost.HasValue)
-				return cost > 0 && RandomHelper.randChance(aurEff.Amount);
-		}
+            if (cost.HasValue)
+                return cost > 0 && RandomHelper.randChance(aurEff.Amount);
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		var procSpell = eventInfo.ProcSpell;
-		var energize = procSpell.GetPowerTypeCostAmount(PowerType.Maelstrom);
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        var procSpell = eventInfo.ProcSpell;
+        var energize = procSpell.GetPowerTypeCostAmount(PowerType.Maelstrom);
 
-		eventInfo.Actor
-				.CastSpell(eventInfo.Actor,
-							ShamanSpells.AftershockEnergize,
-							new CastSpellExtraArgs(energize != 0)
-								.AddSpellMod(SpellValueMod.BasePoint0, energize.Value));
-	}
+        eventInfo.Actor
+                 .CastSpell(eventInfo.Actor,
+                            ShamanSpells.AftershockEnergize,
+                            new CastSpellExtraArgs(energize != 0)
+                                .AddSpellMod(SpellValueMod.BasePoint0, energize.Value));
+    }
 }

@@ -15,19 +15,19 @@ public class AnyUnfriendlyUnitInObjectRangeCheck : ICheck<Unit>
     private readonly float _range;
     private readonly Func<Unit, bool> _additionalCheck;
 
-	public AnyUnfriendlyUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, Func<Unit, bool> additionalCheck = null)
-	{
-		_obj = obj;
-		_funit = funit;
-		_range = range;
-		_additionalCheck = additionalCheck;
-	}
+    public AnyUnfriendlyUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, Func<Unit, bool> additionalCheck = null)
+    {
+        _obj = obj;
+        _funit = funit;
+        _range = range;
+        _additionalCheck = additionalCheck;
+    }
 
-	public bool Invoke(Unit u)
-	{
-		if (u.IsAlive && _obj.IsWithinDist(u, _range) && !_funit.IsFriendlyTo(u) && (_additionalCheck == null || _additionalCheck.Invoke(u)))
-			return true;
-		else
-			return false;
-	}
+    public bool Invoke(Unit u)
+    {
+        if (u.IsAlive && _obj.IsWithinDist(u, _range) && !_funit.IsFriendlyTo(u) && (_additionalCheck == null || _additionalCheck.Invoke(u)))
+            return true;
+        else
+            return false;
+    }
 }

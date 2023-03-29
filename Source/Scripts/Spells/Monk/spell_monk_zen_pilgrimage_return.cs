@@ -11,24 +11,24 @@ namespace Scripts.Spells.Monk;
 [SpellScript(126895)]
 public class spell_monk_zen_pilgrimage_return : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var _player = caster.AsPlayer;
+        if (caster != null)
+        {
+            var _player = caster.AsPlayer;
 
-			if (_player != null)
-				// _player->TeleportTo(_player->m_recallLoc); After change now iw work
-				_player.RemoveAura(126896);
-		}
-	}
+            if (_player != null)
+                // _player->TeleportTo(_player->m_recallLoc); After change now iw work
+                _player.RemoveAura(126896);
+        }
+    }
 }

@@ -7,19 +7,19 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarStatus : ClientPacket
 {
-	public ObjectGuid Guid;
-	public ulong EventID;
-	public ulong ModeratorID;
-	public ulong InviteID;
-	public byte Status;
-	public CalendarStatus(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Guid;
+    public ulong EventID;
+    public ulong ModeratorID;
+    public ulong InviteID;
+    public byte Status;
+    public CalendarStatus(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Guid = _worldPacket.ReadPackedGuid();
-		EventID = _worldPacket.ReadUInt64();
-		InviteID = _worldPacket.ReadUInt64();
-		ModeratorID = _worldPacket.ReadUInt64();
-		Status = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        Guid = _worldPacket.ReadPackedGuid();
+        EventID = _worldPacket.ReadUInt64();
+        InviteID = _worldPacket.ReadUInt64();
+        ModeratorID = _worldPacket.ReadUInt64();
+        Status = _worldPacket.ReadUInt8();
+    }
 }

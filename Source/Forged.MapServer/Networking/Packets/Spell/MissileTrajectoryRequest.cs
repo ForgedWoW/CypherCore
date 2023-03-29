@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct MissileTrajectoryRequest
 {
-	public float Pitch;
-	public float Speed;
+    public float Pitch;
+    public float Speed;
 
-	public void Read(WorldPacket data)
-	{
-		Pitch = data.ReadFloat();
-		Speed = data.ReadFloat();
-	}
+    public void Read(WorldPacket data)
+    {
+        Pitch = data.ReadFloat();
+        Speed = data.ReadFloat();
+    }
 }

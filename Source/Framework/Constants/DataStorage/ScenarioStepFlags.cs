@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum ScenarioStepFlags : byte
 {
-	BonusObjective = 0x1,
-	HeroicOnly = 0x2
+    BonusObjective = 0x1,
+    HeroicOnly = 0x2
 }

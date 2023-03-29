@@ -8,11 +8,11 @@ namespace Framework.Constants;
 [Flags]
 public enum PlayerUnderwaterState
 {
-	None = 0x00,
-	InWater = 0x01,     // terrain type is water and player is afflicted by it
-	InLava = 0x02,      // terrain type is lava and player is afflicted by it
-	InSlime = 0x04,     // terrain type is lava and player is afflicted by it
-	InDarkWater = 0x08, // terrain type is dark water and player is afflicted by it
+    None = 0x00,
+    InWater = 0x01,     // terrain type is water and player is afflicted by it
+    InLava = 0x02,      // terrain type is lava and player is afflicted by it
+    InSlime = 0x04,     // terrain type is lava and player is afflicted by it
+    InDarkWater = 0x08, // terrain type is dark water and player is afflicted by it
 
-	ExistTimers = 0x10
+    ExistTimers = 0x10
 }

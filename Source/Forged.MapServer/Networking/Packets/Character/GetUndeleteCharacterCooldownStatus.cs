@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class GetUndeleteCharacterCooldownStatus : ClientPacket
 {
-	public GetUndeleteCharacterCooldownStatus(WorldPacket packet) : base(packet) { }
+    public GetUndeleteCharacterCooldownStatus(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

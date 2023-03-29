@@ -13,18 +13,18 @@ internal class AllGameObjectsWithEntryInRange : ICheck<GameObject>
     private readonly uint _uiEntry;
     private readonly float _fRange;
 
-	public AllGameObjectsWithEntryInRange(WorldObject obj, uint entry, float maxRange)
-	{
-		_pObject = obj;
-		_uiEntry = entry;
-		_fRange = maxRange;
-	}
+    public AllGameObjectsWithEntryInRange(WorldObject obj, uint entry, float maxRange)
+    {
+        _pObject = obj;
+        _uiEntry = entry;
+        _fRange = maxRange;
+    }
 
-	public bool Invoke(GameObject go)
-	{
-		if (_uiEntry == 0 || go.Entry == _uiEntry && _pObject.IsWithinDist(go, _fRange, false))
-			return true;
+    public bool Invoke(GameObject go)
+    {
+        if (_uiEntry == 0 || go.Entry == _uiEntry && _pObject.IsWithinDist(go, _fRange, false))
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

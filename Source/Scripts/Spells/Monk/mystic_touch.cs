@@ -12,26 +12,26 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class mystic_touch : ScriptObjectAutoAdd, IPlayerOnDealDamage
 {
-	public PlayerClass PlayerClass => PlayerClass.Monk;
+    public PlayerClass PlayerClass => PlayerClass.Monk;
 
-	public mystic_touch() : base("mystic_touch") { }
+    public mystic_touch() : base("mystic_touch") { }
 
-	public void OnDamage(Player caster, Unit target, ref double damage, SpellInfo spellProto)
-	{
-		var player = caster.AsPlayer;
+    public void OnDamage(Player caster, Unit target, ref double damage, SpellInfo spellProto)
+    {
+        var player = caster.AsPlayer;
 
-		if (player != null)
-			if (player.Class != PlayerClass.Monk)
-				return;
+        if (player != null)
+            if (player.Class != PlayerClass.Monk)
+                return;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (target.HasAura(MonkSpells.MYSTIC_TOUCH_TARGET_DEBUFF))
-			return;
+        if (target.HasAura(MonkSpells.MYSTIC_TOUCH_TARGET_DEBUFF))
+            return;
 
-		if (caster.HasAura(MonkSpells.MYSTIC_TOUCH) && !target.HasAura(MonkSpells.MYSTIC_TOUCH_TARGET_DEBUFF))
-			if (caster.IsWithinMeleeRange(target))
-				caster.CastSpell(MonkSpells.MYSTIC_TOUCH_TARGET_DEBUFF, true);
-	}
+        if (caster.HasAura(MonkSpells.MYSTIC_TOUCH) && !target.HasAura(MonkSpells.MYSTIC_TOUCH_TARGET_DEBUFF))
+            if (caster.IsWithinMeleeRange(target))
+                caster.CastSpell(MonkSpells.MYSTIC_TOUCH_TARGET_DEBUFF, true);
+    }
 }

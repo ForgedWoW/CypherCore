@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetUpdates : ServerPacket
 {
-	public List<BattlePetStruct> Pets = new();
-	public bool PetAdded;
-	public BattlePetUpdates() : base(ServerOpcodes.BattlePetUpdates) { }
+    public List<BattlePetStruct> Pets = new();
+    public bool PetAdded;
+    public BattlePetUpdates() : base(ServerOpcodes.BattlePetUpdates) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Pets.Count);
-		_worldPacket.WriteBit(PetAdded);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Pets.Count);
+        _worldPacket.WriteBit(PetAdded);
+        _worldPacket.FlushBits();
 
-		foreach (var pet in Pets)
-			pet.Write(_worldPacket);
-	}
+        foreach (var pet in Pets)
+            pet.Write(_worldPacket);
+    }
 }

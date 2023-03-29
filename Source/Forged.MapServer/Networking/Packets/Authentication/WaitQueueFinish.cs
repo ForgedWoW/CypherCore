@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Authentication;
 
 internal class WaitQueueFinish : ServerPacket
 {
-	public WaitQueueFinish() : base(ServerOpcodes.WaitQueueFinish) { }
+    public WaitQueueFinish() : base(ServerOpcodes.WaitQueueFinish) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

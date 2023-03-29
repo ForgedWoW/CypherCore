@@ -13,29 +13,29 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(205411)]
 public class spell_dh_desperate_instincts : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.TriggerSpellOnHealthPct, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.TriggerSpellOnHealthPct, AuraScriptHookType.EffectProc));
+    }
 
-	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var caster = Caster;
+    private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var caster = Caster;
 
-		if (caster == null || eventInfo.DamageInfo != null)
-			return;
+        if (caster == null || eventInfo.DamageInfo != null)
+            return;
 
-		if (caster.SpellHistory.HasCooldown(DemonHunterSpells.BLUR_BUFF))
-			return;
+        if (caster.SpellHistory.HasCooldown(DemonHunterSpells.BLUR_BUFF))
+            return;
 
-		var triggerOnHealth = caster.CountPctFromMaxHealth(aurEff.Amount);
-		var currentHealth = caster.Health;
+        var triggerOnHealth = caster.CountPctFromMaxHealth(aurEff.Amount);
+        var currentHealth = caster.Health;
 
-		// Just falling below threshold
-		if (currentHealth > triggerOnHealth && (currentHealth - eventInfo.DamageInfo.Damage) <= triggerOnHealth)
-			caster.CastSpell(caster, DemonHunterSpells.BLUR_BUFF, false);
-	}
+        // Just falling below threshold
+        if (currentHealth > triggerOnHealth && (currentHealth - eventInfo.DamageInfo.Damage) <= triggerOnHealth)
+            caster.CastSpell(caster, DemonHunterSpells.BLUR_BUFF, false);
+    }
 }

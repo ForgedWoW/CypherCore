@@ -13,39 +13,39 @@ namespace Scripts.Spells.Generic;
 [Script("spell_past_you_whisper_to_controller_random", 2u)]
 internal class spell_gen_whisper_to_controller_random : SpellScript, IHasSpellEffects
 {
-	private readonly uint _text;
+    private readonly uint _text;
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public spell_gen_whisper_to_controller_random(uint text)
-	{
-		_text = text;
-	}
+    public spell_gen_whisper_to_controller_random(uint text)
+    {
+        _text = text;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		// Same for all spells
-		if (!RandomHelper.randChance(20))
-			return;
+    private void HandleScript(int effIndex)
+    {
+        // Same for all spells
+        if (!RandomHelper.randChance(20))
+            return;
 
-		var target = HitCreature;
+        var target = HitCreature;
 
-		if (target != null)
-		{
-			var targetSummon = target.ToTempSummon();
+        if (target != null)
+        {
+            var targetSummon = target.ToTempSummon();
 
-			if (targetSummon != null)
-			{
-				var player = targetSummon.GetSummonerUnit().AsPlayer;
+            if (targetSummon != null)
+            {
+                var player = targetSummon.GetSummonerUnit().AsPlayer;
 
-				if (player != null)
-					targetSummon.AI.Talk(_text, player);
-			}
-		}
-	}
+                if (player != null)
+                    targetSummon.AI.Talk(_text, player);
+            }
+        }
+    }
 }

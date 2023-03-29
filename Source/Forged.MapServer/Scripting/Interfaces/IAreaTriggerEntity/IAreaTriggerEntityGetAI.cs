@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAreaTriggerEntity;
 
 public interface IAreaTriggerEntityGetAI : IScriptObject
 {
-	AreaTriggerAI GetAI(AreaTrigger at);
+    AreaTriggerAI GetAI(AreaTrigger at);
 }

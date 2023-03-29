@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class BattlegroundPlayerPositions : ServerPacket
 {
-	public List<BattlegroundPlayerPosition> FlagCarriers = new();
-	public BattlegroundPlayerPositions() : base(ServerOpcodes.BattlegroundPlayerPositions, ConnectionType.Instance) { }
+    public List<BattlegroundPlayerPosition> FlagCarriers = new();
+    public BattlegroundPlayerPositions() : base(ServerOpcodes.BattlegroundPlayerPositions, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(FlagCarriers.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(FlagCarriers.Count);
 
-		foreach (var pos in FlagCarriers)
-			pos.Write(_worldPacket);
-	}
+        foreach (var pos in FlagCarriers)
+            pos.Write(_worldPacket);
+    }
 }

@@ -13,24 +13,24 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_running_wild_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleMount, 1, AuraType.Mounted, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleMount, 1, AuraType.Mounted, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
+    }
 
-	private void HandleMount(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var target = Target;
-		PreventDefaultAction();
+    private void HandleMount(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var target = Target;
+        PreventDefaultAction();
 
-		target.Mount(SharedConst.DisplayIdHiddenMount, 0, 0);
+        target.Mount(SharedConst.DisplayIdHiddenMount, 0, 0);
 
-		// cast speed aura
-		var mountCapability = CliDB.MountCapabilityStorage.LookupByKey(aurEff.Amount);
+        // cast speed aura
+        var mountCapability = CliDB.MountCapabilityStorage.LookupByKey(aurEff.Amount);
 
-		if (mountCapability != null)
-			target.CastSpell(target, mountCapability.ModSpellAuraID, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-	}
+        if (mountCapability != null)
+            target.CastSpell(target, mountCapability.ModSpellAuraID, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+    }
 }

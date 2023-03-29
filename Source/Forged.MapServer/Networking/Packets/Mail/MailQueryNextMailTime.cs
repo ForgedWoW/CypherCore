@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailQueryNextMailTime : ClientPacket
 {
-	public MailQueryNextMailTime(WorldPacket packet) : base(packet) { }
+    public MailQueryNextMailTime(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

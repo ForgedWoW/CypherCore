@@ -5,6 +5,6 @@ namespace Scripts.Spells.Druid;
 
 public struct BloodTalonsSpells
 {
-	public const uint BLOODTALONS = 155672;
-	public const uint BLOODTALONS_AURA = 145152;
+    public const uint BLOODTALONS = 155672;
+    public const uint BLOODTALONS_AURA = 145152;
 }

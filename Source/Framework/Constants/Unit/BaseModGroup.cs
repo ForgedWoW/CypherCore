@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum BaseModGroup
 {
-	CritPercentage,
-	RangedCritPercentage,
-	OffhandCritPercentage,
-	ShieldBlockValue,
-	End
+    CritPercentage,
+    RangedCritPercentage,
+    OffhandCritPercentage,
+    ShieldBlockValue,
+    End
 }

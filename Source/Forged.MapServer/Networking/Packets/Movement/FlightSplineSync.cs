@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class FlightSplineSync : ServerPacket
 {
-	public ObjectGuid Guid;
-	public float SplineDist;
-	public FlightSplineSync() : base(ServerOpcodes.FlightSplineSync, ConnectionType.Instance) { }
+    public ObjectGuid Guid;
+    public float SplineDist;
+    public FlightSplineSync() : base(ServerOpcodes.FlightSplineSync, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Guid);
-		_worldPacket.WriteFloat(SplineDist);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Guid);
+        _worldPacket.WriteFloat(SplineDist);
+    }
 }

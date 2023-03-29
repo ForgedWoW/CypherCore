@@ -14,18 +14,18 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(51556)]
 public class spell_sha_ancestral_awakening : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var heal = MathFunctions.CalculatePct(eventInfo.HealInfo.Heal, aurEff.Amount);
-		Target.CastSpell(Target, ShamanSpells.ANCESTRAL_AWAKENING, new CastSpellExtraArgs().AddSpellMod(SpellValueMod.BasePoint0, (int)heal));
-	}
+        var heal = MathFunctions.CalculatePct(eventInfo.HealInfo.Heal, aurEff.Amount);
+        Target.CastSpell(Target, ShamanSpells.ANCESTRAL_AWAKENING, new CastSpellExtraArgs().AddSpellMod(SpellValueMod.BasePoint0, (int)heal));
+    }
 }

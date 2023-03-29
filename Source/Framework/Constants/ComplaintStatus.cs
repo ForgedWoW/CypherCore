@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum ComplaintStatus
 {
-	Disabled = 0,
-	EnabledWithoutAutoIgnore = 1,
-	EnabledWithAutoIgnore = 2
+    Disabled = 0,
+    EnabledWithoutAutoIgnore = 1,
+    EnabledWithAutoIgnore = 2
 }

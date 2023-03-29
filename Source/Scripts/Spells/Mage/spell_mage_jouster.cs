@@ -10,8 +10,8 @@ namespace Scripts.Spells.Mage;
 [SpellScript(214626)]
 public class spell_mage_jouster : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.SpellInfo.Id == MageSpells.ICE_LANCE;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.SpellInfo.Id == MageSpells.ICE_LANCE;
+    }
 }

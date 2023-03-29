@@ -14,22 +14,22 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(196236)]
 internal class spell_warlock_artifact_soul_snatcher : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void OnProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
-	{
-		PreventDefaultAction();
-		var caster = Caster;
+    private void OnProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
+    {
+        PreventDefaultAction();
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (RandomHelper.randChance(aurEff.Amount))
-			caster.CastSpell(caster, WarlockSpells.SOULSNATCHER_PROC, true);
-	}
+        if (RandomHelper.randChance(aurEff.Amount))
+            caster.CastSpell(caster, WarlockSpells.SOULSNATCHER_PROC, true);
+    }
 }

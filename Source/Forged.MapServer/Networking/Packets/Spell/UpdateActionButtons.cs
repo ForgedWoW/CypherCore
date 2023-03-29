@@ -7,16 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class UpdateActionButtons : ServerPacket
 {
-	public ulong[] ActionButtons = new ulong[PlayerConst.MaxActionButtons];
-	public byte Reason;
+    public ulong[] ActionButtons = new ulong[PlayerConst.MaxActionButtons];
+    public byte Reason;
 
-	public UpdateActionButtons() : base(ServerOpcodes.UpdateActionButtons, ConnectionType.Instance) { }
+    public UpdateActionButtons() : base(ServerOpcodes.UpdateActionButtons, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		for (var i = 0; i < PlayerConst.MaxActionButtons; ++i)
-			_worldPacket.WriteUInt64(ActionButtons[i]);
+    public override void Write()
+    {
+        for (var i = 0; i < PlayerConst.MaxActionButtons; ++i)
+            _worldPacket.WriteUInt64(ActionButtons[i]);
 
-		_worldPacket.WriteUInt8(Reason);
-	}
+        _worldPacket.WriteUInt8(Reason);
+    }
 }

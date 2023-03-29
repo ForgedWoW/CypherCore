@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum BlackMarketError
 {
-	Ok = 0,
-	ItemNotFound = 1,
-	AlreadyBid = 2,
-	HigherBid = 4,
-	DatabaseError = 6,
-	NotEnoughMoney = 7,
-	RestrictedAccountTrial = 9
+    Ok = 0,
+    ItemNotFound = 1,
+    AlreadyBid = 2,
+    HigherBid = 4,
+    DatabaseError = 6,
+    NotEnoughMoney = 7,
+    RestrictedAccountTrial = 9
 }

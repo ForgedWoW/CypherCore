@@ -15,24 +15,24 @@ namespace Scripts.Spells.Items;
 [Script("spell_item_bountiful_feast", TextIds.BountifulFeast)]
 internal class spell_item_feast : SpellScript, IHasSpellEffects
 {
-	private readonly uint _text;
+    private readonly uint _text;
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public spell_item_feast(uint text)
-	{
-		_text = text;
-	}
+    public spell_item_feast(uint text)
+    {
+        _text = text;
+    }
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var caster = Caster;
-		caster.TextEmote(_text, caster, false);
-	}
+    private void HandleScript(int effIndex)
+    {
+        var caster = Caster;
+        caster.TextEmote(_text, caster, false);
+    }
 }

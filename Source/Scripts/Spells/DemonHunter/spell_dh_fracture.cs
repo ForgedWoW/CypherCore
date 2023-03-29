@@ -11,21 +11,21 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(209795)]
 public class spell_dh_fracture : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		//  for (uint8 i = 0; i < 2; ++i)
-		//caster->CastCustomSpell(SHATTERED_SOULS_MISSILE, SpellValueMod.BasePoint0, LESSER_SOUL_SHARD, caster, true);
-	}
+        //  for (uint8 i = 0; i < 2; ++i)
+        //caster->CastCustomSpell(SHATTERED_SOULS_MISSILE, SpellValueMod.BasePoint0, LESSER_SOUL_SHARD, caster, true);
+    }
 }

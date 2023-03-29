@@ -7,24 +7,24 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 internal class SplitGuildBankItemToInventory : ClientPacket
 {
-	public ObjectGuid Banker;
-	public byte BankTab;
-	public byte BankSlot;
-	public byte? ContainerSlot;
-	public byte ContainerItemSlot;
-	public uint StackCount;
-	public SplitGuildBankItemToInventory(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Banker;
+    public byte BankTab;
+    public byte BankSlot;
+    public byte? ContainerSlot;
+    public byte ContainerItemSlot;
+    public uint StackCount;
+    public SplitGuildBankItemToInventory(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Banker = _worldPacket.ReadPackedGuid();
-		BankTab = _worldPacket.ReadUInt8();
-		BankSlot = _worldPacket.ReadUInt8();
-		;
-		ContainerItemSlot = _worldPacket.ReadUInt8();
-		StackCount = _worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        Banker = _worldPacket.ReadPackedGuid();
+        BankTab = _worldPacket.ReadUInt8();
+        BankSlot = _worldPacket.ReadUInt8();
+        ;
+        ContainerItemSlot = _worldPacket.ReadUInt8();
+        StackCount = _worldPacket.ReadUInt32();
 
-		if (_worldPacket.HasBit())
-			ContainerSlot = _worldPacket.ReadUInt8();
-	}
+        if (_worldPacket.HasBit())
+            ContainerSlot = _worldPacket.ReadUInt8();
+    }
 }

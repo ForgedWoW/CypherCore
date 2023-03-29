@@ -7,34 +7,34 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class ContentTuningRecord
 {
-	public uint Id;
-	public int Flags;
-	public int ExpansionID;
-	public int MinLevel;
-	public int MaxLevel;
-	public int MinLevelType;
-	public int MaxLevelType;
-	public int TargetLevelDelta;
-	public int TargetLevelMaxDelta;
-	public int TargetLevelMin;
-	public int TargetLevelMax;
-	public int MinItemLevel;
+    public uint Id;
+    public int Flags;
+    public int ExpansionID;
+    public int MinLevel;
+    public int MaxLevel;
+    public int MinLevelType;
+    public int MaxLevelType;
+    public int TargetLevelDelta;
+    public int TargetLevelMaxDelta;
+    public int TargetLevelMin;
+    public int TargetLevelMax;
+    public int MinItemLevel;
 
-	public ContentTuningFlag GetFlags()
-	{
-		return (ContentTuningFlag)Flags;
-	}
+    public ContentTuningFlag GetFlags()
+    {
+        return (ContentTuningFlag)Flags;
+    }
 
-	public int GetScalingFactionGroup()
-	{
-		var flags = GetFlags();
+    public int GetScalingFactionGroup()
+    {
+        var flags = GetFlags();
 
-		if (flags.HasFlag(ContentTuningFlag.Horde))
-			return 5;
+        if (flags.HasFlag(ContentTuningFlag.Horde))
+            return 5;
 
-		if (flags.HasFlag(ContentTuningFlag.Alliance))
-			return 3;
+        if (flags.HasFlag(ContentTuningFlag.Alliance))
+            return 3;
 
-		return 0;
-	}
+        return 0;
+    }
 }

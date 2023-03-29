@@ -11,13 +11,13 @@ public class PacketSenderRef : IDoWork<Player>
 {
     private readonly ServerPacket _data;
 
-	public PacketSenderRef(ServerPacket message)
-	{
-		_data = message;
-	}
+    public PacketSenderRef(ServerPacket message)
+    {
+        _data = message;
+    }
 
-	public virtual void Invoke(Player player)
-	{
-		player.SendPacket(_data);
-	}
+    public virtual void Invoke(Player player)
+    {
+        player.SendPacket(_data);
+    }
 }

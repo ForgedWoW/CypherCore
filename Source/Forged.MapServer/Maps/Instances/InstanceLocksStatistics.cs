@@ -5,6 +5,6 @@ namespace Forged.MapServer.Maps.Instances;
 
 public struct InstanceLocksStatistics
 {
-	public int InstanceCount; // Number of existing ID-based locks
-	public int PlayerCount;   // Number of players that have any lock
+    public int InstanceCount; // Number of existing ID-based locks
+    public int PlayerCount;   // Number of players that have any lock
 }

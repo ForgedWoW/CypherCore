@@ -14,23 +14,23 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(194084)]
 public class bfa_spell_flametongue_proc_attack : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    public void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var attacker = eventInfo.ActionTarget;
-		var caster = Caster;
+        var attacker = eventInfo.ActionTarget;
+        var caster = Caster;
 
-		if (caster == null || attacker == null)
-			return;
+        if (caster == null || attacker == null)
+            return;
 
-		caster.CastSpell(attacker, ShamanSpells.FLAMETONGUE_ATTACK, true);
-	}
+        caster.CastSpell(attacker, ShamanSpells.FLAMETONGUE_ATTACK, true);
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 }

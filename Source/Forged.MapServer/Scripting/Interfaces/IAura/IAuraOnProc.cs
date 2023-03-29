@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraOnProc : IAuraScript
 {
-	void OnProc(ProcEventInfo info);
+    void OnProc(ProcEventInfo info);
 }

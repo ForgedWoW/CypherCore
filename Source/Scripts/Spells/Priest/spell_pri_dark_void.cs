@@ -9,14 +9,14 @@ namespace Scripts.Spells.Priest;
 [SpellScript(263346)]
 public class spell_pri_dark_void : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    public void OnHit()
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		caster.CastSpell(target, PriestSpells.SHADOW_WORD_PAIN, true);
-	}
+        caster.CastSpell(target, PriestSpells.SHADOW_WORD_PAIN, true);
+    }
 }

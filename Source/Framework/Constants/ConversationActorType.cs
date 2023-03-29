@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum ConversationActorType
 {
-	WorldObject = 0,
-	TalkingHead = 1
+    WorldObject = 0,
+    TalkingHead = 1
 }

@@ -8,27 +8,27 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class BuyItem : ClientPacket
 {
-	public ObjectGuid VendorGUID;
-	public ItemInstance Item;
-	public uint Muid;
-	public uint Slot;
-	public ItemVendorType ItemType;
-	public int Quantity;
-	public ObjectGuid ContainerGUID;
+    public ObjectGuid VendorGUID;
+    public ItemInstance Item;
+    public uint Muid;
+    public uint Slot;
+    public ItemVendorType ItemType;
+    public int Quantity;
+    public ObjectGuid ContainerGUID;
 
-	public BuyItem(WorldPacket packet) : base(packet)
-	{
-		Item = new ItemInstance();
-	}
+    public BuyItem(WorldPacket packet) : base(packet)
+    {
+        Item = new ItemInstance();
+    }
 
-	public override void Read()
-	{
-		VendorGUID = _worldPacket.ReadPackedGuid();
-		ContainerGUID = _worldPacket.ReadPackedGuid();
-		Quantity = _worldPacket.ReadInt32();
-		Muid = _worldPacket.ReadUInt32();
-		Slot = _worldPacket.ReadUInt32();
-		Item.Read(_worldPacket);
-		ItemType = (ItemVendorType)_worldPacket.ReadBits<int>(3);
-	}
+    public override void Read()
+    {
+        VendorGUID = _worldPacket.ReadPackedGuid();
+        ContainerGUID = _worldPacket.ReadPackedGuid();
+        Quantity = _worldPacket.ReadInt32();
+        Muid = _worldPacket.ReadUInt32();
+        Slot = _worldPacket.ReadUInt32();
+        Item.Read(_worldPacket);
+        ItemType = (ItemVendorType)_worldPacket.ReadBits<int>(3);
+    }
 }

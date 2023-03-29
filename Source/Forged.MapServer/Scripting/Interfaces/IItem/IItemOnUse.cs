@@ -10,5 +10,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IItem;
 
 public interface IItemOnUse : IScriptObject
 {
-	bool OnUse(Player player, Item item, SpellCastTargets targets, ObjectGuid castId);
+    bool OnUse(Player player, Item item, SpellCastTargets targets, ObjectGuid castId);
 }

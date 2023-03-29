@@ -12,30 +12,30 @@ namespace Scripts.Spells.Mage;
 [SpellScript(257537)]
 public class spell_mage_ebonbolt : SpellScript, IHasSpellEffects, ISpellOnCast
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public void OnCast()
-	{
-		Caster.CastSpell(Caster, MageSpells.BRAIN_FREEZE_AURA, true);
-	}
+    public void OnCast()
+    {
+        Caster.CastSpell(Caster, MageSpells.BRAIN_FREEZE_AURA, true);
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(DoEffectHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(DoEffectHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void DoEffectHitTarget(int effIndex)
-	{
-		var explTarget = ExplTargetUnit;
-		var hitUnit = HitUnit;
+    private void DoEffectHitTarget(int effIndex)
+    {
+        var explTarget = ExplTargetUnit;
+        var hitUnit = HitUnit;
 
-		if (hitUnit == null || explTarget == null)
-			return;
+        if (hitUnit == null || explTarget == null)
+            return;
 
-		if (Caster.HasAura(MageSpells.SPLITTING_ICE))
-			Caster.VariableStorage.Set<ObjectGuid>("explTarget", explTarget.GUID);
+        if (Caster.HasAura(MageSpells.SPLITTING_ICE))
+            Caster.VariableStorage.Set<ObjectGuid>("explTarget", explTarget.GUID);
 
-		Caster.CastSpell(hitUnit, MageSpells.EBONBOLT_DAMAGE, true);
-	}
+        Caster.CastSpell(hitUnit, MageSpells.EBONBOLT_DAMAGE, true);
+    }
 }

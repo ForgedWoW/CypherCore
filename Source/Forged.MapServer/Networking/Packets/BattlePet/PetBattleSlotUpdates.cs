@@ -8,19 +8,19 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class PetBattleSlotUpdates : ServerPacket
 {
-	public List<BattlePetSlot> Slots = new();
-	public bool AutoSlotted;
-	public bool NewSlot;
-	public PetBattleSlotUpdates() : base(ServerOpcodes.PetBattleSlotUpdates) { }
+    public List<BattlePetSlot> Slots = new();
+    public bool AutoSlotted;
+    public bool NewSlot;
+    public PetBattleSlotUpdates() : base(ServerOpcodes.PetBattleSlotUpdates) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Slots.Count);
-		_worldPacket.WriteBit(NewSlot);
-		_worldPacket.WriteBit(AutoSlotted);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Slots.Count);
+        _worldPacket.WriteBit(NewSlot);
+        _worldPacket.WriteBit(AutoSlotted);
+        _worldPacket.FlushBits();
 
-		foreach (var slot in Slots)
-			slot.Write(_worldPacket);
-	}
+        foreach (var slot in Slots)
+            slot.Write(_worldPacket);
+    }
 }

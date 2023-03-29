@@ -11,24 +11,24 @@ namespace Scripts.Spells.Shaman;
 // 77472 Healing Wave
 [SpellScript(new uint[]
 {
-	8004, 77472
+    8004, 77472
 })]
 public class spell_sha_undulation : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var variableStore = Caster.VariableStorage;
-		var count = variableStore.GetValue("spell_sha_undulation", 0);
+    public void OnHit()
+    {
+        var variableStore = Caster.VariableStorage;
+        var count = variableStore.GetValue("spell_sha_undulation", 0);
 
-		if (count >= 3)
-		{
-			variableStore.Remove("spell_sha_undulation");
-			Caster.CastSpell(ShamanSpells.UNDULATION_PROC, true);
-		}
-		else
-		{
-			variableStore.Set("spell_sha_undulation", count + 1);
-			Caster.RemoveAura(ShamanSpells.UNDULATION_PROC);
-		}
-	}
+        if (count >= 3)
+        {
+            variableStore.Remove("spell_sha_undulation");
+            Caster.CastSpell(ShamanSpells.UNDULATION_PROC, true);
+        }
+        else
+        {
+            variableStore.Set("spell_sha_undulation", count + 1);
+            Caster.RemoveAura(ShamanSpells.UNDULATION_PROC);
+        }
+    }
 }

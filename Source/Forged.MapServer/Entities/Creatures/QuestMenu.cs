@@ -9,46 +9,46 @@ public class QuestMenu
 {
     private readonly List<QuestMenuItem> _questMenuItems = new();
 
-	public void AddMenuItem(uint QuestId, byte Icon)
-	{
-		if (Global.ObjectMgr.GetQuestTemplate(QuestId) == null)
-			return;
+    public void AddMenuItem(uint QuestId, byte Icon)
+    {
+        if (Global.ObjectMgr.GetQuestTemplate(QuestId) == null)
+            return;
 
-		QuestMenuItem questMenuItem = new()
-		{
-			QuestId = QuestId,
-			QuestIcon = Icon
-		};
+        QuestMenuItem questMenuItem = new()
+        {
+            QuestId = QuestId,
+            QuestIcon = Icon
+        };
 
-		_questMenuItems.Add(questMenuItem);
-	}
+        _questMenuItems.Add(questMenuItem);
+    }
 
-	public void ClearMenu()
-	{
-		_questMenuItems.Clear();
-	}
+    public void ClearMenu()
+    {
+        _questMenuItems.Clear();
+    }
 
-	public int GetMenuItemCount()
-	{
-		return _questMenuItems.Count;
-	}
+    public int GetMenuItemCount()
+    {
+        return _questMenuItems.Count;
+    }
 
-	public bool IsEmpty()
-	{
-		return _questMenuItems.Empty();
-	}
+    public bool IsEmpty()
+    {
+        return _questMenuItems.Empty();
+    }
 
-	public QuestMenuItem GetItem(int index)
-	{
-		return _questMenuItems.LookupByIndex(index);
-	}
+    public QuestMenuItem GetItem(int index)
+    {
+        return _questMenuItems.LookupByIndex(index);
+    }
 
     private bool HasItem(uint questId)
-	{
-		foreach (var item in _questMenuItems)
-			if (item.QuestId == questId)
-				return true;
+    {
+        foreach (var item in _questMenuItems)
+            if (item.QuestId == questId)
+                return true;
 
-		return false;
-	}
+        return false;
+    }
 }

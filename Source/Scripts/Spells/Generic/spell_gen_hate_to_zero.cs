@@ -11,16 +11,16 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_hate_to_zero : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		if (Caster.CanHaveThreatList)
-			Caster.GetThreatManager().ModifyThreatByPercent(HitUnit, -100);
-	}
+    private void HandleDummy(int effIndex)
+    {
+        if (Caster.CanHaveThreatList)
+            Caster.GetThreatManager().ModifyThreatByPercent(HitUnit, -100);
+    }
 }

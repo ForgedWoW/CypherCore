@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Equipment;
 
 internal class UseEquipmentSetResult : ServerPacket
 {
-	public ulong GUID; //Set Identifier
-	public byte Reason;
-	public UseEquipmentSetResult() : base(ServerOpcodes.UseEquipmentSetResult) { }
+    public ulong GUID; //Set Identifier
+    public byte Reason;
+    public UseEquipmentSetResult() : base(ServerOpcodes.UseEquipmentSetResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt64(GUID);
-		_worldPacket.WriteUInt8(Reason);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt64(GUID);
+        _worldPacket.WriteUInt8(Reason);
+    }
 }

@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class SetFactionNotAtWar : ClientPacket
 {
-	public byte FactionIndex;
-	public SetFactionNotAtWar(WorldPacket packet) : base(packet) { }
+    public byte FactionIndex;
+    public SetFactionNotAtWar(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		FactionIndex = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        FactionIndex = _worldPacket.ReadUInt8();
+    }
 }

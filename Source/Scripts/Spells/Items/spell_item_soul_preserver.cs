@@ -13,40 +13,40 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_soul_preserver : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var caster = eventInfo.Actor;
+        var caster = eventInfo.Actor;
 
-		switch (caster.Class)
-		{
-			case PlayerClass.Druid:
-				caster.CastSpell(caster, ItemSpellIds.SoulPreserverDruid, new CastSpellExtraArgs(aurEff));
+        switch (caster.Class)
+        {
+            case PlayerClass.Druid:
+                caster.CastSpell(caster, ItemSpellIds.SoulPreserverDruid, new CastSpellExtraArgs(aurEff));
 
-				break;
-			case PlayerClass.Paladin:
-				caster.CastSpell(caster, ItemSpellIds.SoulPreserverPaladin, new CastSpellExtraArgs(aurEff));
+                break;
+            case PlayerClass.Paladin:
+                caster.CastSpell(caster, ItemSpellIds.SoulPreserverPaladin, new CastSpellExtraArgs(aurEff));
 
-				break;
-			case PlayerClass.Priest:
-				caster.CastSpell(caster, ItemSpellIds.SoulPreserverPriest, new CastSpellExtraArgs(aurEff));
+                break;
+            case PlayerClass.Priest:
+                caster.CastSpell(caster, ItemSpellIds.SoulPreserverPriest, new CastSpellExtraArgs(aurEff));
 
-				break;
-			case PlayerClass.Shaman:
-				caster.CastSpell(caster, ItemSpellIds.SoulPreserverShaman, new CastSpellExtraArgs(aurEff));
+                break;
+            case PlayerClass.Shaman:
+                caster.CastSpell(caster, ItemSpellIds.SoulPreserverShaman, new CastSpellExtraArgs(aurEff));
 
-				break;
-			default:
-				break;
-		}
-	}
+                break;
+            default:
+                break;
+        }
+    }
 }

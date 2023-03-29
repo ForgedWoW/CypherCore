@@ -10,26 +10,26 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(217200)]
 public class spell_hun_barbed_shot : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			caster.CastSpell(caster, HunterSpells.BARBED_SHOT_PLAYERAURA, true);
+        if (caster != null)
+        {
+            caster.CastSpell(caster, HunterSpells.BARBED_SHOT_PLAYERAURA, true);
 
-			if (caster.IsPlayer)
-			{
-				Unit pet = caster.GetGuardianPet();
+            if (caster.IsPlayer)
+            {
+                Unit pet = caster.GetGuardianPet();
 
-				if (pet != null)
-				{
-					if (!pet)
-						return;
+                if (pet != null)
+                {
+                    if (!pet)
+                        return;
 
-					caster.CastSpell(pet, HunterSpells.BARBED_SHOT_PETAURA, true);
-				}
-			}
-		}
-	}
+                    caster.CastSpell(pet, HunterSpells.BARBED_SHOT_PETAURA, true);
+                }
+            }
+        }
+    }
 }

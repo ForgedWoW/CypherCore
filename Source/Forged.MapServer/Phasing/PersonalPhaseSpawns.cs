@@ -9,14 +9,14 @@ namespace Forged.MapServer.Phasing;
 
 internal class PersonalPhaseSpawns
 {
-	public static TimeSpan DELETE_TIME_DEFAULT = TimeSpan.FromMinutes(1);
+    public static TimeSpan DELETE_TIME_DEFAULT = TimeSpan.FromMinutes(1);
 
-	public List<WorldObject> Objects = new();
-	public List<ushort> Grids = new();
-	public TimeSpan? DurationRemaining;
+    public List<WorldObject> Objects = new();
+    public List<ushort> Grids = new();
+    public TimeSpan? DurationRemaining;
 
-	public bool IsEmpty()
-	{
-		return Objects.Empty() && Grids.Empty();
-	}
+    public bool IsEmpty()
+    {
+        return Objects.Empty() && Grids.Empty();
+    }
 }

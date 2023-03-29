@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum GossipOptionStatus
 {
-	Available = 0,
-	Unavailable = 1,
-	Locked = 2,
-	AlreadyComplete = 3
+    Available = 0,
+    Unavailable = 1,
+    Locked = 2,
+    AlreadyComplete = 3
 }

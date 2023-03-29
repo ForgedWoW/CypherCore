@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Trade;
 
 public class BusyTrade : ClientPacket
 {
-	public BusyTrade(WorldPacket packet) : base(packet) { }
+    public BusyTrade(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

@@ -12,19 +12,19 @@ namespace Scripts.Spells.Quest;
 [Script] // 48681 - Summon Silverbrook Worgen
 internal class spell_q12308_escape_from_silverbrook_summon_worgen : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new DestinationTargetSelectHandler(ModDest, 0, Targets.DestCasterSummon));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new DestinationTargetSelectHandler(ModDest, 0, Targets.DestCasterSummon));
+    }
 
-	private void ModDest(SpellDestination dest)
-	{
-		var dist = GetEffectInfo(0).CalcRadius(Caster);
-		var angle = RandomHelper.FRand(0.75f, 1.25f) * MathFunctions.PI;
+    private void ModDest(SpellDestination dest)
+    {
+        var dist = GetEffectInfo(0).CalcRadius(Caster);
+        var angle = RandomHelper.FRand(0.75f, 1.25f) * MathFunctions.PI;
 
-		var pos = Caster.GetNearPosition(dist, angle);
-		dest.Relocate(pos);
-	}
+        var pos = Caster.GetNearPosition(dist, angle);
+        dest.Relocate(pos);
+    }
 }

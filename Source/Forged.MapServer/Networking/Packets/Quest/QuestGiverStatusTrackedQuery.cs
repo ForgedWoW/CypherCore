@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class QuestGiverStatusTrackedQuery : ClientPacket
 {
-	public List<ObjectGuid> QuestGiverGUIDs = new();
+    public List<ObjectGuid> QuestGiverGUIDs = new();
 
-	public QuestGiverStatusTrackedQuery(WorldPacket packet) : base(packet) { }
+    public QuestGiverStatusTrackedQuery(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var guidCount = _worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        var guidCount = _worldPacket.ReadUInt32();
 
-		for (uint i = 0; i < guidCount; ++i)
-			QuestGiverGUIDs.Add(_worldPacket.ReadPackedGuid());
-	}
+        for (uint i = 0; i < guidCount; ++i)
+            QuestGiverGUIDs.Add(_worldPacket.ReadPackedGuid());
+    }
 }

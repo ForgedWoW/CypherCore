@@ -14,28 +14,28 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(204488)]
 public class spell_warr_focused_rage_prot : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.SpellInfo.Id == WarriorSpells.SHIELD_SLAM;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.SpellInfo.Id == WarriorSpells.SHIELD_SLAM;
+    }
 }
 
 [SpellScript(204488)]
 public class spell_warr_focused_rage_prot_SpellScript : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			if (caster.HasAura(WarriorSpells.VENGEANCE_AURA))
-				caster.CastSpell(caster, WarriorSpells.VENGEANCE_IGNORE_PAIN, true);
-	}
+        if (caster != null)
+            if (caster.HasAura(WarriorSpells.VENGEANCE_AURA))
+                caster.CastSpell(caster, WarriorSpells.VENGEANCE_IGNORE_PAIN, true);
+    }
 }

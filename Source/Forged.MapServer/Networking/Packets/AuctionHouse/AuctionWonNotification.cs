@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionWonNotification : ServerPacket
 {
-	public AuctionBidderNotification Info;
+    public AuctionBidderNotification Info;
 
-	public AuctionWonNotification() : base(ServerOpcodes.AuctionWonNotification) { }
+    public AuctionWonNotification() : base(ServerOpcodes.AuctionWonNotification) { }
 
-	public override void Write()
-	{
-		Info.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        Info.Write(_worldPacket);
+    }
 }

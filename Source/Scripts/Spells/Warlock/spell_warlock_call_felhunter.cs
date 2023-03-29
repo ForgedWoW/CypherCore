@@ -11,16 +11,16 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(212619)]
 public class spell_warlock_call_felhunter : SpellScript, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		var caster = Caster;
+    public SpellCastResult CheckCast()
+    {
+        var caster = Caster;
 
-		if (caster == null || !caster.AsPlayer)
-			return SpellCastResult.BadTargets;
+        if (caster == null || !caster.AsPlayer)
+            return SpellCastResult.BadTargets;
 
-		if (caster.AsPlayer.CurrentPet && caster.AsPlayer.CurrentPet.Entry == 417)
-			return SpellCastResult.CantDoThatRightNow;
+        if (caster.AsPlayer.CurrentPet && caster.AsPlayer.CurrentPet.Entry == 417)
+            return SpellCastResult.CantDoThatRightNow;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

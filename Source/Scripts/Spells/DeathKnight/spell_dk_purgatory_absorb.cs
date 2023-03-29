@@ -14,41 +14,41 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(114556)]
 public class spell_dk_purgatory_absorb : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+        AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
+    }
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		amount.Value = -1;
-	}
+    private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        amount.Value = -1;
+    }
 
-	private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
-	{
-		var target = Target;
+    private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
+    {
+        var target = Target;
 
-		if (dmgInfo.Damage < target.Health)
-			return absorbAmount;
+        if (dmgInfo.Damage < target.Health)
+            return absorbAmount;
 
-		// No damage received under Shroud of Purgatory
-		if (target.AsPlayer.HasAura(DeathKnightSpells.SHROUD_OF_PURGATORY))
-			return dmgInfo.Damage;
+        // No damage received under Shroud of Purgatory
+        if (target.AsPlayer.HasAura(DeathKnightSpells.SHROUD_OF_PURGATORY))
+            return dmgInfo.Damage;
 
-		if (target.AsPlayer.HasAura(DeathKnightSpells.PERDITION))
-			return absorbAmount;
+        if (target.AsPlayer.HasAura(DeathKnightSpells.PERDITION))
+            return absorbAmount;
 
-		var bp = dmgInfo.Damage;
-		var args = new CastSpellExtraArgs();
-		args.AddSpellMod(SpellValueMod.BasePoint0, (int)bp);
-		args.SetTriggerFlags(TriggerCastFlags.FullMask);
-		target.CastSpell(target, DeathKnightSpells.SHROUD_OF_PURGATORY, args);
-		target.CastSpell(target, DeathKnightSpells.PERDITION, TriggerCastFlags.FullMask);
-		target.SetHealth(1);
+        var bp = dmgInfo.Damage;
+        var args = new CastSpellExtraArgs();
+        args.AddSpellMod(SpellValueMod.BasePoint0, (int)bp);
+        args.SetTriggerFlags(TriggerCastFlags.FullMask);
+        target.CastSpell(target, DeathKnightSpells.SHROUD_OF_PURGATORY, args);
+        target.CastSpell(target, DeathKnightSpells.PERDITION, TriggerCastFlags.FullMask);
+        target.SetHealth(1);
 
-		return dmgInfo.Damage;
-	}
+        return dmgInfo.Damage;
+    }
 }

@@ -9,11 +9,11 @@ namespace Scripts.Spells.Priest;
 [SpellScript(586)]
 public class spell_pri_fade : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
+    public void OnHit()
+    {
+        var caster = Caster;
 
-		if (caster.HasAura(159628)) // Glyph of Mass dispel
-			caster.CastSpell(caster, 159630, true);
-	}
+        if (caster.HasAura(159628)) // Glyph of Mass dispel
+            caster.CastSpell(caster, 159630, true);
+    }
 }

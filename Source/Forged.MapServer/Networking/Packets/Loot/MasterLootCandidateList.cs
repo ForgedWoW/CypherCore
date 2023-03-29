@@ -9,14 +9,14 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class MasterLootCandidateList : ServerPacket
 {
-	public List<ObjectGuid> Players = new();
-	public ObjectGuid LootObj;
-	public MasterLootCandidateList() : base(ServerOpcodes.MasterLootCandidateList, ConnectionType.Instance) { }
+    public List<ObjectGuid> Players = new();
+    public ObjectGuid LootObj;
+    public MasterLootCandidateList() : base(ServerOpcodes.MasterLootCandidateList, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(LootObj);
-		_worldPacket.WriteInt32(Players.Count);
-		Players.ForEach(guid => _worldPacket.WritePackedGuid(guid));
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(LootObj);
+        _worldPacket.WriteInt32(Players.Count);
+        Players.ForEach(guid => _worldPacket.WritePackedGuid(guid));
+    }
 }

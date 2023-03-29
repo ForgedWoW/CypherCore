@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum BanReturn
 {
-	Success,
-	SyntaxError,
-	Notfound,
-	Exists
+    Success,
+    SyntaxError,
+    Notfound,
+    Exists
 }

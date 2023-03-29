@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonCancelConstruction : ClientPacket
 {
-	public ObjectGuid NpcGUID;
-	public uint PlotInstanceID;
-	public GarrisonCancelConstruction(WorldPacket packet) : base(packet) { }
+    public ObjectGuid NpcGUID;
+    public uint PlotInstanceID;
+    public GarrisonCancelConstruction(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		NpcGUID = _worldPacket.ReadPackedGuid();
-		PlotInstanceID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        NpcGUID = _worldPacket.ReadPackedGuid();
+        PlotInstanceID = _worldPacket.ReadUInt32();
+    }
 }

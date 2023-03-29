@@ -10,15 +10,15 @@ public class StandStateUpdate : ServerPacket
     private readonly uint AnimKitID;
     private readonly UnitStandStateType State;
 
-	public StandStateUpdate(UnitStandStateType state, uint animKitId) : base(ServerOpcodes.StandStateUpdate)
-	{
-		State = state;
-		AnimKitID = animKitId;
-	}
+    public StandStateUpdate(UnitStandStateType state, uint animKitId) : base(ServerOpcodes.StandStateUpdate)
+    {
+        State = state;
+        AnimKitID = animKitId;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(AnimKitID);
-		_worldPacket.WriteUInt8((byte)State);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(AnimKitID);
+        _worldPacket.WriteUInt8((byte)State);
+    }
 }

@@ -8,29 +8,29 @@ namespace Scripts.Spells.Druid;
 
 [SpellScript(new uint[]
 {
-	190984, 194153
+    190984, 194153
 })]
 public class spell_dru_blessing_of_elune : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
+    public void OnHit()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var power = HitDamage;
+        var power = HitDamage;
 
-		var aura = caster.GetAura(202737);
+        var aura = caster.GetAura(202737);
 
-		if (aura != null)
-		{
-			var aurEff = aura.GetEffect(0);
+        if (aura != null)
+        {
+            var aurEff = aura.GetEffect(0);
 
-			if (aurEff != null)
-				power += MathFunctions.CalculatePct(power, aurEff.Amount);
-		}
+            if (aurEff != null)
+                power += MathFunctions.CalculatePct(power, aurEff.Amount);
+        }
 
-		HitDamage = power;
-	}
+        HitDamage = power;
+    }
 }

@@ -5,6 +5,6 @@ namespace Forged.MapServer.DataStorage.Structs.K;
 
 public sealed class KeyChainRecord
 {
-	public uint Id;
-	public byte[] Key = new byte[32];
+    public uint Id;
+    public byte[] Key = new byte[32];
 }

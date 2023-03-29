@@ -11,20 +11,20 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_pvp_trinket : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		var caster = Caster.AsPlayer;
+    public void AfterCast()
+    {
+        var caster = Caster.AsPlayer;
 
-		switch (caster.EffectiveTeam)
-		{
-			case TeamFaction.Alliance:
-				caster.CastSpell(caster, GenericSpellIds.PvpTrinketAlliance, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        switch (caster.EffectiveTeam)
+        {
+            case TeamFaction.Alliance:
+                caster.CastSpell(caster, GenericSpellIds.PvpTrinketAlliance, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
-				break;
-			case TeamFaction.Horde:
-				caster.CastSpell(caster, GenericSpellIds.PvpTrinketHorde, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+                break;
+            case TeamFaction.Horde:
+                caster.CastSpell(caster, GenericSpellIds.PvpTrinketHorde, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
-				break;
-		}
-	}
+                break;
+        }
+    }
 }

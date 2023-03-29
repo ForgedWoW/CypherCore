@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Toy;
 
 internal class ToyClearFanfare : ClientPacket
 {
-	public uint ItemID;
-	public ToyClearFanfare(WorldPacket packet) : base(packet) { }
+    public uint ItemID;
+    public ToyClearFanfare(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ItemID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        ItemID = _worldPacket.ReadUInt32();
+    }
 }

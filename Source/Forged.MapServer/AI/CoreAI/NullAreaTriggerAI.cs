@@ -7,5 +7,5 @@ namespace Forged.MapServer.AI.CoreAI;
 
 internal class NullAreaTriggerAI : AreaTriggerAI
 {
-	public NullAreaTriggerAI(AreaTrigger areaTrigger) : base(areaTrigger) { }
+    public NullAreaTriggerAI(AreaTrigger areaTrigger) : base(areaTrigger) { }
 }

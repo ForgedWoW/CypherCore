@@ -8,22 +8,22 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MonsterSplineUnknown901
 {
-	public Array<Inner> Data = new(16);
+    public Array<Inner> Data = new(16);
 
-	public void Write(WorldPacket data)
-	{
-		foreach (var unkInner in Data)
-		{
-			data.WriteInt32(unkInner.Unknown_1);
-			unkInner.Visual.Write(data);
-			data.WriteUInt32(unkInner.Unknown_4);
-		}
-	}
+    public void Write(WorldPacket data)
+    {
+        foreach (var unkInner in Data)
+        {
+            data.WriteInt32(unkInner.Unknown_1);
+            unkInner.Visual.Write(data);
+            data.WriteUInt32(unkInner.Unknown_4);
+        }
+    }
 
-	public struct Inner
-	{
-		public int Unknown_1;
-		public SpellCastVisual Visual;
-		public uint Unknown_4;
-	}
+    public struct Inner
+    {
+        public int Unknown_1;
+        public SpellCastVisual Visual;
+        public uint Unknown_4;
+    }
 }

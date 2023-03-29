@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum PlayerRestState
 {
-	Rested = 1,
-	Normal = 2,
-	RAFLinked = 6
+    Rested = 1,
+    Normal = 2,
+    RAFLinked = 6
 }

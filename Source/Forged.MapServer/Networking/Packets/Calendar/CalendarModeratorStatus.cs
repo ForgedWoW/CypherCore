@@ -8,19 +8,19 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarModeratorStatus : ServerPacket
 {
-	public ObjectGuid InviteGuid;
-	public ulong EventID;
-	public CalendarInviteStatus Status;
-	public bool ClearPending;
-	public CalendarModeratorStatus() : base(ServerOpcodes.CalendarModeratorStatus) { }
+    public ObjectGuid InviteGuid;
+    public ulong EventID;
+    public CalendarInviteStatus Status;
+    public bool ClearPending;
+    public CalendarModeratorStatus() : base(ServerOpcodes.CalendarModeratorStatus) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(InviteGuid);
-		_worldPacket.WriteUInt64(EventID);
-		_worldPacket.WriteUInt8((byte)Status);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(InviteGuid);
+        _worldPacket.WriteUInt64(EventID);
+        _worldPacket.WriteUInt8((byte)Status);
 
-		_worldPacket.WriteBit(ClearPending);
-		_worldPacket.FlushBits();
-	}
+        _worldPacket.WriteBit(ClearPending);
+        _worldPacket.FlushBits();
+    }
 }

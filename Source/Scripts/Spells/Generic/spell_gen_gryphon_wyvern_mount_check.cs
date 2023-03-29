@@ -12,24 +12,24 @@ namespace Scripts.Spells.Generic;
 [Script] // 69641 - Gryphon/Wyvern Pet - Mounting Check Aura
 internal class spell_gen_gryphon_wyvern_mount_check : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
+    }
 
-	private void HandleEffectPeriodic(AuraEffect aurEff)
-	{
-		var target = Target;
-		var owner = target.OwnerUnit;
+    private void HandleEffectPeriodic(AuraEffect aurEff)
+    {
+        var target = Target;
+        var owner = target.OwnerUnit;
 
-		if (owner == null)
-			return;
+        if (owner == null)
+            return;
 
-		if (owner.IsMounted)
-			target.SetDisableGravity(true);
-		else
-			target.SetDisableGravity(false);
-	}
+        if (owner.IsMounted)
+            target.SetDisableGravity(true);
+        else
+            target.SetDisableGravity(false);
+    }
 }

@@ -9,20 +9,20 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class SendRaidTargetUpdateAll : ServerPacket
 {
-	public sbyte PartyIndex;
-	public Dictionary<byte, ObjectGuid> TargetIcons = new();
-	public SendRaidTargetUpdateAll() : base(ServerOpcodes.SendRaidTargetUpdateAll) { }
+    public sbyte PartyIndex;
+    public Dictionary<byte, ObjectGuid> TargetIcons = new();
+    public SendRaidTargetUpdateAll() : base(ServerOpcodes.SendRaidTargetUpdateAll) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt8(PartyIndex);
+    public override void Write()
+    {
+        _worldPacket.WriteInt8(PartyIndex);
 
-		_worldPacket.WriteInt32(TargetIcons.Count);
+        _worldPacket.WriteInt32(TargetIcons.Count);
 
-		foreach (var pair in TargetIcons)
-		{
-			_worldPacket.WritePackedGuid(pair.Value);
-			_worldPacket.WriteUInt8(pair.Key);
-		}
-	}
+        foreach (var pair in TargetIcons)
+        {
+            _worldPacket.WritePackedGuid(pair.Value);
+            _worldPacket.WriteUInt8(pair.Key);
+        }
+    }
 }

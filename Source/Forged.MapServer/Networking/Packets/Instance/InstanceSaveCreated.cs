@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class InstanceSaveCreated : ServerPacket
 {
-	public bool Gm;
-	public InstanceSaveCreated() : base(ServerOpcodes.InstanceSaveCreated) { }
+    public bool Gm;
+    public InstanceSaveCreated() : base(ServerOpcodes.InstanceSaveCreated) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(Gm);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBit(Gm);
+        _worldPacket.FlushBits();
+    }
 }

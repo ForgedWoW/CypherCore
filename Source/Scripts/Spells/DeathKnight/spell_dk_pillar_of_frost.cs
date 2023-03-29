@@ -12,27 +12,27 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(51271)]
 public class spell_dk_pillar_of_frost : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModTotalStatPercentage, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModTotalStatPercentage, AuraEffectHandleModes.Real));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var _player = Target.AsPlayer;
+    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var _player = Target.AsPlayer;
 
-		if (_player != null)
-			_player.ApplySpellImmune(DeathKnightSpells.PILLAR_OF_FROST, SpellImmunity.Mechanic, Mechanics.Knockout, false);
-	}
+        if (_player != null)
+            _player.ApplySpellImmune(DeathKnightSpells.PILLAR_OF_FROST, SpellImmunity.Mechanic, Mechanics.Knockout, false);
+    }
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var _player = Target.AsPlayer;
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var _player = Target.AsPlayer;
 
-		if (_player != null)
-			_player.ApplySpellImmune(DeathKnightSpells.PILLAR_OF_FROST, SpellImmunity.Mechanic, Mechanics.Knockout, true);
-	}
+        if (_player != null)
+            _player.ApplySpellImmune(DeathKnightSpells.PILLAR_OF_FROST, SpellImmunity.Mechanic, Mechanics.Knockout, true);
+    }
 }

@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IWorld;
 
 public interface IWorldOnStartup : IScriptObject
 {
-	void OnStartup();
+    void OnStartup();
 }

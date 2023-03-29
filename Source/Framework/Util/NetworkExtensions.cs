@@ -6,19 +6,19 @@ using System.Net;
 
 public static class NetworkExtensions
 {
-	public static IPAddress GetNetworkAddress(this IPAddress address, IPAddress subnetMask)
-	{
-		var ipAdressBytes = address.GetAddressBytes();
-		var subnetMaskBytes = subnetMask.GetAddressBytes();
+    public static IPAddress GetNetworkAddress(this IPAddress address, IPAddress subnetMask)
+    {
+        var ipAdressBytes = address.GetAddressBytes();
+        var subnetMaskBytes = subnetMask.GetAddressBytes();
 
-		if (ipAdressBytes.Length != subnetMaskBytes.Length)
-			throw new ArgumentException("Lengths of IP address and subnet mask do not match.");
+        if (ipAdressBytes.Length != subnetMaskBytes.Length)
+            throw new ArgumentException("Lengths of IP address and subnet mask do not match.");
 
-		var broadcastAddress = new byte[ipAdressBytes.Length];
+        var broadcastAddress = new byte[ipAdressBytes.Length];
 
-		for (var i = 0; i < broadcastAddress.Length; i++)
-			broadcastAddress[i] = (byte)(ipAdressBytes[i] & (subnetMaskBytes[i]));
+        for (var i = 0; i < broadcastAddress.Length; i++)
+            broadcastAddress[i] = (byte)(ipAdressBytes[i] & (subnetMaskBytes[i]));
 
-		return new IPAddress(broadcastAddress);
-	}
+        return new IPAddress(broadcastAddress);
+    }
 }

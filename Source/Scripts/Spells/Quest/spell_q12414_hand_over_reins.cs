@@ -11,19 +11,19 @@ namespace Scripts.Spells.Quest;
 [Script] // 49285 - Hand Over Reins
 internal class spell_q12414_hand_over_reins : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var caster = Caster.AsCreature;
-		HitUnit.ExitVehicle();
+    private void HandleScript(int effIndex)
+    {
+        var caster = Caster.AsCreature;
+        HitUnit.ExitVehicle();
 
-		if (caster)
-			caster.DespawnOrUnsummon();
-	}
+        if (caster)
+            caster.DespawnOrUnsummon();
+    }
 }

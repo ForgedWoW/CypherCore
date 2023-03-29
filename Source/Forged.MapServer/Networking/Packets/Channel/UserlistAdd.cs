@@ -9,22 +9,22 @@ namespace Forged.MapServer.Networking.Packets.Channel;
 
 internal class UserlistAdd : ServerPacket
 {
-	public ObjectGuid AddedUserGUID;
-	public ChannelFlags ChannelFlags;
-	public ChannelMemberFlags UserFlags;
-	public uint ChannelID;
-	public string ChannelName;
-	public UserlistAdd() : base(ServerOpcodes.UserlistAdd) { }
+    public ObjectGuid AddedUserGUID;
+    public ChannelFlags ChannelFlags;
+    public ChannelMemberFlags UserFlags;
+    public uint ChannelID;
+    public string ChannelName;
+    public UserlistAdd() : base(ServerOpcodes.UserlistAdd) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(AddedUserGUID);
-		_worldPacket.WriteUInt8((byte)UserFlags);
-		_worldPacket.WriteUInt32((uint)ChannelFlags);
-		_worldPacket.WriteUInt32(ChannelID);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(AddedUserGUID);
+        _worldPacket.WriteUInt8((byte)UserFlags);
+        _worldPacket.WriteUInt32((uint)ChannelFlags);
+        _worldPacket.WriteUInt32(ChannelID);
 
-		_worldPacket.WriteBits(ChannelName.GetByteCount(), 7);
-		_worldPacket.FlushBits();
-		_worldPacket.WriteString(ChannelName);
-	}
+        _worldPacket.WriteBits(ChannelName.GetByteCount(), 7);
+        _worldPacket.FlushBits();
+        _worldPacket.WriteString(ChannelName);
+    }
 }

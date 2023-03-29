@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Toy;
 
 internal class UseToy : ClientPacket
 {
-	public SpellCastRequest Cast = new();
-	public UseToy(WorldPacket packet) : base(packet) { }
+    public SpellCastRequest Cast = new();
+    public UseToy(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Cast.Read(_worldPacket);
-	}
+    public override void Read()
+    {
+        Cast.Read(_worldPacket);
+    }
 }

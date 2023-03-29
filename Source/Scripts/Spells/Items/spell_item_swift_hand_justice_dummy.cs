@@ -13,21 +13,21 @@ namespace Scripts.Spells.Items;
 [Script] // 59906 - Swift Hand of Justice Dummy
 internal class spell_item_swift_hand_justice_dummy : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var caster = eventInfo.Actor;
-		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, (int)caster.CountPctFromMaxHealth(aurEff.Amount));
-		caster.CastSpell((Unit)null, ItemSpellIds.SwiftHandOfJusticeHeal, args);
-	}
+        var caster = eventInfo.Actor;
+        CastSpellExtraArgs args = new(aurEff);
+        args.AddSpellMod(SpellValueMod.BasePoint0, (int)caster.CountPctFromMaxHealth(aurEff.Amount));
+        caster.CastSpell((Unit)null, ItemSpellIds.SwiftHandOfJusticeHeal, args);
+    }
 }

@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum HeirloomItemFlags
 {
-	None = 0x00,
-	ShowOnlyIfKnown = 0x01,
-	Pvp = 0x02
+    None = 0x00,
+    ShowOnlyIfKnown = 0x01,
+    Pvp = 0x02
 }

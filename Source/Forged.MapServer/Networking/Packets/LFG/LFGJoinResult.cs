@@ -9,30 +9,30 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class LFGJoinResult : ServerPacket
 {
-	public RideTicket Ticket = new();
-	public byte Result;
-	public byte ResultDetail;
-	public List<LFGBlackListPkt> BlackList = new();
-	public List<string> BlackListNames = new();
-	public LFGJoinResult() : base(ServerOpcodes.LfgJoinResult) { }
+    public RideTicket Ticket = new();
+    public byte Result;
+    public byte ResultDetail;
+    public List<LFGBlackListPkt> BlackList = new();
+    public List<string> BlackListNames = new();
+    public LFGJoinResult() : base(ServerOpcodes.LfgJoinResult) { }
 
-	public override void Write()
-	{
-		Ticket.Write(_worldPacket);
+    public override void Write()
+    {
+        Ticket.Write(_worldPacket);
 
-		_worldPacket.WriteUInt8(Result);
-		_worldPacket.WriteUInt8(ResultDetail);
-		_worldPacket.WriteInt32(BlackList.Count);
-		_worldPacket.WriteInt32(BlackListNames.Count);
+        _worldPacket.WriteUInt8(Result);
+        _worldPacket.WriteUInt8(ResultDetail);
+        _worldPacket.WriteInt32(BlackList.Count);
+        _worldPacket.WriteInt32(BlackListNames.Count);
 
-		foreach (var blackList in BlackList)
-			blackList.Write(_worldPacket);
+        foreach (var blackList in BlackList)
+            blackList.Write(_worldPacket);
 
-		foreach (var str in BlackListNames)
-			_worldPacket.WriteBits(str.GetByteCount() + 1, 24);
+        foreach (var str in BlackListNames)
+            _worldPacket.WriteBits(str.GetByteCount() + 1, 24);
 
-		foreach (var str in BlackListNames)
-			if (!str.IsEmpty())
-				_worldPacket.WriteCString(str);
-	}
+        foreach (var str in BlackListNames)
+            if (!str.IsEmpty())
+                _worldPacket.WriteCString(str);
+    }
 }

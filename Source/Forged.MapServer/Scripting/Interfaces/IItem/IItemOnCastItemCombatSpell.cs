@@ -10,5 +10,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IItem;
 
 public interface IItemOnCastItemCombatSpell : IScriptObject
 {
-	bool OnCastItemCombatSpell(Player player, Unit victim, SpellInfo spellInfo, Item item);
+    bool OnCastItemCombatSpell(Player player, Unit victim, SpellInfo spellInfo, Item item);
 }

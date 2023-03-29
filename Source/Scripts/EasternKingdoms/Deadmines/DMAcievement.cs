@@ -5,5 +5,5 @@ namespace Scripts.EasternKingdoms.Deadmines;
 
 public static class DMAcievement
 {
-	public const uint ACHIEVE_RAT_PACK = 5367;
+    public const uint ACHIEVE_RAT_PACK = 5367;
 }

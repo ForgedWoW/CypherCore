@@ -12,28 +12,28 @@ namespace Scripts.Spells.DemonHunter;
 [Script]
 public class at_demon_hunter_mana_rift : AreaTriggerScript, IAreaTriggerOnUnitExit
 {
-	public void OnUnitExit(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitExit(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		var spellProto = Global.SpellMgr.GetSpellInfo(DemonHunterSpells.MANA_RIFT_SPELL, Difficulty.None);
+        var spellProto = Global.SpellMgr.GetSpellInfo(DemonHunterSpells.MANA_RIFT_SPELL, Difficulty.None);
 
-		if (spellProto == null)
-			return;
+        if (spellProto == null)
+            return;
 
-		if (At.IsRemoved)
-			if (caster.IsValidAttackTarget(unit))
-			{
-				var hpBp = unit.CountPctFromMaxHealth(spellProto.GetEffect(1).BasePoints);
-				var manaBp = unit.CountPctFromMaxPower(PowerType.Mana, spellProto.GetEffect(2).BasePoints);
-				var args = new CastSpellExtraArgs();
-				args.AddSpellMod(SpellValueMod.BasePoint0, hpBp);
-				args.AddSpellMod(SpellValueMod.BasePoint0, manaBp);
-				args.SetTriggerFlags(TriggerCastFlags.FullMask);
-				caster.CastSpell(unit, DemonHunterSpells.MANA_RIFT_DAMAGE, args);
-			}
-	}
+        if (At.IsRemoved)
+            if (caster.IsValidAttackTarget(unit))
+            {
+                var hpBp = unit.CountPctFromMaxHealth(spellProto.GetEffect(1).BasePoints);
+                var manaBp = unit.CountPctFromMaxPower(PowerType.Mana, spellProto.GetEffect(2).BasePoints);
+                var args = new CastSpellExtraArgs();
+                args.AddSpellMod(SpellValueMod.BasePoint0, hpBp);
+                args.AddSpellMod(SpellValueMod.BasePoint0, manaBp);
+                args.SetTriggerFlags(TriggerCastFlags.FullMask);
+                caster.CastSpell(unit, DemonHunterSpells.MANA_RIFT_DAMAGE, args);
+            }
+    }
 }

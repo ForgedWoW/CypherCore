@@ -11,19 +11,19 @@ namespace Forged.MapServer.Scripting.BaseScripts;
 
 public class MapScript<T> : ScriptObject where T : Map
 {
-	private readonly MapRecord _mapEntry;
+    private readonly MapRecord _mapEntry;
 
-	public MapScript(string name, uint mapId) : base(name)
-	{
-		_mapEntry = CliDB.MapStorage.LookupByKey(mapId);
+    public MapScript(string name, uint mapId) : base(name)
+    {
+        _mapEntry = CliDB.MapStorage.LookupByKey(mapId);
 
-		if (_mapEntry == null)
-			Log.Logger.Error("Invalid MapScript for {0}; no such map ID.", mapId);
-	}
+        if (_mapEntry == null)
+            Log.Logger.Error("Invalid MapScript for {0}; no such map ID.", mapId);
+    }
 
-	// Gets the MapEntry structure associated with this script. Can return NULL.
-	public MapRecord GetEntry()
-	{
-		return _mapEntry;
-	}
+    // Gets the MapEntry structure associated with this script. Can return NULL.
+    public MapRecord GetEntry()
+    {
+        return _mapEntry;
+    }
 }

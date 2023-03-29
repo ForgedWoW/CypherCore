@@ -13,21 +13,21 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 59057 - Rime
 internal class spell_dk_rime : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraCheckEffectProcHandler(CheckProc, 0, AuraType.ProcTriggerSpell));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraCheckEffectProcHandler(CheckProc, 0, AuraType.ProcTriggerSpell));
+    }
 
-	private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		var chance = (double)SpellInfo.GetEffect(1).CalcValue(Target);
+    private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        var chance = (double)SpellInfo.GetEffect(1).CalcValue(Target);
 
-		if (eventInfo.SpellInfo.Id == DeathKnightSpells.FROSTSCYTHE)
-			chance /= 2.0f;
+        if (eventInfo.SpellInfo.Id == DeathKnightSpells.FROSTSCYTHE)
+            chance /= 2.0f;
 
-		return RandomHelper.randChance(chance);
-	}
+        return RandomHelper.randChance(chance);
+    }
 }

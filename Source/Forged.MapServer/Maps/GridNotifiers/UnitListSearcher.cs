@@ -18,37 +18,37 @@ public class UnitListSearcher : IGridNotifierCreature, IGridNotifierPlayer
     private readonly List<Unit> _objects;
     private readonly ICheck<Unit> _check;
 
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public UnitListSearcher(WorldObject searcher, List<Unit> objects, ICheck<Unit> check, GridType gridType)
-	{
-		_phaseShift = searcher.PhaseShift;
-		_objects = objects;
-		_check = check;
-		GridType = gridType;
-	}
+    public UnitListSearcher(WorldObject searcher, List<Unit> objects, ICheck<Unit> check, GridType gridType)
+    {
+        _phaseShift = searcher.PhaseShift;
+        _objects = objects;
+        _check = check;
+        GridType = gridType;
+    }
 
-	public void Visit(IList<Creature> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var creature = objs[i];
+    public void Visit(IList<Creature> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var creature = objs[i];
 
-			if (creature.InSamePhase(_phaseShift))
-				if (_check.Invoke(creature))
-					_objects.Add(creature);
-		}
-	}
+            if (creature.InSamePhase(_phaseShift))
+                if (_check.Invoke(creature))
+                    _objects.Add(creature);
+        }
+    }
 
-	public void Visit(IList<Player> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var player = objs[i];
+    public void Visit(IList<Player> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var player = objs[i];
 
-			if (player.InSamePhase(_phaseShift))
-				if (_check.Invoke(player))
-					_objects.Add(player);
-		}
-	}
+            if (player.InSamePhase(_phaseShift))
+                if (_check.Invoke(player))
+                    _objects.Add(player);
+        }
+    }
 }

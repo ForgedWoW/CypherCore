@@ -11,13 +11,13 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(108558)]
 public class spell_warlock_nightfall : AuraScript, IAuraOnProc, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return (eventInfo).SpellInfo.Id == WarlockSpells.CORRUPTION_DOT;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return (eventInfo).SpellInfo.Id == WarlockSpells.CORRUPTION_DOT;
+    }
 
-	public void OnProc(ProcEventInfo UnnamedParameter)
-	{
-		Caster.CastSpell(Caster, WarlockSpells.NIGHTFALL_BUFF, true);
-	}
+    public void OnProc(ProcEventInfo UnnamedParameter)
+    {
+        Caster.CastSpell(Caster, WarlockSpells.NIGHTFALL_BUFF, true);
+    }
 }

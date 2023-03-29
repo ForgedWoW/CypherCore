@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class WorldPortResponse : ClientPacket
 {
-	public WorldPortResponse(WorldPacket packet) : base(packet) { }
+    public WorldPortResponse(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

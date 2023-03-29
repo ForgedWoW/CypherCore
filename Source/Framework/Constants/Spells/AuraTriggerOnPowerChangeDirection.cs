@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum AuraTriggerOnPowerChangeDirection
 {
-	Gain = 0,
-	Loss = 1
+    Gain = 0,
+    Loss = 1
 }

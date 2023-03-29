@@ -12,50 +12,50 @@ namespace Scripts.Spells.Rogue;
 [Script] // 185438 - Shadowstrike
 internal class spell_rog_shadowstrike : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-	private bool _hasPremeditationAura = false;
+    private bool _hasPremeditationAura = false;
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public SpellCastResult CheckCast()
-	{
-		// Because the premeditation aura is removed when we're out of stealth,
-		// when we reach HandleEnergize the aura won't be there, even if it was when player launched the spell
-		_hasPremeditationAura = Caster.HasAura(RogueSpells.PremeditationAura);
+    public SpellCastResult CheckCast()
+    {
+        // Because the premeditation aura is removed when we're out of stealth,
+        // when we reach HandleEnergize the aura won't be there, even if it was when player launched the spell
+        _hasPremeditationAura = Caster.HasAura(RogueSpells.PremeditationAura);
 
-		return SpellCastResult.Success;
-	}
+        return SpellCastResult.Success;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleEnergize, 1, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleEnergize, 1, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleEnergize(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleEnergize(int effIndex)
+    {
+        var caster = Caster;
 
-		if (_hasPremeditationAura)
-		{
-			if (caster.HasAura(RogueSpells.SliceAndDice))
-			{
-				var premeditationPassive = caster.GetAura(RogueSpells.PremeditationPassive);
+        if (_hasPremeditationAura)
+        {
+            if (caster.HasAura(RogueSpells.SliceAndDice))
+            {
+                var premeditationPassive = caster.GetAura(RogueSpells.PremeditationPassive);
 
-				if (premeditationPassive != null)
-				{
-					var auraEff = premeditationPassive.GetEffect(1);
+                if (premeditationPassive != null)
+                {
+                    var auraEff = premeditationPassive.GetEffect(1);
 
-					if (auraEff != null)
-						HitDamage = HitDamage + auraEff.Amount;
-				}
-			}
+                    if (auraEff != null)
+                        HitDamage = HitDamage + auraEff.Amount;
+                }
+            }
 
-			// Grant 10 seconds of slice and dice
-			var duration = Global.SpellMgr.GetSpellInfo(RogueSpells.PremeditationPassive, Difficulty.None).GetEffect(0).CalcValue(Caster);
+            // Grant 10 seconds of slice and dice
+            var duration = Global.SpellMgr.GetSpellInfo(RogueSpells.PremeditationPassive, Difficulty.None).GetEffect(0).CalcValue(Caster);
 
-			CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-			args.AddSpellMod(SpellValueMod.Duration, duration * Time.InMilliseconds);
-			caster.CastSpell(caster, RogueSpells.SliceAndDice, args);
-		}
-	}
+            CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+            args.AddSpellMod(SpellValueMod.Duration, duration * Time.InMilliseconds);
+            caster.CastSpell(caster, RogueSpells.SliceAndDice, args);
+        }
+    }
 }

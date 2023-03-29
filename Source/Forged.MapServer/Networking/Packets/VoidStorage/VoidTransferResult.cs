@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
 internal class VoidTransferResult : ServerPacket
 {
-	public VoidTransferError Result;
+    public VoidTransferError Result;
 
-	public VoidTransferResult(VoidTransferError result) : base(ServerOpcodes.VoidTransferResult, ConnectionType.Instance)
-	{
-		Result = result;
-	}
+    public VoidTransferResult(VoidTransferError result) : base(ServerOpcodes.VoidTransferResult, ConnectionType.Instance)
+    {
+        Result = result;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32((int)Result);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32((int)Result);
+    }
 }

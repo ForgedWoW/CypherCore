@@ -11,38 +11,38 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_pygmy_oil : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
-		var aura = caster.GetAura(ItemSpellIds.PygmyOilPygmyAura);
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
+        var aura = caster.GetAura(ItemSpellIds.PygmyOilPygmyAura);
 
-		if (aura != null)
-		{
-			aura.RefreshDuration();
-		}
-		else
-		{
-			aura = caster.GetAura(ItemSpellIds.PygmyOilSmallerAura);
+        if (aura != null)
+        {
+            aura.RefreshDuration();
+        }
+        else
+        {
+            aura = caster.GetAura(ItemSpellIds.PygmyOilSmallerAura);
 
-			if (aura == null ||
-				aura.StackAmount < 5 ||
-				!RandomHelper.randChance(50))
-			{
-				caster.CastSpell(caster, ItemSpellIds.PygmyOilSmallerAura, true);
-			}
-			else
-			{
-				aura.Remove();
-				caster.CastSpell(caster, ItemSpellIds.PygmyOilPygmyAura, true);
-			}
-		}
-	}
+            if (aura == null ||
+                aura.StackAmount < 5 ||
+                !RandomHelper.randChance(50))
+            {
+                caster.CastSpell(caster, ItemSpellIds.PygmyOilSmallerAura, true);
+            }
+            else
+            {
+                aura.Remove();
+                caster.CastSpell(caster, ItemSpellIds.PygmyOilPygmyAura, true);
+            }
+        }
+    }
 }

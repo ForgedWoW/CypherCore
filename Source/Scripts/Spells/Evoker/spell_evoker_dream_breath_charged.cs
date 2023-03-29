@@ -9,28 +9,28 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.GREEN_DREAM_BREATH_CHARGED)]
 internal class spell_evoker_dream_breath_charged : SpellScript, ISpellCalculateBonusCoefficient
 {
-	public double CalcBonusCoefficient(double bonusCoefficient)
-	{
-		var multi = 0;
+    public double CalcBonusCoefficient(double bonusCoefficient)
+    {
+        var multi = 0;
 
-		switch (Spell.EmpoweredStage)
-		{
-			case 1:
-				multi = 2;
+        switch (Spell.EmpoweredStage)
+        {
+            case 1:
+                multi = 2;
 
-				break;
-			case 2:
-				multi = 4;
+                break;
+            case 2:
+                multi = 4;
 
-				break;
-			case 3:
-				multi = 6;
+                break;
+            case 3:
+                multi = 6;
 
-				break;
-			default:
-				break;
-		}
+                break;
+            default:
+                break;
+        }
 
-		return bonusCoefficient + (GetEffectInfo(0).BonusCoefficient * multi);
-	}
+        return bonusCoefficient + (GetEffectInfo(0).BonusCoefficient * multi);
+    }
 }

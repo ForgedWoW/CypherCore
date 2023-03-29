@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Battlenet;
 
 internal class Notification : ServerPacket
 {
-	public MethodCall Method;
-	public ByteBuffer Data = new();
-	public Notification() : base(ServerOpcodes.BattlenetNotification) { }
+    public MethodCall Method;
+    public ByteBuffer Data = new();
+    public Notification() : base(ServerOpcodes.BattlenetNotification) { }
 
-	public override void Write()
-	{
-		Method.Write(_worldPacket);
-		_worldPacket.WriteUInt32(Data.GetSize());
-		_worldPacket.WriteBytes(Data);
-	}
+    public override void Write()
+    {
+        Method.Write(_worldPacket);
+        _worldPacket.WriteUInt32(Data.GetSize());
+        _worldPacket.WriteBytes(Data);
+    }
 }

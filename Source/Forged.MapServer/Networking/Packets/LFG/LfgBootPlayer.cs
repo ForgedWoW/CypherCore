@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class LfgBootPlayer : ServerPacket
 {
-	public LfgBootInfo Info = new();
-	public LfgBootPlayer() : base(ServerOpcodes.LfgBootPlayer, ConnectionType.Instance) { }
+    public LfgBootInfo Info = new();
+    public LfgBootPlayer() : base(ServerOpcodes.LfgBootPlayer, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		Info.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        Info.Write(_worldPacket);
+    }
 }

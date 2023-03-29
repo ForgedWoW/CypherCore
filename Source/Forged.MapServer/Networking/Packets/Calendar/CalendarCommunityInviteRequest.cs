@@ -5,17 +5,17 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarCommunityInviteRequest : ClientPacket
 {
-	public ulong ClubId;
-	public byte MinLevel = 1;
-	public byte MaxLevel = 100;
-	public byte MaxRankOrder;
-	public CalendarCommunityInviteRequest(WorldPacket packet) : base(packet) { }
+    public ulong ClubId;
+    public byte MinLevel = 1;
+    public byte MaxLevel = 100;
+    public byte MaxRankOrder;
+    public CalendarCommunityInviteRequest(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ClubId = _worldPacket.ReadUInt64();
-		MinLevel = _worldPacket.ReadUInt8();
-		MaxLevel = _worldPacket.ReadUInt8();
-		MaxRankOrder = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        ClubId = _worldPacket.ReadUInt64();
+        MinLevel = _worldPacket.ReadUInt8();
+        MaxLevel = _worldPacket.ReadUInt8();
+        MaxRankOrder = _worldPacket.ReadUInt8();
+    }
 }

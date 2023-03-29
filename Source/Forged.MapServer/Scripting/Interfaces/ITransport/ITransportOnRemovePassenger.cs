@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ITransport;
 
 public interface ITransportOnRemovePassenger : IScriptObject
 {
-	void OnRemovePassenger(Transport transport, Player player);
+    void OnRemovePassenger(Transport transport, Player player);
 }

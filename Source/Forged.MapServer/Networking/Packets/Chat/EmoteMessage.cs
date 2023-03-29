@@ -9,20 +9,20 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class EmoteMessage : ServerPacket
 {
-	public ObjectGuid Guid;
-	public uint EmoteID;
-	public List<uint> SpellVisualKitIDs = new();
-	public int SequenceVariation;
-	public EmoteMessage() : base(ServerOpcodes.Emote, ConnectionType.Instance) { }
+    public ObjectGuid Guid;
+    public uint EmoteID;
+    public List<uint> SpellVisualKitIDs = new();
+    public int SequenceVariation;
+    public EmoteMessage() : base(ServerOpcodes.Emote, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Guid);
-		_worldPacket.WriteUInt32(EmoteID);
-		_worldPacket.WriteInt32(SpellVisualKitIDs.Count);
-		_worldPacket.WriteInt32(SequenceVariation);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Guid);
+        _worldPacket.WriteUInt32(EmoteID);
+        _worldPacket.WriteInt32(SpellVisualKitIDs.Count);
+        _worldPacket.WriteInt32(SequenceVariation);
 
-		foreach (var id in SpellVisualKitIDs)
-			_worldPacket.WriteUInt32(id);
-	}
+        foreach (var id in SpellVisualKitIDs)
+            _worldPacket.WriteUInt32(id);
+    }
 }

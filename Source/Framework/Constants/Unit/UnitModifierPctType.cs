@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum UnitModifierPctType
 {
-	Base = 0,
-	Total = 1,
-	End = 2
+    Base = 0,
+    Total = 1,
+    End = 2
 }

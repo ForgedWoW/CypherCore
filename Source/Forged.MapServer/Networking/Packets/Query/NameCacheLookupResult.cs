@@ -7,23 +7,23 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public struct NameCacheLookupResult
 {
-	public ObjectGuid Player;
-	public byte Result; // 0 - full packet, != 0 - only guid
-	public PlayerGuidLookupData Data;
-	public NameCacheUnused920 Unused920;
+    public ObjectGuid Player;
+    public byte Result; // 0 - full packet, != 0 - only guid
+    public PlayerGuidLookupData Data;
+    public NameCacheUnused920 Unused920;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt8(Result);
-		data.WritePackedGuid(Player);
-		data.WriteBit(Data != null);
-		data.WriteBit(Unused920 != null);
-		data.FlushBits();
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt8(Result);
+        data.WritePackedGuid(Player);
+        data.WriteBit(Data != null);
+        data.WriteBit(Unused920 != null);
+        data.FlushBits();
 
-		if (Data != null)
-			Data.Write(data);
+        if (Data != null)
+            Data.Write(data);
 
-		if (Unused920 != null)
-			Unused920.Write(data);
-	}
+        if (Unused920 != null)
+            Unused920.Write(data);
+    }
 }

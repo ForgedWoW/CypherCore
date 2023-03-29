@@ -12,23 +12,23 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_steal_essence_visual : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var caster = Caster;
+    private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			caster.CastSpell(caster, GenericSpellIds.CreateToken, true);
-			var soulTrader = caster.AsCreature;
+        if (caster != null)
+        {
+            caster.CastSpell(caster, GenericSpellIds.CreateToken, true);
+            var soulTrader = caster.AsCreature;
 
-			soulTrader?.AI.Talk(TextIds.SayCreateToken);
-		}
-	}
+            soulTrader?.AI.Talk(TextIds.SayCreateToken);
+        }
+    }
 }

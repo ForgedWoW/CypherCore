@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarSendNumPending : ServerPacket
 {
-	public uint NumPending;
+    public uint NumPending;
 
-	public CalendarSendNumPending(uint numPending) : base(ServerOpcodes.CalendarSendNumPending)
-	{
-		NumPending = numPending;
-	}
+    public CalendarSendNumPending(uint numPending) : base(ServerOpcodes.CalendarSendNumPending)
+    {
+        NumPending = numPending;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(NumPending);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(NumPending);
+    }
 }

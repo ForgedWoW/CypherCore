@@ -9,18 +9,18 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class BroadcastAchievement : ServerPacket
 {
-	public ObjectGuid PlayerGUID;
-	public string Name = "";
-	public uint AchievementID;
-	public bool GuildAchievement;
-	public BroadcastAchievement() : base(ServerOpcodes.BroadcastAchievement) { }
+    public ObjectGuid PlayerGUID;
+    public string Name = "";
+    public uint AchievementID;
+    public bool GuildAchievement;
+    public BroadcastAchievement() : base(ServerOpcodes.BroadcastAchievement) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(Name.GetByteCount(), 7);
-		_worldPacket.WriteBit(GuildAchievement);
-		_worldPacket.WritePackedGuid(PlayerGUID);
-		_worldPacket.WriteUInt32(AchievementID);
-		_worldPacket.WriteString(Name);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBits(Name.GetByteCount(), 7);
+        _worldPacket.WriteBit(GuildAchievement);
+        _worldPacket.WritePackedGuid(PlayerGUID);
+        _worldPacket.WriteUInt32(AchievementID);
+        _worldPacket.WriteString(Name);
+    }
 }

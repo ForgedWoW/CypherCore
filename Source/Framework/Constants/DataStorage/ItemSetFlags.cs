@@ -5,5 +5,5 @@ namespace Framework.Constants;
 
 public enum ItemSetFlags
 {
-	LegacyInactive = 0x01,
+    LegacyInactive = 0x01,
 }

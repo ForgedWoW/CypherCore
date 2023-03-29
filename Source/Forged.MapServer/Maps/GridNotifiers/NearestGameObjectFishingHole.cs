@@ -13,21 +13,21 @@ internal class NearestGameObjectFishingHole : ICheck<GameObject>
     private readonly WorldObject _obj;
     private float _range;
 
-	public NearestGameObjectFishingHole(WorldObject obj, float range)
-	{
-		_obj = obj;
-		_range = range;
-	}
+    public NearestGameObjectFishingHole(WorldObject obj, float range)
+    {
+        _obj = obj;
+        _range = range;
+    }
 
-	public bool Invoke(GameObject go)
-	{
-		if (go.Template.type == GameObjectTypes.FishingHole && go.IsSpawned && _obj.IsWithinDist(go, _range) && _obj.IsWithinDist(go, go.Template.FishingHole.radius))
-		{
-			_range = _obj.GetDistance(go);
+    public bool Invoke(GameObject go)
+    {
+        if (go.Template.type == GameObjectTypes.FishingHole && go.IsSpawned && _obj.IsWithinDist(go, _range) && _obj.IsWithinDist(go, go.Template.FishingHole.radius))
+        {
+            _range = _obj.GetDistance(go);
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

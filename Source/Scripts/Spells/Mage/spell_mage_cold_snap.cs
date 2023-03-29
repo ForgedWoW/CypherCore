@@ -11,24 +11,24 @@ namespace Scripts.Spells.Mage;
 [Script] // 235219 - Cold Snap
 internal class spell_mage_cold_snap : SpellScript, IHasSpellEffects
 {
-	private static readonly uint[] SpellsToReset =
-	{
-		MageSpells.ConeOfCold, MageSpells.IceBarrier, MageSpells.IceBlock
-	};
+    private static readonly uint[] SpellsToReset =
+    {
+        MageSpells.ConeOfCold, MageSpells.IceBarrier, MageSpells.IceBlock
+    };
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		foreach (var spellId in SpellsToReset)
-			Caster.SpellHistory.ResetCooldown(spellId, true);
+    private void HandleDummy(int effIndex)
+    {
+        foreach (var spellId in SpellsToReset)
+            Caster.SpellHistory.ResetCooldown(spellId, true);
 
-		Caster.SpellHistory.RestoreCharge(Global.SpellMgr.GetSpellInfo(MageSpells.FrostNova, CastDifficulty).ChargeCategoryId);
-	}
+        Caster.SpellHistory.RestoreCharge(Global.SpellMgr.GetSpellInfo(MageSpells.FrostNova, CastDifficulty).ChargeCategoryId);
+    }
 }

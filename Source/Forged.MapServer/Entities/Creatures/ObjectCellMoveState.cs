@@ -5,7 +5,7 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public enum ObjectCellMoveState
 {
-	None,    // not in move list
-	Active,  // in move list
-	Inactive // in move list but should not move
+    None,    // not in move list
+    Active,  // in move list
+    Inactive // in move list but should not move
 }

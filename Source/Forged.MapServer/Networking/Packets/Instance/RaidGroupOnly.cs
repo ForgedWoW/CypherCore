@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class RaidGroupOnly : ServerPacket
 {
-	public int Delay;
-	public RaidGroupReason Reason;
-	public RaidGroupOnly() : base(ServerOpcodes.RaidGroupOnly) { }
+    public int Delay;
+    public RaidGroupReason Reason;
+    public RaidGroupOnly() : base(ServerOpcodes.RaidGroupOnly) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Delay);
-		_worldPacket.WriteUInt32((uint)Reason);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Delay);
+        _worldPacket.WriteUInt32((uint)Reason);
+    }
 }

@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 public interface IAreaTriggerOnUpdate : IAreaTriggerScript
 {
-	public void OnUpdate(uint diff);
+    public void OnUpdate(uint diff);
 }

@@ -12,17 +12,17 @@ namespace Scripts.Spells.Hunter;
 [Script] // 186257 - Aspect of the Cheetah
 internal class spell_hun_aspect_cheetah : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleOnRemove, 0, AuraType.ModIncreaseSpeed, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleOnRemove, 0, AuraType.ModIncreaseSpeed, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		if (TargetApplication.RemoveMode == AuraRemoveMode.Expire)
-			Target.CastSpell(Target, HunterSpells.AspectCheetahSlow, true);
-	}
+    private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        if (TargetApplication.RemoveMode == AuraRemoveMode.Expire)
+            Target.CastSpell(Target, HunterSpells.AspectCheetahSlow, true);
+    }
 }

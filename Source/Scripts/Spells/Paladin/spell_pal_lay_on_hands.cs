@@ -10,25 +10,25 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(633)] // 633 - Lay on Hands
 internal class spell_pal_lay_on_hands : SpellScript, ISpellCheckCast, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		var target = HitUnit;
+    public void AfterHit()
+    {
+        var target = HitUnit;
 
-		if (target)
-		{
-			Caster.CastSpell(target, PaladinSpells.Forbearance, true);
-			Caster.CastSpell(target, PaladinSpells.ImmuneShieldMarker, true);
-		}
-	}
+        if (target)
+        {
+            Caster.CastSpell(target, PaladinSpells.Forbearance, true);
+            Caster.CastSpell(target, PaladinSpells.ImmuneShieldMarker, true);
+        }
+    }
 
-	public SpellCastResult CheckCast()
-	{
-		var target = ExplTargetUnit;
+    public SpellCastResult CheckCast()
+    {
+        var target = ExplTargetUnit;
 
-		if (!target ||
-			target.HasAura(PaladinSpells.Forbearance))
-			return SpellCastResult.TargetAurastate;
+        if (!target ||
+            target.HasAura(PaladinSpells.Forbearance))
+            return SpellCastResult.TargetAurastate;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

@@ -11,42 +11,42 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(171975, "spell_warl_grimoire_of_synergy")]
 public class spell_warl_grimoire_of_synergy_AuraScript : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var actor = eventInfo.Actor;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var actor = eventInfo.Actor;
 
-		if (actor == null)
-			return false;
+        if (actor == null)
+            return false;
 
-		if (actor.IsPet ||
-			actor.IsGuardian)
-		{
-			var owner = actor.OwnerUnit;
+        if (actor.IsPet ||
+            actor.IsGuardian)
+        {
+            var owner = actor.OwnerUnit;
 
-			if (owner == null)
-				return false;
+            if (owner == null)
+                return false;
 
-			if (RandomHelper.randChance(10))
-				owner.CastSpell(owner, WarlockSpells.GRIMOIRE_OF_SYNERGY_BUFF, true);
+            if (RandomHelper.randChance(10))
+                owner.CastSpell(owner, WarlockSpells.GRIMOIRE_OF_SYNERGY_BUFF, true);
 
-			return true;
-		}
+            return true;
+        }
 
-		var player = actor.AsPlayer;
+        var player = actor.AsPlayer;
 
-		if (actor.AsPlayer)
-		{
-			var guardian = player.GetGuardianPet();
+        if (actor.AsPlayer)
+        {
+            var guardian = player.GetGuardianPet();
 
-			if (guardian == null)
-				return false;
+            if (guardian == null)
+                return false;
 
-			if (RandomHelper.randChance(10))
-				player.CastSpell(guardian, WarlockSpells.GRIMOIRE_OF_SYNERGY_BUFF, true);
+            if (RandomHelper.randChance(10))
+                player.CastSpell(guardian, WarlockSpells.GRIMOIRE_OF_SYNERGY_BUFF, true);
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

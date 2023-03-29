@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class SetEveryoneIsAssistant : ClientPacket
 {
-	public byte PartyIndex;
-	public bool EveryoneIsAssistant;
-	public SetEveryoneIsAssistant(WorldPacket packet) : base(packet) { }
+    public byte PartyIndex;
+    public bool EveryoneIsAssistant;
+    public SetEveryoneIsAssistant(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PartyIndex = _worldPacket.ReadUInt8();
-		EveryoneIsAssistant = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        PartyIndex = _worldPacket.ReadUInt8();
+        EveryoneIsAssistant = _worldPacket.HasBit();
+    }
 }

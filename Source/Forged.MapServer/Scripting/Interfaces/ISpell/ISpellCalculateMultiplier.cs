@@ -6,10 +6,10 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 public interface ISpellCalculateMultiplier : ISpellScript
 {
     /// <summary>
-    ///  Returned value represents the new modifier that will be used.
-    ///  Called at the end of the multiplier calc stack.
-    ///  Multipliers are multiplicitive. For a 10% damage increase do
-    ///  multiplier *= 1.1
+    ///     Returned value represents the new modifier that will be used.
+    ///     Called at the end of the multiplier calc stack.
+    ///     Multipliers are multiplicitive. For a 10% damage increase do
+    ///     multiplier *= 1.1
     /// </summary>
     /// <param name="multiplier"> </param>
     /// <returns> </returns>

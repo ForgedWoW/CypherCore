@@ -8,9 +8,9 @@ namespace Forged.MapServer.Maps;
 
 public class TransportPathLeg
 {
-	public List<TransportPathSegment> Segments = new();
-	public uint MapId { get; set; }
-	public Spline<double> Spline { get; set; }
-	public uint StartTimestamp { get; set; }
-	public uint Duration { get; set; }
+    public List<TransportPathSegment> Segments = new();
+    public uint MapId { get; set; }
+    public Spline<double> Spline { get; set; }
+    public uint StartTimestamp { get; set; }
+    public uint Duration { get; set; }
 }

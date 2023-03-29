@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetLearnedSpells : ServerPacket
 {
-	public List<uint> Spells = new();
-	public PetLearnedSpells() : base(ServerOpcodes.PetLearnedSpells, ConnectionType.Instance) { }
+    public List<uint> Spells = new();
+    public PetLearnedSpells() : base(ServerOpcodes.PetLearnedSpells, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Spells.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Spells.Count);
 
-		foreach (var spell in Spells)
-			_worldPacket.WriteUInt32(spell);
-	}
+        foreach (var spell in Spells)
+            _worldPacket.WriteUInt32(spell);
+    }
 }

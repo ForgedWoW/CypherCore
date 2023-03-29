@@ -7,19 +7,19 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildPartyState : ServerPacket
 {
-	public float GuildXPEarnedMult = 0.0f;
-	public int NumMembers;
-	public int NumRequired;
-	public bool InGuildParty;
-	public GuildPartyState() : base(ServerOpcodes.GuildPartyState, ConnectionType.Instance) { }
+    public float GuildXPEarnedMult = 0.0f;
+    public int NumMembers;
+    public int NumRequired;
+    public bool InGuildParty;
+    public GuildPartyState() : base(ServerOpcodes.GuildPartyState, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(InGuildParty);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteBit(InGuildParty);
+        _worldPacket.FlushBits();
 
-		_worldPacket.WriteInt32(NumMembers);
-		_worldPacket.WriteInt32(NumRequired);
-		_worldPacket.WriteFloat(GuildXPEarnedMult);
-	}
+        _worldPacket.WriteInt32(NumMembers);
+        _worldPacket.WriteInt32(NumRequired);
+        _worldPacket.WriteFloat(GuildXPEarnedMult);
+    }
 }

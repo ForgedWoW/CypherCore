@@ -10,15 +10,15 @@ namespace Forged.MapServer.Scripting.Activators;
 
 public class AuraScriptActivator : IScriptActivator
 {
-	public List<string> ScriptBaseTypes => new()
-	{
-		nameof(AuraScript)
-	};
+    public List<string> ScriptBaseTypes => new()
+    {
+        nameof(AuraScript)
+    };
 
-	public IScriptObject Activate(Type type, string name, ScriptAttribute attribute)
-	{
-		name = name.Replace("_AuraScript", "");
+    public IScriptObject Activate(Type type, string name, ScriptAttribute attribute)
+    {
+        name = name.Replace("_AuraScript", "");
 
-		return (IScriptObject)Activator.CreateInstance(typeof(GenericAuraScriptLoader<>).MakeGenericType(type), name, attribute.Args);
-	}
+        return (IScriptObject)Activator.CreateInstance(typeof(GenericAuraScriptLoader<>).MakeGenericType(type), name, attribute.Args);
+    }
 }

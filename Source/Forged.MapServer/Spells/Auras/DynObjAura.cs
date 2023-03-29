@@ -11,58 +11,58 @@ namespace Forged.MapServer.Spells.Auras;
 
 public class DynObjAura : Aura
 {
-	public DynObjAura(AuraCreateInfo createInfo) : base(createInfo)
-	{
-		LoadScripts();
-		_InitEffects(createInfo.AuraEffectMask, createInfo.Caster, createInfo.BaseAmount);
-		DynobjOwner.SetAura(this);
-	}
+    public DynObjAura(AuraCreateInfo createInfo) : base(createInfo)
+    {
+        LoadScripts();
+        _InitEffects(createInfo.AuraEffectMask, createInfo.Caster, createInfo.BaseAmount);
+        DynobjOwner.SetAura(this);
+    }
 
-	public override void Remove(AuraRemoveMode removeMode = AuraRemoveMode.Default)
-	{
-		if (IsRemoved)
-			return;
+    public override void Remove(AuraRemoveMode removeMode = AuraRemoveMode.Default)
+    {
+        if (IsRemoved)
+            return;
 
-		_Remove(removeMode);
-		base.Remove(removeMode);
-	}
+        _Remove(removeMode);
+        base.Remove(removeMode);
+    }
 
-	public override Dictionary<Unit, HashSet<int>> FillTargetMap(Unit caster)
-	{
-		var targets = new Dictionary<Unit, HashSet<int>>();
-		var dynObjOwnerCaster = DynobjOwner.GetCaster();
-		var radius = DynobjOwner.GetRadius();
+    public override Dictionary<Unit, HashSet<int>> FillTargetMap(Unit caster)
+    {
+        var targets = new Dictionary<Unit, HashSet<int>>();
+        var dynObjOwnerCaster = DynobjOwner.GetCaster();
+        var radius = DynobjOwner.GetRadius();
 
-		foreach (var spellEffectInfo in SpellInfo.Effects)
-		{
-			if (!HasEffect(spellEffectInfo.EffectIndex))
-				continue;
+        foreach (var spellEffectInfo in SpellInfo.Effects)
+        {
+            if (!HasEffect(spellEffectInfo.EffectIndex))
+                continue;
 
-			// we can't use effect type like area auras to determine check type, check targets
-			var selectionType = spellEffectInfo.TargetA.CheckType;
+            // we can't use effect type like area auras to determine check type, check targets
+            var selectionType = spellEffectInfo.TargetA.CheckType;
 
-			if (spellEffectInfo.TargetB.ReferenceType == SpellTargetReferenceTypes.Dest)
-				selectionType = spellEffectInfo.TargetB.CheckType;
+            if (spellEffectInfo.TargetB.ReferenceType == SpellTargetReferenceTypes.Dest)
+                selectionType = spellEffectInfo.TargetB.CheckType;
 
-			List<Unit> targetList = new();
-			var condList = spellEffectInfo.ImplicitTargetConditions;
+            List<Unit> targetList = new();
+            var condList = spellEffectInfo.ImplicitTargetConditions;
 
-			WorldObjectSpellAreaTargetCheck check = new(radius, DynobjOwner.Location, dynObjOwnerCaster, dynObjOwnerCaster, SpellInfo, selectionType, condList, SpellTargetObjectTypes.Unit);
-			UnitListSearcher searcher = new(DynobjOwner, targetList, check, GridType.All);
-			Cell.VisitGrid(DynobjOwner, searcher, radius);
+            WorldObjectSpellAreaTargetCheck check = new(radius, DynobjOwner.Location, dynObjOwnerCaster, dynObjOwnerCaster, SpellInfo, selectionType, condList, SpellTargetObjectTypes.Unit);
+            UnitListSearcher searcher = new(DynobjOwner, targetList, check, GridType.All);
+            Cell.VisitGrid(DynobjOwner, searcher, radius);
 
-			// by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
-			targetList.RemoveAll(unit => !unit.IsSelfOrInSameMap(DynobjOwner));
+            // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
+            targetList.RemoveAll(unit => !unit.IsSelfOrInSameMap(DynobjOwner));
 
-			foreach (var unit in targetList)
-			{
-				if (!targets.ContainsKey(unit))
-					targets[unit] = new HashSet<int>();
+            foreach (var unit in targetList)
+            {
+                if (!targets.ContainsKey(unit))
+                    targets[unit] = new HashSet<int>();
 
-				targets[unit].Add(spellEffectInfo.EffectIndex);
-			}
-		}
+                targets[unit].Add(spellEffectInfo.EffectIndex);
+            }
+        }
 
-		return targets;
-	}
+        return targets;
+    }
 }

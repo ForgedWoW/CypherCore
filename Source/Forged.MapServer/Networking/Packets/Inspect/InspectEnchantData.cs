@@ -8,18 +8,18 @@ namespace Forged.MapServer.Networking.Packets.Inspect;
 //Structs
 public struct InspectEnchantData
 {
-	public InspectEnchantData(uint id, byte index)
-	{
-		Id = id;
-		Index = index;
-	}
+    public InspectEnchantData(uint id, byte index)
+    {
+        Id = id;
+        Index = index;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(Id);
-		data.WriteUInt8(Index);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(Id);
+        data.WriteUInt8(Index);
+    }
 
-	public uint Id;
-	public byte Index;
+    public uint Id;
+    public byte Index;
 }

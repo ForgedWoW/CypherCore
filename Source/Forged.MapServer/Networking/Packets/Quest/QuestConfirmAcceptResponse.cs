@@ -9,17 +9,17 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class QuestConfirmAcceptResponse : ServerPacket
 {
-	public ObjectGuid InitiatedBy;
-	public uint QuestID;
-	public string QuestTitle;
-	public QuestConfirmAcceptResponse() : base(ServerOpcodes.QuestConfirmAccept) { }
+    public ObjectGuid InitiatedBy;
+    public uint QuestID;
+    public string QuestTitle;
+    public QuestConfirmAcceptResponse() : base(ServerOpcodes.QuestConfirmAccept) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(QuestID);
-		_worldPacket.WritePackedGuid(InitiatedBy);
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(QuestID);
+        _worldPacket.WritePackedGuid(InitiatedBy);
 
-		_worldPacket.WriteBits(QuestTitle.GetByteCount(), 10);
-		_worldPacket.WriteString(QuestTitle);
-	}
+        _worldPacket.WriteBits(QuestTitle.GetByteCount(), 10);
+        _worldPacket.WriteString(QuestTitle);
+    }
 }

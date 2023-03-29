@@ -11,24 +11,24 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(642)] // 642 - Divine Shield
 internal class spell_pal_divine_shield : SpellScript, ISpellCheckCast, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		var caster = Caster;
+    public void AfterCast()
+    {
+        var caster = Caster;
 
-		if (caster.HasAura(PaladinSpells.FinalStand))
-			caster.CastSpell((Unit)null, PaladinSpells.FinalStandEffect, true);
-
-
-		caster.CastSpell(caster, PaladinSpells.Forbearance, true);
-		caster.CastSpell(caster, PaladinSpells.ImmuneShieldMarker, true);
-	}
+        if (caster.HasAura(PaladinSpells.FinalStand))
+            caster.CastSpell((Unit)null, PaladinSpells.FinalStandEffect, true);
 
 
-	public SpellCastResult CheckCast()
-	{
-		if (Caster.HasAura(PaladinSpells.Forbearance))
-			return SpellCastResult.TargetAurastate;
+        caster.CastSpell(caster, PaladinSpells.Forbearance, true);
+        caster.CastSpell(caster, PaladinSpells.ImmuneShieldMarker, true);
+    }
 
-		return SpellCastResult.SpellCastOk;
-	}
+
+    public SpellCastResult CheckCast()
+    {
+        if (Caster.HasAura(PaladinSpells.Forbearance))
+            return SpellCastResult.TargetAurastate;
+
+        return SpellCastResult.SpellCastOk;
+    }
 }

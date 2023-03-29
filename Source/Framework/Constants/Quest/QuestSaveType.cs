@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum QuestSaveType
 {
-	Default = 0,
-	Delete,
-	ForceDelete
+    Default = 0,
+    Delete,
+    ForceDelete
 }

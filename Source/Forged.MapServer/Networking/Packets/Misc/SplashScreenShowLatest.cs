@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class SplashScreenShowLatest : ServerPacket
 {
-	public uint UISplashScreenID;
-	public SplashScreenShowLatest() : base(ServerOpcodes.SplashScreenShowLatest, ConnectionType.Instance) { }
+    public uint UISplashScreenID;
+    public SplashScreenShowLatest() : base(ServerOpcodes.SplashScreenShowLatest, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(UISplashScreenID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(UISplashScreenID);
+    }
 }

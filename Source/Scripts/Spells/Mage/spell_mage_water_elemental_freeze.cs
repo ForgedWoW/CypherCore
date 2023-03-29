@@ -9,13 +9,13 @@ namespace Scripts.Spells.Mage;
 [Script] // 33395 Water Elemental's Freeze
 internal class spell_mage_water_elemental_freeze : SpellScript, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		var owner = Caster.OwnerUnit;
+    public void AfterHit()
+    {
+        var owner = Caster.OwnerUnit;
 
-		if (!owner)
-			return;
+        if (!owner)
+            return;
 
-		owner.CastSpell(owner, MageSpells.FingersOfFrost, true);
-	}
+        owner.CastSpell(owner, MageSpells.FingersOfFrost, true);
+    }
 }

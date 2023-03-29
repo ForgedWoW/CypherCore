@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal struct PetStableInfo
 {
-	public uint PetSlot;
-	public uint PetNumber;
-	public uint CreatureID;
-	public uint DisplayID;
-	public uint ExperienceLevel;
-	public PetStableinfo PetFlags;
-	public string PetName;
+    public uint PetSlot;
+    public uint PetNumber;
+    public uint CreatureID;
+    public uint DisplayID;
+    public uint ExperienceLevel;
+    public PetStableinfo PetFlags;
+    public string PetName;
 }

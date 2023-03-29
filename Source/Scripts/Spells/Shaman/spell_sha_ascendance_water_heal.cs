@@ -13,22 +13,22 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(114083)]
 public class spell_sha_ascendance_water_heal : SpellScript, IHasSpellEffects
 {
-	private uint m_TargetSize = 0;
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    private uint m_TargetSize = 0;
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(OnEffectHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitSrcAreaAlly));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(OnEffectHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitSrcAreaAlly));
+    }
 
-	private void OnEffectHeal(int effIndex)
-	{
-		HitHeal = (int)(HitHeal / m_TargetSize);
-	}
+    private void OnEffectHeal(int effIndex)
+    {
+        HitHeal = (int)(HitHeal / m_TargetSize);
+    }
 
-	private void FilterTargets(List<WorldObject> p_Targets)
-	{
-		m_TargetSize = (uint)p_Targets.Count;
-	}
+    private void FilterTargets(List<WorldObject> p_Targets)
+    {
+        m_TargetSize = (uint)p_Targets.Count;
+    }
 }

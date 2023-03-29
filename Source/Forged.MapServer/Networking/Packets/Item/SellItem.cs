@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class SellItem : ClientPacket
 {
-	public ObjectGuid VendorGUID;
-	public ObjectGuid ItemGUID;
-	public uint Amount;
-	public SellItem(WorldPacket packet) : base(packet) { }
+    public ObjectGuid VendorGUID;
+    public ObjectGuid ItemGUID;
+    public uint Amount;
+    public SellItem(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		VendorGUID = _worldPacket.ReadPackedGuid();
-		ItemGUID = _worldPacket.ReadPackedGuid();
-		Amount = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        VendorGUID = _worldPacket.ReadPackedGuid();
+        ItemGUID = _worldPacket.ReadPackedGuid();
+        Amount = _worldPacket.ReadUInt32();
+    }
 }

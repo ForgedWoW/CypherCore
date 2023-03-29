@@ -12,18 +12,18 @@ internal class PlayerAtMinimumRangeAway : ICheck<Player>
     private readonly Unit _unit;
     private readonly float _fRange;
 
-	public PlayerAtMinimumRangeAway(Unit unit, float fMinRange)
-	{
-		_unit = unit;
-		_fRange = fMinRange;
-	}
+    public PlayerAtMinimumRangeAway(Unit unit, float fMinRange)
+    {
+        _unit = unit;
+        _fRange = fMinRange;
+    }
 
-	public bool Invoke(Player player)
-	{
-		//No threat list check, must be done explicit if expected to be in combat with creature
-		if (!player.IsGameMaster && player.IsAlive && !_unit.IsWithinDist(player, _fRange, false))
-			return true;
+    public bool Invoke(Player player)
+    {
+        //No threat list check, must be done explicit if expected to be in combat with creature
+        if (!player.IsGameMaster && player.IsAlive && !_unit.IsWithinDist(player, _fRange, false))
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

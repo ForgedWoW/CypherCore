@@ -6,20 +6,20 @@ namespace Forged.MapServer.World;
 /// Timers for different object refresh rates
 public enum WorldTimers
 {
-	Auctions,
-	AuctionsPending,
-	UpTime,
-	Corpses,
-	Events,
-	CleanDB,
-	AutoBroadcast,
-	MailBox,
-	DeleteChars,
-	AhBot,
-	PingDB,
-	GuildSave,
-	Blackmarket,
-	WhoList,
-	ChannelSave,
-	Max
+    Auctions,
+    AuctionsPending,
+    UpTime,
+    Corpses,
+    Events,
+    CleanDB,
+    AutoBroadcast,
+    MailBox,
+    DeleteChars,
+    AhBot,
+    PingDB,
+    GuildSave,
+    Blackmarket,
+    WhoList,
+    ChannelSave,
+    Max
 }

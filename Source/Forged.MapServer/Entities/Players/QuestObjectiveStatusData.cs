@@ -7,6 +7,6 @@ namespace Forged.MapServer.Entities.Players;
 
 internal struct QuestObjectiveStatusData
 {
-	public (uint QuestID, QuestStatusData Status) QuestStatusPair;
-	public QuestObjective Objective;
+    public (uint QuestID, QuestStatusData Status) QuestStatusPair;
+    public QuestObjective Objective;
 }

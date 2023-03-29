@@ -8,37 +8,37 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverOfferReward
 {
-	public ObjectGuid QuestGiverGUID;
-	public uint QuestGiverCreatureID = 0;
-	public uint QuestID = 0;
-	public bool AutoLaunched = false;
-	public uint SuggestedPartyMembers = 0;
-	public QuestRewards Rewards = new();
-	public List<QuestDescEmote> Emotes = new();
-	public uint[] QuestFlags = new uint[3]; // Flags and FlagsEx
+    public ObjectGuid QuestGiverGUID;
+    public uint QuestGiverCreatureID = 0;
+    public uint QuestID = 0;
+    public bool AutoLaunched = false;
+    public uint SuggestedPartyMembers = 0;
+    public QuestRewards Rewards = new();
+    public List<QuestDescEmote> Emotes = new();
+    public uint[] QuestFlags = new uint[3]; // Flags and FlagsEx
 
-	public void Write(WorldPacket data)
-	{
-		data.WritePackedGuid(QuestGiverGUID);
-		data.WriteUInt32(QuestGiverCreatureID);
-		data.WriteUInt32(QuestID);
-		data.WriteUInt32(QuestFlags[0]); // Flags
-		data.WriteUInt32(QuestFlags[1]); // FlagsEx
-		data.WriteUInt32(QuestFlags[2]); // FlagsEx2
-		data.WriteUInt32(SuggestedPartyMembers);
+    public void Write(WorldPacket data)
+    {
+        data.WritePackedGuid(QuestGiverGUID);
+        data.WriteUInt32(QuestGiverCreatureID);
+        data.WriteUInt32(QuestID);
+        data.WriteUInt32(QuestFlags[0]); // Flags
+        data.WriteUInt32(QuestFlags[1]); // FlagsEx
+        data.WriteUInt32(QuestFlags[2]); // FlagsEx2
+        data.WriteUInt32(SuggestedPartyMembers);
 
-		data.WriteInt32(Emotes.Count);
+        data.WriteInt32(Emotes.Count);
 
-		foreach (var emote in Emotes)
-		{
-			data.WriteInt32(emote.Type);
-			data.WriteUInt32(emote.Delay);
-		}
+        foreach (var emote in Emotes)
+        {
+            data.WriteInt32(emote.Type);
+            data.WriteUInt32(emote.Delay);
+        }
 
-		data.WriteBit(AutoLaunched);
-		data.WriteBit(false); // Unused
-		data.FlushBits();
+        data.WriteBit(AutoLaunched);
+        data.WriteBit(false); // Unused
+        data.FlushBits();
 
-		Rewards.Write(data);
-	}
+        Rewards.Write(data);
+    }
 }

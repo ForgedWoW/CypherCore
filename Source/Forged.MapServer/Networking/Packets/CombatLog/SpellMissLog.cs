@@ -9,18 +9,18 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class SpellMissLog : ServerPacket
 {
-	public uint SpellID;
-	public ObjectGuid Caster;
-	public List<SpellLogMissEntry> Entries = new();
-	public SpellMissLog() : base(ServerOpcodes.SpellMissLog, ConnectionType.Instance) { }
+    public uint SpellID;
+    public ObjectGuid Caster;
+    public List<SpellLogMissEntry> Entries = new();
+    public SpellMissLog() : base(ServerOpcodes.SpellMissLog, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(SpellID);
-		_worldPacket.WritePackedGuid(Caster);
-		_worldPacket.WriteInt32(Entries.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(SpellID);
+        _worldPacket.WritePackedGuid(Caster);
+        _worldPacket.WriteInt32(Entries.Count);
 
-		foreach (var missEntry in Entries)
-			missEntry.Write(_worldPacket);
-	}
+        foreach (var missEntry in Entries)
+            missEntry.Write(_worldPacket);
+    }
 }

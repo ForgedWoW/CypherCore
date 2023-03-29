@@ -12,22 +12,22 @@ namespace Scripts.Spells.Warrior;
 // Ravager - 228920
 [SpellScript(new uint[]
 {
-	152277, 228920
+    152277, 228920
 })]
 public class spell_warr_ravager : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleOnHit(int effIndex)
-	{
-		var dest = ExplTargetDest;
+    private void HandleOnHit(int effIndex)
+    {
+        var dest = ExplTargetDest;
 
-		if (dest != null)
-			Caster.CastSpell(dest, WarriorSpells.RAVAGER_SUMMON, true);
-	}
+        if (dest != null)
+            Caster.CastSpell(dest, WarriorSpells.RAVAGER_SUMMON, true);
+    }
 }

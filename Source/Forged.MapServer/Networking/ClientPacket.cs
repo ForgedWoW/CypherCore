@@ -3,7 +3,6 @@
 
 using System;
 using Forged.MapServer.Server;
-using Forged.MapServer.Services;
 using Framework.Constants;
 using Serilog;
 
@@ -11,27 +10,27 @@ namespace Forged.MapServer.Networking;
 
 public abstract class ClientPacket : IDisposable
 {
-	protected WorldPacket _worldPacket;
+    protected WorldPacket _worldPacket;
 
-	protected ClientPacket(WorldPacket worldPacket)
-	{
-		_worldPacket = worldPacket;
-	}
+    protected ClientPacket(WorldPacket worldPacket)
+    {
+        _worldPacket = worldPacket;
+    }
 
-	public void Dispose()
-	{
-		_worldPacket.Dispose();
-	}
+    public void Dispose()
+    {
+        _worldPacket.Dispose();
+    }
 
-	public abstract void Read();
+    public abstract void Read();
 
-	public ClientOpcodes GetOpcode()
-	{
-		return (ClientOpcodes)_worldPacket.GetOpcode();
-	}
+    public ClientOpcodes GetOpcode()
+    {
+        return (ClientOpcodes)_worldPacket.GetOpcode();
+    }
 
-	public void LogPacket(WorldSession session)
-	{
-		Log.Logger.Debug("Received ClientOpcode: {0} From: {1}", GetOpcode(), session != null ? session.GetPlayerInfo() : "Unknown IP");
-	}
+    public void LogPacket(WorldSession session)
+    {
+        Log.Logger.Debug("Received ClientOpcode: {0} From: {1}", GetOpcode(), session != null ? session.GetPlayerInfo() : "Unknown IP");
+    }
 }

@@ -13,28 +13,28 @@ public class AllCreaturesOfEntryInRange : ICheck<Creature>
     private readonly uint _uiEntry;
     private readonly float _fRange;
 
-	public AllCreaturesOfEntryInRange(WorldObject obj, uint entry, float maxRange = 0f)
-	{
-		_pObject = obj;
-		_uiEntry = entry;
-		_fRange = maxRange;
-	}
+    public AllCreaturesOfEntryInRange(WorldObject obj, uint entry, float maxRange = 0f)
+    {
+        _pObject = obj;
+        _uiEntry = entry;
+        _fRange = maxRange;
+    }
 
-	public bool Invoke(Creature creature)
-	{
-		if (_uiEntry != 0)
-			if (creature.Entry != _uiEntry)
-				return false;
+    public bool Invoke(Creature creature)
+    {
+        if (_uiEntry != 0)
+            if (creature.Entry != _uiEntry)
+                return false;
 
-		if (_fRange != 0f)
-		{
-			if (_fRange > 0.0f && !_pObject.IsWithinDist(creature, _fRange, false))
-				return false;
+        if (_fRange != 0f)
+        {
+            if (_fRange > 0.0f && !_pObject.IsWithinDist(creature, _fRange, false))
+                return false;
 
-			if (_fRange < 0.0f && _pObject.IsWithinDist(creature, _fRange, false))
-				return false;
-		}
+            if (_fRange < 0.0f && _pObject.IsWithinDist(creature, _fRange, false))
+                return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

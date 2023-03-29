@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum BMAHMailAuctionAnswers
 {
-	Outbid = 0,
-	Won = 1,
+    Outbid = 0,
+    Won = 1,
 }

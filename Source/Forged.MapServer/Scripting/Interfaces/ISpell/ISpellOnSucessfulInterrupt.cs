@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellOnSucessfulInterrupt : ISpellScript
 {
-	void SucessfullyInterrupted(Spell spellInterrupted);
+    void SucessfullyInterrupted(Spell spellInterrupted);
 }

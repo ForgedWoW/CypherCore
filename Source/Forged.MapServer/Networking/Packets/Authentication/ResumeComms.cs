@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Authentication;
 
 internal class ResumeComms : ServerPacket
 {
-	public ResumeComms(ConnectionType connection) : base(ServerOpcodes.ResumeComms, connection) { }
+    public ResumeComms(ConnectionType connection) : base(ServerOpcodes.ResumeComms, connection) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

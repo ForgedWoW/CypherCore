@@ -14,23 +14,23 @@ internal class NearestGameObjectEntryInObjectRangeCheck : ICheck<GameObject>
     private readonly bool _spawnedOnly;
     private float _range;
 
-	public NearestGameObjectEntryInObjectRangeCheck(WorldObject obj, uint entry, float range, bool spawnedOnly = true)
-	{
-		_obj = obj;
-		_entry = entry;
-		_range = range;
-		_spawnedOnly = spawnedOnly;
-	}
+    public NearestGameObjectEntryInObjectRangeCheck(WorldObject obj, uint entry, float range, bool spawnedOnly = true)
+    {
+        _obj = obj;
+        _entry = entry;
+        _range = range;
+        _spawnedOnly = spawnedOnly;
+    }
 
-	public bool Invoke(GameObject go)
-	{
-		if ((!_spawnedOnly || go.IsSpawned) && go.Entry == _entry && go.GUID != _obj.GUID && _obj.IsWithinDist(go, _range))
-		{
-			_range = _obj.GetDistance(go); // use found GO range as new range limit for next check
+    public bool Invoke(GameObject go)
+    {
+        if ((!_spawnedOnly || go.IsSpawned) && go.Entry == _entry && go.GUID != _obj.GUID && _obj.IsWithinDist(go, _range))
+        {
+            _range = _obj.GetDistance(go); // use found GO range as new range limit for next check
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

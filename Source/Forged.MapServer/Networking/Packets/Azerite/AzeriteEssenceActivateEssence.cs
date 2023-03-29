@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Azerite;
 
 internal class AzeriteEssenceActivateEssence : ClientPacket
 {
-	public uint AzeriteEssenceID;
-	public byte Slot;
-	public AzeriteEssenceActivateEssence(WorldPacket packet) : base(packet) { }
+    public uint AzeriteEssenceID;
+    public byte Slot;
+    public AzeriteEssenceActivateEssence(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		AzeriteEssenceID = _worldPacket.ReadUInt32();
-		Slot = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        AzeriteEssenceID = _worldPacket.ReadUInt32();
+        Slot = _worldPacket.ReadUInt8();
+    }
 }

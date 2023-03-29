@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IGameObject;
 
 public interface IGameObjectGetAI : IScriptObject
 {
-	GameObjectAI GetAI(GameObject go);
+    GameObjectAI GetAI(GameObject go);
 }

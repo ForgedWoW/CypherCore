@@ -1,69 +1,68 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Forged.MapServer.Server;
 using Framework.Constants;
 
 namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureMovementData
 {
-	public CreatureGroundMovementType Ground;
-	public CreatureFlightMovementType Flight;
-	public bool Swim;
-	public bool Rooted;
-	public CreatureChaseMovementType Chase;
-	public CreatureRandomMovementType Random;
-	public uint InteractionPauseTimer;
+    public CreatureGroundMovementType Ground;
+    public CreatureFlightMovementType Flight;
+    public bool Swim;
+    public bool Rooted;
+    public CreatureChaseMovementType Chase;
+    public CreatureRandomMovementType Random;
+    public uint InteractionPauseTimer;
 
-	public CreatureMovementData()
-	{
-		Ground = CreatureGroundMovementType.Run;
-		Flight = CreatureFlightMovementType.None;
-		Swim = true;
-		Rooted = false;
-		Chase = CreatureChaseMovementType.Run;
-		Random = CreatureRandomMovementType.Walk;
-		InteractionPauseTimer = GetDefaultValue("Creature.MovingStopTimeForPlayer", 3 * Time.Minute * Time.InMilliseconds);
-	}
+    public CreatureMovementData()
+    {
+        Ground = CreatureGroundMovementType.Run;
+        Flight = CreatureFlightMovementType.None;
+        Swim = true;
+        Rooted = false;
+        Chase = CreatureChaseMovementType.Run;
+        Random = CreatureRandomMovementType.Walk;
+        InteractionPauseTimer = GetDefaultValue("Creature.MovingStopTimeForPlayer", 3 * Time.Minute * Time.InMilliseconds);
+    }
 
-	public bool IsGroundAllowed()
-	{
-		return Ground != CreatureGroundMovementType.None;
-	}
+    public bool IsGroundAllowed()
+    {
+        return Ground != CreatureGroundMovementType.None;
+    }
 
-	public bool IsSwimAllowed()
-	{
-		return Swim;
-	}
+    public bool IsSwimAllowed()
+    {
+        return Swim;
+    }
 
-	public bool IsFlightAllowed()
-	{
-		return Flight != CreatureFlightMovementType.None;
-	}
+    public bool IsFlightAllowed()
+    {
+        return Flight != CreatureFlightMovementType.None;
+    }
 
-	public bool IsRooted()
-	{
-		return Rooted;
-	}
+    public bool IsRooted()
+    {
+        return Rooted;
+    }
 
-	public CreatureChaseMovementType GetChase()
-	{
-		return Chase;
-	}
+    public CreatureChaseMovementType GetChase()
+    {
+        return Chase;
+    }
 
-	public CreatureRandomMovementType GetRandom()
-	{
-		return Random;
-	}
+    public CreatureRandomMovementType GetRandom()
+    {
+        return Random;
+    }
 
-	public uint GetInteractionPauseTimer()
-	{
-		return InteractionPauseTimer;
-	}
+    public uint GetInteractionPauseTimer()
+    {
+        return InteractionPauseTimer;
+    }
 
-	public override string ToString()
-	{
-		return $"Ground: {Ground}, Swim: {Swim}, Flight: {Flight} {(Rooted ? ", Rooted" : "")}, Chase: {Chase}, Random: {Random}, InteractionPauseTimer: {InteractionPauseTimer}";
-	}
+    public override string ToString()
+    {
+        return $"Ground: {Ground}, Swim: {Swim}, Flight: {Flight} {(Rooted ? ", Rooted" : "")}, Chase: {Chase}, Random: {Random}, InteractionPauseTimer: {InteractionPauseTimer}";
+    }
 }

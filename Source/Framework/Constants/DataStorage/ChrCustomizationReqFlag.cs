@@ -5,5 +5,5 @@ namespace Framework.Constants;
 
 public enum ChrCustomizationReqFlag
 {
-	HasRequirements = 0x01
+    HasRequirements = 0x01
 }

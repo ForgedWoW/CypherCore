@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Duel;
 
 public class DuelRequested : ServerPacket
 {
-	public ObjectGuid ArbiterGUID;
-	public ObjectGuid RequestedByGUID;
-	public ObjectGuid RequestedByWowAccount;
-	public DuelRequested() : base(ServerOpcodes.DuelRequested, ConnectionType.Instance) { }
+    public ObjectGuid ArbiterGUID;
+    public ObjectGuid RequestedByGUID;
+    public ObjectGuid RequestedByWowAccount;
+    public DuelRequested() : base(ServerOpcodes.DuelRequested, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ArbiterGUID);
-		_worldPacket.WritePackedGuid(RequestedByGUID);
-		_worldPacket.WritePackedGuid(RequestedByWowAccount);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ArbiterGUID);
+        _worldPacket.WritePackedGuid(RequestedByGUID);
+        _worldPacket.WritePackedGuid(RequestedByWowAccount);
+    }
 }

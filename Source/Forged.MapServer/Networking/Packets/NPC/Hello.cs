@@ -14,13 +14,13 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 // CMSG_BATTLEMASTER_HELLO
 public class Hello : ClientPacket
 {
-	public ObjectGuid Unit;
-	public Hello(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Unit;
+    public Hello(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Unit = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Unit = _worldPacket.ReadPackedGuid();
+    }
 }
 
 //Structs

@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum TraitCurrencyType
 {
-	Gold = 0,
-	CurrencyTypesBased = 1,
-	TraitSourced = 2
+    Gold = 0,
+    CurrencyTypesBased = 1,
+    TraitSourced = 2
 }

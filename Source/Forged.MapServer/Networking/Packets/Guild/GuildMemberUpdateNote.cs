@@ -9,19 +9,19 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildMemberUpdateNote : ServerPacket
 {
-	public ObjectGuid Member;
-	public bool IsPublic; // 0 == Officer, 1 == Public
-	public string Note;
-	public GuildMemberUpdateNote() : base(ServerOpcodes.GuildMemberUpdateNote) { }
+    public ObjectGuid Member;
+    public bool IsPublic; // 0 == Officer, 1 == Public
+    public string Note;
+    public GuildMemberUpdateNote() : base(ServerOpcodes.GuildMemberUpdateNote) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Member);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Member);
 
-		_worldPacket.WriteBits(Note.GetByteCount(), 8);
-		_worldPacket.WriteBit(IsPublic);
-		_worldPacket.FlushBits();
+        _worldPacket.WriteBits(Note.GetByteCount(), 8);
+        _worldPacket.WriteBit(IsPublic);
+        _worldPacket.FlushBits();
 
-		_worldPacket.WriteString(Note);
-	}
+        _worldPacket.WriteString(Note);
+    }
 }

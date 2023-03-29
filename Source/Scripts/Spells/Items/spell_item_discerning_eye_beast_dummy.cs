@@ -13,17 +13,17 @@ namespace Scripts.Spells.Items;
 [Script] // 59915 - Discerning Eye of the Beast Dummy
 internal class spell_item_discerning_eye_beast_dummy : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		eventInfo.Actor.CastSpell((Unit)null, ItemSpellIds.DiscerningEyeBeast, new CastSpellExtraArgs(aurEff));
-	}
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        eventInfo.Actor.CastSpell((Unit)null, ItemSpellIds.DiscerningEyeBeast, new CastSpellExtraArgs(aurEff));
+    }
 }

@@ -7,16 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildNewsUpdateSticky : ClientPacket
 {
-	public int NewsID;
-	public ObjectGuid GuildGUID;
-	public bool Sticky;
-	public GuildNewsUpdateSticky(WorldPacket packet) : base(packet) { }
+    public int NewsID;
+    public ObjectGuid GuildGUID;
+    public bool Sticky;
+    public GuildNewsUpdateSticky(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		GuildGUID = _worldPacket.ReadPackedGuid();
-		NewsID = _worldPacket.ReadInt32();
+    public override void Read()
+    {
+        GuildGUID = _worldPacket.ReadPackedGuid();
+        NewsID = _worldPacket.ReadInt32();
 
-		Sticky = _worldPacket.HasBit();
-	}
+        Sticky = _worldPacket.HasBit();
+    }
 }

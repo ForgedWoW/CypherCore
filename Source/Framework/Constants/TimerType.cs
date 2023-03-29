@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum TimerType
 {
-	Pvp = 0,
-	ChallengerMode = 1,
-	PlayerCountdown = 2
+    Pvp = 0,
+    ChallengerMode = 1,
+    PlayerCountdown = 2
 }

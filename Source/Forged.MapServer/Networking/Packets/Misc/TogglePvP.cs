@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class TogglePvP : ClientPacket
 {
-	public TogglePvP(WorldPacket packet) : base(packet) { }
+    public TogglePvP(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

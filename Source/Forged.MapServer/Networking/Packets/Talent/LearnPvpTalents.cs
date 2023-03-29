@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Talent;
 
 internal class LearnPvpTalents : ClientPacket
 {
-	public Array<PvPTalent> Talents = new(4);
-	public LearnPvpTalents(WorldPacket packet) : base(packet) { }
+    public Array<PvPTalent> Talents = new(4);
+    public LearnPvpTalents(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var size = _worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        var size = _worldPacket.ReadUInt32();
 
-		for (var i = 0; i < size; ++i)
-			Talents[i] = new PvPTalent(_worldPacket);
-	}
+        for (var i = 0; i < size; ++i)
+            Talents[i] = new PvPTalent(_worldPacket);
+    }
 }

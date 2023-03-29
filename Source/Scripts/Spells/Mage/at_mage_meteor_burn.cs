@@ -11,33 +11,33 @@ namespace Scripts.Spells.Mage;
 [Script]
 public class at_mage_meteor_burn : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	public void OnUnitEnter(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitEnter(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		if (caster.TypeId != TypeId.Player)
-			return;
+        if (caster.TypeId != TypeId.Player)
+            return;
 
-		if (caster.IsValidAttackTarget(unit))
-			caster.CastSpell(unit, MageSpells.METEOR_BURN, true);
-	}
+        if (caster.IsValidAttackTarget(unit))
+            caster.CastSpell(unit, MageSpells.METEOR_BURN, true);
+    }
 
-	public void OnUnitExit(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitExit(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null || unit == null)
-			return;
+        if (caster == null || unit == null)
+            return;
 
-		if (caster.TypeId != TypeId.Player)
-			return;
+        if (caster.TypeId != TypeId.Player)
+            return;
 
-		var meteor = unit.GetAura(MageSpells.METEOR_BURN, caster.GUID);
+        var meteor = unit.GetAura(MageSpells.METEOR_BURN, caster.GUID);
 
-		if (meteor != null)
-			meteor.SetDuration(0);
-	}
+        if (meteor != null)
+            meteor.SetDuration(0);
+    }
 }

@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MovementSpeedAck : ClientPacket
 {
-	public MovementAck Ack;
-	public float Speed;
-	public MovementSpeedAck(WorldPacket packet) : base(packet) { }
+    public MovementAck Ack;
+    public float Speed;
+    public MovementSpeedAck(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Ack.Read(_worldPacket);
-		Speed = _worldPacket.ReadFloat();
-	}
+    public override void Read()
+    {
+        Ack.Read(_worldPacket);
+        Speed = _worldPacket.ReadFloat();
+    }
 }

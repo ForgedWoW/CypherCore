@@ -10,10 +10,10 @@ namespace Forged.MapServer.Spells;
 
 internal class Node
 {
-	public TraitNodeRecord Data;
-	public List<NodeEntry> Entries = new();
-	public List<NodeGroup> Groups = new();
-	public List<Tuple<Node, TraitEdgeType>> ParentNodes = new(); // TraitEdge::LeftTraitNodeID
-	public List<TraitCondRecord> Conditions = new();
-	public List<TraitCostRecord> Costs = new();
+    public TraitNodeRecord Data;
+    public List<NodeEntry> Entries = new();
+    public List<NodeGroup> Groups = new();
+    public List<Tuple<Node, TraitEdgeType>> ParentNodes = new(); // TraitEdge::LeftTraitNodeID
+    public List<TraitCondRecord> Conditions = new();
+    public List<TraitCostRecord> Costs = new();
 }

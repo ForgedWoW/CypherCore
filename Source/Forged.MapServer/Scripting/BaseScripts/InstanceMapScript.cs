@@ -8,17 +8,17 @@ namespace Forged.MapServer.Scripting.BaseScripts;
 
 public class InstanceMapScript : MapScript<InstanceMap>
 {
-	public InstanceMapScript(string name, uint mapId) : base(name, mapId)
-	{
-		if (GetEntry() != null &&
-			!GetEntry().IsDungeon())
-			Log.Logger.Error("InstanceMapScript for map {0} is invalid.", mapId);
+    public InstanceMapScript(string name, uint mapId) : base(name, mapId)
+    {
+        if (GetEntry() != null &&
+            !GetEntry().IsDungeon())
+            Log.Logger.Error("InstanceMapScript for map {0} is invalid.", mapId);
 
-		Global.ScriptMgr.AddScript(this);
-	}
+        Global.ScriptMgr.AddScript(this);
+    }
 
-	public override bool IsDatabaseBound()
-	{
-		return true;
-	}
+    public override bool IsDatabaseBound()
+    {
+        return true;
+    }
 }

@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum ModelIgnoreFlags
 {
-	Nothing = 0x00,
-	M2 = 0x01
+    Nothing = 0x00,
+    M2 = 0x01
 }

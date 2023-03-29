@@ -5,20 +5,20 @@ namespace Framework.Constants;
 
 public enum GlobalCurve
 {
-	CritDiminishing = 0,
-	MasteryDiminishing = 1,
-	HasteDiminishing = 2,
-	SpeedDiminishing = 3,
-	AvoidanceDiminishing = 4,
-	VersatilityDoneDiminishing = 5,
-	LifestealDiminishing = 6,
-	DodgeDiminishing = 7,
-	BlockDiminishing = 8,
-	ParryDiminishing = 9,
+    CritDiminishing = 0,
+    MasteryDiminishing = 1,
+    HasteDiminishing = 2,
+    SpeedDiminishing = 3,
+    AvoidanceDiminishing = 4,
+    VersatilityDoneDiminishing = 5,
+    LifestealDiminishing = 6,
+    DodgeDiminishing = 7,
+    BlockDiminishing = 8,
+    ParryDiminishing = 9,
 
-	VersatilityTakenDiminishing = 11,
+    VersatilityTakenDiminishing = 11,
 
-	ContentTuningPvpItemLevelHealthScaling = 13,
-	ContentTuningPvpLevelDamageScaling = 14,
-	ContentTuningPvpItemLevelDamageScaling = 15,
+    ContentTuningPvpItemLevelHealthScaling = 13,
+    ContentTuningPvpLevelDamageScaling = 14,
+    ContentTuningPvpItemLevelDamageScaling = 15,
 }

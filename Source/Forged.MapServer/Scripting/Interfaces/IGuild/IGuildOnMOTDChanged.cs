@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IGuild;
 
 public interface IGuildOnMOTDChanged : IScriptObject
 {
-	void OnMOTDChanged(Guild guild, string newMotd);
+    void OnMOTDChanged(Guild guild, string newMotd);
 }

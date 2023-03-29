@@ -11,14 +11,14 @@ public class AllWorldObjectsInRange : ICheck<WorldObject>
     private readonly WorldObject _pObject;
     private readonly float _fRange;
 
-	public AllWorldObjectsInRange(WorldObject obj, float maxRange)
-	{
-		_pObject = obj;
-		_fRange = maxRange;
-	}
+    public AllWorldObjectsInRange(WorldObject obj, float maxRange)
+    {
+        _pObject = obj;
+        _fRange = maxRange;
+    }
 
-	public bool Invoke(WorldObject go)
-	{
-		return _pObject.IsWithinDist(go, _fRange, false) && _pObject.InSamePhase(go);
-	}
+    public bool Invoke(WorldObject go)
+    {
+        return _pObject.IsWithinDist(go, _fRange, false) && _pObject.InSamePhase(go);
+    }
 }

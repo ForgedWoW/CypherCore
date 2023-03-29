@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 internal class SpiritHealerActivate : ClientPacket
 {
-	public ObjectGuid Healer;
-	public SpiritHealerActivate(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Healer;
+    public SpiritHealerActivate(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Healer = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Healer = _worldPacket.ReadPackedGuid();
+    }
 }

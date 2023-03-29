@@ -12,10 +12,10 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.SCINTILLATION)]
 public class aura_evoker_scintillation : AuraScript, IAuraCheckProc, IAuraOnProc
 {
-	public bool CheckProc(ProcEventInfo info)
-	{
-		return info.SpellInfo.Id.EqualsAny(EvokerSpells.BLUE_DISINTEGRATE, EvokerSpells.BLUE_DISINTEGRATE_2) && RandomHelper.randChance(Aura.GetEffect(1).Amount);
-	}
+    public bool CheckProc(ProcEventInfo info)
+    {
+        return info.SpellInfo.Id.EqualsAny(EvokerSpells.BLUE_DISINTEGRATE, EvokerSpells.BLUE_DISINTEGRATE_2) && RandomHelper.randChance(Aura.GetEffect(1).Amount);
+    }
 
     public void OnProc(ProcEventInfo info)
     {

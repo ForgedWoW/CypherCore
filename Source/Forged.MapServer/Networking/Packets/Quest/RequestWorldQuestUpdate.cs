@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class RequestWorldQuestUpdate : ClientPacket
 {
-	public RequestWorldQuestUpdate(WorldPacket packet) : base(packet) { }
+    public RequestWorldQuestUpdate(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

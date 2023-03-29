@@ -12,45 +12,45 @@ namespace Scripts.Spells.Druid;
 [SpellScript(197632)]
 public class spell_dru_balance_affinity_resto : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(UnlearnSpells, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-		AuraEffects.Add(new AuraEffectApplyHandler(LearnSpells, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(UnlearnSpells, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+        AuraEffects.Add(new AuraEffectApplyHandler(LearnSpells, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
+    }
 
-	private void LearnSpells(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void LearnSpells(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var player = caster.AsPlayer;
+        var player = caster.AsPlayer;
 
-		if (player != null)
-		{
-			player.AddTemporarySpell(ShapeshiftFormSpells.MOONKIN_FORM);
-			player.AddTemporarySpell(BalanceAffinitySpells.STARSURGE);
-			player.AddTemporarySpell(BalanceAffinitySpells.LUNAR_STRIKE);
-		}
-	}
+        if (player != null)
+        {
+            player.AddTemporarySpell(ShapeshiftFormSpells.MOONKIN_FORM);
+            player.AddTemporarySpell(BalanceAffinitySpells.STARSURGE);
+            player.AddTemporarySpell(BalanceAffinitySpells.LUNAR_STRIKE);
+        }
+    }
 
-	private void UnlearnSpells(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void UnlearnSpells(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var player = caster.AsPlayer;
+        var player = caster.AsPlayer;
 
-		if (player != null)
-		{
-			player.RemoveTemporarySpell(ShapeshiftFormSpells.MOONKIN_FORM);
-			player.RemoveTemporarySpell(BalanceAffinitySpells.STARSURGE);
-			player.RemoveTemporarySpell(BalanceAffinitySpells.LUNAR_STRIKE);
-		}
-	}
+        if (player != null)
+        {
+            player.RemoveTemporarySpell(ShapeshiftFormSpells.MOONKIN_FORM);
+            player.RemoveTemporarySpell(BalanceAffinitySpells.STARSURGE);
+            player.RemoveTemporarySpell(BalanceAffinitySpells.LUNAR_STRIKE);
+        }
+    }
 }

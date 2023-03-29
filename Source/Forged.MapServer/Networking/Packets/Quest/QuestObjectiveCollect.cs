@@ -5,14 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public struct QuestObjectiveCollect
 {
-	public QuestObjectiveCollect(uint objectID = 0, int amount = 0, uint flags = 0)
-	{
-		ObjectID = objectID;
-		Amount = amount;
-		Flags = flags;
-	}
+    public QuestObjectiveCollect(uint objectID = 0, int amount = 0, uint flags = 0)
+    {
+        ObjectID = objectID;
+        Amount = amount;
+        Flags = flags;
+    }
 
-	public uint ObjectID;
-	public int Amount;
-	public uint Flags;
+    public uint ObjectID;
+    public int Amount;
+    public uint Flags;
 }

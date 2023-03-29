@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class SetTitle : ClientPacket
 {
-	public int TitleID;
+    public int TitleID;
 
-	public SetTitle(WorldPacket packet) : base(packet) { }
+    public SetTitle(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		TitleID = _worldPacket.ReadInt32();
-	}
+    public override void Read()
+    {
+        TitleID = _worldPacket.ReadInt32();
+    }
 }

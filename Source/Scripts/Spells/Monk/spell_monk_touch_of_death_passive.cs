@@ -10,11 +10,11 @@ namespace Scripts.Spells.Monk;
 [SpellScript(271232)]
 public class spell_monk_touch_of_death_passive : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo.Id != MonkSpells.TOUCH_OF_DEATH)
-			return false;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo.Id != MonkSpells.TOUCH_OF_DEATH)
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 }

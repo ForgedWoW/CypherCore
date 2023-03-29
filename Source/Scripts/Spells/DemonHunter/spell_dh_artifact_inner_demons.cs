@@ -13,22 +13,22 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(201471)]
 public class spell_dh_artifact_inner_demons : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
 
-	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
-	{
-		var caster = Caster;
-		var target = eventInfo.ActionTarget;
+    private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+    {
+        var caster = Caster;
+        var target = eventInfo.ActionTarget;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		caster.VariableStorage.Set("Spells.InnerDemonsTarget", target.GUID);
-	}
+        caster.VariableStorage.Set("Spells.InnerDemonsTarget", target.GUID);
+    }
 }

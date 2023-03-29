@@ -8,11 +8,11 @@ namespace Forged.MapServer.Maps;
 
 public struct ScriptAction
 {
-	public ObjectGuid OwnerGUID;
+    public ObjectGuid OwnerGUID;
 
-	// owner of source if source is item
-	public ScriptInfo Script;
+    // owner of source if source is item
+    public ScriptInfo Script;
 
-	public ObjectGuid SourceGUID;
-	public ObjectGuid TargetGUID;
+    public ObjectGuid SourceGUID;
+    public ObjectGuid TargetGUID;
 }

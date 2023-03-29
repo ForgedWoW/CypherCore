@@ -10,22 +10,22 @@ namespace Forged.MapServer.Scripting.BaseScripts;
 
 public class GenericGameObjectScript<AI> : ScriptObjectAutoAddDBBound, IGameObjectGetAI where AI : GameObjectAI
 {
-	private readonly object[] _args;
+    private readonly object[] _args;
 
-	public GenericGameObjectScript(string name, object[] args) : base(name)
-	{
-		_args = args;
-	}
+    public GenericGameObjectScript(string name, object[] args) : base(name)
+    {
+        _args = args;
+    }
 
-	public GameObjectAI GetAI(GameObject me)
-	{
-		if (me.Location.InstanceScript != null)
-			return GetInstanceAI<AI>(me);
-		else
-			return (AI)Activator.CreateInstance(typeof(AI),
-												new object[]
-												{
-													me
-												}.Combine(_args));
-	}
+    public GameObjectAI GetAI(GameObject me)
+    {
+        if (me.Location.InstanceScript != null)
+            return GetInstanceAI<AI>(me);
+        else
+            return (AI)Activator.CreateInstance(typeof(AI),
+                                                new object[]
+                                                {
+                                                    me
+                                                }.Combine(_args));
+    }
 }

@@ -11,22 +11,22 @@ namespace Scripts.Spells.Mage;
 [SpellScript(55342)]
 public class spell_mage_mirror_image_summon : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			caster.CastSpell(caster, MageSpells.MIRROR_IMAGE_LEFT, true);
-			caster.CastSpell(caster, MageSpells.MIRROR_IMAGE_FRONT, true);
-			caster.CastSpell(caster, MageSpells.MIRROR_IMAGE_RIGHT, true);
-		}
-	}
+        if (caster != null)
+        {
+            caster.CastSpell(caster, MageSpells.MIRROR_IMAGE_LEFT, true);
+            caster.CastSpell(caster, MageSpells.MIRROR_IMAGE_FRONT, true);
+            caster.CastSpell(caster, MageSpells.MIRROR_IMAGE_RIGHT, true);
+        }
+    }
 }

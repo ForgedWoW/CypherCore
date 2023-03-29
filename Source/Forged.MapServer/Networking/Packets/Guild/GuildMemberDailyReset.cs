@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildMemberDailyReset : ServerPacket
 {
-	public GuildMemberDailyReset() : base(ServerOpcodes.GuildMemberDailyReset) { }
+    public GuildMemberDailyReset() : base(ServerOpcodes.GuildMemberDailyReset) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

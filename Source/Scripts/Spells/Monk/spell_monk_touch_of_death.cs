@@ -13,45 +13,45 @@ namespace Scripts.Spells.Monk;
 [SpellScript(115080)]
 public class spell_monk_touch_of_death : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.PeriodicDummy));
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.PeriodicDummy));
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDummy));
+    }
 
-	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		canBeRecalculated.Value = true;
-		var caster = Caster;
+    private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        canBeRecalculated.Value = true;
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var effInfo = Aura.SpellInfo.GetEffect(1).CalcValue();
+        if (caster != null)
+        {
+            var effInfo = Aura.SpellInfo.GetEffect(1).CalcValue();
 
-			if (effInfo != 0)
-			{
-				amount.Value = caster.CountPctFromMaxHealth(effInfo);
+            if (effInfo != 0)
+            {
+                amount.Value = caster.CountPctFromMaxHealth(effInfo);
 
-				aurEff.SetAmount(amount);
-			}
-		}
-	}
+                aurEff.SetAmount(amount);
+            }
+        }
+    }
 
-	private void OnTick(AuraEffect aurEff)
-	{
-		var caster = Caster;
+    private void OnTick(AuraEffect aurEff)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var damage = aurEff.Amount;
+        if (caster != null)
+        {
+            var damage = aurEff.Amount;
 
-			// Damage reduced to Players, need to check reduction value
-			if (Target.TypeId == TypeId.Player)
-				damage /= 2;
+            // Damage reduced to Players, need to check reduction value
+            if (Target.TypeId == TypeId.Player)
+                damage /= 2;
 
-			caster.CastSpell(Target, MonkSpells.TOUCH_OF_DEATH_DAMAGE, new CastSpellExtraArgs().AddSpellMod(SpellValueMod.BasePoint0, (int)damage));
-		}
-	}
+            caster.CastSpell(Target, MonkSpells.TOUCH_OF_DEATH_DAMAGE, new CastSpellExtraArgs().AddSpellMod(SpellValueMod.BasePoint0, (int)damage));
+        }
+    }
 }

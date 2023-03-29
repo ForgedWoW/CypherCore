@@ -12,26 +12,26 @@ public class GetAllAlliesOfTargetCreaturesWithinRange : ICheck<Creature>
     private readonly Unit _pObject;
     private readonly float _fRange;
 
-	public GetAllAlliesOfTargetCreaturesWithinRange(Unit obj, float maxRange = 0f)
-	{
-		_pObject = obj;
-		_fRange = maxRange;
-	}
+    public GetAllAlliesOfTargetCreaturesWithinRange(Unit obj, float maxRange = 0f)
+    {
+        _pObject = obj;
+        _fRange = maxRange;
+    }
 
-	public bool Invoke(Creature creature)
-	{
-		if (creature.IsHostileTo(_pObject))
-			return false;
+    public bool Invoke(Creature creature)
+    {
+        if (creature.IsHostileTo(_pObject))
+            return false;
 
-		if (_fRange != 0f)
-		{
-			if (_fRange > 0.0f && !_pObject.IsWithinDist(creature, _fRange, false))
-				return false;
+        if (_fRange != 0f)
+        {
+            if (_fRange > 0.0f && !_pObject.IsWithinDist(creature, _fRange, false))
+                return false;
 
-			if (_fRange < 0.0f && _pObject.IsWithinDist(creature, _fRange, false))
-				return false;
-		}
+            if (_fRange < 0.0f && _pObject.IsWithinDist(creature, _fRange, false))
+                return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

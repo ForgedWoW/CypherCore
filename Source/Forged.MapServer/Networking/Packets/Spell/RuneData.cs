@@ -7,17 +7,17 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class RuneData
 {
-	public byte Start;
-	public byte Count;
-	public List<byte> Cooldowns = new();
+    public byte Start;
+    public byte Count;
+    public List<byte> Cooldowns = new();
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt8(Start);
-		data.WriteUInt8(Count);
-		data.WriteInt32(Cooldowns.Count);
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt8(Start);
+        data.WriteUInt8(Count);
+        data.WriteInt32(Cooldowns.Count);
 
-		foreach (var cd in Cooldowns)
-			data.WriteUInt8(cd);
-	}
+        foreach (var cd in Cooldowns)
+            data.WriteUInt8(cd);
+    }
 }

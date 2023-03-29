@@ -9,27 +9,27 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionListOwnedItems : ClientPacket
 {
-	public ObjectGuid Auctioneer;
-	public uint Offset;
-	public AddOnInfo? TaintedBy;
-	public Array<AuctionSortDef> Sorts = new(2);
+    public ObjectGuid Auctioneer;
+    public uint Offset;
+    public AddOnInfo? TaintedBy;
+    public Array<AuctionSortDef> Sorts = new(2);
 
-	public AuctionListOwnedItems(WorldPacket packet) : base(packet) { }
+    public AuctionListOwnedItems(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Auctioneer = _worldPacket.ReadPackedGuid();
-		Offset = _worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        Auctioneer = _worldPacket.ReadPackedGuid();
+        Offset = _worldPacket.ReadUInt32();
 
-		if (_worldPacket.HasBit())
-			TaintedBy = new AddOnInfo();
+        if (_worldPacket.HasBit())
+            TaintedBy = new AddOnInfo();
 
-		var sortCount = _worldPacket.ReadBits<uint>(2);
+        var sortCount = _worldPacket.ReadBits<uint>(2);
 
-		for (var i = 0; i < sortCount; ++i)
-			Sorts[i] = new AuctionSortDef(_worldPacket);
+        for (var i = 0; i < sortCount; ++i)
+            Sorts[i] = new AuctionSortDef(_worldPacket);
 
-		if (TaintedBy.HasValue)
-			TaintedBy.Value.Read(_worldPacket);
-	}
+        if (TaintedBy.HasValue)
+            TaintedBy.Value.Read(_worldPacket);
+    }
 }

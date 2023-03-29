@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class InstanceEncounterInCombatResurrection : ServerPacket
 {
-	public InstanceEncounterInCombatResurrection() : base(ServerOpcodes.InstanceEncounterInCombatResurrection, ConnectionType.Instance) { }
+    public InstanceEncounterInCombatResurrection() : base(ServerOpcodes.InstanceEncounterInCombatResurrection, ConnectionType.Instance) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

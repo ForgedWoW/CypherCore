@@ -5,18 +5,18 @@ namespace Forged.MapServer.Networking.Packets.Talent;
 
 public struct PvPTalent
 {
-	public ushort PvPTalentID;
-	public byte Slot;
+    public ushort PvPTalentID;
+    public byte Slot;
 
-	public PvPTalent(WorldPacket data)
-	{
-		PvPTalentID = data.ReadUInt16();
-		Slot = data.ReadUInt8();
-	}
+    public PvPTalent(WorldPacket data)
+    {
+        PvPTalentID = data.ReadUInt16();
+        Slot = data.ReadUInt8();
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt16(PvPTalentID);
-		data.WriteUInt8(Slot);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt16(PvPTalentID);
+        data.WriteUInt8(Slot);
+    }
 }

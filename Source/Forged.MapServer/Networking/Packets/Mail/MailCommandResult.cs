@@ -7,21 +7,21 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailCommandResult : ServerPacket
 {
-	public ulong MailID;
-	public int Command;
-	public int ErrorCode;
-	public int BagResult;
-	public ulong AttachID;
-	public int QtyInInventory;
-	public MailCommandResult() : base(ServerOpcodes.MailCommandResult) { }
+    public ulong MailID;
+    public int Command;
+    public int ErrorCode;
+    public int BagResult;
+    public ulong AttachID;
+    public int QtyInInventory;
+    public MailCommandResult() : base(ServerOpcodes.MailCommandResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt64(MailID);
-		_worldPacket.WriteInt32(Command);
-		_worldPacket.WriteInt32(ErrorCode);
-		_worldPacket.WriteInt32(BagResult);
-		_worldPacket.WriteUInt64(AttachID);
-		_worldPacket.WriteInt32(QtyInInventory);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt64(MailID);
+        _worldPacket.WriteInt32(Command);
+        _worldPacket.WriteInt32(ErrorCode);
+        _worldPacket.WriteInt32(BagResult);
+        _worldPacket.WriteUInt64(AttachID);
+        _worldPacket.WriteInt32(QtyInInventory);
+    }
 }

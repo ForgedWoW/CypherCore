@@ -13,15 +13,15 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(73921)]
 internal class spell_sha_healing_rain_target_limit : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(SelectTargets, 0, Targets.UnitDestAreaAlly));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(SelectTargets, 0, Targets.UnitDestAreaAlly));
+    }
 
-	private void SelectTargets(List<WorldObject> targets)
-	{
-		SelectRandomInjuredTargets(targets, 6, true);
-	}
+    private void SelectTargets(List<WorldObject> targets)
+    {
+        SelectRandomInjuredTargets(targets, 6, true);
+    }
 }

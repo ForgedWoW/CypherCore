@@ -12,35 +12,35 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(6940)] // 6940 - Hand of Sacrifice
 internal class spell_pal_hand_of_sacrifice : AuraScript, IHasAuraEffects
 {
-	private int remainingAmount;
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    private int remainingAmount;
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Load()
-	{
-		var caster = Caster;
+    public override bool Load()
+    {
+        var caster = Caster;
 
-		if (caster)
-		{
-			remainingAmount = (int)caster.MaxHealth;
+        if (caster)
+        {
+            remainingAmount = (int)caster.MaxHealth;
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectSplitHandler(Split, 0));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectSplitHandler(Split, 0));
+    }
 
-	private double Split(AuraEffect aurEff, DamageInfo dmgInfo, double splitAmount)
-	{
-		remainingAmount -= (int)splitAmount;
+    private double Split(AuraEffect aurEff, DamageInfo dmgInfo, double splitAmount)
+    {
+        remainingAmount -= (int)splitAmount;
 
-		if (remainingAmount <= 0)
-			Target.RemoveAura(PaladinSpells.HandOfSacrifice);
+        if (remainingAmount <= 0)
+            Target.RemoveAura(PaladinSpells.HandOfSacrifice);
 
-		return splitAmount;
-	}
+        return splitAmount;
+    }
 }

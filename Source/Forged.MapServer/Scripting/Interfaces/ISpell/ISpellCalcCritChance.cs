@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellCalcCritChance : ISpellScript
 {
-	void CalcCritChance(Unit victim, ref double chance);
+    void CalcCritChance(Unit victim, ref double chance);
 }

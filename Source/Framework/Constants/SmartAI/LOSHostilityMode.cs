@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum LOSHostilityMode
 {
-	Hostile = 0,
-	NotHostile = 1,
-	Any = 2,
-	End
+    Hostile = 0,
+    NotHostile = 1,
+    Any = 2,
+    End
 }

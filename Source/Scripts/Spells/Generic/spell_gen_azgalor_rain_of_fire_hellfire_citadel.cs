@@ -11,15 +11,15 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_azgalor_rain_of_fire_hellfire_citadel : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		Caster.CastSpell(HitUnit, (uint)EffectValue, true);
-	}
+    private void HandleDummy(int effIndex)
+    {
+        Caster.CastSpell(HitUnit, (uint)EffectValue, true);
+    }
 }

@@ -13,9 +13,9 @@ public class spell_evoker_scintillation : SpellScript, ISpellCalculateBonusCoeff
     {
         var aura = Spell.TriggeredByAuraSpell;
 
-		if (aura != null && aura.Id == EvokerSpells.SCINTILLATION)
-			bonusCoefficient *= aura.GetEffect(0).BasePoints * 0.01;
+        if (aura != null && aura.Id == EvokerSpells.SCINTILLATION)
+            bonusCoefficient *= aura.GetEffect(0).BasePoints * 0.01;
 
-		return bonusCoefficient;
+        return bonusCoefficient;
     }
 }

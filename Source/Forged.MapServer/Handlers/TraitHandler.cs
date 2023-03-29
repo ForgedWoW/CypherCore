@@ -16,251 +16,251 @@ namespace Forged.MapServer.Handlers;
 
 public class TraitHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.TraitsCommitConfig)]
+    [WorldPacketHandler(ClientOpcodes.TraitsCommitConfig)]
     private void HandleTraitsCommitConfig(TraitsCommitConfig traitsCommitConfig)
-	{
-		var configId = traitsCommitConfig.Config.ID;
-		var existingConfig = _player.GetTraitConfig(configId);
+    {
+        var configId = traitsCommitConfig.Config.ID;
+        var existingConfig = _player.GetTraitConfig(configId);
 
-		if (existingConfig == null)
-		{
-			SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
+        if (existingConfig == null)
+        {
+            SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
 
-			return;
-		}
+            return;
+        }
 
-		if (_player.IsInCombat)
-		{
-			SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedAffectingCombat));
+        if (_player.IsInCombat)
+        {
+            SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedAffectingCombat));
 
-			return;
-		}
+            return;
+        }
 
-		if (_player.Battleground && _player.Battleground.GetStatus() == BattlegroundStatus.InProgress)
-		{
-			SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.InPvpMatch));
+        if (_player.Battleground && _player.Battleground.GetStatus() == BattlegroundStatus.InProgress)
+        {
+            SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.InPvpMatch));
 
-			return;
-		}
+            return;
+        }
 
-		var hasRemovedEntries = false;
-		TraitConfigPacket newConfigState = new(existingConfig);
+        var hasRemovedEntries = false;
+        TraitConfigPacket newConfigState = new(existingConfig);
 
-		foreach (var kvp in traitsCommitConfig.Config.Entries.Values)
-			foreach (var newEntry in kvp.Values)
-			{
-				var traitEntry = newConfigState.Entries.LookupByKey(newEntry.TraitNodeID)?.LookupByKey(newEntry.TraitNodeEntryID);
+        foreach (var kvp in traitsCommitConfig.Config.Entries.Values)
+            foreach (var newEntry in kvp.Values)
+            {
+                var traitEntry = newConfigState.Entries.LookupByKey(newEntry.TraitNodeID)?.LookupByKey(newEntry.TraitNodeEntryID);
 
-				if (traitEntry == null)
-				{
-					newConfigState.AddEntry(newEntry);
+                if (traitEntry == null)
+                {
+                    newConfigState.AddEntry(newEntry);
 
-					continue;
-				}
+                    continue;
+                }
 
-				if (traitEntry.Rank > newEntry.Rank)
-				{
-					var traitNode = CliDB.TraitNodeStorage.LookupByKey(newEntry.TraitNodeID);
+                if (traitEntry.Rank > newEntry.Rank)
+                {
+                    var traitNode = CliDB.TraitNodeStorage.LookupByKey(newEntry.TraitNodeID);
 
-					if (traitNode == null)
-					{
-						SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
+                    if (traitNode == null)
+                    {
+                        SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
 
-						return;
-					}
+                        return;
+                    }
 
-					var traitTree = CliDB.TraitTreeStorage.LookupByKey(traitNode.TraitTreeID);
+                    var traitTree = CliDB.TraitTreeStorage.LookupByKey(traitNode.TraitTreeID);
 
-					if (traitTree == null)
-					{
-						SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
+                    if (traitTree == null)
+                    {
+                        SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
 
-						return;
-					}
+                        return;
+                    }
 
-					if (traitTree.GetFlags().HasFlag(TraitTreeFlag.CannotRefund))
-					{
-						SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedCantRemoveTalent));
+                    if (traitTree.GetFlags().HasFlag(TraitTreeFlag.CannotRefund))
+                    {
+                        SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedCantRemoveTalent));
 
-						return;
-					}
+                        return;
+                    }
 
-					var traitNodeEntry = CliDB.TraitNodeEntryStorage.LookupByKey(newEntry.TraitNodeEntryID);
+                    var traitNodeEntry = CliDB.TraitNodeEntryStorage.LookupByKey(newEntry.TraitNodeEntryID);
 
-					if (traitNodeEntry == null)
-					{
-						SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
+                    if (traitNodeEntry == null)
+                    {
+                        SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
 
-						return;
-					}
+                        return;
+                    }
 
-					var traitDefinition = CliDB.TraitDefinitionStorage.LookupByKey(traitNodeEntry.TraitDefinitionID);
+                    var traitDefinition = CliDB.TraitDefinitionStorage.LookupByKey(traitNodeEntry.TraitDefinitionID);
 
-					if (traitDefinition == null)
-					{
-						SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
+                    if (traitDefinition == null)
+                    {
+                        SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
 
-						return;
-					}
+                        return;
+                    }
 
-					if (traitDefinition.SpellID != 0 && _player.SpellHistory.HasCooldown(traitDefinition.SpellID))
-					{
-						SendPacket(new TraitConfigCommitFailed(configId, traitDefinition.SpellID, (int)TalentLearnResult.FailedCantRemoveTalent));
+                    if (traitDefinition.SpellID != 0 && _player.SpellHistory.HasCooldown(traitDefinition.SpellID))
+                    {
+                        SendPacket(new TraitConfigCommitFailed(configId, traitDefinition.SpellID, (int)TalentLearnResult.FailedCantRemoveTalent));
 
-						return;
-					}
+                        return;
+                    }
 
-					if (traitDefinition.VisibleSpellID != 0 && _player.SpellHistory.HasCooldown((uint)traitDefinition.VisibleSpellID))
-					{
-						SendPacket(new TraitConfigCommitFailed(configId, traitDefinition.VisibleSpellID, (int)TalentLearnResult.FailedCantRemoveTalent));
+                    if (traitDefinition.VisibleSpellID != 0 && _player.SpellHistory.HasCooldown((uint)traitDefinition.VisibleSpellID))
+                    {
+                        SendPacket(new TraitConfigCommitFailed(configId, traitDefinition.VisibleSpellID, (int)TalentLearnResult.FailedCantRemoveTalent));
 
-						return;
-					}
+                        return;
+                    }
 
-					hasRemovedEntries = true;
-				}
+                    hasRemovedEntries = true;
+                }
 
-				if (newEntry.Rank != 0)
-					traitEntry.Rank = newEntry.Rank;
-				else
-					newConfigState.Entries.Remove(traitEntry.TraitNodeID);
-			}
+                if (newEntry.Rank != 0)
+                    traitEntry.Rank = newEntry.Rank;
+                else
+                    newConfigState.Entries.Remove(traitEntry.TraitNodeID);
+            }
 
-		var validationResult = TraitMgr.ValidateConfig(newConfigState, _player, true);
+        var validationResult = TraitMgr.ValidateConfig(newConfigState, _player, true);
 
-		if (validationResult != TalentLearnResult.LearnOk)
-		{
-			SendPacket(new TraitConfigCommitFailed(configId, 0, (int)validationResult));
+        if (validationResult != TalentLearnResult.LearnOk)
+        {
+            SendPacket(new TraitConfigCommitFailed(configId, 0, (int)validationResult));
 
-			return;
-		}
+            return;
+        }
 
-		var needsCastTime = newConfigState.Type == TraitConfigType.Combat && hasRemovedEntries;
+        var needsCastTime = newConfigState.Type == TraitConfigType.Combat && hasRemovedEntries;
 
-		if (traitsCommitConfig.SavedLocalIdentifier != 0)
-		{
-			newConfigState.LocalIdentifier = traitsCommitConfig.SavedLocalIdentifier;
-		}
-		else
-		{
-			var savedConfig = _player.GetTraitConfig(traitsCommitConfig.SavedLocalIdentifier);
+        if (traitsCommitConfig.SavedLocalIdentifier != 0)
+        {
+            newConfigState.LocalIdentifier = traitsCommitConfig.SavedLocalIdentifier;
+        }
+        else
+        {
+            var savedConfig = _player.GetTraitConfig(traitsCommitConfig.SavedLocalIdentifier);
 
-			if (savedConfig != null)
-				newConfigState.LocalIdentifier = savedConfig.LocalIdentifier;
-		}
+            if (savedConfig != null)
+                newConfigState.LocalIdentifier = savedConfig.LocalIdentifier;
+        }
 
-		_player.UpdateTraitConfig(newConfigState, traitsCommitConfig.SavedConfigID, needsCastTime);
-	}
+        _player.UpdateTraitConfig(newConfigState, traitsCommitConfig.SavedConfigID, needsCastTime);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.ClassTalentsRequestNewConfig)]
+    [WorldPacketHandler(ClientOpcodes.ClassTalentsRequestNewConfig)]
     private void HandleClassTalentsRequestNewConfig(ClassTalentsRequestNewConfig classTalentsRequestNewConfig)
-	{
-		if (classTalentsRequestNewConfig.Config.Type != TraitConfigType.Combat)
-			return;
+    {
+        if (classTalentsRequestNewConfig.Config.Type != TraitConfigType.Combat)
+            return;
 
-		if ((classTalentsRequestNewConfig.Config.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) != (int)TraitCombatConfigFlags.None)
-			return;
+        if ((classTalentsRequestNewConfig.Config.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) != (int)TraitCombatConfigFlags.None)
+            return;
 
-		long configCount = Enumerable.Count<TraitConfig>(_player.ActivePlayerData.TraitConfigs.Values, traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None; });
+        long configCount = Enumerable.Count<TraitConfig>(_player.ActivePlayerData.TraitConfigs.Values, traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None; });
 
-		if (configCount >= TraitMgr.MAX_COMBAT_TRAIT_CONFIGS)
-			return;
+        if (configCount >= TraitMgr.MAX_COMBAT_TRAIT_CONFIGS)
+            return;
 
-		int findFreeLocalIdentifier()
-		{
-			var index = 1;
+        int findFreeLocalIdentifier()
+        {
+            var index = 1;
 
-			while (_player.ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && traitConfig.ChrSpecializationID == _player.GetPrimarySpecialization() && traitConfig.LocalIdentifier == index; }) >= 0)
-				++index;
+            while (_player.ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && traitConfig.ChrSpecializationID == _player.GetPrimarySpecialization() && traitConfig.LocalIdentifier == index; }) >= 0)
+                ++index;
 
-			return index;
-		}
+            return index;
+        }
 
-		classTalentsRequestNewConfig.Config.ChrSpecializationID = (int)_player.GetPrimarySpecialization();
-		classTalentsRequestNewConfig.Config.LocalIdentifier = findFreeLocalIdentifier();
+        classTalentsRequestNewConfig.Config.ChrSpecializationID = (int)_player.GetPrimarySpecialization();
+        classTalentsRequestNewConfig.Config.LocalIdentifier = findFreeLocalIdentifier();
 
-		foreach (var grantedEntry in TraitMgr.GetGrantedTraitEntriesForConfig(classTalentsRequestNewConfig.Config, _player))
-		{
-			var newEntry = classTalentsRequestNewConfig.Config.Entries.LookupByKey(grantedEntry.TraitNodeID)?.LookupByKey(grantedEntry.TraitNodeEntryID);
+        foreach (var grantedEntry in TraitMgr.GetGrantedTraitEntriesForConfig(classTalentsRequestNewConfig.Config, _player))
+        {
+            var newEntry = classTalentsRequestNewConfig.Config.Entries.LookupByKey(grantedEntry.TraitNodeID)?.LookupByKey(grantedEntry.TraitNodeEntryID);
 
-			if (newEntry == null)
-			{
-				newEntry = new TraitEntryPacket();
-				classTalentsRequestNewConfig.Config.AddEntry(newEntry);
-			}
+            if (newEntry == null)
+            {
+                newEntry = new TraitEntryPacket();
+                classTalentsRequestNewConfig.Config.AddEntry(newEntry);
+            }
 
-			newEntry.TraitNodeID = grantedEntry.TraitNodeID;
-			newEntry.TraitNodeEntryID = grantedEntry.TraitNodeEntryID;
-			newEntry.Rank = grantedEntry.Rank;
-			newEntry.GrantedRanks = grantedEntry.GrantedRanks;
+            newEntry.TraitNodeID = grantedEntry.TraitNodeID;
+            newEntry.TraitNodeEntryID = grantedEntry.TraitNodeEntryID;
+            newEntry.Rank = grantedEntry.Rank;
+            newEntry.GrantedRanks = grantedEntry.GrantedRanks;
 
-			var traitNodeEntry = CliDB.TraitNodeEntryStorage.LookupByKey(grantedEntry.TraitNodeEntryID);
+            var traitNodeEntry = CliDB.TraitNodeEntryStorage.LookupByKey(grantedEntry.TraitNodeEntryID);
 
-			if (traitNodeEntry != null)
-				if (newEntry.Rank + newEntry.GrantedRanks > traitNodeEntry.MaxRanks)
-					newEntry.Rank = Math.Max(0, traitNodeEntry.MaxRanks - newEntry.GrantedRanks);
-		}
+            if (traitNodeEntry != null)
+                if (newEntry.Rank + newEntry.GrantedRanks > traitNodeEntry.MaxRanks)
+                    newEntry.Rank = Math.Max(0, traitNodeEntry.MaxRanks - newEntry.GrantedRanks);
+        }
 
-		var validationResult = TraitMgr.ValidateConfig(classTalentsRequestNewConfig.Config, _player);
+        var validationResult = TraitMgr.ValidateConfig(classTalentsRequestNewConfig.Config, _player);
 
-		if (validationResult != TalentLearnResult.LearnOk)
-			return;
+        if (validationResult != TalentLearnResult.LearnOk)
+            return;
 
-		_player.CreateTraitConfig(classTalentsRequestNewConfig.Config);
-	}
+        _player.CreateTraitConfig(classTalentsRequestNewConfig.Config);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.ClassTalentsRenameConfig)]
+    [WorldPacketHandler(ClientOpcodes.ClassTalentsRenameConfig)]
     private void HandleClassTalentsRenameConfig(ClassTalentsRenameConfig classTalentsRenameConfig)
-	{
-		_player.RenameTraitConfig(classTalentsRenameConfig.ConfigID, classTalentsRenameConfig.Name);
-	}
+    {
+        _player.RenameTraitConfig(classTalentsRenameConfig.ConfigID, classTalentsRenameConfig.Name);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.ClassTalentsDeleteConfig)]
+    [WorldPacketHandler(ClientOpcodes.ClassTalentsDeleteConfig)]
     private void HandleClassTalentsDeleteConfig(ClassTalentsDeleteConfig classTalentsDeleteConfig)
-	{
-		_player.DeleteTraitConfig(classTalentsDeleteConfig.ConfigID);
-	}
+    {
+        _player.DeleteTraitConfig(classTalentsDeleteConfig.ConfigID);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.ClassTalentsSetStarterBuildActive)]
+    [WorldPacketHandler(ClientOpcodes.ClassTalentsSetStarterBuildActive)]
     private void HandleClassTalentsSetStarterBuildActive(ClassTalentsSetStarterBuildActive classTalentsSetStarterBuildActive)
-	{
-		var traitConfig = _player.GetTraitConfig(classTalentsSetStarterBuildActive.ConfigID);
+    {
+        var traitConfig = _player.GetTraitConfig(classTalentsSetStarterBuildActive.ConfigID);
 
-		if (traitConfig == null)
-			return;
+        if (traitConfig == null)
+            return;
 
-		if ((TraitConfigType)(int)traitConfig.Type != TraitConfigType.Combat)
-			return;
+        if ((TraitConfigType)(int)traitConfig.Type != TraitConfigType.Combat)
+            return;
 
-		if (!((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags).HasFlag(TraitCombatConfigFlags.ActiveForSpec))
-			return;
+        if (!((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags).HasFlag(TraitCombatConfigFlags.ActiveForSpec))
+            return;
 
-		if (classTalentsSetStarterBuildActive.Active)
-		{
-			TraitConfigPacket newConfigState = new(traitConfig);
+        if (classTalentsSetStarterBuildActive.Active)
+        {
+            TraitConfigPacket newConfigState = new(traitConfig);
 
-			var freeLocalIdentifier = 1;
+            var freeLocalIdentifier = 1;
 
-			while (_player.ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && traitConfig.ChrSpecializationID == _player.GetPrimarySpecialization() && traitConfig.LocalIdentifier == freeLocalIdentifier; }) >= 0)
-				++freeLocalIdentifier;
+            while (_player.ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && traitConfig.ChrSpecializationID == _player.GetPrimarySpecialization() && traitConfig.LocalIdentifier == freeLocalIdentifier; }) >= 0)
+                ++freeLocalIdentifier;
 
-			TraitMgr.InitializeStarterBuildTraitConfig(newConfigState, _player);
-			newConfigState.CombatConfigFlags |= TraitCombatConfigFlags.StarterBuild;
-			newConfigState.LocalIdentifier = freeLocalIdentifier;
+            TraitMgr.InitializeStarterBuildTraitConfig(newConfigState, _player);
+            newConfigState.CombatConfigFlags |= TraitCombatConfigFlags.StarterBuild;
+            newConfigState.LocalIdentifier = freeLocalIdentifier;
 
-			_player.UpdateTraitConfig(newConfigState, 0, true);
-		}
-		else
-		{
-			_player.SetTraitConfigUseStarterBuild(classTalentsSetStarterBuildActive.ConfigID, false);
-		}
-	}
+            _player.UpdateTraitConfig(newConfigState, 0, true);
+        }
+        else
+        {
+            _player.SetTraitConfigUseStarterBuild(classTalentsSetStarterBuildActive.ConfigID, false);
+        }
+    }
 
-	[WorldPacketHandler(ClientOpcodes.ClassTalentsSetUsesSharedActionBars)]
+    [WorldPacketHandler(ClientOpcodes.ClassTalentsSetUsesSharedActionBars)]
     private void HandleClassTalentsSetUsesSharedActionBars(ClassTalentsSetUsesSharedActionBars classTalentsSetUsesSharedActionBars)
-	{
-		_player.SetTraitConfigUseSharedActionBars(classTalentsSetUsesSharedActionBars.ConfigID,
-												classTalentsSetUsesSharedActionBars.UsesShared,
-												classTalentsSetUsesSharedActionBars.IsLastSelectedSavedConfig);
-	}
+    {
+        _player.SetTraitConfigUseSharedActionBars(classTalentsSetUsesSharedActionBars.ConfigID,
+                                                  classTalentsSetUsesSharedActionBars.UsesShared,
+                                                  classTalentsSetUsesSharedActionBars.IsLastSelectedSavedConfig);
+    }
 }

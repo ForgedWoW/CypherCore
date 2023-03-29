@@ -10,14 +10,14 @@ namespace Scripts.Spells.Priest;
 [SpellScript(596)]
 public class spell_pri_prayer_of_healing : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		var caster = Caster;
+    public void AfterCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_SANCTIFY))
-			caster.SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_SANCTIFY, TimeSpan.FromSeconds(-6 * Time.InMilliseconds));
-	}
+        if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_SANCTIFY))
+            caster.SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_SANCTIFY, TimeSpan.FromSeconds(-6 * Time.InMilliseconds));
+    }
 }

@@ -9,29 +9,29 @@ namespace Forged.MapServer.Networking.Packets.Equipment;
 
 internal class UseEquipmentSet : ClientPacket
 {
-	public InvUpdate Inv;
-	public EquipmentSetItem[] Items = new EquipmentSetItem[EquipmentSlot.End];
-	public ulong GUID; //Set Identifier
-	public UseEquipmentSet(WorldPacket packet) : base(packet) { }
+    public InvUpdate Inv;
+    public EquipmentSetItem[] Items = new EquipmentSetItem[EquipmentSlot.End];
+    public ulong GUID; //Set Identifier
+    public UseEquipmentSet(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Inv = new InvUpdate(_worldPacket);
+    public override void Read()
+    {
+        Inv = new InvUpdate(_worldPacket);
 
-		for (byte i = 0; i < EquipmentSlot.End; ++i)
-		{
-			Items[i].Item = _worldPacket.ReadPackedGuid();
-			Items[i].ContainerSlot = _worldPacket.ReadUInt8();
-			Items[i].Slot = _worldPacket.ReadUInt8();
-		}
+        for (byte i = 0; i < EquipmentSlot.End; ++i)
+        {
+            Items[i].Item = _worldPacket.ReadPackedGuid();
+            Items[i].ContainerSlot = _worldPacket.ReadUInt8();
+            Items[i].Slot = _worldPacket.ReadUInt8();
+        }
 
-		GUID = _worldPacket.ReadUInt64();
-	}
+        GUID = _worldPacket.ReadUInt64();
+    }
 
-	public struct EquipmentSetItem
-	{
-		public ObjectGuid Item;
-		public byte ContainerSlot;
-		public byte Slot;
-	}
+    public struct EquipmentSetItem
+    {
+        public ObjectGuid Item;
+        public byte ContainerSlot;
+        public byte Slot;
+    }
 }

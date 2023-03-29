@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonEventList
 {
-	public int Type;
-	public List<GarrisonEventEntry> Events = new();
+    public int Type;
+    public List<GarrisonEventEntry> Events = new();
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(Type);
-		data.WriteInt32(Events.Count);
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(Type);
+        data.WriteInt32(Events.Count);
 
-		foreach (var eventEntry in Events)
-			eventEntry.Write(data);
-	}
+        foreach (var eventEntry in Events)
+            eventEntry.Write(data);
+    }
 }

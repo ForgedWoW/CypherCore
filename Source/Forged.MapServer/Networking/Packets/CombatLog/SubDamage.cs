@@ -5,9 +5,9 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 public struct SubDamage
 {
-	public int SchoolMask;
-	public float FDamage; // Float damage (Most of the time equals to Damage)
-	public int Damage;
-	public int Absorbed;
-	public int Resisted;
+    public int SchoolMask;
+    public float FDamage; // Float damage (Most of the time equals to Damage)
+    public int Damage;
+    public int Absorbed;
+    public int Resisted;
 }

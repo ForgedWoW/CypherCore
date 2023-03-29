@@ -5,14 +5,14 @@ namespace Framework.Constants;
 
 public enum LfgCompatibility
 {
-	Pending,
-	WrongGroupSize,
-	TooMuchPlayers,
-	MultipleLfgGroups,
-	HasIgnores,
-	NoRoles,
-	NoDungeons,
-	WithLessPlayers, // Values Under This = Not Compatible (Do Not Modify Order)
-	BadStates,
-	Match // Must Be The Last One
+    Pending,
+    WrongGroupSize,
+    TooMuchPlayers,
+    MultipleLfgGroups,
+    HasIgnores,
+    NoRoles,
+    NoDungeons,
+    WithLessPlayers, // Values Under This = Not Compatible (Do Not Modify Order)
+    BadStates,
+    Match // Must Be The Last One
 }

@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum CalendarMailAnswers
 {
-	EventRemovedMailSubject = 0,
-	InviteRemovedMailSubject = 0x100
+    EventRemovedMailSubject = 0,
+    InviteRemovedMailSubject = 0x100
 }

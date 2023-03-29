@@ -11,16 +11,16 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_greatmothers_soulcatcher : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		if (HitUnit)
-			Caster.CastSpell(Caster, ItemSpellIds.ForceCastSummonGnomeSoul);
-	}
+    private void HandleDummy(int effIndex)
+    {
+        if (HitUnit)
+            Caster.CastSpell(Caster, ItemSpellIds.ForceCastSummonGnomeSoul);
+    }
 }

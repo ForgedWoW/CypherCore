@@ -12,41 +12,41 @@ namespace Scripts.Spells.Mage;
 [Script] // 1463 - Incanter's Flow
 internal class spell_mage_incanters_flow : AuraScript, IHasAuraEffects
 {
-	private sbyte modifier = 1;
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    private sbyte modifier = 1;
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodicTick, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodicTick, 0, AuraType.PeriodicDummy));
+    }
 
-	private void HandlePeriodicTick(AuraEffect aurEff)
-	{
-		// Incanter's flow should not cycle out of combat
-		if (!Target.IsInCombat)
-			return;
+    private void HandlePeriodicTick(AuraEffect aurEff)
+    {
+        // Incanter's flow should not cycle out of combat
+        if (!Target.IsInCombat)
+            return;
 
-		var aura = Target.GetAura(MageSpells.IncantersFlow);
+        var aura = Target.GetAura(MageSpells.IncantersFlow);
 
-		if (aura != null)
-		{
-			uint stacks = aura.StackAmount;
+        if (aura != null)
+        {
+            uint stacks = aura.StackAmount;
 
-			// Force always to values between 1 and 5
-			if ((modifier == -1 && stacks == 1) ||
-				(modifier == 1 && stacks == 5))
-			{
-				modifier *= -1;
+            // Force always to values between 1 and 5
+            if ((modifier == -1 && stacks == 1) ||
+                (modifier == 1 && stacks == 5))
+            {
+                modifier *= -1;
 
-				return;
-			}
+                return;
+            }
 
-			aura.ModStackAmount(modifier);
-		}
-		else
-		{
-			Target.CastSpell(Target, MageSpells.IncantersFlow, true);
-		}
-	}
+            aura.ModStackAmount(modifier);
+        }
+        else
+        {
+            Target.CastSpell(Target, MageSpells.IncantersFlow, true);
+        }
+    }
 }

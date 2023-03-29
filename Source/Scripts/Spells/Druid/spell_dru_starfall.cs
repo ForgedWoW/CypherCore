@@ -9,10 +9,10 @@ namespace Scripts.Spells.Druid;
 [SpellScript(191034)]
 public class spell_dru_starfall : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		if (Caster)
-			if (Caster.GetAuraCount(DruidSpells.STARLORD_BUFF) < 3)
-				Caster.CastSpell(null, DruidSpells.STARLORD_BUFF, true);
-	}
+    public void OnHit()
+    {
+        if (Caster)
+            if (Caster.GetAuraCount(DruidSpells.STARLORD_BUFF) < 3)
+                Caster.CastSpell(null, DruidSpells.STARLORD_BUFF, true);
+    }
 }

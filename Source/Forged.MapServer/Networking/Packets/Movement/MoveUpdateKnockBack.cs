@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MoveUpdateKnockBack : ServerPacket
 {
-	public MovementInfo Status;
-	public MoveUpdateKnockBack() : base(ServerOpcodes.MoveUpdateKnockBack) { }
+    public MovementInfo Status;
+    public MoveUpdateKnockBack() : base(ServerOpcodes.MoveUpdateKnockBack) { }
 
-	public override void Write()
-	{
-		MovementExtensions.WriteMovementInfo(_worldPacket, Status);
-	}
+    public override void Write()
+    {
+        MovementExtensions.WriteMovementInfo(_worldPacket, Status);
+    }
 }

@@ -10,8 +10,8 @@ namespace Scripts.Spells.Mage;
 [SpellScript(205023)]
 public class spell_mage_conflagration : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.SpellInfo != null && eventInfo.SpellInfo.Id == MageSpells.FIREBALL;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.SpellInfo != null && eventInfo.SpellInfo.Id == MageSpells.FIREBALL;
+    }
 }

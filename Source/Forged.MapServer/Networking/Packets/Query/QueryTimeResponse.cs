@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class QueryTimeResponse : ServerPacket
 {
-	public long CurrentTime;
-	public QueryTimeResponse() : base(ServerOpcodes.QueryTimeResponse, ConnectionType.Instance) { }
+    public long CurrentTime;
+    public QueryTimeResponse() : base(ServerOpcodes.QueryTimeResponse, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt64(CurrentTime);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt64(CurrentTime);
+    }
 }

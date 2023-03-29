@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 // Called when a player is deleted.
 public interface IPlayerOnDelete : IScriptObject
 {
-	void OnDelete(ObjectGuid guid, uint accountId);
+    void OnDelete(ObjectGuid guid, uint accountId);
 }

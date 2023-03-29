@@ -11,47 +11,47 @@ public class PetAura
     private readonly bool _removeOnChangePet;
     private readonly double _damage;
 
-	public PetAura()
-	{
-		_removeOnChangePet = false;
-		_damage = 0;
-	}
+    public PetAura()
+    {
+        _removeOnChangePet = false;
+        _damage = 0;
+    }
 
-	public PetAura(uint petEntry, uint aura, bool removeOnChangePet, double damage)
-	{
-		_removeOnChangePet = removeOnChangePet;
-		_damage = damage;
+    public PetAura(uint petEntry, uint aura, bool removeOnChangePet, double damage)
+    {
+        _removeOnChangePet = removeOnChangePet;
+        _damage = damage;
 
-		_auras[petEntry] = aura;
-	}
+        _auras[petEntry] = aura;
+    }
 
-	public uint GetAura(uint petEntry)
-	{
-		var auraId = _auras.LookupByKey(petEntry);
+    public uint GetAura(uint petEntry)
+    {
+        var auraId = _auras.LookupByKey(petEntry);
 
-		if (auraId != 0)
-			return auraId;
+        if (auraId != 0)
+            return auraId;
 
-		auraId = _auras.LookupByKey(0);
+        auraId = _auras.LookupByKey(0);
 
-		if (auraId != 0)
-			return auraId;
+        if (auraId != 0)
+            return auraId;
 
-		return 0;
-	}
+        return 0;
+    }
 
-	public void AddAura(uint petEntry, uint aura)
-	{
-		_auras[petEntry] = aura;
-	}
+    public void AddAura(uint petEntry, uint aura)
+    {
+        _auras[petEntry] = aura;
+    }
 
-	public bool IsRemovedOnChangePet()
-	{
-		return _removeOnChangePet;
-	}
+    public bool IsRemovedOnChangePet()
+    {
+        return _removeOnChangePet;
+    }
 
-	public double GetDamage()
-	{
-		return _damage;
-	}
+    public double GetDamage()
+    {
+        return _damage;
+    }
 }

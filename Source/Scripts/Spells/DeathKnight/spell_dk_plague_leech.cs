@@ -11,53 +11,53 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(123693)]
 public class spell_dk_plague_leech : SpellScript, ISpellOnHit, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		var target = ExplTargetUnit;
+    public SpellCastResult CheckCast()
+    {
+        var target = ExplTargetUnit;
 
-		if (target != null)
-		{
-			var diseases = target.GetDiseasesByCaster(Caster.GUID);
-			var requiredDiseases = (byte)(Caster.HasAura(152281) ? 1 : 2);
+        if (target != null)
+        {
+            var diseases = target.GetDiseasesByCaster(Caster.GUID);
+            var requiredDiseases = (byte)(Caster.HasAura(152281) ? 1 : 2);
 
-			if (diseases < requiredDiseases)
-				//SetCustomCastResultMessage(159);
-				return SpellCastResult.CustomError;
-		}
+            if (diseases < requiredDiseases)
+                //SetCustomCastResultMessage(159);
+                return SpellCastResult.CustomError;
+        }
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public void OnHit()
-	{
-		var player = Caster.AsPlayer;
+    public void OnHit()
+    {
+        var player = Caster.AsPlayer;
 
-		if (player == null)
-			return;
+        if (player == null)
+            return;
 
-		var runes = new List<byte>();
+        var runes = new List<byte>();
 
-		for (byte i = 0; i < PlayerConst.MaxRunes; ++i)
-			if (player.GetRuneCooldown(i) == player.GetRuneBaseCooldown())
-				runes.Add(i);
+        for (byte i = 0; i < PlayerConst.MaxRunes; ++i)
+            if (player.GetRuneCooldown(i) == player.GetRuneBaseCooldown())
+                runes.Add(i);
 
-		if (runes.Count > 0)
-		{
-			var effect = GetEffectInfo(0);
+        if (runes.Count > 0)
+        {
+            var effect = GetEffectInfo(0);
 
-			if (effect != null)
-				for (var i = 0; i < effect.BasePoints; ++i)
-				{
-					var rand = runes.SelectRandom();
-					player.SetRuneCooldown(rand, 0);
+            if (effect != null)
+                for (var i = 0; i < effect.BasePoints; ++i)
+                {
+                    var rand = runes.SelectRandom();
+                    player.SetRuneCooldown(rand, 0);
 
-					runes.Remove(rand);
+                    runes.Remove(rand);
 
-					if (runes.Empty())
-						break;
-				}
+                    if (runes.Empty())
+                        break;
+                }
 
-			HitUnit.GetDiseasesByCaster(Caster.GUID, true);
-		}
-	}
+            HitUnit.GetDiseasesByCaster(Caster.GUID, true);
+        }
+    }
 }

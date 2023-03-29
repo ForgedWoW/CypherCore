@@ -8,18 +8,18 @@ namespace Scripts.Spells.Paladin;
 
 [SpellScript(new uint[]
 {
-	20271, 275779, 275773
+    20271, 275779, 275773
 })] // 20271/275779/275773 - Judgement (Retribution/Protection/Holy)
 internal class spell_pal_judgment : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
+    public void OnHit()
+    {
+        var caster = Caster;
 
-		if (caster.HasSpell(PaladinSpells.JudgmentProtRetR3))
-			caster.CastSpell(caster, PaladinSpells.JudgmentGainHolyPower, Spell);
+        if (caster.HasSpell(PaladinSpells.JudgmentProtRetR3))
+            caster.CastSpell(caster, PaladinSpells.JudgmentGainHolyPower, Spell);
 
-		if (caster.HasSpell(PaladinSpells.JudgmentHolyR3))
-			caster.CastSpell(HitUnit, PaladinSpells.JudgmentHolyR3Debuff, Spell);
-	}
+        if (caster.HasSpell(PaladinSpells.JudgmentHolyR3))
+            caster.CastSpell(HitUnit, PaladinSpells.JudgmentHolyR3Debuff, Spell);
+    }
 }

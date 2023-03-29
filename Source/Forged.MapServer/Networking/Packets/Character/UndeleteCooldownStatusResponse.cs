@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class UndeleteCooldownStatusResponse : ServerPacket
 {
-	public bool OnCooldown;      //
-	public uint MaxCooldown;     // Max. cooldown until next free character restoration. Displayed in undelete confirm message. (in sec)
-	public uint CurrentCooldown; // Current cooldown until next free character restoration. (in sec)
-	public UndeleteCooldownStatusResponse() : base(ServerOpcodes.UndeleteCooldownStatusResponse) { }
+    public bool OnCooldown;      //
+    public uint MaxCooldown;     // Max. cooldown until next free character restoration. Displayed in undelete confirm message. (in sec)
+    public uint CurrentCooldown; // Current cooldown until next free character restoration. (in sec)
+    public UndeleteCooldownStatusResponse() : base(ServerOpcodes.UndeleteCooldownStatusResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(OnCooldown);
-		_worldPacket.WriteUInt32(MaxCooldown);
-		_worldPacket.WriteUInt32(CurrentCooldown);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBit(OnCooldown);
+        _worldPacket.WriteUInt32(MaxCooldown);
+        _worldPacket.WriteUInt32(CurrentCooldown);
+    }
 }

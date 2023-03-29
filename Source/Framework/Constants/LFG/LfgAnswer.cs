@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum LfgAnswer
 {
-	Pending = -1,
-	Deny = 0,
-	Agree = 1
+    Pending = -1,
+    Deny = 0,
+    Agree = 1
 }

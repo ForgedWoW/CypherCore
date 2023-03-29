@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 public class PetSpellHistory
 {
-	public uint CategoryID;
-	public uint RecoveryTime;
-	public float ChargeModRate = 1.0f;
-	public sbyte ConsumedCharges;
+    public uint CategoryID;
+    public uint RecoveryTime;
+    public float ChargeModRate = 1.0f;
+    public sbyte ConsumedCharges;
 }

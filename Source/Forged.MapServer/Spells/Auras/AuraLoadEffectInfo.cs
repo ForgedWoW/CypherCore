@@ -7,6 +7,6 @@ namespace Forged.MapServer.Spells.Auras;
 
 public class AuraLoadEffectInfo
 {
-	public Dictionary<int, double> Amounts = new();
-	public Dictionary<int, double> BaseAmounts = new();
+    public Dictionary<int, double> Amounts = new();
+    public Dictionary<int, double> BaseAmounts = new();
 }

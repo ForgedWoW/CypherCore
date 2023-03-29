@@ -8,24 +8,24 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class AlterApperance : ClientPacket
 {
-	public byte NewSex;
-	public Array<ChrCustomizationChoice> Customizations = new(72);
-	public int CustomizedRace;
-	public AlterApperance(WorldPacket packet) : base(packet) { }
+    public byte NewSex;
+    public Array<ChrCustomizationChoice> Customizations = new(72);
+    public int CustomizedRace;
+    public AlterApperance(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var customizationCount = _worldPacket.ReadUInt32();
-		NewSex = _worldPacket.ReadUInt8();
-		CustomizedRace = _worldPacket.ReadInt32();
+    public override void Read()
+    {
+        var customizationCount = _worldPacket.ReadUInt32();
+        NewSex = _worldPacket.ReadUInt8();
+        CustomizedRace = _worldPacket.ReadInt32();
 
-		for (var i = 0; i < customizationCount; ++i)
-			Customizations[i] = new ChrCustomizationChoice()
-			{
-				ChrCustomizationOptionID = _worldPacket.ReadUInt32(),
-				ChrCustomizationChoiceID = _worldPacket.ReadUInt32()
-			};
+        for (var i = 0; i < customizationCount; ++i)
+            Customizations[i] = new ChrCustomizationChoice()
+            {
+                ChrCustomizationOptionID = _worldPacket.ReadUInt32(),
+                ChrCustomizationChoiceID = _worldPacket.ReadUInt32()
+            };
 
-		Customizations.Sort();
-	}
+        Customizations.Sort();
+    }
 }

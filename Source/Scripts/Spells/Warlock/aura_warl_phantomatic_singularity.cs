@@ -13,18 +13,18 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(205179)]
 public class aura_warl_phantomatic_singularity : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public void OnTick(AuraEffect UnnamedParameter)
-	{
-		var caster = Caster;
+    public void OnTick(AuraEffect UnnamedParameter)
+    {
+        var caster = Caster;
 
-		if (Caster)
-			caster.CastSpell(Target.Location, WarlockSpells.PHANTOMATIC_SINGULARITY_DAMAGE, true);
-	}
+        if (Caster)
+            caster.CastSpell(Target.Location, WarlockSpells.PHANTOMATIC_SINGULARITY_DAMAGE, true);
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicLeech));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicLeech));
+    }
 }

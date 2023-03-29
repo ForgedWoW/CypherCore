@@ -13,36 +13,36 @@ namespace Scripts.Spells.Priest;
 [Script] // 187464 - Shadow Mend (Damage)
 internal class spell_pri_shadow_mend_periodic_damage : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.DamageInfo != null;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.DamageInfo != null;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleDummyTick, 0, AuraType.PeriodicDummy));
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleDummyTick, 0, AuraType.PeriodicDummy));
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleDummyTick(AuraEffect aurEff)
-	{
-		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-		args.SetOriginalCaster(CasterGUID);
-		args.SetTriggeringAura(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount);
-		Target.CastSpell(Target, PriestSpells.SHADOW_MEND_DAMAGE, args);
-	}
+    private void HandleDummyTick(AuraEffect aurEff)
+    {
+        CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+        args.SetOriginalCaster(CasterGUID);
+        args.SetTriggeringAura(aurEff);
+        args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount);
+        Target.CastSpell(Target, PriestSpells.SHADOW_MEND_DAMAGE, args);
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		var newAmount = (int)(aurEff.Amount - eventInfo.DamageInfo.Damage);
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        var newAmount = (int)(aurEff.Amount - eventInfo.DamageInfo.Damage);
 
-		aurEff.ChangeAmount(newAmount);
+        aurEff.ChangeAmount(newAmount);
 
-		if (newAmount < 0)
-			Remove();
-	}
+        if (newAmount < 0)
+            Remove();
+    }
 }

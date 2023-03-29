@@ -9,18 +9,18 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 internal class QueryItemTextResponse : ServerPacket
 {
-	public ObjectGuid Id;
-	public bool Valid;
-	public string Text;
-	public QueryItemTextResponse() : base(ServerOpcodes.QueryItemTextResponse) { }
+    public ObjectGuid Id;
+    public bool Valid;
+    public string Text;
+    public QueryItemTextResponse() : base(ServerOpcodes.QueryItemTextResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(Valid);
-		_worldPacket.WriteBits(Text.GetByteCount(), 13);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteBit(Valid);
+        _worldPacket.WriteBits(Text.GetByteCount(), 13);
+        _worldPacket.FlushBits();
 
-		_worldPacket.WriteString(Text);
-		_worldPacket.WritePackedGuid(Id);
-	}
+        _worldPacket.WriteString(Text);
+        _worldPacket.WritePackedGuid(Id);
+    }
 }

@@ -9,53 +9,53 @@ using Scripts.Spells.Warlock;
 
 namespace Scripts.Pets
 {
-	namespace Warlock
-	{
-		// Dreadstalker - 98035
-		[CreatureScript(98035)]
-		public class npc_warlock_dreadstalker : PetAI
-		{
-			public bool firstTick = true;
+    namespace Warlock
+    {
+        // Dreadstalker - 98035
+        [CreatureScript(98035)]
+        public class npc_warlock_dreadstalker : PetAI
+        {
+            public bool firstTick = true;
 
-			public npc_warlock_dreadstalker(Creature creature) : base(creature)
-			{
-				if (!Me.TryGetOwner(out Player owner))
-					return;
+            public npc_warlock_dreadstalker(Creature creature) : base(creature)
+            {
+                if (!Me.TryGetOwner(out Player owner))
+                    return;
 
-				creature.SetLevel(owner.Level);
-				creature.UpdateLevelDependantStats();
-				creature.ReactState = ReactStates.Aggressive;
-				creature.SetCreatorGUID(owner.GUID);
+                creature.SetLevel(owner.Level);
+                creature.UpdateLevelDependantStats();
+                creature.ReactState = ReactStates.Aggressive;
+                creature.SetCreatorGUID(owner.GUID);
 
-				var summon = creature.ToTempSummon();
+                var summon = creature.ToTempSummon();
 
-				if (summon != null)
-				{
-					summon.SetCanFollowOwner(true);
-					StartAttackOnOwnersInCombatWith();
-				}
-			}
+                if (summon != null)
+                {
+                    summon.SetCanFollowOwner(true);
+                    StartAttackOnOwnersInCombatWith();
+                }
+            }
 
-			public override void UpdateAI(uint UnnamedParameter)
-			{
-				if (firstTick)
-				{
-					var owner = Me.OwnerUnit;
+            public override void UpdateAI(uint UnnamedParameter)
+            {
+                if (firstTick)
+                {
+                    var owner = Me.OwnerUnit;
 
-					if (!Me.OwnerUnit ||
-						!Me.OwnerUnit.AsPlayer)
-						return;
+                    if (!Me.OwnerUnit ||
+                        !Me.OwnerUnit.AsPlayer)
+                        return;
 
-					var target = owner.AsPlayer.SelectedUnit;
+                    var target = owner.AsPlayer.SelectedUnit;
 
-					if (target)
-						Me.CastSpell(target, WarlockSpells.DREADSTALKER_CHARGE, true);
+                    if (target)
+                        Me.CastSpell(target, WarlockSpells.DREADSTALKER_CHARGE, true);
 
-					firstTick = false;
-				}
+                    firstTick = false;
+                }
 
-				base.UpdateAI(UnnamedParameter);
-			}
-		}
-	}
+                base.UpdateAI(UnnamedParameter);
+            }
+        }
+    }
 }

@@ -5,18 +5,18 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal struct PhaseShiftDataPhase
 {
-	public PhaseShiftDataPhase(uint phaseFlags, uint id)
-	{
-		PhaseFlags = (ushort)phaseFlags;
-		Id = (ushort)id;
-	}
+    public PhaseShiftDataPhase(uint phaseFlags, uint id)
+    {
+        PhaseFlags = (ushort)phaseFlags;
+        Id = (ushort)id;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt16(PhaseFlags);
-		data.WriteUInt16(Id);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt16(PhaseFlags);
+        data.WriteUInt16(Id);
+    }
 
-	public ushort PhaseFlags;
-	public ushort Id;
+    public ushort PhaseFlags;
+    public ushort Id;
 }

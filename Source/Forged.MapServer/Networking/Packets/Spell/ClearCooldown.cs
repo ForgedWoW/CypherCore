@@ -7,16 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class ClearCooldown : ServerPacket
 {
-	public bool IsPet;
-	public uint SpellID;
-	public bool ClearOnHold;
-	public ClearCooldown() : base(ServerOpcodes.ClearCooldown, ConnectionType.Instance) { }
+    public bool IsPet;
+    public uint SpellID;
+    public bool ClearOnHold;
+    public ClearCooldown() : base(ServerOpcodes.ClearCooldown, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(SpellID);
-		_worldPacket.WriteBit(ClearOnHold);
-		_worldPacket.WriteBit(IsPet);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(SpellID);
+        _worldPacket.WriteBit(ClearOnHold);
+        _worldPacket.WriteBit(IsPet);
+        _worldPacket.FlushBits();
+    }
 }

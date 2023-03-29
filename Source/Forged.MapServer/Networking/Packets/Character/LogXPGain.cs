@@ -8,19 +8,19 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class LogXPGain : ServerPacket
 {
-	public ObjectGuid Victim;
-	public int Original;
-	public PlayerLogXPReason Reason;
-	public int Amount;
-	public float GroupBonus;
-	public LogXPGain() : base(ServerOpcodes.LogXpGain) { }
+    public ObjectGuid Victim;
+    public int Original;
+    public PlayerLogXPReason Reason;
+    public int Amount;
+    public float GroupBonus;
+    public LogXPGain() : base(ServerOpcodes.LogXpGain) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Victim);
-		_worldPacket.WriteInt32(Original);
-		_worldPacket.WriteUInt8((byte)Reason);
-		_worldPacket.WriteInt32(Amount);
-		_worldPacket.WriteFloat(GroupBonus);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Victim);
+        _worldPacket.WriteInt32(Original);
+        _worldPacket.WriteUInt8((byte)Reason);
+        _worldPacket.WriteInt32(Amount);
+        _worldPacket.WriteFloat(GroupBonus);
+    }
 }

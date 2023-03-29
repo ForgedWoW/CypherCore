@@ -5,16 +5,16 @@ namespace Framework.Database;
 
 public class AppliedFileEntry
 {
-	public string Name;
-	public string Hash;
-	public State State;
-	public ulong Timestamp;
+    public string Name;
+    public string Hash;
+    public State State;
+    public ulong Timestamp;
 
-	public AppliedFileEntry(string name, string hash, State state, ulong timestamp)
-	{
-		Name = name;
-		Hash = hash;
-		State = state;
-		Timestamp = timestamp;
-	}
+    public AppliedFileEntry(string name, string hash, State state, ulong timestamp)
+    {
+        Name = name;
+        Hash = hash;
+        State = state;
+        Timestamp = timestamp;
+    }
 }

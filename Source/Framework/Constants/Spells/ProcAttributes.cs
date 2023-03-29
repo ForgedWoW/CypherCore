@@ -8,13 +8,13 @@ namespace Framework.Constants;
 [Flags]
 public enum ProcAttributes
 {
-	ReqExpOrHonor = 0x01,             // requires proc target to give exp or honor for aura proc
-	TriggeredCanProc = 0x02,          // aura can proc even with triggered spells
-	ReqPowerCost = 0x04,              // requires triggering spell to have a power cost for aura proc
-	ReqSpellmod = 0x08,               // requires triggering spell to be affected by proccing aura to drop charges
-	UseStacksForCharges = 0x10,       // consuming proc drops a stack from proccing aura instead of charge
-	ReduceProc60 = 0x80,              // aura should have a reduced chance to proc if level of proc Actor > 60
-	CantProcFromItemCast = 0x0000100, // do not allow aura proc if proc is caused by a spell casted by item
+    ReqExpOrHonor = 0x01,             // requires proc target to give exp or honor for aura proc
+    TriggeredCanProc = 0x02,          // aura can proc even with triggered spells
+    ReqPowerCost = 0x04,              // requires triggering spell to have a power cost for aura proc
+    ReqSpellmod = 0x08,               // requires triggering spell to be affected by proccing aura to drop charges
+    UseStacksForCharges = 0x10,       // consuming proc drops a stack from proccing aura instead of charge
+    ReduceProc60 = 0x80,              // aura should have a reduced chance to proc if level of proc Actor > 60
+    CantProcFromItemCast = 0x0000100, // do not allow aura proc if proc is caused by a spell casted by item
 
-	AllAllowed = ReqExpOrHonor | TriggeredCanProc | ReqPowerCost | ReqSpellmod | UseStacksForCharges | ReduceProc60 | CantProcFromItemCast
+    AllAllowed = ReqExpOrHonor | TriggeredCanProc | ReqPowerCost | ReqSpellmod | UseStacksForCharges | ReduceProc60 | CantProcFromItemCast
 }

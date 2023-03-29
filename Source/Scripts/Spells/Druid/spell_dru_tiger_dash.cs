@@ -10,10 +10,10 @@ namespace Scripts.Spells.Druid;
 [Script] // 252216 - Tiger Dash
 internal class spell_dru_tiger_dash : SpellScript, ISpellBeforeCast
 {
-	public void BeforeCast()
-	{
-		// Change into cat form
-		if (Caster.ShapeshiftForm != ShapeShiftForm.CatForm)
-			Caster.CastSpell(Caster, DruidSpellIds.CatForm, true);
-	}
+    public void BeforeCast()
+    {
+        // Change into cat form
+        if (Caster.ShapeshiftForm != ShapeShiftForm.CatForm)
+            Caster.CastSpell(Caster, DruidSpellIds.CatForm, true);
+    }
 }

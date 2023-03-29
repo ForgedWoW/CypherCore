@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum PlayerFieldByte2Flags
 {
-	None = 0x00,
-	Stealth = 0x20,
-	InvisibilityGlow = 0x40
+    None = 0x00,
+    Stealth = 0x20,
+    InvisibilityGlow = 0x40
 }

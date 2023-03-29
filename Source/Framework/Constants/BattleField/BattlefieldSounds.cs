@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public struct BattlefieldSounds
 {
-	public const uint HordeWins = 8454;
-	public const uint AllianceWins = 8455;
-	public const uint Start = 3439;
+    public const uint HordeWins = 8454;
+    public const uint AllianceWins = 8455;
+    public const uint Start = 3439;
 }

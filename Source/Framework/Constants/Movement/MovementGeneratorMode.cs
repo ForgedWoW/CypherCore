@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum MovementGeneratorMode
 {
-	Default = 0,
-	Override
+    Default = 0,
+    Override
 }

@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class StartTimer : ServerPacket
 {
-	public uint TotalTime;
-	public uint TimeLeft;
-	public TimerType Type;
-	public StartTimer() : base(ServerOpcodes.StartTimer) { }
+    public uint TotalTime;
+    public uint TimeLeft;
+    public TimerType Type;
+    public StartTimer() : base(ServerOpcodes.StartTimer) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(TotalTime);
-		_worldPacket.WriteUInt32(TimeLeft);
-		_worldPacket.WriteInt32((int)Type);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(TotalTime);
+        _worldPacket.WriteUInt32(TimeLeft);
+        _worldPacket.WriteInt32((int)Type);
+    }
 }

@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
-using System;
 
 namespace Scripts.Spells.Evoker;
 
@@ -14,11 +13,7 @@ public class aura_evoker_field_of_dreams : AuraScript, IAuraCheckProc, IAuraOnPr
 {
     public bool CheckProc(ProcEventInfo info)
     {
-        return info.HealInfo != null 
-            && info.HealInfo.SpellInfo.Id == EvokerSpells.FLUTTERING_SEEDLINGS_HEAL 
-            && info.HealInfo.Healer.TryGetAsPlayer(out var player)
-            && !player.SpellHistory.HasCooldown(EvokerSpells.FIELD_OF_DREAMS)
-            && RandomHelper.randChance(Aura.SpellInfo.GetEffect(0).BasePoints);
+        return info.HealInfo != null && info.HealInfo.SpellInfo.Id == EvokerSpells.FLUTTERING_SEEDLINGS_HEAL && info.HealInfo.Healer.TryGetAsPlayer(out var player) && !player.SpellHistory.HasCooldown(EvokerSpells.FIELD_OF_DREAMS) && RandomHelper.randChance(Aura.SpellInfo.GetEffect(0).BasePoints);
     }
 
     public void OnProc(ProcEventInfo info)

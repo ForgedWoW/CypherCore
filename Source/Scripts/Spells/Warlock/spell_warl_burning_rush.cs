@@ -11,35 +11,35 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(111400)]
 public class spell_warl_burning_rush : SpellScript, ISpellCheckCast, ISpellBeforeCast, ISpellAfterHit
 {
-	private bool _isRemove = false;
+    private bool _isRemove = false;
 
-	public void AfterHit()
-	{
-		if (_isRemove)
-			Caster.RemoveAura(WarlockSpells.BURNING_RUSH);
-	}
+    public void AfterHit()
+    {
+        if (_isRemove)
+            Caster.RemoveAura(WarlockSpells.BURNING_RUSH);
+    }
 
-	public void BeforeCast()
-	{
-		var caster = Caster;
+    public void BeforeCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (caster.HasAura(WarlockSpells.BURNING_RUSH))
-			_isRemove = true;
-	}
+        if (caster.HasAura(WarlockSpells.BURNING_RUSH))
+            _isRemove = true;
+    }
 
-	public SpellCastResult CheckCast()
-	{
-		var caster = Caster;
+    public SpellCastResult CheckCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return SpellCastResult.CantDoThatRightNow;
+        if (caster == null)
+            return SpellCastResult.CantDoThatRightNow;
 
-		if (caster.HealthBelowPct(5))
-			return SpellCastResult.CantDoThatRightNow;
+        if (caster.HealthBelowPct(5))
+            return SpellCastResult.CantDoThatRightNow;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

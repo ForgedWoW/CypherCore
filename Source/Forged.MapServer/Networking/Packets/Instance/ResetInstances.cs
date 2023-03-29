@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class ResetInstances : ClientPacket
 {
-	public ResetInstances(WorldPacket packet) : base(packet) { }
+    public ResetInstances(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

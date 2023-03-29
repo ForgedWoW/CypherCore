@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class ZoneUnderAttack : ServerPacket
 {
-	public int AreaID;
-	public ZoneUnderAttack() : base(ServerOpcodes.ZoneUnderAttack, ConnectionType.Instance) { }
+    public int AreaID;
+    public ZoneUnderAttack() : base(ServerOpcodes.ZoneUnderAttack, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(AreaID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(AreaID);
+    }
 }

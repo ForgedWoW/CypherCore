@@ -8,12 +8,12 @@ namespace Forged.MapServer.Spells;
 
 public class ImmunityInfo
 {
-	public uint SchoolImmuneMask;
-	public uint ApplyHarmfulAuraImmuneMask;
-	public ulong MechanicImmuneMask;
-	public uint DispelImmune;
-	public uint DamageSchoolMask;
+    public uint SchoolImmuneMask;
+    public uint ApplyHarmfulAuraImmuneMask;
+    public ulong MechanicImmuneMask;
+    public uint DispelImmune;
+    public uint DamageSchoolMask;
 
-	public List<AuraType> AuraTypeImmune = new();
-	public List<SpellEffectName> SpellEffectImmune = new();
+    public List<AuraType> AuraTypeImmune = new();
+    public List<SpellEffectName> SpellEffectImmune = new();
 }

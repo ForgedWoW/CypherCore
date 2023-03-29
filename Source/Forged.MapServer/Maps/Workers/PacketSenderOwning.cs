@@ -9,10 +9,10 @@ namespace Forged.MapServer.Maps.Workers;
 
 public class PacketSenderOwning<T> : IDoWork<Player> where T : ServerPacket, new()
 {
-	public T Data { get; set; } = new();
+    public T Data { get; set; } = new();
 
-	public void Invoke(Player player)
-	{
-		player.SendPacket(Data);
-	}
+    public void Invoke(Player player)
+    {
+        player.SendPacket(Data);
+    }
 }

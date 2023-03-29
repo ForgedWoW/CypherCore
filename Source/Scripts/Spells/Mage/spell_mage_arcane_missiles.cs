@@ -12,28 +12,28 @@ namespace Scripts.Spells.Mage;
 [SpellScript(5143)]
 public class spell_mage_arcane_missiles : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 1, AuraType.PeriodicTriggerSpell, AuraEffectHandleModes.Real));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 1, AuraType.PeriodicTriggerSpell, AuraEffectHandleModes.Real));
+    }
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		//@TODO: Remove when proc system can handle arcane missiles.....
-		caster.RemoveAura(MageSpells.CLEARCASTING_BUFF);
-		caster.RemoveAura(MageSpells.CLEARCASTING_EFFECT);
-		var pvpClearcast = caster.GetAura(MageSpells.CLEARCASTING_PVP_STACK_EFFECT);
+        //@TODO: Remove when proc system can handle arcane missiles.....
+        caster.RemoveAura(MageSpells.CLEARCASTING_BUFF);
+        caster.RemoveAura(MageSpells.CLEARCASTING_EFFECT);
+        var pvpClearcast = caster.GetAura(MageSpells.CLEARCASTING_PVP_STACK_EFFECT);
 
-		if (pvpClearcast != null)
-			pvpClearcast.ModStackAmount(-1);
+        if (pvpClearcast != null)
+            pvpClearcast.ModStackAmount(-1);
 
-		caster.RemoveAura(MageSpells.RULE_OF_THREES_BUFF);
-	}
+        caster.RemoveAura(MageSpells.RULE_OF_THREES_BUFF);
+    }
 }

@@ -7,12 +7,12 @@ namespace Forged.MapServer.Phasing;
 
 public struct VisibleMapIdRef
 {
-	public VisibleMapIdRef(int references, TerrainSwapInfo visibleMapInfo)
-	{
-		References = references;
-		VisibleMapInfo = visibleMapInfo;
-	}
+    public VisibleMapIdRef(int references, TerrainSwapInfo visibleMapInfo)
+    {
+        References = references;
+        VisibleMapInfo = visibleMapInfo;
+    }
 
-	public int References;
-	public TerrainSwapInfo VisibleMapInfo;
+    public int References;
+    public TerrainSwapInfo VisibleMapInfo;
 }

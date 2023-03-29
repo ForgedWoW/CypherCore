@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Azerite;
 
 internal class PlayerAzeriteItemGains : ServerPacket
 {
-	public ObjectGuid ItemGUID;
-	public ulong XP;
-	public PlayerAzeriteItemGains() : base(ServerOpcodes.PlayerAzeriteItemGains) { }
+    public ObjectGuid ItemGUID;
+    public ulong XP;
+    public PlayerAzeriteItemGains() : base(ServerOpcodes.PlayerAzeriteItemGains) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ItemGUID);
-		_worldPacket.WriteUInt64(XP);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ItemGUID);
+        _worldPacket.WriteUInt64(XP);
+    }
 }

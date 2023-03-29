@@ -8,6 +8,6 @@ namespace Forged.MapServer.DataStorage.ClientReader;
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct SparseEntry
 {
-	public int Offset;
-	public ushort Size;
+    public int Offset;
+    public ushort Size;
 }

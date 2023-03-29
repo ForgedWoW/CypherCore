@@ -5,16 +5,16 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildAddRank : ClientPacket
 {
-	public string Name;
-	public int RankOrder;
-	public GuildAddRank(WorldPacket packet) : base(packet) { }
+    public string Name;
+    public int RankOrder;
+    public GuildAddRank(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var nameLen = _worldPacket.ReadBits<uint>(7);
-		_worldPacket.ResetBitPos();
+    public override void Read()
+    {
+        var nameLen = _worldPacket.ReadBits<uint>(7);
+        _worldPacket.ResetBitPos();
 
-		RankOrder = _worldPacket.ReadInt32();
-		Name = _worldPacket.ReadString(nameLen);
-	}
+        RankOrder = _worldPacket.ReadInt32();
+        Name = _worldPacket.ReadString(nameLen);
+    }
 }

@@ -11,22 +11,22 @@ namespace Scripts.Spells.Quest;
 [Script] // 60041 - Assign Geist Kill Credit to Master
 internal class spell_q13264_q13276_q13288_q13289_assign_credit_to_master : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleScript(int effIndex)
+    {
+        var target = HitUnit;
 
-		if (target != null)
-		{
-			var owner = target.OwnerUnit;
+        if (target != null)
+        {
+            var owner = target.OwnerUnit;
 
-			owner?.CastSpell(owner, (uint)EffectValue, true);
-		}
-	}
+            owner?.CastSpell(owner, (uint)EffectValue, true);
+        }
+    }
 }

@@ -5,8 +5,8 @@ namespace Forged.MapServer.Scenarios;
 
 internal enum ScenarioType
 {
-	Scenario = 0,
-	ChallengeMode = 1,
-	Solo = 2,
-	Dungeon = 10,
+    Scenario = 0,
+    ChallengeMode = 1,
+    Solo = 2,
+    Dungeon = 10,
 }

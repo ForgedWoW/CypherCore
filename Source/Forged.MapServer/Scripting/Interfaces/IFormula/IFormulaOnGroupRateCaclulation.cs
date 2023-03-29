@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IFormula;
 
 public interface IFormulaOnGroupRateCaclulation : IScriptObject
 {
-	void OnGroupRateCalculation(double rate, uint count, bool isRaid);
+    void OnGroupRateCalculation(double rate, uint count, bool isRaid);
 }

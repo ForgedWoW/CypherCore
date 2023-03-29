@@ -13,35 +13,35 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(118455)]
 public class spell_hun_beast_cleave_proc : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		if (!Caster)
-			return;
+        if (!Caster)
+            return;
 
-		if (eventInfo.Actor.GUID != Target.GUID)
-			return;
+        if (eventInfo.Actor.GUID != Target.GUID)
+            return;
 
-		if (eventInfo.DamageInfo.SpellInfo != null && eventInfo.DamageInfo.SpellInfo.Id == HunterSpells.BEAST_CLEAVE_DAMAGE)
-			return;
+        if (eventInfo.DamageInfo.SpellInfo != null && eventInfo.DamageInfo.SpellInfo.Id == HunterSpells.BEAST_CLEAVE_DAMAGE)
+            return;
 
-		var player = Caster.AsPlayer;
+        var player = Caster.AsPlayer;
 
-		if (player != null)
-			if (Target.HasAura(aurEff.SpellInfo.Id, player.GUID))
-			{
-				var args = new CastSpellExtraArgs(TriggerCastFlags.FullMask);
-				args.AddSpellMod(SpellValueMod.BasePoint0, eventInfo.DamageInfo.Damage * 0.75f);
+        if (player != null)
+            if (Target.HasAura(aurEff.SpellInfo.Id, player.GUID))
+            {
+                var args = new CastSpellExtraArgs(TriggerCastFlags.FullMask);
+                args.AddSpellMod(SpellValueMod.BasePoint0, eventInfo.DamageInfo.Damage * 0.75f);
 
-				Target.CastSpell(Target, HunterSpells.BEAST_CLEAVE_DAMAGE, args);
-			}
-	}
+                Target.CastSpell(Target, HunterSpells.BEAST_CLEAVE_DAMAGE, args);
+            }
+    }
 }

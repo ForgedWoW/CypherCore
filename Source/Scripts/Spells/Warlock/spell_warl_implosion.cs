@@ -14,43 +14,43 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(WarlockSpells.IMPLOSION)]
 public class spell_warl_implosion : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public void HandleHit(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    public void HandleHit(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null ||
-			target == null)
-			return;
+        if (caster == null ||
+            target == null)
+            return;
 
-		var imps = caster.GetCreatureListWithEntryInGrid(55659); // Wild Imps
+        var imps = caster.GetCreatureListWithEntryInGrid(55659); // Wild Imps
 
-		foreach (var imp in imps)
-			if (imp.ToTempSummon().GetSummoner() == caster)
-			{
-				imp.InterruptNonMeleeSpells(false);
-				imp.VariableStorage.Set("controlled", true);
-				imp.VariableStorage.Set("ForceUpdateTimers", true);
-				imp.CastSpell(target, WarlockSpells.IMPLOSION_JUMP, true);
-				imp.MotionMaster.MoveJump(target.Location, 300.0f, 1.0f, EventId.Jump);
-				imp.SendUpdateToPlayer(caster.AsPlayer);
-				var casterGuid = caster.GUID;
+        foreach (var imp in imps)
+            if (imp.ToTempSummon().GetSummoner() == caster)
+            {
+                imp.InterruptNonMeleeSpells(false);
+                imp.VariableStorage.Set("controlled", true);
+                imp.VariableStorage.Set("ForceUpdateTimers", true);
+                imp.CastSpell(target, WarlockSpells.IMPLOSION_JUMP, true);
+                imp.MotionMaster.MoveJump(target.Location, 300.0f, 1.0f, EventId.Jump);
+                imp.SendUpdateToPlayer(caster.AsPlayer);
+                var casterGuid = caster.GUID;
 
-				imp.Events.AddEventAtOffset(() =>
-											{
-												imp.CastSpell(imp, WarlockSpells.IMPLOSION_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, (int)GetEffectInfo(1).Amplitude).SetOriginalCaster(casterGuid).SetTriggerFlags(TriggerCastFlags.FullMask));
-												imp.DisappearAndDie();
-											},
-											TimeSpan.FromMilliseconds(500));
-			}
+                imp.Events.AddEventAtOffset(() =>
+                                            {
+                                                imp.CastSpell(imp, WarlockSpells.IMPLOSION_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, (int)GetEffectInfo(1).Amplitude).SetOriginalCaster(casterGuid).SetTriggerFlags(TriggerCastFlags.FullMask));
+                                                imp.DisappearAndDie();
+                                            },
+                                            TimeSpan.FromMilliseconds(500));
+            }
 
-		caster.RemoveAura(296553);
-	}
+        caster.RemoveAura(296553);
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 }

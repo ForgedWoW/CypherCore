@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildOfficerRemoveMember : ClientPacket
 {
-	public ObjectGuid Removee;
-	public GuildOfficerRemoveMember(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Removee;
+    public GuildOfficerRemoveMember(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Removee = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Removee = _worldPacket.ReadPackedGuid();
+    }
 }

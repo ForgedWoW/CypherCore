@@ -14,23 +14,23 @@ namespace Scripts.Spells.Priest;
 [Script] // 40438 - Priest Tier 6 Trinket
 internal class spell_pri_item_t6_trinket : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var caster = eventInfo.Actor;
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var caster = eventInfo.Actor;
 
-		if (eventInfo.SpellTypeMask.HasAnyFlag(ProcFlagsSpellType.Heal))
-			caster.CastSpell((Unit)null, PriestSpells.DIVINE_BLESSING, true);
+        if (eventInfo.SpellTypeMask.HasAnyFlag(ProcFlagsSpellType.Heal))
+            caster.CastSpell((Unit)null, PriestSpells.DIVINE_BLESSING, true);
 
-		if (eventInfo.SpellTypeMask.HasAnyFlag(ProcFlagsSpellType.Damage))
-			caster.CastSpell((Unit)null, PriestSpells.DIVINE_WRATH, true);
-	}
+        if (eventInfo.SpellTypeMask.HasAnyFlag(ProcFlagsSpellType.Damage))
+            caster.CastSpell((Unit)null, PriestSpells.DIVINE_WRATH, true);
+    }
 }

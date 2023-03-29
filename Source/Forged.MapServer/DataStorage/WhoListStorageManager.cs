@@ -21,45 +21,45 @@ public class WhoListStorageManager
         _whoListStorage = new List<WhoListPlayerInfo>();
     }
 
-	public void Update()
-	{
-		// clear current list
-		_whoListStorage.Clear();
+    public void Update()
+    {
+        // clear current list
+        _whoListStorage.Clear();
 
-		var players = _objectAccessor.GetPlayers();
+        var players = _objectAccessor.GetPlayers();
 
-		foreach (var player in players)
-		{
-			if (player.Map == null || player.Session.PlayerLoading)
-				continue;
+        foreach (var player in players)
+        {
+            if (player.Map == null || player.Session.PlayerLoading)
+                continue;
 
-			var playerName = player.GetName();
-			var guildName = _guildManager.GetGuildNameById((uint)player.GuildId);
+            var playerName = player.GetName();
+            var guildName = _guildManager.GetGuildNameById((uint)player.GuildId);
 
-			var guild = player.Guild;
-			var guildGuid = ObjectGuid.Empty;
+            var guild = player.Guild;
+            var guildGuid = ObjectGuid.Empty;
 
-			if (guild)
-				guildGuid = guild.GetGUID();
+            if (guild)
+                guildGuid = guild.GetGUID();
 
-			_whoListStorage.Add(new WhoListPlayerInfo(player.GUID,
-													player.Team,
-													player.Session.Security,
-													player.Level,
-													player.Class,
-													player.Race,
-													player.Zone,
-													(byte)player.NativeGender,
-													player.IsVisible(),
-													player.IsGameMaster,
-													playerName,
-													guildName,
-													guildGuid));
-		}
-	}
+            _whoListStorage.Add(new WhoListPlayerInfo(player.GUID,
+                                                      player.Team,
+                                                      player.Session.Security,
+                                                      player.Level,
+                                                      player.Class,
+                                                      player.Race,
+                                                      player.Zone,
+                                                      (byte)player.NativeGender,
+                                                      player.IsVisible(),
+                                                      player.IsGameMaster,
+                                                      playerName,
+                                                      guildName,
+                                                      guildGuid));
+        }
+    }
 
-	public List<WhoListPlayerInfo> GetWhoList()
-	{
-		return _whoListStorage;
-	}
+    public List<WhoListPlayerInfo> GetWhoList()
+    {
+        return _whoListStorage;
+    }
 }

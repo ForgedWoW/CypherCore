@@ -8,25 +8,25 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class ReportPvPPlayerAFKResult : ServerPacket
 {
-	public enum ResultCode
-	{
-		Success = 0,
-		GenericFailure = 1, // there are more error codes but they are impossible to receive without modifying the client
-		AFKSystemEnabled = 5,
-		AFKSystemDisabled = 6
-	}
+    public enum ResultCode
+    {
+        Success = 0,
+        GenericFailure = 1, // there are more error codes but they are impossible to receive without modifying the client
+        AFKSystemEnabled = 5,
+        AFKSystemDisabled = 6
+    }
 
-	public ObjectGuid Offender;
-	public byte NumPlayersIHaveReported = 0;
-	public byte NumBlackMarksOnOffender = 0;
-	public ResultCode Result = ResultCode.GenericFailure;
-	public ReportPvPPlayerAFKResult() : base(ServerOpcodes.ReportPvpPlayerAfkResult, ConnectionType.Instance) { }
+    public ObjectGuid Offender;
+    public byte NumPlayersIHaveReported = 0;
+    public byte NumBlackMarksOnOffender = 0;
+    public ResultCode Result = ResultCode.GenericFailure;
+    public ReportPvPPlayerAFKResult() : base(ServerOpcodes.ReportPvpPlayerAfkResult, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Offender);
-		_worldPacket.WriteUInt8((byte)Result);
-		_worldPacket.WriteUInt8(NumBlackMarksOnOffender);
-		_worldPacket.WriteUInt8(NumPlayersIHaveReported);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Offender);
+        _worldPacket.WriteUInt8((byte)Result);
+        _worldPacket.WriteUInt8(NumBlackMarksOnOffender);
+        _worldPacket.WriteUInt8(NumPlayersIHaveReported);
+    }
 }

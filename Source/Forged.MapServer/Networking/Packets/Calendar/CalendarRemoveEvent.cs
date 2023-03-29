@@ -5,17 +5,17 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarRemoveEvent : ClientPacket
 {
-	public ulong ModeratorID;
-	public ulong EventID;
-	public ulong ClubID;
-	public uint Flags;
-	public CalendarRemoveEvent(WorldPacket packet) : base(packet) { }
+    public ulong ModeratorID;
+    public ulong EventID;
+    public ulong ClubID;
+    public uint Flags;
+    public CalendarRemoveEvent(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		EventID = _worldPacket.ReadUInt64();
-		ModeratorID = _worldPacket.ReadUInt64();
-		ClubID = _worldPacket.ReadUInt64();
-		Flags = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        EventID = _worldPacket.ReadUInt64();
+        ModeratorID = _worldPacket.ReadUInt64();
+        ClubID = _worldPacket.ReadUInt64();
+        Flags = _worldPacket.ReadUInt32();
+    }
 }

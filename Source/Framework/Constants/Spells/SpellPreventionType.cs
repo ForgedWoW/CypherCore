@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum SpellPreventionType
 {
-	None = 0,
-	Silence = 1,
-	Pacify = 2,
-	NoActions = 4
+    None = 0,
+    Silence = 1,
+    Pacify = 2,
+    NoActions = 4
 }

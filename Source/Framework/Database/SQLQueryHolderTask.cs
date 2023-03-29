@@ -5,22 +5,22 @@ namespace Framework.Database;
 
 public class SQLQueryHolderTask<R> : ISqlOperation
 {
-	public SQLQueryHolder<R> QueryResults { get; private set; }
+    public SQLQueryHolder<R> QueryResults { get; private set; }
 
-	public SQLQueryHolderTask(SQLQueryHolder<R> holder)
-	{
-		QueryResults = holder;
-	}
+    public SQLQueryHolderTask(SQLQueryHolder<R> holder)
+    {
+        QueryResults = holder;
+    }
 
-	public bool Execute<T>(MySqlBase<T> mySqlBase)
-	{
-		if (QueryResults == null)
-			return false;
+    public bool Execute<T>(MySqlBase<T> mySqlBase)
+    {
+        if (QueryResults == null)
+            return false;
 
-		// execute all queries in the holder and pass the results
-		foreach (var pair in QueryResults.m_queries)
-			QueryResults.SetResult(pair.Key, mySqlBase.Query(pair.Value));
+        // execute all queries in the holder and pass the results
+        foreach (var pair in QueryResults.m_queries)
+            QueryResults.SetResult(pair.Key, mySqlBase.Query(pair.Value));
 
-		return true;
-	}
+        return true;
+    }
 }

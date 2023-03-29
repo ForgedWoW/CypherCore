@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class NextCinematicCamera : ClientPacket
 {
-	public NextCinematicCamera(WorldPacket packet) : base(packet) { }
+    public NextCinematicCamera(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

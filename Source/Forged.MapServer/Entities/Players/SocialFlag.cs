@@ -5,9 +5,9 @@ namespace Forged.MapServer.Entities.Players;
 
 public enum SocialFlag
 {
-	Friend = 0x01,
-	Ignored = 0x02,
-	Muted = 0x04, // guessed
-	Unk = 0x08,   // Unknown - does not appear to be RaF
-	All = Friend | Ignored | Muted
+    Friend = 0x01,
+    Ignored = 0x02,
+    Muted = 0x04, // guessed
+    Unk = 0x08,   // Unknown - does not appear to be RaF
+    All = Friend | Ignored | Muted
 }

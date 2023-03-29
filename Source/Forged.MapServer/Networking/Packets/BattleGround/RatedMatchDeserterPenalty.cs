@@ -5,14 +5,14 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class RatedMatchDeserterPenalty
 {
-	public int PersonalRatingChange;
-	public int QueuePenaltySpellID;
-	public int QueuePenaltyDuration;
+    public int PersonalRatingChange;
+    public int QueuePenaltySpellID;
+    public int QueuePenaltyDuration;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(PersonalRatingChange);
-		data.WriteInt32(QueuePenaltySpellID);
-		data.WriteInt32(QueuePenaltyDuration);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(PersonalRatingChange);
+        data.WriteInt32(QueuePenaltySpellID);
+        data.WriteInt32(QueuePenaltyDuration);
+    }
 }

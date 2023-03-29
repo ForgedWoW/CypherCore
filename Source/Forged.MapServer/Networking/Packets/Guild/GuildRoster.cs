@@ -9,31 +9,31 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildRoster : ServerPacket
 {
-	public List<GuildRosterMemberData> MemberData;
-	public string WelcomeText;
-	public string InfoText;
-	public uint CreateDate;
-	public int NumAccounts;
-	public int GuildFlags;
+    public List<GuildRosterMemberData> MemberData;
+    public string WelcomeText;
+    public string InfoText;
+    public uint CreateDate;
+    public int NumAccounts;
+    public int GuildFlags;
 
-	public GuildRoster() : base(ServerOpcodes.GuildRoster)
-	{
-		MemberData = new List<GuildRosterMemberData>();
-	}
+    public GuildRoster() : base(ServerOpcodes.GuildRoster)
+    {
+        MemberData = new List<GuildRosterMemberData>();
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(NumAccounts);
-		_worldPacket.WritePackedTime(CreateDate);
-		_worldPacket.WriteInt32(GuildFlags);
-		_worldPacket.WriteInt32(MemberData.Count);
-		_worldPacket.WriteBits(WelcomeText.GetByteCount(), 11);
-		_worldPacket.WriteBits(InfoText.GetByteCount(), 10);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(NumAccounts);
+        _worldPacket.WritePackedTime(CreateDate);
+        _worldPacket.WriteInt32(GuildFlags);
+        _worldPacket.WriteInt32(MemberData.Count);
+        _worldPacket.WriteBits(WelcomeText.GetByteCount(), 11);
+        _worldPacket.WriteBits(InfoText.GetByteCount(), 10);
+        _worldPacket.FlushBits();
 
-		MemberData.ForEach(p => p.Write(_worldPacket));
+        MemberData.ForEach(p => p.Write(_worldPacket));
 
-		_worldPacket.WriteString(WelcomeText);
-		_worldPacket.WriteString(InfoText);
-	}
+        _worldPacket.WriteString(WelcomeText);
+        _worldPacket.WriteString(InfoText);
+    }
 }

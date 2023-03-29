@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class CancelSpellVisualKit : ServerPacket
 {
-	public ObjectGuid Source;
-	public uint SpellVisualKitID;
-	public bool MountedVisual;
-	public CancelSpellVisualKit() : base(ServerOpcodes.CancelSpellVisualKit) { }
+    public ObjectGuid Source;
+    public uint SpellVisualKitID;
+    public bool MountedVisual;
+    public CancelSpellVisualKit() : base(ServerOpcodes.CancelSpellVisualKit) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Source);
-		_worldPacket.WriteUInt32(SpellVisualKitID);
-		_worldPacket.WriteBit(MountedVisual);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Source);
+        _worldPacket.WriteUInt32(SpellVisualKitID);
+        _worldPacket.WriteBit(MountedVisual);
+        _worldPacket.FlushBits();
+    }
 }

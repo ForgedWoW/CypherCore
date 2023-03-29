@@ -14,21 +14,21 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(51562)]
 internal class spell_sha_tidal_waves : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, -aurEff.Amount);
-		args.AddSpellMod(SpellValueMod.BasePoint1, aurEff.Amount);
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        CastSpellExtraArgs args = new(aurEff);
+        args.AddSpellMod(SpellValueMod.BasePoint0, -aurEff.Amount);
+        args.AddSpellMod(SpellValueMod.BasePoint1, aurEff.Amount);
 
-		Target.CastSpell(Target, ShamanSpells.TidalWaves, args);
-	}
+        Target.CastSpell(Target, ShamanSpells.TidalWaves, args);
+    }
 }

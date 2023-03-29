@@ -9,21 +9,21 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal struct AuctionBidderNotification
 {
-	public uint AuctionID;
-	public ObjectGuid Bidder;
-	public ItemInstance Item;
+    public uint AuctionID;
+    public ObjectGuid Bidder;
+    public ItemInstance Item;
 
-	public void Initialize(AuctionPosting auction, Entities.Items.Item item)
-	{
-		AuctionID = auction.Id;
-		Item = new ItemInstance(item);
-		Bidder = auction.Bidder;
-	}
+    public void Initialize(AuctionPosting auction, Entities.Items.Item item)
+    {
+        AuctionID = auction.Id;
+        Item = new ItemInstance(item);
+        Bidder = auction.Bidder;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(AuctionID);
-		data.WritePackedGuid(Bidder);
-		Item.Write(data);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(AuctionID);
+        data.WritePackedGuid(Bidder);
+        Item.Write(data);
+    }
 }

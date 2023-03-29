@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Artifact;
 
 internal class OpenArtifactForge : ServerPacket
 {
-	public ObjectGuid ArtifactGUID;
-	public ObjectGuid ForgeGUID;
-	public OpenArtifactForge() : base(ServerOpcodes.OpenArtifactForge) { }
+    public ObjectGuid ArtifactGUID;
+    public ObjectGuid ForgeGUID;
+    public OpenArtifactForge() : base(ServerOpcodes.OpenArtifactForge) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ArtifactGUID);
-		_worldPacket.WritePackedGuid(ForgeGUID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ArtifactGUID);
+        _worldPacket.WritePackedGuid(ForgeGUID);
+    }
 }

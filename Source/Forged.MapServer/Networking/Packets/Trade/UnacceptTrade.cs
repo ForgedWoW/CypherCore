@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Trade;
 
 public class UnacceptTrade : ClientPacket
 {
-	public UnacceptTrade(WorldPacket packet) : base(packet) { }
+    public UnacceptTrade(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

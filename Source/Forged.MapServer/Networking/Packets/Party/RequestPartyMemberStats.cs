@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class RequestPartyMemberStats : ClientPacket
 {
-	public byte PartyIndex;
-	public ObjectGuid TargetGUID;
-	public RequestPartyMemberStats(WorldPacket packet) : base(packet) { }
+    public byte PartyIndex;
+    public ObjectGuid TargetGUID;
+    public RequestPartyMemberStats(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PartyIndex = _worldPacket.ReadUInt8();
-		TargetGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        PartyIndex = _worldPacket.ReadUInt8();
+        TargetGUID = _worldPacket.ReadPackedGuid();
+    }
 }

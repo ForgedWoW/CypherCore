@@ -13,18 +13,18 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 48743 - Death Pact
 internal class spell_dk_death_pact : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(HandleCalcAmount, 1, AuraType.SchoolHealAbsorb));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(HandleCalcAmount, 1, AuraType.SchoolHealAbsorb));
+    }
 
-	private void HandleCalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		var caster = Caster;
+    private void HandleCalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        var caster = Caster;
 
-		if (caster)
-			amount.Value = caster.CountPctFromMaxHealth(amount);
-	}
+        if (caster)
+            amount.Value = caster.CountPctFromMaxHealth(amount);
+    }
 }

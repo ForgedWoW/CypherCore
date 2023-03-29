@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Authentication;
 
 internal class ConnectToFailed : ClientPacket
 {
-	public ConnectToSerial Serial;
+    public ConnectToSerial Serial;
     private byte Con;
-	public ConnectToFailed(WorldPacket packet) : base(packet) { }
+    public ConnectToFailed(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Serial = (ConnectToSerial)_worldPacket.ReadUInt32();
-		Con = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        Serial = (ConnectToSerial)_worldPacket.ReadUInt32();
+        Con = _worldPacket.ReadUInt8();
+    }
 }

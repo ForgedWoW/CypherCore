@@ -9,12 +9,12 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(1122)]
 internal class spell_warl_summon_infernal : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		if (caster != null && caster.TryGetAura(WarlockSpells.CRASHING_CHAOS, out var aura))
-			for (var i = 0; i < aura.GetEffect(0).BaseAmount; i++)
-				caster.AddAura(WarlockSpells.CRASHING_CHAOS_AURA, caster);
-	}
+        if (caster != null && caster.TryGetAura(WarlockSpells.CRASHING_CHAOS, out var aura))
+            for (var i = 0; i < aura.GetEffect(0).BaseAmount; i++)
+                caster.AddAura(WarlockSpells.CRASHING_CHAOS_AURA, caster);
+    }
 }

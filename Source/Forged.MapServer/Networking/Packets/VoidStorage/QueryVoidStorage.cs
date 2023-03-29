@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
 internal class QueryVoidStorage : ClientPacket
 {
-	public ObjectGuid Npc;
-	public QueryVoidStorage(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Npc;
+    public QueryVoidStorage(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Npc = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Npc = _worldPacket.ReadPackedGuid();
+    }
 }

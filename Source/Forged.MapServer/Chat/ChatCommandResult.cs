@@ -11,35 +11,35 @@ public struct ChatCommandResult
     private readonly dynamic _value;
     private string _errorMessage;
 
-	public ChatCommandResult(string _value = "")
-	{
-		_result = true;
-		this._value = _value;
-		_errorMessage = null;
-	}
+    public ChatCommandResult(string _value = "")
+    {
+        _result = true;
+        this._value = _value;
+        _errorMessage = null;
+    }
 
-	public bool IsSuccessful => _result;
+    public bool IsSuccessful => _result;
 
-	public bool HasErrorMessage => !_errorMessage.IsEmpty();
+    public bool HasErrorMessage => !_errorMessage.IsEmpty();
 
-	public string ErrorMessage => _errorMessage;
+    public string ErrorMessage => _errorMessage;
 
-	public void SetErrorMessage(string _value)
-	{
-		_result = false;
-		_errorMessage = _value;
-	}
+    public void SetErrorMessage(string _value)
+    {
+        _result = false;
+        _errorMessage = _value;
+    }
 
-	public static ChatCommandResult FromErrorMessage(string str)
-	{
-		var result = new ChatCommandResult();
-		result.SetErrorMessage(str);
+    public static ChatCommandResult FromErrorMessage(string str)
+    {
+        var result = new ChatCommandResult();
+        result.SetErrorMessage(str);
 
-		return result;
-	}
+        return result;
+    }
 
-	public static implicit operator string(ChatCommandResult stringResult)
-	{
-		return stringResult._value;
-	}
+    public static implicit operator string(ChatCommandResult stringResult)
+    {
+        return stringResult._value;
+    }
 }

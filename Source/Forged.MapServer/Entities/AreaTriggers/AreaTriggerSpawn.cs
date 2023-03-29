@@ -8,8 +8,8 @@ namespace Forged.MapServer.Entities.AreaTriggers;
 
 public class AreaTriggerSpawn : SpawnData
 {
-	public AreaTriggerId TriggerId;
-	public AreaTriggerShapeInfo Shape = new();
+    public AreaTriggerId TriggerId;
+    public AreaTriggerShapeInfo Shape = new();
 
-	public AreaTriggerSpawn() : base(SpawnObjectType.AreaTrigger) { }
+    public AreaTriggerSpawn() : base(SpawnObjectType.AreaTrigger) { }
 }

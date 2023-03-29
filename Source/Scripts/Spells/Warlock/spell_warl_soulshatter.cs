@@ -11,22 +11,22 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(29858)] // 29858 - Soulshatter
 internal class spell_warl_soulshatter : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (target)
-			if (target.CanHaveThreatList &&
-				target.GetThreatManager().GetThreat(caster) > 0.0f)
-				caster.CastSpell(target, WarlockSpells.SOULSHATTER, true);
-	}
+        if (target)
+            if (target.CanHaveThreatList &&
+                target.GetThreatManager().GetThreat(caster) > 0.0f)
+                caster.CastSpell(target, WarlockSpells.SOULSHATTER, true);
+    }
 }

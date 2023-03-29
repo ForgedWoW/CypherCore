@@ -11,19 +11,19 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_player_say : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		// Note: Target here is always player; caster here is gameobject, creature or player (self cast)
-		var target = HitUnit;
+    private void HandleScript(int effIndex)
+    {
+        // Note: Target here is always player; caster here is gameobject, creature or player (self cast)
+        var target = HitUnit;
 
-		target?.Say((uint)EffectValue, target);
-	}
+        target?.Say((uint)EffectValue, target);
+    }
 }

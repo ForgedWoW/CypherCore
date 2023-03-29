@@ -5,6 +5,6 @@ namespace Framework.Database;
 
 internal enum UpdateMode
 {
-	Apply,
-	Rehash
+    Apply,
+    Rehash
 }

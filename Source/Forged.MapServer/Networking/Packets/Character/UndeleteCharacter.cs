@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class UndeleteCharacter : ClientPacket
 {
-	public CharacterUndeleteInfo UndeleteInfo;
-	public UndeleteCharacter(WorldPacket packet) : base(packet) { }
+    public CharacterUndeleteInfo UndeleteInfo;
+    public UndeleteCharacter(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		UndeleteInfo = new CharacterUndeleteInfo();
-		_worldPacket.WriteInt32(UndeleteInfo.ClientToken);
-		_worldPacket.WritePackedGuid(UndeleteInfo.CharacterGuid);
-	}
+    public override void Read()
+    {
+        UndeleteInfo = new CharacterUndeleteInfo();
+        _worldPacket.WriteInt32(UndeleteInfo.ClientToken);
+        _worldPacket.WritePackedGuid(UndeleteInfo.CharacterGuid);
+    }
 }

@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 internal class ChatUnregisterAllAddonPrefixes : ClientPacket
 {
-	public ChatUnregisterAllAddonPrefixes(WorldPacket packet) : base(packet) { }
+    public ChatUnregisterAllAddonPrefixes(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

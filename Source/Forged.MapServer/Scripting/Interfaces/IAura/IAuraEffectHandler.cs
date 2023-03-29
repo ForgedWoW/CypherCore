@@ -7,25 +7,25 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraEffectHandler
 {
-	int EffectIndex { get; }
+    int EffectIndex { get; }
 
-	AuraType AuraType { get; }
+    AuraType AuraType { get; }
 
-	AuraScriptHookType HookType { get; }
+    AuraScriptHookType HookType { get; }
 }
 
 public class AuraEffectHandler : IAuraEffectHandler
 {
-	public int EffectIndex { get; private set; }
+    public int EffectIndex { get; private set; }
 
-	public AuraType AuraType { get; private set; }
+    public AuraType AuraType { get; private set; }
 
-	public AuraScriptHookType HookType { get; private set; }
+    public AuraScriptHookType HookType { get; private set; }
 
-	public AuraEffectHandler(int effectIndex, AuraType auraType, AuraScriptHookType hookType)
-	{
-		EffectIndex = effectIndex;
-		AuraType = auraType;
-		HookType = hookType;
-	}
+    public AuraEffectHandler(int effectIndex, AuraType auraType, AuraScriptHookType hookType)
+    {
+        EffectIndex = effectIndex;
+        AuraType = auraType;
+        HookType = hookType;
+    }
 }

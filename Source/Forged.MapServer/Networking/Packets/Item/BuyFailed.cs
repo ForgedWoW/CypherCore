@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class BuyFailed : ServerPacket
 {
-	public ObjectGuid VendorGUID;
-	public uint Muid;
-	public BuyResult Reason = BuyResult.CantFindItem;
-	public BuyFailed() : base(ServerOpcodes.BuyFailed) { }
+    public ObjectGuid VendorGUID;
+    public uint Muid;
+    public BuyResult Reason = BuyResult.CantFindItem;
+    public BuyFailed() : base(ServerOpcodes.BuyFailed) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(VendorGUID);
-		_worldPacket.WriteUInt32(Muid);
-		_worldPacket.WriteUInt8((byte)Reason);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(VendorGUID);
+        _worldPacket.WriteUInt32(Muid);
+        _worldPacket.WriteUInt8((byte)Reason);
+    }
 }

@@ -9,23 +9,23 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class MultiFloorExplore
 {
-	public List<int> WorldMapOverlayIDs = new();
+    public List<int> WorldMapOverlayIDs = new();
 
-	public void WriteCreate(WorldPacket data, Player owner, Player receiver)
-	{
-		data.WriteInt32(WorldMapOverlayIDs.Count);
+    public void WriteCreate(WorldPacket data, Player owner, Player receiver)
+    {
+        data.WriteInt32(WorldMapOverlayIDs.Count);
 
-		for (var i = 0; i < WorldMapOverlayIDs.Count; ++i)
-			data.WriteInt32(WorldMapOverlayIDs[i]);
-	}
+        for (var i = 0; i < WorldMapOverlayIDs.Count; ++i)
+            data.WriteInt32(WorldMapOverlayIDs[i]);
+    }
 
-	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Player owner, Player receiver)
-	{
-		data.WriteInt32(WorldMapOverlayIDs.Count);
+    public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Player owner, Player receiver)
+    {
+        data.WriteInt32(WorldMapOverlayIDs.Count);
 
-		for (var i = 0; i < WorldMapOverlayIDs.Count; ++i)
-			data.WriteInt32(WorldMapOverlayIDs[i]);
+        for (var i = 0; i < WorldMapOverlayIDs.Count; ++i)
+            data.WriteInt32(WorldMapOverlayIDs[i]);
 
-		data.FlushBits();
-	}
+        data.FlushBits();
+    }
 }

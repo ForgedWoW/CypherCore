@@ -11,32 +11,32 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_seaforium_blast : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override bool Load()
-	{
-		// OriginalCaster is always available in Spell.prepare
-		return GObjCaster.OwnerGUID.IsPlayer;
-	}
+    public override bool Load()
+    {
+        // OriginalCaster is always available in Spell.prepare
+        return GObjCaster.OwnerGUID.IsPlayer;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(AchievementCredit, 1, SpellEffectName.GameObjectDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(AchievementCredit, 1, SpellEffectName.GameObjectDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void AchievementCredit(int effIndex)
-	{
-		// but in effect handling OriginalCaster can become null
-		var owner = GObjCaster.OwnerUnit;
+    private void AchievementCredit(int effIndex)
+    {
+        // but in effect handling OriginalCaster can become null
+        var owner = GObjCaster.OwnerUnit;
 
-		if (owner != null)
-		{
-			var go = HitGObj;
+        if (owner != null)
+        {
+            var go = HitGObj;
 
-			if (go)
-				if (go.Template.type == GameObjectTypes.DestructibleBuilding)
-					owner.CastSpell(null, GenericSpellIds.PlantChargesCreditAchievement, true);
-		}
-	}
+            if (go)
+                if (go.Template.type == GameObjectTypes.DestructibleBuilding)
+                    owner.CastSpell(null, GenericSpellIds.PlantChargesCreditAchievement, true);
+        }
+    }
 }

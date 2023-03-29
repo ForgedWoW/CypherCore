@@ -3,15 +3,12 @@
 
 using System.Runtime.Serialization;
 
-namespace Framework.Web
-{
-    [DataContract]
-    public class RealmListUpdate
-    {
-        [DataMember(Name = "update")]
-        public RealmEntry Update { get; set; } = new RealmEntry();
+namespace Framework.Web;
 
-        [DataMember(Name = "deleting")]
-        public bool Deleting { get; set; }
-    }
+[DataContract]
+public class RealmListUpdate
+{
+    [DataMember(Name = "update")] public RealmEntry Update { get; set; } = new();
+
+    [DataMember(Name = "deleting")] public bool Deleting { get; set; }
 }

@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Spells;
-using System.Collections.Generic;
 
 namespace Scripts.Spells.Evoker;
 
@@ -14,7 +14,7 @@ public class at_evoker_resonating_sphere : AreaTriggerScript, IAreaTriggerOnCrea
 {
     double _amount = 0;
     int _targets = 0;
-    List<Unit> _hit = new();
+    readonly List<Unit> _hit = new();
 
     public void OnCreate()
     {
@@ -35,7 +35,7 @@ public class at_evoker_resonating_sphere : AreaTriggerScript, IAreaTriggerOnCrea
         if (caster.IsFriendlyTo(unit) && _hit.Count < _targets && !_hit.Contains(unit))
         {
             _hit.Add(unit);
-            CastSpellExtraArgs args = new CastSpellExtraArgs(true);
+            var args = new CastSpellExtraArgs(true);
             args.TriggeringAura = aura.GetEffect(0);
             caster.CastSpell(unit, EvokerSpells.ECHO, args);
         }

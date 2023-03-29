@@ -12,22 +12,22 @@ internal class GameObjectFocusCheck : ICheck<GameObject>
     private readonly WorldObject _caster;
     private readonly uint _focusId;
 
-	public GameObjectFocusCheck(WorldObject caster, uint focusId)
-	{
-		_caster = caster;
-		_focusId = focusId;
-	}
+    public GameObjectFocusCheck(WorldObject caster, uint focusId)
+    {
+        _caster = caster;
+        _focusId = focusId;
+    }
 
-	public bool Invoke(GameObject go)
-	{
-		if (go.Template.GetSpellFocusType() != _focusId)
-			return false;
+    public bool Invoke(GameObject go)
+    {
+        if (go.Template.GetSpellFocusType() != _focusId)
+            return false;
 
-		if (!go.IsSpawned)
-			return false;
+        if (!go.IsSpawned)
+            return false;
 
-		float dist = go.Template.GetSpellFocusRadius();
+        float dist = go.Template.GetSpellFocusRadius();
 
-		return go.IsWithinDist(_caster, dist);
-	}
+        return go.IsWithinDist(_caster, dist);
+    }
 }

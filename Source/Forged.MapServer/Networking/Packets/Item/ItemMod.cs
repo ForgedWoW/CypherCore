@@ -7,55 +7,55 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class ItemMod
 {
-	public uint Value;
-	public ItemModifier Type;
+    public uint Value;
+    public ItemModifier Type;
 
-	public ItemMod()
-	{
-		Type = ItemModifier.Max;
-	}
+    public ItemMod()
+    {
+        Type = ItemModifier.Max;
+    }
 
-	public ItemMod(uint value, ItemModifier type)
-	{
-		Value = value;
-		Type = type;
-	}
+    public ItemMod(uint value, ItemModifier type)
+    {
+        Value = value;
+        Type = type;
+    }
 
-	public void Read(WorldPacket data)
-	{
-		Value = data.ReadUInt32();
-		Type = (ItemModifier)data.ReadUInt8();
-	}
+    public void Read(WorldPacket data)
+    {
+        Value = data.ReadUInt32();
+        Type = (ItemModifier)data.ReadUInt8();
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(Value);
-		data.WriteUInt8((byte)Type);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(Value);
+        data.WriteUInt8((byte)Type);
+    }
 
-	public override int GetHashCode()
-	{
-		return Value.GetHashCode() ^ Type.GetHashCode();
-	}
+    public override int GetHashCode()
+    {
+        return Value.GetHashCode() ^ Type.GetHashCode();
+    }
 
-	public override bool Equals(object obj)
-	{
-		if (obj is ItemMod)
-			return (ItemMod)obj == this;
+    public override bool Equals(object obj)
+    {
+        if (obj is ItemMod)
+            return (ItemMod)obj == this;
 
-		return false;
-	}
+        return false;
+    }
 
-	public static bool operator ==(ItemMod left, ItemMod right)
-	{
-		if (left.Value != right.Value)
-			return false;
+    public static bool operator ==(ItemMod left, ItemMod right)
+    {
+        if (left.Value != right.Value)
+            return false;
 
-		return left.Type != right.Type;
-	}
+        return left.Type != right.Type;
+    }
 
-	public static bool operator !=(ItemMod left, ItemMod right)
-	{
-		return !(left == right);
-	}
+    public static bool operator !=(ItemMod left, ItemMod right)
+    {
+        return !(left == right);
+    }
 }

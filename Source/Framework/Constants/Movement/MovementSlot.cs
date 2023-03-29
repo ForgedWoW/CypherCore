@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum MovementSlot
 {
-	Default = 0,
-	Active,
-	Max
+    Default = 0,
+    Active,
+    Max
 }

@@ -7,24 +7,24 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class ConditionalQuestText
 {
-	public int PlayerConditionID;
-	public int QuestGiverCreatureID;
-	public string Text = "";
+    public int PlayerConditionID;
+    public int QuestGiverCreatureID;
+    public string Text = "";
 
-	public ConditionalQuestText(int playerConditionID, int questGiverCreatureID, string text)
-	{
-		PlayerConditionID = playerConditionID;
-		QuestGiverCreatureID = questGiverCreatureID;
-		Text = text;
-	}
+    public ConditionalQuestText(int playerConditionID, int questGiverCreatureID, string text)
+    {
+        PlayerConditionID = playerConditionID;
+        QuestGiverCreatureID = questGiverCreatureID;
+        Text = text;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(PlayerConditionID);
-		data.WriteInt32(QuestGiverCreatureID);
-		data.WriteBits(Text.GetByteCount(), 12);
-		data.FlushBits();
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(PlayerConditionID);
+        data.WriteInt32(QuestGiverCreatureID);
+        data.WriteBits(Text.GetByteCount(), 12);
+        data.FlushBits();
 
-		data.WriteString(Text);
-	}
+        data.WriteString(Text);
+    }
 }

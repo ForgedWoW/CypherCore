@@ -8,7 +8,7 @@ namespace Framework.Constants;
 [Flags]
 public enum ContentTuningFlag
 {
-	DisabledForItem = 0x04,
-	Horde = 0x8,
-	Alliance = 0x10
+    DisabledForItem = 0x04,
+    Horde = 0x8,
+    Alliance = 0x10
 }

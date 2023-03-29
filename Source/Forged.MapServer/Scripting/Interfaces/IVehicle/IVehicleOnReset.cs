@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IVehicle;
 
 public interface IVehicleOnReset : IScriptObject
 {
-	void OnReset(Vehicle veh);
+    void OnReset(Vehicle veh);
 }

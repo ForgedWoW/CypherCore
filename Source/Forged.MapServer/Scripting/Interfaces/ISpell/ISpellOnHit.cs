@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellOnHit : ISpellScript
 {
-	void OnHit();
+    void OnHit();
 }

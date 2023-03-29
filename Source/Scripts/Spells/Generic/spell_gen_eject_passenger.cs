@@ -11,23 +11,23 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_eject_passenger : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(EjectPassenger, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(EjectPassenger, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void EjectPassenger(int effIndex)
-	{
-		var vehicle = HitUnit.VehicleKit1;
+    private void EjectPassenger(int effIndex)
+    {
+        var vehicle = HitUnit.VehicleKit1;
 
-		if (vehicle != null)
-		{
-			var passenger = vehicle.GetPassenger((sbyte)(EffectValue - 1));
+        if (vehicle != null)
+        {
+            var passenger = vehicle.GetPassenger((sbyte)(EffectValue - 1));
 
-			if (passenger)
-				passenger.ExitVehicle();
-		}
-	}
+            if (passenger)
+                passenger.ExitVehicle();
+        }
+    }
 }

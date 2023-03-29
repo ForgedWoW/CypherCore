@@ -5,13 +5,13 @@ namespace Framework.Constants;
 
 public enum LfgState
 {
-	None,
-	Rolecheck,
-	Queued,
-	Proposal,
+    None,
+    Rolecheck,
+    Queued,
+    Proposal,
 
-	//Boot,
-	Dungeon = 5,
-	FinishedDungeon,
-	Raidbrowser
+    //Boot,
+    Dungeon = 5,
+    FinishedDungeon,
+    Raidbrowser
 }

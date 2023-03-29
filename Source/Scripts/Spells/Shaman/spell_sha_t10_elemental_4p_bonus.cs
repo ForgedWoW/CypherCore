@@ -15,35 +15,35 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(70817)]
 internal class spell_sha_t10_elemental_4p_bonus : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var caster = eventInfo.Actor;
-		var target = eventInfo.ProcTarget;
+        var caster = eventInfo.Actor;
+        var target = eventInfo.ProcTarget;
 
-		// try to find spell Flame Shock on the Target
-		var flameShock = target.GetAuraEffect(AuraType.PeriodicDamage, SpellFamilyNames.Shaman, new FlagArray128(0x10000000), caster.GUID);
+        // try to find spell Flame Shock on the Target
+        var flameShock = target.GetAuraEffect(AuraType.PeriodicDamage, SpellFamilyNames.Shaman, new FlagArray128(0x10000000), caster.GUID);
 
-		if (flameShock == null)
-			return;
+        if (flameShock == null)
+            return;
 
-		var flameShockAura = flameShock.Base;
+        var flameShockAura = flameShock.Base;
 
-		var maxDuration = flameShockAura.MaxDuration;
-		var newDuration = flameShockAura.Duration + aurEff.Amount * Time.InMilliseconds;
+        var maxDuration = flameShockAura.MaxDuration;
+        var newDuration = flameShockAura.Duration + aurEff.Amount * Time.InMilliseconds;
 
-		flameShockAura.SetDuration(newDuration);
+        flameShockAura.SetDuration(newDuration);
 
-		// is it blizzlike to change max duration for FS?
-		if (newDuration > maxDuration)
-			flameShockAura.SetMaxDuration(newDuration);
-	}
+        // is it blizzlike to change max duration for FS?
+        if (newDuration > maxDuration)
+            flameShockAura.SetMaxDuration(newDuration);
+    }
 }

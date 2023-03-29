@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class DFBootPlayerVote : ClientPacket
 {
-	public bool Vote;
-	public DFBootPlayerVote(WorldPacket packet) : base(packet) { }
+    public bool Vote;
+    public DFBootPlayerVote(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Vote = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        Vote = _worldPacket.HasBit();
+    }
 }

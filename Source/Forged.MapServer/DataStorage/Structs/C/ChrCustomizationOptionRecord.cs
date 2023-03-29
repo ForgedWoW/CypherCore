@@ -7,17 +7,17 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class ChrCustomizationOptionRecord
 {
-	public LocalizedString Name;
-	public uint Id;
-	public ushort SecondaryID;
-	public int Flags;
-	public uint ChrModelID;
-	public int SortIndex;
-	public int ChrCustomizationCategoryID;
-	public int OptionType;
-	public float BarberShopCostModifier;
-	public int ChrCustomizationID;
-	public int ChrCustomizationReqID;
-	public int UiOrderIndex;
-	public int AddedInPatch;
+    public LocalizedString Name;
+    public uint Id;
+    public ushort SecondaryID;
+    public int Flags;
+    public uint ChrModelID;
+    public int SortIndex;
+    public int ChrCustomizationCategoryID;
+    public int OptionType;
+    public float BarberShopCostModifier;
+    public int ChrCustomizationID;
+    public int ChrCustomizationReqID;
+    public int UiOrderIndex;
+    public int AddedInPatch;
 }

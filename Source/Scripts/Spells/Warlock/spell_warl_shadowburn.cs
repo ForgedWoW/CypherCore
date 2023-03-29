@@ -12,23 +12,23 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(WarlockSpells.SHADOWBURN)]
 public class spell_warl_shadowburn : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 1, AuraType.Dummy, AuraEffectHandleModes.Real));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 1, AuraType.Dummy, AuraEffectHandleModes.Real));
+    }
 
-	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster)
-		{
-			var removeMode = TargetApplication.RemoveMode;
+        if (caster)
+        {
+            var removeMode = TargetApplication.RemoveMode;
 
-			if (removeMode == AuraRemoveMode.Death)
-				caster.CastSpell(WarlockSpells.SHADOWBURN_ENERGIZE, true);
-		}
-	}
+            if (removeMode == AuraRemoveMode.Death)
+                caster.CastSpell(WarlockSpells.SHADOWBURN_ENERGIZE, true);
+        }
+    }
 }

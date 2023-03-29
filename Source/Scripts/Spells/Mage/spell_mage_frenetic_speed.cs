@@ -10,8 +10,8 @@ namespace Scripts.Spells.Mage;
 [SpellScript(236058)]
 public class spell_mage_frenetic_speed : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.SpellInfo.Id == MageSpells.SCORCH;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.SpellInfo.Id == MageSpells.SCORCH;
+    }
 }

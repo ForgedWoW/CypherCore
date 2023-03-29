@@ -8,14 +8,14 @@ namespace Forged.MapServer.Cache;
 
 public class CharacterCacheEntry
 {
-	public ObjectGuid Guid;
-	public string Name;
-	public uint AccountId;
-	public PlayerClass ClassId;
-	public Race RaceId;
-	public Gender Sex;
-	public byte Level;
-	public ulong GuildId;
-	public uint[] ArenaTeamId = new uint[SharedConst.MaxArenaSlot];
-	public bool IsDeleted;
+    public ObjectGuid Guid;
+    public string Name;
+    public uint AccountId;
+    public PlayerClass ClassId;
+    public Race RaceId;
+    public Gender Sex;
+    public byte Level;
+    public ulong GuildId;
+    public uint[] ArenaTeamId = new uint[SharedConst.MaxArenaSlot];
+    public bool IsDeleted;
 }

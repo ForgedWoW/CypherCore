@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum GhostVisibilityType
 {
-	Alive = 0x1,
-	Ghost = 0x2
+    Alive = 0x1,
+    Ghost = 0x2
 }

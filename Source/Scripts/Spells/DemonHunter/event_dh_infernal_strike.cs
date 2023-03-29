@@ -8,26 +8,26 @@ namespace Scripts.Spells.DemonHunter;
 
 public class event_dh_infernal_strike : BasicEvent
 {
-	private readonly Unit _caster;
+    private readonly Unit _caster;
 
-	public event_dh_infernal_strike(Unit caster)
-	{
-		_caster = caster;
-	}
+    public event_dh_infernal_strike(Unit caster)
+    {
+        _caster = caster;
+    }
 
-	public override bool Execute(ulong etime, uint pTime)
-	{
-		if (_caster != null)
-		{
-			_caster.CastSpell(_caster, DemonHunterSpells.INFERNAL_STRIKE_DAMAGE, true);
+    public override bool Execute(ulong etime, uint pTime)
+    {
+        if (_caster != null)
+        {
+            _caster.CastSpell(_caster, DemonHunterSpells.INFERNAL_STRIKE_DAMAGE, true);
 
-			if (_caster.HasAura(DemonHunterSpells.RAIN_OF_CHAOS))
-				_caster.CastSpell(_caster, DemonHunterSpells.RAIN_OF_CHAOS_SLOW, true);
+            if (_caster.HasAura(DemonHunterSpells.RAIN_OF_CHAOS))
+                _caster.CastSpell(_caster, DemonHunterSpells.RAIN_OF_CHAOS_SLOW, true);
 
-			if (_caster.HasAura(DemonHunterSpells.ABYSSAL_STRIKE))
-				_caster.CastSpell(_caster, DemonHunterSpells.SIGIL_OF_FLAME_NO_DEST, true);
-		}
+            if (_caster.HasAura(DemonHunterSpells.ABYSSAL_STRIKE))
+                _caster.CastSpell(_caster, DemonHunterSpells.SIGIL_OF_FLAME_NO_DEST, true);
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

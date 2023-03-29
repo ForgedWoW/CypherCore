@@ -8,19 +8,19 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionCancelCommoditiesPurchase : ClientPacket
 {
-	public ObjectGuid Auctioneer;
-	public AddOnInfo? TaintedBy;
+    public ObjectGuid Auctioneer;
+    public AddOnInfo? TaintedBy;
 
-	public AuctionCancelCommoditiesPurchase(WorldPacket packet) : base(packet) { }
+    public AuctionCancelCommoditiesPurchase(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Auctioneer = _worldPacket.ReadPackedGuid();
+    public override void Read()
+    {
+        Auctioneer = _worldPacket.ReadPackedGuid();
 
-		if (_worldPacket.HasBit())
-		{
-			TaintedBy = new AddOnInfo();
-			TaintedBy.Value.Read(_worldPacket);
-		}
-	}
+        if (_worldPacket.HasBit())
+        {
+            TaintedBy = new AddOnInfo();
+            TaintedBy.Value.Read(_worldPacket);
+        }
+    }
 }

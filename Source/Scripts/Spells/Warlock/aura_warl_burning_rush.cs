@@ -13,22 +13,22 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(111400)]
 public class aura_warl_burning_rush : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 1, AuraType.PeriodicDamagePercent));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 1, AuraType.PeriodicDamagePercent));
+    }
 
-	private void OnTick(AuraEffect UnnamedParameter)
-	{
-		if (Caster)
-		{
-			// This way if the current tick takes you below 4%, next tick won't execute
-			var basepoints = Caster.CountPctFromMaxHealth(4);
+    private void OnTick(AuraEffect UnnamedParameter)
+    {
+        if (Caster)
+        {
+            // This way if the current tick takes you below 4%, next tick won't execute
+            var basepoints = Caster.CountPctFromMaxHealth(4);
 
-			if (Caster.Health <= basepoints || Caster.Health - basepoints <= basepoints)
-				Aura.SetDuration(0);
-		}
-	}
+            if (Caster.Health <= basepoints || Caster.Health - basepoints <= basepoints)
+                Aura.SetDuration(0);
+        }
+    }
 }

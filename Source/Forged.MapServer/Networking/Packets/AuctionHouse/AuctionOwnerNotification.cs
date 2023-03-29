@@ -8,21 +8,21 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public struct AuctionOwnerNotification
 {
-	public uint AuctionID;
-	public ulong BidAmount;
-	public ItemInstance Item;
+    public uint AuctionID;
+    public ulong BidAmount;
+    public ItemInstance Item;
 
-	public void Initialize(AuctionPosting auction)
-	{
-		AuctionID = auction.Id;
-		Item = new ItemInstance(auction.Items[0]);
-		BidAmount = auction.BidAmount;
-	}
+    public void Initialize(AuctionPosting auction)
+    {
+        AuctionID = auction.Id;
+        Item = new ItemInstance(auction.Items[0]);
+        BidAmount = auction.BidAmount;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(AuctionID);
-		data.WriteUInt64(BidAmount);
-		Item.Write(data);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(AuctionID);
+        data.WriteUInt64(BidAmount);
+        Item.Write(data);
+    }
 }

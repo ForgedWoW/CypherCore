@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum TraitConfigType
 {
-	Invalid = 0,
-	Combat = 1,
-	Profession = 2,
-	Generic = 3
+    Invalid = 0,
+    Combat = 1,
+    Profession = 2,
+    Generic = 3
 }

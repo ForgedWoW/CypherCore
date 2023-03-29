@@ -13,18 +13,18 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(234153)]
 public class spell_warlock_drain_life : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicLeech));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicLeech));
+    }
 
-	private void PeriodicTick(AuraEffect UnnamedParameter)
-	{
-		var caster = Caster;
+    private void PeriodicTick(AuraEffect UnnamedParameter)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
-	}
+        if (caster == null)
+            return;
+    }
 }

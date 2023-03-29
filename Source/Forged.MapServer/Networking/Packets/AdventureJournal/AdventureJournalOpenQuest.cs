@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.AdventureJournal;
 
 internal class AdventureJournalOpenQuest : ClientPacket
 {
-	public uint AdventureJournalID;
-	public AdventureJournalOpenQuest(WorldPacket packet) : base(packet) { }
+    public uint AdventureJournalID;
+    public AdventureJournalOpenQuest(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		AdventureJournalID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        AdventureJournalID = _worldPacket.ReadUInt32();
+    }
 }

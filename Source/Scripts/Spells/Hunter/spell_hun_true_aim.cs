@@ -10,11 +10,11 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(199527)]
 public class spell_hun_true_aim : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo.Id == HunterSpells.AIMED_SHOT || eventInfo.SpellInfo.Id == HunterSpells.ARCANE_SHOT)
-			return true;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo.Id == HunterSpells.AIMED_SHOT || eventInfo.SpellInfo.Id == HunterSpells.ARCANE_SHOT)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

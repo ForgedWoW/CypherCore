@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class SendRaidTargetUpdateSingle : ServerPacket
 {
-	public sbyte PartyIndex;
-	public ObjectGuid Target;
-	public ObjectGuid ChangedBy;
-	public sbyte Symbol;
-	public SendRaidTargetUpdateSingle() : base(ServerOpcodes.SendRaidTargetUpdateSingle) { }
+    public sbyte PartyIndex;
+    public ObjectGuid Target;
+    public ObjectGuid ChangedBy;
+    public sbyte Symbol;
+    public SendRaidTargetUpdateSingle() : base(ServerOpcodes.SendRaidTargetUpdateSingle) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt8(PartyIndex);
-		_worldPacket.WriteInt8(Symbol);
-		_worldPacket.WritePackedGuid(Target);
-		_worldPacket.WritePackedGuid(ChangedBy);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt8(PartyIndex);
+        _worldPacket.WriteInt8(Symbol);
+        _worldPacket.WritePackedGuid(Target);
+        _worldPacket.WritePackedGuid(ChangedBy);
+    }
 }

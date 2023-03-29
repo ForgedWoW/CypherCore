@@ -11,7 +11,6 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Maps.Workers;
 using Forged.MapServer.Networking.Packets.Channel;
-using Forged.MapServer.Server;
 using Forged.MapServer.Text;
 using Framework.Collections;
 using Framework.Constants;
@@ -40,1075 +39,1075 @@ public class Channel
     private ObjectGuid _ownerGuid;
     private string _channelPassword;
 
-	public Channel(ObjectGuid guid, uint channelId, TeamFaction team = 0, AreaTableRecord zoneEntry = null)
-	{
-		_channelFlags = ChannelFlags.General;
-		_channelId = channelId;
-		_channelTeam = team;
-		_channelGuid = guid;
-		_zoneEntry = zoneEntry;
+    public Channel(ObjectGuid guid, uint channelId, TeamFaction team = 0, AreaTableRecord zoneEntry = null)
+    {
+        _channelFlags = ChannelFlags.General;
+        _channelId = channelId;
+        _channelTeam = team;
+        _channelGuid = guid;
+        _zoneEntry = zoneEntry;
 
-		var channelEntry = CliDB.ChatChannelsStorage.LookupByKey(channelId);
+        var channelEntry = CliDB.ChatChannelsStorage.LookupByKey(channelId);
 
-		if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Trade)) // for trade channel
-			_channelFlags |= ChannelFlags.Trade;
+        if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Trade)) // for trade channel
+            _channelFlags |= ChannelFlags.Trade;
 
-		if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.CityOnly2)) // for city only channels
-			_channelFlags |= ChannelFlags.City;
+        if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.CityOnly2)) // for city only channels
+            _channelFlags |= ChannelFlags.City;
 
-		if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Lfg)) // for LFG channel
-			_channelFlags |= ChannelFlags.Lfg;
-		else // for all other channels
-			_channelFlags |= ChannelFlags.NotLfg;
-	}
+        if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Lfg)) // for LFG channel
+            _channelFlags |= ChannelFlags.Lfg;
+        else // for all other channels
+            _channelFlags |= ChannelFlags.NotLfg;
+    }
 
-	public Channel(ObjectGuid guid, string name, TeamFaction team = 0, string banList = "")
-	{
-		_announceEnabled = true;
-		_ownershipEnabled = true;
-		_channelFlags = ChannelFlags.Custom;
-		_channelTeam = team;
-		_channelGuid = guid;
-		_channelName = name;
+    public Channel(ObjectGuid guid, string name, TeamFaction team = 0, string banList = "")
+    {
+        _announceEnabled = true;
+        _ownershipEnabled = true;
+        _channelFlags = ChannelFlags.Custom;
+        _channelTeam = team;
+        _channelGuid = guid;
+        _channelName = name;
 
-		StringArray tokens = new(banList, ' ');
+        StringArray tokens = new(banList, ' ');
 
-		foreach (string token in tokens)
-		{
-			// legacy db content might not have 0x prefix, account for that
-			var bannedGuidStr = token.Contains("0x") ? token.Substring(2) : token;
-			ObjectGuid banned = new();
-			banned.SetRawValue(ulong.Parse(bannedGuidStr.Substring(0, 16)), ulong.Parse(bannedGuidStr.Substring(16)));
+        foreach (string token in tokens)
+        {
+            // legacy db content might not have 0x prefix, account for that
+            var bannedGuidStr = token.Contains("0x") ? token.Substring(2) : token;
+            ObjectGuid banned = new();
+            banned.SetRawValue(ulong.Parse(bannedGuidStr.Substring(0, 16)), ulong.Parse(bannedGuidStr.Substring(16)));
 
-			if (banned.IsEmpty)
-				continue;
+            if (banned.IsEmpty)
+                continue;
 
-			Log.Logger.Debug($"Channel({name}) loaded player {banned} into bannedStore");
-			_bannedStore.Add(banned);
-		}
-	}
+            Log.Logger.Debug($"Channel({name}) loaded player {banned} into bannedStore");
+            _bannedStore.Add(banned);
+        }
+    }
 
-	public static void GetChannelName(ref string channelName, uint channelId, Locale locale, AreaTableRecord zoneEntry)
-	{
-		if (channelId != 0)
-		{
-			var channelEntry = CliDB.ChatChannelsStorage.LookupByKey(channelId);
+    public static void GetChannelName(ref string channelName, uint channelId, Locale locale, AreaTableRecord zoneEntry)
+    {
+        if (channelId != 0)
+        {
+            var channelEntry = CliDB.ChatChannelsStorage.LookupByKey(channelId);
 
-			if (!channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Global))
-			{
-				if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.CityOnly))
-					channelName = string.Format(channelEntry.Name[locale].ConvertFormatSyntax(), Global.ObjectMgr.GetCypherString(CypherStrings.ChannelCity, locale));
-				else
-					channelName = string.Format(channelEntry.Name[locale].ConvertFormatSyntax(), zoneEntry.AreaName[locale]);
-			}
-			else
-			{
-				channelName = channelEntry.Name[locale];
-			}
-		}
-	}
+            if (!channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Global))
+            {
+                if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.CityOnly))
+                    channelName = string.Format(channelEntry.Name[locale].ConvertFormatSyntax(), Global.ObjectMgr.GetCypherString(CypherStrings.ChannelCity, locale));
+                else
+                    channelName = string.Format(channelEntry.Name[locale].ConvertFormatSyntax(), zoneEntry.AreaName[locale]);
+            }
+            else
+            {
+                channelName = channelEntry.Name[locale];
+            }
+        }
+    }
 
-	public string GetName(Locale locale = Locale.enUS)
-	{
-		var result = _channelName;
-		GetChannelName(ref result, _channelId, locale, _zoneEntry);
+    public string GetName(Locale locale = Locale.enUS)
+    {
+        var result = _channelName;
+        GetChannelName(ref result, _channelId, locale, _zoneEntry);
 
-		return result;
-	}
+        return result;
+    }
 
-	public void UpdateChannelInDB()
-	{
-		var now = GameTime.GetGameTime();
+    public void UpdateChannelInDB()
+    {
+        var now = GameTime.GetGameTime();
 
-		if (_isDirty)
-		{
-			var banlist = "";
+        if (_isDirty)
+        {
+            var banlist = "";
 
-			foreach (var iter in _bannedStore)
-				banlist += iter.GetRawValue().ToHexString() + ' ';
+            foreach (var iter in _bannedStore)
+                banlist += iter.GetRawValue().ToHexString() + ' ';
 
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHANNEL);
-			stmt.AddValue(0, _channelName);
-			stmt.AddValue(1, (uint)_channelTeam);
-			stmt.AddValue(2, _announceEnabled);
-			stmt.AddValue(3, _ownershipEnabled);
-			stmt.AddValue(4, _channelPassword);
-			stmt.AddValue(5, banlist);
-			DB.Characters.Execute(stmt);
-		}
-		else if (_nextActivityUpdateTime <= now)
-		{
-			if (!_playersStore.Empty())
-			{
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHANNEL_USAGE);
-				stmt.AddValue(0, _channelName);
-				stmt.AddValue(1, (uint)_channelTeam);
-				DB.Characters.Execute(stmt);
-			}
-		}
-		else
-		{
-			return;
-		}
+            var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHANNEL);
+            stmt.AddValue(0, _channelName);
+            stmt.AddValue(1, (uint)_channelTeam);
+            stmt.AddValue(2, _announceEnabled);
+            stmt.AddValue(3, _ownershipEnabled);
+            stmt.AddValue(4, _channelPassword);
+            stmt.AddValue(5, banlist);
+            DB.Characters.Execute(stmt);
+        }
+        else if (_nextActivityUpdateTime <= now)
+        {
+            if (!_playersStore.Empty())
+            {
+                var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHANNEL_USAGE);
+                stmt.AddValue(0, _channelName);
+                stmt.AddValue(1, (uint)_channelTeam);
+                DB.Characters.Execute(stmt);
+            }
+        }
+        else
+        {
+            return;
+        }
 
-		_isDirty = false;
-		_nextActivityUpdateTime = now + RandomHelper.URand(1 * Time.Minute, 6 * Time.Minute) * Math.Max(1u, GetDefaultValue("PreserveCustomChannelInterval", 5));
-	}
+        _isDirty = false;
+        _nextActivityUpdateTime = now + RandomHelper.URand(1 * Time.Minute, 6 * Time.Minute) * Math.Max(1u, GetDefaultValue("PreserveCustomChannelInterval", 5));
+    }
 
-	public void JoinChannel(Player player, string pass = "")
-	{
-		var guid = player.GUID;
+    public void JoinChannel(Player player, string pass = "")
+    {
+        var guid = player.GUID;
 
-		if (IsOn(guid))
-		{
-			// Do not send error message for built-in channels
-			if (!IsConstant())
-			{
-				var builder = new ChannelNameBuilder(this, new PlayerAlreadyMemberAppend(guid));
-				SendToOne(builder, guid);
-			}
+        if (IsOn(guid))
+        {
+            // Do not send error message for built-in channels
+            if (!IsConstant())
+            {
+                var builder = new ChannelNameBuilder(this, new PlayerAlreadyMemberAppend(guid));
+                SendToOne(builder, guid);
+            }
 
-			return;
-		}
+            return;
+        }
 
-		if (IsBanned(guid))
-		{
-			var builder = new ChannelNameBuilder(this, new BannedAppend());
-			SendToOne(builder, guid);
+        if (IsBanned(guid))
+        {
+            var builder = new ChannelNameBuilder(this, new BannedAppend());
+            SendToOne(builder, guid);
 
-			return;
-		}
+            return;
+        }
 
-		if (!CheckPassword(pass))
-		{
-			var builder = new ChannelNameBuilder(this, new WrongPasswordAppend());
-			SendToOne(builder, guid);
+        if (!CheckPassword(pass))
+        {
+            var builder = new ChannelNameBuilder(this, new WrongPasswordAppend());
+            SendToOne(builder, guid);
 
-			return;
-		}
+            return;
+        }
 
-		if (HasFlag(ChannelFlags.Lfg) &&
+        if (HasFlag(ChannelFlags.Lfg) &&
             GetDefaultValue("Channel.RestrictedLfg", true) &&
-			Global.AccountMgr.IsPlayerAccount(player.Session.Security) && //FIXME: Move to RBAC
-			player.Group)
-		{
-			var builder = new ChannelNameBuilder(this, new NotInLFGAppend());
-			SendToOne(builder, guid);
-
-			return;
-		}
-
-		player.JoinedChannel(this);
-
-		if (_announceEnabled && !player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
-		{
-			var builder = new ChannelNameBuilder(this, new JoinedAppend(guid));
-			SendToAll(builder);
-		}
-
-		var newChannel = _playersStore.Empty();
-
-		if (newChannel)
-			_nextActivityUpdateTime = 0; // force activity update on next channel tick
-
-		PlayerInfo playerInfo = new();
-		playerInfo.SetInvisible(!player.IsGMVisible);
-		_playersStore[guid] = playerInfo;
-
-		/*
-		ChannelNameBuilder<YouJoinedAppend> builder = new ChannelNameBuilder(this, new YouJoinedAppend());
-		SendToOne(builder, guid);
-		*/
-
-		SendToOne(new ChannelNotifyJoinedBuilder(this), guid);
-
-		JoinNotify(player);
-
-		// Custom channel handling
-		if (!IsConstant())
-			// If the channel has no owner yet and ownership is allowed, set the new owner.
-			// or if the owner was a GM with .gm visible off
-			// don't do this if the new player is, too, an invis GM, unless the channel was empty
-			if (_ownershipEnabled && (newChannel || !playerInfo.IsInvisible()) && (_ownerGuid.IsEmpty || _isOwnerInvisible))
-			{
-				_isOwnerInvisible = playerInfo.IsInvisible();
-
-				SetOwner(guid, !newChannel && !_isOwnerInvisible);
-				_playersStore[guid].SetModerator(true);
-			}
-	}
+            Global.AccountMgr.IsPlayerAccount(player.Session.Security) && //FIXME: Move to RBAC
+            player.Group)
+        {
+            var builder = new ChannelNameBuilder(this, new NotInLFGAppend());
+            SendToOne(builder, guid);
+
+            return;
+        }
+
+        player.JoinedChannel(this);
+
+        if (_announceEnabled && !player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
+        {
+            var builder = new ChannelNameBuilder(this, new JoinedAppend(guid));
+            SendToAll(builder);
+        }
+
+        var newChannel = _playersStore.Empty();
+
+        if (newChannel)
+            _nextActivityUpdateTime = 0; // force activity update on next channel tick
+
+        PlayerInfo playerInfo = new();
+        playerInfo.SetInvisible(!player.IsGMVisible);
+        _playersStore[guid] = playerInfo;
+
+        /*
+        ChannelNameBuilder<YouJoinedAppend> builder = new ChannelNameBuilder(this, new YouJoinedAppend());
+        SendToOne(builder, guid);
+        */
+
+        SendToOne(new ChannelNotifyJoinedBuilder(this), guid);
+
+        JoinNotify(player);
+
+        // Custom channel handling
+        if (!IsConstant())
+            // If the channel has no owner yet and ownership is allowed, set the new owner.
+            // or if the owner was a GM with .gm visible off
+            // don't do this if the new player is, too, an invis GM, unless the channel was empty
+            if (_ownershipEnabled && (newChannel || !playerInfo.IsInvisible()) && (_ownerGuid.IsEmpty || _isOwnerInvisible))
+            {
+                _isOwnerInvisible = playerInfo.IsInvisible();
+
+                SetOwner(guid, !newChannel && !_isOwnerInvisible);
+                _playersStore[guid].SetModerator(true);
+            }
+    }
 
-	public void LeaveChannel(Player player, bool send = true, bool suspend = false)
-	{
-		var guid = player.GUID;
+    public void LeaveChannel(Player player, bool send = true, bool suspend = false)
+    {
+        var guid = player.GUID;
 
-		if (!IsOn(guid))
-		{
-			if (send)
-			{
-				var builder = new ChannelNameBuilder(this, new NotMemberAppend());
-				SendToOne(builder, guid);
-			}
+        if (!IsOn(guid))
+        {
+            if (send)
+            {
+                var builder = new ChannelNameBuilder(this, new NotMemberAppend());
+                SendToOne(builder, guid);
+            }
 
-			return;
-		}
+            return;
+        }
 
-		player.LeftChannel(this);
-
-		if (send)
-			/*
-			ChannelNameBuilder<YouLeftAppend> builder = new ChannelNameBuilder(this, new YouLeftAppend());
-			SendToOne(builder, guid);
-			*/
-			SendToOne(new ChannelNotifyLeftBuilder(this, suspend), guid);
+        player.LeftChannel(this);
+
+        if (send)
+            /*
+            ChannelNameBuilder<YouLeftAppend> builder = new ChannelNameBuilder(this, new YouLeftAppend());
+            SendToOne(builder, guid);
+            */
+            SendToOne(new ChannelNotifyLeftBuilder(this, suspend), guid);
 
-		var info = _playersStore.LookupByKey(guid);
-		var changeowner = info.IsOwner();
-		_playersStore.Remove(guid);
+        var info = _playersStore.LookupByKey(guid);
+        var changeowner = info.IsOwner();
+        _playersStore.Remove(guid);
 
-		if (_announceEnabled && !player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
-		{
-			var builder = new ChannelNameBuilder(this, new LeftAppend(guid));
-			SendToAll(builder);
-		}
+        if (_announceEnabled && !player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
+        {
+            var builder = new ChannelNameBuilder(this, new LeftAppend(guid));
+            SendToAll(builder);
+        }
 
-		LeaveNotify(player);
+        LeaveNotify(player);
 
-		if (!IsConstant())
-			// If the channel owner left and there are still playersStore inside, pick a new owner
-			// do not pick invisible gm owner unless there are only invisible gms in that channel (rare)
-			if (changeowner && _ownershipEnabled && !_playersStore.Empty())
-			{
-				var newowner = ObjectGuid.Empty;
+        if (!IsConstant())
+            // If the channel owner left and there are still playersStore inside, pick a new owner
+            // do not pick invisible gm owner unless there are only invisible gms in that channel (rare)
+            if (changeowner && _ownershipEnabled && !_playersStore.Empty())
+            {
+                var newowner = ObjectGuid.Empty;
 
-				foreach (var key in _playersStore.Keys)
-					if (!_playersStore[key].IsInvisible())
-					{
-						newowner = key;
+                foreach (var key in _playersStore.Keys)
+                    if (!_playersStore[key].IsInvisible())
+                    {
+                        newowner = key;
 
-						break;
-					}
+                        break;
+                    }
 
-				if (newowner.IsEmpty)
-					newowner = _playersStore.First().Key;
+                if (newowner.IsEmpty)
+                    newowner = _playersStore.First().Key;
 
-				_playersStore[newowner].SetModerator(true);
+                _playersStore[newowner].SetModerator(true);
 
-				SetOwner(newowner);
+                SetOwner(newowner);
 
-				// if the new owner is invisible gm, set flag to automatically choose a new owner
-				if (_playersStore[newowner].IsInvisible())
-					_isOwnerInvisible = true;
-			}
-	}
+                // if the new owner is invisible gm, set flag to automatically choose a new owner
+                if (_playersStore[newowner].IsInvisible())
+                    _isOwnerInvisible = true;
+            }
+    }
 
-	public void UnBan(Player player, string badname)
-	{
-		var good = player.GUID;
+    public void UnBan(Player player, string badname)
+    {
+        var good = player.GUID;
 
-		if (!IsOn(good))
-		{
-			ChannelNameBuilder builder = new(this, new NotMemberAppend());
-			SendToOne(builder, good);
+        if (!IsOn(good))
+        {
+            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            SendToOne(builder, good);
 
-			return;
-		}
+            return;
+        }
 
-		var info = _playersStore.LookupByKey(good);
+        var info = _playersStore.LookupByKey(good);
 
-		if (!info.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
-		{
-			ChannelNameBuilder builder = new(this, new NotModeratorAppend());
-			SendToOne(builder, good);
+        if (!info.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
+        {
+            ChannelNameBuilder builder = new(this, new NotModeratorAppend());
+            SendToOne(builder, good);
 
-			return;
-		}
+            return;
+        }
 
-		var bad = Global.ObjAccessor.FindPlayerByName(badname);
-		var victim = bad ? bad.GUID : ObjectGuid.Empty;
+        var bad = Global.ObjAccessor.FindPlayerByName(badname);
+        var victim = bad ? bad.GUID : ObjectGuid.Empty;
 
-		if (victim.IsEmpty || !IsBanned(victim))
-		{
-			ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(badname));
-			SendToOne(builder, good);
+        if (victim.IsEmpty || !IsBanned(victim))
+        {
+            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(badname));
+            SendToOne(builder, good);
 
-			return;
-		}
+            return;
+        }
 
-		_bannedStore.Remove(victim);
+        _bannedStore.Remove(victim);
 
-		ChannelNameBuilder builder1 = new(this, new PlayerUnbannedAppend(good, victim));
-		SendToAll(builder1);
+        ChannelNameBuilder builder1 = new(this, new PlayerUnbannedAppend(good, victim));
+        SendToAll(builder1);
 
-		_isDirty = true;
-	}
+        _isDirty = true;
+    }
 
-	public void Password(Player player, string pass)
-	{
-		var guid = player.GUID;
+    public void Password(Player player, string pass)
+    {
+        var guid = player.GUID;
 
-		if (!IsOn(guid))
-		{
-			ChannelNameBuilder builder = new(this, new NotMemberAppend());
-			SendToOne(builder, guid);
+        if (!IsOn(guid))
+        {
+            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            SendToOne(builder, guid);
 
-			return;
-		}
+            return;
+        }
 
-		var info = _playersStore.LookupByKey(guid);
+        var info = _playersStore.LookupByKey(guid);
 
-		if (!info.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
-		{
-			ChannelNameBuilder builder = new(this, new NotModeratorAppend());
-			SendToOne(builder, guid);
+        if (!info.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
+        {
+            ChannelNameBuilder builder = new(this, new NotModeratorAppend());
+            SendToOne(builder, guid);
 
-			return;
-		}
+            return;
+        }
 
-		_channelPassword = pass;
+        _channelPassword = pass;
 
-		ChannelNameBuilder builder1 = new(this, new PasswordChangedAppend(guid));
-		SendToAll(builder1);
+        ChannelNameBuilder builder1 = new(this, new PasswordChangedAppend(guid));
+        SendToAll(builder1);
 
-		_isDirty = true;
-	}
+        _isDirty = true;
+    }
 
-	public void SetInvisible(Player player, bool on)
-	{
-		var playerInfo = _playersStore.LookupByKey(player.GUID);
+    public void SetInvisible(Player player, bool on)
+    {
+        var playerInfo = _playersStore.LookupByKey(player.GUID);
 
-		if (playerInfo == null)
-			return;
-
-		playerInfo.SetInvisible(on);
+        if (playerInfo == null)
+            return;
+
+        playerInfo.SetInvisible(on);
 
-		// we happen to be owner too, update flag
-		if (_ownerGuid == player.GUID)
-			_isOwnerInvisible = on;
-	}
-
-	public void SetOwner(Player player, string newname)
-	{
-		var guid = player.GUID;
-
-		if (!IsOn(guid))
-		{
-			ChannelNameBuilder builder = new(this, new NotMemberAppend());
-			SendToOne(builder, guid);
+        // we happen to be owner too, update flag
+        if (_ownerGuid == player.GUID)
+            _isOwnerInvisible = on;
+    }
+
+    public void SetOwner(Player player, string newname)
+    {
+        var guid = player.GUID;
+
+        if (!IsOn(guid))
+        {
+            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            SendToOne(builder, guid);
 
-			return;
-		}
+            return;
+        }
 
-		if (!player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator) && guid != _ownerGuid)
-		{
-			ChannelNameBuilder builder = new(this, new NotOwnerAppend());
-			SendToOne(builder, guid);
+        if (!player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator) && guid != _ownerGuid)
+        {
+            ChannelNameBuilder builder = new(this, new NotOwnerAppend());
+            SendToOne(builder, guid);
 
-			return;
-		}
+            return;
+        }
 
-		var newp = Global.ObjAccessor.FindPlayerByName(newname);
-		var victim = newp ? newp.GUID : ObjectGuid.Empty;
+        var newp = Global.ObjAccessor.FindPlayerByName(newname);
+        var victim = newp ? newp.GUID : ObjectGuid.Empty;
 
-		if (newp == null ||
-			victim.IsEmpty ||
-			!IsOn(victim) ||
-			(player.Team != newp.Team &&
-			(!player.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
-			!newp.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel))))
-		{
-			ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(newname));
-			SendToOne(builder, guid);
-
-			return;
-		}
-
-		_playersStore[victim].SetModerator(true);
-		SetOwner(victim);
-	}
-
-	public void SendWhoOwner(Player player)
-	{
-		var guid = player.GUID;
-
-		if (IsOn(guid))
-		{
-			ChannelNameBuilder builder = new(this, new ChannelOwnerAppend(this, _ownerGuid));
-			SendToOne(builder, guid);
-		}
-		else
-		{
-			ChannelNameBuilder builder = new(this, new NotMemberAppend());
-			SendToOne(builder, guid);
-		}
-	}
-
-	public void List(Player player)
-	{
-		var guid = player.GUID;
-
-		if (!IsOn(guid))
-		{
-			ChannelNameBuilder builder = new(this, new NotMemberAppend());
-			SendToOne(builder, guid);
-
-			return;
-		}
-
-		var channelName = GetName(player.Session.SessionDbcLocale);
-		Log.Logger.Debug("SMSG_CHANNEL_LIST {0} Channel: {1}", player.Session.GetPlayerInfo(), channelName);
+        if (newp == null ||
+            victim.IsEmpty ||
+            !IsOn(victim) ||
+            (player.Team != newp.Team &&
+             (!player.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
+              !newp.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel))))
+        {
+            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(newname));
+            SendToOne(builder, guid);
+
+            return;
+        }
+
+        _playersStore[victim].SetModerator(true);
+        SetOwner(victim);
+    }
+
+    public void SendWhoOwner(Player player)
+    {
+        var guid = player.GUID;
+
+        if (IsOn(guid))
+        {
+            ChannelNameBuilder builder = new(this, new ChannelOwnerAppend(this, _ownerGuid));
+            SendToOne(builder, guid);
+        }
+        else
+        {
+            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            SendToOne(builder, guid);
+        }
+    }
+
+    public void List(Player player)
+    {
+        var guid = player.GUID;
+
+        if (!IsOn(guid))
+        {
+            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            SendToOne(builder, guid);
+
+            return;
+        }
+
+        var channelName = GetName(player.Session.SessionDbcLocale);
+        Log.Logger.Debug("SMSG_CHANNEL_LIST {0} Channel: {1}", player.Session.GetPlayerInfo(), channelName);
 
-		ChannelListResponse list = new()
-		{
-			Display = true, // always true?
-			Channel = channelName,
-			ChannelFlags = GetFlags()
-		};
-
-		var gmLevelInWhoList = GetDefaultValue("GM.InWhoList.Level", (int)AccountTypes.Administrator);
-
-		foreach (var pair in _playersStore)
-		{
-			var member = Global.ObjAccessor.FindConnectedPlayer(pair.Key);
-
-			// PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
-			// MODERATOR, GAME MASTER, ADMINISTRATOR can see all
-			if (member &&
-				(player.Session.HasPermission(RBACPermissions.WhoSeeAllSecLevels) ||
-				member.Session.Security <= (AccountTypes)gmLevelInWhoList) &&
-				member.IsVisibleGloballyFor(player))
-				list.Members.Add(new ChannelListResponse.ChannelPlayer(pair.Key, Global.WorldMgr.VirtualRealmAddress, pair.Value.GetFlags()));
-		}
+        ChannelListResponse list = new()
+        {
+            Display = true, // always true?
+            Channel = channelName,
+            ChannelFlags = GetFlags()
+        };
+
+        var gmLevelInWhoList = GetDefaultValue("GM.InWhoList.Level", (int)AccountTypes.Administrator);
+
+        foreach (var pair in _playersStore)
+        {
+            var member = Global.ObjAccessor.FindConnectedPlayer(pair.Key);
+
+            // PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
+            // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
+            if (member &&
+                (player.Session.HasPermission(RBACPermissions.WhoSeeAllSecLevels) ||
+                 member.Session.Security <= (AccountTypes)gmLevelInWhoList) &&
+                member.IsVisibleGloballyFor(player))
+                list.Members.Add(new ChannelListResponse.ChannelPlayer(pair.Key, Global.WorldMgr.VirtualRealmAddress, pair.Value.GetFlags()));
+        }
 
-		player.SendPacket(list);
-	}
-
-	public void Announce(Player player)
-	{
-		var guid = player.GUID;
-
-		if (!IsOn(guid))
-		{
-			ChannelNameBuilder builder = new(this, new NotMemberAppend());
-			SendToOne(builder, guid);
-
-			return;
-		}
-
-		var playerInfo = _playersStore.LookupByKey(guid);
-
-		if (!playerInfo.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
-		{
-			ChannelNameBuilder builder = new(this, new NotModeratorAppend());
-			SendToOne(builder, guid);
+        player.SendPacket(list);
+    }
+
+    public void Announce(Player player)
+    {
+        var guid = player.GUID;
+
+        if (!IsOn(guid))
+        {
+            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            SendToOne(builder, guid);
+
+            return;
+        }
+
+        var playerInfo = _playersStore.LookupByKey(guid);
+
+        if (!playerInfo.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
+        {
+            ChannelNameBuilder builder = new(this, new NotModeratorAppend());
+            SendToOne(builder, guid);
 
-			return;
-		}
+            return;
+        }
 
-		_announceEnabled = !_announceEnabled;
-
-		if (_announceEnabled)
-		{
-			ChannelNameBuilder builder = new(this, new AnnouncementsOnAppend(guid));
-			SendToAll(builder);
-		}
-		else
-		{
-			ChannelNameBuilder builder = new(this, new AnnouncementsOffAppend(guid));
-			SendToAll(builder);
-		}
+        _announceEnabled = !_announceEnabled;
+
+        if (_announceEnabled)
+        {
+            ChannelNameBuilder builder = new(this, new AnnouncementsOnAppend(guid));
+            SendToAll(builder);
+        }
+        else
+        {
+            ChannelNameBuilder builder = new(this, new AnnouncementsOffAppend(guid));
+            SendToAll(builder);
+        }
 
-		_isDirty = true;
-	}
-
-	public void Say(ObjectGuid guid, string what, Language lang)
-	{
-		if (string.IsNullOrEmpty(what))
-			return;
+        _isDirty = true;
+    }
+
+    public void Say(ObjectGuid guid, string what, Language lang)
+    {
+        if (string.IsNullOrEmpty(what))
+            return;
 
-		// TODO: Add proper RBAC check
-		if (GetDefaultValue("AllowTwoSide.Interaction.Channel", false))
-			lang = Language.Universal;
-
-		if (!IsOn(guid))
-		{
-			ChannelNameBuilder builder = new(this, new NotMemberAppend());
-			SendToOne(builder, guid);
-
-			return;
-		}
-
-		var playerInfo = _playersStore.LookupByKey(guid);
-
-		if (playerInfo.IsMuted())
-		{
-			ChannelNameBuilder builder = new(this, new MutedAppend());
-			SendToOne(builder, guid);
-
-			return;
-		}
-
-		var player = Global.ObjAccessor.FindConnectedPlayer(guid);
-		SendToAll(new ChannelSayBuilder(this, lang, what, guid, _channelGuid), !playerInfo.IsModerator() ? guid : ObjectGuid.Empty, !playerInfo.IsModerator() && player ? player.Session.AccountGUID : ObjectGuid.Empty);
-	}
-
-	public void AddonSay(ObjectGuid guid, string prefix, string what, bool isLogged)
-	{
-		if (what.IsEmpty())
-			return;
-
-		if (!IsOn(guid))
-		{
-			NotMemberAppend appender;
-			ChannelNameBuilder builder = new(this, appender);
-			SendToOne(builder, guid);
-
-			return;
-		}
-
-		var playerInfo = _playersStore.LookupByKey(guid);
-
-		if (playerInfo.IsMuted())
-		{
-			MutedAppend appender;
-			ChannelNameBuilder builder = new(this, appender);
-			SendToOne(builder, guid);
-
-			return;
-		}
-
-		var player = Global.ObjAccessor.FindConnectedPlayer(guid);
-
-		SendToAllWithAddon(new ChannelWhisperBuilder(this, isLogged ? Language.AddonLogged : Language.Addon, what, prefix, guid),
-							prefix,
-							!playerInfo.IsModerator() ? guid : ObjectGuid.Empty,
-							!playerInfo.IsModerator() && player ? player.Session.AccountGUID : ObjectGuid.Empty);
-	}
+        // TODO: Add proper RBAC check
+        if (GetDefaultValue("AllowTwoSide.Interaction.Channel", false))
+            lang = Language.Universal;
+
+        if (!IsOn(guid))
+        {
+            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            SendToOne(builder, guid);
+
+            return;
+        }
+
+        var playerInfo = _playersStore.LookupByKey(guid);
+
+        if (playerInfo.IsMuted())
+        {
+            ChannelNameBuilder builder = new(this, new MutedAppend());
+            SendToOne(builder, guid);
+
+            return;
+        }
+
+        var player = Global.ObjAccessor.FindConnectedPlayer(guid);
+        SendToAll(new ChannelSayBuilder(this, lang, what, guid, _channelGuid), !playerInfo.IsModerator() ? guid : ObjectGuid.Empty, !playerInfo.IsModerator() && player ? player.Session.AccountGUID : ObjectGuid.Empty);
+    }
+
+    public void AddonSay(ObjectGuid guid, string prefix, string what, bool isLogged)
+    {
+        if (what.IsEmpty())
+            return;
+
+        if (!IsOn(guid))
+        {
+            NotMemberAppend appender;
+            ChannelNameBuilder builder = new(this, appender);
+            SendToOne(builder, guid);
+
+            return;
+        }
+
+        var playerInfo = _playersStore.LookupByKey(guid);
+
+        if (playerInfo.IsMuted())
+        {
+            MutedAppend appender;
+            ChannelNameBuilder builder = new(this, appender);
+            SendToOne(builder, guid);
+
+            return;
+        }
+
+        var player = Global.ObjAccessor.FindConnectedPlayer(guid);
+
+        SendToAllWithAddon(new ChannelWhisperBuilder(this, isLogged ? Language.AddonLogged : Language.Addon, what, prefix, guid),
+                           prefix,
+                           !playerInfo.IsModerator() ? guid : ObjectGuid.Empty,
+                           !playerInfo.IsModerator() && player ? player.Session.AccountGUID : ObjectGuid.Empty);
+    }
 
-	public void Invite(Player player, string newname)
-	{
-		var guid = player.GUID;
+    public void Invite(Player player, string newname)
+    {
+        var guid = player.GUID;
 
-		if (!IsOn(guid))
-		{
-			ChannelNameBuilder builder = new(this, new NotMemberAppend());
-			SendToOne(builder, guid);
+        if (!IsOn(guid))
+        {
+            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            SendToOne(builder, guid);
 
-			return;
-		}
+            return;
+        }
 
-		var newp = Global.ObjAccessor.FindPlayerByName(newname);
-
-		if (!newp || !newp.IsGMVisible)
-		{
-			ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(newname));
-			SendToOne(builder, guid);
-
-			return;
-		}
-
-		if (IsBanned(newp.GUID))
-		{
-			ChannelNameBuilder builder = new(this, new PlayerInviteBannedAppend(newname));
-			SendToOne(builder, guid);
-
-			return;
-		}
-
-		if (newp.Team != player.Team &&
-			(!player.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
-			!newp.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel)))
-		{
-			ChannelNameBuilder builder = new(this, new InviteWrongFactionAppend());
-			SendToOne(builder, guid);
-
-			return;
-		}
-
-		if (IsOn(newp.GUID))
-		{
-			ChannelNameBuilder builder = new(this, new PlayerAlreadyMemberAppend(newp.GUID));
-			SendToOne(builder, guid);
-
-			return;
-		}
-
-		if (!newp.Social.HasIgnore(guid, player.Session.AccountGUID))
-		{
-			ChannelNameBuilder builder = new(this, new InviteAppend(guid));
-			SendToOne(builder, newp.GUID);
-		}
-
-		ChannelNameBuilder builder1 = new(this, new PlayerInvitedAppend(newp.GetName()));
-		SendToOne(builder1, guid);
-	}
-
-	public void SetOwner(ObjectGuid guid, bool exclaim = true)
-	{
-		if (!_ownerGuid.IsEmpty)
-		{
-			// [] will re-add player after it possible removed
-			var playerInfo = _playersStore.LookupByKey(_ownerGuid);
-
-			if (playerInfo != null)
-				playerInfo.SetOwner(false);
-		}
-
-		_ownerGuid = guid;
-
-		if (!_ownerGuid.IsEmpty)
-		{
-			var oldFlag = GetPlayerFlags(_ownerGuid);
-			var playerInfo = _playersStore.LookupByKey(_ownerGuid);
-
-			if (playerInfo == null)
-				return;
-
-			playerInfo.SetModerator(true);
-			playerInfo.SetOwner(true);
-
-			ChannelNameBuilder builder = new(this, new ModeChangeAppend(_ownerGuid, oldFlag, GetPlayerFlags(_ownerGuid)));
-			SendToAll(builder);
-
-			if (exclaim)
-			{
-				ChannelNameBuilder ownerBuilder = new(this, new OwnerChangedAppend(_ownerGuid));
-				SendToAll(ownerBuilder);
-			}
-
-			_isDirty = true;
-		}
-	}
-
-	public void SilenceAll(Player player, string name) { }
-
-	public void UnsilenceAll(Player player, string name) { }
-
-	public void DeclineInvite(Player player) { }
-
-	public uint GetChannelId()
-	{
-		return _channelId;
-	}
-
-	public bool IsConstant()
-	{
-		return _channelId != 0;
-	}
-
-	public ObjectGuid GetGUID()
-	{
-		return _channelGuid;
-	}
-
-	public bool IsLFG()
-	{
-		return GetFlags().HasAnyFlag(ChannelFlags.Lfg);
-	}
-
-	public void SetAnnounce(bool announce)
-	{
-		_announceEnabled = announce;
-	}
-
-	// will be saved to DB on next channel save interval
-	public void SetDirty()
-	{
-		_isDirty = true;
-	}
-
-	public void SetPassword(string npassword)
-	{
-		_channelPassword = npassword;
-	}
-
-	public bool CheckPassword(string password)
-	{
-		return _channelPassword.IsEmpty() || (_channelPassword == password);
-	}
-
-	public uint GetNumPlayers()
-	{
-		return (uint)_playersStore.Count;
-	}
-
-	public ChannelFlags GetFlags()
-	{
-		return _channelFlags;
-	}
-
-	public AreaTableRecord GetZoneEntry()
-	{
-		return _zoneEntry;
-	}
-
-	public void Kick(Player player, string badname)
-	{
-		KickOrBan(player, badname, false);
-	}
-
-	public void Ban(Player player, string badname)
-	{
-		KickOrBan(player, badname, true);
-	}
-
-	public void SetModerator(Player player, string newname)
-	{
-		SetMode(player, newname, true, true);
-	}
-
-	public void UnsetModerator(Player player, string newname)
-	{
-		SetMode(player, newname, true, false);
-	}
-
-	public void SetMute(Player player, string newname)
-	{
-		SetMode(player, newname, false, true);
-	}
-
-	public void UnsetMute(Player player, string newname)
-	{
-		SetMode(player, newname, false, false);
-	}
-
-	public void SetOwnership(bool ownership)
-	{
-		_ownershipEnabled = ownership;
-	}
-
-	public ChannelMemberFlags GetPlayerFlags(ObjectGuid guid)
-	{
-		var info = _playersStore.LookupByKey(guid);
-
-		return info != null ? info.GetFlags() : 0;
-	}
+        var newp = Global.ObjAccessor.FindPlayerByName(newname);
+
+        if (!newp || !newp.IsGMVisible)
+        {
+            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(newname));
+            SendToOne(builder, guid);
+
+            return;
+        }
+
+        if (IsBanned(newp.GUID))
+        {
+            ChannelNameBuilder builder = new(this, new PlayerInviteBannedAppend(newname));
+            SendToOne(builder, guid);
+
+            return;
+        }
+
+        if (newp.Team != player.Team &&
+            (!player.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
+             !newp.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel)))
+        {
+            ChannelNameBuilder builder = new(this, new InviteWrongFactionAppend());
+            SendToOne(builder, guid);
+
+            return;
+        }
+
+        if (IsOn(newp.GUID))
+        {
+            ChannelNameBuilder builder = new(this, new PlayerAlreadyMemberAppend(newp.GUID));
+            SendToOne(builder, guid);
+
+            return;
+        }
+
+        if (!newp.Social.HasIgnore(guid, player.Session.AccountGUID))
+        {
+            ChannelNameBuilder builder = new(this, new InviteAppend(guid));
+            SendToOne(builder, newp.GUID);
+        }
+
+        ChannelNameBuilder builder1 = new(this, new PlayerInvitedAppend(newp.GetName()));
+        SendToOne(builder1, guid);
+    }
+
+    public void SetOwner(ObjectGuid guid, bool exclaim = true)
+    {
+        if (!_ownerGuid.IsEmpty)
+        {
+            // [] will re-add player after it possible removed
+            var playerInfo = _playersStore.LookupByKey(_ownerGuid);
+
+            if (playerInfo != null)
+                playerInfo.SetOwner(false);
+        }
+
+        _ownerGuid = guid;
+
+        if (!_ownerGuid.IsEmpty)
+        {
+            var oldFlag = GetPlayerFlags(_ownerGuid);
+            var playerInfo = _playersStore.LookupByKey(_ownerGuid);
+
+            if (playerInfo == null)
+                return;
+
+            playerInfo.SetModerator(true);
+            playerInfo.SetOwner(true);
+
+            ChannelNameBuilder builder = new(this, new ModeChangeAppend(_ownerGuid, oldFlag, GetPlayerFlags(_ownerGuid)));
+            SendToAll(builder);
+
+            if (exclaim)
+            {
+                ChannelNameBuilder ownerBuilder = new(this, new OwnerChangedAppend(_ownerGuid));
+                SendToAll(ownerBuilder);
+            }
+
+            _isDirty = true;
+        }
+    }
+
+    public void SilenceAll(Player player, string name) { }
+
+    public void UnsilenceAll(Player player, string name) { }
+
+    public void DeclineInvite(Player player) { }
+
+    public uint GetChannelId()
+    {
+        return _channelId;
+    }
+
+    public bool IsConstant()
+    {
+        return _channelId != 0;
+    }
+
+    public ObjectGuid GetGUID()
+    {
+        return _channelGuid;
+    }
+
+    public bool IsLFG()
+    {
+        return GetFlags().HasAnyFlag(ChannelFlags.Lfg);
+    }
+
+    public void SetAnnounce(bool announce)
+    {
+        _announceEnabled = announce;
+    }
+
+    // will be saved to DB on next channel save interval
+    public void SetDirty()
+    {
+        _isDirty = true;
+    }
+
+    public void SetPassword(string npassword)
+    {
+        _channelPassword = npassword;
+    }
+
+    public bool CheckPassword(string password)
+    {
+        return _channelPassword.IsEmpty() || (_channelPassword == password);
+    }
+
+    public uint GetNumPlayers()
+    {
+        return (uint)_playersStore.Count;
+    }
+
+    public ChannelFlags GetFlags()
+    {
+        return _channelFlags;
+    }
+
+    public AreaTableRecord GetZoneEntry()
+    {
+        return _zoneEntry;
+    }
+
+    public void Kick(Player player, string badname)
+    {
+        KickOrBan(player, badname, false);
+    }
+
+    public void Ban(Player player, string badname)
+    {
+        KickOrBan(player, badname, true);
+    }
+
+    public void SetModerator(Player player, string newname)
+    {
+        SetMode(player, newname, true, true);
+    }
+
+    public void UnsetModerator(Player player, string newname)
+    {
+        SetMode(player, newname, true, false);
+    }
+
+    public void SetMute(Player player, string newname)
+    {
+        SetMode(player, newname, false, true);
+    }
+
+    public void UnsetMute(Player player, string newname)
+    {
+        SetMode(player, newname, false, false);
+    }
+
+    public void SetOwnership(bool ownership)
+    {
+        _ownershipEnabled = ownership;
+    }
+
+    public ChannelMemberFlags GetPlayerFlags(ObjectGuid guid)
+    {
+        var info = _playersStore.LookupByKey(guid);
+
+        return info != null ? info.GetFlags() : 0;
+    }
 
     private void KickOrBan(Player player, string badname, bool ban)
-	{
-		var good = player.GUID;
+    {
+        var good = player.GUID;
 
-		if (!IsOn(good))
-		{
-			ChannelNameBuilder builder = new(this, new NotMemberAppend());
-			SendToOne(builder, good);
+        if (!IsOn(good))
+        {
+            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            SendToOne(builder, good);
 
-			return;
-		}
+            return;
+        }
 
-		var info = _playersStore.LookupByKey(good);
+        var info = _playersStore.LookupByKey(good);
 
-		if (!info.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
-		{
-			ChannelNameBuilder builder = new(this, new NotModeratorAppend());
-			SendToOne(builder, good);
+        if (!info.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
+        {
+            ChannelNameBuilder builder = new(this, new NotModeratorAppend());
+            SendToOne(builder, good);
 
-			return;
-		}
+            return;
+        }
 
-		var bad = Global.ObjAccessor.FindPlayerByName(badname);
-		var victim = bad ? bad.GUID : ObjectGuid.Empty;
+        var bad = Global.ObjAccessor.FindPlayerByName(badname);
+        var victim = bad ? bad.GUID : ObjectGuid.Empty;
 
-		if (bad == null || victim.IsEmpty || !IsOn(victim))
-		{
-			ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(badname));
-			SendToOne(builder, good);
+        if (bad == null || victim.IsEmpty || !IsOn(victim))
+        {
+            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(badname));
+            SendToOne(builder, good);
 
-			return;
-		}
+            return;
+        }
 
-		var changeowner = _ownerGuid == victim;
+        var changeowner = _ownerGuid == victim;
 
-		if (!player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator) && changeowner && good != _ownerGuid)
-		{
-			ChannelNameBuilder builder = new(this, new NotOwnerAppend());
-			SendToOne(builder, good);
+        if (!player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator) && changeowner && good != _ownerGuid)
+        {
+            ChannelNameBuilder builder = new(this, new NotOwnerAppend());
+            SendToOne(builder, good);
 
-			return;
-		}
+            return;
+        }
 
-		if (ban && !IsBanned(victim))
-		{
-			_bannedStore.Add(victim);
-			_isDirty = true;
+        if (ban && !IsBanned(victim))
+        {
+            _bannedStore.Add(victim);
+            _isDirty = true;
 
-			if (!player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
-			{
-				ChannelNameBuilder builder = new(this, new PlayerBannedAppend(good, victim));
-				SendToAll(builder);
-			}
-		}
-		else if (!player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
-		{
-			ChannelNameBuilder builder = new(this, new PlayerKickedAppend(good, victim));
-			SendToAll(builder);
-		}
+            if (!player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
+            {
+                ChannelNameBuilder builder = new(this, new PlayerBannedAppend(good, victim));
+                SendToAll(builder);
+            }
+        }
+        else if (!player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
+        {
+            ChannelNameBuilder builder = new(this, new PlayerKickedAppend(good, victim));
+            SendToAll(builder);
+        }
 
-		_playersStore.Remove(victim);
-		bad.LeftChannel(this);
+        _playersStore.Remove(victim);
+        bad.LeftChannel(this);
 
-		if (changeowner && _ownershipEnabled && !_playersStore.Empty())
-		{
-			info.SetModerator(true);
-			SetOwner(good);
-		}
-	}
+        if (changeowner && _ownershipEnabled && !_playersStore.Empty())
+        {
+            info.SetModerator(true);
+            SetOwner(good);
+        }
+    }
 
     private void SetMode(Player player, string p2n, bool mod, bool set)
-	{
-		var guid = player.GUID;
+    {
+        var guid = player.GUID;
 
-		if (!IsOn(guid))
-		{
-			ChannelNameBuilder builder = new(this, new NotMemberAppend());
-			SendToOne(builder, guid);
+        if (!IsOn(guid))
+        {
+            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            SendToOne(builder, guid);
 
-			return;
-		}
+            return;
+        }
 
-		var info = _playersStore.LookupByKey(guid);
+        var info = _playersStore.LookupByKey(guid);
 
-		if (!info.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
-		{
-			ChannelNameBuilder builder = new(this, new NotModeratorAppend());
-			SendToOne(builder, guid);
+        if (!info.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
+        {
+            ChannelNameBuilder builder = new(this, new NotModeratorAppend());
+            SendToOne(builder, guid);
 
-			return;
-		}
+            return;
+        }
 
-		if (guid == _ownerGuid && p2n == player.GetName() && mod)
-			return;
+        if (guid == _ownerGuid && p2n == player.GetName() && mod)
+            return;
 
-		var newp = Global.ObjAccessor.FindPlayerByName(p2n);
-		var victim = newp ? newp.GUID : ObjectGuid.Empty;
+        var newp = Global.ObjAccessor.FindPlayerByName(p2n);
+        var victim = newp ? newp.GUID : ObjectGuid.Empty;
 
-		if (newp == null ||
-			victim.IsEmpty ||
-			!IsOn(victim) ||
-			(player.Team != newp.Team &&
-			(!player.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
-			!newp.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel))))
-		{
-			ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(p2n));
-			SendToOne(builder, guid);
+        if (newp == null ||
+            victim.IsEmpty ||
+            !IsOn(victim) ||
+            (player.Team != newp.Team &&
+             (!player.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
+              !newp.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel))))
+        {
+            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(p2n));
+            SendToOne(builder, guid);
 
-			return;
-		}
+            return;
+        }
 
-		if (_ownerGuid == victim && _ownerGuid != guid)
-		{
-			ChannelNameBuilder builder = new(this, new NotOwnerAppend());
-			SendToOne(builder, guid);
+        if (_ownerGuid == victim && _ownerGuid != guid)
+        {
+            ChannelNameBuilder builder = new(this, new NotOwnerAppend());
+            SendToOne(builder, guid);
 
-			return;
-		}
+            return;
+        }
 
-		if (mod)
-			SetModerator(newp.GUID, set);
-		else
-			SetMute(newp.GUID, set);
-	}
+        if (mod)
+            SetModerator(newp.GUID, set);
+        else
+            SetMute(newp.GUID, set);
+    }
 
     private void JoinNotify(Player player)
-	{
-		var guid = player.GUID;
+    {
+        var guid = player.GUID;
 
-		if (IsConstant())
-			SendToAllButOne(new ChannelUserlistAddBuilder(this, guid), guid);
-		else
-			SendToAll(new ChannelUserlistUpdateBuilder(this, guid));
-	}
+        if (IsConstant())
+            SendToAllButOne(new ChannelUserlistAddBuilder(this, guid), guid);
+        else
+            SendToAll(new ChannelUserlistUpdateBuilder(this, guid));
+    }
 
     private void LeaveNotify(Player player)
-	{
-		var guid = player.GUID;
+    {
+        var guid = player.GUID;
 
-		var builder = new ChannelUserlistRemoveBuilder(this, guid);
+        var builder = new ChannelUserlistRemoveBuilder(this, guid);
 
-		if (IsConstant())
-			SendToAllButOne(builder, guid);
-		else
-			SendToAll(builder);
-	}
+        if (IsConstant())
+            SendToAllButOne(builder, guid);
+        else
+            SendToAll(builder);
+    }
 
     private void SetModerator(ObjectGuid guid, bool set)
-	{
-		if (!IsOn(guid))
-			return;
+    {
+        if (!IsOn(guid))
+            return;
 
-		var playerInfo = _playersStore.LookupByKey(guid);
+        var playerInfo = _playersStore.LookupByKey(guid);
 
-		if (playerInfo.IsModerator() != set)
-		{
-			var oldFlag = _playersStore[guid].GetFlags();
-			playerInfo.SetModerator(set);
+        if (playerInfo.IsModerator() != set)
+        {
+            var oldFlag = _playersStore[guid].GetFlags();
+            playerInfo.SetModerator(set);
 
-			ChannelNameBuilder builder = new(this, new ModeChangeAppend(guid, oldFlag, playerInfo.GetFlags()));
-			SendToAll(builder);
-		}
-	}
+            ChannelNameBuilder builder = new(this, new ModeChangeAppend(guid, oldFlag, playerInfo.GetFlags()));
+            SendToAll(builder);
+        }
+    }
 
     private void SetMute(ObjectGuid guid, bool set)
-	{
-		if (!IsOn(guid))
-			return;
+    {
+        if (!IsOn(guid))
+            return;
 
-		var playerInfo = _playersStore.LookupByKey(guid);
+        var playerInfo = _playersStore.LookupByKey(guid);
 
-		if (playerInfo.IsMuted() != set)
-		{
-			var oldFlag = _playersStore[guid].GetFlags();
-			playerInfo.SetMuted(set);
+        if (playerInfo.IsMuted() != set)
+        {
+            var oldFlag = _playersStore[guid].GetFlags();
+            playerInfo.SetMuted(set);
 
-			ChannelNameBuilder builder = new(this, new ModeChangeAppend(guid, oldFlag, playerInfo.GetFlags()));
-			SendToAll(builder);
-		}
-	}
+            ChannelNameBuilder builder = new(this, new ModeChangeAppend(guid, oldFlag, playerInfo.GetFlags()));
+            SendToAll(builder);
+        }
+    }
 
     private void SendToAll(MessageBuilder builder, ObjectGuid guid = default, ObjectGuid accountGuid = default)
-	{
-		LocalizedDo localizer = new(builder);
+    {
+        LocalizedDo localizer = new(builder);
 
-		foreach (var pair in _playersStore)
-		{
-			var player = Global.ObjAccessor.FindConnectedPlayer(pair.Key);
+        foreach (var pair in _playersStore)
+        {
+            var player = Global.ObjAccessor.FindConnectedPlayer(pair.Key);
 
-			if (player)
-				if (guid.IsEmpty || !player.Social.HasIgnore(guid, accountGuid))
-					localizer.Invoke(player);
-		}
-	}
+            if (player)
+                if (guid.IsEmpty || !player.Social.HasIgnore(guid, accountGuid))
+                    localizer.Invoke(player);
+        }
+    }
 
     private void SendToAllButOne(MessageBuilder builder, ObjectGuid who)
-	{
-		LocalizedDo localizer = new(builder);
+    {
+        LocalizedDo localizer = new(builder);
 
-		foreach (var pair in _playersStore)
-			if (pair.Key != who)
-			{
-				var player = Global.ObjAccessor.FindConnectedPlayer(pair.Key);
+        foreach (var pair in _playersStore)
+            if (pair.Key != who)
+            {
+                var player = Global.ObjAccessor.FindConnectedPlayer(pair.Key);
 
-				if (player)
-					localizer.Invoke(player);
-			}
-	}
+                if (player)
+                    localizer.Invoke(player);
+            }
+    }
 
     private void SendToOne(MessageBuilder builder, ObjectGuid who)
-	{
-		LocalizedDo localizer = new(builder);
+    {
+        LocalizedDo localizer = new(builder);
 
-		var player = Global.ObjAccessor.FindConnectedPlayer(who);
+        var player = Global.ObjAccessor.FindConnectedPlayer(who);
 
-		if (player)
-			localizer.Invoke(player);
-	}
+        if (player)
+            localizer.Invoke(player);
+    }
 
     private void SendToAllWithAddon(MessageBuilder builder, string addonPrefix, ObjectGuid guid = default, ObjectGuid accountGuid = default)
-	{
-		LocalizedDo localizer = new(builder);
+    {
+        LocalizedDo localizer = new(builder);
 
-		foreach (var pair in _playersStore)
-		{
-			var player = Global.ObjAccessor.FindConnectedPlayer(pair.Key);
+        foreach (var pair in _playersStore)
+        {
+            var player = Global.ObjAccessor.FindConnectedPlayer(pair.Key);
 
-			if (player)
-				if (player.Session.IsAddonRegistered(addonPrefix) && (guid.IsEmpty || !player.Social.HasIgnore(guid, accountGuid)))
-					localizer.Invoke(player);
-		}
-	}
+            if (player)
+                if (player.Session.IsAddonRegistered(addonPrefix) && (guid.IsEmpty || !player.Social.HasIgnore(guid, accountGuid)))
+                    localizer.Invoke(player);
+        }
+    }
 
     private bool IsAnnounce()
-	{
-		return _announceEnabled;
-	}
+    {
+        return _announceEnabled;
+    }
 
     private bool HasFlag(ChannelFlags flag)
-	{
-		return _channelFlags.HasAnyFlag(flag);
-	}
+    {
+        return _channelFlags.HasAnyFlag(flag);
+    }
 
     private bool IsOn(ObjectGuid who)
-	{
-		return _playersStore.ContainsKey(who);
-	}
+    {
+        return _playersStore.ContainsKey(who);
+    }
 
     private bool IsBanned(ObjectGuid guid)
-	{
-		return _bannedStore.Contains(guid);
-	}
+    {
+        return _bannedStore.Contains(guid);
+    }
 
-	public class PlayerInfo
-	{
+    public class PlayerInfo
+    {
         private ChannelMemberFlags flags;
         private bool _invisible;
 
-		public ChannelMemberFlags GetFlags()
-		{
-			return flags;
-		}
+        public ChannelMemberFlags GetFlags()
+        {
+            return flags;
+        }
 
-		public bool IsInvisible()
-		{
-			return _invisible;
-		}
+        public bool IsInvisible()
+        {
+            return _invisible;
+        }
 
-		public void SetInvisible(bool on)
-		{
-			_invisible = on;
-		}
+        public void SetInvisible(bool on)
+        {
+            _invisible = on;
+        }
 
-		public bool HasFlag(ChannelMemberFlags flag)
-		{
-			return flags.HasAnyFlag(flag);
-		}
+        public bool HasFlag(ChannelMemberFlags flag)
+        {
+            return flags.HasAnyFlag(flag);
+        }
 
-		public void SetFlag(ChannelMemberFlags flag)
-		{
-			flags |= flag;
-		}
+        public void SetFlag(ChannelMemberFlags flag)
+        {
+            flags |= flag;
+        }
 
-		public void RemoveFlag(ChannelMemberFlags flag)
-		{
-			flags &= ~flag;
-		}
+        public void RemoveFlag(ChannelMemberFlags flag)
+        {
+            flags &= ~flag;
+        }
 
-		public bool IsOwner()
-		{
-			return HasFlag(ChannelMemberFlags.Owner);
-		}
+        public bool IsOwner()
+        {
+            return HasFlag(ChannelMemberFlags.Owner);
+        }
 
-		public void SetOwner(bool state)
-		{
-			if (state)
-				SetFlag(ChannelMemberFlags.Owner);
-			else
-				RemoveFlag(ChannelMemberFlags.Owner);
-		}
+        public void SetOwner(bool state)
+        {
+            if (state)
+                SetFlag(ChannelMemberFlags.Owner);
+            else
+                RemoveFlag(ChannelMemberFlags.Owner);
+        }
 
-		public bool IsModerator()
-		{
-			return HasFlag(ChannelMemberFlags.Moderator);
-		}
+        public bool IsModerator()
+        {
+            return HasFlag(ChannelMemberFlags.Moderator);
+        }
 
-		public void SetModerator(bool state)
-		{
-			if (state)
-				SetFlag(ChannelMemberFlags.Moderator);
-			else
-				RemoveFlag(ChannelMemberFlags.Moderator);
-		}
+        public void SetModerator(bool state)
+        {
+            if (state)
+                SetFlag(ChannelMemberFlags.Moderator);
+            else
+                RemoveFlag(ChannelMemberFlags.Moderator);
+        }
 
-		public bool IsMuted()
-		{
-			return HasFlag(ChannelMemberFlags.Muted);
-		}
+        public bool IsMuted()
+        {
+            return HasFlag(ChannelMemberFlags.Muted);
+        }
 
-		public void SetMuted(bool state)
-		{
-			if (state)
-				SetFlag(ChannelMemberFlags.Muted);
-			else
-				RemoveFlag(ChannelMemberFlags.Muted);
-		}
-	}
+        public void SetMuted(bool state)
+        {
+            if (state)
+                SetFlag(ChannelMemberFlags.Muted);
+            else
+                RemoveFlag(ChannelMemberFlags.Muted);
+        }
+    }
 }

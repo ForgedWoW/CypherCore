@@ -12,155 +12,155 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("titles")]
 internal class TitleCommands
 {
-	[Command("current", RBACPermissions.CommandTitlesCurrent)]
+    [Command("current", RBACPermissions.CommandTitlesCurrent)]
     private static bool HandleTitlesCurrentCommand(CommandHandler handler, uint titleId)
-	{
-		var target = handler.SelectedPlayer;
+    {
+        var target = handler.SelectedPlayer;
 
-		if (!target)
-		{
-			handler.SendSysMessage(CypherStrings.NoCharSelected);
+        if (!target)
+        {
+            handler.SendSysMessage(CypherStrings.NoCharSelected);
 
-			return false;
-		}
+            return false;
+        }
 
-		// check online security
-		if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
-			return false;
+        // check online security
+        if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
+            return false;
 
-		var titleInfo = CliDB.CharTitlesStorage.LookupByKey(titleId);
+        var titleInfo = CliDB.CharTitlesStorage.LookupByKey(titleId);
 
-		if (titleInfo == null)
-		{
-			handler.SendSysMessage(CypherStrings.InvalidTitleId, titleId);
+        if (titleInfo == null)
+        {
+            handler.SendSysMessage(CypherStrings.InvalidTitleId, titleId);
 
-			return false;
-		}
+            return false;
+        }
 
-		var tNameLink = handler.GetNameLink(target);
-		var titleNameStr = string.Format(target.NativeGender == Gender.Male ? titleInfo.Name[handler.SessionDbcLocale] : titleInfo.Name1[handler.SessionDbcLocale].ConvertFormatSyntax(), target.GetName());
+        var tNameLink = handler.GetNameLink(target);
+        var titleNameStr = string.Format(target.NativeGender == Gender.Male ? titleInfo.Name[handler.SessionDbcLocale] : titleInfo.Name1[handler.SessionDbcLocale].ConvertFormatSyntax(), target.GetName());
 
-		target.SetTitle(titleInfo);
-		target.SetChosenTitle(titleInfo.MaskID);
+        target.SetTitle(titleInfo);
+        target.SetChosenTitle(titleInfo.MaskID);
 
-		handler.SendSysMessage(CypherStrings.TitleCurrentRes, titleId, titleNameStr, tNameLink);
+        handler.SendSysMessage(CypherStrings.TitleCurrentRes, titleId, titleNameStr, tNameLink);
 
-		return true;
-	}
+        return true;
+    }
 
-	[Command("add", RBACPermissions.CommandTitlesAdd)]
+    [Command("add", RBACPermissions.CommandTitlesAdd)]
     private static bool HandleTitlesAddCommand(CommandHandler handler, uint titleId)
-	{
-		var target = handler.SelectedPlayer;
+    {
+        var target = handler.SelectedPlayer;
 
-		if (!target)
-		{
-			handler.SendSysMessage(CypherStrings.NoCharSelected);
+        if (!target)
+        {
+            handler.SendSysMessage(CypherStrings.NoCharSelected);
 
-			return false;
-		}
+            return false;
+        }
 
-		// check online security
-		if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
-			return false;
+        // check online security
+        if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
+            return false;
 
-		var titleInfo = CliDB.CharTitlesStorage.LookupByKey(titleId);
+        var titleInfo = CliDB.CharTitlesStorage.LookupByKey(titleId);
 
-		if (titleInfo == null)
-		{
-			handler.SendSysMessage(CypherStrings.InvalidTitleId, titleId);
+        if (titleInfo == null)
+        {
+            handler.SendSysMessage(CypherStrings.InvalidTitleId, titleId);
 
-			return false;
-		}
+            return false;
+        }
 
-		var tNameLink = handler.GetNameLink(target);
+        var tNameLink = handler.GetNameLink(target);
 
-		var titleNameStr = string.Format((target.NativeGender == Gender.Male ? titleInfo.Name : titleInfo.Name1)[handler.SessionDbcLocale].ConvertFormatSyntax(), target.GetName());
+        var titleNameStr = string.Format((target.NativeGender == Gender.Male ? titleInfo.Name : titleInfo.Name1)[handler.SessionDbcLocale].ConvertFormatSyntax(), target.GetName());
 
-		target.SetTitle(titleInfo);
-		handler.SendSysMessage(CypherStrings.TitleAddRes, titleId, titleNameStr, tNameLink);
+        target.SetTitle(titleInfo);
+        handler.SendSysMessage(CypherStrings.TitleAddRes, titleId, titleNameStr, tNameLink);
 
-		return true;
-	}
+        return true;
+    }
 
-	[Command("remove", RBACPermissions.CommandTitlesRemove)]
+    [Command("remove", RBACPermissions.CommandTitlesRemove)]
     private static bool HandleTitlesRemoveCommand(CommandHandler handler, uint titleId)
-	{
-		var target = handler.SelectedPlayer;
+    {
+        var target = handler.SelectedPlayer;
 
-		if (!target)
-		{
-			handler.SendSysMessage(CypherStrings.NoCharSelected);
+        if (!target)
+        {
+            handler.SendSysMessage(CypherStrings.NoCharSelected);
 
-			return false;
-		}
+            return false;
+        }
 
-		// check online security
-		if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
-			return false;
+        // check online security
+        if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
+            return false;
 
-		var titleInfo = CliDB.CharTitlesStorage.LookupByKey(titleId);
+        var titleInfo = CliDB.CharTitlesStorage.LookupByKey(titleId);
 
-		if (titleInfo == null)
-		{
-			handler.SendSysMessage(CypherStrings.InvalidTitleId, titleId);
+        if (titleInfo == null)
+        {
+            handler.SendSysMessage(CypherStrings.InvalidTitleId, titleId);
 
-			return false;
-		}
+            return false;
+        }
 
-		target.SetTitle(titleInfo, true);
+        target.SetTitle(titleInfo, true);
 
-		var tNameLink = handler.GetNameLink(target);
-		var titleNameStr = string.Format((target.NativeGender == Gender.Male ? titleInfo.Name : titleInfo.Name1)[handler.SessionDbcLocale].ConvertFormatSyntax(), target.GetName());
+        var tNameLink = handler.GetNameLink(target);
+        var titleNameStr = string.Format((target.NativeGender == Gender.Male ? titleInfo.Name : titleInfo.Name1)[handler.SessionDbcLocale].ConvertFormatSyntax(), target.GetName());
 
-		handler.SendSysMessage(CypherStrings.TitleRemoveRes, titleId, titleNameStr, tNameLink);
+        handler.SendSysMessage(CypherStrings.TitleRemoveRes, titleId, titleNameStr, tNameLink);
 
-		if (!target.HasTitle(target.PlayerData.PlayerTitle))
-		{
-			target.SetChosenTitle(0);
-			handler.SendSysMessage(CypherStrings.CurrentTitleReset, tNameLink);
-		}
+        if (!target.HasTitle(target.PlayerData.PlayerTitle))
+        {
+            target.SetChosenTitle(0);
+            handler.SendSysMessage(CypherStrings.CurrentTitleReset, tNameLink);
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	[CommandGroup("set")]
+    [CommandGroup("set")]
     private class TitleSetCommands
-	{
-		//Edit Player KnownTitles
-		[Command("mask", RBACPermissions.CommandTitlesSetMask)]
+    {
+        //Edit Player KnownTitles
+        [Command("mask", RBACPermissions.CommandTitlesSetMask)]
         private static bool HandleTitlesSetMaskCommand(CommandHandler handler, ulong mask)
-		{
-			var target = handler.SelectedPlayer;
+        {
+            var target = handler.SelectedPlayer;
 
-			if (!target)
-			{
-				handler.SendSysMessage(CypherStrings.NoCharSelected);
+            if (!target)
+            {
+                handler.SendSysMessage(CypherStrings.NoCharSelected);
 
-				return false;
-			}
+                return false;
+            }
 
-			// check online security
-			if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
-				return false;
+            // check online security
+            if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
+                return false;
 
-			var titles2 = mask;
+            var titles2 = mask;
 
-			foreach (var tEntry in CliDB.CharTitlesStorage.Values)
-				titles2 &= ~(1ul << tEntry.MaskID);
+            foreach (var tEntry in CliDB.CharTitlesStorage.Values)
+                titles2 &= ~(1ul << tEntry.MaskID);
 
-			mask &= ~titles2; // remove not existed titles
+            mask &= ~titles2; // remove not existed titles
 
-			target.SetKnownTitles(0, mask);
-			handler.SendSysMessage(CypherStrings.Done);
+            target.SetKnownTitles(0, mask);
+            handler.SendSysMessage(CypherStrings.Done);
 
-			if (!target.HasTitle(target.PlayerData.PlayerTitle))
-			{
-				target.SetChosenTitle(0);
-				handler.SendSysMessage(CypherStrings.CurrentTitleReset, handler.GetNameLink(target));
-			}
+            if (!target.HasTitle(target.PlayerData.PlayerTitle))
+            {
+                target.SetChosenTitle(0);
+                handler.SendSysMessage(CypherStrings.CurrentTitleReset, handler.GetNameLink(target));
+            }
 
-			return true;
-		}
-	}
+            return true;
+        }
+    }
 }

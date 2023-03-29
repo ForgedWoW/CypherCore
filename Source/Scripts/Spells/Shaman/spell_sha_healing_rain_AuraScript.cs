@@ -14,31 +14,31 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(73920)]
 internal class spell_sha_healing_rain_AuraScript : AuraScript, IHasAuraEffects
 {
-	private ObjectGuid _visualDummy;
-	private Position _pos;
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    private ObjectGuid _visualDummy;
+    private Position _pos;
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public void SetVisualDummy(TempSummon summon)
-	{
-		_visualDummy = summon.GUID;
-		_pos = summon.Location;
-	}
+    public void SetVisualDummy(TempSummon summon)
+    {
+        _visualDummy = summon.GUID;
+        _pos = summon.Location;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffecRemoved, 1, AuraType.PeriodicDummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 1, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleEffecRemoved, 1, AuraType.PeriodicDummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 1, AuraType.PeriodicDummy));
+    }
 
-	private void HandleEffectPeriodic(AuraEffect aurEff)
-	{
-		Target.CastSpell(_pos, ShamanSpells.HealingRainHeal, new CastSpellExtraArgs(aurEff));
-	}
+    private void HandleEffectPeriodic(AuraEffect aurEff)
+    {
+        Target.CastSpell(_pos, ShamanSpells.HealingRainHeal, new CastSpellExtraArgs(aurEff));
+    }
 
-	private void HandleEffecRemoved(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var summon = ObjectAccessor.GetCreature(Target, _visualDummy);
+    private void HandleEffecRemoved(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var summon = ObjectAccessor.GetCreature(Target, _visualDummy);
 
-		summon?.DespawnOrUnsummon();
-	}
+        summon?.DespawnOrUnsummon();
+    }
 }

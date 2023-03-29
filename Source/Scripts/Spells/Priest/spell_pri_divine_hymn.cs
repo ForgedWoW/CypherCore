@@ -12,31 +12,31 @@ namespace Scripts.Spells.Priest;
 [Script] // 64844 - Divine Hymn
 internal class spell_pri_divine_hymn : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, SpellConst.EffectAll, Targets.UnitSrcAreaAlly));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, SpellConst.EffectAll, Targets.UnitSrcAreaAlly));
+    }
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		targets.RemoveAll(obj =>
-		{
-			var target = obj.AsUnit;
+    private void FilterTargets(List<WorldObject> targets)
+    {
+        targets.RemoveAll(obj =>
+        {
+            var target = obj.AsUnit;
 
-			if (target)
-				return !Caster.IsInRaidWith(target);
+            if (target)
+                return !Caster.IsInRaidWith(target);
 
-			return true;
-		});
+            return true;
+        });
 
-		uint maxTargets = 3;
+        uint maxTargets = 3;
 
-		if (targets.Count > maxTargets)
-		{
-			targets.Sort(new HealthPctOrderPred());
-			targets.Resize(maxTargets);
-		}
-	}
+        if (targets.Count > maxTargets)
+        {
+            targets.Sort(new HealthPctOrderPred());
+            targets.Resize(maxTargets);
+        }
+    }
 }

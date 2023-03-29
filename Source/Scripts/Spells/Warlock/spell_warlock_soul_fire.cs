@@ -13,21 +13,21 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(6353)]
 public class spell_warlock_soul_fire : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		if (Caster)
-			Caster.ModifyPower(PowerType.SoulShards, +40);
+    private void HandleHit(int effIndex)
+    {
+        if (Caster)
+            Caster.ModifyPower(PowerType.SoulShards, +40);
 
-		//TODO: Improve it later
-		Caster.
-			//TODO: Improve it later
-			SpellHistory.ModifyCooldown(WarlockSpells.SOUL_FIRE, TimeSpan.FromSeconds(-2));
-	}
+        //TODO: Improve it later
+        Caster.
+            //TODO: Improve it later
+            SpellHistory.ModifyCooldown(WarlockSpells.SOUL_FIRE, TimeSpan.FromSeconds(-2));
+    }
 }

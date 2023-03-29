@@ -9,29 +9,29 @@ namespace Forged.MapServer.Networking.Packets.ClientConfig;
 
 public class UpdateAccountData : ServerPacket
 {
-	public ObjectGuid Player;
-	public long Time; // UnixTime
-	public uint Size; // decompressed size
-	public AccountDataTypes DataType = 0;
-	public ByteBuffer CompressedData;
-	public UpdateAccountData() : base(ServerOpcodes.UpdateAccountData) { }
+    public ObjectGuid Player;
+    public long Time; // UnixTime
+    public uint Size; // decompressed size
+    public AccountDataTypes DataType = 0;
+    public ByteBuffer CompressedData;
+    public UpdateAccountData() : base(ServerOpcodes.UpdateAccountData) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Player);
-		_worldPacket.WriteInt64(Time);
-		_worldPacket.WriteUInt32(Size);
-		_worldPacket.WriteBits(DataType, 4);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Player);
+        _worldPacket.WriteInt64(Time);
+        _worldPacket.WriteUInt32(Size);
+        _worldPacket.WriteBits(DataType, 4);
 
-		if (CompressedData == null)
-		{
-			_worldPacket.WriteUInt32(0);
-		}
-		else
-		{
-			var bytes = CompressedData.GetData();
-			_worldPacket.WriteInt32(bytes.Length);
-			_worldPacket.WriteBytes(bytes);
-		}
-	}
+        if (CompressedData == null)
+        {
+            _worldPacket.WriteUInt32(0);
+        }
+        else
+        {
+            var bytes = CompressedData.GetData();
+            _worldPacket.WriteInt32(bytes.Length);
+            _worldPacket.WriteBytes(bytes);
+        }
+    }
 }

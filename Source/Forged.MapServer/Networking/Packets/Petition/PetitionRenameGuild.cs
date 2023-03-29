@@ -7,17 +7,17 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class PetitionRenameGuild : ClientPacket
 {
-	public ObjectGuid PetitionGuid;
-	public string NewGuildName;
-	public PetitionRenameGuild(WorldPacket packet) : base(packet) { }
+    public ObjectGuid PetitionGuid;
+    public string NewGuildName;
+    public PetitionRenameGuild(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PetitionGuid = _worldPacket.ReadPackedGuid();
+    public override void Read()
+    {
+        PetitionGuid = _worldPacket.ReadPackedGuid();
 
-		_worldPacket.ResetBitPos();
-		var nameLen = _worldPacket.ReadBits<uint>(7);
+        _worldPacket.ResetBitPos();
+        var nameLen = _worldPacket.ReadBits<uint>(7);
 
-		NewGuildName = _worldPacket.ReadString(nameLen);
-	}
+        NewGuildName = _worldPacket.ReadString(nameLen);
+    }
 }

@@ -12,37 +12,37 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(105174)]
 public class spell_warl_hand_of_guldan : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
+    public void OnHit()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var target = HitUnit;
+        if (caster != null)
+        {
+            var target = HitUnit;
 
-			if (target != null)
-			{
-				var nrofsummons = 1;
-				nrofsummons += caster.GetPower(PowerType.SoulShards);
+            if (target != null)
+            {
+                var nrofsummons = 1;
+                nrofsummons += caster.GetPower(PowerType.SoulShards);
 
-				if (nrofsummons > 4)
-					nrofsummons = 4;
+                if (nrofsummons > 4)
+                    nrofsummons = 4;
 
-				sbyte[] offsetX =
-				{
-					0, 0, 1, 1
-				};
+                sbyte[] offsetX =
+                {
+                    0, 0, 1, 1
+                };
 
-				sbyte[] offsetY =
-				{
-					0, 1, 0, 1
-				};
+                sbyte[] offsetY =
+                {
+                    0, 1, 0, 1
+                };
 
-				for (var i = 0; i < nrofsummons; i++)
-					caster.CastSpell(new Position(target.Location.X + offsetX[i], target.Location.Y + offsetY[i], target.Location.Z), 104317, true);
+                for (var i = 0; i < nrofsummons; i++)
+                    caster.CastSpell(new Position(target.Location.X + offsetX[i], target.Location.Y + offsetY[i], target.Location.Z), 104317, true);
 
-				caster.CastSpell(target, WarlockSpells.HAND_OF_GULDAN_DAMAGE, true);
-			}
-		}
-	}
+                caster.CastSpell(target, WarlockSpells.HAND_OF_GULDAN_DAMAGE, true);
+            }
+        }
+    }
 }

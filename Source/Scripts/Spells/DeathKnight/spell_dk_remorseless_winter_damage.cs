@@ -11,19 +11,19 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(196771)]
 public class spell_dk_remorseless_winter_damage : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
 
-	private void HandleOnHit(int effIndex)
-	{
-		var unit = HitUnit;
+    private void HandleOnHit(int effIndex)
+    {
+        var unit = HitUnit;
 
-		if (unit != null)
-			Caster.CastSpell(unit, DeathKnightSpells.REMORSELESS_WINTER_SLOW_DOWN, true);
-	}
+        if (unit != null)
+            Caster.CastSpell(unit, DeathKnightSpells.REMORSELESS_WINTER_SLOW_DOWN, true);
+    }
 }

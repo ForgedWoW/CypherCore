@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellCalculateResistAbsorb : ISpellScript
 {
-	void CalculateResistAbsorb(DamageInfo damageInfo, ref double resistAmount, ref double absorbAmount);
+    void CalculateResistAbsorb(DamageInfo damageInfo, ref double resistAmount, ref double absorbAmount);
 }

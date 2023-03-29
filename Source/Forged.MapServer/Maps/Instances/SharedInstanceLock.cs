@@ -8,25 +8,25 @@ namespace Forged.MapServer.Maps.Instances;
 
 internal class SharedInstanceLock : InstanceLock
 {
-	/// <summary>
-	///  Instance id based locks have two states
-	///  One shared by everyone, which is the real state used by instance
-	///  and one for each player that shows in UI that might have less encounters completed
-	/// </summary>
+    /// <summary>
+    ///     Instance id based locks have two states
+    ///     One shared by everyone, which is the real state used by instance
+    ///     and one for each player that shows in UI that might have less encounters completed
+    /// </summary>
     private readonly SharedInstanceLockData _sharedData;
 
-	public SharedInstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId, SharedInstanceLockData sharedData) : base(mapId, difficultyId, expiryTime, instanceId)
-	{
-		_sharedData = sharedData;
-	}
+    public SharedInstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId, SharedInstanceLockData sharedData) : base(mapId, difficultyId, expiryTime, instanceId)
+    {
+        _sharedData = sharedData;
+    }
 
-	public override InstanceLockData GetInstanceInitializationData()
-	{
-		return _sharedData;
-	}
+    public override InstanceLockData GetInstanceInitializationData()
+    {
+        return _sharedData;
+    }
 
-	public SharedInstanceLockData GetSharedData()
-	{
-		return _sharedData;
-	}
+    public SharedInstanceLockData GetSharedData()
+    {
+        return _sharedData;
+    }
 }

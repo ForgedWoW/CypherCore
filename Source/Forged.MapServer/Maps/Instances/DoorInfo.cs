@@ -7,12 +7,12 @@ namespace Forged.MapServer.Maps.Instances;
 
 internal class DoorInfo
 {
-	public BossInfo BossInfo { get; set; }
-	public DoorType Type { get; set; }
+    public BossInfo BossInfo { get; set; }
+    public DoorType Type { get; set; }
 
-	public DoorInfo(BossInfo bossInfo, DoorType doorType)
-	{
-		BossInfo = bossInfo;
-		Type = doorType;
-	}
+    public DoorInfo(BossInfo bossInfo, DoorType doorType)
+    {
+        BossInfo = bossInfo;
+        Type = doorType;
+    }
 }

@@ -12,16 +12,16 @@ namespace Scripts.Spells.Items;
 [Script] // 127278 - Golden Water Strider
 internal class spell_item_water_strider : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Mounted, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Mounted, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void OnRemove(AuraEffect effect, AuraEffectHandleModes mode)
-	{
-		Target.RemoveAura(SpellInfo.GetEffect(1).TriggerSpell);
-	}
+    private void OnRemove(AuraEffect effect, AuraEffectHandleModes mode)
+    {
+        Target.RemoveAura(SpellInfo.GetEffect(1).TriggerSpell);
+    }
 }

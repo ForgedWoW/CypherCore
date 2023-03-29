@@ -5,20 +5,20 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class PartyInviteResponse : ClientPacket
 {
-	public byte PartyIndex;
-	public bool Accept;
-	public uint? RolesDesired;
-	public PartyInviteResponse(WorldPacket packet) : base(packet) { }
+    public byte PartyIndex;
+    public bool Accept;
+    public uint? RolesDesired;
+    public PartyInviteResponse(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PartyIndex = _worldPacket.ReadUInt8();
+    public override void Read()
+    {
+        PartyIndex = _worldPacket.ReadUInt8();
 
-		Accept = _worldPacket.HasBit();
+        Accept = _worldPacket.HasBit();
 
-		var hasRolesDesired = _worldPacket.HasBit();
+        var hasRolesDesired = _worldPacket.HasBit();
 
-		if (hasRolesDesired)
-			RolesDesired = _worldPacket.ReadUInt32();
-	}
+        if (hasRolesDesired)
+            RolesDesired = _worldPacket.ReadUInt32();
+    }
 }

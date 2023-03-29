@@ -8,25 +8,25 @@ namespace Forged.MapServer.Scripting;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class CreatureScriptAttribute : ScriptAttribute
 {
-	public uint[] CreatureIds { get; private set; }
+    public uint[] CreatureIds { get; private set; }
 
-	public CreatureScriptAttribute(params uint[] creatureIds)
-	{
-		CreatureIds = creatureIds;
-	}
+    public CreatureScriptAttribute(params uint[] creatureIds)
+    {
+        CreatureIds = creatureIds;
+    }
 
-	public CreatureScriptAttribute(string name = "", params object[] args) : base(name, args) { }
+    public CreatureScriptAttribute(string name = "", params object[] args) : base(name, args) { }
 
-	public CreatureScriptAttribute(uint creatureId, string name = "", params object[] args) : base(name, args)
-	{
-		CreatureIds = new[]
-		{
-			creatureId
-		};
-	}
+    public CreatureScriptAttribute(uint creatureId, string name = "", params object[] args) : base(name, args)
+    {
+        CreatureIds = new[]
+        {
+            creatureId
+        };
+    }
 
-	public CreatureScriptAttribute(uint[] creatureIds, string name = "", params object[] args) : base(name, args)
-	{
-		CreatureIds = creatureIds;
-	}
+    public CreatureScriptAttribute(uint[] creatureIds, string name = "", params object[] args) : base(name, args)
+    {
+        CreatureIds = creatureIds;
+    }
 }

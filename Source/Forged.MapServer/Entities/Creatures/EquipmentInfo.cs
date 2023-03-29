@@ -7,5 +7,5 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class EquipmentInfo
 {
-	public EquipmentItem[] Items { get; set; } = new EquipmentItem[SharedConst.MaxEquipmentItems];
+    public EquipmentItem[] Items { get; set; } = new EquipmentItem[SharedConst.MaxEquipmentItems];
 }

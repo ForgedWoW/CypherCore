@@ -9,10 +9,10 @@ namespace Scripts.Spells.Warrior;
 [Script] // 202168 - Impending Victory
 internal class spell_warr_impending_victory : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		var caster = Caster;
-		caster.CastSpell(caster, WarriorSpells.IMPENDING_VICTORY_HEAL, true);
-		caster.RemoveAura(WarriorSpells.VICTORIOUS);
-	}
+    public void AfterCast()
+    {
+        var caster = Caster;
+        caster.CastSpell(caster, WarriorSpells.IMPENDING_VICTORY_HEAL, true);
+        caster.RemoveAura(WarriorSpells.VICTORIOUS);
+    }
 }

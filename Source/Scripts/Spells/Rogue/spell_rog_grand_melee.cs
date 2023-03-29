@@ -13,42 +13,42 @@ namespace Scripts.Spells.Rogue;
 [Script] // 193358 - Grand Melee
 internal class spell_rog_grand_melee : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var procSpell = eventInfo.ProcSpell;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var procSpell = eventInfo.ProcSpell;
 
-		return procSpell && procSpell.HasPowerTypeCost(PowerType.ComboPoints);
-	}
+        return procSpell && procSpell.HasPowerTypeCost(PowerType.ComboPoints);
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
-	{
-		var procSpell = procInfo.ProcSpell;
-		var amount = aurEff.Amount * procSpell.GetPowerTypeCostAmount(PowerType.ComboPoints).Value * 1000;
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
+    {
+        var procSpell = procInfo.ProcSpell;
+        var amount = aurEff.Amount * procSpell.GetPowerTypeCostAmount(PowerType.ComboPoints).Value * 1000;
 
-		var target = Target;
+        var target = Target;
 
-		if (target != null)
-		{
-			var aura = target.GetAura(RogueSpells.SliceAndDice);
+        if (target != null)
+        {
+            var aura = target.GetAura(RogueSpells.SliceAndDice);
 
-			if (aura != null)
-			{
-				aura.SetDuration(aura.Duration + amount);
-			}
-			else
-			{
-				CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-				args.AddSpellMod(SpellValueMod.Duration, amount);
-				target.CastSpell(target, RogueSpells.SliceAndDice, args);
-			}
-		}
-	}
+            if (aura != null)
+            {
+                aura.SetDuration(aura.Duration + amount);
+            }
+            else
+            {
+                CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+                args.AddSpellMod(SpellValueMod.Duration, amount);
+                target.CastSpell(target, RogueSpells.SliceAndDice, args);
+            }
+        }
+    }
 }

@@ -8,26 +8,26 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class SpellEnergizeLog : CombatLogServerPacket
 {
-	public ObjectGuid TargetGUID;
-	public ObjectGuid CasterGUID;
-	public uint SpellID;
-	public PowerType Type;
-	public int Amount;
-	public int OverEnergize;
-	public SpellEnergizeLog() : base(ServerOpcodes.SpellEnergizeLog, ConnectionType.Instance) { }
+    public ObjectGuid TargetGUID;
+    public ObjectGuid CasterGUID;
+    public uint SpellID;
+    public PowerType Type;
+    public int Amount;
+    public int OverEnergize;
+    public SpellEnergizeLog() : base(ServerOpcodes.SpellEnergizeLog, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(TargetGUID);
-		_worldPacket.WritePackedGuid(CasterGUID);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(TargetGUID);
+        _worldPacket.WritePackedGuid(CasterGUID);
 
-		_worldPacket.WriteUInt32(SpellID);
-		_worldPacket.WriteUInt32((uint)Type);
-		_worldPacket.WriteInt32(Amount);
-		_worldPacket.WriteInt32(OverEnergize);
+        _worldPacket.WriteUInt32(SpellID);
+        _worldPacket.WriteUInt32((uint)Type);
+        _worldPacket.WriteInt32(Amount);
+        _worldPacket.WriteInt32(OverEnergize);
 
-		WriteLogDataBit();
-		FlushBits();
-		WriteLogData();
-	}
+        WriteLogDataBit();
+        FlushBits();
+        WriteLogData();
+    }
 }

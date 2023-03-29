@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ITransport;
 
 public interface ITransportOnUpdate : IScriptObject
 {
-	void OnUpdate(Transport obj, uint diff);
+    void OnUpdate(Transport obj, uint diff);
 }

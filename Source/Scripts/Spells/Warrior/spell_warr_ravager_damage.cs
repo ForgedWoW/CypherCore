@@ -12,23 +12,23 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(156287)]
 public class spell_warr_ravager_damage : SpellScript, IHasSpellEffects
 {
-	private bool _alreadyProc = false;
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    private bool _alreadyProc = false;
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleOnHitTarget(int effIndex)
-	{
-		if (!_alreadyProc)
-		{
-			Caster.CastSpell(Caster, WarriorSpells.RAVAGER_ENERGIZE, true);
-			_alreadyProc = true;
-		}
+    private void HandleOnHitTarget(int effIndex)
+    {
+        if (!_alreadyProc)
+        {
+            Caster.CastSpell(Caster, WarriorSpells.RAVAGER_ENERGIZE, true);
+            _alreadyProc = true;
+        }
 
-		if (Caster.HasAura(262304))                  // Deep Wounds
-			Caster.CastSpell(HitUnit, 262115, true); // Deep Wounds
-	}
+        if (Caster.HasAura(262304))                  // Deep Wounds
+            Caster.CastSpell(HitUnit, 262115, true); // Deep Wounds
+    }
 }

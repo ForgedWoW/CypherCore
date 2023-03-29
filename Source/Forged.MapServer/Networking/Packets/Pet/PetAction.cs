@@ -8,19 +8,19 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetAction : ClientPacket
 {
-	public ObjectGuid PetGUID;
-	public uint Action;
-	public ObjectGuid TargetGUID;
-	public Vector3 ActionPosition;
-	public PetAction(WorldPacket packet) : base(packet) { }
+    public ObjectGuid PetGUID;
+    public uint Action;
+    public ObjectGuid TargetGUID;
+    public Vector3 ActionPosition;
+    public PetAction(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PetGUID = _worldPacket.ReadPackedGuid();
+    public override void Read()
+    {
+        PetGUID = _worldPacket.ReadPackedGuid();
 
-		Action = _worldPacket.ReadUInt32();
-		TargetGUID = _worldPacket.ReadPackedGuid();
+        Action = _worldPacket.ReadUInt32();
+        TargetGUID = _worldPacket.ReadPackedGuid();
 
-		ActionPosition = _worldPacket.ReadVector3();
-	}
+        ActionPosition = _worldPacket.ReadVector3();
+    }
 }

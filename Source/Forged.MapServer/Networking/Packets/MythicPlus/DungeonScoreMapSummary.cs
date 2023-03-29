@@ -5,19 +5,19 @@ namespace Forged.MapServer.Networking.Packets.MythicPlus;
 
 public struct DungeonScoreMapSummary
 {
-	public int ChallengeModeID;
-	public float MapScore;
-	public int BestRunLevel;
-	public int BestRunDurationMS;
-	public bool FinishedSuccess;
+    public int ChallengeModeID;
+    public float MapScore;
+    public int BestRunLevel;
+    public int BestRunDurationMS;
+    public bool FinishedSuccess;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(ChallengeModeID);
-		data.WriteFloat(MapScore);
-		data.WriteInt32(BestRunLevel);
-		data.WriteInt32(BestRunDurationMS);
-		data.WriteBit(FinishedSuccess);
-		data.FlushBits();
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(ChallengeModeID);
+        data.WriteFloat(MapScore);
+        data.WriteInt32(BestRunLevel);
+        data.WriteInt32(BestRunDurationMS);
+        data.WriteBit(FinishedSuccess);
+        data.FlushBits();
+    }
 }

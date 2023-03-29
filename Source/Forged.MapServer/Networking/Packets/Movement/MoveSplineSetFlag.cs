@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MoveSplineSetFlag : ServerPacket
 {
-	public ObjectGuid MoverGUID;
-	public MoveSplineSetFlag(ServerOpcodes opcode) : base(opcode, ConnectionType.Instance) { }
+    public ObjectGuid MoverGUID;
+    public MoveSplineSetFlag(ServerOpcodes opcode) : base(opcode, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(MoverGUID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(MoverGUID);
+    }
 }

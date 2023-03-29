@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum ProgressType
 {
-	Set,
-	Accumulate,
-	Highest
+    Set,
+    Accumulate,
+    Highest
 }

@@ -5,8 +5,8 @@ namespace Forged.MapServer.Battlepay;
 
 public enum ProductListResult
 {
-	Available = 0,
-	LockUnk1 = 1,
-	LockUnk2 = 2,
-	RegionLocked = 3
+    Available = 0,
+    LockUnk1 = 1,
+    LockUnk2 = 2,
+    RegionLocked = 3
 }

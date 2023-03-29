@@ -12,29 +12,29 @@ namespace Scripts.Spells.Quest;
 [Script] // 54190 - Lifeblood Dummy
 internal class spell_q12805_lifeblood_dummy : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		return Caster.IsTypeId(TypeId.Player);
-	}
+    public override bool Load()
+    {
+        return Caster.IsTypeId(TypeId.Player);
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var caster = Caster.AsPlayer;
+    private void HandleScript(int effIndex)
+    {
+        var caster = Caster.AsPlayer;
 
-		var target = HitCreature;
+        var target = HitCreature;
 
-		if (target)
-		{
-			caster.KilledMonsterCredit(CreatureIds.ShardKillCredit);
-			target.CastSpell(target, (uint)EffectValue, true);
-			target.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
-		}
-	}
+        if (target)
+        {
+            caster.KilledMonsterCredit(CreatureIds.ShardKillCredit);
+            target.CastSpell(target, (uint)EffectValue, true);
+            target.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
+        }
+    }
 }

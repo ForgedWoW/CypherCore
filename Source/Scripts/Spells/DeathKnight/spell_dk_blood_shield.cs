@@ -14,41 +14,41 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(77535)]
 public class spell_dk_blood_shield : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectAbsorbHandler(AfterAbsorb, 0));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectAbsorbHandler(AfterAbsorb, 0));
+    }
 
-	private double AfterAbsorb(AuraEffect p_AurEff, DamageInfo UnnamedParameter, double p_AbsorbAmount)
-	{
-		var l_Target = Target;
+    private double AfterAbsorb(AuraEffect p_AurEff, DamageInfo UnnamedParameter, double p_AbsorbAmount)
+    {
+        var l_Target = Target;
 
-		if (l_Target != null)
-		{
-			/// While Vampiric Blood is active, your Blood Shield cannot be reduced below 3% of your maximum health.
-			var l_AurEff = l_Target.GetAuraEffect(eSpells.T17Blood4P, 0);
+        if (l_Target != null)
+        {
+            /// While Vampiric Blood is active, your Blood Shield cannot be reduced below 3% of your maximum health.
+            var l_AurEff = l_Target.GetAuraEffect(eSpells.T17Blood4P, 0);
 
-			if (l_AurEff != null)
-			{
-				var l_FutureAbsorb = Convert.ToInt32(p_AurEff.Amount - p_AbsorbAmount);
-				var l_MinimaAbsorb = Convert.ToInt32(l_Target.CountPctFromMaxHealth(l_AurEff.Amount));
+            if (l_AurEff != null)
+            {
+                var l_FutureAbsorb = Convert.ToInt32(p_AurEff.Amount - p_AbsorbAmount);
+                var l_MinimaAbsorb = Convert.ToInt32(l_Target.CountPctFromMaxHealth(l_AurEff.Amount));
 
-				/// We need to add some absorb amount to correct the absorb amount after that, and set it to 3% of max health
-				if (l_FutureAbsorb < l_MinimaAbsorb)
-				{
-					var l_AddedAbsorb = l_MinimaAbsorb - l_FutureAbsorb;
-					p_AurEff.ChangeAmount(p_AurEff.Amount + l_AddedAbsorb);
-				}
-			}
-		}
+                /// We need to add some absorb amount to correct the absorb amount after that, and set it to 3% of max health
+                if (l_FutureAbsorb < l_MinimaAbsorb)
+                {
+                    var l_AddedAbsorb = l_MinimaAbsorb - l_FutureAbsorb;
+                    p_AurEff.ChangeAmount(p_AurEff.Amount + l_AddedAbsorb);
+                }
+            }
+        }
 
-		return p_AbsorbAmount;
-	}
+        return p_AbsorbAmount;
+    }
 
-	private struct eSpells
-	{
-		public const uint T17Blood4P = 165571;
-	}
+    private struct eSpells
+    {
+        public const uint T17Blood4P = 165571;
+    }
 }

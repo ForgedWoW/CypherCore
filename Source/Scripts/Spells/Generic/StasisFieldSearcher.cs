@@ -8,22 +8,22 @@ namespace Scripts.Spells.Generic;
 
 internal class StasisFieldSearcher : ICheck<Unit>
 {
-	private readonly double _distance;
-	private readonly Unit _unit;
+    private readonly double _distance;
+    private readonly Unit _unit;
 
-	public StasisFieldSearcher(Unit obj, double distance)
-	{
-		_unit = obj;
-		_distance = distance;
-	}
+    public StasisFieldSearcher(Unit obj, double distance)
+    {
+        _unit = obj;
+        _distance = distance;
+    }
 
-	public bool Invoke(Unit u)
-	{
-		if (_unit.GetDistance2d(u) < _distance &&
-			(u.Entry == CreatureIds.ApexisFlayer || u.Entry == CreatureIds.ShardHideBoar || u.Entry == CreatureIds.AetherRay || u.Entry == CreatureIds.DaggertailLizard) &&
-			!u.HasAura(GenericSpellIds.StasisField))
-			return true;
+    public bool Invoke(Unit u)
+    {
+        if (_unit.GetDistance2d(u) < _distance &&
+            (u.Entry == CreatureIds.ApexisFlayer || u.Entry == CreatureIds.ShardHideBoar || u.Entry == CreatureIds.AetherRay || u.Entry == CreatureIds.DaggertailLizard) &&
+            !u.HasAura(GenericSpellIds.StasisField))
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

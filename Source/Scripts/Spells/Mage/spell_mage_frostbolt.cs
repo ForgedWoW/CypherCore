@@ -11,11 +11,11 @@ namespace Scripts.Spells.Mage;
 [Script] // 116 - Frostbolt
 internal class spell_mage_frostbolt : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var target = HitUnit;
+    public void OnHit()
+    {
+        var target = HitUnit;
 
-		if (target != null)
-			Caster.CastSpell(target, MageSpells.Chilled, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
-	}
+        if (target != null)
+            Caster.CastSpell(target, MageSpells.Chilled, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+    }
 }

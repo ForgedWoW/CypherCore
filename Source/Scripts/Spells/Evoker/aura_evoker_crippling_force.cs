@@ -11,15 +11,15 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.BLUE_DISINTEGRATE, EvokerSpells.BLUE_DISINTEGRATE_2)]
 public class aura_evoker_crippling_force : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, Framework.Constants.AuraType.PeriodicDamage));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, Framework.Constants.AuraType.PeriodicDamage));
+    }
 
-	private void OnTick(AuraEffect obj)
-	{
-		Aura.OwnerAsUnit.AddAura(EvokerSpells.CRIPPLING_FORCE_AURA);
-	}
+    private void OnTick(AuraEffect obj)
+    {
+        Aura.OwnerAsUnit.AddAura(EvokerSpells.CRIPPLING_FORCE_AURA);
+    }
 }

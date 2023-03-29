@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum RestTypes : byte
 {
-	XP = 0,
-	Honor = 1,
-	Max
+    XP = 0,
+    Honor = 1,
+    Max
 }

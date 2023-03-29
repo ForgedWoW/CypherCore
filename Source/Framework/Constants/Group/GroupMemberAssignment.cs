@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum GroupMemberAssignment
 {
-	MainTank = 0,
-	MainAssist = 1
+    MainTank = 0,
+    MainAssist = 1
 }

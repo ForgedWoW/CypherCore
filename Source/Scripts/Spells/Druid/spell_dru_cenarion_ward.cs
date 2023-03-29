@@ -13,26 +13,26 @@ namespace Scripts.Spells.Druid;
 [SpellScript(102351)]
 public class spell_dru_cenarion_ward : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		if (!Caster || !eventInfo.ActionTarget)
-			return;
+        if (!Caster || !eventInfo.ActionTarget)
+            return;
 
-		Caster.CastSpell(eventInfo.ActionTarget, Spells.CENARION_WARD_TRIGGERED, true);
-	}
+        Caster.CastSpell(eventInfo.ActionTarget, Spells.CENARION_WARD_TRIGGERED, true);
+    }
 
-	private struct Spells
-	{
-		public static readonly uint CENARION_WARD_TRIGGERED = 102352;
-	}
+    private struct Spells
+    {
+        public static readonly uint CENARION_WARD_TRIGGERED = 102352;
+    }
 }

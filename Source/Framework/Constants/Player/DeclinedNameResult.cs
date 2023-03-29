@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum DeclinedNameResult
 {
-	Success = 0,
-	Error = 1
+    Success = 0,
+    Error = 1
 }

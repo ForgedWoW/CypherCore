@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum MailState
 {
-	Unchanged = 1,
-	Changed = 2,
-	Deleted = 3
+    Unchanged = 1,
+    Changed = 2,
+    Deleted = 3
 }

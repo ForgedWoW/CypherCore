@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum BaseModType
 {
-	FlatMod,
-	PctMod,
-	End
+    FlatMod,
+    PctMod,
+    End
 }

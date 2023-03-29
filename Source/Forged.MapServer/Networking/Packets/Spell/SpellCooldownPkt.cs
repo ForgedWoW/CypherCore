@@ -9,16 +9,16 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellCooldownPkt : ServerPacket
 {
-	public List<SpellCooldownStruct> SpellCooldowns = new();
-	public ObjectGuid Caster;
-	public SpellCooldownFlags Flags;
-	public SpellCooldownPkt() : base(ServerOpcodes.SpellCooldown, ConnectionType.Instance) { }
+    public List<SpellCooldownStruct> SpellCooldowns = new();
+    public ObjectGuid Caster;
+    public SpellCooldownFlags Flags;
+    public SpellCooldownPkt() : base(ServerOpcodes.SpellCooldown, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Caster);
-		_worldPacket.WriteUInt8((byte)Flags);
-		_worldPacket.WriteInt32(SpellCooldowns.Count);
-		SpellCooldowns.ForEach(p => p.Write(_worldPacket));
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Caster);
+        _worldPacket.WriteUInt8((byte)Flags);
+        _worldPacket.WriteInt32(SpellCooldowns.Count);
+        SpellCooldowns.ForEach(p => p.Write(_worldPacket));
+    }
 }

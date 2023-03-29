@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootReleaseResponse : ServerPacket
 {
-	public ObjectGuid LootObj;
-	public ObjectGuid Owner;
-	public LootReleaseResponse() : base(ServerOpcodes.LootRelease) { }
+    public ObjectGuid LootObj;
+    public ObjectGuid Owner;
+    public LootReleaseResponse() : base(ServerOpcodes.LootRelease) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(LootObj);
-		_worldPacket.WritePackedGuid(Owner);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(LootObj);
+        _worldPacket.WritePackedGuid(Owner);
+    }
 }

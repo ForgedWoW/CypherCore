@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class AllGuildAchievements : ServerPacket
 {
-	public List<EarnedAchievement> Earned = new();
-	public AllGuildAchievements() : base(ServerOpcodes.AllGuildAchievements) { }
+    public List<EarnedAchievement> Earned = new();
+    public AllGuildAchievements() : base(ServerOpcodes.AllGuildAchievements) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Earned.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Earned.Count);
 
-		foreach (var earned in Earned)
-			earned.Write(_worldPacket);
-	}
+        foreach (var earned in Earned)
+            earned.Write(_worldPacket);
+    }
 }

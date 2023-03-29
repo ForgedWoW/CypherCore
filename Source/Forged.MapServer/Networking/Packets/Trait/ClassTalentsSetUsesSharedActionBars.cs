@@ -5,16 +5,16 @@ namespace Forged.MapServer.Networking.Packets.Trait;
 
 internal class ClassTalentsSetUsesSharedActionBars : ClientPacket
 {
-	public int ConfigID;
-	public bool UsesShared;
-	public bool IsLastSelectedSavedConfig;
+    public int ConfigID;
+    public bool UsesShared;
+    public bool IsLastSelectedSavedConfig;
 
-	public ClassTalentsSetUsesSharedActionBars(WorldPacket packet) : base(packet) { }
+    public ClassTalentsSetUsesSharedActionBars(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ConfigID = _worldPacket.ReadInt32();
-		UsesShared = _worldPacket.HasBit();
-		IsLastSelectedSavedConfig = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        ConfigID = _worldPacket.ReadInt32();
+        UsesShared = _worldPacket.HasBit();
+        IsLastSelectedSavedConfig = _worldPacket.HasBit();
+    }
 }

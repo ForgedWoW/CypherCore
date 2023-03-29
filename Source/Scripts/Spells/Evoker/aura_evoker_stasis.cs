@@ -1,21 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Dynamic;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.STASIS)]
 internal class aura_evoker_stasis : AuraScript, IAuraOnProc, IAuraOnApply, IAuraOverrideProcInfo
 {
-    List<ObjectGuid> _seenSpells = new();
+    readonly List<ObjectGuid> _seenSpells = new();
 
     public SpellProcEntry SpellProcEntry { get; } = new();
 
@@ -32,7 +31,7 @@ internal class aura_evoker_stasis : AuraScript, IAuraOnProc, IAuraOnApply, IAura
         SpellProcEntry.Cooldown = 0;
         SpellProcEntry.DisableEffectsMask = 0;
         SpellProcEntry.SchoolMask = SpellSchoolMask.None;
-        SpellProcEntry.SpellFamilyMask = new(2, 538968064, 0, 0);
+        SpellProcEntry.SpellFamilyMask = new FlagArray128(2, 538968064, 0, 0);
         SpellProcEntry.SpellFamilyName = SpellFamilyNames.Evoker;
         SpellProcEntry.SpellTypeMask = ProcFlagsSpellType.Heal;
         SpellProcEntry.SpellPhaseMask = ProcFlagsSpellPhase.Cast;

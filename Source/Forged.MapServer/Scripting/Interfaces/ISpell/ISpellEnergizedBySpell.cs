@@ -9,5 +9,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellEnergizedBySpell : ISpellScript
 {
-	void EnergizeBySpell(Unit target, SpellInfo spellInfo, ref double amount, PowerType powerType);
+    void EnergizeBySpell(Unit target, SpellInfo spellInfo, ref double amount, PowerType powerType);
 }

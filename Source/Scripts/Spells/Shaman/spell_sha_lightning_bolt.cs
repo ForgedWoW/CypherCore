@@ -13,23 +13,23 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(188196)]
 internal class spell_sha_lightning_bolt : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.Launch));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.Launch));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var energizeAmount = Caster.GetAuraEffect(ShamanSpells.MaelstromController, 0);
+    private void HandleScript(int effIndex)
+    {
+        var energizeAmount = Caster.GetAuraEffect(ShamanSpells.MaelstromController, 0);
 
-		if (energizeAmount != null)
-			Caster
-				.CastSpell(Caster,
-							ShamanSpells.LightningBoltEnergize,
-							new CastSpellExtraArgs(energizeAmount)
-								.AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.Amount));
-	}
+        if (energizeAmount != null)
+            Caster
+                .CastSpell(Caster,
+                           ShamanSpells.LightningBoltEnergize,
+                           new CastSpellExtraArgs(energizeAmount)
+                               .AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.Amount));
+    }
 }

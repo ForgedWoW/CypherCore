@@ -7,8 +7,8 @@ namespace Forged.MapServer.Text;
 
 public class MessageBuilder
 {
-	public virtual dynamic Invoke(Locale locale = Locale.enUS)
-	{
-		return default;
-	}
+    public virtual dynamic Invoke(Locale locale = Locale.enUS)
+    {
+        return default;
+    }
 }

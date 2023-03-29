@@ -8,20 +8,20 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public class AuctionListBiddedItemsResult : ServerPacket
 {
-	public List<AuctionItem> Items = new();
-	public uint DesiredDelay;
-	public bool HasMoreResults;
+    public List<AuctionItem> Items = new();
+    public uint DesiredDelay;
+    public bool HasMoreResults;
 
-	public AuctionListBiddedItemsResult() : base(ServerOpcodes.AuctionListBiddedItemsResult) { }
+    public AuctionListBiddedItemsResult() : base(ServerOpcodes.AuctionListBiddedItemsResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Items.Count);
-		_worldPacket.WriteUInt32(DesiredDelay);
-		_worldPacket.WriteBit(HasMoreResults);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Items.Count);
+        _worldPacket.WriteUInt32(DesiredDelay);
+        _worldPacket.WriteBit(HasMoreResults);
+        _worldPacket.FlushBits();
 
-		foreach (var item in Items)
-			item.Write(_worldPacket);
-	}
+        foreach (var item in Items)
+            item.Write(_worldPacket);
+    }
 }

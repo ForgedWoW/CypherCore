@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Duel;
 
 public class DuelOutOfBounds : ServerPacket
 {
-	public DuelOutOfBounds() : base(ServerOpcodes.DuelOutOfBounds, ConnectionType.Instance) { }
+    public DuelOutOfBounds() : base(ServerOpcodes.DuelOutOfBounds, ConnectionType.Instance) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

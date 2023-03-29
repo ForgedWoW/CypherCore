@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class ResetFailedNotify : ServerPacket
 {
-	public ResetFailedNotify() : base(ServerOpcodes.ResetFailedNotify) { }
+    public ResetFailedNotify() : base(ServerOpcodes.ResetFailedNotify) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

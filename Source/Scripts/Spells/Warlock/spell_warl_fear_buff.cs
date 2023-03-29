@@ -10,15 +10,15 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(204730)]
 public class spell_warl_fear_buff : SpellScript, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		var aura = GetHitAura();
+    public void AfterHit()
+    {
+        var aura = GetHitAura();
 
-		if (aura != null)
-		{
-			aura.SetMaxDuration(20000);
-			aura.SetDuration(20000);
-			aura.RefreshDuration();
-		}
-	}
+        if (aura != null)
+        {
+            aura.SetMaxDuration(20000);
+            aura.SetDuration(20000);
+            aura.RefreshDuration();
+        }
+    }
 }

@@ -9,18 +9,18 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 internal class GuildAchievementMembers : ServerPacket
 {
-	public ObjectGuid GuildGUID;
-	public uint AchievementID;
-	public List<ObjectGuid> Member = new();
-	public GuildAchievementMembers() : base(ServerOpcodes.GuildAchievementMembers) { }
+    public ObjectGuid GuildGUID;
+    public uint AchievementID;
+    public List<ObjectGuid> Member = new();
+    public GuildAchievementMembers() : base(ServerOpcodes.GuildAchievementMembers) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(GuildGUID);
-		_worldPacket.WriteUInt32(AchievementID);
-		_worldPacket.WriteInt32(Member.Count);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(GuildGUID);
+        _worldPacket.WriteUInt32(AchievementID);
+        _worldPacket.WriteInt32(Member.Count);
 
-		foreach (var guid in Member)
-			_worldPacket.WritePackedGuid(guid);
-	}
+        foreach (var guid in Member)
+            _worldPacket.WritePackedGuid(guid);
+    }
 }

@@ -5,12 +5,12 @@ namespace Forged.MapServer.DataStorage.Structs.I;
 
 public sealed class ItemBonusTreeNodeRecord
 {
-	public uint Id;
-	public byte ItemContext;
-	public ushort ChildItemBonusTreeID;
-	public ushort ChildItemBonusListID;
-	public ushort ChildItemLevelSelectorID;
-	public uint ChildItemBonusListGroupID;
-	public uint IblGroupPointsModSetID;
-	public uint ParentItemBonusTreeID;
+    public uint Id;
+    public byte ItemContext;
+    public ushort ChildItemBonusTreeID;
+    public ushort ChildItemBonusListID;
+    public ushort ChildItemLevelSelectorID;
+    public uint ChildItemBonusListGroupID;
+    public uint IblGroupPointsModSetID;
+    public uint ParentItemBonusTreeID;
 }

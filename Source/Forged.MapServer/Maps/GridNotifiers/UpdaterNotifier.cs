@@ -16,38 +16,38 @@ public class UpdaterNotifier : IGridNotifierWorldObject
     private readonly uint _timeDiff;
     private readonly ConcurrentBag<WorldObject> _worldObjects = new();
 
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public UpdaterNotifier(uint diff, GridType gridType)
-	{
-		_timeDiff = diff;
-		GridType = gridType;
-	}
+    public UpdaterNotifier(uint diff, GridType gridType)
+    {
+        _timeDiff = diff;
+        GridType = gridType;
+    }
 
-	public void Visit(IList<WorldObject> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var obj = objs[i];
+    public void Visit(IList<WorldObject> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var obj = objs[i];
 
-			if (obj == null || obj.IsTypeId(TypeId.Player) || obj.IsTypeId(TypeId.Corpse))
-				continue;
+            if (obj == null || obj.IsTypeId(TypeId.Player) || obj.IsTypeId(TypeId.Corpse))
+                continue;
 
-			if (obj.IsInWorld)
-				_worldObjects.Add(obj);
-		}
-	}
+            if (obj.IsInWorld)
+                _worldObjects.Add(obj);
+        }
+    }
 
-	public void ExecuteUpdate()
-	{
-		foreach (var obj in _worldObjects)
-			try
-			{
-				obj.Update(_timeDiff);
-			}
-			catch (Exception ex)
-			{
-				Log.Logger.Error(ex);
-			}
-	}
+    public void ExecuteUpdate()
+    {
+        foreach (var obj in _worldObjects)
+            try
+            {
+                obj.Update(_timeDiff);
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex);
+            }
+    }
 }

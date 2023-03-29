@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum LfgQueueType
 {
-	Dungeon = 1,
-	LRF = 2,
-	Scenario = 3,
-	Flex = 4,
-	WorldPvP = 5,
-	ScheduledPvp = 6, // pvp brawl
+    Dungeon = 1,
+    LRF = 2,
+    Scenario = 3,
+    Flex = 4,
+    WorldPvP = 5,
+    ScheduledPvp = 6, // pvp brawl
 }

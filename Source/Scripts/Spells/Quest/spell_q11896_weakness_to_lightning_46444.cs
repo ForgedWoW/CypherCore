@@ -11,23 +11,23 @@ namespace Scripts.Spells.Quest;
 [Script]
 internal class spell_q11896_weakness_to_lightning_46444 : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleScript(int effIndex)
+    {
+        var target = HitUnit;
 
-		if (target != null)
-		{
-			var owner = target.OwnerUnit;
+        if (target != null)
+        {
+            var owner = target.OwnerUnit;
 
-			if (owner != null)
-				target.CastSpell(owner, (uint)EffectValue, true);
-		}
-	}
+            if (owner != null)
+                target.CastSpell(owner, (uint)EffectValue, true);
+        }
+    }
 }

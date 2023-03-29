@@ -9,56 +9,56 @@ namespace Forged.MapServer.Scripting;
 
 public abstract class ScriptObject : IScriptObject
 {
-	private readonly string _name;
+    private readonly string _name;
 
-	public ScriptObject(string name)
-	{
-		_name = name;
-	}
+    public ScriptObject(string name)
+    {
+        _name = name;
+    }
 
-	public string GetName()
-	{
-		return _name;
-	}
+    public string GetName()
+    {
+        return _name;
+    }
 
-	// It indicates whether or not this script Type must be assigned in the database.
-	public virtual bool IsDatabaseBound()
-	{
-		return false;
-	}
+    // It indicates whether or not this script Type must be assigned in the database.
+    public virtual bool IsDatabaseBound()
+    {
+        return false;
+    }
 
-	public static T GetInstanceAI<T>(WorldObject obj) where T : class
-	{
-		var instance = obj.Map.ToInstanceMap;
+    public static T GetInstanceAI<T>(WorldObject obj) where T : class
+    {
+        var instance = obj.Map.ToInstanceMap;
 
-		if (instance is { InstanceScript: { } })
-			return (T)Activator.CreateInstance(typeof(T),
-												new object[]
-												{
-													obj
-												});
+        if (instance is { InstanceScript: { } })
+            return (T)Activator.CreateInstance(typeof(T),
+                                               new object[]
+                                               {
+                                                   obj
+                                               });
 
-		return null;
-	}
+        return null;
+    }
 }
 
 public abstract class ScriptObjectAutoAdd : ScriptObject
 {
-	protected ScriptObjectAutoAdd(string name) : base(name)
-	{
-		Global.ScriptMgr.AddScript(this);
-	}
+    protected ScriptObjectAutoAdd(string name) : base(name)
+    {
+        Global.ScriptMgr.AddScript(this);
+    }
 }
 
 public abstract class ScriptObjectAutoAddDBBound : ScriptObject
 {
-	protected ScriptObjectAutoAddDBBound(string name) : base(name)
-	{
-		Global.ScriptMgr.AddScript(this);
-	}
+    protected ScriptObjectAutoAddDBBound(string name) : base(name)
+    {
+        Global.ScriptMgr.AddScript(this);
+    }
 
-	public override bool IsDatabaseBound()
-	{
-		return true;
-	}
+    public override bool IsDatabaseBound()
+    {
+        return true;
+    }
 }

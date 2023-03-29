@@ -12,23 +12,23 @@ namespace Scripts.Spells.Druid;
 [Script] // 77758 - Thrash
 internal class spell_dru_thrash : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleOnHitTarget(int effIndex)
-	{
-		var hitUnit = HitUnit;
+    private void HandleOnHitTarget(int effIndex)
+    {
+        var hitUnit = HitUnit;
 
-		if (hitUnit != null)
-		{
-			var caster = Caster;
+        if (hitUnit != null)
+        {
+            var caster = Caster;
 
-			caster.CastSpell(hitUnit, DruidSpellIds.ThrashBearAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-		}
-	}
+            caster.CastSpell(hitUnit, DruidSpellIds.ThrashBearAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+        }
+    }
 }

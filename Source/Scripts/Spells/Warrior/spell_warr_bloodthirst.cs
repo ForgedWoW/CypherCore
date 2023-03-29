@@ -11,40 +11,40 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(23881)] // 23881 - Bloodthirst
 internal class spell_warr_bloodthirst : SpellScript, IHasSpellEffects, ISpellOnCast, ISpellOnHit
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 3, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 3, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	public void OnCast()
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    public void OnCast()
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (target != ObjectAccessor.Instance.GetUnit(caster, caster.Target))
-			HitDamage = HitDamage / 2;
+        if (target != ObjectAccessor.Instance.GetUnit(caster, caster.Target))
+            HitDamage = HitDamage / 2;
 
-		if (caster.HasAura(WarriorSpells.FRESH_MEAT))
-			if (RandomHelper.FRand(0, 15) != 0)
-				caster.CastSpell(null, WarriorSpells.ENRAGE_AURA, true);
+        if (caster.HasAura(WarriorSpells.FRESH_MEAT))
+            if (RandomHelper.FRand(0, 15) != 0)
+                caster.CastSpell(null, WarriorSpells.ENRAGE_AURA, true);
 
-		if (caster.HasAura(WarriorSpells.THIRST_FOR_BATTLE))
-			caster.AddAura(WarriorSpells.THIRST_FOR_BATTLE_BUFF, caster);
-	}
+        if (caster.HasAura(WarriorSpells.THIRST_FOR_BATTLE))
+            caster.AddAura(WarriorSpells.THIRST_FOR_BATTLE_BUFF, caster);
+    }
 
-	public void OnHit()
-	{
-		Caster.CastSpell(Caster, WarriorSpells.BLOODTHIRST_HEAL, true);
-	}
+    public void OnHit()
+    {
+        Caster.CastSpell(Caster, WarriorSpells.BLOODTHIRST_HEAL, true);
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		Caster.CastSpell(Caster, WarriorSpells.BLOODTHIRST_HEAL, true);
-	}
+    private void HandleDummy(int effIndex)
+    {
+        Caster.CastSpell(Caster, WarriorSpells.BLOODTHIRST_HEAL, true);
+    }
 }

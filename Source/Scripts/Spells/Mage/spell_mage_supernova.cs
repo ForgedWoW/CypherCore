@@ -11,20 +11,20 @@ namespace Scripts.Spells.Mage;
 [Script] // 157980 - Supernova
 internal class spell_mage_supernova : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDamage, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDamage(int effIndex)
-	{
-		if (ExplTargetUnit == HitUnit)
-		{
-			var damage = HitDamage;
-			MathFunctions.AddPct(ref damage, GetEffectInfo(0).CalcValue());
-			HitDamage = damage;
-		}
-	}
+    private void HandleDamage(int effIndex)
+    {
+        if (ExplTargetUnit == HitUnit)
+        {
+            var damage = HitDamage;
+            MathFunctions.AddPct(ref damage, GetEffectInfo(0).CalcValue());
+            HitDamage = damage;
+        }
+    }
 }

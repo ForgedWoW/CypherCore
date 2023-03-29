@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum AuctionHouseBrowseMode
 {
-	Search = 0,
-	SpecificKeys = 1
+    Search = 0,
+    SpecificKeys = 1
 }

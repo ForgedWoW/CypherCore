@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.ClientConfig;
 
 public class RequestAccountData : ClientPacket
 {
-	public ObjectGuid PlayerGuid;
-	public AccountDataTypes DataType = 0;
-	public RequestAccountData(WorldPacket packet) : base(packet) { }
+    public ObjectGuid PlayerGuid;
+    public AccountDataTypes DataType = 0;
+    public RequestAccountData(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PlayerGuid = _worldPacket.ReadPackedGuid();
-		DataType = (AccountDataTypes)_worldPacket.ReadBits<uint>(4);
-	}
+    public override void Read()
+    {
+        PlayerGuid = _worldPacket.ReadPackedGuid();
+        DataType = (AccountDataTypes)_worldPacket.ReadBits<uint>(4);
+    }
 }

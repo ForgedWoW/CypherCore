@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum ItemSubclassBattlePet
 {
-	BattlePet = 0,
-	Max = 1
+    BattlePet = 0,
+    Max = 1
 }

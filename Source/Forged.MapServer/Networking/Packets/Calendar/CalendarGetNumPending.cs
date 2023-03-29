@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarGetNumPending : ClientPacket
 {
-	public CalendarGetNumPending(WorldPacket packet) : base(packet) { }
+    public CalendarGetNumPending(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

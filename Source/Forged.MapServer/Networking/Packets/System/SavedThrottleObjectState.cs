@@ -5,16 +5,16 @@ namespace Forged.MapServer.Networking.Packets.System;
 
 public struct SavedThrottleObjectState
 {
-	public uint MaxTries;
-	public uint PerMilliseconds;
-	public uint TryCount;
-	public uint LastResetTimeBeforeNow;
+    public uint MaxTries;
+    public uint PerMilliseconds;
+    public uint TryCount;
+    public uint LastResetTimeBeforeNow;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(MaxTries);
-		data.WriteUInt32(PerMilliseconds);
-		data.WriteUInt32(TryCount);
-		data.WriteUInt32(LastResetTimeBeforeNow);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(MaxTries);
+        data.WriteUInt32(PerMilliseconds);
+        data.WriteUInt32(TryCount);
+        data.WriteUInt32(LastResetTimeBeforeNow);
+    }
 }

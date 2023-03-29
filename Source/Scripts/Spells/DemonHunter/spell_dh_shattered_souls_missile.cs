@@ -12,26 +12,26 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(209651)]
 public class spell_dh_shattered_souls_missile : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.TriggerMissile, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.TriggerMissile, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		var caster = Caster;
+    private void HandleHit(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var spellToCast = SpellValue.EffectBasePoints[0];
+        var spellToCast = SpellValue.EffectBasePoints[0];
 
-		var dest = HitDest;
+        var dest = HitDest;
 
-		if (dest != null)
-			caster.CastSpell(new Position(dest.X, dest.Y, dest.Z), (uint)spellToCast, true);
-	}
+        if (dest != null)
+            caster.CastSpell(new Position(dest.X, dest.Y, dest.Z), (uint)spellToCast, true);
+    }
 }

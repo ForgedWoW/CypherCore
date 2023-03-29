@@ -7,16 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildBankQueryTab : ClientPacket
 {
-	public ObjectGuid Banker;
-	public byte Tab;
-	public bool FullUpdate;
-	public GuildBankQueryTab(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Banker;
+    public byte Tab;
+    public bool FullUpdate;
+    public GuildBankQueryTab(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Banker = _worldPacket.ReadPackedGuid();
-		Tab = _worldPacket.ReadUInt8();
+    public override void Read()
+    {
+        Banker = _worldPacket.ReadPackedGuid();
+        Tab = _worldPacket.ReadUInt8();
 
-		FullUpdate = _worldPacket.HasBit();
-	}
+        FullUpdate = _worldPacket.HasBit();
+    }
 }

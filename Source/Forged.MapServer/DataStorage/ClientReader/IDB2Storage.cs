@@ -8,11 +8,11 @@ namespace Forged.MapServer.DataStorage.ClientReader;
 
 public interface IDB2Storage
 {
-	bool HasRecord(uint id);
+    bool HasRecord(uint id);
 
-	void WriteRecord(uint id, Locale locale, ByteBuffer buffer);
+    void WriteRecord(uint id, Locale locale, ByteBuffer buffer);
 
-	void EraseRecord(uint id);
+    void EraseRecord(uint id);
 
-	string GetName();
+    string GetName();
 }

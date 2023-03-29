@@ -10,13 +10,13 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(77606)]
 public class dark_simulacrum : AuraScript, IAuraOnProc
 {
-	public void OnProc(ProcEventInfo info)
-	{
-		var spellInfo = info.SpellInfo;
-		var player = Caster.AsPlayer;
-		var target = Target;
+    public void OnProc(ProcEventInfo info)
+    {
+        var spellInfo = info.SpellInfo;
+        var player = Caster.AsPlayer;
+        var target = Target;
 
-		if (spellInfo != null && player != null && target != null && target.IsValidAttackTarget(player, spellInfo))
-			player.CastSpell(target, spellInfo.Id, true);
-	}
+        if (spellInfo != null && player != null && target != null && target.IsValidAttackTarget(player, spellInfo))
+            player.CastSpell(target, spellInfo.Id, true);
+    }
 }

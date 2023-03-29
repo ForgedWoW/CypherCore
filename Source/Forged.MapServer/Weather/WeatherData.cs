@@ -5,6 +5,6 @@ namespace Forged.MapServer.Weather;
 
 public class WeatherData
 {
-	public readonly WeatherSeasonChances[] Data = new WeatherSeasonChances[4];
-	public uint ScriptId;
+    public readonly WeatherSeasonChances[] Data = new WeatherSeasonChances[4];
+    public uint ScriptId;
 }

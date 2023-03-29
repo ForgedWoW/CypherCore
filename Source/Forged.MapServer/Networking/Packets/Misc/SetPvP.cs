@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class SetPvP : ClientPacket
 {
-	public bool EnablePVP;
-	public SetPvP(WorldPacket packet) : base(packet) { }
+    public bool EnablePVP;
+    public SetPvP(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		EnablePVP = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        EnablePVP = _worldPacket.HasBit();
+    }
 }

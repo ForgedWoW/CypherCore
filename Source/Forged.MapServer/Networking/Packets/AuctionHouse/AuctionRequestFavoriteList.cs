@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionRequestFavoriteList : ClientPacket
 {
-	public AuctionRequestFavoriteList(WorldPacket packet) : base(packet) { }
+    public AuctionRequestFavoriteList(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

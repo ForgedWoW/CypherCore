@@ -5,15 +5,15 @@ namespace Forged.MapServer.Networking.Packets.Collection;
 
 internal class CollectionItemSetFavorite : ClientPacket
 {
-	public CollectionType Type;
-	public uint Id;
-	public bool IsFavorite;
-	public CollectionItemSetFavorite(WorldPacket packet) : base(packet) { }
+    public CollectionType Type;
+    public uint Id;
+    public bool IsFavorite;
+    public CollectionItemSetFavorite(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Type = (CollectionType)_worldPacket.ReadUInt32();
-		Id = _worldPacket.ReadUInt32();
-		IsFavorite = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        Type = (CollectionType)_worldPacket.ReadUInt32();
+        Id = _worldPacket.ReadUInt32();
+        IsFavorite = _worldPacket.HasBit();
+    }
 }

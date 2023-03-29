@@ -13,23 +13,23 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(188443)]
 internal class spell_sha_chain_lightning : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.Launch));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.Launch));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var energizeAmount = Caster.GetAuraEffect(ShamanSpells.MaelstromController, 4);
+    private void HandleScript(int effIndex)
+    {
+        var energizeAmount = Caster.GetAuraEffect(ShamanSpells.MaelstromController, 4);
 
-		if (energizeAmount != null)
-			Caster
-				.CastSpell(Caster,
-							ShamanSpells.ChainLightningEnergize,
-							new CastSpellExtraArgs(energizeAmount)
-								.AddSpellMod(SpellValueMod.BasePoint0, (int)(energizeAmount.Amount * GetUnitTargetCountForEffect(0))));
-	}
+        if (energizeAmount != null)
+            Caster
+                .CastSpell(Caster,
+                           ShamanSpells.ChainLightningEnergize,
+                           new CastSpellExtraArgs(energizeAmount)
+                               .AddSpellMod(SpellValueMod.BasePoint0, (int)(energizeAmount.Amount * GetUnitTargetCountForEffect(0))));
+    }
 }

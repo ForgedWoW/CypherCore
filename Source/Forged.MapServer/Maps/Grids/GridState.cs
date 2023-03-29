@@ -5,9 +5,9 @@ namespace Forged.MapServer.Maps.Grids;
 
 public enum GridState
 {
-	Invalid = 0,
-	Active = 1,
-	Idle = 2,
-	Removal = 3,
-	Max = 4
+    Invalid = 0,
+    Active = 1,
+    Idle = 2,
+    Removal = 3,
+    Max = 4
 }

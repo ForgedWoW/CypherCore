@@ -14,19 +14,19 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(12975)]
 public class spell_warr_last_stand : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
-		var args = new CastSpellExtraArgs(TriggerCastFlags.FullMask);
-		args.AddSpellMod(SpellValueMod.BasePoint0, (int)caster.CountPctFromMaxHealth(EffectValue));
-		caster.CastSpell(caster, WarriorSpells.LAST_STAND_TRIGGERED, args);
-	}
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
+        var args = new CastSpellExtraArgs(TriggerCastFlags.FullMask);
+        args.AddSpellMod(SpellValueMod.BasePoint0, (int)caster.CountPctFromMaxHealth(EffectValue));
+        caster.CastSpell(caster, WarriorSpells.LAST_STAND_TRIGGERED, args);
+    }
 }

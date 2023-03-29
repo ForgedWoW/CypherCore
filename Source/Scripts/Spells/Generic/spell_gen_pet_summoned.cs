@@ -12,53 +12,53 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_pet_summoned : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		return Caster.IsTypeId(TypeId.Player);
-	}
+    public override bool Load()
+    {
+        return Caster.IsTypeId(TypeId.Player);
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var player = Caster.AsPlayer;
+    private void HandleScript(int effIndex)
+    {
+        var player = Caster.AsPlayer;
 
-		if (player.LastPetNumber != 0)
-		{
-			var newPetType = (player.Class == PlayerClass.Hunter) ? PetType.Hunter : PetType.Summon;
-			Pet newPet = new(player, newPetType);
+        if (player.LastPetNumber != 0)
+        {
+            var newPetType = (player.Class == PlayerClass.Hunter) ? PetType.Hunter : PetType.Summon;
+            Pet newPet = new(player, newPetType);
 
-			if (newPet.LoadPetFromDB(player, 0, player.LastPetNumber, true))
-			{
-				// revive the pet if it is dead
-				if (newPet.DeathState != DeathState.Alive &&
-					newPet.DeathState != DeathState.JustRespawned)
-					newPet.SetDeathState(DeathState.JustRespawned);
+            if (newPet.LoadPetFromDB(player, 0, player.LastPetNumber, true))
+            {
+                // revive the pet if it is dead
+                if (newPet.DeathState != DeathState.Alive &&
+                    newPet.DeathState != DeathState.JustRespawned)
+                    newPet.SetDeathState(DeathState.JustRespawned);
 
-				newPet.SetFullHealth();
-				newPet.SetFullPower(newPet.DisplayPowerType);
+                newPet.SetFullHealth();
+                newPet.SetFullPower(newPet.DisplayPowerType);
 
-				var summonScript = Spell.GetSpellScripts<ISpellOnSummon>();
+                var summonScript = Spell.GetSpellScripts<ISpellOnSummon>();
 
-				foreach (ISpellOnSummon summon in summonScript)
-					summon.OnSummon(newPet);
+                foreach (ISpellOnSummon summon in summonScript)
+                    summon.OnSummon(newPet);
 
-				switch (newPet.Entry)
-				{
-					case CreatureIds.Doomguard:
-					case CreatureIds.Infernal:
-						newPet.Entry = CreatureIds.Imp;
+                switch (newPet.Entry)
+                {
+                    case CreatureIds.Doomguard:
+                    case CreatureIds.Infernal:
+                        newPet.Entry = CreatureIds.Imp;
 
-						break;
-					default:
-						break;
-				}
-			}
-		}
-	}
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
 }

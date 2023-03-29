@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum EquipmentSetUpdateState
 {
-	Unchanged = 0,
-	Changed = 1,
-	New = 2,
-	Deleted = 3
+    Unchanged = 0,
+    Changed = 1,
+    New = 2,
+    Deleted = 3
 }

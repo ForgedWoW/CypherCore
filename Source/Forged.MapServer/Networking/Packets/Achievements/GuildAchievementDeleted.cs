@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class GuildAchievementDeleted : ServerPacket
 {
-	public ObjectGuid GuildGUID;
-	public uint AchievementID;
-	public long TimeDeleted;
-	public GuildAchievementDeleted() : base(ServerOpcodes.GuildAchievementDeleted) { }
+    public ObjectGuid GuildGUID;
+    public uint AchievementID;
+    public long TimeDeleted;
+    public GuildAchievementDeleted() : base(ServerOpcodes.GuildAchievementDeleted) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(GuildGUID);
-		_worldPacket.WriteUInt32(AchievementID);
-		_worldPacket.WritePackedTime(TimeDeleted);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(GuildGUID);
+        _worldPacket.WriteUInt32(AchievementID);
+        _worldPacket.WritePackedTime(TimeDeleted);
+    }
 }

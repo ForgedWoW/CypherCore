@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 internal class GuildGetAchievementMembers : ClientPacket
 {
-	public ObjectGuid PlayerGUID;
-	public ObjectGuid GuildGUID;
-	public uint AchievementID;
-	public GuildGetAchievementMembers(WorldPacket packet) : base(packet) { }
+    public ObjectGuid PlayerGUID;
+    public ObjectGuid GuildGUID;
+    public uint AchievementID;
+    public GuildGetAchievementMembers(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PlayerGUID = _worldPacket.ReadPackedGuid();
-		GuildGUID = _worldPacket.ReadPackedGuid();
-		AchievementID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        PlayerGUID = _worldPacket.ReadPackedGuid();
+        GuildGUID = _worldPacket.ReadPackedGuid();
+        AchievementID = _worldPacket.ReadUInt32();
+    }
 }

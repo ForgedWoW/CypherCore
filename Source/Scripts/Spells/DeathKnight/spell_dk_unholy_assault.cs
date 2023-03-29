@@ -12,16 +12,16 @@ namespace Scripts.Spells.DeathKnight;
 [Script]
 public class spell_dk_unholy_assault : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 2, SpellEffectName.Dummy, SpellScriptHookType.Launch));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 2, SpellEffectName.Dummy, SpellScriptHookType.Launch));
+    }
 
-	private void HandleScriptEffect(int effIndex)
-	{
-		Caster.CastSpell(HitUnit, DeathKnightSpells.FESTERING_WOUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, EffectValue));
-	}
+    private void HandleScriptEffect(int effIndex)
+    {
+        Caster.CastSpell(HitUnit, DeathKnightSpells.FESTERING_WOUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, EffectValue));
+    }
 }

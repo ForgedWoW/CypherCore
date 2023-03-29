@@ -12,19 +12,19 @@ namespace Scripts.Spells.Items;
 [Script] // 29601 - Enlightenment (Pendant of the Violet Eye)
 internal class spell_item_pendant_of_the_violet_eye : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var spell = eventInfo.ProcSpell;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var spell = eventInfo.ProcSpell;
 
-		if (spell != null)
-		{
-			var costs = spell.PowerCost;
-			var m = costs.FirstOrDefault(cost => cost.Power == PowerType.Mana && cost.Amount > 0);
+        if (spell != null)
+        {
+            var costs = spell.PowerCost;
+            var m = costs.FirstOrDefault(cost => cost.Power == PowerType.Mana && cost.Amount > 0);
 
-			if (m != null)
-				return true;
-		}
+            if (m != null)
+                return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

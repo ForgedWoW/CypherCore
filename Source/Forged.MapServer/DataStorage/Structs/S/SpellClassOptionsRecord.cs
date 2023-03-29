@@ -7,9 +7,9 @@ namespace Forged.MapServer.DataStorage.Structs.S;
 
 public sealed class SpellClassOptionsRecord
 {
-	public uint Id;
-	public uint SpellID;
-	public uint ModalNextSpell;
-	public byte SpellClassSet;
-	public FlagArray128 SpellClassMask;
+    public uint Id;
+    public uint SpellID;
+    public uint ModalNextSpell;
+    public byte SpellClassSet;
+    public FlagArray128 SpellClassMask;
 }

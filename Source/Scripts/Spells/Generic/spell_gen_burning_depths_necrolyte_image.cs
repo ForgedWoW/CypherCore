@@ -12,25 +12,25 @@ namespace Scripts.Spells.Generic;
 [Script] // 48750 - Burning Depths Necrolyte Image
 internal class spell_gen_burning_depths_necrolyte_image : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.Transform, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.Transform, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.Transform, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply));
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.Transform, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var caster = Caster;
+    private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var caster = Caster;
 
-		if (caster)
-			caster.CastSpell(Target, (uint)GetEffectInfo(2).CalcValue());
-	}
+        if (caster)
+            caster.CastSpell(Target, (uint)GetEffectInfo(2).CalcValue());
+    }
 
-	private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.RemoveAurasDueToSpell((uint)GetEffectInfo(2).CalcValue(), CasterGUID);
-	}
+    private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.RemoveAurasDueToSpell((uint)GetEffectInfo(2).CalcValue(), CasterGUID);
+    }
 }

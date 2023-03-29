@@ -11,17 +11,17 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(86121)] // 86121 - Soul Swap
 internal class spell_warl_soul_swap : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		Caster.CastSpell(Caster, WarlockSpells.SOUL_SWAP_OVERRIDE, true);
-		HitUnit.CastSpell(Caster, WarlockSpells.SOUL_SWAP_OVERRIDE, true);
-	}
+    private void HandleHit(int effIndex)
+    {
+        Caster.CastSpell(Caster, WarlockSpells.SOUL_SWAP_OVERRIDE, true);
+        HitUnit.CastSpell(Caster, WarlockSpells.SOUL_SWAP_OVERRIDE, true);
+    }
 }

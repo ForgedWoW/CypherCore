@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum PetType
 {
-	Summon = 0,
-	Hunter = 1,
-	Max = 4
+    Summon = 0,
+    Hunter = 1,
+    Max = 4
 }

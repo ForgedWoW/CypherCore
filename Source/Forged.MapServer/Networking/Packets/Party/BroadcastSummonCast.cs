@@ -8,12 +8,12 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class BroadcastSummonCast : ServerPacket
 {
-	public ObjectGuid Target;
+    public ObjectGuid Target;
 
-	public BroadcastSummonCast() : base(ServerOpcodes.BroadcastSummonCast) { }
+    public BroadcastSummonCast() : base(ServerOpcodes.BroadcastSummonCast) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Target);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Target);
+    }
 }

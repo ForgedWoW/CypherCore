@@ -7,18 +7,18 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonPlaceBuildingResult : ServerPacket
 {
-	public GarrisonType GarrTypeID;
-	public GarrisonError Result;
-	public GarrisonBuildingInfo BuildingInfo = new();
-	public bool PlayActivationCinematic;
-	public GarrisonPlaceBuildingResult() : base(ServerOpcodes.GarrisonPlaceBuildingResult, ConnectionType.Instance) { }
+    public GarrisonType GarrTypeID;
+    public GarrisonError Result;
+    public GarrisonBuildingInfo BuildingInfo = new();
+    public bool PlayActivationCinematic;
+    public GarrisonPlaceBuildingResult() : base(ServerOpcodes.GarrisonPlaceBuildingResult, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32((int)GarrTypeID);
-		_worldPacket.WriteUInt32((uint)Result);
-		BuildingInfo.Write(_worldPacket);
-		_worldPacket.WriteBit(PlayActivationCinematic);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32((int)GarrTypeID);
+        _worldPacket.WriteUInt32((uint)Result);
+        BuildingInfo.Write(_worldPacket);
+        _worldPacket.WriteBit(PlayActivationCinematic);
+        _worldPacket.FlushBits();
+    }
 }

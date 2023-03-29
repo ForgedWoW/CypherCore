@@ -11,16 +11,16 @@ namespace Scripts.Spells.Generic;
 [Script] // 36553 - PetWait
 internal class spell_gen_pet_wait : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		Caster.MotionMaster.Clear();
-		Caster.MotionMaster.MoveIdle();
-	}
+    private void HandleScript(int effIndex)
+    {
+        Caster.MotionMaster.Clear();
+        Caster.MotionMaster.MoveIdle();
+    }
 }

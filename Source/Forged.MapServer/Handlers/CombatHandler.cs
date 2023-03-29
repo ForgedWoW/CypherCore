@@ -13,68 +13,68 @@ namespace Forged.MapServer.Handlers;
 
 public class CombatHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.AttackSwing, Processing = PacketProcessing.Inplace)]
+    [WorldPacketHandler(ClientOpcodes.AttackSwing, Processing = PacketProcessing.Inplace)]
     private void HandleAttackSwing(AttackSwing packet)
-	{
-		var enemy = Global.ObjAccessor.GetUnit(Player, packet.Victim);
+    {
+        var enemy = Global.ObjAccessor.GetUnit(Player, packet.Victim);
 
-		if (!enemy)
-		{
-			// stop attack state at client
-			SendAttackStop(null);
+        if (!enemy)
+        {
+            // stop attack state at client
+            SendAttackStop(null);
 
-			return;
-		}
+            return;
+        }
 
-		if (!Player.IsValidAttackTarget(enemy))
-		{
-			// stop attack state at client
-			SendAttackStop(enemy);
+        if (!Player.IsValidAttackTarget(enemy))
+        {
+            // stop attack state at client
+            SendAttackStop(enemy);
 
-			return;
-		}
+            return;
+        }
 
-		//! Client explicitly checks the following before sending CMSG_ATTACKSWING packet,
-		//! so we'll place the same check here. Note that it might be possible to reuse this snippet
-		//! in other places as well.
-		var vehicle = Player.Vehicle1;
+        //! Client explicitly checks the following before sending CMSG_ATTACKSWING packet,
+        //! so we'll place the same check here. Note that it might be possible to reuse this snippet
+        //! in other places as well.
+        var vehicle = Player.Vehicle1;
 
-		if (vehicle)
-		{
-			var seat = vehicle.GetSeatForPassenger(Player);
+        if (vehicle)
+        {
+            var seat = vehicle.GetSeatForPassenger(Player);
 
-			if (!seat.HasFlag(VehicleSeatFlags.CanAttack))
-			{
-				SendAttackStop(enemy);
+            if (!seat.HasFlag(VehicleSeatFlags.CanAttack))
+            {
+                SendAttackStop(enemy);
 
-				return;
-			}
-		}
+                return;
+            }
+        }
 
-		Player.Attack(enemy, true);
-	}
+        Player.Attack(enemy, true);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.AttackStop, Processing = PacketProcessing.Inplace)]
+    [WorldPacketHandler(ClientOpcodes.AttackStop, Processing = PacketProcessing.Inplace)]
     private void HandleAttackStop(AttackStop packet)
-	{
-		Player.AttackStop();
-	}
+    {
+        Player.AttackStop();
+    }
 
-	[WorldPacketHandler(ClientOpcodes.SetSheathed, Processing = PacketProcessing.Inplace)]
+    [WorldPacketHandler(ClientOpcodes.SetSheathed, Processing = PacketProcessing.Inplace)]
     private void HandleSetSheathed(SetSheathed packet)
-	{
-		if (packet.CurrentSheathState >= (int)SheathState.Max)
-		{
-			Log.Logger.Error("Unknown sheath state {0} ??", packet.CurrentSheathState);
+    {
+        if (packet.CurrentSheathState >= (int)SheathState.Max)
+        {
+            Log.Logger.Error("Unknown sheath state {0} ??", packet.CurrentSheathState);
 
-			return;
-		}
+            return;
+        }
 
-		Player.Sheath = (SheathState)packet.CurrentSheathState;
-	}
+        Player.Sheath = (SheathState)packet.CurrentSheathState;
+    }
 
     private void SendAttackStop(Unit enemy)
-	{
-		SendPacket(new SAttackStop(Player, enemy));
-	}
+    {
+        SendPacket(new SAttackStop(Player, enemy));
+    }
 }

@@ -9,23 +9,23 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class CorpseLocation : ServerPacket
 {
-	public ObjectGuid Player;
-	public ObjectGuid Transport;
-	public Vector3 Position;
-	public int ActualMapID;
-	public int MapID;
-	public bool Valid;
-	public CorpseLocation() : base(ServerOpcodes.CorpseLocation) { }
+    public ObjectGuid Player;
+    public ObjectGuid Transport;
+    public Vector3 Position;
+    public int ActualMapID;
+    public int MapID;
+    public bool Valid;
+    public CorpseLocation() : base(ServerOpcodes.CorpseLocation) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(Valid);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteBit(Valid);
+        _worldPacket.FlushBits();
 
-		_worldPacket.WritePackedGuid(Player);
-		_worldPacket.WriteInt32(ActualMapID);
-		_worldPacket.WriteVector3(Position);
-		_worldPacket.WriteInt32(MapID);
-		_worldPacket.WritePackedGuid(Transport);
-	}
+        _worldPacket.WritePackedGuid(Player);
+        _worldPacket.WriteInt32(ActualMapID);
+        _worldPacket.WriteVector3(Position);
+        _worldPacket.WriteInt32(MapID);
+        _worldPacket.WritePackedGuid(Transport);
+    }
 }

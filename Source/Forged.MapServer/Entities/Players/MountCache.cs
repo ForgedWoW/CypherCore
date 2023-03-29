@@ -1,3 +1,6 @@
+// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
 using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
 using Framework.Database;
@@ -7,9 +10,9 @@ namespace Forged.MapServer.Entities.Players;
 
 public class MountCache
 {
+    public readonly Dictionary<uint, uint> FactionSpecificMounts = new();
     private readonly WorldDatabase _worldDatabase;
     private readonly DB2Manager _db2Manager;
-    public readonly Dictionary<uint, uint> FactionSpecificMounts = new();
 
     public MountCache(WorldDatabase worldDatabase, DB2Manager db2Manager)
     {

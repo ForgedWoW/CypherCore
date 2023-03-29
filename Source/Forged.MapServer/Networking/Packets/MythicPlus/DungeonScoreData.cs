@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.MythicPlus;
 
 public class DungeonScoreData
 {
-	public List<DungeonScoreSeasonData> Seasons = new();
-	public int TotalRuns;
+    public List<DungeonScoreSeasonData> Seasons = new();
+    public int TotalRuns;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(Seasons.Count);
-		data.WriteInt32(TotalRuns);
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(Seasons.Count);
+        data.WriteInt32(TotalRuns);
 
-		foreach (var season in Seasons)
-			season.Write(data);
-	}
+        foreach (var season in Seasons)
+            season.Write(data);
+    }
 }

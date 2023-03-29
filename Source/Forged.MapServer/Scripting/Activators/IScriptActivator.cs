@@ -9,6 +9,6 @@ namespace Forged.MapServer.Scripting.Activators;
 
 public interface IScriptActivator
 {
-	List<string> ScriptBaseTypes { get; }
-	IScriptObject Activate(Type type, string name, ScriptAttribute attribute);
+    List<string> ScriptBaseTypes { get; }
+    IScriptObject Activate(Type type, string name, ScriptAttribute attribute);
 }

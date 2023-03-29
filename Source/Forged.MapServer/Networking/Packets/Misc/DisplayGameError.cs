@@ -11,33 +11,33 @@ internal class DisplayGameError : ServerPacket
     private readonly int? Arg;
     private readonly int? Arg2;
 
-	public DisplayGameError(GameError error) : base(ServerOpcodes.DisplayGameError)
-	{
-		Error = error;
-	}
+    public DisplayGameError(GameError error) : base(ServerOpcodes.DisplayGameError)
+    {
+        Error = error;
+    }
 
-	public DisplayGameError(GameError error, int arg) : this(error)
-	{
-		Arg = arg;
-	}
+    public DisplayGameError(GameError error, int arg) : this(error)
+    {
+        Arg = arg;
+    }
 
-	public DisplayGameError(GameError error, int arg1, int arg2) : this(error)
-	{
-		Arg = arg1;
-		Arg2 = arg2;
-	}
+    public DisplayGameError(GameError error, int arg1, int arg2) : this(error)
+    {
+        Arg = arg1;
+        Arg2 = arg2;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32((uint)Error);
-		_worldPacket.WriteBit(Arg.HasValue);
-		_worldPacket.WriteBit(Arg2.HasValue);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32((uint)Error);
+        _worldPacket.WriteBit(Arg.HasValue);
+        _worldPacket.WriteBit(Arg2.HasValue);
+        _worldPacket.FlushBits();
 
-		if (Arg.HasValue)
-			_worldPacket.WriteInt32(Arg.Value);
+        if (Arg.HasValue)
+            _worldPacket.WriteInt32(Arg.Value);
 
-		if (Arg2.HasValue)
-			_worldPacket.WriteInt32(Arg2.Value);
-	}
+        if (Arg2.HasValue)
+            _worldPacket.WriteInt32(Arg2.Value);
+    }
 }

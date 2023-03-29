@@ -5,12 +5,12 @@ namespace Framework.Database;
 
 public enum DatabaseTypeFlags
 {
-	None = 0,
+    None = 0,
 
-	Login = 1,
-	Character = 2,
-	World = 4,
-	Hotfix = 8,
+    Login = 1,
+    Character = 2,
+    World = 4,
+    Hotfix = 8,
 
-	All = Login | Character | World | Hotfix
+    All = Login | Character | World | Hotfix
 }

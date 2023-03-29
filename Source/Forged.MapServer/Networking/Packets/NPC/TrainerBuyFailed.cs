@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 internal class TrainerBuyFailed : ServerPacket
 {
-	public ObjectGuid TrainerGUID;
-	public uint SpellID;
-	public TrainerFailReason TrainerFailedReason;
-	public TrainerBuyFailed() : base(ServerOpcodes.TrainerBuyFailed) { }
+    public ObjectGuid TrainerGUID;
+    public uint SpellID;
+    public TrainerFailReason TrainerFailedReason;
+    public TrainerBuyFailed() : base(ServerOpcodes.TrainerBuyFailed) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(TrainerGUID);
-		_worldPacket.WriteUInt32(SpellID);
-		_worldPacket.WriteUInt32((uint)TrainerFailedReason);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(TrainerGUID);
+        _worldPacket.WriteUInt32(SpellID);
+        _worldPacket.WriteUInt32((uint)TrainerFailedReason);
+    }
 }

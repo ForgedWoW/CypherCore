@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public struct TeamIds
 {
-	public const int Alliance = 0;
-	public const int Horde = 1;
-	public const int Neutral = 2;
+    public const int Alliance = 0;
+    public const int Horde = 1;
+    public const int Neutral = 2;
 }

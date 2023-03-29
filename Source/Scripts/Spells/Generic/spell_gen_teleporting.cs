@@ -11,25 +11,25 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_teleporting : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleScript(int effIndex)
+    {
+        var target = HitUnit;
 
-		if (!target.IsPlayer)
-			return;
+        if (!target.IsPlayer)
+            return;
 
-		// return from top
-		if (target.AsPlayer.Area == Misc.AreaVioletCitadelSpire)
-			target.CastSpell(target, GenericSpellIds.TeleportSpireDown, true);
-		// teleport atop
-		else
-			target.CastSpell(target, GenericSpellIds.TeleportSpireUp, true);
-	}
+        // return from top
+        if (target.AsPlayer.Area == Misc.AreaVioletCitadelSpire)
+            target.CastSpell(target, GenericSpellIds.TeleportSpireDown, true);
+        // teleport atop
+        else
+            target.CastSpell(target, GenericSpellIds.TeleportSpireUp, true);
+    }
 }

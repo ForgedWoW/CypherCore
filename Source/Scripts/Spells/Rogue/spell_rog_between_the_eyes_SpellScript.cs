@@ -11,24 +11,24 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(199804)]
 public class spell_rog_between_the_eyes_SpellScript : SpellScript, ISpellAfterHit, ISpellOnTakePower
 {
-	private int _cp = 0;
+    private int _cp = 0;
 
-	public void AfterHit()
-	{
-		var target = HitUnit;
+    public void AfterHit()
+    {
+        var target = HitUnit;
 
-		if (target != null)
-		{
-			var aura = target.GetAura(TrueBearingIDs.BETWEEN_THE_EYES, Caster.GUID);
+        if (target != null)
+        {
+            var aura = target.GetAura(TrueBearingIDs.BETWEEN_THE_EYES, Caster.GUID);
 
-			if (aura != null)
-				aura.SetDuration(_cp * Time.InMilliseconds);
-		}
-	}
+            if (aura != null)
+                aura.SetDuration(_cp * Time.InMilliseconds);
+        }
+    }
 
-	public void TakePower(SpellPowerCost powerCost)
-	{
-		if (powerCost.Power == PowerType.ComboPoints)
-			_cp = powerCost.Amount;
-	}
+    public void TakePower(SpellPowerCost powerCost)
+    {
+        if (powerCost.Power == PowerType.ComboPoints)
+            _cp = powerCost.Amount;
+    }
 }

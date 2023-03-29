@@ -11,18 +11,18 @@ public class ObjectGUIDCheck : ICheck<WorldObject>
 {
     private readonly ObjectGuid _gUID;
 
-	public ObjectGUIDCheck(ObjectGuid GUID)
-	{
-		_gUID = GUID;
-	}
+    public ObjectGUIDCheck(ObjectGuid GUID)
+    {
+        _gUID = GUID;
+    }
 
-	public bool Invoke(WorldObject obj)
-	{
-		return obj.GUID == _gUID;
-	}
+    public bool Invoke(WorldObject obj)
+    {
+        return obj.GUID == _gUID;
+    }
 
-	public static implicit operator Predicate<WorldObject>(ObjectGUIDCheck check)
-	{
-		return check.Invoke;
-	}
+    public static implicit operator Predicate<WorldObject>(ObjectGUIDCheck check)
+    {
+        return check.Invoke;
+    }
 }

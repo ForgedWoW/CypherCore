@@ -9,19 +9,19 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class QuestPushResultResponse : ServerPacket
 {
-	public ObjectGuid SenderGUID;
-	public QuestPushReason Result;
-	public string QuestTitle;
-	public QuestPushResultResponse() : base(ServerOpcodes.QuestPushResult) { }
+    public ObjectGuid SenderGUID;
+    public QuestPushReason Result;
+    public string QuestTitle;
+    public QuestPushResultResponse() : base(ServerOpcodes.QuestPushResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(SenderGUID);
-		_worldPacket.WriteUInt8((byte)Result);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(SenderGUID);
+        _worldPacket.WriteUInt8((byte)Result);
 
-		_worldPacket.WriteBits(QuestTitle.GetByteCount(), 9);
-		_worldPacket.FlushBits();
+        _worldPacket.WriteBits(QuestTitle.GetByteCount(), 9);
+        _worldPacket.FlushBits();
 
-		_worldPacket.WriteString(QuestTitle);
-	}
+        _worldPacket.WriteString(QuestTitle);
+    }
 }

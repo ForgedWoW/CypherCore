@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum RemoveMethod
 {
-	Default = 0,
-	Kick = 1,
-	Leave = 2,
-	KickLFG = 3
+    Default = 0,
+    Kick = 1,
+    Leave = 2,
+    KickLFG = 3
 }

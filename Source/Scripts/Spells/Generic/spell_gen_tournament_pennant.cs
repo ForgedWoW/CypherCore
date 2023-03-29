@@ -12,24 +12,24 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_tournament_pennant : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Load()
-	{
-		return Caster && Caster.IsTypeId(TypeId.Player);
-	}
+    public override bool Load()
+    {
+        return Caster && Caster.IsTypeId(TypeId.Player);
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApplyEffect, 0, AuraType.Dummy, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectApply));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleApplyEffect, 0, AuraType.Dummy, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectApply));
+    }
 
-	private void HandleApplyEffect(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var caster = Caster;
+    private void HandleApplyEffect(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var caster = Caster;
 
-		if (caster)
-			if (!caster.VehicleBase)
-				caster.RemoveAura(Id);
-	}
+        if (caster)
+            if (!caster.VehicleBase)
+                caster.RemoveAura(Id);
+    }
 }

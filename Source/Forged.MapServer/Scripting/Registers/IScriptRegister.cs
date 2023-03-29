@@ -8,6 +8,6 @@ namespace Forged.MapServer.Scripting.Registers;
 
 public interface IScriptRegister
 {
-	Type AttributeType { get; }
-	void Register(ScriptAttribute attribute, IScriptObject script, string scriptName);
+    Type AttributeType { get; }
+    void Register(ScriptAttribute attribute, IScriptObject script, string scriptName);
 }

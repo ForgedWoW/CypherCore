@@ -12,24 +12,24 @@ namespace Scripts.Spells.Hunter;
 [Script]
 public class at_hun_flareAI : AreaTriggerScript, IAreaTriggerOnCreate
 {
-	public void OnCreate()
-	{
-		var caster = At.GetCaster();
+    public void OnCreate()
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (caster.TypeId != TypeId.Player)
-			return;
+        if (caster.TypeId != TypeId.Player)
+            return;
 
-		var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(200));
+        var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(200));
 
-		if (tempSumm == null)
-		{
-			tempSumm.Faction = caster.Faction;
-			tempSumm.SetSummonerGUID(caster.GUID);
-			PhasingHandler.InheritPhaseShift(tempSumm, caster);
-			caster.CastSpell(tempSumm, HunterSpells.FLARE_EFFECT, true);
-		}
-	}
+        if (tempSumm == null)
+        {
+            tempSumm.Faction = caster.Faction;
+            tempSumm.SetSummonerGUID(caster.GUID);
+            PhasingHandler.InheritPhaseShift(tempSumm, caster);
+            caster.CastSpell(tempSumm, HunterSpells.FLARE_EFFECT, true);
+        }
+    }
 }

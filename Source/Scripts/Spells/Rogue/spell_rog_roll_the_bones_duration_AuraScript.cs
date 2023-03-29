@@ -11,39 +11,39 @@ namespace Scripts.Spells.Rogue;
 
 [SpellScript(new uint[]
 {
-	199603, 193358, 193357, 193359, 199600, 193356
+    199603, 193358, 193357, 193359, 199600, 193356
 })]
 public class spell_rog_roll_the_bones_duration_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterApply, 0, AuraType.Any, AuraEffectHandleModes.Real));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(AfterApply, 0, AuraType.Any, AuraEffectHandleModes.Real));
+    }
 
-	private void AfterApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void AfterApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var rtb = caster.GetAura(RogueSpells.ROLL_THE_BONES);
+        var rtb = caster.GetAura(RogueSpells.ROLL_THE_BONES);
 
-		if (rtb == null)
-		{
-			caster.RemoveAura(SpellInfo.Id); //sometimes it remains on the caster after relog incorrectly.
+        if (rtb == null)
+        {
+            caster.RemoveAura(SpellInfo.Id); //sometimes it remains on the caster after relog incorrectly.
 
-			return;
-		}
+            return;
+        }
 
-		var aur = caster.GetAura(SpellInfo.Id);
+        var aur = caster.GetAura(SpellInfo.Id);
 
-		if (aur != null)
-		{
-			aur.SetMaxDuration(rtb.Duration);
-			aur.SetDuration(rtb.Duration);
-		}
-	}
+        if (aur != null)
+        {
+            aur.SetMaxDuration(rtb.Duration);
+            aur.SetDuration(rtb.Duration);
+        }
+    }
 }

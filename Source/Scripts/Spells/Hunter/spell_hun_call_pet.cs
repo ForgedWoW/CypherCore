@@ -9,12 +9,12 @@ namespace Scripts.Spells.Hunter;
 
 [SpellScript(new uint[]
 {
-	883, 83242, 83243, 83244, 83245
+    883, 83242, 83243, 83244, 83245
 })]
 public class spell_hun_call_pet : SpellScript, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		return Caster.HasAura(HunterSpells.LONE_WOLF) ? SpellCastResult.SpellUnavailable : SpellCastResult.SpellCastOk;
-	}
+    public SpellCastResult CheckCast()
+    {
+        return Caster.HasAura(HunterSpells.LONE_WOLF) ? SpellCastResult.SpellUnavailable : SpellCastResult.SpellCastOk;
+    }
 }

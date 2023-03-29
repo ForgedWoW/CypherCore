@@ -11,8 +11,8 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.ENERGY_LOOP)]
 public class aura_evoker_energy_loop : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo info)
-	{
-		return info.SpellInfo.Id.EqualsAny(EvokerSpells.BLUE_DISINTEGRATE, EvokerSpells.BLUE_DISINTEGRATE_2);
-	}
+    public bool CheckProc(ProcEventInfo info)
+    {
+        return info.SpellInfo.Id.EqualsAny(EvokerSpells.BLUE_DISINTEGRATE, EvokerSpells.BLUE_DISINTEGRATE_2);
+    }
 }

@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum MovementGeneratorPriority
 {
-	None = 0,
-	Normal,
-	Highest
+    None = 0,
+    Normal,
+    Highest
 }

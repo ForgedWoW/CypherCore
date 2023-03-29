@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum SpellTargetReferenceTypes
 {
-	None,
-	Caster,
-	Target,
-	Last,
-	Src,
-	Dest
+    None,
+    Caster,
+    Target,
+    Last,
+    Src,
+    Dest
 }

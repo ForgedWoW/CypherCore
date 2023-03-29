@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class AchievementDeleted : ServerPacket
 {
-	public uint AchievementID;
-	public uint Immunities; // this is just garbage, not used by client
-	public AchievementDeleted() : base(ServerOpcodes.AchievementDeleted, ConnectionType.Instance) { }
+    public uint AchievementID;
+    public uint Immunities; // this is just garbage, not used by client
+    public AchievementDeleted() : base(ServerOpcodes.AchievementDeleted, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(AchievementID);
-		_worldPacket.WriteUInt32(Immunities);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(AchievementID);
+        _worldPacket.WriteUInt32(Immunities);
+    }
 }

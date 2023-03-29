@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.Who;
 
 public class WhoResponsePkt : ServerPacket
 {
-	public uint RequestID;
-	public List<WhoEntry> Response = new();
-	public WhoResponsePkt() : base(ServerOpcodes.Who) { }
+    public uint RequestID;
+    public List<WhoEntry> Response = new();
+    public WhoResponsePkt() : base(ServerOpcodes.Who) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(RequestID);
-		_worldPacket.WriteBits(Response.Count, 6);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(RequestID);
+        _worldPacket.WriteBits(Response.Count, 6);
+        _worldPacket.FlushBits();
 
-		Response.ForEach(p => p.Write(_worldPacket));
-	}
+        Response.ForEach(p => p.Write(_worldPacket));
+    }
 }

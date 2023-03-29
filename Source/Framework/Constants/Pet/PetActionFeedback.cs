@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum PetActionFeedback
 {
-	None = 0,
-	Dead = 1,
-	NoTarget = 2,
-	InvalidTarget = 3,
-	NoPath = 4
+    None = 0,
+    Dead = 1,
+    NoTarget = 2,
+    InvalidTarget = 3,
+    NoPath = 4
 }

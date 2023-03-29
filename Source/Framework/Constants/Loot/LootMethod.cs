@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum LootMethod
 {
-	FreeForAll = 0,
-	RoundRobin = 1,
-	MasterLoot = 2,
-	GroupLoot = 3,
-	NeedBeforeGreed = 4,
-	PersonalLoot = 5
+    FreeForAll = 0,
+    RoundRobin = 1,
+    MasterLoot = 2,
+    GroupLoot = 3,
+    NeedBeforeGreed = 4,
+    PersonalLoot = 5
 }

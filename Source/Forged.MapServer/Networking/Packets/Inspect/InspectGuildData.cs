@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Inspect;
 
 public struct InspectGuildData
 {
-	public void Write(WorldPacket data)
-	{
-		data.WritePackedGuid(GuildGUID);
-		data.WriteInt32(NumGuildMembers);
-		data.WriteInt32(AchievementPoints);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WritePackedGuid(GuildGUID);
+        data.WriteInt32(NumGuildMembers);
+        data.WriteInt32(AchievementPoints);
+    }
 
-	public ObjectGuid GuildGUID;
-	public int NumGuildMembers;
-	public int AchievementPoints;
+    public ObjectGuid GuildGUID;
+    public int NumGuildMembers;
+    public int AchievementPoints;
 }

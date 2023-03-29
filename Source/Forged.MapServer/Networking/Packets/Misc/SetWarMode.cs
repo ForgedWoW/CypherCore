@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class SetWarMode : ClientPacket
 {
-	public bool Enable;
-	public SetWarMode(WorldPacket packet) : base(packet) { }
+    public bool Enable;
+    public SetWarMode(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Enable = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        Enable = _worldPacket.HasBit();
+    }
 }

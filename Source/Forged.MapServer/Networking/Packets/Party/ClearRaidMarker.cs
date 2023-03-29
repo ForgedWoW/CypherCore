@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class ClearRaidMarker : ClientPacket
 {
-	public byte MarkerId;
-	public ClearRaidMarker(WorldPacket packet) : base(packet) { }
+    public byte MarkerId;
+    public ClearRaidMarker(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		MarkerId = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        MarkerId = _worldPacket.ReadUInt8();
+    }
 }

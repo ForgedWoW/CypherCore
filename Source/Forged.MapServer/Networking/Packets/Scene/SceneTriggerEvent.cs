@@ -5,14 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Scene;
 
 internal class SceneTriggerEvent : ClientPacket
 {
-	public uint SceneInstanceID;
-	public string _Event;
-	public SceneTriggerEvent(WorldPacket packet) : base(packet) { }
+    public uint SceneInstanceID;
+    public string _Event;
+    public SceneTriggerEvent(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var len = _worldPacket.ReadBits<uint>(6);
-		SceneInstanceID = _worldPacket.ReadUInt32();
-		_Event = _worldPacket.ReadString(len);
-	}
+    public override void Read()
+    {
+        var len = _worldPacket.ReadBits<uint>(6);
+        SceneInstanceID = _worldPacket.ReadUInt32();
+        _Event = _worldPacket.ReadString(len);
+    }
 }

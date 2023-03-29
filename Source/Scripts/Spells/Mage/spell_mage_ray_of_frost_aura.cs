@@ -12,28 +12,28 @@ namespace Scripts.Spells.Mage;
 [Script]
 internal class spell_mage_ray_of_frost_aura : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 1, AuraType.PeriodicDamage));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.PeriodicDamage, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 1, AuraType.PeriodicDamage));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.PeriodicDamage, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void HandleEffectPeriodic(AuraEffect aurEff)
-	{
-		var caster = Caster;
+    private void HandleEffectPeriodic(AuraEffect aurEff)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			if (aurEff.GetTickNumber() > 1) // First tick should deal base Damage
-				caster.CastSpell(caster, MageSpells.RayOfFrostBonus, true);
-	}
+        if (caster != null)
+            if (aurEff.GetTickNumber() > 1) // First tick should deal base Damage
+                caster.CastSpell(caster, MageSpells.RayOfFrostBonus, true);
+    }
 
-	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var caster = Caster;
+    private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var caster = Caster;
 
-		caster?.RemoveAura(MageSpells.RayOfFrostFingersOfFrost);
-	}
+        caster?.RemoveAura(MageSpells.RayOfFrostFingersOfFrost);
+    }
 }

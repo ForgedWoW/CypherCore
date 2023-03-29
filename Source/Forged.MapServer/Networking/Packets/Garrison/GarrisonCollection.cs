@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonCollection
 {
-	public int Type;
-	public List<GarrisonCollectionEntry> Entries = new();
+    public int Type;
+    public List<GarrisonCollectionEntry> Entries = new();
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(Type);
-		data.WriteInt32(Entries.Count);
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(Type);
+        data.WriteInt32(Entries.Count);
 
-		foreach (var collectionEntry in Entries)
-			collectionEntry.Write(data);
-	}
+        foreach (var collectionEntry in Entries)
+            collectionEntry.Write(data);
+    }
 }

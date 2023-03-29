@@ -11,8 +11,8 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(206313)]
 public class spell_warr_frenzy : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo procInfo)
-	{
-		return procInfo.SpellInfo.Id == WarriorSpells.FURIOUS_SLASH;
-	}
+    public bool CheckProc(ProcEventInfo procInfo)
+    {
+        return procInfo.SpellInfo.Id == WarriorSpells.FURIOUS_SLASH;
+    }
 }

@@ -12,18 +12,18 @@ namespace Scripts.Spells.Shaman;
 [CreatureScript(106319)]
 public class npc_ember_totem : ScriptedAI
 {
-	public npc_ember_totem(Creature creature) : base(creature) { }
+    public npc_ember_totem(Creature creature) : base(creature) { }
 
-	public override void Reset()
-	{
-		var time = TimeSpan.FromSeconds(1);
+    public override void Reset()
+    {
+        var time = TimeSpan.FromSeconds(1);
 
-		Me.Events.AddRepeatEventAtOffset(() =>
-										{
-											Me.CastSpell(Me, TotemSpells.TOTEM_EMBER_EFFECT, true);
+        Me.Events.AddRepeatEventAtOffset(() =>
+                                         {
+                                             Me.CastSpell(Me, TotemSpells.TOTEM_EMBER_EFFECT, true);
 
-											return time;
-										},
-										time);
-	}
+                                             return time;
+                                         },
+                                         time);
+    }
 }

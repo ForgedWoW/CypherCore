@@ -11,16 +11,16 @@ namespace Scripts.Spells.Mage;
 [Script] // 195302 - Arcane Charge
 internal class spell_mage_arcane_charge_clear : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(RemoveArcaneCharge, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(RemoveArcaneCharge, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void RemoveArcaneCharge(int effIndex)
-	{
-		HitUnit.RemoveAura(MageSpells.ArcaneCharge);
-	}
+    private void RemoveArcaneCharge(int effIndex)
+    {
+        HitUnit.RemoveAura(MageSpells.ArcaneCharge);
+    }
 }

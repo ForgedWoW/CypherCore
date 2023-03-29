@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum ComparisionType
 {
-	EQ = 0,
-	High,
-	Low,
-	HighEQ,
-	LowEQ,
-	Max
+    EQ = 0,
+    High,
+    Low,
+    HighEQ,
+    LowEQ,
+    Max
 }

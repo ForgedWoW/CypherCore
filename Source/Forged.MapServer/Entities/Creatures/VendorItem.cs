@@ -8,23 +8,23 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class VendorItem
 {
-	public uint Item { get; set; }
-	public uint Maxcount { get; set; } // 0 for infinity item amount
-	public uint Incrtime { get; set; } // time for restore items amount if maxcount != 0
-	public uint ExtendedCost { get; set; }
-	public ItemVendorType Type { get; set; }
-	public List<uint> BonusListIDs { get; set; } = new();
-	public uint PlayerConditionId { get; set; }
-	public bool IgnoreFiltering { get; set; }
+    public uint Item { get; set; }
+    public uint Maxcount { get; set; } // 0 for infinity item amount
+    public uint Incrtime { get; set; } // time for restore items amount if maxcount != 0
+    public uint ExtendedCost { get; set; }
+    public ItemVendorType Type { get; set; }
+    public List<uint> BonusListIDs { get; set; } = new();
+    public uint PlayerConditionId { get; set; }
+    public bool IgnoreFiltering { get; set; }
 
-	public VendorItem() { }
+    public VendorItem() { }
 
-	public VendorItem(uint item, int maxcount, uint incrtime, uint extendedCost, ItemVendorType type)
-	{
-		Item = item;
-		Maxcount = (uint)maxcount;
-		Incrtime = incrtime;
-		ExtendedCost = extendedCost;
-		Type = type;
-	}
+    public VendorItem(uint item, int maxcount, uint incrtime, uint extendedCost, ItemVendorType type)
+    {
+        Item = item;
+        Maxcount = (uint)maxcount;
+        Incrtime = incrtime;
+        ExtendedCost = extendedCost;
+        Type = type;
+    }
 }

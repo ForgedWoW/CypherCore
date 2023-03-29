@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum UnitVisFlags
 {
-	Invisible = 0x01,
-	Stealthed = 0x02,
-	Untrackable = 0x04,
-	Unk4 = 0x08,
-	Unk5 = 0x10,
-	All = 0xFF
+    Invisible = 0x01,
+    Stealthed = 0x02,
+    Untrackable = 0x04,
+    Unk4 = 0x08,
+    Unk5 = 0x10,
+    All = 0xFF
 }

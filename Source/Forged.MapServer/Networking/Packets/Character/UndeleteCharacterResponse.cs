@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class UndeleteCharacterResponse : ServerPacket
 {
-	public CharacterUndeleteInfo UndeleteInfo;
-	public CharacterUndeleteResult Result;
-	public UndeleteCharacterResponse() : base(ServerOpcodes.UndeleteCharacterResponse) { }
+    public CharacterUndeleteInfo UndeleteInfo;
+    public CharacterUndeleteResult Result;
+    public UndeleteCharacterResponse() : base(ServerOpcodes.UndeleteCharacterResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(UndeleteInfo.ClientToken);
-		_worldPacket.WriteUInt32((uint)Result);
-		_worldPacket.WritePackedGuid(UndeleteInfo.CharacterGuid);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(UndeleteInfo.ClientToken);
+        _worldPacket.WriteUInt32((uint)Result);
+        _worldPacket.WritePackedGuid(UndeleteInfo.CharacterGuid);
+    }
 }

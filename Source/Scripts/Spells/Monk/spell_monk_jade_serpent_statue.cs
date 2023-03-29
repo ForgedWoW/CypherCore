@@ -11,23 +11,23 @@ namespace Scripts.Spells.Monk;
 [SpellScript(115313)]
 public class spell_monk_jade_serpent_statue : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var player = caster.AsPlayer;
+        var player = caster.AsPlayer;
 
-		if (player == null)
-			return;
+        if (player == null)
+            return;
 
-		var serpentStatueList = player.GetCreatureListWithEntryInGrid(MonkSpells.MONK_NPC_JADE_SERPENT_STATUE, 500.0f);
+        var serpentStatueList = player.GetCreatureListWithEntryInGrid(MonkSpells.MONK_NPC_JADE_SERPENT_STATUE, 500.0f);
 
-		serpentStatueList.RemoveIf(c => c.OwnerUnit == null || c.OwnerUnit != player || !c.IsSummon);
+        serpentStatueList.RemoveIf(c => c.OwnerUnit == null || c.OwnerUnit != player || !c.IsSummon);
 
-		if (serpentStatueList.Count >= 1)
-			serpentStatueList.Last().ToTempSummon().UnSummon();
-	}
+        if (serpentStatueList.Count >= 1)
+            serpentStatueList.Last().ToTempSummon().UnSummon();
+    }
 }

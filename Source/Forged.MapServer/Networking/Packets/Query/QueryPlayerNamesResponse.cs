@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class QueryPlayerNamesResponse : ServerPacket
 {
-	public List<NameCacheLookupResult> Players = new();
+    public List<NameCacheLookupResult> Players = new();
 
-	public QueryPlayerNamesResponse() : base(ServerOpcodes.QueryPlayerNamesResponse) { }
+    public QueryPlayerNamesResponse() : base(ServerOpcodes.QueryPlayerNamesResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Players.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Players.Count);
 
-		foreach (var lookupResult in Players)
-			lookupResult.Write(_worldPacket);
-	}
+        foreach (var lookupResult in Players)
+            lookupResult.Write(_worldPacket);
+    }
 }

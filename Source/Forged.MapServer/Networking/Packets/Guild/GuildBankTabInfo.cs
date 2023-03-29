@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public struct GuildBankTabInfo
 {
-	public int TabIndex;
-	public string Name;
-	public string Icon;
+    public int TabIndex;
+    public string Name;
+    public string Icon;
 }

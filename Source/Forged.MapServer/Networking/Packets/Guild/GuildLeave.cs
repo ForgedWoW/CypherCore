@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildLeave : ClientPacket
 {
-	public GuildLeave(WorldPacket packet) : base(packet) { }
+    public GuildLeave(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

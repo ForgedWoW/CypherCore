@@ -13,23 +13,23 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(210378)]
 public class aura_darkest_before_the_dawn : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDummy));
+    }
 
-	private void OnTick(AuraEffect UnnamedParameter)
-	{
-		var caster = Caster;
+    private void OnTick(AuraEffect UnnamedParameter)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var dawnTrigger = caster.GetAura(PaladinSpells.DARKEST_BEFORE_THE_DAWN);
+        var dawnTrigger = caster.GetAura(PaladinSpells.DARKEST_BEFORE_THE_DAWN);
 
-		if (dawnTrigger != null)
-			caster.AddAura(PaladinSpells.DARKEST_BEFORE_THE_DAWN_BUFF, caster);
-	}
+        if (dawnTrigger != null)
+            caster.AddAura(PaladinSpells.DARKEST_BEFORE_THE_DAWN_BUFF, caster);
+    }
 }

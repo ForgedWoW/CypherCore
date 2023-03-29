@@ -5,9 +5,9 @@ namespace Forged.MapServer.Collision.Management;
 
 public enum LoadResult
 {
-	Success,
-	FileNotFound,
-	VersionMismatch,
-	ReadFromFileFailed,
-	DisabledInConfig
+    Success,
+    FileNotFound,
+    VersionMismatch,
+    ReadFromFileFailed,
+    DisabledInConfig
 }

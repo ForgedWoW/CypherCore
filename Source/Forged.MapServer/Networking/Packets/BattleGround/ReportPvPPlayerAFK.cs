@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class ReportPvPPlayerAFK : ClientPacket
 {
-	public ObjectGuid Offender;
-	public ReportPvPPlayerAFK(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Offender;
+    public ReportPvPPlayerAFK(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Offender = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Offender = _worldPacket.ReadPackedGuid();
+    }
 }

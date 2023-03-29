@@ -12,20 +12,20 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(63106)]
 public class spell_warlock_siphon_life : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster;
-		var heal = caster.SpellHealingBonusDone(caster, SpellInfo, caster.CountPctFromMaxHealth(SpellInfo.GetEffect(effIndex).BasePoints), DamageEffectType.Heal, EffectInfo, 1, Spell);
-		heal /= 100; // 0.5%
-		heal = caster.SpellHealingBonusTaken(caster, SpellInfo, heal, DamageEffectType.Heal);
-		HitHeal = (int)heal;
-		PreventHitDefaultEffect(effIndex);
-	}
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster;
+        var heal = caster.SpellHealingBonusDone(caster, SpellInfo, caster.CountPctFromMaxHealth(SpellInfo.GetEffect(effIndex).BasePoints), DamageEffectType.Heal, EffectInfo, 1, Spell);
+        heal /= 100; // 0.5%
+        heal = caster.SpellHealingBonusTaken(caster, SpellInfo, heal, DamageEffectType.Heal);
+        HitHeal = (int)heal;
+        PreventHitDefaultEffect(effIndex);
+    }
 }

@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum UpdateCollisionHeightReason
 {
-	Scale = 0,
-	Mount = 1,
-	Force = 2
+    Scale = 0,
+    Mount = 1,
+    Force = 2
 }

@@ -12,13 +12,13 @@ public class IsVictimOf : ICheck<WorldObject>
 {
     private readonly WorldObject _victim;
 
-	public IsVictimOf(Unit attacker)
-	{
-		_victim = attacker?.Victim;
-	}
+    public IsVictimOf(Unit attacker)
+    {
+        _victim = attacker?.Victim;
+    }
 
-	public bool Invoke(WorldObject obj)
-	{
-		return obj != null && (_victim == obj);
-	}
+    public bool Invoke(WorldObject obj)
+    {
+        return obj != null && (_victim == obj);
+    }
 }

@@ -14,24 +14,24 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(187880)]
 public class spell_sha_maelstrom_weapon : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckProc(ProcEventInfo info)
-	{
-		return info.DamageInfo.AttackType == WeaponAttackType.BaseAttack || info.DamageInfo.AttackType == WeaponAttackType.OffAttack || info.SpellInfo.Id == ShamanSpells.WINDFURY_ATTACK;
-	}
+    public bool CheckProc(ProcEventInfo info)
+    {
+        return info.DamageInfo.AttackType == WeaponAttackType.BaseAttack || info.DamageInfo.AttackType == WeaponAttackType.OffAttack || info.SpellInfo.Id == ShamanSpells.WINDFURY_ATTACK;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	public void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		var caster = Caster;
+    public void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			caster.CastSpell(caster, ShamanSpells.MAELSTROM_WEAPON_POWER, true);
-	}
+        if (caster != null)
+            caster.CastSpell(caster, ShamanSpells.MAELSTROM_WEAPON_POWER, true);
+    }
 }

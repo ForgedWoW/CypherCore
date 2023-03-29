@@ -8,31 +8,31 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverQuestComplete : ServerPacket
 {
-	public uint QuestID;
-	public uint XPReward;
-	public long MoneyReward;
-	public uint SkillLineIDReward;
-	public uint NumSkillUpsReward;
-	public bool UseQuestReward;
-	public bool LaunchGossip;
-	public bool LaunchQuest;
-	public bool HideChatMessage;
-	public ItemInstance ItemReward = new();
-	public QuestGiverQuestComplete() : base(ServerOpcodes.QuestGiverQuestComplete) { }
+    public uint QuestID;
+    public uint XPReward;
+    public long MoneyReward;
+    public uint SkillLineIDReward;
+    public uint NumSkillUpsReward;
+    public bool UseQuestReward;
+    public bool LaunchGossip;
+    public bool LaunchQuest;
+    public bool HideChatMessage;
+    public ItemInstance ItemReward = new();
+    public QuestGiverQuestComplete() : base(ServerOpcodes.QuestGiverQuestComplete) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(QuestID);
-		_worldPacket.WriteUInt32(XPReward);
-		_worldPacket.WriteInt64(MoneyReward);
-		_worldPacket.WriteUInt32(SkillLineIDReward);
-		_worldPacket.WriteUInt32(NumSkillUpsReward);
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(QuestID);
+        _worldPacket.WriteUInt32(XPReward);
+        _worldPacket.WriteInt64(MoneyReward);
+        _worldPacket.WriteUInt32(SkillLineIDReward);
+        _worldPacket.WriteUInt32(NumSkillUpsReward);
 
-		_worldPacket.WriteBit(UseQuestReward);
-		_worldPacket.WriteBit(LaunchGossip);
-		_worldPacket.WriteBit(LaunchQuest);
-		_worldPacket.WriteBit(HideChatMessage);
+        _worldPacket.WriteBit(UseQuestReward);
+        _worldPacket.WriteBit(LaunchGossip);
+        _worldPacket.WriteBit(LaunchQuest);
+        _worldPacket.WriteBit(HideChatMessage);
 
-		ItemReward.Write(_worldPacket);
-	}
+        ItemReward.Write(_worldPacket);
+    }
 }

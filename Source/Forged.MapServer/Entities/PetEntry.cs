@@ -5,18 +5,18 @@ namespace Forged.MapServer.Entities;
 
 internal enum PetEntry
 {
-	// Warlock pets
-	Imp = 416,
-	FelHunter = 691,
-	VoidWalker = 1860,
-	Succubus = 1863,
-	Doomguard = 18540,
-	Felguard = 30146,
+    // Warlock pets
+    Imp = 416,
+    FelHunter = 691,
+    VoidWalker = 1860,
+    Succubus = 1863,
+    Doomguard = 18540,
+    Felguard = 30146,
 
-	// Death Knight pets
-	Ghoul = 26125,
-	Abomination = 106848,
+    // Death Knight pets
+    Ghoul = 26125,
+    Abomination = 106848,
 
-	// Shaman pet
-	SpiritWolf = 29264
+    // Shaman pet
+    SpiritWolf = 29264
 }

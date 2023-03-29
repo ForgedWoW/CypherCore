@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class SetActionBarToggles : ClientPacket
 {
-	public byte Mask;
-	public SetActionBarToggles(WorldPacket packet) : base(packet) { }
+    public byte Mask;
+    public SetActionBarToggles(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Mask = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        Mask = _worldPacket.ReadUInt8();
+    }
 }

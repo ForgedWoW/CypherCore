@@ -11,16 +11,16 @@ namespace Scripts.Spells.Warrior;
 [Script] // 107570 - Storm Bolt
 internal class spell_warr_storm_bolt : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleOnHit(int effIndex)
-	{
-		Caster.CastSpell(HitUnit, WarriorSpells.STORM_BOLT_STUN, true);
-	}
+    private void HandleOnHit(int effIndex)
+    {
+        Caster.CastSpell(HitUnit, WarriorSpells.STORM_BOLT_STUN, true);
+    }
 }

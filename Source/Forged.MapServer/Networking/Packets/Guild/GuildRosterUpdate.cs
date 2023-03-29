@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildRosterUpdate : ServerPacket
 {
-	public List<GuildRosterMemberData> MemberData;
+    public List<GuildRosterMemberData> MemberData;
 
-	public GuildRosterUpdate() : base(ServerOpcodes.GuildRosterUpdate)
-	{
-		MemberData = new List<GuildRosterMemberData>();
-	}
+    public GuildRosterUpdate() : base(ServerOpcodes.GuildRosterUpdate)
+    {
+        MemberData = new List<GuildRosterMemberData>();
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(MemberData.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(MemberData.Count);
 
-		MemberData.ForEach(p => p.Write(_worldPacket));
-	}
+        MemberData.ForEach(p => p.Write(_worldPacket));
+    }
 }

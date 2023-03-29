@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum UiMapType : uint
 {
-	Cosmic = 0,
-	World = 1,
-	Continent = 2,
-	Zone = 3,
-	Dungeon = 4,
-	Micro = 5,
-	Orphan = 6
+    Cosmic = 0,
+    World = 1,
+    Continent = 2,
+    Zone = 3,
+    Dungeon = 4,
+    Micro = 5,
+    Orphan = 6
 }

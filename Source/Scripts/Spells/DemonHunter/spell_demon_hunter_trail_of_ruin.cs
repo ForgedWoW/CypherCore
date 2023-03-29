@@ -11,8 +11,8 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(258881)]
 public class spell_demon_hunter_trail_of_ruin : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.SpellInfo.Id == Global.SpellMgr.GetSpellInfo(DemonHunterSpells.BLADE_DANCE, Difficulty.None).GetEffect(0).TriggerSpell;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.SpellInfo.Id == Global.SpellMgr.GetSpellInfo(DemonHunterSpells.BLADE_DANCE, Difficulty.None).GetEffect(0).TriggerSpell;
+    }
 }

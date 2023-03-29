@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class DistributionUpdate : ServerPacket
 {
-	public BpayDistributionObject DistributionObject { get; set; } = new();
+    public BpayDistributionObject DistributionObject { get; set; } = new();
 
-	public DistributionUpdate() : base(ServerOpcodes.BattlePayDistributionUpdate) { }
+    public DistributionUpdate() : base(ServerOpcodes.BattlePayDistributionUpdate) { }
 
-	public override void Write()
-	{
-		DistributionObject.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        DistributionObject.Write(_worldPacket);
+    }
 }

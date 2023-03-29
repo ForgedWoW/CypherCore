@@ -10,16 +10,16 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(118000)]
 public class spell_warr_dragon_roar : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var _player = Caster.AsPlayer;
+    public void OnHit()
+    {
+        var _player = Caster.AsPlayer;
 
-		if (_player != null)
-		{
-			var target = HitUnit;
+        if (_player != null)
+        {
+            var target = HitUnit;
 
-			if (target != null)
-				_player.CastSpell(target, WarriorSpells.DRAGON_ROAR_KNOCK_BACK, true);
-		}
-	}
+            if (target != null)
+                _player.CastSpell(target, WarriorSpells.DRAGON_ROAR_KNOCK_BACK, true);
+        }
+    }
 }

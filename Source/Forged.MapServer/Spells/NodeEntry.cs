@@ -8,7 +8,7 @@ namespace Forged.MapServer.Spells;
 
 internal class NodeEntry
 {
-	public TraitNodeEntryRecord Data;
-	public List<TraitCondRecord> Conditions = new();
-	public List<TraitCostRecord> Costs = new();
+    public TraitNodeEntryRecord Data;
+    public List<TraitCondRecord> Conditions = new();
+    public List<TraitCostRecord> Costs = new();
 }

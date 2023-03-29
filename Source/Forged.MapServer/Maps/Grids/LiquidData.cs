@@ -7,8 +7,8 @@ namespace Forged.MapServer.Maps.Grids;
 
 public class LiquidData
 {
-	public LiquidHeaderTypeFlags type_flags;
-	public uint entry;
-	public float level;
-	public float depth_level;
+    public LiquidHeaderTypeFlags type_flags;
+    public uint entry;
+    public float level;
+    public float depth_level;
 }

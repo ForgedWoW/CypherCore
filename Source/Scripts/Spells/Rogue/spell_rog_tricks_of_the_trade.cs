@@ -10,23 +10,23 @@ namespace Scripts.Spells.Rogue;
 [Script] // 57934 - Tricks of the Trade
 internal class spell_rog_tricks_of_the_trade : SpellScript, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		var aura = GetHitAura();
+    public void AfterHit()
+    {
+        var aura = GetHitAura();
 
-		if (aura != null)
-		{
-			var script = aura.GetScript<spell_rog_tricks_of_the_trade_aura>();
+        if (aura != null)
+        {
+            var script = aura.GetScript<spell_rog_tricks_of_the_trade_aura>();
 
-			if (script != null)
-			{
-				var explTarget = ExplTargetUnit;
+            if (script != null)
+            {
+                var explTarget = ExplTargetUnit;
 
-				if (explTarget != null)
-					script.SetRedirectTarget(explTarget.GUID);
-				else
-					script.SetRedirectTarget(ObjectGuid.Empty);
-			}
-		}
-	}
+                if (explTarget != null)
+                    script.SetRedirectTarget(explTarget.GUID);
+                else
+                    script.SetRedirectTarget(ObjectGuid.Empty);
+            }
+        }
+    }
 }

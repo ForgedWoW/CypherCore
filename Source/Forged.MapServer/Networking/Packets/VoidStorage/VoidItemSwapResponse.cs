@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
 internal class VoidItemSwapResponse : ServerPacket
 {
-	public ObjectGuid VoidItemA;
-	public ObjectGuid VoidItemB;
-	public uint VoidItemSlotA;
-	public uint VoidItemSlotB;
-	public VoidItemSwapResponse() : base(ServerOpcodes.VoidItemSwapResponse, ConnectionType.Instance) { }
+    public ObjectGuid VoidItemA;
+    public ObjectGuid VoidItemB;
+    public uint VoidItemSlotA;
+    public uint VoidItemSlotB;
+    public VoidItemSwapResponse() : base(ServerOpcodes.VoidItemSwapResponse, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(VoidItemA);
-		_worldPacket.WriteUInt32(VoidItemSlotA);
-		_worldPacket.WritePackedGuid(VoidItemB);
-		_worldPacket.WriteUInt32(VoidItemSlotB);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(VoidItemA);
+        _worldPacket.WriteUInt32(VoidItemSlotA);
+        _worldPacket.WritePackedGuid(VoidItemB);
+        _worldPacket.WriteUInt32(VoidItemSlotB);
+    }
 }

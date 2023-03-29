@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Artifact;
 
 internal class ArtifactSetAppearance : ClientPacket
 {
-	public ObjectGuid ArtifactGUID;
-	public ObjectGuid ForgeGUID;
-	public int ArtifactAppearanceID;
-	public ArtifactSetAppearance(WorldPacket packet) : base(packet) { }
+    public ObjectGuid ArtifactGUID;
+    public ObjectGuid ForgeGUID;
+    public int ArtifactAppearanceID;
+    public ArtifactSetAppearance(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ArtifactGUID = _worldPacket.ReadPackedGuid();
-		ForgeGUID = _worldPacket.ReadPackedGuid();
-		ArtifactAppearanceID = _worldPacket.ReadInt32();
-	}
+    public override void Read()
+    {
+        ArtifactGUID = _worldPacket.ReadPackedGuid();
+        ForgeGUID = _worldPacket.ReadPackedGuid();
+        ArtifactAppearanceID = _worldPacket.ReadInt32();
+    }
 }

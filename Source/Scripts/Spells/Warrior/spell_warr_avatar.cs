@@ -13,18 +13,18 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(107574)]
 public class spell_warr_avatar : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.AddPctModifier, AuraEffectHandleModes.Real));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.AddPctModifier, AuraEffectHandleModes.Real));
+    }
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var player = Caster.AsPlayer;
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var player = Caster.AsPlayer;
 
-		if (player != null)
-			player.RemoveMovementImpairingAuras(true);
-	}
+        if (player != null)
+            player.RemoveMovementImpairingAuras(true);
+    }
 }

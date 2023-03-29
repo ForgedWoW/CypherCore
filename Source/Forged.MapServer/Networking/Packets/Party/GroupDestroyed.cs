@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class GroupDestroyed : ServerPacket
 {
-	public GroupDestroyed() : base(ServerOpcodes.GroupDestroyed) { }
+    public GroupDestroyed() : base(ServerOpcodes.GroupDestroyed) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

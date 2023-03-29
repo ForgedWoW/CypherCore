@@ -13,17 +13,17 @@ namespace Scripts.Spells.Priest;
 [Script] // 28809 - Greater Heal
 internal class spell_pri_t3_4p_bonus : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		eventInfo.Actor.CastSpell(eventInfo.ProcTarget, PriestSpells.ARMOR_OF_FAITH, new CastSpellExtraArgs(aurEff));
-	}
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        eventInfo.Actor.CastSpell(eventInfo.ProcTarget, PriestSpells.ARMOR_OF_FAITH, new CastSpellExtraArgs(aurEff));
+    }
 }

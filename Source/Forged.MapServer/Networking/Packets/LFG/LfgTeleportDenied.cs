@@ -7,16 +7,16 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class LfgTeleportDenied : ServerPacket
 {
-	public LfgTeleportResult Reason;
+    public LfgTeleportResult Reason;
 
-	public LfgTeleportDenied(LfgTeleportResult reason) : base(ServerOpcodes.LfgTeleportDenied, ConnectionType.Instance)
-	{
-		Reason = reason;
-	}
+    public LfgTeleportDenied(LfgTeleportResult reason) : base(ServerOpcodes.LfgTeleportDenied, ConnectionType.Instance)
+    {
+        Reason = reason;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(Reason, 4);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBits(Reason, 4);
+        _worldPacket.FlushBits();
+    }
 }

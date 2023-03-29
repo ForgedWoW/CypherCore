@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum TransportMovementState
 {
-	Moving,
-	WaitingOnPauseWaypoint
+    Moving,
+    WaitingOnPauseWaypoint
 }

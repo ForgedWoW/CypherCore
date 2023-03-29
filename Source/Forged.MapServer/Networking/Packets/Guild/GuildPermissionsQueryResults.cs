@@ -8,35 +8,35 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildPermissionsQueryResults : ServerPacket
 {
-	public int NumTabs;
-	public int WithdrawGoldLimit;
-	public int Flags;
-	public uint RankID;
-	public List<GuildRankTabPermissions> Tab;
+    public int NumTabs;
+    public int WithdrawGoldLimit;
+    public int Flags;
+    public uint RankID;
+    public List<GuildRankTabPermissions> Tab;
 
-	public GuildPermissionsQueryResults() : base(ServerOpcodes.GuildPermissionsQueryResults)
-	{
-		Tab = new List<GuildRankTabPermissions>();
-	}
+    public GuildPermissionsQueryResults() : base(ServerOpcodes.GuildPermissionsQueryResults)
+    {
+        Tab = new List<GuildRankTabPermissions>();
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(RankID);
-		_worldPacket.WriteInt32(WithdrawGoldLimit);
-		_worldPacket.WriteInt32(Flags);
-		_worldPacket.WriteInt32(NumTabs);
-		_worldPacket.WriteInt32(Tab.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(RankID);
+        _worldPacket.WriteInt32(WithdrawGoldLimit);
+        _worldPacket.WriteInt32(Flags);
+        _worldPacket.WriteInt32(NumTabs);
+        _worldPacket.WriteInt32(Tab.Count);
 
-		foreach (var tab in Tab)
-		{
-			_worldPacket.WriteInt32(tab.Flags);
-			_worldPacket.WriteInt32(tab.WithdrawItemLimit);
-		}
-	}
+        foreach (var tab in Tab)
+        {
+            _worldPacket.WriteInt32(tab.Flags);
+            _worldPacket.WriteInt32(tab.WithdrawItemLimit);
+        }
+    }
 
-	public struct GuildRankTabPermissions
-	{
-		public int Flags;
-		public int WithdrawItemLimit;
-	}
+    public struct GuildRankTabPermissions
+    {
+        public int Flags;
+        public int WithdrawItemLimit;
+    }
 }

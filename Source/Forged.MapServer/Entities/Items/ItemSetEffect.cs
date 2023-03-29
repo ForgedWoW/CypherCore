@@ -8,7 +8,7 @@ namespace Forged.MapServer.Entities.Items;
 
 public class ItemSetEffect
 {
-	public uint ItemSetId { get; set; }
-	public List<Item> EquippedItems { get; set; } = new();
-	public List<ItemSetSpellRecord> SetBonuses { get; set; } = new();
+    public uint ItemSetId { get; set; }
+    public List<Item> EquippedItems { get; set; } = new();
+    public List<ItemSetSpellRecord> SetBonuses { get; set; } = new();
 }

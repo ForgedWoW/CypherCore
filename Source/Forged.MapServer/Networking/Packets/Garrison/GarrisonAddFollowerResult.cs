@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonAddFollowerResult : ServerPacket
 {
-	public GarrisonType GarrTypeID;
-	public GarrisonFollower Follower;
-	public GarrisonError Result;
-	public GarrisonAddFollowerResult() : base(ServerOpcodes.GarrisonAddFollowerResult, ConnectionType.Instance) { }
+    public GarrisonType GarrTypeID;
+    public GarrisonFollower Follower;
+    public GarrisonError Result;
+    public GarrisonAddFollowerResult() : base(ServerOpcodes.GarrisonAddFollowerResult, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32((int)GarrTypeID);
-		_worldPacket.WriteUInt32((uint)Result);
-		Follower.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32((int)GarrTypeID);
+        _worldPacket.WriteUInt32((uint)Result);
+        Follower.Write(_worldPacket);
+    }
 }

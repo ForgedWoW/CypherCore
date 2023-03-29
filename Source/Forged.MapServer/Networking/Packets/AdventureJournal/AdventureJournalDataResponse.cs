@@ -8,20 +8,20 @@ namespace Forged.MapServer.Networking.Packets.AdventureJournal;
 
 internal class AdventureJournalDataResponse : ServerPacket
 {
-	public bool OnLevelUp;
-	public List<AdventureJournalEntry> AdventureJournalDatas = new();
-	public AdventureJournalDataResponse() : base(ServerOpcodes.AdventureJournalDataResponse) { }
+    public bool OnLevelUp;
+    public List<AdventureJournalEntry> AdventureJournalDatas = new();
+    public AdventureJournalDataResponse() : base(ServerOpcodes.AdventureJournalDataResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(OnLevelUp);
-		_worldPacket.FlushBits();
-		_worldPacket.WriteInt32(AdventureJournalDatas.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteBit(OnLevelUp);
+        _worldPacket.FlushBits();
+        _worldPacket.WriteInt32(AdventureJournalDatas.Count);
 
-		foreach (var adventureJournal in AdventureJournalDatas)
-		{
-			_worldPacket.WriteInt32(adventureJournal.AdventureJournalID);
-			_worldPacket.WriteInt32(adventureJournal.Priority);
-		}
-	}
+        foreach (var adventureJournal in AdventureJournalDatas)
+        {
+            _worldPacket.WriteInt32(adventureJournal.AdventureJournalID);
+            _worldPacket.WriteInt32(adventureJournal.Priority);
+        }
+    }
 }

@@ -10,10 +10,10 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.EYE_OF_INFINITY)]
 public class aura_evoker_eye_of_infinity : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo info)
-	{
-		return info.SpellInfo.Id == EvokerSpells.ETERNITY_SURGE_CHARGED &&
-				info.DamageInfo != null &&
-				info.DamageInfo.IsCritical;
-	}
+    public bool CheckProc(ProcEventInfo info)
+    {
+        return info.SpellInfo.Id == EvokerSpells.ETERNITY_SURGE_CHARGED &&
+               info.DamageInfo != null &&
+               info.DamageInfo.IsCritical;
+    }
 }

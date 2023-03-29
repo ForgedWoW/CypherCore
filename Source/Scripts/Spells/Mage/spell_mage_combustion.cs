@@ -13,30 +13,30 @@ namespace Scripts.Spells.Mage;
 [SpellScript(190319)]
 public class spell_mage_combustion : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 1, AuraType.ModRating));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 1, AuraType.ModRating, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 1, AuraType.ModRating));
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 1, AuraType.ModRating, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void CalcAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		var caster = Caster;
+    private void CalcAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (!caster.IsPlayer)
-			return;
+        if (!caster.IsPlayer)
+            return;
 
-		var crit = caster.AsPlayer.GetRatingBonusValue(CombatRating.CritSpell);
-		amount.Value += crit;
-	}
+        var crit = caster.AsPlayer.GetRatingBonusValue(CombatRating.CritSpell);
+        amount.Value += crit;
+    }
 
-	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		Caster.RemoveAura(MageSpells.INFERNO);
-	}
+    private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        Caster.RemoveAura(MageSpells.INFERNO);
+    }
 }

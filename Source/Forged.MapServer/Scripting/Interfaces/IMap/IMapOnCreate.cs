@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IMap;
 
 public interface IMapOnCreate<T> : IScriptObject where T : Map
 {
-	void OnCreate(T map);
+    void OnCreate(T map);
 }

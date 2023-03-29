@@ -12,25 +12,25 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(1680)]
 public class spell_warr_wirlwind_dmg : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public void HandleOnHitTarget(int effIndex)
-	{
-		var caster = Caster.AsPlayer;
+    public void HandleOnHitTarget(int effIndex)
+    {
+        var caster = Caster.AsPlayer;
 
-		if (caster != null)
-			if (caster.HasAura(202316)) // Fervor of Battle
-			{
-				var target = caster.SelectedUnit;
+        if (caster != null)
+            if (caster.HasAura(202316)) // Fervor of Battle
+            {
+                var target = caster.SelectedUnit;
 
-				if (target != null)
-					if (caster.IsValidAttackTarget(target))
-						caster.CastSpell(target, WarriorSpells.SLAM_ARMS, true);
-			}
-	}
+                if (target != null)
+                    if (caster.IsValidAttackTarget(target))
+                        caster.CastSpell(target, WarriorSpells.SLAM_ARMS, true);
+            }
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 0, SpellEffectName.TriggerSpell, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 0, SpellEffectName.TriggerSpell, SpellScriptHookType.EffectHitTarget));
+    }
 }

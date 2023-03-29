@@ -5,5 +5,5 @@ namespace Framework.Constants;
 
 public enum ChrCustomizationOptionFlag
 {
-	Disabled = 0x04
+    Disabled = 0x04
 }

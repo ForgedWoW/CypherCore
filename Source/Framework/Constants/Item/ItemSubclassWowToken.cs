@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum ItemSubclassWowToken
 {
-	WowToken = 0,
-	Max = 1
+    WowToken = 0,
+    Max = 1
 }

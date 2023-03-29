@@ -7,16 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Bank;
 
 public class AutoStoreBankItem : ClientPacket
 {
-	public InvUpdate Inv;
-	public byte Bag;
-	public byte Slot;
+    public InvUpdate Inv;
+    public byte Bag;
+    public byte Slot;
 
-	public AutoStoreBankItem(WorldPacket packet) : base(packet) { }
+    public AutoStoreBankItem(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Inv = new InvUpdate(_worldPacket);
-		Bag = _worldPacket.ReadUInt8();
-		Slot = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        Inv = new InvUpdate(_worldPacket);
+        Bag = _worldPacket.ReadUInt8();
+        Slot = _worldPacket.ReadUInt8();
+    }
 }

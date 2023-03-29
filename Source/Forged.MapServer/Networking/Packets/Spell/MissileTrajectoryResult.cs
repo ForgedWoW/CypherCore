@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct MissileTrajectoryResult
 {
-	public uint TravelTime;
-	public float Pitch;
+    public uint TravelTime;
+    public float Pitch;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(TravelTime);
-		data.WriteFloat(Pitch);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(TravelTime);
+        data.WriteFloat(Pitch);
+    }
 }

@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum BattlefieldState
 {
-	Inactive = 0,
-	Warnup = 1,
-	InProgress = 2
+    Inactive = 0,
+    Warnup = 1,
+    InProgress = 2
 }

@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.AreaTrigger;
 
 internal class AreaTriggerNoCorpse : ServerPacket
 {
-	public AreaTriggerNoCorpse() : base(ServerOpcodes.AreaTriggerNoCorpse) { }
+    public AreaTriggerNoCorpse() : base(ServerOpcodes.AreaTriggerNoCorpse) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

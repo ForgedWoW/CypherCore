@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class LfgOfferContinue : ServerPacket
 {
-	public uint Slot;
+    public uint Slot;
 
-	public LfgOfferContinue(uint slot) : base(ServerOpcodes.LfgOfferContinue, ConnectionType.Instance)
-	{
-		Slot = slot;
-	}
+    public LfgOfferContinue(uint slot) : base(ServerOpcodes.LfgOfferContinue, ConnectionType.Instance)
+    {
+        Slot = slot;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(Slot);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(Slot);
+    }
 }

@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class RoleChosen : ServerPacket
 {
-	public ObjectGuid Player;
-	public LfgRoles RoleMask;
-	public bool Accepted;
-	public RoleChosen() : base(ServerOpcodes.RoleChosen) { }
+    public ObjectGuid Player;
+    public LfgRoles RoleMask;
+    public bool Accepted;
+    public RoleChosen() : base(ServerOpcodes.RoleChosen) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Player);
-		_worldPacket.WriteUInt32((uint)RoleMask);
-		_worldPacket.WriteBit(Accepted);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Player);
+        _worldPacket.WriteUInt32((uint)RoleMask);
+        _worldPacket.WriteBit(Accepted);
+        _worldPacket.FlushBits();
+    }
 }

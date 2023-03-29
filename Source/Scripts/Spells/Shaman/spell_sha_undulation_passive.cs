@@ -14,21 +14,21 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(200071)]
 internal class spell_sha_undulation_passive : AuraScript, IHasAuraEffects
 {
-	private byte _castCounter = 1; // first proc happens after two casts, then one every 3 casts
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    private byte _castCounter = 1; // first proc happens after two casts, then one every 3 casts
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		if (++_castCounter == 3)
-		{
-			Target.CastSpell(Target, ShamanSpells.UndulationProc, true);
-			_castCounter = 0;
-		}
-	}
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        if (++_castCounter == 3)
+        {
+            Target.CastSpell(Target, ShamanSpells.UndulationProc, true);
+            _castCounter = 0;
+        }
+    }
 }

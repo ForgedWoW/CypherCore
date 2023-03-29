@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum WeaponDamageRange
 {
-	MinDamage,
-	MaxDamage
+    MinDamage,
+    MaxDamage
 }

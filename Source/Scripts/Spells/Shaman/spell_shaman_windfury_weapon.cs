@@ -12,24 +12,24 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(8232)]
 public class spell_shaman_windfury_weapon : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var auraEffect = caster.GetAuraEffect(ShamanSpells.WINDFURY_WEAPON_PASSIVE, 0);
+        if (caster != null)
+        {
+            var auraEffect = caster.GetAuraEffect(ShamanSpells.WINDFURY_WEAPON_PASSIVE, 0);
 
-			if (auraEffect != null)
-				auraEffect.SetAmount(EffectValue);
-		}
-	}
+            if (auraEffect != null)
+                auraEffect.SetAmount(EffectValue);
+        }
+    }
 }

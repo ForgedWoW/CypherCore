@@ -7,17 +7,17 @@ namespace Forged.MapServer.Networking.Packets.Taxi;
 
 internal class ActivateTaxi : ClientPacket
 {
-	public ObjectGuid Vendor;
-	public uint Node;
-	public uint GroundMountID;
-	public uint FlyingMountID;
-	public ActivateTaxi(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Vendor;
+    public uint Node;
+    public uint GroundMountID;
+    public uint FlyingMountID;
+    public ActivateTaxi(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Vendor = _worldPacket.ReadPackedGuid();
-		Node = _worldPacket.ReadUInt32();
-		GroundMountID = _worldPacket.ReadUInt32();
-		FlyingMountID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        Vendor = _worldPacket.ReadPackedGuid();
+        Node = _worldPacket.ReadUInt32();
+        GroundMountID = _worldPacket.ReadUInt32();
+        FlyingMountID = _worldPacket.ReadUInt32();
+    }
 }

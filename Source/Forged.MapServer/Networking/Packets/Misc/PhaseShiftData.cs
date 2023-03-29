@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class PhaseShiftData
 {
-	public uint PhaseShiftFlags;
-	public List<PhaseShiftDataPhase> Phases = new();
-	public ObjectGuid PersonalGUID;
+    public uint PhaseShiftFlags;
+    public List<PhaseShiftDataPhase> Phases = new();
+    public ObjectGuid PersonalGUID;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(PhaseShiftFlags);
-		data.WriteInt32(Phases.Count);
-		data.WritePackedGuid(PersonalGUID);
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(PhaseShiftFlags);
+        data.WriteInt32(Phases.Count);
+        data.WritePackedGuid(PersonalGUID);
 
-		foreach (var phaseShiftDataPhase in Phases)
-			phaseShiftDataPhase.Write(data);
-	}
+        foreach (var phaseShiftDataPhase in Phases)
+            phaseShiftDataPhase.Write(data);
+    }
 }

@@ -12,9 +12,13 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.GREEN_DREAM_BREATH, EvokerSpells.GREEN_DREAM_BREATH_2)]
 internal class spell_evoker_dream_breath : SpellScript, ISpellOnEpowerSpellEnd
 {
-	public void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta)
+    public void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta)
     {
-        var args = new CastSpellExtraArgs(TriggerCastFlags.TriggeredAllowProc) { EmpowerStage = stage.Stage };
-		Caster.CastSpell(new CastSpellTargetArg(), EvokerSpells.GREEN_DREAM_BREATH_CHARGED, args);
-	}
+        var args = new CastSpellExtraArgs(TriggerCastFlags.TriggeredAllowProc)
+        {
+            EmpowerStage = stage.Stage
+        };
+
+        Caster.CastSpell(new CastSpellTargetArg(), EvokerSpells.GREEN_DREAM_BREATH_CHARGED, args);
+    }
 }

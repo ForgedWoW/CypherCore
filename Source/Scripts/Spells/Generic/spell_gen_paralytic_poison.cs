@@ -13,19 +13,19 @@ namespace Scripts.Spells.Generic;
 [Script] // 35201 - Paralytic Poison
 internal class spell_gen_paralytic_poison : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleStun, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleStun, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void HandleStun(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)
-			return;
+    private void HandleStun(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)
+            return;
 
-		Target.CastSpell((Unit)null, GenericSpellIds.Paralysis, new CastSpellExtraArgs(aurEff));
-	}
+        Target.CastSpell((Unit)null, GenericSpellIds.Paralysis, new CastSpellExtraArgs(aurEff));
+    }
 }

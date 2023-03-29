@@ -5,6 +5,6 @@ namespace Forged.MapServer.DataStorage.Structs.T;
 
 public sealed class TactKeyRecord
 {
-	public uint Id;
-	public byte[] Key = new byte[16];
+    public uint Id;
+    public byte[] Key = new byte[16];
 }

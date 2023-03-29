@@ -11,21 +11,21 @@ public class SplineRawInitializer
 {
     private readonly List<Vector3> _points;
 
-	public SplineRawInitializer(List<Vector3> points)
-	{
-		_points = points;
-	}
+    public SplineRawInitializer(List<Vector3> points)
+    {
+        _points = points;
+    }
 
-	public void Initialize(ref EvaluationMode mode, ref bool cyclic, ref Vector3[] points, ref int lo, ref int hi)
-	{
-		mode = EvaluationMode.Catmullrom;
-		cyclic = false;
-		points = new Vector3[_points.Count];
+    public void Initialize(ref EvaluationMode mode, ref bool cyclic, ref Vector3[] points, ref int lo, ref int hi)
+    {
+        mode = EvaluationMode.Catmullrom;
+        cyclic = false;
+        points = new Vector3[_points.Count];
 
-		for (var i = 0; i < _points.Count; ++i)
-			points[i] = _points[i];
+        for (var i = 0; i < _points.Count; ++i)
+            points[i] = _points[i];
 
-		lo = 1;
-		hi = points.Length - 2;
-	}
+        lo = 1;
+        hi = points.Length - 2;
+    }
 }

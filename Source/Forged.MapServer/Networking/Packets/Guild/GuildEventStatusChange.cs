@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventStatusChange : ServerPacket
 {
-	public ObjectGuid Guid;
-	public bool AFK;
-	public bool DND;
-	public GuildEventStatusChange() : base(ServerOpcodes.GuildEventStatusChange) { }
+    public ObjectGuid Guid;
+    public bool AFK;
+    public bool DND;
+    public GuildEventStatusChange() : base(ServerOpcodes.GuildEventStatusChange) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Guid);
-		_worldPacket.WriteBit(AFK);
-		_worldPacket.WriteBit(DND);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Guid);
+        _worldPacket.WriteBit(AFK);
+        _worldPacket.WriteBit(DND);
+        _worldPacket.FlushBits();
+    }
 }

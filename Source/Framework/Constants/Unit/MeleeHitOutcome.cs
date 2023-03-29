@@ -5,13 +5,13 @@ namespace Framework.Constants;
 
 public enum MeleeHitOutcome
 {
-	Evade,
-	Miss,
-	Dodge,
-	Block,
-	Parry,
-	Glancing,
-	Crit,
-	Crushing,
-	Normal
+    Evade,
+    Miss,
+    Dodge,
+    Block,
+    Parry,
+    Glancing,
+    Crit,
+    Crushing,
+    Normal
 }

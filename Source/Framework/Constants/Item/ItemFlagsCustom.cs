@@ -8,7 +8,7 @@ namespace Framework.Constants;
 [Flags]
 public enum ItemFlagsCustom
 {
-	Unused = 0x0001,
-	IgnoreQuestStatus = 0x0002, // No quest status will be checked when this item drops
-	FollowLootRules = 0x0004    // Item will always follow group/master/need before greed looting rules
+    Unused = 0x0001,
+    IgnoreQuestStatus = 0x0002, // No quest status will be checked when this item drops
+    FollowLootRules = 0x0004    // Item will always follow group/master/need before greed looting rules
 }

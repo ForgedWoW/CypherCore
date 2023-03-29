@@ -9,19 +9,19 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class PlayObjectSound : ServerPacket
 {
-	public ObjectGuid TargetObjectGUID;
-	public ObjectGuid SourceObjectGUID;
-	public uint SoundKitID;
-	public Vector3 Position;
-	public int BroadcastTextID;
-	public PlayObjectSound() : base(ServerOpcodes.PlayObjectSound) { }
+    public ObjectGuid TargetObjectGUID;
+    public ObjectGuid SourceObjectGUID;
+    public uint SoundKitID;
+    public Vector3 Position;
+    public int BroadcastTextID;
+    public PlayObjectSound() : base(ServerOpcodes.PlayObjectSound) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(SoundKitID);
-		_worldPacket.WritePackedGuid(SourceObjectGUID);
-		_worldPacket.WritePackedGuid(TargetObjectGUID);
-		_worldPacket.WriteVector3(Position);
-		_worldPacket.WriteInt32(BroadcastTextID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(SoundKitID);
+        _worldPacket.WritePackedGuid(SourceObjectGUID);
+        _worldPacket.WritePackedGuid(TargetObjectGUID);
+        _worldPacket.WriteVector3(Position);
+        _worldPacket.WriteInt32(BroadcastTextID);
+    }
 }

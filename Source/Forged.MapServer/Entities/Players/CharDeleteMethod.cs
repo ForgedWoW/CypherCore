@@ -5,8 +5,8 @@ namespace Forged.MapServer.Entities.Players;
 
 public enum CharDeleteMethod
 {
-	Remove = 0, // Completely remove from the database
+    Remove = 0, // Completely remove from the database
 
-	Unlink = 1 // The character gets unlinked from the account,
-	// the name gets freed up and appears as deleted ingame
+    Unlink = 1 // The character gets unlinked from the account,
+    // the name gets freed up and appears as deleted ingame
 }

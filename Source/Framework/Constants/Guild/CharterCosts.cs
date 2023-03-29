@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public struct CharterCosts
 {
-	public const uint Guild = 1000;
-	public const uint Arena2v2 = 800000;
-	public const uint Arena3v3 = 1200000;
-	public const uint Arena5v5 = 2000000;
+    public const uint Guild = 1000;
+    public const uint Arena2v2 = 800000;
+    public const uint Arena3v3 = 1200000;
+    public const uint Arena5v5 = 2000000;
 }

@@ -11,44 +11,44 @@ namespace Scripts.Spells.Mage;
 [SpellScript(84721)]
 public class spell_mage_frozen_orb : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		caster.CastSpell(target, MageSpells.CHILLED, true);
+        caster.CastSpell(target, MageSpells.CHILLED, true);
 
-		// Fingers of Frost
-		if (caster.HasSpell(MageSpells.FINGERS_OF_FROST))
-		{
-			var fingersFrostChance = 10.0f;
+        // Fingers of Frost
+        if (caster.HasSpell(MageSpells.FINGERS_OF_FROST))
+        {
+            var fingersFrostChance = 10.0f;
 
-			if (caster.HasAura(MageSpells.FROZEN_TOUCH))
-			{
-				var frozenEff0 = caster.GetAuraEffect(MageSpells.FROZEN_TOUCH, 0);
+            if (caster.HasAura(MageSpells.FROZEN_TOUCH))
+            {
+                var frozenEff0 = caster.GetAuraEffect(MageSpells.FROZEN_TOUCH, 0);
 
-				if (frozenEff0 != null)
-				{
-					var pct = frozenEff0.Amount;
-					MathFunctions.AddPct(ref fingersFrostChance, pct);
-				}
-			}
+                if (frozenEff0 != null)
+                {
+                    var pct = frozenEff0.Amount;
+                    MathFunctions.AddPct(ref fingersFrostChance, pct);
+                }
+            }
 
-			if (RandomHelper.randChance(fingersFrostChance))
-			{
-				caster.CastSpell(caster, MageSpells.FINGERS_OF_FROST_VISUAL_UI, true);
-				caster.CastSpell(caster, MageSpells.FINGERS_OF_FROST_AURA, true);
-			}
-		}
-	}
+            if (RandomHelper.randChance(fingersFrostChance))
+            {
+                caster.CastSpell(caster, MageSpells.FINGERS_OF_FROST_VISUAL_UI, true);
+                caster.CastSpell(caster, MageSpells.FINGERS_OF_FROST_AURA, true);
+            }
+        }
+    }
 }

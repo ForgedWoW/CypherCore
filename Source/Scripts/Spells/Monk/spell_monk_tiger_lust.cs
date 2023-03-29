@@ -11,19 +11,19 @@ namespace Scripts.Spells.Monk;
 [SpellScript(116841)]
 public class spell_monk_tiger_lust : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleDummy(int effIndex)
+    {
+        var target = HitUnit;
 
-		if (target != null)
-			target.RemoveMovementImpairingAuras(false);
-	}
+        if (target != null)
+            target.RemoveMovementImpairingAuras(false);
+    }
 }

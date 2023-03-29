@@ -5,14 +5,14 @@ namespace Forged.MapServer.Text;
 
 public class CreatureTextId
 {
-	public uint entry;
-	public uint textGroup;
-	public uint textId;
+    public uint entry;
+    public uint textGroup;
+    public uint textId;
 
-	public CreatureTextId(uint e, uint g, uint i)
-	{
-		entry = e;
-		textGroup = g;
-		textId = i;
-	}
+    public CreatureTextId(uint e, uint g, uint i)
+    {
+        entry = e;
+        textGroup = g;
+        textId = i;
+    }
 }

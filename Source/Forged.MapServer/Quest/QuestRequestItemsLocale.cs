@@ -8,5 +8,5 @@ namespace Forged.MapServer.Quest;
 
 public class QuestRequestItemsLocale
 {
-	public StringArray CompletionText = new((int)Locale.Total);
+    public StringArray CompletionText = new((int)Locale.Total);
 }

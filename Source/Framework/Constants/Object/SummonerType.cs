@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum SummonerType
 {
-	Creature = 0,
-	GameObject = 1,
-	Map = 2
+    Creature = 0,
+    GameObject = 1,
+    Map = 2
 }

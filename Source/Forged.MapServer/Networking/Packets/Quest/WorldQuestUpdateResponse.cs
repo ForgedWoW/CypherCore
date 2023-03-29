@@ -9,19 +9,19 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 internal class WorldQuestUpdateResponse : ServerPacket
 {
     private readonly List<WorldQuestUpdateInfo> WorldQuestUpdates = new();
-	public WorldQuestUpdateResponse() : base(ServerOpcodes.WorldQuestUpdateResponse, ConnectionType.Instance) { }
+    public WorldQuestUpdateResponse() : base(ServerOpcodes.WorldQuestUpdateResponse, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(WorldQuestUpdates.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(WorldQuestUpdates.Count);
 
-		foreach (var worldQuestUpdate in WorldQuestUpdates)
-		{
-			_worldPacket.WriteInt64(worldQuestUpdate.LastUpdate);
-			_worldPacket.WriteUInt32(worldQuestUpdate.QuestID);
-			_worldPacket.WriteUInt32(worldQuestUpdate.Timer);
-			_worldPacket.WriteInt32(worldQuestUpdate.VariableID);
-			_worldPacket.WriteInt32(worldQuestUpdate.Value);
-		}
-	}
+        foreach (var worldQuestUpdate in WorldQuestUpdates)
+        {
+            _worldPacket.WriteInt64(worldQuestUpdate.LastUpdate);
+            _worldPacket.WriteUInt32(worldQuestUpdate.QuestID);
+            _worldPacket.WriteUInt32(worldQuestUpdate.Timer);
+            _worldPacket.WriteInt32(worldQuestUpdate.VariableID);
+            _worldPacket.WriteInt32(worldQuestUpdate.Value);
+        }
+    }
 }

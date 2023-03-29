@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum FriendshipReputationFlags : int
 {
-	NoFXOnReactionChange = 0x01,
-	NoLogTextOnRepGain = 0x02,
-	NoLogTextOnReactionChange = 0x04,
-	ShowRepGainandReactionChangeForHiddenFaction = 0x08,
-	NoRepGainModifiers = 0x10
+    NoFXOnReactionChange = 0x01,
+    NoLogTextOnRepGain = 0x02,
+    NoLogTextOnReactionChange = 0x04,
+    ShowRepGainandReactionChangeForHiddenFaction = 0x08,
+    NoRepGainModifiers = 0x10
 }

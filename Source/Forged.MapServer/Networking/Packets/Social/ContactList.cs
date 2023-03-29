@@ -9,21 +9,21 @@ namespace Forged.MapServer.Networking.Packets.Social;
 
 public class ContactList : ServerPacket
 {
-	public List<ContactInfo> Contacts;
-	public SocialFlag Flags;
+    public List<ContactInfo> Contacts;
+    public SocialFlag Flags;
 
-	public ContactList() : base(ServerOpcodes.ContactList)
-	{
-		Contacts = new List<ContactInfo>();
-	}
+    public ContactList() : base(ServerOpcodes.ContactList)
+    {
+        Contacts = new List<ContactInfo>();
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32((uint)Flags);
-		_worldPacket.WriteBits(Contacts.Count, 8);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32((uint)Flags);
+        _worldPacket.WriteBits(Contacts.Count, 8);
+        _worldPacket.FlushBits();
 
-		foreach (var contact in Contacts)
-			contact.Write(_worldPacket);
-	}
+        foreach (var contact in Contacts)
+            contact.Write(_worldPacket);
+    }
 }

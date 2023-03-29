@@ -10,11 +10,11 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(201082)]
 public class spell_hun_way_of_the_moknathal : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo.Id == HunterSpells.RAPTOR_STRIKE)
-			return true;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo.Id == HunterSpells.RAPTOR_STRIKE)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum ReputationSource
 {
-	Kill,
-	Quest,
-	DailyQuest,
-	WeeklyQuest,
-	MonthlyQuest,
-	RepeatableQuest,
-	Spell
+    Kill,
+    Quest,
+    DailyQuest,
+    WeeklyQuest,
+    MonthlyQuest,
+    RepeatableQuest,
+    Spell
 }

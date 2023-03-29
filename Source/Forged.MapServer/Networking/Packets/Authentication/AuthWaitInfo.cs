@@ -5,15 +5,15 @@ namespace Forged.MapServer.Networking.Packets.Authentication;
 
 public struct AuthWaitInfo
 {
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt32(WaitCount);
-		data.WriteUInt32(WaitTime);
-		data.WriteBit(HasFCM);
-		data.FlushBits();
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(WaitCount);
+        data.WriteUInt32(WaitTime);
+        data.WriteBit(HasFCM);
+        data.FlushBits();
+    }
 
-	public uint WaitCount; // position of the account in the login queue
-	public uint WaitTime;  // Wait time in login queue in minutes, if sent queued and this value is 0 client displays "unknown time"
-	public bool HasFCM;    // true if the account has a forced character migration pending. @todo implement
+    public uint WaitCount; // position of the account in the login queue
+    public uint WaitTime;  // Wait time in login queue in minutes, if sent queued and this value is 0 client displays "unknown time"
+    public bool HasFCM;    // true if the account has a forced character migration pending. @todo implement
 }

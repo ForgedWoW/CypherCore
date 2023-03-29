@@ -8,12 +8,12 @@ namespace Forged.MapServer.Scripting.BaseScripts;
 
 public class BattlegroundMapScript : MapScript<BattlegroundMap>
 {
-	public BattlegroundMapScript(string name, uint mapId) : base(name, mapId)
-	{
-		if (GetEntry() != null &&
-			GetEntry().IsBattleground())
-			Log.Logger.Error("BattlegroundMapScript for map {0} is invalid.", mapId);
+    public BattlegroundMapScript(string name, uint mapId) : base(name, mapId)
+    {
+        if (GetEntry() != null &&
+            GetEntry().IsBattleground())
+            Log.Logger.Error("BattlegroundMapScript for map {0} is invalid.", mapId);
 
-		Global.ScriptMgr.AddScript(this);
-	}
+        Global.ScriptMgr.AddScript(this);
+    }
 }

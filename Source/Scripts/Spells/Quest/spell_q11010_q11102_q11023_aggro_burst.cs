@@ -12,19 +12,19 @@ namespace Scripts.Spells.Quest;
 [Script] // 40119 Knockdown Fel Cannon: The Aggro Burst
 internal class spell_q11010_q11102_q11023_aggro_burst : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
+    }
 
-	private void HandleEffectPeriodic(AuraEffect aurEff)
-	{
-		var target = Target;
+    private void HandleEffectPeriodic(AuraEffect aurEff)
+    {
+        var target = Target;
 
-		if (target)
-			// On each tick cast Choose Loc to trigger summon
-			target.CastSpell(target, QuestSpellIds.ChooseLoc);
-	}
+        if (target)
+            // On each tick cast Choose Loc to trigger summon
+            target.CastSpell(target, QuestSpellIds.ChooseLoc);
+    }
 }

@@ -7,12 +7,12 @@ namespace Forged.MapServer.AuctionHouse;
 
 public class AuctionThrottleResult
 {
-	public TimeSpan DelayUntilNext;
-	public bool Throttled;
+    public TimeSpan DelayUntilNext;
+    public bool Throttled;
 
-	public AuctionThrottleResult(TimeSpan delayUntilNext, bool throttled)
-	{
-		DelayUntilNext = delayUntilNext;
-		Throttled = throttled;
-	}
+    public AuctionThrottleResult(TimeSpan delayUntilNext, bool throttled)
+    {
+        DelayUntilNext = delayUntilNext;
+        Throttled = throttled;
+    }
 }

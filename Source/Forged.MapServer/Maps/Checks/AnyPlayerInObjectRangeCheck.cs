@@ -13,21 +13,21 @@ public class AnyPlayerInObjectRangeCheck : ICheck<Player>
     private readonly float _range;
     private readonly bool _reqAlive;
 
-	public AnyPlayerInObjectRangeCheck(WorldObject obj, float range, bool reqAlive = true)
-	{
-		_obj = obj;
-		_range = range;
-		_reqAlive = reqAlive;
-	}
+    public AnyPlayerInObjectRangeCheck(WorldObject obj, float range, bool reqAlive = true)
+    {
+        _obj = obj;
+        _range = range;
+        _reqAlive = reqAlive;
+    }
 
-	public bool Invoke(Player pl)
-	{
-		if (_reqAlive && !pl.IsAlive)
-			return false;
+    public bool Invoke(Player pl)
+    {
+        if (_reqAlive && !pl.IsAlive)
+            return false;
 
-		if (!_obj.IsWithinDist(pl, _range))
-			return false;
+        if (!_obj.IsWithinDist(pl, _range))
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 }

@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum LfgFlags
 {
-	Unk1 = 0x1,
-	Unk2 = 0x2,
-	Seasonal = 0x4,
-	Unk3 = 0x8
+    Unk1 = 0x1,
+    Unk2 = 0x2,
+    Seasonal = 0x4,
+    Unk3 = 0x8
 }

@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum AreaHeaderFlags : ushort
 {
-	None = 0x0000,
-	NoArea = 0x0001
+    None = 0x0000,
+    NoArea = 0x0001
 }

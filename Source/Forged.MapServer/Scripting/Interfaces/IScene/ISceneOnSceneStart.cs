@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IScene;
 
 public interface ISceneOnSceneStart : IScriptObject
 {
-	void OnSceneStart(Player player, uint sceneInstanceID, SceneTemplate sceneTemplate);
+    void OnSceneStart(Player player, uint sceneInstanceID, SceneTemplate sceneTemplate);
 }

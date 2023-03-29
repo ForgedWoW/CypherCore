@@ -12,25 +12,25 @@ public class NonTankTargetSelector : ICheck<Unit>
     private readonly Unit _source;
     private readonly bool _playerOnly;
 
-	public NonTankTargetSelector(Unit source, bool playerOnly = true)
-	{
-		_source = source;
-		_playerOnly = playerOnly;
-	}
+    public NonTankTargetSelector(Unit source, bool playerOnly = true)
+    {
+        _source = source;
+        _playerOnly = playerOnly;
+    }
 
-	public bool Invoke(Unit target)
-	{
-		if (target == null)
-			return false;
+    public bool Invoke(Unit target)
+    {
+        if (target == null)
+            return false;
 
-		if (_playerOnly && !target.IsTypeId(TypeId.Player))
-			return false;
+        if (_playerOnly && !target.IsTypeId(TypeId.Player))
+            return false;
 
-		var currentVictim = _source.GetThreatManager().CurrentVictim;
+        var currentVictim = _source.GetThreatManager().CurrentVictim;
 
-		if (currentVictim != null)
-			return target != currentVictim;
+        if (currentVictim != null)
+            return target != currentVictim;
 
-		return target != _source.Victim;
-	}
+        return target != _source.Victim;
+    }
 }

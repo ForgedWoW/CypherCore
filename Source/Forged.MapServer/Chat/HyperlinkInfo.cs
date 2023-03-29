@@ -5,18 +5,18 @@ namespace Forged.MapServer.Chat;
 
 internal class HyperlinkInfo
 {
-	public string Tail;
-	public HyperlinkColor Color;
-	public string Tag;
-	public string Data;
-	public string Text;
+    public string Tail;
+    public HyperlinkColor Color;
+    public string Tag;
+    public string Data;
+    public string Text;
 
-	public HyperlinkInfo(string t = null, uint c = 0, string tag = null, string data = null, string text = null)
-	{
-		Tail = t;
-		Color = new HyperlinkColor(c);
-		Tag = tag;
-		Data = data;
-		Text = text;
-	}
+    public HyperlinkInfo(string t = null, uint c = 0, string tag = null, string data = null, string text = null)
+    {
+        Tail = t;
+        Color = new HyperlinkColor(c);
+        Tag = tag;
+        Data = data;
+        Text = text;
+    }
 }

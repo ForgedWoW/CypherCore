@@ -9,26 +9,26 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class ResurrectRequest : ServerPacket
 {
-	public ObjectGuid ResurrectOffererGUID;
-	public uint ResurrectOffererVirtualRealmAddress;
-	public uint PetNumber;
-	public uint SpellID;
-	public bool UseTimer;
-	public bool Sickness;
-	public string Name;
-	public ResurrectRequest() : base(ServerOpcodes.ResurrectRequest) { }
+    public ObjectGuid ResurrectOffererGUID;
+    public uint ResurrectOffererVirtualRealmAddress;
+    public uint PetNumber;
+    public uint SpellID;
+    public bool UseTimer;
+    public bool Sickness;
+    public string Name;
+    public ResurrectRequest() : base(ServerOpcodes.ResurrectRequest) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ResurrectOffererGUID);
-		_worldPacket.WriteUInt32(ResurrectOffererVirtualRealmAddress);
-		_worldPacket.WriteUInt32(PetNumber);
-		_worldPacket.WriteUInt32(SpellID);
-		_worldPacket.WriteBits(Name.GetByteCount(), 11);
-		_worldPacket.WriteBit(UseTimer);
-		_worldPacket.WriteBit(Sickness);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ResurrectOffererGUID);
+        _worldPacket.WriteUInt32(ResurrectOffererVirtualRealmAddress);
+        _worldPacket.WriteUInt32(PetNumber);
+        _worldPacket.WriteUInt32(SpellID);
+        _worldPacket.WriteBits(Name.GetByteCount(), 11);
+        _worldPacket.WriteBit(UseTimer);
+        _worldPacket.WriteBit(Sickness);
+        _worldPacket.FlushBits();
 
-		_worldPacket.WriteString(Name);
-	}
+        _worldPacket.WriteString(Name);
+    }
 }

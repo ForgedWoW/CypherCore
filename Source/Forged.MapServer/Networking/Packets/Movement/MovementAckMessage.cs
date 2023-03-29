@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MovementAckMessage : ClientPacket
 {
-	public MovementAck Ack;
-	public MovementAckMessage(WorldPacket packet) : base(packet) { }
+    public MovementAck Ack;
+    public MovementAckMessage(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Ack.Read(_worldPacket);
-	}
+    public override void Read()
+    {
+        Ack.Read(_worldPacket);
+    }
 }

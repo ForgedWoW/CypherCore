@@ -5,12 +5,12 @@ namespace Framework.Constants;
 
 public enum BattlePetBreedQuality
 {
-	Poor = 0,
-	Common = 1,
-	Uncommon = 2,
-	Rare = 3,
-	Epic = 4,
-	Legendary = 5,
+    Poor = 0,
+    Common = 1,
+    Uncommon = 2,
+    Rare = 3,
+    Epic = 4,
+    Legendary = 5,
 
-	Max
+    Max
 }

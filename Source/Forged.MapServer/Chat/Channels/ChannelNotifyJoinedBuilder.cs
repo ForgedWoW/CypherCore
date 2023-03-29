@@ -12,28 +12,28 @@ internal class ChannelNotifyJoinedBuilder : MessageBuilder
 {
     private readonly Channel _source;
 
-	public ChannelNotifyJoinedBuilder(Channel source)
-	{
-		_source = source;
-	}
+    public ChannelNotifyJoinedBuilder(Channel source)
+    {
+        _source = source;
+    }
 
-	public override PacketSenderOwning<ChannelNotifyJoined> Invoke(Locale locale = Locale.enUS)
-	{
-		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+    public override PacketSenderOwning<ChannelNotifyJoined> Invoke(Locale locale = Locale.enUS)
+    {
+        var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
-		PacketSenderOwning<ChannelNotifyJoined> notify = new()
-		{
-			Data =
-			{
-				//notify.ChannelWelcomeMsg = "";
-				ChatChannelID = (int)_source.GetChannelId(),
-				//notify.InstanceID = 0;
-				ChannelFlags = _source.GetFlags(),
-				Channel = _source.GetName(localeIdx),
-				ChannelGUID = _source.GetGUID()
-			}
-		};
+        PacketSenderOwning<ChannelNotifyJoined> notify = new()
+        {
+            Data =
+            {
+                //notify.ChannelWelcomeMsg = "";
+                ChatChannelID = (int)_source.GetChannelId(),
+                //notify.InstanceID = 0;
+                ChannelFlags = _source.GetFlags(),
+                Channel = _source.GetName(localeIdx),
+                ChannelGUID = _source.GetGUID()
+            }
+        };
 
-		return notify;
-	}
+        return notify;
+    }
 }

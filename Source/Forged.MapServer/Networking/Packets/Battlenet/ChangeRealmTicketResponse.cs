@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.Battlenet;
 
 internal class ChangeRealmTicketResponse : ServerPacket
 {
-	public uint Token;
-	public bool Allow = true;
-	public ByteBuffer Ticket;
-	public ChangeRealmTicketResponse() : base(ServerOpcodes.ChangeRealmTicketResponse) { }
+    public uint Token;
+    public bool Allow = true;
+    public ByteBuffer Ticket;
+    public ChangeRealmTicketResponse() : base(ServerOpcodes.ChangeRealmTicketResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(Token);
-		_worldPacket.WriteBit(Allow);
-		_worldPacket.WriteUInt32(Ticket.GetSize());
-		_worldPacket.WriteBytes(Ticket);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(Token);
+        _worldPacket.WriteBit(Allow);
+        _worldPacket.WriteUInt32(Ticket.GetSize());
+        _worldPacket.WriteBytes(Ticket);
+    }
 }

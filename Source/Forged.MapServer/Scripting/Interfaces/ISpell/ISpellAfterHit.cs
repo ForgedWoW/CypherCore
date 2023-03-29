@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellAfterHit : ISpellScript
 {
-	void AfterHit();
+    void AfterHit();
 }

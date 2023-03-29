@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ICondition;
 
 public interface IConditionCheck : IScriptObject
 {
-	bool OnConditionCheck(Condition condition, ConditionSourceInfo sourceInfo);
+    bool OnConditionCheck(Condition condition, ConditionSourceInfo sourceInfo);
 }

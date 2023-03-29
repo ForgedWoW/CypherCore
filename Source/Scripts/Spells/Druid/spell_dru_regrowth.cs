@@ -11,35 +11,35 @@ namespace Scripts.Spells.Druid;
 [SpellScript(8936)]
 public class spell_dru_regrowth : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHealEffect, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHealEffect, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHealEffect(int effIndex)
-	{
-		if (Caster.HasAura(DruidSpells.BLOODTALONS))
-			Caster.AddAura(DruidSpells.BLOODTALONS_TRIGGERED, Caster);
+    private void HandleHealEffect(int effIndex)
+    {
+        if (Caster.HasAura(DruidSpells.BLOODTALONS))
+            Caster.AddAura(DruidSpells.BLOODTALONS_TRIGGERED, Caster);
 
-		var clearcasting = Caster.GetAura(DruidSpells.CLEARCASTING);
+        var clearcasting = Caster.GetAura(DruidSpells.CLEARCASTING);
 
-		if (clearcasting != null)
-		{
-			if (Caster.HasAura(DruidSpells.MOMENT_OF_CLARITY))
-			{
-				var amount = clearcasting.GetEffect(0).Amount;
-				clearcasting.GetEffect(0).SetAmount(amount - 1);
+        if (clearcasting != null)
+        {
+            if (Caster.HasAura(DruidSpells.MOMENT_OF_CLARITY))
+            {
+                var amount = clearcasting.GetEffect(0).Amount;
+                clearcasting.GetEffect(0).SetAmount(amount - 1);
 
-				if (amount == -102)
-					Caster.RemoveAura(DruidSpells.CLEARCASTING);
-			}
-			else
-			{
-				Caster.RemoveAura(DruidSpells.CLEARCASTING);
-			}
-		}
-	}
+                if (amount == -102)
+                    Caster.RemoveAura(DruidSpells.CLEARCASTING);
+            }
+            else
+            {
+                Caster.RemoveAura(DruidSpells.CLEARCASTING);
+            }
+        }
+    }
 }

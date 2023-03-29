@@ -11,25 +11,25 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_clone : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		if (ScriptSpellId == GenericSpellIds.NightmareFigmentMirrorImage)
-		{
-			SpellEffects.Add(new EffectHandler(HandleScriptEffect, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-			SpellEffects.Add(new EffectHandler(HandleScriptEffect, 2, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		}
-		else
-		{
-			SpellEffects.Add(new EffectHandler(HandleScriptEffect, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-			SpellEffects.Add(new EffectHandler(HandleScriptEffect, 2, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-		}
-	}
+    public override void Register()
+    {
+        if (ScriptSpellId == GenericSpellIds.NightmareFigmentMirrorImage)
+        {
+            SpellEffects.Add(new EffectHandler(HandleScriptEffect, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+            SpellEffects.Add(new EffectHandler(HandleScriptEffect, 2, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+        }
+        else
+        {
+            SpellEffects.Add(new EffectHandler(HandleScriptEffect, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+            SpellEffects.Add(new EffectHandler(HandleScriptEffect, 2, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+        }
+    }
 
-	private void HandleScriptEffect(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		HitUnit.CastSpell(Caster, (uint)EffectValue, true);
-	}
+    private void HandleScriptEffect(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        HitUnit.CastSpell(Caster, (uint)EffectValue, true);
+    }
 }

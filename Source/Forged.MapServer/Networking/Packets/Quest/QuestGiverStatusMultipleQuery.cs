@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverStatusMultipleQuery : ClientPacket
 {
-	public QuestGiverStatusMultipleQuery(WorldPacket packet) : base(packet) { }
+    public QuestGiverStatusMultipleQuery(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

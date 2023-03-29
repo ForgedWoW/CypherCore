@@ -14,30 +14,30 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(207498)]
 public class spell_sha_ancestral_protection_totem_aura : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleAfterRemove, 1, AuraType.SchoolAbsorb, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.SchoolAbsorb));
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleAfterRemove, 1, AuraType.SchoolAbsorb, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		amount.Value = -1;
-	}
+    private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        amount.Value = -1;
+    }
 
-	private void HandleAfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		if (TargetApplication.RemoveMode != AuraRemoveMode.Death)
-			return;
+    private void HandleAfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        if (TargetApplication.RemoveMode != AuraRemoveMode.Death)
+            return;
 
-		var totem = Caster;
+        var totem = Caster;
 
-		if (totem == null)
-			return;
+        if (totem == null)
+            return;
 
-		totem.CastSpell(TargetApplication.Target, TotemSpells.TOTEM_TOTEMIC_REVIVAL, true);
-		totem.KillSelf();
-	}
+        totem.CastSpell(TargetApplication.Target, TotemSpells.TOTEM_TOTEMIC_REVIVAL, true);
+        totem.KillSelf();
+    }
 }

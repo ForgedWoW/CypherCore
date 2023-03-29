@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum CreatureLinkedRespawnType
 {
-	CreatureToCreature = 0,
-	CreatureToGO = 1, // Creature is dependant on GO
-	GOToGO = 2,
-	GOToCreature = 3 // GO is dependant on creature
+    CreatureToCreature = 0,
+    CreatureToGO = 1, // Creature is dependant on GO
+    GOToGO = 2,
+    GOToCreature = 3 // GO is dependant on creature
 }

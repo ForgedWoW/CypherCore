@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.ClientConfig;
 
 public class ClientCacheVersion : ServerPacket
 {
-	public uint CacheVersion = 0;
-	public ClientCacheVersion() : base(ServerOpcodes.CacheVersion) { }
+    public uint CacheVersion = 0;
+    public ClientCacheVersion() : base(ServerOpcodes.CacheVersion) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(CacheVersion);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(CacheVersion);
+    }
 }

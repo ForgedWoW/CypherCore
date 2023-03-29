@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum ServerSideVisibilityType
 {
-	GM = 0,
-	Ghost = 1,
+    GM = 0,
+    Ghost = 1,
 }

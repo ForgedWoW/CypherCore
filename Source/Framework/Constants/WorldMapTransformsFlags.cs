@@ -5,5 +5,5 @@ namespace Framework.Constants;
 
 public enum WorldMapTransformsFlags
 {
-	Dungeon = 0x04
+    Dungeon = 0x04
 }

@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IFormula;
 
 public interface IFormulaOnGainCalculation : IScriptObject
 {
-	void OnGainCalculation(uint gain, Player player, Unit unit);
+    void OnGainCalculation(uint gain, Player player, Unit unit);
 }

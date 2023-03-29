@@ -10,23 +10,23 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_bandage : SpellScript, ISpellCheckCast, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		var target = HitUnit;
+    public void AfterHit()
+    {
+        var target = HitUnit;
 
-		if (target)
-			Caster.CastSpell(target, GenericSpellIds.RecentlyBandaged, true);
-	}
+        if (target)
+            Caster.CastSpell(target, GenericSpellIds.RecentlyBandaged, true);
+    }
 
 
-	public SpellCastResult CheckCast()
-	{
-		var target = ExplTargetUnit;
+    public SpellCastResult CheckCast()
+    {
+        var target = ExplTargetUnit;
 
-		if (target)
-			if (target.HasAura(GenericSpellIds.RecentlyBandaged))
-				return SpellCastResult.TargetAurastate;
+        if (target)
+            if (target.HasAura(GenericSpellIds.RecentlyBandaged))
+                return SpellCastResult.TargetAurastate;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

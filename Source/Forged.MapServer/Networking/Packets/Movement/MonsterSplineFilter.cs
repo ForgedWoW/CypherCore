@@ -7,24 +7,24 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MonsterSplineFilter
 {
-	public List<MonsterSplineFilterKey> FilterKeys = new();
-	public byte FilterFlags;
-	public float BaseSpeed;
-	public short StartOffset;
-	public float DistToPrevFilterKey;
-	public short AddedToStart;
+    public List<MonsterSplineFilterKey> FilterKeys = new();
+    public byte FilterFlags;
+    public float BaseSpeed;
+    public short StartOffset;
+    public float DistToPrevFilterKey;
+    public short AddedToStart;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(FilterKeys.Count);
-		data.WriteFloat(BaseSpeed);
-		data.WriteInt16(StartOffset);
-		data.WriteFloat(DistToPrevFilterKey);
-		data.WriteInt16(AddedToStart);
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(FilterKeys.Count);
+        data.WriteFloat(BaseSpeed);
+        data.WriteInt16(StartOffset);
+        data.WriteFloat(DistToPrevFilterKey);
+        data.WriteInt16(AddedToStart);
 
-		FilterKeys.ForEach(p => p.Write(data));
+        FilterKeys.ForEach(p => p.Write(data));
 
-		data.WriteBits(FilterFlags, 2);
-		data.FlushBits();
-	}
+        data.WriteBits(FilterFlags, 2);
+        data.FlushBits();
+    }
 }

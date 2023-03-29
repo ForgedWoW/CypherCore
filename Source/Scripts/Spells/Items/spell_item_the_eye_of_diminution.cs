@@ -13,18 +13,18 @@ namespace Scripts.Spells.Items;
 [Script] // 28862 - The Eye of Diminution
 internal class spell_item_the_eye_of_diminution : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ModThreat));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ModThreat));
+    }
 
-	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		var diff = (int)OwnerAsUnit.Level - 60;
+    private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        var diff = (int)OwnerAsUnit.Level - 60;
 
-		if (diff > 0)
-			amount.Value += diff;
-	}
+        if (diff > 0)
+            amount.Value += diff;
+    }
 }

@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum ItemSubClassQuest
 {
-	Quest = 0,
-	Unk3 = 3, // 1 Item (33604)
-	Unk8 = 8, // 2 Items (37445, 49700)
-	Max = 9
+    Quest = 0,
+    Unk3 = 3, // 1 Item (33604)
+    Unk8 = 8, // 2 Items (37445, 49700)
+    Max = 9
 }

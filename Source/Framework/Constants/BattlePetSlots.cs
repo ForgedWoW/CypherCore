@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum BattlePetSlots
 {
-	Slot0 = 0,
-	Slot1 = 1,
-	Slot2 = 2,
+    Slot0 = 0,
+    Slot1 = 1,
+    Slot2 = 2,
 
-	Count
+    Count
 }

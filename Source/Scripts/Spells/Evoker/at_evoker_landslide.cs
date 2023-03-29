@@ -4,8 +4,6 @@
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAreaTrigger;
-using Scripts.Spells.Mage;
-using static Game.AI.SmartEvent;
 
 namespace Scripts.Spells.Evoker;
 
@@ -16,6 +14,17 @@ public class at_evoker_landslide : AreaTriggerScript, IAreaTriggerOverrideCreate
 
     public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; } = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.RED_FIRE_STORM);
 
+    public void OnCreate()
+    {
+        var caster = At.OwnerUnit;
+
+        if (caster == null || !caster.IsPlayer)
+            return;
+
+        var pos = new WorldLocation(At.Location);
+        At.SetDestination(1000, pos, caster);
+    }
+
     public void OnInitialize()
     {
         _castInterval = 100;
@@ -24,17 +33,6 @@ public class at_evoker_landslide : AreaTriggerScript, IAreaTriggerOverrideCreate
         AreaTriggerCreateProperties.Shape.TriggerType = Framework.Constants.AreaTriggerTypes.Sphere;
         AreaTriggerCreateProperties.Shape.SphereDatas = new AreaTriggerData.spheredatas();
         AreaTriggerCreateProperties.Shape.SphereDatas.Radius = 3;
-    }
-
-    public void OnCreate()
-    {
-        var caster = At.OwnerUnit;
-
-        if (caster == null || !caster.IsPlayer)
-            return;
-        
-        var pos = new WorldLocation(At.Location);
-        At.SetDestination(1000, pos, caster);
     }
 
     public void OnUpdate(uint diff)
@@ -50,6 +48,8 @@ public class at_evoker_landslide : AreaTriggerScript, IAreaTriggerOverrideCreate
             _castInterval += 100;
         }
         else
+        {
             _castInterval -= diff;
+        }
     }
 }

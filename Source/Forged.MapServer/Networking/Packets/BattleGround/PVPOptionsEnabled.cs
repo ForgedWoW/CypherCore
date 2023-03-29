@@ -7,22 +7,22 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class PVPOptionsEnabled : ServerPacket
 {
-	public bool WargameArenas;
-	public bool RatedArenas;
-	public bool WargameBattlegrounds;
-	public bool ArenaSkirmish;
-	public bool PugBattlegrounds;
-	public bool RatedBattlegrounds;
-	public PVPOptionsEnabled() : base(ServerOpcodes.PvpOptionsEnabled) { }
+    public bool WargameArenas;
+    public bool RatedArenas;
+    public bool WargameBattlegrounds;
+    public bool ArenaSkirmish;
+    public bool PugBattlegrounds;
+    public bool RatedBattlegrounds;
+    public PVPOptionsEnabled() : base(ServerOpcodes.PvpOptionsEnabled) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(RatedBattlegrounds);
-		_worldPacket.WriteBit(PugBattlegrounds);
-		_worldPacket.WriteBit(WargameBattlegrounds);
-		_worldPacket.WriteBit(WargameArenas);
-		_worldPacket.WriteBit(RatedArenas);
-		_worldPacket.WriteBit(ArenaSkirmish);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBit(RatedBattlegrounds);
+        _worldPacket.WriteBit(PugBattlegrounds);
+        _worldPacket.WriteBit(WargameBattlegrounds);
+        _worldPacket.WriteBit(WargameArenas);
+        _worldPacket.WriteBit(RatedArenas);
+        _worldPacket.WriteBit(ArenaSkirmish);
+        _worldPacket.FlushBits();
+    }
 }

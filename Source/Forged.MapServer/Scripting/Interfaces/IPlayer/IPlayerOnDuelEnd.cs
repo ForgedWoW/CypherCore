@@ -9,5 +9,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 // Called when a Duel ends
 public interface IPlayerOnDuelEnd : IScriptObject
 {
-	void OnDuelEnd(Player winner, Player loser, DuelCompleteType type);
+    void OnDuelEnd(Player winner, Player loser, DuelCompleteType type);
 }

@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class QuestUpdateAddPvPCredit : ServerPacket
 {
-	public uint QuestID;
-	public ushort Count;
-	public QuestUpdateAddPvPCredit() : base(ServerOpcodes.QuestUpdateAddPvpCredit, ConnectionType.Instance) { }
+    public uint QuestID;
+    public ushort Count;
+    public QuestUpdateAddPvPCredit() : base(ServerOpcodes.QuestUpdateAddPvpCredit, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(QuestID);
-		_worldPacket.WriteUInt16(Count);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(QuestID);
+        _worldPacket.WriteUInt16(Count);
+    }
 }

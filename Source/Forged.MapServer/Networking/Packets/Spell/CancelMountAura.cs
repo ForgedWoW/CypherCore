@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class CancelMountAura : ClientPacket
 {
-	public CancelMountAura(WorldPacket packet) : base(packet) { }
+    public CancelMountAura(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

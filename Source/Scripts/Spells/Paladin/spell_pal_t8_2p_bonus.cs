@@ -13,33 +13,33 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(64890)] // 64890 - Item - Paladin T8 Holy 2P Bonus
 internal class spell_pal_t8_2p_bonus : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var healInfo = eventInfo.HealInfo;
+        var healInfo = eventInfo.HealInfo;
 
-		if (healInfo == null ||
-			healInfo.Heal == 0)
-			return;
+        if (healInfo == null ||
+            healInfo.Heal == 0)
+            return;
 
-		var caster = eventInfo.Actor;
-		var target = eventInfo.ProcTarget;
+        var caster = eventInfo.Actor;
+        var target = eventInfo.ProcTarget;
 
-		var spellInfo = Global.SpellMgr.GetSpellInfo(PaladinSpells.HolyMending, CastDifficulty);
-		var amount = (int)MathFunctions.CalculatePct(healInfo.Heal, aurEff.Amount);
-		amount /= (int)spellInfo.MaxTicks;
+        var spellInfo = Global.SpellMgr.GetSpellInfo(PaladinSpells.HolyMending, CastDifficulty);
+        var amount = (int)MathFunctions.CalculatePct(healInfo.Heal, aurEff.Amount);
+        amount /= (int)spellInfo.MaxTicks;
 
-		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, amount);
-		caster.CastSpell(target, PaladinSpells.HolyMending, args);
-	}
+        CastSpellExtraArgs args = new(aurEff);
+        args.AddSpellMod(SpellValueMod.BasePoint0, amount);
+        caster.CastSpell(target, PaladinSpells.HolyMending, args);
+    }
 }

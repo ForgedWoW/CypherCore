@@ -10,24 +10,24 @@ namespace Forged.MapServer.Maps;
 
 internal class ObjectGridStoper : IGridNotifierCreature
 {
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public ObjectGridStoper(GridType gridType)
-	{
-		GridType = gridType;
-	}
+    public ObjectGridStoper(GridType gridType)
+    {
+        GridType = gridType;
+    }
 
-	public void Visit(IList<Creature> objs)
-	{
-		// stop any fights at grid de-activation and remove dynobjects/areatriggers created at cast by creatures
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var creature = objs[i];
-			creature.RemoveAllDynObjects();
-			creature.RemoveAllAreaTriggers();
+    public void Visit(IList<Creature> objs)
+    {
+        // stop any fights at grid de-activation and remove dynobjects/areatriggers created at cast by creatures
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var creature = objs[i];
+            creature.RemoveAllDynObjects();
+            creature.RemoveAllAreaTriggers();
 
-			if (creature.IsInCombat)
-				creature.CombatStop();
-		}
-	}
+            if (creature.IsInCombat)
+                creature.CombatStop();
+        }
+    }
 }

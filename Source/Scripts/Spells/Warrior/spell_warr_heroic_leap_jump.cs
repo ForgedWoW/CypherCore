@@ -11,20 +11,20 @@ namespace Scripts.Spells.Warrior;
 [Script] // Heroic Leap (triggered by Heroic Leap (6544)) - 178368
 internal class spell_warr_heroic_leap_jump : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(AfterJump, 1, SpellEffectName.JumpDest, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(AfterJump, 1, SpellEffectName.JumpDest, SpellScriptHookType.EffectHit));
+    }
 
-	private void AfterJump(int effIndex)
-	{
-		if (Caster.HasAura(WarriorSpells.GLYPH_OF_HEROIC_LEAP))
-			Caster.CastSpell(Caster, WarriorSpells.GLYPH_OF_HEROIC_LEAP_BUFF, true);
+    private void AfterJump(int effIndex)
+    {
+        if (Caster.HasAura(WarriorSpells.GLYPH_OF_HEROIC_LEAP))
+            Caster.CastSpell(Caster, WarriorSpells.GLYPH_OF_HEROIC_LEAP_BUFF, true);
 
-		if (Caster.HasAura(WarriorSpells.IMPROVED_HEROIC_LEAP))
-			Caster.SpellHistory.ResetCooldown(WarriorSpells.TAUNT, true);
-	}
+        if (Caster.HasAura(WarriorSpells.IMPROVED_HEROIC_LEAP))
+            Caster.SpellHistory.ResetCooldown(WarriorSpells.TAUNT, true);
+    }
 }

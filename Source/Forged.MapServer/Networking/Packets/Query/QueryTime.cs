@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class QueryTime : ClientPacket
 {
-	public QueryTime(WorldPacket packet) : base(packet) { }
+    public QueryTime(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

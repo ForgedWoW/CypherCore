@@ -5,12 +5,12 @@ namespace Forged.MapServer.Entities.Players;
 
 public class PlayerCreateInfoItem
 {
-	public uint ItemId { get; set; }
-	public uint Amount { get; set; }
+    public uint ItemId { get; set; }
+    public uint Amount { get; set; }
 
-	public PlayerCreateInfoItem(uint id, uint amount)
-	{
-		ItemId = id;
-		Amount = amount;
-	}
+    public PlayerCreateInfoItem(uint id, uint amount)
+    {
+        ItemId = id;
+        Amount = amount;
+    }
 }

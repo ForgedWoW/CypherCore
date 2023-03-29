@@ -12,32 +12,32 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(207317)]
 public class spell_dk_epidemic : SpellScript, IHasSpellEffects, ISpellCheckCast, ISpellOnHit
 {
-	private readonly List<Unit> savedTargets = new();
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    private readonly List<Unit> savedTargets = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public SpellCastResult CheckCast()
-	{
-		savedTargets.Clear();
-		Caster.GetEnemiesWithinRangeWithOwnedAura(savedTargets, SpellInfo.GetMaxRange(), DeathKnightSpells.VIRULENT_PLAGUE);
+    public SpellCastResult CheckCast()
+    {
+        savedTargets.Clear();
+        Caster.GetEnemiesWithinRangeWithOwnedAura(savedTargets, SpellInfo.GetMaxRange(), DeathKnightSpells.VIRULENT_PLAGUE);
 
-		if (!savedTargets.Empty())
-			return SpellCastResult.SpellCastOk;
+        if (!savedTargets.Empty())
+            return SpellCastResult.SpellCastOk;
 
-		return SpellCastResult.NoValidTargets;
-	}
+        return SpellCastResult.NoValidTargets;
+    }
 
-	public void OnHit()
-	{
-		PreventHitAura();
-		var caster = Caster;
+    public void OnHit()
+    {
+        PreventHitAura();
+        var caster = Caster;
 
-		if (!savedTargets.Empty())
-			foreach (var tar in savedTargets)
-			{
-				var aura = tar.GetAura(DeathKnightSpells.VIRULENT_PLAGUE, caster.GUID);
+        if (!savedTargets.Empty())
+            foreach (var tar in savedTargets)
+            {
+                var aura = tar.GetAura(DeathKnightSpells.VIRULENT_PLAGUE, caster.GUID);
 
-				if (aura != null)
-					Caster.CastSpell(tar, DeathKnightSpells.EPIDEMIC_DAMAGE, true);
-			}
-	}
+                if (aura != null)
+                    Caster.CastSpell(tar, DeathKnightSpells.EPIDEMIC_DAMAGE, true);
+            }
+    }
 }

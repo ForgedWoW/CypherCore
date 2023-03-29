@@ -8,10 +8,10 @@ namespace Forged.MapServer.Entities.Items;
 [StructLayout(LayoutKind.Sequential)]
 public class ItemDynamicFieldGems
 {
-	public uint ItemId;
+    public uint ItemId;
 
-	[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-	public ushort[] BonusListIDs = new ushort[16];
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+    public ushort[] BonusListIDs = new ushort[16];
 
-	public byte Context;
+    public byte Context;
 }

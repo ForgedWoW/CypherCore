@@ -12,41 +12,41 @@ namespace Scripts.Spells.Druid;
 [Script] // 48438 - Wild Growth
 internal class spell_dru_wild_growth : SpellScript, IHasSpellEffects
 {
-	private List<WorldObject> _targets;
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    private List<WorldObject> _targets;
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(SetTargets, 1, Targets.UnitDestAreaAlly));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(SetTargets, 1, Targets.UnitDestAreaAlly));
+    }
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		targets.RemoveAll(obj =>
-		{
-			var target = obj.AsUnit;
+    private void FilterTargets(List<WorldObject> targets)
+    {
+        targets.RemoveAll(obj =>
+        {
+            var target = obj.AsUnit;
 
-			if (target)
-				return !Caster.IsInRaidWith(target);
+            if (target)
+                return !Caster.IsInRaidWith(target);
 
-			return true;
-		});
+            return true;
+        });
 
-		var maxTargets = (int)GetEffectInfo(1).CalcValue(Caster);
+        var maxTargets = (int)GetEffectInfo(1).CalcValue(Caster);
 
-		if (targets.Count > maxTargets)
-		{
-			targets.Sort(new HealthPctOrderPred());
-			targets.RemoveRange(maxTargets, targets.Count - maxTargets);
-		}
+        if (targets.Count > maxTargets)
+        {
+            targets.Sort(new HealthPctOrderPred());
+            targets.RemoveRange(maxTargets, targets.Count - maxTargets);
+        }
 
-		_targets = targets;
-	}
+        _targets = targets;
+    }
 
-	private void SetTargets(List<WorldObject> targets)
-	{
-		targets.Clear();
-		targets.AddRange(_targets);
-	}
+    private void SetTargets(List<WorldObject> targets)
+    {
+        targets.Clear();
+        targets.AddRange(_targets);
+    }
 }

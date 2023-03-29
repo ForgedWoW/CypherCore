@@ -8,26 +8,26 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public class AuctionListBucketsResult : ServerPacket
 {
-	public List<BucketInfo> Buckets = new();
-	public uint DesiredDelay;
-	public int Unknown830_0;
-	public int Unknown830_1;
-	public AuctionHouseBrowseMode BrowseMode;
-	public bool HasMoreResults;
+    public List<BucketInfo> Buckets = new();
+    public uint DesiredDelay;
+    public int Unknown830_0;
+    public int Unknown830_1;
+    public AuctionHouseBrowseMode BrowseMode;
+    public bool HasMoreResults;
 
-	public AuctionListBucketsResult() : base(ServerOpcodes.AuctionListBucketsResult) { }
+    public AuctionListBucketsResult() : base(ServerOpcodes.AuctionListBucketsResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Buckets.Count);
-		_worldPacket.WriteUInt32(DesiredDelay);
-		_worldPacket.WriteInt32(Unknown830_0);
-		_worldPacket.WriteInt32(Unknown830_1);
-		_worldPacket.WriteBits((int)BrowseMode, 1);
-		_worldPacket.WriteBit(HasMoreResults);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Buckets.Count);
+        _worldPacket.WriteUInt32(DesiredDelay);
+        _worldPacket.WriteInt32(Unknown830_0);
+        _worldPacket.WriteInt32(Unknown830_1);
+        _worldPacket.WriteBits((int)BrowseMode, 1);
+        _worldPacket.WriteBit(HasMoreResults);
+        _worldPacket.FlushBits();
 
-		foreach (var bucketInfo in Buckets)
-			bucketInfo.Write(_worldPacket);
-	}
+        foreach (var bucketInfo in Buckets)
+            bucketInfo.Write(_worldPacket);
+    }
 }

@@ -5,10 +5,10 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public enum AITarget
 {
-	Self,
-	Victim,
-	Enemy,
-	Ally,
-	Buff,
-	Debuff
+    Self,
+    Victim,
+    Enemy,
+    Ally,
+    Buff,
+    Debuff
 }

@@ -11,23 +11,23 @@ namespace Scripts.Spells.Warlock;
 [Script]
 public class at_warlock_artifact_thalkiels_discord : AreaTriggerScript, IAreaTriggerOnUpdate
 {
-	public void OnUpdate(uint diff)
-	{
-		var caster = At.GetCaster();
+    public void OnUpdate(uint diff)
+    {
+        var caster = At.GetCaster();
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var timer = At.VariableStorage.GetValue<int>("_timer", 0) + diff;
+        var timer = At.VariableStorage.GetValue<int>("_timer", 0) + diff;
 
-		if (timer >= 1300)
-		{
-			At.VariableStorage.Set<int>("_timer", 0);
-			caster.CastSpell(At, WarlockSpells.THALKIES_DISCORD_DAMAGE, true);
-		}
-		else
-		{
-			At.VariableStorage.Set("_timer", timer);
-		}
-	}
+        if (timer >= 1300)
+        {
+            At.VariableStorage.Set<int>("_timer", 0);
+            caster.CastSpell(At, WarlockSpells.THALKIES_DISCORD_DAMAGE, true);
+        }
+        else
+        {
+            At.VariableStorage.Set("_timer", timer);
+        }
+    }
 }

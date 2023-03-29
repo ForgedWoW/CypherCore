@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum ContentTuningCalcType
 {
-	Base = 0,
-	PlusOne = 1,
-	PlusMaxLevelForExpansion = 2
+    Base = 0,
+    PlusOne = 1,
+    PlusMaxLevelForExpansion = 2
 }

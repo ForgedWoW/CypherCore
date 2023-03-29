@@ -7,26 +7,26 @@ namespace Framework.Dynamic;
 
 public class RefManager<TO, FROM> : LinkedListHead where TO : class where FROM : class
 {
-	public Reference<TO, FROM> GetFirst()
-	{
-		return (Reference<TO, FROM>)GetFirstElement();
-	}
+    public Reference<TO, FROM> GetFirst()
+    {
+        return (Reference<TO, FROM>)GetFirstElement();
+    }
 
-	public Reference<TO, FROM> GetLast()
-	{
-		return (Reference<TO, FROM>)GetLastElement();
-	}
+    public Reference<TO, FROM> GetLast()
+    {
+        return (Reference<TO, FROM>)GetLastElement();
+    }
 
-	public void ClearReferences()
-	{
-		Reference<TO, FROM> refe;
+    public void ClearReferences()
+    {
+        Reference<TO, FROM> refe;
 
-		while ((refe = GetFirst()) != null)
-			refe.Invalidate();
-	}
+        while ((refe = GetFirst()) != null)
+            refe.Invalidate();
+    }
 
-	~RefManager()
-	{
-		ClearReferences();
-	}
+    ~RefManager()
+    {
+        ClearReferences();
+    }
 }

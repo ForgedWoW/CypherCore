@@ -11,16 +11,16 @@ namespace Scripts.Spells.Generic;
 [Script] // 41213, 43416, 69222, 73076 - Throw Shield
 internal class spell_gen_throw_shield : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScriptEffect(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		Caster.CastSpell(HitUnit, (uint)EffectValue, true);
-	}
+    private void HandleScriptEffect(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        Caster.CastSpell(HitUnit, (uint)EffectValue, true);
+    }
 }

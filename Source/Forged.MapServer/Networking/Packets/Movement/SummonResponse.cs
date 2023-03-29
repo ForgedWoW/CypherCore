@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class SummonResponse : ClientPacket
 {
-	public bool Accept;
-	public ObjectGuid SummonerGUID;
-	public SummonResponse(WorldPacket packet) : base(packet) { }
+    public bool Accept;
+    public ObjectGuid SummonerGUID;
+    public SummonResponse(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		SummonerGUID = _worldPacket.ReadPackedGuid();
-		Accept = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        SummonerGUID = _worldPacket.ReadPackedGuid();
+        Accept = _worldPacket.HasBit();
+    }
 }

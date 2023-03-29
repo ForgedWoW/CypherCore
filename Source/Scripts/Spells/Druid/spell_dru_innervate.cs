@@ -13,36 +13,36 @@ namespace Scripts.Spells.Druid;
 [Script] // 29166 - Innervate
 internal class spell_dru_innervate : SpellScript, ISpellCheckCast, ISpellOnHit
 {
-	public SpellCastResult CheckCast()
-	{
-		var target = ExplTargetUnit?.AsPlayer;
+    public SpellCastResult CheckCast()
+    {
+        var target = ExplTargetUnit?.AsPlayer;
 
-		if (target == null)
-			return SpellCastResult.BadTargets;
+        if (target == null)
+            return SpellCastResult.BadTargets;
 
-		var spec = CliDB.ChrSpecializationStorage.LookupByKey(target.GetPrimarySpecialization());
+        var spec = CliDB.ChrSpecializationStorage.LookupByKey(target.GetPrimarySpecialization());
 
-		if (spec == null ||
-			spec.Role != 1)
-			return SpellCastResult.BadTargets;
+        if (spec == null ||
+            spec.Role != 1)
+            return SpellCastResult.BadTargets;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public void OnHit()
-	{
-		var caster = Caster;
+    public void OnHit()
+    {
+        var caster = Caster;
 
-		if (caster != HitUnit)
-		{
-			var innervateR2 = caster.GetAuraEffect(DruidSpellIds.InnervateRank2, 0);
+        if (caster != HitUnit)
+        {
+            var innervateR2 = caster.GetAuraEffect(DruidSpellIds.InnervateRank2, 0);
 
-			if (innervateR2 != null)
-				caster.CastSpell(caster,
-								DruidSpellIds.Innervate,
-								new CastSpellExtraArgs(TriggerCastFlags.IgnoreSpellAndCategoryCD | TriggerCastFlags.IgnoreCastInProgress)
-									.SetTriggeringSpell(Spell)
-									.AddSpellMod(SpellValueMod.BasePoint0, -innervateR2.Amount));
-		}
-	}
+            if (innervateR2 != null)
+                caster.CastSpell(caster,
+                                 DruidSpellIds.Innervate,
+                                 new CastSpellExtraArgs(TriggerCastFlags.IgnoreSpellAndCategoryCD | TriggerCastFlags.IgnoreCastInProgress)
+                                     .SetTriggeringSpell(Spell)
+                                     .AddSpellMod(SpellValueMod.BasePoint0, -innervateR2.Amount));
+        }
+    }
 }

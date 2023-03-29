@@ -8,21 +8,21 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GetGarrisonInfoResult : ServerPacket
 {
-	public uint FactionIndex;
-	public List<GarrisonInfo> Garrisons = new();
-	public List<FollowerSoftCapInfo> FollowerSoftCaps = new();
-	public GetGarrisonInfoResult() : base(ServerOpcodes.GetGarrisonInfoResult, ConnectionType.Instance) { }
+    public uint FactionIndex;
+    public List<GarrisonInfo> Garrisons = new();
+    public List<FollowerSoftCapInfo> FollowerSoftCaps = new();
+    public GetGarrisonInfoResult() : base(ServerOpcodes.GetGarrisonInfoResult, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(FactionIndex);
-		_worldPacket.WriteInt32(Garrisons.Count);
-		_worldPacket.WriteInt32(FollowerSoftCaps.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(FactionIndex);
+        _worldPacket.WriteInt32(Garrisons.Count);
+        _worldPacket.WriteInt32(FollowerSoftCaps.Count);
 
-		foreach (var followerSoftCapInfo in FollowerSoftCaps)
-			followerSoftCapInfo.Write(_worldPacket);
+        foreach (var followerSoftCapInfo in FollowerSoftCaps)
+            followerSoftCapInfo.Write(_worldPacket);
 
-		foreach (var garrison in Garrisons)
-			garrison.Write(_worldPacket);
-	}
+        foreach (var garrison in Garrisons)
+            garrison.Write(_worldPacket);
+    }
 }

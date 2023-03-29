@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public class AttackSwing : ClientPacket
 {
-	public ObjectGuid Victim;
-	public AttackSwing(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Victim;
+    public AttackSwing(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Victim = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Victim = _worldPacket.ReadPackedGuid();
+    }
 }
 
 //Structs

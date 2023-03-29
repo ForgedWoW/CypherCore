@@ -12,15 +12,15 @@ public class HeightDifferenceCheck : ICheck<WorldObject>
     private readonly float _difference;
     private readonly bool _reverse;
 
-	public HeightDifferenceCheck(WorldObject go, float diff, bool reverse)
-	{
-		_baseObject = go;
-		_difference = diff;
-		_reverse = reverse;
-	}
+    public HeightDifferenceCheck(WorldObject go, float diff, bool reverse)
+    {
+        _baseObject = go;
+        _difference = diff;
+        _reverse = reverse;
+    }
 
-	public bool Invoke(WorldObject unit)
-	{
-		return (unit.Location.Z - _baseObject.Location.Z > _difference) != _reverse;
-	}
+    public bool Invoke(WorldObject unit)
+    {
+        return (unit.Location.Z - _baseObject.Location.Z > _difference) != _reverse;
+    }
 }

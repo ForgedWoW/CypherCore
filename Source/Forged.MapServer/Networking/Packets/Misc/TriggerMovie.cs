@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class TriggerMovie : ServerPacket
 {
-	public uint MovieID;
-	public TriggerMovie() : base(ServerOpcodes.TriggerMovie) { }
+    public uint MovieID;
+    public TriggerMovie() : base(ServerOpcodes.TriggerMovie) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(MovieID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(MovieID);
+    }
 }

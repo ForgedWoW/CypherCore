@@ -10,14 +10,14 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 147157 Glyph of the Skeleton (Unholy)
 internal class spell_dk_pet_skeleton_transform : SpellScript, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		var owner = Caster.OwnerUnit;
+    public SpellCastResult CheckCast()
+    {
+        var owner = Caster.OwnerUnit;
 
-		if (owner)
-			if (owner.HasAura(DeathKnightSpells.GlyphOfTheSkeleton))
-				return SpellCastResult.SpellCastOk;
+        if (owner)
+            if (owner.HasAura(DeathKnightSpells.GlyphOfTheSkeleton))
+                return SpellCastResult.SpellCastOk;
 
-		return SpellCastResult.SpellUnavailable;
-	}
+        return SpellCastResult.SpellUnavailable;
+    }
 }

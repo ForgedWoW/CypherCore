@@ -12,66 +12,66 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class playerScript_monk_earth_fire_storm : ScriptObjectAutoAdd, IPlayerOnSpellCast
 {
-	public PlayerClass PlayerClass => PlayerClass.Monk;
+    public PlayerClass PlayerClass => PlayerClass.Monk;
 
-	public playerScript_monk_earth_fire_storm() : base("playerScript_monk_earth_fire_storm") { }
+    public playerScript_monk_earth_fire_storm() : base("playerScript_monk_earth_fire_storm") { }
 
-	public void OnSpellCast(Player player, Spell spell, bool re)
-	{
-		if (player.Class != PlayerClass.Monk)
-			return;
+    public void OnSpellCast(Player player, Spell spell, bool re)
+    {
+        if (player.Class != PlayerClass.Monk)
+            return;
 
-		var spellInfo = spell.SpellInfo;
+        var spellInfo = spell.SpellInfo;
 
-		if (player.HasAura(StormEarthAndFireSpells.SEF) && !spellInfo.IsPositive)
-		{
-			var target = ObjectAccessor.Instance.GetUnit(player, player.Target);
+        if (player.HasAura(StormEarthAndFireSpells.SEF) && !spellInfo.IsPositive)
+        {
+            var target = ObjectAccessor.Instance.GetUnit(player, player.Target);
 
-			if (target != null)
-			{
-				var fireSpirit = player.GetSummonedCreatureByEntry(StormEarthAndFireSpells.NPC_FIRE_SPIRIT);
+            if (target != null)
+            {
+                var fireSpirit = player.GetSummonedCreatureByEntry(StormEarthAndFireSpells.NPC_FIRE_SPIRIT);
 
-				if (fireSpirit != null)
-				{
-					fireSpirit.SetFacingToObject(target, true);
-					fireSpirit.CastSpell(target, spellInfo.Id, true);
-				}
+                if (fireSpirit != null)
+                {
+                    fireSpirit.SetFacingToObject(target, true);
+                    fireSpirit.CastSpell(target, spellInfo.Id, true);
+                }
 
-				var earthSpirit = player.GetSummonedCreatureByEntry(StormEarthAndFireSpells.NPC_EARTH_SPIRIT);
+                var earthSpirit = player.GetSummonedCreatureByEntry(StormEarthAndFireSpells.NPC_EARTH_SPIRIT);
 
-				if (earthSpirit != null)
-				{
-					earthSpirit.SetFacingToObject(target, true);
-					earthSpirit.CastSpell(target, spellInfo.Id, true);
-				}
-			}
-		}
+                if (earthSpirit != null)
+                {
+                    earthSpirit.SetFacingToObject(target, true);
+                    earthSpirit.CastSpell(target, spellInfo.Id, true);
+                }
+            }
+        }
 
-		if (player.HasAura(StormEarthAndFireSpells.SEF) && spellInfo.IsPositive)
-		{
-			var GetTarget = player.SelectedUnit;
+        if (player.HasAura(StormEarthAndFireSpells.SEF) && spellInfo.IsPositive)
+        {
+            var GetTarget = player.SelectedUnit;
 
-			if (GetTarget != null)
-			{
-				if (!GetTarget.IsFriendlyTo(player))
-					return;
+            if (GetTarget != null)
+            {
+                if (!GetTarget.IsFriendlyTo(player))
+                    return;
 
-				var fireSpirit = player.GetSummonedCreatureByEntry(StormEarthAndFireSpells.NPC_FIRE_SPIRIT);
+                var fireSpirit = player.GetSummonedCreatureByEntry(StormEarthAndFireSpells.NPC_FIRE_SPIRIT);
 
-				if (fireSpirit != null)
-				{
-					fireSpirit.SetFacingToObject(GetTarget, true);
-					fireSpirit.CastSpell(GetTarget, spellInfo.Id, true);
-				}
+                if (fireSpirit != null)
+                {
+                    fireSpirit.SetFacingToObject(GetTarget, true);
+                    fireSpirit.CastSpell(GetTarget, spellInfo.Id, true);
+                }
 
-				var earthSpirit = player.GetSummonedCreatureByEntry(StormEarthAndFireSpells.NPC_EARTH_SPIRIT);
+                var earthSpirit = player.GetSummonedCreatureByEntry(StormEarthAndFireSpells.NPC_EARTH_SPIRIT);
 
-				if (earthSpirit != null)
-				{
-					earthSpirit.SetFacingToObject(GetTarget, true);
-					earthSpirit.CastSpell(GetTarget, spellInfo.Id, true);
-				}
-			}
-		}
-	}
+                if (earthSpirit != null)
+                {
+                    earthSpirit.SetFacingToObject(GetTarget, true);
+                    earthSpirit.CastSpell(GetTarget, spellInfo.Id, true);
+                }
+            }
+        }
+    }
 }

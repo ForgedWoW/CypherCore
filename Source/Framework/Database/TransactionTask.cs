@@ -7,38 +7,38 @@ namespace Framework.Database;
 
 public class TransactionTask : ISqlOperation
 {
-	public static object _deadlockLock = new();
+    public static object _deadlockLock = new();
 
     private readonly SQLTransaction m_trans;
 
-	public TransactionTask(SQLTransaction trans)
-	{
-		m_trans = trans;
-	}
+    public TransactionTask(SQLTransaction trans)
+    {
+        m_trans = trans;
+    }
 
-	public virtual bool Execute<T>(MySqlBase<T> mySqlBase)
-	{
-		var errorCode = TryExecute(mySqlBase);
+    public virtual bool Execute<T>(MySqlBase<T> mySqlBase)
+    {
+        var errorCode = TryExecute(mySqlBase);
 
-		if (errorCode == MySqlErrorCode.None)
-			return true;
+        if (errorCode == MySqlErrorCode.None)
+            return true;
 
-		if (errorCode == MySqlErrorCode.LockDeadlock)
-			// Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
-			lock (_deadlockLock)
-			{
-				byte loopBreaker = 5; // Handle MySQL Errno 1213 without extending deadlock to the core itself
+        if (errorCode == MySqlErrorCode.LockDeadlock)
+            // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
+            lock (_deadlockLock)
+            {
+                byte loopBreaker = 5; // Handle MySQL Errno 1213 without extending deadlock to the core itself
 
-				for (byte i = 0; i < loopBreaker; ++i)
-					if (TryExecute(mySqlBase) == MySqlErrorCode.None)
-						return true;
-			}
+                for (byte i = 0; i < loopBreaker; ++i)
+                    if (TryExecute(mySqlBase) == MySqlErrorCode.None)
+                        return true;
+            }
 
-		return false;
-	}
+        return false;
+    }
 
-	public MySqlErrorCode TryExecute<T>(MySqlBase<T> mySqlBase)
-	{
-		return mySqlBase.DirectCommitTransaction(m_trans);
-	}
+    public MySqlErrorCode TryExecute<T>(MySqlBase<T> mySqlBase)
+    {
+        return mySqlBase.DirectCommitTransaction(m_trans);
+    }
 }

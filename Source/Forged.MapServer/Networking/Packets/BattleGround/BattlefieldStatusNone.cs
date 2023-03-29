@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class BattlefieldStatusNone : ServerPacket
 {
-	public RideTicket Ticket = new();
-	public BattlefieldStatusNone() : base(ServerOpcodes.BattlefieldStatusNone) { }
+    public RideTicket Ticket = new();
+    public BattlefieldStatusNone() : base(ServerOpcodes.BattlefieldStatusNone) { }
 
-	public override void Write()
-	{
-		Ticket.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        Ticket.Write(_worldPacket);
+    }
 }

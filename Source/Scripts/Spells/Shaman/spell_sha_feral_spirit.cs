@@ -12,17 +12,17 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(51533)]
 public class spell_sha_feral_spirit : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		caster.CastSpell(HitUnit, ShamanSpells.FERAL_SPIRIT_SUMMON, true);
-	}
+        caster.CastSpell(HitUnit, ShamanSpells.FERAL_SPIRIT_SUMMON, true);
+    }
 }

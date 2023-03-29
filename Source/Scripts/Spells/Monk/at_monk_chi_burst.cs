@@ -10,15 +10,15 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class at_monk_chi_burst : AreaTriggerScript, IAreaTriggerOnUnitEnter
 {
-	public void OnUnitEnter(Unit target)
-	{
-		if (!At.GetCaster())
-			return;
+    public void OnUnitEnter(Unit target)
+    {
+        if (!At.GetCaster())
+            return;
 
-		if (At.GetCaster().IsValidAssistTarget(target))
-			At.GetCaster().CastSpell(target, MonkSpells.CHI_BURST_HEAL, true);
+        if (At.GetCaster().IsValidAssistTarget(target))
+            At.GetCaster().CastSpell(target, MonkSpells.CHI_BURST_HEAL, true);
 
-		if (At.GetCaster().IsValidAttackTarget(target))
-			At.GetCaster().CastSpell(target, MonkSpells.CHI_BURST_DAMAGE, true);
-	}
+        if (At.GetCaster().IsValidAttackTarget(target))
+            At.GetCaster().CastSpell(target, MonkSpells.CHI_BURST_DAMAGE, true);
+    }
 }

@@ -5,9 +5,9 @@ namespace Forged.MapServer.Battlepay;
 
 public enum BpayDistributionStatus
 {
-	NONE = 0,
-	AVAILABLE = 1,
-	ADD_TO_PROCESS = 2,
-	PROCESS_COMPLETE = 3,
-	FINISHED = 4
+    NONE = 0,
+    AVAILABLE = 1,
+    ADD_TO_PROCESS = 2,
+    PROCESS_COMPLETE = 3,
+    FINISHED = 4
 }

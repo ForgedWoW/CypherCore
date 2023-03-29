@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IVehicle;
 
 public interface IVehicleOnRemovePassenger : IScriptObject
 {
-	void OnRemovePassenger(Vehicle veh, Unit passenger);
+    void OnRemovePassenger(Vehicle veh, Unit passenger);
 }

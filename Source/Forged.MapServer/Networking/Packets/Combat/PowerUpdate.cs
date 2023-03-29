@@ -9,23 +9,23 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public class PowerUpdate : ServerPacket
 {
-	public ObjectGuid Guid;
-	public List<PowerUpdatePower> Powers;
+    public ObjectGuid Guid;
+    public List<PowerUpdatePower> Powers;
 
-	public PowerUpdate() : base(ServerOpcodes.PowerUpdate)
-	{
-		Powers = new List<PowerUpdatePower>();
-	}
+    public PowerUpdate() : base(ServerOpcodes.PowerUpdate)
+    {
+        Powers = new List<PowerUpdatePower>();
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Guid);
-		_worldPacket.WriteInt32(Powers.Count);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Guid);
+        _worldPacket.WriteInt32(Powers.Count);
 
-		foreach (var power in Powers)
-		{
-			_worldPacket.WriteInt32(power.Power);
-			_worldPacket.WriteUInt8(power.PowerType);
-		}
-	}
+        foreach (var power in Powers)
+        {
+            _worldPacket.WriteInt32(power.Power);
+            _worldPacket.WriteUInt8(power.PowerType);
+        }
+    }
 }

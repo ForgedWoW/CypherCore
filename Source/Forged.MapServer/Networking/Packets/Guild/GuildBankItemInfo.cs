@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildBankItemInfo
 {
-	public ItemInstance Item = new();
-	public int Slot;
-	public int Count;
-	public int EnchantmentID;
-	public int Charges;
-	public int OnUseEnchantmentID;
-	public uint Flags;
-	public bool Locked;
-	public List<ItemGemData> SocketEnchant = new();
+    public ItemInstance Item = new();
+    public int Slot;
+    public int Count;
+    public int EnchantmentID;
+    public int Charges;
+    public int OnUseEnchantmentID;
+    public uint Flags;
+    public bool Locked;
+    public List<ItemGemData> SocketEnchant = new();
 }

@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 public interface IAreaTriggerOnUnitEnter : IAreaTriggerScript
 {
-	public void OnUnitEnter(Unit unit);
+    public void OnUnitEnter(Unit unit);
 }

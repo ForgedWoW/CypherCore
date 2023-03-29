@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum CalendarEventType
 {
-	Raid = 0,
-	Dungeon = 1,
-	Pvp = 2,
-	Meeting = 3,
-	Other = 4,
-	Heroic = 5
+    Raid = 0,
+    Dungeon = 1,
+    Pvp = 2,
+    Meeting = 3,
+    Other = 4,
+    Heroic = 5
 }

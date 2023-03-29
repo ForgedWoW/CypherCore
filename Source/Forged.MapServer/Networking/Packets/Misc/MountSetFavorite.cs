@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class MountSetFavorite : ClientPacket
 {
-	public uint MountSpellID;
-	public bool IsFavorite;
-	public MountSetFavorite(WorldPacket packet) : base(packet) { }
+    public uint MountSpellID;
+    public bool IsFavorite;
+    public MountSetFavorite(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		MountSpellID = _worldPacket.ReadUInt32();
-		IsFavorite = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        MountSpellID = _worldPacket.ReadUInt32();
+        IsFavorite = _worldPacket.HasBit();
+    }
 }

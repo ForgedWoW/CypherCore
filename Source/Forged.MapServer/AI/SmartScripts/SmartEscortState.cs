@@ -5,8 +5,8 @@ namespace Forged.MapServer.AI.SmartScripts;
 
 public enum SmartEscortState
 {
-	None = 0x00,      //nothing in progress
-	Escorting = 0x01, //escort is in progress
-	Returning = 0x02, //escort is returning after being in combat
-	Paused = 0x04     //will not proceed with waypoints before state is removed
+    None = 0x00,      //nothing in progress
+    Escorting = 0x01, //escort is in progress
+    Returning = 0x02, //escort is returning after being in combat
+    Paused = 0x04     //will not proceed with waypoints before state is removed
 }

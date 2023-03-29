@@ -8,7 +8,7 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct NotOwnerAppend : IChannelAppender
 {
-	public ChatNotify GetNotificationType() => ChatNotify.NotOwnerNotice;
+    public ChatNotify GetNotificationType() => ChatNotify.NotOwnerNotice;
 
-	public void Append(ChannelNotify data) { }
+    public void Append(ChannelNotify data) { }
 }

@@ -11,13 +11,13 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.TEMPORAL_COMPRESSION_AURA)]
 public class aura_evoker_temporal_compression_aura : AuraScript, IAuraCheckProc, IAuraOnProc
 {
-	public bool CheckProc(ProcEventInfo info)
-	{
-		return info.SpellInfo.Id.EqualsAny(EvokerSpells.GREEN_DREAM_BREATH_CHARGED,
-                                            EvokerSpells.ETERNITY_SURGE_CHARGED,
-                                            EvokerSpells.RED_FIRE_BREATH_CHARGED,
-                                            EvokerSpells.SPIRITBLOOM_CHARGED);
-	}
+    public bool CheckProc(ProcEventInfo info)
+    {
+        return info.SpellInfo.Id.EqualsAny(EvokerSpells.GREEN_DREAM_BREATH_CHARGED,
+                                           EvokerSpells.ETERNITY_SURGE_CHARGED,
+                                           EvokerSpells.RED_FIRE_BREATH_CHARGED,
+                                           EvokerSpells.SPIRITBLOOM_CHARGED);
+    }
 
     public void OnProc(ProcEventInfo info)
     {

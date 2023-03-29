@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonLearnBlueprintResult : ServerPacket
 {
-	public GarrisonType GarrTypeID;
-	public uint BuildingID;
-	public GarrisonError Result;
-	public GarrisonLearnBlueprintResult() : base(ServerOpcodes.GarrisonLearnBlueprintResult, ConnectionType.Instance) { }
+    public GarrisonType GarrTypeID;
+    public uint BuildingID;
+    public GarrisonError Result;
+    public GarrisonLearnBlueprintResult() : base(ServerOpcodes.GarrisonLearnBlueprintResult, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32((int)GarrTypeID);
-		_worldPacket.WriteUInt32((uint)Result);
-		_worldPacket.WriteUInt32(BuildingID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32((int)GarrTypeID);
+        _worldPacket.WriteUInt32((uint)Result);
+        _worldPacket.WriteUInt32(BuildingID);
+    }
 }

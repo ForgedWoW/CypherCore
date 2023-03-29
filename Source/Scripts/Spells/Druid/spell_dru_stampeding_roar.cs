@@ -10,10 +10,10 @@ namespace Scripts.Spells.Druid;
 [Script] // 106898 - Stampeding Roar
 internal class spell_dru_stampeding_roar : SpellScript, ISpellBeforeCast
 {
-	public void BeforeCast()
-	{
-		// Change into cat form
-		if (Caster.ShapeshiftForm != ShapeShiftForm.BearForm)
-			Caster.CastSpell(Caster, DruidSpellIds.BearForm, true);
-	}
+    public void BeforeCast()
+    {
+        // Change into cat form
+        if (Caster.ShapeshiftForm != ShapeShiftForm.BearForm)
+            Caster.CastSpell(Caster, DruidSpellIds.BearForm, true);
+    }
 }

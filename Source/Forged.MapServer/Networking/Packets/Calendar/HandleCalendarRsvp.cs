@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class HandleCalendarRsvp : ClientPacket
 {
-	public ulong InviteID;
-	public ulong EventID;
-	public CalendarInviteStatus Status;
-	public HandleCalendarRsvp(WorldPacket packet) : base(packet) { }
+    public ulong InviteID;
+    public ulong EventID;
+    public CalendarInviteStatus Status;
+    public HandleCalendarRsvp(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		EventID = _worldPacket.ReadUInt64();
-		InviteID = _worldPacket.ReadUInt64();
-		Status = (CalendarInviteStatus)_worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        EventID = _worldPacket.ReadUInt64();
+        InviteID = _worldPacket.ReadUInt64();
+        Status = (CalendarInviteStatus)_worldPacket.ReadUInt8();
+    }
 }

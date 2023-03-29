@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum SheathState
 {
-	Unarmed = 0, // non prepared weapon
-	Melee = 1,   // prepared melee weapon
-	Ranged = 2,  // prepared ranged weapon
+    Unarmed = 0, // non prepared weapon
+    Melee = 1,   // prepared melee weapon
+    Ranged = 2,  // prepared ranged weapon
 
-	Max = 3
+    Max = 3
 }

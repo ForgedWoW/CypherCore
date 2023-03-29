@@ -8,20 +8,20 @@ namespace Scripts.Spells.Priest;
 
 public class RaidCheck : ICheck<WorldObject>
 {
-	private readonly Unit _caster;
+    private readonly Unit _caster;
 
-	public RaidCheck(Unit caster)
-	{
-		_caster = caster;
-	}
+    public RaidCheck(Unit caster)
+    {
+        _caster = caster;
+    }
 
-	public bool Invoke(WorldObject obj)
-	{
-		var target = obj.AsUnit;
+    public bool Invoke(WorldObject obj)
+    {
+        var target = obj.AsUnit;
 
-		if (target != null)
-			return !_caster.IsInRaidWith(target);
+        if (target != null)
+            return !_caster.IsInRaidWith(target);
 
-		return true;
-	}
+        return true;
+    }
 }

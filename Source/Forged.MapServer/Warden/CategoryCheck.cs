@@ -8,28 +8,28 @@ namespace Forged.MapServer.Warden;
 
 internal class CategoryCheck
 {
-	public List<ushort> Checks = new();
-	public ushort CurrentIndex;
+    public List<ushort> Checks = new();
+    public ushort CurrentIndex;
 
-	public CategoryCheck(List<ushort> checks)
-	{
-		Checks = checks;
-		CurrentIndex = 0;
-	}
+    public CategoryCheck(List<ushort> checks)
+    {
+        Checks = checks;
+        CurrentIndex = 0;
+    }
 
-	public bool Empty()
-	{
-		return Checks.Empty();
-	}
+    public bool Empty()
+    {
+        return Checks.Empty();
+    }
 
-	public bool IsAtEnd()
-	{
-		return CurrentIndex >= Checks.Count;
-	}
+    public bool IsAtEnd()
+    {
+        return CurrentIndex >= Checks.Count;
+    }
 
-	public void Shuffle()
-	{
-		Checks = Checks.Shuffle().ToList();
-		CurrentIndex = 0;
-	}
+    public void Shuffle()
+    {
+        Checks = Checks.Shuffle().ToList();
+        CurrentIndex = 0;
+    }
 }

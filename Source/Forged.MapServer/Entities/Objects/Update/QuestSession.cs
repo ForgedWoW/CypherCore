@@ -8,48 +8,48 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class QuestSession : BaseUpdateData<Player>
 {
-	public UpdateField<ObjectGuid> Owner = new(0, 1);
-	public UpdateFieldArray<ulong> QuestCompleted = new(875, 2, 3);
+    public UpdateField<ObjectGuid> Owner = new(0, 1);
+    public UpdateFieldArray<ulong> QuestCompleted = new(875, 2, 3);
 
-	public QuestSession() : base(878) { }
+    public QuestSession() : base(878) { }
 
-	public void WriteCreate(WorldPacket data, Player owner, Player receiver)
-	{
-		data.WritePackedGuid(Owner);
+    public void WriteCreate(WorldPacket data, Player owner, Player receiver)
+    {
+        data.WritePackedGuid(Owner);
 
-		for (var i = 0; i < 875; ++i)
-			data.WriteUInt64(QuestCompleted[i]);
-	}
+        for (var i = 0; i < 875; ++i)
+            data.WriteUInt64(QuestCompleted[i]);
+    }
 
-	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Player owner, Player receiver)
-	{
-		var changesMask = ChangesMask;
+    public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Player owner, Player receiver)
+    {
+        var changesMask = ChangesMask;
 
-		if (ignoreChangesMask)
-			changesMask.SetAll();
+        if (ignoreChangesMask)
+            changesMask.SetAll();
 
-		data.WriteBits(changesMask.GetBlocksMask(0), 28);
+        data.WriteBits(changesMask.GetBlocksMask(0), 28);
 
-		for (uint i = 0; i < 28; ++i)
-			if (changesMask.GetBlock(i) != 0)
-				data.WriteBits(changesMask.GetBlock(i), 32);
+        for (uint i = 0; i < 28; ++i)
+            if (changesMask.GetBlock(i) != 0)
+                data.WriteBits(changesMask.GetBlock(i), 32);
 
-		data.FlushBits();
+        data.FlushBits();
 
-		if (changesMask[0])
-			if (changesMask[1])
-				data.WritePackedGuid(Owner);
+        if (changesMask[0])
+            if (changesMask[1])
+                data.WritePackedGuid(Owner);
 
-		if (changesMask[2])
-			for (var i = 0; i < 875; ++i)
-				if (changesMask[3 + i])
-					data.WriteUInt64(QuestCompleted[i]);
-	}
+        if (changesMask[2])
+            for (var i = 0; i < 875; ++i)
+                if (changesMask[3 + i])
+                    data.WriteUInt64(QuestCompleted[i]);
+    }
 
-	public override void ClearChangesMask()
-	{
-		ClearChangesMask(Owner);
-		ClearChangesMask(QuestCompleted);
-		ChangesMask.ResetAll();
-	}
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Owner);
+        ClearChangesMask(QuestCompleted);
+        ChangesMask.ResetAll();
+    }
 }

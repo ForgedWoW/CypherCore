@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum TextureSection // TODO: Find a better name. Used in CharSections.dbc
 {
-	BaseSkin = 0,
-	Face = 1,
-	FacialHair = 2,
-	Hair = 3,
-	Underwear = 4,
+    BaseSkin = 0,
+    Face = 1,
+    FacialHair = 2,
+    Hair = 3,
+    Underwear = 4,
 }

@@ -9,13 +9,13 @@ internal class ChatRestricted : ServerPacket
 {
     private readonly ChatRestrictionType Reason;
 
-	public ChatRestricted(ChatRestrictionType reason) : base(ServerOpcodes.ChatRestricted)
-	{
-		Reason = reason;
-	}
+    public ChatRestricted(ChatRestrictionType reason) : base(ServerOpcodes.ChatRestricted)
+    {
+        Reason = reason;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt8((byte)Reason);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt8((byte)Reason);
+    }
 }

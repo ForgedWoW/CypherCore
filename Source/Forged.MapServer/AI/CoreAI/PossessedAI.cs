@@ -9,46 +9,46 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class PossessedAI : CreatureAI
 {
-	public PossessedAI(Creature creature) : base(creature)
-	{
-		creature.ReactState = ReactStates.Passive;
-	}
+    public PossessedAI(Creature creature) : base(creature)
+    {
+        creature.ReactState = ReactStates.Passive;
+    }
 
-	public override void AttackStart(Unit target)
-	{
-		Me.Attack(target, true);
-	}
+    public override void AttackStart(Unit target)
+    {
+        Me.Attack(target, true);
+    }
 
-	public override void UpdateAI(uint diff)
-	{
-		if (Me.Victim != null)
-		{
-			if (!Me.IsValidAttackTarget(Me.Victim))
-				Me.AttackStop();
-			else
-				DoMeleeAttackIfReady();
-		}
-	}
+    public override void UpdateAI(uint diff)
+    {
+        if (Me.Victim != null)
+        {
+            if (!Me.IsValidAttackTarget(Me.Victim))
+                Me.AttackStop();
+            else
+                DoMeleeAttackIfReady();
+        }
+    }
 
-	public override void JustDied(Unit unit)
-	{
-		// We died while possessed, disable our loot
-		Me.RemoveDynamicFlag(UnitDynFlags.Lootable);
-	}
+    public override void JustDied(Unit unit)
+    {
+        // We died while possessed, disable our loot
+        Me.RemoveDynamicFlag(UnitDynFlags.Lootable);
+    }
 
-	public override void MoveInLineOfSight(Unit who) { }
+    public override void MoveInLineOfSight(Unit who) { }
 
-	public override void JustEnteredCombat(Unit who)
-	{
-		EngagementStart(who);
-	}
+    public override void JustEnteredCombat(Unit who)
+    {
+        EngagementStart(who);
+    }
 
-	public override void JustExitedCombat()
-	{
-		EngagementOver();
-	}
+    public override void JustExitedCombat()
+    {
+        EngagementOver();
+    }
 
-	public override void JustStartedThreateningMe(Unit who) { }
+    public override void JustStartedThreateningMe(Unit who) { }
 
-	public override void EnterEvadeMode(EvadeReason why) { }
+    public override void EnterEvadeMode(EvadeReason why) { }
 }

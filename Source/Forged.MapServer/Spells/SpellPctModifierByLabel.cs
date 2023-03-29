@@ -8,7 +8,7 @@ namespace Forged.MapServer.Spells;
 
 internal class SpellPctModifierByLabel : SpellModifier
 {
-	public SpellPctModByLabel Value = new();
+    public SpellPctModByLabel Value = new();
 
-	public SpellPctModifierByLabel(Aura ownerAura) : base(ownerAura) { }
+    public SpellPctModifierByLabel(Aura ownerAura) : base(ownerAura) { }
 }

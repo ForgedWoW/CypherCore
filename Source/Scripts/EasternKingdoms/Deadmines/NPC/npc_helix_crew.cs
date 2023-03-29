@@ -11,40 +11,40 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 
 [CreatureScript(new uint[]
 {
-	49136, 49137, 49138, 49139
+    49136, 49137, 49138, 49139
 })]
 public class npc_helix_crew : PassiveAI
 {
-	public uint ThrowBombTimer;
+    public uint ThrowBombTimer;
 
-	public npc_helix_crew(Creature pCreature) : base(pCreature) { }
+    public npc_helix_crew(Creature pCreature) : base(pCreature) { }
 
-	public override void Reset()
-	{
-		ThrowBombTimer = 3000;
-		DoCast(Me, 18373);
+    public override void Reset()
+    {
+        ThrowBombTimer = 3000;
+        DoCast(Me, 18373);
 
-		var victim = Me.FindNearestPlayer(80.0f);
+        var victim = Me.FindNearestPlayer(80.0f);
 
-		if (victim != null)
-			Me.Attack(victim, false);
-	}
+        if (victim != null)
+            Me.Attack(victim, false);
+    }
 
-	public override void UpdateAI(uint diff)
-	{
-		if (ThrowBombTimer <= diff)
-		{
-			var player = SelectTarget(SelectTargetMethod.Random, 0, 200, true);
+    public override void UpdateAI(uint diff)
+    {
+        if (ThrowBombTimer <= diff)
+        {
+            var player = SelectTarget(SelectTargetMethod.Random, 0, 200, true);
 
-			if (player != null)
-			{
-				DoCast(player, eSpels.THROW_BOMB);
-				ThrowBombTimer = 5000;
-			}
-		}
-		else
-		{
-			ThrowBombTimer -= diff;
-		}
-	}
+            if (player != null)
+            {
+                DoCast(player, eSpels.THROW_BOMB);
+                ThrowBombTimer = 5000;
+            }
+        }
+        else
+        {
+            ThrowBombTimer -= diff;
+        }
+    }
 }

@@ -8,21 +8,21 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellFailure : ServerPacket
 {
-	public ObjectGuid CasterUnit;
-	public uint SpellID;
-	public SpellCastVisual Visual;
-	public ushort Reason;
-	public ObjectGuid CastID;
-	public SpellFailure() : base(ServerOpcodes.SpellFailure, ConnectionType.Instance) { }
+    public ObjectGuid CasterUnit;
+    public uint SpellID;
+    public SpellCastVisual Visual;
+    public ushort Reason;
+    public ObjectGuid CastID;
+    public SpellFailure() : base(ServerOpcodes.SpellFailure, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(CasterUnit);
-		_worldPacket.WritePackedGuid(CastID);
-		_worldPacket.WriteUInt32(SpellID);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(CasterUnit);
+        _worldPacket.WritePackedGuid(CastID);
+        _worldPacket.WriteUInt32(SpellID);
 
-		Visual.Write(_worldPacket);
+        Visual.Write(_worldPacket);
 
-		_worldPacket.WriteUInt16(Reason);
-	}
+        _worldPacket.WriteUInt16(Reason);
+    }
 }

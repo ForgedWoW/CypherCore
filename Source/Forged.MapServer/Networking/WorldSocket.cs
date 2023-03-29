@@ -20,6 +20,31 @@ namespace Forged.MapServer.Networking;
 
 public class WorldSocket : SocketBase
 {
+    private const string ClientConnectionInitialize = "WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER - V2";
+    private const string ServerConnectionInitialize = "WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT - V2";
+
+    private const int HeaderSize = 16;
+
+    private static readonly byte[] AuthCheckSeed =
+    {
+        0xC5, 0xC6, 0x98, 0x95, 0x76, 0x3F, 0x1D, 0xCD, 0xB6, 0xA1, 0x37, 0x28, 0xB3, 0x12, 0xFF, 0x8A
+    };
+
+    private static readonly byte[] SessionKeySeed =
+    {
+        0x58, 0xCB, 0xCF, 0x40, 0xFE, 0x2E, 0xCE, 0xA6, 0x5A, 0x90, 0xB8, 0x01, 0x68, 0x6C, 0x28, 0x0B
+    };
+
+    private static readonly byte[] ContinuedSessionSeed =
+    {
+        0x16, 0xAD, 0x0C, 0xD4, 0x46, 0xF9, 0x4F, 0xB2, 0xEF, 0x7D, 0xEA, 0x2A, 0x17, 0x66, 0x4D, 0x2F
+    };
+
+    private static readonly byte[] EncryptionKeySeed =
+    {
+        0xE9, 0x75, 0x3C, 0x50, 0x90, 0x93, 0x61, 0xDA, 0x3B, 0x07, 0xEE, 0xFA, 0xFF, 0x9D, 0x41, 0xB8
+    };
+
     private readonly LoginDatabase _loginDatabase;
     private readonly PacketManager _packetManager;
     private readonly Realm _realm;
@@ -27,30 +52,6 @@ public class WorldSocket : SocketBase
     private readonly IConfiguration _configuration;
     private readonly WorldManager _worldManager;
     private readonly ClassFactory _classFactory;
-    private const string ClientConnectionInitialize = "WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER - V2";
-    private const string ServerConnectionInitialize = "WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT - V2";
-
-    private static readonly byte[] AuthCheckSeed =
-	{
-		0xC5, 0xC6, 0x98, 0x95, 0x76, 0x3F, 0x1D, 0xCD, 0xB6, 0xA1, 0x37, 0x28, 0xB3, 0x12, 0xFF, 0x8A
-	};
-
-    private static readonly byte[] SessionKeySeed =
-	{
-		0x58, 0xCB, 0xCF, 0x40, 0xFE, 0x2E, 0xCE, 0xA6, 0x5A, 0x90, 0xB8, 0x01, 0x68, 0x6C, 0x28, 0x0B
-	};
-
-    private static readonly byte[] ContinuedSessionSeed =
-	{
-		0x16, 0xAD, 0x0C, 0xD4, 0x46, 0xF9, 0x4F, 0xB2, 0xEF, 0x7D, 0xEA, 0x2A, 0x17, 0x66, 0x4D, 0x2F
-	};
-
-    private static readonly byte[] EncryptionKeySeed =
-	{
-		0xE9, 0x75, 0x3C, 0x50, 0x90, 0x93, 0x61, 0xDA, 0x3B, 0x07, 0xEE, 0xFA, 0xFF, 0x9D, 0x41, 0xB8
-	};
-
-    private const int HeaderSize = 16;
     private readonly SocketBuffer _headerBuffer;
     private readonly SocketBuffer _packetBuffer;
     private readonly WorldCrypt _worldCrypt;
@@ -70,9 +71,9 @@ public class WorldSocket : SocketBase
     private AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
     private string _ipCountry;
 
-	public WorldSocket(Socket socket, LoginDatabase loginDatabase, PacketManager packetManager, 
+    public WorldSocket(Socket socket, LoginDatabase loginDatabase, PacketManager packetManager,
                        Realm realm, RealmManager realmManager, IConfiguration configuration, WorldManager worldManager, ClassFactory classFactory) : base(socket)
-	{
+    {
         _loginDatabase = loginDatabase;
         _packetManager = packetManager;
         _realm = realm;
@@ -80,860 +81,861 @@ public class WorldSocket : SocketBase
         _configuration = configuration;
         _worldManager = worldManager;
         _classFactory = classFactory;
-		_serverChallenge = Array.Empty<byte>().GenerateRandomKey(16);
-		_worldCrypt = new WorldCrypt();
+        _serverChallenge = Array.Empty<byte>().GenerateRandomKey(16);
+        _worldCrypt = new WorldCrypt();
 
-		_encryptKey = new byte[16];
+        _encryptKey = new byte[16];
 
-		_headerBuffer = new SocketBuffer(HeaderSize);
-		_packetBuffer = new SocketBuffer();
-	}
+        _headerBuffer = new SocketBuffer(HeaderSize);
+        _packetBuffer = new SocketBuffer();
+    }
 
-	public override void Dispose()
-	{
-		_worldSession = null;
-		_serverChallenge = null;
-		_queryProcessor = null;
-		_sessionKey = null;
-		_compressionStream = null;
+    public override void Dispose()
+    {
+        _worldSession = null;
+        _serverChallenge = null;
+        _queryProcessor = null;
+        _sessionKey = null;
+        _compressionStream = null;
 
-		base.Dispose();
-	}
+        base.Dispose();
+    }
 
-	public override void Accept()
-	{
-		var ipAddress = GetRemoteIpAddress().ToString();
+    public override void Accept()
+    {
+        var ipAddress = GetRemoteIpAddress().ToString();
 
-		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SelIpInfo);
-		stmt.AddValue(0, ipAddress);
-		stmt.AddValue(1, BitConverter.ToUInt32(GetRemoteIpAddress().Address.GetAddressBytes(), 0));
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SelIpInfo);
+        stmt.AddValue(0, ipAddress);
+        stmt.AddValue(1, BitConverter.ToUInt32(GetRemoteIpAddress().Address.GetAddressBytes(), 0));
 
-		_queryProcessor.AddCallback(_loginDatabase.AsyncQuery(stmt).WithCallback(CheckIpCallback));
-	}
+        _queryProcessor.AddCallback(_loginDatabase.AsyncQuery(stmt).WithCallback(CheckIpCallback));
+    }
 
-	public override void ReadHandler(SocketAsyncEventArgs args)
-	{
-		if (!IsOpen())
-			return;
+    public override void ReadHandler(SocketAsyncEventArgs args)
+    {
+        if (!IsOpen())
+            return;
 
-		var currentReadIndex = 0;
+        var currentReadIndex = 0;
 
-		while (currentReadIndex < args.BytesTransferred)
-		{
-			if (_headerBuffer.GetRemainingSpace() > 0)
-			{
-				// need to receive the header
-				var readHeaderSize = Math.Min(args.BytesTransferred - currentReadIndex, _headerBuffer.GetRemainingSpace());
-				_headerBuffer.Write(args.Buffer, currentReadIndex, readHeaderSize);
-				currentReadIndex += readHeaderSize;
+        while (currentReadIndex < args.BytesTransferred)
+        {
+            if (_headerBuffer.GetRemainingSpace() > 0)
+            {
+                // need to receive the header
+                var readHeaderSize = Math.Min(args.BytesTransferred - currentReadIndex, _headerBuffer.GetRemainingSpace());
+                _headerBuffer.Write(args.Buffer, currentReadIndex, readHeaderSize);
+                currentReadIndex += readHeaderSize;
 
-				if (_headerBuffer.GetRemainingSpace() > 0)
-					break; // Couldn't receive the whole header this time.
+                if (_headerBuffer.GetRemainingSpace() > 0)
+                    break; // Couldn't receive the whole header this time.
 
-				// We just received nice new header
-				if (!ReadHeader())
-				{
-					CloseSocket();
+                // We just received nice new header
+                if (!ReadHeader())
+                {
+                    CloseSocket();
 
-					return;
-				}
-			}
+                    return;
+                }
+            }
 
-			// We have full read header, now check the data payload
-			if (_packetBuffer.GetRemainingSpace() > 0)
-			{
-				// need more data in the payload
-				var readDataSize = Math.Min(args.BytesTransferred - currentReadIndex, _packetBuffer.GetRemainingSpace());
-				_packetBuffer.Write(args.Buffer, currentReadIndex, readDataSize);
-				currentReadIndex += readDataSize;
+            // We have full read header, now check the data payload
+            if (_packetBuffer.GetRemainingSpace() > 0)
+            {
+                // need more data in the payload
+                var readDataSize = Math.Min(args.BytesTransferred - currentReadIndex, _packetBuffer.GetRemainingSpace());
+                _packetBuffer.Write(args.Buffer, currentReadIndex, readDataSize);
+                currentReadIndex += readDataSize;
 
-				if (_packetBuffer.GetRemainingSpace() > 0)
-					break; // Couldn't receive the whole data this time.
-			}
+                if (_packetBuffer.GetRemainingSpace() > 0)
+                    break; // Couldn't receive the whole data this time.
+            }
 
-			// just received fresh new payload
-			var result = ReadData();
-			_headerBuffer.Reset();
+            // just received fresh new payload
+            var result = ReadData();
+            _headerBuffer.Reset();
 
-			if (result != ReadDataHandlerResult.Ok)
-			{
-				if (result != ReadDataHandlerResult.WaitingForQuery)
-					CloseSocket();
+            if (result != ReadDataHandlerResult.Ok)
+            {
+                if (result != ReadDataHandlerResult.WaitingForQuery)
+                    CloseSocket();
 
-				return;
-			}
-		}
+                return;
+            }
+        }
 
-		AsyncRead();
-	}
+        AsyncRead();
+    }
 
-	public void SendPacket(ServerPacket packet)
-	{
-		if (!IsOpen() || _serverChallenge == null)
-			return;
+    public void SendPacket(ServerPacket packet)
+    {
+        if (!IsOpen() || _serverChallenge == null)
+            return;
 
-		// SendPacket may be called from multiple threads.
-		lock (_sendlock)
-		{
-			try
-			{
-				packet.LogPacket(_worldSession);
-				packet.WritePacketData();
-				Log.Logger.Verbose("Received opcode: {0} ({1})", packet.GetOpcode(), (uint)packet.GetOpcode());
+        // SendPacket may be called from multiple threads.
+        lock (_sendlock)
+        {
+            try
+            {
+                packet.LogPacket(_worldSession);
+                packet.WritePacketData();
+                Log.Logger.Verbose("Received opcode: {0} ({1})", packet.GetOpcode(), (uint)packet.GetOpcode());
 
-				var data = packet.GetData();
-				var opcode = packet.GetOpcode();
-				PacketLog.Write(data, (uint)opcode, GetRemoteIpAddress(), ConnectionType.Instance, false);
+                var data = packet.GetData();
+                var opcode = packet.GetOpcode();
+                PacketLog.Write(data, (uint)opcode, GetRemoteIpAddress(), ConnectionType.Instance, false);
 
-				ByteBuffer buffer = new();
+                ByteBuffer buffer = new();
 
-				var packetSize = data.Length;
+                var packetSize = data.Length;
 
-				if (packetSize > 0x400 && _worldCrypt.IsInitialized)
-				{
-					buffer.WriteInt32(packetSize + 2);
-					buffer.WriteUInt32(ZLib.adler32(ZLib.adler32(0x9827D8F1, BitConverter.GetBytes((ushort)opcode), 2), data, (uint)packetSize));
+                if (packetSize > 0x400 && _worldCrypt.IsInitialized)
+                {
+                    buffer.WriteInt32(packetSize + 2);
+                    buffer.WriteUInt32(ZLib.adler32(ZLib.adler32(0x9827D8F1, BitConverter.GetBytes((ushort)opcode), 2), data, (uint)packetSize));
 
-					var compressedSize = CompressPacket(data, opcode, out var compressedData);
-					buffer.WriteUInt32(ZLib.adler32(0x9827D8F1, compressedData, compressedSize));
-					buffer.WriteBytes(compressedData, compressedSize);
+                    var compressedSize = CompressPacket(data, opcode, out var compressedData);
+                    buffer.WriteUInt32(ZLib.adler32(0x9827D8F1, compressedData, compressedSize));
+                    buffer.WriteBytes(compressedData, compressedSize);
 
-					packetSize = (int)(compressedSize + 12);
-					opcode = ServerOpcodes.CompressedPacket;
+                    packetSize = (int)(compressedSize + 12);
+                    opcode = ServerOpcodes.CompressedPacket;
 
-					data = buffer.GetData();
-				}
+                    data = buffer.GetData();
+                }
 
-				buffer = new ByteBuffer();
-				buffer.WriteUInt16((ushort)opcode);
-				buffer.WriteBytes(data);
-				packetSize += 2 /*opcode*/;
+                buffer = new ByteBuffer();
+                buffer.WriteUInt16((ushort)opcode);
+                buffer.WriteBytes(data);
+                packetSize += 2 /*opcode*/;
 
-				data = buffer.GetData();
+                data = buffer.GetData();
 
-				PacketHeader header = new()
-				{
-					Size = packetSize
-				};
+                PacketHeader header = new()
+                {
+                    Size = packetSize
+                };
 
-				_worldCrypt.Encrypt(ref data, ref header.Tag);
+                _worldCrypt.Encrypt(ref data, ref header.Tag);
 
-				ByteBuffer byteBuffer = new();
-				header.Write(byteBuffer);
-				byteBuffer.WriteBytes(data);
+                ByteBuffer byteBuffer = new();
+                header.Write(byteBuffer);
+                byteBuffer.WriteBytes(data);
 
-				AsyncWrite(byteBuffer.GetData()); // LIES not async.
-			}
-			catch (Exception ex)
-			{
-				Log.Logger.Error(ex);
-			}
-		}
-	}
+                AsyncWrite(byteBuffer.GetData()); // LIES not async.
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex);
+            }
+        }
+    }
 
     public uint CompressPacket(byte[] data, ServerOpcodes opcode, out byte[] outData)
-	{
-		var uncompressedData = BitConverter.GetBytes((ushort)opcode).Combine(data);
+    {
+        var uncompressedData = BitConverter.GetBytes((ushort)opcode).Combine(data);
 
-		var bufferSize = ZLib.deflateBound(_compressionStream, (uint)data.Length);
-		outData = new byte[bufferSize];
+        var bufferSize = ZLib.deflateBound(_compressionStream, (uint)data.Length);
+        outData = new byte[bufferSize];
 
-		_compressionStream.next_out = 0;
-		_compressionStream.avail_out = bufferSize;
-		_compressionStream.out_buf = outData;
+        _compressionStream.next_out = 0;
+        _compressionStream.avail_out = bufferSize;
+        _compressionStream.out_buf = outData;
 
-		_compressionStream.next_in = 0;
-		_compressionStream.avail_in = (uint)uncompressedData.Length;
-		_compressionStream.in_buf = uncompressedData;
+        _compressionStream.next_in = 0;
+        _compressionStream.avail_in = (uint)uncompressedData.Length;
+        _compressionStream.in_buf = uncompressedData;
 
-		var zRes = ZLib.deflate(_compressionStream, 2);
+        var zRes = ZLib.deflate(_compressionStream, 2);
 
-		if (zRes != 0)
-		{
-			Log.Logger.Error("Can't compress packet data (zlib: deflate) Error code: {0} msg: {1}", zRes, _compressionStream.msg);
+        if (zRes != 0)
+        {
+            Log.Logger.Error("Can't compress packet data (zlib: deflate) Error code: {0} msg: {1}", zRes, _compressionStream.msg);
 
-			return 0;
-		}
+            return 0;
+        }
 
-		return bufferSize - _compressionStream.avail_out;
-	}
+        return bufferSize - _compressionStream.avail_out;
+    }
 
-	public override bool Update()
-	{
-		if (!base.Update())
-			return false;
+    public override bool Update()
+    {
+        if (!base.Update())
+            return false;
 
-		_queryProcessor.ProcessReadyCallbacks();
+        _queryProcessor.ProcessReadyCallbacks();
 
-		return true;
-	}
+        return true;
+    }
 
-	public override void OnClose()
-	{
-		lock (_worldSessionLock)
-		{
-			_worldSession = null;
-		}
+    public override void OnClose()
+    {
+        lock (_worldSessionLock)
+        {
+            _worldSession = null;
+        }
 
-		base.OnClose();
-	}
+        base.OnClose();
+    }
 
-	public void SendAuthResponseError(BattlenetRpcErrorCode code)
-	{
-		AuthResponse response = new()
-		{
-			SuccessInfo = null,
-			WaitInfo = null,
-			Result = code
-		};
+    public void SendAuthResponseError(BattlenetRpcErrorCode code)
+    {
+        AuthResponse response = new()
+        {
+            SuccessInfo = null,
+            WaitInfo = null,
+            Result = code
+        };
 
-		SendPacket(response);
-	}
+        SendPacket(response);
+    }
 
     private void CheckIpCallback(SQLResult result)
-	{
-		if (!result.IsEmpty())
-		{
-			var banned = false;
+    {
+        if (!result.IsEmpty())
+        {
+            var banned = false;
 
-			do
-			{
-				if (result.Read<ulong>(0) != 0)
-					banned = true;
+            do
+            {
+                if (result.Read<ulong>(0) != 0)
+                    banned = true;
 
-				_ipCountry = result.Read<string>(1);
-			} while (result.NextRow());
+                _ipCountry = result.Read<string>(1);
+            } while (result.NextRow());
 
-			if (banned)
-			{
-				Log.Logger.Error("WorldSocket.Connect: Sent Auth Response (IP {0} banned).", GetRemoteIpAddress().ToString());
-				CloseSocket();
+            if (banned)
+            {
+                Log.Logger.Error("WorldSocket.Connect: Sent Auth Response (IP {0} banned).", GetRemoteIpAddress().ToString());
+                CloseSocket();
 
-				return;
-			}
-		}
+                return;
+            }
+        }
 
-		_packetBuffer.Resize(ClientConnectionInitialize.Length + 1);
+        _packetBuffer.Resize(ClientConnectionInitialize.Length + 1);
 
-		AsyncReadWithCallback(InitializeHandler);
+        AsyncReadWithCallback(InitializeHandler);
 
-		ByteBuffer packet = new();
-		packet.WriteString(ServerConnectionInitialize);
-		packet.WriteString("\n");
-		AsyncWrite(packet.GetData());
-	}
+        ByteBuffer packet = new();
+        packet.WriteString(ServerConnectionInitialize);
+        packet.WriteString("\n");
+        AsyncWrite(packet.GetData());
+    }
 
     private void InitializeHandler(SocketAsyncEventArgs args)
-	{
-		if (args.SocketError != SocketError.Success)
-		{
-			CloseSocket();
+    {
+        if (args.SocketError != SocketError.Success)
+        {
+            CloseSocket();
 
-			return;
-		}
+            return;
+        }
 
-		if (args.BytesTransferred > 0)
-			if (_packetBuffer.GetRemainingSpace() > 0)
-			{
-				// need to receive the header
-				var readHeaderSize = Math.Min(args.BytesTransferred, _packetBuffer.GetRemainingSpace());
-				_packetBuffer.Write(args.Buffer, 0, readHeaderSize);
+        if (args.BytesTransferred > 0)
+            if (_packetBuffer.GetRemainingSpace() > 0)
+            {
+                // need to receive the header
+                var readHeaderSize = Math.Min(args.BytesTransferred, _packetBuffer.GetRemainingSpace());
+                _packetBuffer.Write(args.Buffer, 0, readHeaderSize);
 
-				if (_packetBuffer.GetRemainingSpace() > 0)
-				{
-					// Couldn't receive the whole header this time.
-					AsyncReadWithCallback(InitializeHandler);
+                if (_packetBuffer.GetRemainingSpace() > 0)
+                {
+                    // Couldn't receive the whole header this time.
+                    AsyncReadWithCallback(InitializeHandler);
 
-					return;
-				}
+                    return;
+                }
 
-				ByteBuffer buffer = new(_packetBuffer.GetData());
-				var initializer = buffer.ReadString((uint)ClientConnectionInitialize.Length);
+                ByteBuffer buffer = new(_packetBuffer.GetData());
+                var initializer = buffer.ReadString((uint)ClientConnectionInitialize.Length);
 
-				if (initializer != ClientConnectionInitialize)
-				{
-					CloseSocket();
+                if (initializer != ClientConnectionInitialize)
+                {
+                    CloseSocket();
 
-					return;
-				}
+                    return;
+                }
 
-				var terminator = buffer.ReadUInt8();
+                var terminator = buffer.ReadUInt8();
 
-				if (terminator != '\n')
-				{
-					CloseSocket();
+                if (terminator != '\n')
+                {
+                    CloseSocket();
 
-					return;
-				}
+                    return;
+                }
 
-				// Initialize the zlib stream
-				_compressionStream = new ZLib.z_stream();
+                // Initialize the zlib stream
+                _compressionStream = new ZLib.z_stream();
 
-				// Initialize the deflate algo...
-				var zRes1 = ZLib.deflateInit2(_compressionStream, 1, 8, -15, 8, 0);
+                // Initialize the deflate algo...
+                var zRes1 = ZLib.deflateInit2(_compressionStream, 1, 8, -15, 8, 0);
 
-				if (zRes1 != 0)
-				{
-					CloseSocket();
-					Log.Logger.Error("Can't initialize packet compression (zlib: deflateInit2_) Error code: {0}", zRes1);
+                if (zRes1 != 0)
+                {
+                    CloseSocket();
+                    Log.Logger.Error("Can't initialize packet compression (zlib: deflateInit2_) Error code: {0}", zRes1);
 
-					return;
-				}
+                    return;
+                }
 
-				_packetBuffer.Resize(0);
-				_packetBuffer.Reset();
-				HandleSendAuthSession();
-				AsyncRead();
-			}
-	}
+                _packetBuffer.Resize(0);
+                _packetBuffer.Reset();
+                HandleSendAuthSession();
+                AsyncRead();
+            }
+    }
 
     private bool ReadHeader()
-	{
-		PacketHeader header = new();
-		header.Read(_headerBuffer.GetData());
+    {
+        PacketHeader header = new();
+        header.Read(_headerBuffer.GetData());
 
-		_packetBuffer.Resize(header.Size);
+        _packetBuffer.Resize(header.Size);
 
-		return true;
-	}
+        return true;
+    }
 
     private ReadDataHandlerResult ReadData()
-	{
-		PacketHeader header = new();
-		header.Read(_headerBuffer.GetData());
+    {
+        PacketHeader header = new();
+        header.Read(_headerBuffer.GetData());
 
-		if (!_worldCrypt.Decrypt(_packetBuffer.GetData(), header.Tag))
-		{
-			Log.Logger.Error($"WorldSocket.ReadData(): client {GetRemoteIpAddress()} failed to decrypt packet (size: {header.Size})");
+        if (!_worldCrypt.Decrypt(_packetBuffer.GetData(), header.Tag))
+        {
+            Log.Logger.Error($"WorldSocket.ReadData(): client {GetRemoteIpAddress()} failed to decrypt packet (size: {header.Size})");
 
-			return ReadDataHandlerResult.Error;
-		}
+            return ReadDataHandlerResult.Error;
+        }
 
-		WorldPacket packet = new(_packetBuffer.GetData());
-		_packetBuffer.Reset();
+        WorldPacket packet = new(_packetBuffer.GetData());
+        _packetBuffer.Reset();
 
-		if (packet.GetOpcode() >= (int)ClientOpcodes.Max)
-		{
-			Log.Logger.Error($"WorldSocket.ReadData(): client {GetRemoteIpAddress()} sent wrong opcode (opcode: {packet.GetOpcode()})");
-			Log.Logger.Error($"Header: {_headerBuffer.GetData().ToHexString()} Data: {_packetBuffer.GetData().ToHexString()}");
+        if (packet.GetOpcode() >= (int)ClientOpcodes.Max)
+        {
+            Log.Logger.Error($"WorldSocket.ReadData(): client {GetRemoteIpAddress()} sent wrong opcode (opcode: {packet.GetOpcode()})");
+            Log.Logger.Error($"Header: {_headerBuffer.GetData().ToHexString()} Data: {_packetBuffer.GetData().ToHexString()}");
 
-			return ReadDataHandlerResult.Error;
-		}
+            return ReadDataHandlerResult.Error;
+        }
 
-		PacketLog.Write(packet.GetData(), packet.GetOpcode(), GetRemoteIpAddress(), ConnectionType.Instance, true);
+        PacketLog.Write(packet.GetData(), packet.GetOpcode(), GetRemoteIpAddress(), ConnectionType.Instance, true);
 
-		var opcode = (ClientOpcodes)packet.GetOpcode();
+        var opcode = (ClientOpcodes)packet.GetOpcode();
 
-		if (opcode != ClientOpcodes.HotfixRequest && !header.IsValidSize())
-		{
-			Log.Logger.Error($"WorldSocket.ReadHeaderHandler(): client {GetRemoteIpAddress()} sent malformed packet (size: {header.Size})");
+        if (opcode != ClientOpcodes.HotfixRequest && !header.IsValidSize())
+        {
+            Log.Logger.Error($"WorldSocket.ReadHeaderHandler(): client {GetRemoteIpAddress()} sent malformed packet (size: {header.Size})");
 
-			return ReadDataHandlerResult.Error;
-		}
+            return ReadDataHandlerResult.Error;
+        }
 
-		switch (opcode)
-		{
-			case ClientOpcodes.Ping:
-				Ping ping = new(packet);
-				ping.Read();
+        switch (opcode)
+        {
+            case ClientOpcodes.Ping:
+                Ping ping = new(packet);
+                ping.Read();
 
-				if (!HandlePing(ping))
-					return ReadDataHandlerResult.Error;
+                if (!HandlePing(ping))
+                    return ReadDataHandlerResult.Error;
 
-				break;
-			case ClientOpcodes.AuthSession:
-				if (_worldSession != null)
-				{
-					Log.Logger.Error($"WorldSocket.ReadData(): received duplicate CMSG_AUTH_SESSION from {_worldSession.GetPlayerInfo()}");
+                break;
+            case ClientOpcodes.AuthSession:
+                if (_worldSession != null)
+                {
+                    Log.Logger.Error($"WorldSocket.ReadData(): received duplicate CMSG_AUTH_SESSION from {_worldSession.GetPlayerInfo()}");
 
-					return ReadDataHandlerResult.Error;
-				}
+                    return ReadDataHandlerResult.Error;
+                }
 
-				AuthSession authSession = new(packet);
-				authSession.Read();
-				HandleAuthSession(authSession);
+                AuthSession authSession = new(packet);
+                authSession.Read();
+                HandleAuthSession(authSession);
 
-				return ReadDataHandlerResult.WaitingForQuery;
-			case ClientOpcodes.AuthContinuedSession:
-				if (_worldSession != null)
-				{
-					Log.Logger.Error($"WorldSocket.ReadData(): received duplicate CMSG_AUTH_CONTINUED_SESSION from {_worldSession.GetPlayerInfo()}");
+                return ReadDataHandlerResult.WaitingForQuery;
+            case ClientOpcodes.AuthContinuedSession:
+                if (_worldSession != null)
+                {
+                    Log.Logger.Error($"WorldSocket.ReadData(): received duplicate CMSG_AUTH_CONTINUED_SESSION from {_worldSession.GetPlayerInfo()}");
 
-					return ReadDataHandlerResult.Error;
-				}
+                    return ReadDataHandlerResult.Error;
+                }
 
-				AuthContinuedSession authContinuedSession = new(packet);
-				authContinuedSession.Read();
-				HandleAuthContinuedSession(authContinuedSession);
+                AuthContinuedSession authContinuedSession = new(packet);
+                authContinuedSession.Read();
+                HandleAuthContinuedSession(authContinuedSession);
 
-				return ReadDataHandlerResult.WaitingForQuery;
-			case ClientOpcodes.KeepAlive:
-				if (_worldSession != null)
-				{
-					_worldSession.ResetTimeOutTime(true);
+                return ReadDataHandlerResult.WaitingForQuery;
+            case ClientOpcodes.KeepAlive:
+                if (_worldSession != null)
+                {
+                    _worldSession.ResetTimeOutTime(true);
 
-					return ReadDataHandlerResult.Ok;
-				}
+                    return ReadDataHandlerResult.Ok;
+                }
 
-				Log.Logger.Error($"WorldSocket::ReadDataHandler: client {GetRemoteIpAddress()} sent CMSG_KEEP_ALIVE without being authenticated");
+                Log.Logger.Error($"WorldSocket::ReadDataHandler: client {GetRemoteIpAddress()} sent CMSG_KEEP_ALIVE without being authenticated");
 
-				return ReadDataHandlerResult.Error;
-			case ClientOpcodes.LogDisconnect:
-				break;
-			case ClientOpcodes.EnableNagle:
-				SetNoDelay(false);
+                return ReadDataHandlerResult.Error;
+            case ClientOpcodes.LogDisconnect:
+                break;
+            case ClientOpcodes.EnableNagle:
+                SetNoDelay(false);
 
-				break;
-			case ClientOpcodes.ConnectToFailed:
-				ConnectToFailed connectToFailed = new(packet);
-				connectToFailed.Read();
-				HandleConnectToFailed(connectToFailed);
+                break;
+            case ClientOpcodes.ConnectToFailed:
+                ConnectToFailed connectToFailed = new(packet);
+                connectToFailed.Read();
+                HandleConnectToFailed(connectToFailed);
 
-				break;
-			case ClientOpcodes.EnterEncryptedModeAck:
-				HandleEnterEncryptedModeAck();
+                break;
+            case ClientOpcodes.EnterEncryptedModeAck:
+                HandleEnterEncryptedModeAck();
 
-				break;
-			default:
-				lock (_worldSessionLock)
-				{
-					if (_worldSession == null)
-					{
-						Log.Logger.Error($"ProcessIncoming: Client not authed opcode = {opcode}");
+                break;
+            default:
+                lock (_worldSessionLock)
+                {
+                    if (_worldSession == null)
+                    {
+                        Log.Logger.Error($"ProcessIncoming: Client not authed opcode = {opcode}");
 
-						return ReadDataHandlerResult.Error;
-					}
+                        return ReadDataHandlerResult.Error;
+                    }
 
-					Log.Logger.Verbose("Received opcode: {0} ({1})", (ClientOpcodes)packet.GetOpcode(), packet.GetOpcode());
+                    Log.Logger.Verbose("Received opcode: {0} ({1})", (ClientOpcodes)packet.GetOpcode(), packet.GetOpcode());
 
-					if (!_packetManager.ContainsHandler(opcode))
-					{
-						Log.Logger.Error($"No defined handler for opcode {opcode} ({packet.GetOpcode()}) sent by {_worldSession.GetPlayerInfo()}");
+                    if (!_packetManager.ContainsHandler(opcode))
+                    {
+                        Log.Logger.Error($"No defined handler for opcode {opcode} ({packet.GetOpcode()}) sent by {_worldSession.GetPlayerInfo()}");
 
-						break;
-					}
+                        break;
+                    }
 
-					if (opcode == ClientOpcodes.TimeSyncResponse)
-						packet.SetReceiveTime(DateTime.Now);
+                    if (opcode == ClientOpcodes.TimeSyncResponse)
+                        packet.SetReceiveTime(DateTime.Now);
 
-					// Our Idle timer will reset on any non PING opcodes on login screen, allowing us to catch people idling.
-					_worldSession.ResetTimeOutTime(false);
+                    // Our Idle timer will reset on any non PING opcodes on login screen, allowing us to catch people idling.
+                    _worldSession.ResetTimeOutTime(false);
 
-					// Copy the packet to the heap before enqueuing
-					_worldSession.QueuePacket(packet);
-				}
+                    // Copy the packet to the heap before enqueuing
+                    _worldSession.QueuePacket(packet);
+                }
 
-				break;
-		}
+                break;
+        }
 
-		return ReadDataHandlerResult.Ok;
-	}
+        return ReadDataHandlerResult.Ok;
+    }
 
     private void HandleSendAuthSession()
-	{
-		AuthChallenge challenge = new()
-		{
-			Challenge = _serverChallenge,
-			DosChallenge = new byte[32].GenerateRandomKey(32),
-			DosZeroBits = 1
-		};
+    {
+        AuthChallenge challenge = new()
+        {
+            Challenge = _serverChallenge,
+            DosChallenge = new byte[32].GenerateRandomKey(32),
+            DosZeroBits = 1
+        };
 
-		SendPacket(challenge);
-	}
+        SendPacket(challenge);
+    }
 
     private void HandleAuthSession(AuthSession authSession)
-	{
-		// Get the account information from the realmd database
-		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_BY_NAME);
-		stmt.AddValue(0, _realm.Id.Index);
-		stmt.AddValue(1, authSession.RealmJoinTicket);
+    {
+        // Get the account information from the realmd database
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_BY_NAME);
+        stmt.AddValue(0, _realm.Id.Index);
+        stmt.AddValue(1, authSession.RealmJoinTicket);
 
-		_queryProcessor.AddCallback(_loginDatabase.AsyncQuery(stmt).WithCallback(HandleAuthSessionCallback, authSession));
-	}
+        _queryProcessor.AddCallback(_loginDatabase.AsyncQuery(stmt).WithCallback(HandleAuthSessionCallback, authSession));
+    }
 
     private void HandleAuthSessionCallback(AuthSession authSession, SQLResult result)
-	{
-		// Stop if the account is not found
-		if (result.IsEmpty())
-		{
-			Log.Logger.Error("HandleAuthSession: Sent Auth Response (unknown account).");
-			CloseSocket();
+    {
+        // Stop if the account is not found
+        if (result.IsEmpty())
+        {
+            Log.Logger.Error("HandleAuthSession: Sent Auth Response (unknown account).");
+            CloseSocket();
 
-			return;
-		}
+            return;
+        }
 
-		var buildInfo = _realmManager.GetBuildInfo(_realm.Build);
+        var buildInfo = _realmManager.GetBuildInfo(_realm.Build);
 
-		if (buildInfo == null)
-		{
-			SendAuthResponseError(BattlenetRpcErrorCode.BadVersion);
-			Log.Logger.Error($"WorldSocket.HandleAuthSessionCallback: Missing auth seed for realm build {_realm.Build} ({GetRemoteIpAddress()}).");
-			CloseSocket();
+        if (buildInfo == null)
+        {
+            SendAuthResponseError(BattlenetRpcErrorCode.BadVersion);
+            Log.Logger.Error($"WorldSocket.HandleAuthSessionCallback: Missing auth seed for realm build {_realm.Build} ({GetRemoteIpAddress()}).");
+            CloseSocket();
 
-			return;
-		}
+            return;
+        }
 
-		AccountInfo account = new(result.GetFields());
+        AccountInfo account = new(result.GetFields());
 
-		// For hook purposes, we get Remoteaddress at this point.
-		var address = GetRemoteIpAddress();
+        // For hook purposes, we get Remoteaddress at this point.
+        var address = GetRemoteIpAddress();
 
-		Sha256 digestKeyHash = new();
-		digestKeyHash.Process(account.game.SessionKey, account.game.SessionKey.Length);
+        Sha256 digestKeyHash = new();
+        digestKeyHash.Process(account.game.SessionKey, account.game.SessionKey.Length);
 
-		if (account.game.OS == "Wn64")
-		{
-			digestKeyHash.Finish(buildInfo.Win64AuthSeed);
-		}
-		else if (account.game.OS == "Mc64")
-		{
-			digestKeyHash.Finish(buildInfo.Mac64AuthSeed);
-		}
-		else
-		{
-			Log.Logger.Error("WorldSocket.HandleAuthSession: Authentication failed for account: {0} ('{1}') address: {2}", account.game.Id, authSession.RealmJoinTicket, address);
-			CloseSocket();
+        if (account.game.OS == "Wn64")
+        {
+            digestKeyHash.Finish(buildInfo.Win64AuthSeed);
+        }
+        else if (account.game.OS == "Mc64")
+        {
+            digestKeyHash.Finish(buildInfo.Mac64AuthSeed);
+        }
+        else
+        {
+            Log.Logger.Error("WorldSocket.HandleAuthSession: Authentication failed for account: {0} ('{1}') address: {2}", account.game.Id, authSession.RealmJoinTicket, address);
+            CloseSocket();
 
-			return;
-		}
+            return;
+        }
 
-		HmacSha256 hmac = new(digestKeyHash.Digest);
-		hmac.Process(authSession.LocalChallenge, authSession.LocalChallenge.Count);
-		hmac.Process(_serverChallenge, 16);
-		hmac.Finish(AuthCheckSeed, 16);
+        HmacSha256 hmac = new(digestKeyHash.Digest);
+        hmac.Process(authSession.LocalChallenge, authSession.LocalChallenge.Count);
+        hmac.Process(_serverChallenge, 16);
+        hmac.Finish(AuthCheckSeed, 16);
 
-		// Check that Key and account name are the same on client and server
-		if (!hmac.Digest.Compare(authSession.Digest))
-		{
-			Log.Logger.Error("WorldSocket.HandleAuthSession: Authentication failed for account: {0} ('{1}') address: {2}", account.game.Id, authSession.RealmJoinTicket, address);
-			CloseSocket();
+        // Check that Key and account name are the same on client and server
+        if (!hmac.Digest.Compare(authSession.Digest))
+        {
+            Log.Logger.Error("WorldSocket.HandleAuthSession: Authentication failed for account: {0} ('{1}') address: {2}", account.game.Id, authSession.RealmJoinTicket, address);
+            CloseSocket();
 
-			return;
-		}
+            return;
+        }
 
-		Sha256 keyData = new();
-		keyData.Finish(account.game.SessionKey);
+        Sha256 keyData = new();
+        keyData.Finish(account.game.SessionKey);
 
-		HmacSha256 sessionKeyHmac = new(keyData.Digest);
-		sessionKeyHmac.Process(_serverChallenge, 16);
-		sessionKeyHmac.Process(authSession.LocalChallenge, authSession.LocalChallenge.Count);
-		sessionKeyHmac.Finish(SessionKeySeed, 16);
+        HmacSha256 sessionKeyHmac = new(keyData.Digest);
+        sessionKeyHmac.Process(_serverChallenge, 16);
+        sessionKeyHmac.Process(authSession.LocalChallenge, authSession.LocalChallenge.Count);
+        sessionKeyHmac.Finish(SessionKeySeed, 16);
 
-		_sessionKey = new byte[40];
-		var sessionKeyGenerator = new SessionKeyGenerator256(sessionKeyHmac.Digest, 32);
-		sessionKeyGenerator.Generate(_sessionKey, 40);
+        _sessionKey = new byte[40];
+        var sessionKeyGenerator = new SessionKeyGenerator256(sessionKeyHmac.Digest, 32);
+        sessionKeyGenerator.Generate(_sessionKey, 40);
 
-		HmacSha256 encryptKeyGen = new(_sessionKey);
-		encryptKeyGen.Process(authSession.LocalChallenge, authSession.LocalChallenge.Count);
-		encryptKeyGen.Process(_serverChallenge, 16);
-		encryptKeyGen.Finish(EncryptionKeySeed, 16);
+        HmacSha256 encryptKeyGen = new(_sessionKey);
+        encryptKeyGen.Process(authSession.LocalChallenge, authSession.LocalChallenge.Count);
+        encryptKeyGen.Process(_serverChallenge, 16);
+        encryptKeyGen.Finish(EncryptionKeySeed, 16);
 
-		// only first 16 bytes of the hmac are used
-		Buffer.BlockCopy(encryptKeyGen.Digest, 0, _encryptKey, 0, 16);
+        // only first 16 bytes of the hmac are used
+        Buffer.BlockCopy(encryptKeyGen.Digest, 0, _encryptKey, 0, 16);
 
-		PreparedStatement stmt;
+        PreparedStatement stmt;
 
-		if (_configuration.GetDefaultValue("AllowLoggingIPAddressesInDatabase", true))
-		{
-			// As we don't know if attempted login process by ip works, we update last_attempt_ip right away
-			stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_LAST_ATTEMPT_IP);
-			stmt.AddValue(0, address.Address.ToString());
-			stmt.AddValue(1, authSession.RealmJoinTicket);
-			_loginDatabase.Execute(stmt);
-			// This also allows to check for possible "hack" attempts on account
-		}
+        if (_configuration.GetDefaultValue("AllowLoggingIPAddressesInDatabase", true))
+        {
+            // As we don't know if attempted login process by ip works, we update last_attempt_ip right away
+            stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_LAST_ATTEMPT_IP);
+            stmt.AddValue(0, address.Address.ToString());
+            stmt.AddValue(1, authSession.RealmJoinTicket);
+            _loginDatabase.Execute(stmt);
+            // This also allows to check for possible "hack" attempts on account
+        }
 
-		stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_INFO_CONTINUED_SESSION);
-		stmt.AddValue(0, _sessionKey);
-		stmt.AddValue(1, account.game.Id);
-		_loginDatabase.Execute(stmt);
+        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_INFO_CONTINUED_SESSION);
+        stmt.AddValue(0, _sessionKey);
+        stmt.AddValue(1, account.game.Id);
+        _loginDatabase.Execute(stmt);
 
-		// First reject the connection if packet contains invalid data or realm state doesn't allow logging in
-		if (_worldManager.IsClosed)
-		{
-			SendAuthResponseError(BattlenetRpcErrorCode.Denied);
-			Log.Logger.Error("WorldSocket.HandleAuthSession: World closed, denying client ({0}).", GetRemoteIpAddress());
-			CloseSocket();
+        // First reject the connection if packet contains invalid data or realm state doesn't allow logging in
+        if (_worldManager.IsClosed)
+        {
+            SendAuthResponseError(BattlenetRpcErrorCode.Denied);
+            Log.Logger.Error("WorldSocket.HandleAuthSession: World closed, denying client ({0}).", GetRemoteIpAddress());
+            CloseSocket();
 
-			return;
-		}
+            return;
+        }
 
-		if (authSession.RealmID != _realm.Id.Index)
-		{
-			SendAuthResponseError(BattlenetRpcErrorCode.Denied);
+        if (authSession.RealmID != _realm.Id.Index)
+        {
+            SendAuthResponseError(BattlenetRpcErrorCode.Denied);
 
-			Log.Logger.Error("WorldSocket.HandleAuthSession: Client {0} requested connecting with realm id {1} but this realm has id {2} set in config.",
-							GetRemoteIpAddress().ToString(),
-							authSession.RealmID,
-							_realm.Id.Index);
+            Log.Logger.Error("WorldSocket.HandleAuthSession: Client {0} requested connecting with realm id {1} but this realm has id {2} set in config.",
+                             GetRemoteIpAddress().ToString(),
+                             authSession.RealmID,
+                             _realm.Id.Index);
 
-			CloseSocket();
+            CloseSocket();
 
-			return;
-		}
+            return;
+        }
 
-		// Must be done before WorldSession is created
-		var wardenActive = _configuration.GetDefaultValue("Warden.Enabled", false);
+        // Must be done before WorldSession is created
+        var wardenActive = _configuration.GetDefaultValue("Warden.Enabled", false);
 
-		if (wardenActive && account.game.OS != "Win" && account.game.OS != "Wn64" && account.game.OS != "Mc64")
-		{
-			SendAuthResponseError(BattlenetRpcErrorCode.Denied);
-			Log.Logger.Error("WorldSocket.HandleAuthSession: Client {0} attempted to log in using invalid client OS ({1}).", address, account.game.OS);
-			CloseSocket();
+        if (wardenActive && account.game.OS != "Win" && account.game.OS != "Wn64" && account.game.OS != "Mc64")
+        {
+            SendAuthResponseError(BattlenetRpcErrorCode.Denied);
+            Log.Logger.Error("WorldSocket.HandleAuthSession: Client {0} attempted to log in using invalid client OS ({1}).", address, account.game.OS);
+            CloseSocket();
 
-			return;
-		}
+            return;
+        }
 
-		//Re-check ip locking (same check as in auth).
-		if (account.battleNet.IsLockedToIP) // if ip is locked
-		{
-			if (account.battleNet.LastIP != address.Address.ToString())
-			{
-				SendAuthResponseError(BattlenetRpcErrorCode.RiskAccountLocked);
-				Log.Logger.Debug("HandleAuthSession: Sent Auth Response (Account IP differs).");
-				CloseSocket();
+        //Re-check ip locking (same check as in auth).
+        if (account.battleNet.IsLockedToIP) // if ip is locked
+        {
+            if (account.battleNet.LastIP != address.Address.ToString())
+            {
+                SendAuthResponseError(BattlenetRpcErrorCode.RiskAccountLocked);
+                Log.Logger.Debug("HandleAuthSession: Sent Auth Response (Account IP differs).");
+                CloseSocket();
 
-				return;
-			}
-		}
-		else if (!account.battleNet.LockCountry.IsEmpty() && account.battleNet.LockCountry != "00" && !_ipCountry.IsEmpty())
-		{
-			if (account.battleNet.LockCountry != _ipCountry)
-			{
-				SendAuthResponseError(BattlenetRpcErrorCode.RiskAccountLocked);
-				Log.Logger.Debug("WorldSocket.HandleAuthSession: Sent Auth Response (Account country differs. Original country: {0}, new country: {1}).", account.battleNet.LockCountry, _ipCountry);
-				CloseSocket();
+                return;
+            }
+        }
+        else if (!account.battleNet.LockCountry.IsEmpty() && account.battleNet.LockCountry != "00" && !_ipCountry.IsEmpty())
+        {
+            if (account.battleNet.LockCountry != _ipCountry)
+            {
+                SendAuthResponseError(BattlenetRpcErrorCode.RiskAccountLocked);
+                Log.Logger.Debug("WorldSocket.HandleAuthSession: Sent Auth Response (Account country differs. Original country: {0}, new country: {1}).", account.battleNet.LockCountry, _ipCountry);
+                CloseSocket();
 
-				return;
-			}
-		}
+                return;
+            }
+        }
 
-		var mutetime = account.game.MuteTime;
+        var mutetime = account.game.MuteTime;
 
-		//! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
-		if (mutetime < 0)
-		{
-			mutetime = GameTime.GetGameTime() + mutetime;
+        //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
+        if (mutetime < 0)
+        {
+            mutetime = GameTime.GetGameTime() + mutetime;
 
-			stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME_LOGIN);
-			stmt.AddValue(0, mutetime);
-			stmt.AddValue(1, account.game.Id);
-			_loginDatabase.Execute(stmt);
-		}
+            stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME_LOGIN);
+            stmt.AddValue(0, mutetime);
+            stmt.AddValue(1, account.game.Id);
+            _loginDatabase.Execute(stmt);
+        }
 
-		if (account.IsBanned()) // if account banned
-		{
-			SendAuthResponseError(BattlenetRpcErrorCode.GameAccountBanned);
-			Log.Logger.Error("WorldSocket:HandleAuthSession: Sent Auth Response (Account banned).");
-			CloseSocket();
+        if (account.IsBanned()) // if account banned
+        {
+            SendAuthResponseError(BattlenetRpcErrorCode.GameAccountBanned);
+            Log.Logger.Error("WorldSocket:HandleAuthSession: Sent Auth Response (Account banned).");
+            CloseSocket();
 
-			return;
-		}
+            return;
+        }
 
-		// Check locked state for server
-		var allowedAccountType = _worldManager.PlayerSecurityLimit;
+        // Check locked state for server
+        var allowedAccountType = _worldManager.PlayerSecurityLimit;
 
-		if (allowedAccountType > AccountTypes.Player && account.game.Security < allowedAccountType)
-		{
-			SendAuthResponseError(BattlenetRpcErrorCode.ServerIsPrivate);
-			Log.Logger.Information("WorldSocket:HandleAuthSession: User tries to login but his security level is not enough");
-			CloseSocket();
+        if (allowedAccountType > AccountTypes.Player && account.game.Security < allowedAccountType)
+        {
+            SendAuthResponseError(BattlenetRpcErrorCode.ServerIsPrivate);
+            Log.Logger.Information("WorldSocket:HandleAuthSession: User tries to login but his security level is not enough");
+            CloseSocket();
 
-			return;
-		}
+            return;
+        }
 
-		Log.Logger.Debug("WorldSocket:HandleAuthSession: Client '{0}' authenticated successfully from {1}.", authSession.RealmJoinTicket, address);
+        Log.Logger.Debug("WorldSocket:HandleAuthSession: Client '{0}' authenticated successfully from {1}.", authSession.RealmJoinTicket, address);
 
-		if (_configuration.GetDefaultValue("AllowLoggingIPAddressesInDatabase", true))
-		{
-			// Update the last_ip in the database
-			stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_LAST_IP);
-			stmt.AddValue(0, address.Address.ToString());
-			stmt.AddValue(1, authSession.RealmJoinTicket);
-			_loginDatabase.Execute(stmt);
-		}
+        if (_configuration.GetDefaultValue("AllowLoggingIPAddressesInDatabase", true))
+        {
+            // Update the last_ip in the database
+            stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_LAST_IP);
+            stmt.AddValue(0, address.Address.ToString());
+            stmt.AddValue(1, authSession.RealmJoinTicket);
+            _loginDatabase.Execute(stmt);
+        }
 
-		_worldSession = new WorldSession(account.game.Id,
-										authSession.RealmJoinTicket,
-										account.battleNet.Id,
-										this,
-										account.game.Security,
-										(Expansion)account.game.Expansion,
-										mutetime,
-										account.game.OS,
-										account.battleNet.Locale,
-										account.game.Recruiter,
-										account.game.IsRectuiter, _classFactory);
+        _worldSession = new WorldSession(account.game.Id,
+                                         authSession.RealmJoinTicket,
+                                         account.battleNet.Id,
+                                         this,
+                                         account.game.Security,
+                                         (Expansion)account.game.Expansion,
+                                         mutetime,
+                                         account.game.OS,
+                                         account.battleNet.Locale,
+                                         account.game.Recruiter,
+                                         account.game.IsRectuiter,
+                                         _classFactory);
 
-		// Initialize Warden system only if it is enabled by config
-		//if (wardenActive)
-		//_worldSession.InitWarden(_sessionKey);
+        // Initialize Warden system only if it is enabled by config
+        //if (wardenActive)
+        //_worldSession.InitWarden(_sessionKey);
 
-		_queryProcessor.AddCallback(_worldSession.LoadPermissionsAsync().WithCallback(LoadSessionPermissionsCallback));
-		AsyncRead();
-	}
+        _queryProcessor.AddCallback(_worldSession.LoadPermissionsAsync().WithCallback(LoadSessionPermissionsCallback));
+        AsyncRead();
+    }
 
     private void LoadSessionPermissionsCallback(SQLResult result)
-	{
-		// RBAC must be loaded before adding session to check for skip queue permission
-		// RBAC must be loaded before adding session to check for skip queue permission
+    {
+        // RBAC must be loaded before adding session to check for skip queue permission
+        // RBAC must be loaded before adding session to check for skip queue permission
 
-		if (_worldSession == null)
-		{
-			SendAuthResponseError(BattlenetRpcErrorCode.TimedOut);
+        if (_worldSession == null)
+        {
+            SendAuthResponseError(BattlenetRpcErrorCode.TimedOut);
 
-			return;
-		}
+            return;
+        }
 
-		_worldSession.RBACData.LoadFromDBCallback(result);
+        _worldSession.RBACData.LoadFromDBCallback(result);
 
-		SendPacket(new EnterEncryptedMode(_encryptKey, true));
-	}
+        SendPacket(new EnterEncryptedMode(_encryptKey, true));
+    }
 
     private void HandleAuthContinuedSession(AuthContinuedSession authSession)
-	{
-		ConnectToKey key = new();
-		key.Raw = authSession.Key;
+    {
+        ConnectToKey key = new();
+        key.Raw = authSession.Key;
 
 
-		var accountId = key.AccountId;
-		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_CONTINUED_SESSION);
-		stmt.AddValue(0, accountId);
+        var accountId = key.AccountId;
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_CONTINUED_SESSION);
+        stmt.AddValue(0, accountId);
 
-		_queryProcessor.AddCallback(_loginDatabase.AsyncQuery(stmt).WithCallback(HandleAuthContinuedSessionCallback, authSession));
-	}
+        _queryProcessor.AddCallback(_loginDatabase.AsyncQuery(stmt).WithCallback(HandleAuthContinuedSessionCallback, authSession));
+    }
 
     private void HandleAuthContinuedSessionCallback(AuthContinuedSession authSession, SQLResult result)
-	{
-		if (result.IsEmpty())
-		{
-			SendAuthResponseError(BattlenetRpcErrorCode.Denied);
-			CloseSocket();
+    {
+        if (result.IsEmpty())
+        {
+            SendAuthResponseError(BattlenetRpcErrorCode.Denied);
+            CloseSocket();
 
-			return;
-		}
+            return;
+        }
 
-		ConnectToKey key = new();
-		key.Raw = authSession.Key;
+        ConnectToKey key = new();
+        key.Raw = authSession.Key;
 
-		var accountId = key.AccountId;
-		var login = result.Read<string>(0);
-		_sessionKey = result.Read<byte[]>(1);
+        var accountId = key.AccountId;
+        var login = result.Read<string>(0);
+        _sessionKey = result.Read<byte[]>(1);
 
-		HmacSha256 hmac = new(_sessionKey);
-		hmac.Process(BitConverter.GetBytes(authSession.Key), 8);
-		hmac.Process(authSession.LocalChallenge, authSession.LocalChallenge.Length);
-		hmac.Process(_serverChallenge, 16);
-		hmac.Finish(ContinuedSessionSeed, 16);
+        HmacSha256 hmac = new(_sessionKey);
+        hmac.Process(BitConverter.GetBytes(authSession.Key), 8);
+        hmac.Process(authSession.LocalChallenge, authSession.LocalChallenge.Length);
+        hmac.Process(_serverChallenge, 16);
+        hmac.Finish(ContinuedSessionSeed, 16);
 
-		if (!hmac.Digest.Compare(authSession.Digest))
-		{
-			Log.Logger.Error("WorldSocket.HandleAuthContinuedSession: Authentication failed for account: {0} ('{1}') address: {2}", accountId, login, GetRemoteIpAddress());
-			CloseSocket();
+        if (!hmac.Digest.Compare(authSession.Digest))
+        {
+            Log.Logger.Error("WorldSocket.HandleAuthContinuedSession: Authentication failed for account: {0} ('{1}') address: {2}", accountId, login, GetRemoteIpAddress());
+            CloseSocket();
 
-			return;
-		}
+            return;
+        }
 
-		HmacSha256 encryptKeyGen = new(_sessionKey);
-		encryptKeyGen.Process(authSession.LocalChallenge, authSession.LocalChallenge.Length);
-		encryptKeyGen.Process(_serverChallenge, 16);
-		encryptKeyGen.Finish(EncryptionKeySeed, 16);
+        HmacSha256 encryptKeyGen = new(_sessionKey);
+        encryptKeyGen.Process(authSession.LocalChallenge, authSession.LocalChallenge.Length);
+        encryptKeyGen.Process(_serverChallenge, 16);
+        encryptKeyGen.Finish(EncryptionKeySeed, 16);
 
-		// only first 16 bytes of the hmac are used
-		Buffer.BlockCopy(encryptKeyGen.Digest, 0, _encryptKey, 0, 16);
+        // only first 16 bytes of the hmac are used
+        Buffer.BlockCopy(encryptKeyGen.Digest, 0, _encryptKey, 0, 16);
 
-		SendPacket(new EnterEncryptedMode(_encryptKey, true));
-		AsyncRead();
-	}
+        SendPacket(new EnterEncryptedMode(_encryptKey, true));
+        AsyncRead();
+    }
 
     private void HandleConnectToFailed(ConnectToFailed connectToFailed)
-	{
-		if (_worldSession != null)
-			if (_worldSession.PlayerLoading)
-				switch (connectToFailed.Serial)
-				{
-					case ConnectToSerial.WorldAttempt1:
-						_worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt2);
+    {
+        if (_worldSession != null)
+            if (_worldSession.PlayerLoading)
+                switch (connectToFailed.Serial)
+                {
+                    case ConnectToSerial.WorldAttempt1:
+                        _worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt2);
 
-						break;
-					case ConnectToSerial.WorldAttempt2:
-						_worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt3);
+                        break;
+                    case ConnectToSerial.WorldAttempt2:
+                        _worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt3);
 
-						break;
-					case ConnectToSerial.WorldAttempt3:
-						_worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt4);
+                        break;
+                    case ConnectToSerial.WorldAttempt3:
+                        _worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt4);
 
-						break;
-					case ConnectToSerial.WorldAttempt4:
-						_worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt5);
+                        break;
+                    case ConnectToSerial.WorldAttempt4:
+                        _worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt5);
 
-						break;
-					case ConnectToSerial.WorldAttempt5:
-					{
-						Log.Logger.Error("{0} failed to connect 5 times to world socket, aborting login", _worldSession.GetPlayerInfo());
-						_worldSession.AbortLogin(LoginFailureReason.NoWorld);
+                        break;
+                    case ConnectToSerial.WorldAttempt5:
+                    {
+                        Log.Logger.Error("{0} failed to connect 5 times to world socket, aborting login", _worldSession.GetPlayerInfo());
+                        _worldSession.AbortLogin(LoginFailureReason.NoWorld);
 
-						break;
-					}
-					default:
-						return;
-				}
+                        break;
+                    }
+                    default:
+                        return;
+                }
     }
 
     private void HandleEnterEncryptedModeAck()
-	{
-		_worldCrypt.Initialize(_encryptKey);
+    {
+        _worldCrypt.Initialize(_encryptKey);
         _worldManager.AddSession(_worldSession);
-	}
+    }
 
     private bool HandlePing(Ping ping)
-	{
-		if (_lastPingTime == 0)
-		{
-			_lastPingTime = GameTime.GetGameTime(); // for 1st ping
-		}
-		else
-		{
-			var now = GameTime.GetGameTime();
-			var diff = now - _lastPingTime;
-			_lastPingTime = now;
+    {
+        if (_lastPingTime == 0)
+        {
+            _lastPingTime = GameTime.GetGameTime(); // for 1st ping
+        }
+        else
+        {
+            var now = GameTime.GetGameTime();
+            var diff = now - _lastPingTime;
+            _lastPingTime = now;
 
-			if (diff < 27)
-			{
-				++_overSpeedPings;
+            if (diff < 27)
+            {
+                ++_overSpeedPings;
 
-				var maxAllowed = _configuration.GetDefaultValue("MaxOverspeedPings", 2);
+                var maxAllowed = _configuration.GetDefaultValue("MaxOverspeedPings", 2);
 
-				if (maxAllowed != 0 && _overSpeedPings > maxAllowed)
-					lock (_worldSessionLock)
-					{
-						if (_worldSession != null && !_worldSession.HasPermission(RBACPermissions.SkipCheckOverspeedPing))
-							Log.Logger.Error("WorldSocket:HandlePing: {0} kicked for over-speed pings (address: {1})", _worldSession.GetPlayerInfo(), GetRemoteIpAddress());
-						//return ReadDataHandlerResult.Error;
-					}
-			}
-			else
-			{
-				_overSpeedPings = 0;
-			}
-		}
+                if (maxAllowed != 0 && _overSpeedPings > maxAllowed)
+                    lock (_worldSessionLock)
+                    {
+                        if (_worldSession != null && !_worldSession.HasPermission(RBACPermissions.SkipCheckOverspeedPing))
+                            Log.Logger.Error("WorldSocket:HandlePing: {0} kicked for over-speed pings (address: {1})", _worldSession.GetPlayerInfo(), GetRemoteIpAddress());
+                        //return ReadDataHandlerResult.Error;
+                    }
+            }
+            else
+            {
+                _overSpeedPings = 0;
+            }
+        }
 
-		lock (_worldSessionLock)
-		{
-			if (_worldSession != null)
-			{
-				_worldSession.Latency = ping.Latency;
-			}
-			else
-			{
-				Log.Logger.Error("WorldSocket:HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = {0}", GetRemoteIpAddress());
+        lock (_worldSessionLock)
+        {
+            if (_worldSession != null)
+            {
+                _worldSession.Latency = ping.Latency;
+            }
+            else
+            {
+                Log.Logger.Error("WorldSocket:HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = {0}", GetRemoteIpAddress());
 
-				return false;
-			}
-		}
+                return false;
+            }
+        }
 
-		SendPacket(new Pong(ping.Serial));
+        SendPacket(new Pong(ping.Serial));
 
-		return true;
-	}
+        return true;
+    }
 }

@@ -5,23 +5,23 @@ namespace Forged.MapServer.Maps.Instances;
 
 internal class PersistentInstanceScriptValue<T> : PersistentInstanceScriptValueBase
 {
-	public PersistentInstanceScriptValue(InstanceScript instance, string name, T value) : base(instance, name, value) { }
+    public PersistentInstanceScriptValue(InstanceScript instance, string name, T value) : base(instance, name, value) { }
 
-	public PersistentInstanceScriptValue<T> SetValue(T value)
-	{
-		_value = value;
-		NotifyValueChanged();
+    public PersistentInstanceScriptValue<T> SetValue(T value)
+    {
+        _value = value;
+        NotifyValueChanged();
 
-		return this;
-	}
+        return this;
+    }
 
     private void NotifyValueChanged()
-	{
-		_instance.Instance.UpdateInstanceLock(CreateEvent());
-	}
+    {
+        _instance.Instance.UpdateInstanceLock(CreateEvent());
+    }
 
     private void LoadValue(T value)
-	{
-		_value = value;
-	}
+    {
+        _value = value;
+    }
 }

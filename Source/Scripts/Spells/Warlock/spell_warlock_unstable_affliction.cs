@@ -12,62 +12,62 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(30108)]
 public class spell_warlock_unstable_affliction : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleHit(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		var uaspells = new List<int>()
-		{
-			(int)WarlockSpells.UNSTABLE_AFFLICTION_DOT5,
-			(int)WarlockSpells.UNSTABLE_AFFLICTION_DOT4,
-			(int)WarlockSpells.UNSTABLE_AFFLICTION_DOT3,
-			(int)WarlockSpells.UNSTABLE_AFFLICTION_DOT2,
-			(int)WarlockSpells.UNSTABLE_AFFLICTION_DOT1
-		};
+        var uaspells = new List<int>()
+        {
+            (int)WarlockSpells.UNSTABLE_AFFLICTION_DOT5,
+            (int)WarlockSpells.UNSTABLE_AFFLICTION_DOT4,
+            (int)WarlockSpells.UNSTABLE_AFFLICTION_DOT3,
+            (int)WarlockSpells.UNSTABLE_AFFLICTION_DOT2,
+            (int)WarlockSpells.UNSTABLE_AFFLICTION_DOT1
+        };
 
-		uint spellToCast = 0;
-		var minDuration = 10000;
-		uint lowestDurationSpell = 0;
+        uint spellToCast = 0;
+        var minDuration = 10000;
+        uint lowestDurationSpell = 0;
 
-		foreach (uint spellId in uaspells)
-		{
-			var ua = target.GetAura(spellId, caster.GUID);
+        foreach (uint spellId in uaspells)
+        {
+            var ua = target.GetAura(spellId, caster.GUID);
 
-			if (ua != null)
-			{
-				if (ua.Duration < minDuration)
-				{
-					minDuration = ua.Duration;
-					lowestDurationSpell = ua.SpellInfo.Id;
-				}
-			}
-			else
-			{
-				spellToCast = spellId;
-			}
-		}
+            if (ua != null)
+            {
+                if (ua.Duration < minDuration)
+                {
+                    minDuration = ua.Duration;
+                    lowestDurationSpell = ua.SpellInfo.Id;
+                }
+            }
+            else
+            {
+                spellToCast = spellId;
+            }
+        }
 
-		if (spellToCast == 0)
-			caster.CastSpell(target, lowestDurationSpell, true);
-		else
-			caster.CastSpell(target, spellToCast, true);
+        if (spellToCast == 0)
+            caster.CastSpell(target, lowestDurationSpell, true);
+        else
+            caster.CastSpell(target, spellToCast, true);
 
-		if (caster.HasAura(WarlockSpells.CONTAGION))
-			caster.CastSpell(target, WarlockSpells.CONTAGION_DEBUFF, true);
+        if (caster.HasAura(WarlockSpells.CONTAGION))
+            caster.CastSpell(target, WarlockSpells.CONTAGION_DEBUFF, true);
 
-		if (caster.HasAura(WarlockSpells.COMPOUNDING_HORROR))
-			caster.CastSpell(target, WarlockSpells.COMPOUNDING_HORROR_DAMAGE, true);
-	}
+        if (caster.HasAura(WarlockSpells.COMPOUNDING_HORROR))
+            caster.CastSpell(target, WarlockSpells.COMPOUNDING_HORROR_DAMAGE, true);
+    }
 }

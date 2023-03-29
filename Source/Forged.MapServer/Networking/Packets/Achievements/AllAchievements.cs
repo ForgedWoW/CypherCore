@@ -7,18 +7,18 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class AllAchievements
 {
-	public List<EarnedAchievement> Earned = new();
-	public List<CriteriaProgressPkt> Progress = new();
+    public List<EarnedAchievement> Earned = new();
+    public List<CriteriaProgressPkt> Progress = new();
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(Earned.Count);
-		data.WriteInt32(Progress.Count);
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(Earned.Count);
+        data.WriteInt32(Progress.Count);
 
-		foreach (var earned in Earned)
-			earned.Write(data);
+        foreach (var earned in Earned)
+            earned.Write(data);
 
-		foreach (var progress in Progress)
-			progress.Write(data);
-	}
+        foreach (var progress in Progress)
+            progress.Write(data);
+    }
 }

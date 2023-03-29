@@ -9,87 +9,87 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(120679)]
 public class spell_hun_dire_beast : SpellScript, ISpellAfterCast, ISpellOnHit
 {
-	public void AfterCast()
-	{
-		var player = Caster.AsPlayer;
+    public void AfterCast()
+    {
+        var player = Caster.AsPlayer;
 
-		if (player != null)
-			if (player.HasAura(HunterSpells.WILD_CALL_AURA))
-				player.RemoveAura(HunterSpells.WILD_CALL_AURA);
-	}
+        if (player != null)
+            if (player.HasAura(HunterSpells.WILD_CALL_AURA))
+                player.RemoveAura(HunterSpells.WILD_CALL_AURA);
+    }
 
-	public void OnHit()
-	{
-		var player = Caster.AsPlayer;
+    public void OnHit()
+    {
+        var player = Caster.AsPlayer;
 
-		if (player != null)
-		{
-			var target = HitUnit;
+        if (player != null)
+        {
+            var target = HitUnit;
 
-			if (target != null)
-				// Summon's skin is different function of Map or Zone ID
-				switch (player.Zone)
-				{
-					case 5785: // The Jade Forest
-						player.CastSpell(target, DireBeastSpells.DIRE_BEAST_JADE_FOREST, true);
+            if (target != null)
+                // Summon's skin is different function of Map or Zone ID
+                switch (player.Zone)
+                {
+                    case 5785: // The Jade Forest
+                        player.CastSpell(target, DireBeastSpells.DIRE_BEAST_JADE_FOREST, true);
 
-						break;
-					case 5805: // Valley of the Four Winds
-						player.CastSpell(target, DireBeastSpells.DIRE_BEAST_VALLEY_OF_THE_FOUR_WINDS, true);
+                        break;
+                    case 5805: // Valley of the Four Winds
+                        player.CastSpell(target, DireBeastSpells.DIRE_BEAST_VALLEY_OF_THE_FOUR_WINDS, true);
 
-						break;
-					case 5840: // Vale of Eternal Blossoms
-						player.CastSpell(target, DireBeastSpells.DIRE_BEAST_VALE_OF_THE_ETERNAL_BLOSSOM, true);
+                        break;
+                    case 5840: // Vale of Eternal Blossoms
+                        player.CastSpell(target, DireBeastSpells.DIRE_BEAST_VALE_OF_THE_ETERNAL_BLOSSOM, true);
 
-						break;
-					case 5841: // Kun-Lai Summit
-						player.CastSpell(target, DireBeastSpells.DIRE_BEAST_KUN_LAI_SUMMIT, true);
+                        break;
+                    case 5841: // Kun-Lai Summit
+                        player.CastSpell(target, DireBeastSpells.DIRE_BEAST_KUN_LAI_SUMMIT, true);
 
-						break;
-					case 5842: // Townlong Steppes
-						player.CastSpell(target, DireBeastSpells.DIRE_BEAST_TOWNLONG_STEPPES, true);
+                        break;
+                    case 5842: // Townlong Steppes
+                        player.CastSpell(target, DireBeastSpells.DIRE_BEAST_TOWNLONG_STEPPES, true);
 
-						break;
-					case 6134: // Krasarang Wilds
-						player.CastSpell(target, DireBeastSpells.DIRE_BEAST_KRASARANG_WILDS, true);
+                        break;
+                    case 6134: // Krasarang Wilds
+                        player.CastSpell(target, DireBeastSpells.DIRE_BEAST_KRASARANG_WILDS, true);
 
-						break;
-					case 6138: // Dread Wastes
-						player.CastSpell(target, DireBeastSpells.DIRE_BEAST_DREAD_WASTES, true);
+                        break;
+                    case 6138: // Dread Wastes
+                        player.CastSpell(target, DireBeastSpells.DIRE_BEAST_DREAD_WASTES, true);
 
-						break;
-					default:
-					{
-						switch (player.Location.MapId)
-						{
-							case 0: // Eastern Kingdoms
-								player.CastSpell(target, DireBeastSpells.DIRE_BEAST_EASTERN_KINGDOMS, true);
+                        break;
+                    default:
+                    {
+                        switch (player.Location.MapId)
+                        {
+                            case 0: // Eastern Kingdoms
+                                player.CastSpell(target, DireBeastSpells.DIRE_BEAST_EASTERN_KINGDOMS, true);
 
-								break;
-							case 1: // Kalimdor
-								player.CastSpell(target, DireBeastSpells.DIRE_BEAST_KALIMDOR, true);
+                                break;
+                            case 1: // Kalimdor
+                                player.CastSpell(target, DireBeastSpells.DIRE_BEAST_KALIMDOR, true);
 
-								break;
-							case 8: // Outland
-								player.CastSpell(target, DireBeastSpells.DIRE_BEAST_OUTLAND, true);
+                                break;
+                            case 8: // Outland
+                                player.CastSpell(target, DireBeastSpells.DIRE_BEAST_OUTLAND, true);
 
-								break;
-							case 10: // Northrend
-								player.CastSpell(target, DireBeastSpells.DIRE_BEAST_NORTHREND, true);
+                                break;
+                            case 10: // Northrend
+                                player.CastSpell(target, DireBeastSpells.DIRE_BEAST_NORTHREND, true);
 
-								break;
-							default:
-								if (player.Map.IsDungeon)
-									player.CastSpell(target, DireBeastSpells.DIRE_BEAST_DUNGEONS, true);
-								else // Default
-									player.CastSpell(target, DireBeastSpells.DIRE_BEAST_KALIMDOR, true);
+                                break;
+                            default:
+                                if (player.Map.IsDungeon)
+                                    player.CastSpell(target, DireBeastSpells.DIRE_BEAST_DUNGEONS, true);
+                                else // Default
+                                    player.CastSpell(target, DireBeastSpells.DIRE_BEAST_KALIMDOR, true);
 
-								break;
-						}
+                                break;
+                        }
 
-						break;
-					}
-				}
-		}
-	}
+                        break;
+                    }
+                }
+        }
+    }
 }

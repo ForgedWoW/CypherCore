@@ -12,28 +12,28 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(198030)]
 public class spell_demon_hunter_eye_beam_damage : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitRectCasterEnemy));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitRectCasterEnemy));
+    }
 
-	private void FilterTargets(List<WorldObject> unitList)
-	{
-		var caster = Caster;
+    private void FilterTargets(List<WorldObject> unitList)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		unitList.Clear();
-		var units = new List<Unit>();
-		caster.GetAttackableUnitListInRange(units, 25.0f);
+        unitList.Clear();
+        var units = new List<Unit>();
+        caster.GetAttackableUnitListInRange(units, 25.0f);
 
 
-		units.RemoveIf((Unit unit) => { return !caster.Location.HasInLine(unit.Location, 5.0f, caster.ObjectScale); });
+        units.RemoveIf((Unit unit) => { return !caster.Location.HasInLine(unit.Location, 5.0f, caster.ObjectScale); });
 
-		foreach (var unit in units)
-			unitList.Add(unit);
-	}
+        foreach (var unit in units)
+            unitList.Add(unit);
+    }
 }

@@ -12,19 +12,19 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(285466)]
 internal class spell_sha_mastery_elemental_overload_proc : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(ApplyDamageModifier, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(ApplyDamageModifier, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void ApplyDamageModifier(int effIndex)
-	{
-		var elementalOverload = Caster.GetAuraEffect(ShamanSpells.MasteryElementalOverload, 1);
+    private void ApplyDamageModifier(int effIndex)
+    {
+        var elementalOverload = Caster.GetAuraEffect(ShamanSpells.MasteryElementalOverload, 1);
 
-		if (elementalOverload != null)
-			HitDamage = MathFunctions.CalculatePct(HitDamage, elementalOverload.Amount);
-	}
+        if (elementalOverload != null)
+            HitDamage = MathFunctions.CalculatePct(HitDamage, elementalOverload.Amount);
+    }
 }

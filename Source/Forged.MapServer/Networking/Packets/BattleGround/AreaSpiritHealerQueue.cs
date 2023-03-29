@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class AreaSpiritHealerQueue : ClientPacket
 {
-	public ObjectGuid HealerGuid;
-	public AreaSpiritHealerQueue(WorldPacket packet) : base(packet) { }
+    public ObjectGuid HealerGuid;
+    public AreaSpiritHealerQueue(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		HealerGuid = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        HealerGuid = _worldPacket.ReadPackedGuid();
+    }
 }

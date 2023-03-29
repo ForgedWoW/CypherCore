@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class OpenItem : ClientPacket
 {
-	public byte Slot;
-	public byte PackSlot;
-	public OpenItem(WorldPacket packet) : base(packet) { }
+    public byte Slot;
+    public byte PackSlot;
+    public OpenItem(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Slot = _worldPacket.ReadUInt8();
-		PackSlot = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        Slot = _worldPacket.ReadUInt8();
+        PackSlot = _worldPacket.ReadUInt8();
+    }
 }

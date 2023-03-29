@@ -7,14 +7,14 @@ namespace Forged.MapServer.Maps.Instances;
 
 public class DoorData
 {
-	public uint Entry { get; set; }
-	public uint bossId { get; set; }
-	public DoorType Type { get; set; }
+    public uint Entry { get; set; }
+    public uint bossId { get; set; }
+    public DoorType Type { get; set; }
 
-	public DoorData(uint entry, uint bossid, DoorType doorType)
-	{
-		Entry = entry;
-		bossId = bossid;
-		Type = doorType;
-	}
+    public DoorData(uint entry, uint bossid, DoorType doorType)
+    {
+        Entry = entry;
+        bossId = bossid;
+        Type = doorType;
+    }
 }

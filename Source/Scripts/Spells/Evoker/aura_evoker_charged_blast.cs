@@ -10,10 +10,8 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.CHARGED_BLAST)]
 public class aura_evoker_charged_blast : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo info)
-	{
-		return info.SpellInfo.Labels.Contains(EvokerLabels.BLUE) 
-				&& info.DamageInfo != null 
-				&& info.DamageInfo.Damage > 0;
-	}
+    public bool CheckProc(ProcEventInfo info)
+    {
+        return info.SpellInfo.Labels.Contains(EvokerLabels.BLUE) && info.DamageInfo != null && info.DamageInfo.Damage > 0;
+    }
 }

@@ -13,22 +13,22 @@ public class WorldObjectSpellTrajTargetCheck : WorldObjectSpellTargetCheck
     private readonly float _range;
     private readonly Position _position;
 
-	public WorldObjectSpellTrajTargetCheck(float range, Position position, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
-		: base(caster, caster, spellInfo, selectionType, condList, objectType)
-	{
-		_range = range;
-		_position = position;
-	}
+    public WorldObjectSpellTrajTargetCheck(float range, Position position, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
+        : base(caster, caster, spellInfo, selectionType, condList, objectType)
+    {
+        _range = range;
+        _position = position;
+    }
 
-	public override bool Invoke(WorldObject target)
-	{
-		// return all targets on missile trajectory (0 - size of a missile)
-		if (!Caster.Location.HasInLine(target.Location, target.CombatReach, SpellConst.TrajectoryMissileSize))
-			return false;
+    public override bool Invoke(WorldObject target)
+    {
+        // return all targets on missile trajectory (0 - size of a missile)
+        if (!Caster.Location.HasInLine(target.Location, target.CombatReach, SpellConst.TrajectoryMissileSize))
+            return false;
 
-		if (target.Location.GetExactDist2d(_position) > _range)
-			return false;
+        if (target.Location.GetExactDist2d(_position) > _range)
+            return false;
 
-		return base.Invoke(target);
-	}
+        return base.Invoke(target);
+    }
 }

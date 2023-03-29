@@ -9,17 +9,17 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventPlayerJoined : ServerPacket
 {
-	public ObjectGuid Guid;
-	public string Name;
-	public uint VirtualRealmAddress;
-	public GuildEventPlayerJoined() : base(ServerOpcodes.GuildEventPlayerJoined) { }
+    public ObjectGuid Guid;
+    public string Name;
+    public uint VirtualRealmAddress;
+    public GuildEventPlayerJoined() : base(ServerOpcodes.GuildEventPlayerJoined) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Guid);
-		_worldPacket.WriteUInt32(VirtualRealmAddress);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Guid);
+        _worldPacket.WriteUInt32(VirtualRealmAddress);
 
-		_worldPacket.WriteBits(Name.GetByteCount(), 6);
-		_worldPacket.WriteString(Name);
-	}
+        _worldPacket.WriteBits(Name.GetByteCount(), 6);
+        _worldPacket.WriteString(Name);
+    }
 }

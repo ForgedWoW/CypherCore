@@ -14,57 +14,57 @@ namespace Scripts.Spells.Items;
 [Script("spell_item_heartpierce_hero", ItemSpellIds.InvigorationEnergyHero, ItemSpellIds.InvigorationManaHero, ItemSpellIds.InvigorationRageHero, ItemSpellIds.InvigorationRpHero)]
 internal class spell_item_heartpierce : AuraScript, IHasAuraEffects
 {
-	private readonly uint _energySpellId;
-	private readonly uint _manaSpellId;
-	private readonly uint _rageSpellId;
-	private readonly uint _rpSpellId;
+    private readonly uint _energySpellId;
+    private readonly uint _manaSpellId;
+    private readonly uint _rageSpellId;
+    private readonly uint _rpSpellId;
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public spell_item_heartpierce(uint energySpellId, uint manaSpellId, uint rageSpellId, uint rpSpellId)
-	{
-		_energySpellId = energySpellId;
-		_manaSpellId = manaSpellId;
-		_rageSpellId = rageSpellId;
-		_rpSpellId = rpSpellId;
-	}
+    public spell_item_heartpierce(uint energySpellId, uint manaSpellId, uint rageSpellId, uint rpSpellId)
+    {
+        _energySpellId = energySpellId;
+        _manaSpellId = manaSpellId;
+        _rageSpellId = rageSpellId;
+        _rpSpellId = rpSpellId;
+    }
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var caster = eventInfo.Actor;
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var caster = eventInfo.Actor;
 
-		uint spellId;
+        uint spellId;
 
-		switch (caster.DisplayPowerType)
-		{
-			case PowerType.Mana:
-				spellId = _manaSpellId;
+        switch (caster.DisplayPowerType)
+        {
+            case PowerType.Mana:
+                spellId = _manaSpellId;
 
-				break;
-			case PowerType.Energy:
-				spellId = _energySpellId;
+                break;
+            case PowerType.Energy:
+                spellId = _energySpellId;
 
-				break;
-			case PowerType.Rage:
-				spellId = _rageSpellId;
+                break;
+            case PowerType.Rage:
+                spellId = _rageSpellId;
 
-				break;
-			// Death Knights can't use daggers, but oh well
-			case PowerType.RunicPower:
-				spellId = _rpSpellId;
+                break;
+            // Death Knights can't use daggers, but oh well
+            case PowerType.RunicPower:
+                spellId = _rpSpellId;
 
-				break;
-			default:
-				return;
-		}
+                break;
+            default:
+                return;
+        }
 
-		caster.CastSpell((Unit)null, spellId, new CastSpellExtraArgs(aurEff));
-	}
+        caster.CastSpell((Unit)null, spellId, new CastSpellExtraArgs(aurEff));
+    }
 }

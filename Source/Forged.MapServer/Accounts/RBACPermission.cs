@@ -11,33 +11,33 @@ public class RBACPermission
     private readonly string _name;              // name of the object
     private readonly List<uint> _perms = new(); // Set of permissions
 
-	// Gets the Name of the Object
+    // Gets the Name of the Object
 
-	public string Name => _name;
+    public string Name => _name;
 
-	// Gets the Id of the Object
+    // Gets the Id of the Object
 
-	public uint Id => _id;
+    public uint Id => _id;
 
-	// Gets the Permissions linked to this permission
+    // Gets the Permissions linked to this permission
 
-	public List<uint> LinkedPermissions => _perms;
+    public List<uint> LinkedPermissions => _perms;
 
-	public RBACPermission(uint id = 0, string name = "")
-	{
-		_id = id;
-		_name = name;
-	}
+    public RBACPermission(uint id = 0, string name = "")
+    {
+        _id = id;
+        _name = name;
+    }
 
-	// Adds a new linked Permission
-	public void AddLinkedPermission(uint id)
-	{
-		_perms.Add(id);
-	}
+    // Adds a new linked Permission
+    public void AddLinkedPermission(uint id)
+    {
+        _perms.Add(id);
+    }
 
-	// Removes a linked Permission
-	public void RemoveLinkedPermission(uint id)
-	{
-		_perms.Remove(id);
-	}
+    // Removes a linked Permission
+    public void RemoveLinkedPermission(uint id)
+    {
+        _perms.Remove(id);
+    }
 }

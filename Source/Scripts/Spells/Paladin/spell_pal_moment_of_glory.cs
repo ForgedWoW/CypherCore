@@ -9,8 +9,8 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(327193)] // 327193 - Moment of Glory
 internal class spell_pal_moment_of_glory : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		Caster.SpellHistory.ResetCooldown(PaladinSpells.AvengersShield);
-	}
+    public void OnHit()
+    {
+        Caster.SpellHistory.ResetCooldown(PaladinSpells.AvengersShield);
+    }
 }

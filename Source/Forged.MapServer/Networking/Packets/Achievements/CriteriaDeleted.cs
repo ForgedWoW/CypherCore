@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class CriteriaDeleted : ServerPacket
 {
-	public uint CriteriaID;
-	public CriteriaDeleted() : base(ServerOpcodes.CriteriaDeleted, ConnectionType.Instance) { }
+    public uint CriteriaID;
+    public CriteriaDeleted() : base(ServerOpcodes.CriteriaDeleted, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(CriteriaID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(CriteriaID);
+    }
 }

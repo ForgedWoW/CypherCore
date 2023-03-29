@@ -5,12 +5,12 @@ namespace Forged.MapServer.Quest;
 
 public struct QuestRewardDisplaySpell
 {
-	public uint SpellId;
-	public uint PlayerConditionId;
+    public uint SpellId;
+    public uint PlayerConditionId;
 
-	public QuestRewardDisplaySpell(uint spellId, uint playerConditionId)
-	{
-		SpellId = spellId;
-		PlayerConditionId = playerConditionId;
-	}
+    public QuestRewardDisplaySpell(uint spellId, uint playerConditionId)
+    {
+        SpellId = spellId;
+        PlayerConditionId = playerConditionId;
+    }
 }

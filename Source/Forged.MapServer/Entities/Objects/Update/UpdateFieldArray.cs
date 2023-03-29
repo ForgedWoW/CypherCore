@@ -8,40 +8,40 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class UpdateFieldArray<T> : IEnumerable<T> where T : new()
 {
-	public T[] Values { get; set; }
-	public int FirstElementBit { get; set; }
-	public int Bit { get; set; }
+    public T[] Values { get; set; }
+    public int FirstElementBit { get; set; }
+    public int Bit { get; set; }
 
-	public T this[int index]
-	{
-		get { return Values[index]; }
-		set { Values[index] = value; }
-	}
+    public T this[int index]
+    {
+        get { return Values[index]; }
+        set { Values[index] = value; }
+    }
 
-	public UpdateFieldArray(uint size, int bit, int firstElementBit)
-	{
-		Values = new T[size];
+    public UpdateFieldArray(uint size, int bit, int firstElementBit)
+    {
+        Values = new T[size];
 
-		for (var i = 0; i < size; ++i)
-			Values[i] = new T();
+        for (var i = 0; i < size; ++i)
+            Values[i] = new T();
 
-		Bit = bit;
-		FirstElementBit = firstElementBit;
-	}
+        Bit = bit;
+        FirstElementBit = firstElementBit;
+    }
 
-	public IEnumerator<T> GetEnumerator()
-	{
-		foreach (var obj in Values)
-			yield return obj;
-	}
+    public IEnumerator<T> GetEnumerator()
+    {
+        foreach (var obj in Values)
+            yield return obj;
+    }
 
-	IEnumerator IEnumerable.GetEnumerator()
-	{
-		return GetEnumerator();
-	}
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 
-	public int GetSize()
-	{
-		return Values.Length;
-	}
+    public int GetSize()
+    {
+        return Values.Length;
+    }
 }

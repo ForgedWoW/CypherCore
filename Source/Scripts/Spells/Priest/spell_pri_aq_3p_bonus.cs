@@ -13,30 +13,30 @@ namespace Scripts.Spells.Priest;
 [Script] // 26169 - Oracle Healing Bonus
 internal class spell_pri_aq_3p_bonus : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var caster = eventInfo.Actor;
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var caster = eventInfo.Actor;
 
-		if (caster == eventInfo.ProcTarget)
-			return;
+        if (caster == eventInfo.ProcTarget)
+            return;
 
-		var healInfo = eventInfo.HealInfo;
+        var healInfo = eventInfo.HealInfo;
 
-		if (healInfo == null ||
-			healInfo.Heal == 0)
-			return;
+        if (healInfo == null ||
+            healInfo.Heal == 0)
+            return;
 
-		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(healInfo.Heal, 10));
-		caster.CastSpell(caster, PriestSpells.ORACULAR_HEAL, args);
-	}
+        CastSpellExtraArgs args = new(aurEff);
+        args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(healInfo.Heal, 10));
+        caster.CastSpell(caster, PriestSpells.ORACULAR_HEAL, args);
+    }
 }

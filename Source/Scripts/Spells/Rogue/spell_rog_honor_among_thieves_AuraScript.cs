@@ -13,19 +13,19 @@ namespace Scripts.Spells.Rogue;
 [Script] /// 7.1.5
 internal class spell_rog_honor_among_thieves_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var target = Target;
-		target.CastSpell(target, RogueSpells.HonorAmongThievesEnergize, new CastSpellExtraArgs(aurEff));
-	}
+        var target = Target;
+        target.CastSpell(target, RogueSpells.HonorAmongThievesEnergize, new CastSpellExtraArgs(aurEff));
+    }
 }

@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class QueryGameObject : ClientPacket
 {
-	public uint GameObjectID;
-	public ObjectGuid Guid;
-	public QueryGameObject(WorldPacket packet) : base(packet) { }
+    public uint GameObjectID;
+    public ObjectGuid Guid;
+    public QueryGameObject(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		GameObjectID = _worldPacket.ReadUInt32();
-		Guid = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        GameObjectID = _worldPacket.ReadUInt32();
+        Guid = _worldPacket.ReadPackedGuid();
+    }
 }

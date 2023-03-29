@@ -5,5 +5,5 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public struct DBQueryRecord
 {
-	public uint RecordID;
+    public uint RecordID;
 }

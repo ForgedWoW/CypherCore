@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class ReadItemResultFailed : ServerPacket
 {
-	public ObjectGuid Item;
-	public byte Subcode;
-	public uint Delay;
-	public ReadItemResultFailed() : base(ServerOpcodes.ReadItemResultFailed) { }
+    public ObjectGuid Item;
+    public byte Subcode;
+    public uint Delay;
+    public ReadItemResultFailed() : base(ServerOpcodes.ReadItemResultFailed) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Item);
-		_worldPacket.WriteUInt32(Delay);
-		_worldPacket.WriteBits(Subcode, 2);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Item);
+        _worldPacket.WriteUInt32(Delay);
+        _worldPacket.WriteBits(Subcode, 2);
+        _worldPacket.FlushBits();
+    }
 }

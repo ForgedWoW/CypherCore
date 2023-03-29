@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal struct SpellDispellData
 {
-	public uint SpellID;
-	public bool Harmful;
-	public int? Rolled;
-	public int? Needed;
+    public uint SpellID;
+    public bool Harmful;
+    public int? Rolled;
+    public int? Needed;
 }

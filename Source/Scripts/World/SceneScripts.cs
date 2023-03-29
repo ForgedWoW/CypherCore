@@ -10,18 +10,18 @@ namespace Scripts.World.SceneScripts;
 
 internal struct SpellIds
 {
-	public const uint DeathwingSimulator = 201184;
+    public const uint DeathwingSimulator = 201184;
 }
 
 [Script]
 internal class scene_deathwing_simulator : ScriptObjectAutoAddDBBound, ISceneOnSceneTrigger
 {
-	public scene_deathwing_simulator() : base("scene_deathwing_simulator") { }
+    public scene_deathwing_simulator() : base("scene_deathwing_simulator") { }
 
-	// Called when a player receive trigger from scene
-	public void OnSceneTriggerEvent(Player player, uint sceneInstanceID, SceneTemplate sceneTemplate, string triggerName)
-	{
-		if (triggerName == "Burn Player")
-			player.CastSpell(player, SpellIds.DeathwingSimulator, true); // Deathwing Simulator Burn player
-	}
+    // Called when a player receive trigger from scene
+    public void OnSceneTriggerEvent(Player player, uint sceneInstanceID, SceneTemplate sceneTemplate, string triggerName)
+    {
+        if (triggerName == "Burn Player")
+            player.CastSpell(player, SpellIds.DeathwingSimulator, true); // Deathwing Simulator Burn player
+    }
 }

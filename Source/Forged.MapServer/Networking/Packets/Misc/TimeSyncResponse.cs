@@ -7,18 +7,18 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class TimeSyncResponse : ClientPacket
 {
-	public uint ClientTime;    // Client ticks in ms
-	public uint SequenceIndex; // Same index as in request
-	public TimeSyncResponse(WorldPacket packet) : base(packet) { }
+    public uint ClientTime;    // Client ticks in ms
+    public uint SequenceIndex; // Same index as in request
+    public TimeSyncResponse(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		SequenceIndex = _worldPacket.ReadUInt32();
-		ClientTime = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        SequenceIndex = _worldPacket.ReadUInt32();
+        ClientTime = _worldPacket.ReadUInt32();
+    }
 
-	public DateTime GetReceivedTime()
-	{
-		return _worldPacket.GetReceivedTime();
-	}
+    public DateTime GetReceivedTime()
+    {
+        return _worldPacket.GetReceivedTime();
+    }
 }

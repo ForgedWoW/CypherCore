@@ -12,63 +12,63 @@ namespace Scripts.Spells.Monk;
 [Script] // 124273, 124274, 124275 - Light/Moderate/Heavy Stagger - STAGGER_LIGHT / STAGGER_MODERATE / STAGGER_HEAVY
 internal class spell_monk_stagger_debuff_aura : AuraScript, IHasAuraEffects
 {
-	private double _period;
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    private double _period;
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override bool Load()
-	{
-		_period = (double)Global.SpellMgr.GetSpellInfo(MonkSpells.StaggerDamageAura, CastDifficulty).GetEffect(0).ApplyAuraPeriod;
+    public override bool Load()
+    {
+        _period = (double)Global.SpellMgr.GetSpellInfo(MonkSpells.StaggerDamageAura, CastDifficulty).GetEffect(0).ApplyAuraPeriod;
 
-		return true;
-	}
+        return true;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnReapply, 1, AuraType.Dummy, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectAfterApply));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnReapply, 1, AuraType.Dummy, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectAfterApply));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void OnReapply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		// Calculate Damage per tick
-		var total = aurEff.Amount;
-		var perTick = total * _period / (double)Duration; // should be same as GetMaxDuration() TODO: verify
+    private void OnReapply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        // Calculate Damage per tick
+        var total = aurEff.Amount;
+        var perTick = total * _period / (double)Duration; // should be same as GetMaxDuration() TODO: verify
 
-		// Set amount on effect for tooltip
-		var effInfo = Aura.GetEffect(0);
+        // Set amount on effect for tooltip
+        var effInfo = Aura.GetEffect(0);
 
-		effInfo?.ChangeAmount((int)perTick);
+        effInfo?.ChangeAmount((int)perTick);
 
-		// Set amount on Damage aura (or cast it if needed)
-		CastOrChangeTickDamage(perTick);
-	}
+        // Set amount on Damage aura (or cast it if needed)
+        CastOrChangeTickDamage(perTick);
+    }
 
-	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		if (mode != AuraEffectHandleModes.Real)
-			return;
+    private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        if (mode != AuraEffectHandleModes.Real)
+            return;
 
-		// Remove Damage aura
-		Target.RemoveAura(MonkSpells.StaggerDamageAura);
-	}
+        // Remove Damage aura
+        Target.RemoveAura(MonkSpells.StaggerDamageAura);
+    }
 
-	private void CastOrChangeTickDamage(double tickDamage)
-	{
-		var unit = Target;
-		var auraDamage = unit.GetAura(MonkSpells.StaggerDamageAura);
+    private void CastOrChangeTickDamage(double tickDamage)
+    {
+        var unit = Target;
+        var auraDamage = unit.GetAura(MonkSpells.StaggerDamageAura);
 
-		if (auraDamage == null)
-		{
-			unit.CastSpell(unit, MonkSpells.StaggerDamageAura, true);
-			auraDamage = unit.GetAura(MonkSpells.StaggerDamageAura);
-		}
+        if (auraDamage == null)
+        {
+            unit.CastSpell(unit, MonkSpells.StaggerDamageAura, true);
+            auraDamage = unit.GetAura(MonkSpells.StaggerDamageAura);
+        }
 
-		if (auraDamage != null)
-		{
-			var eff = auraDamage.GetEffect(0);
+        if (auraDamage != null)
+        {
+            var eff = auraDamage.GetEffect(0);
 
-			eff?.ChangeAmount((int)tickDamage);
-		}
-	}
+            eff?.ChangeAmount((int)tickDamage);
+        }
+    }
 }

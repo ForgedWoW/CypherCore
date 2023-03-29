@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailListResult : ServerPacket
 {
-	public int TotalNumRecords;
-	public List<MailListEntry> Mails = new();
-	public MailListResult() : base(ServerOpcodes.MailListResult) { }
+    public int TotalNumRecords;
+    public List<MailListEntry> Mails = new();
+    public MailListResult() : base(ServerOpcodes.MailListResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Mails.Count);
-		_worldPacket.WriteInt32(TotalNumRecords);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Mails.Count);
+        _worldPacket.WriteInt32(TotalNumRecords);
 
-		Mails.ForEach(p => p.Write(_worldPacket));
-	}
+        Mails.ForEach(p => p.Write(_worldPacket));
+    }
 }

@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum GlyphSlotType
 {
-	Major = 0,
-	Minor = 1,
-	Prime = 2
+    Major = 0,
+    Minor = 1,
+    Prime = 2
 }

@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum UiMapSystem : sbyte
 {
-	World = 0,
-	Taxi = 1,
-	Adventure = 2,
-	SystemMinimap = 3,
-	Max
+    World = 0,
+    Taxi = 1,
+    Adventure = 2,
+    SystemMinimap = 3,
+    Max
 }

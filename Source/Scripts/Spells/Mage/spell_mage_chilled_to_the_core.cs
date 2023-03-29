@@ -10,8 +10,8 @@ namespace Scripts.Spells.Mage;
 [SpellScript(195448)]
 public class spell_mage_chilled_to_the_core : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.SpellInfo.Id == MageSpells.ICY_VEINS;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.SpellInfo.Id == MageSpells.ICY_VEINS;
+    }
 }

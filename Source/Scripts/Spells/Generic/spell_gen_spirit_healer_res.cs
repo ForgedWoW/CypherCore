@@ -11,30 +11,30 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_spirit_healer_res : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		return OriginalCaster && OriginalCaster.IsTypeId(TypeId.Player);
-	}
+    public override bool Load()
+    {
+        return OriginalCaster && OriginalCaster.IsTypeId(TypeId.Player);
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var originalCaster = OriginalCaster.AsPlayer;
-		var target = HitUnit;
+    private void HandleDummy(int effIndex)
+    {
+        var originalCaster = OriginalCaster.AsPlayer;
+        var target = HitUnit;
 
-		if (target)
-		{
-			NPCInteractionOpenResult spiritHealerConfirm = new();
-			spiritHealerConfirm.Npc = target.GUID;
-			spiritHealerConfirm.InteractionType = PlayerInteractionType.SpiritHealer;
-			spiritHealerConfirm.Success = true;
-			originalCaster.SendPacket(spiritHealerConfirm);
-		}
-	}
+        if (target)
+        {
+            NPCInteractionOpenResult spiritHealerConfirm = new();
+            spiritHealerConfirm.Npc = target.GUID;
+            spiritHealerConfirm.InteractionType = PlayerInteractionType.SpiritHealer;
+            spiritHealerConfirm.Success = true;
+            originalCaster.SendPacket(spiritHealerConfirm);
+        }
+    }
 }

@@ -14,29 +14,29 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(77756)]
 internal class spell_sha_lava_surge : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraCheckEffectProcHandler(CheckProcChance, 0, AuraType.Dummy));
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraCheckEffectProcHandler(CheckProcChance, 0, AuraType.Dummy));
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private bool CheckProcChance(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		var procChance = aurEff.Amount;
-		var igneousPotential = Target.GetAuraEffect(ShamanSpells.IgneousPotential, 0);
+    private bool CheckProcChance(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        var procChance = aurEff.Amount;
+        var igneousPotential = Target.GetAuraEffect(ShamanSpells.IgneousPotential, 0);
 
-		if (igneousPotential != null)
-			procChance += igneousPotential.Amount;
+        if (igneousPotential != null)
+            procChance += igneousPotential.Amount;
 
-		return RandomHelper.randChance(procChance);
-	}
+        return RandomHelper.randChance(procChance);
+    }
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		Target.CastSpell(Target, ShamanSpells.LavaSurge, true);
-	}
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        Target.CastSpell(Target, ShamanSpells.LavaSurge, true);
+    }
 }

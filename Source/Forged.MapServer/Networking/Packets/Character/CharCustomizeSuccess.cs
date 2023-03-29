@@ -17,28 +17,28 @@ internal class CharCustomizeSuccess : ServerPacket
 
     private readonly ObjectGuid CharGUID;
 
-	public CharCustomizeSuccess(CharCustomizeInfo customizeInfo) : base(ServerOpcodes.CharCustomizeSuccess)
-	{
-		CharGUID = customizeInfo.CharGUID;
-		SexID = (byte)customizeInfo.SexID;
-		CharName = customizeInfo.CharName;
-		Customizations = customizeInfo.Customizations;
-	}
+    public CharCustomizeSuccess(CharCustomizeInfo customizeInfo) : base(ServerOpcodes.CharCustomizeSuccess)
+    {
+        CharGUID = customizeInfo.CharGUID;
+        SexID = (byte)customizeInfo.SexID;
+        CharName = customizeInfo.CharName;
+        Customizations = customizeInfo.Customizations;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(CharGUID);
-		_worldPacket.WriteUInt8(SexID);
-		_worldPacket.WriteInt32(Customizations.Count);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(CharGUID);
+        _worldPacket.WriteUInt8(SexID);
+        _worldPacket.WriteInt32(Customizations.Count);
 
-		foreach (var customization in Customizations)
-		{
-			_worldPacket.WriteUInt32(customization.ChrCustomizationOptionID);
-			_worldPacket.WriteUInt32(customization.ChrCustomizationChoiceID);
-		}
+        foreach (var customization in Customizations)
+        {
+            _worldPacket.WriteUInt32(customization.ChrCustomizationOptionID);
+            _worldPacket.WriteUInt32(customization.ChrCustomizationChoiceID);
+        }
 
-		_worldPacket.WriteBits(CharName.GetByteCount(), 6);
-		_worldPacket.FlushBits();
-		_worldPacket.WriteString(CharName);
-	}
+        _worldPacket.WriteBits(CharName.GetByteCount(), 6);
+        _worldPacket.FlushBits();
+        _worldPacket.WriteString(CharName);
+    }
 }

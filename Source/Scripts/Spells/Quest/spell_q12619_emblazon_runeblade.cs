@@ -11,15 +11,15 @@ namespace Scripts.Spells.Quest;
 [Script] // 51770 - Emblazon Runeblade
 internal class spell_q12619_emblazon_runeblade : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		Caster.CastSpell(Caster, (uint)EffectValue, false);
-	}
+    private void HandleScript(int effIndex)
+    {
+        Caster.CastSpell(Caster, (uint)EffectValue, false);
+    }
 }

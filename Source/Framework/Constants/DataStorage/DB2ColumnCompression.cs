@@ -5,12 +5,12 @@ namespace Framework.Constants;
 
 public enum DB2ColumnCompression : uint
 {
-	None,
-	Immediate,
-	Common,
-	Pallet,
-	PalletArray,
-	SignedImmediate
+    None,
+    Immediate,
+    Common,
+    Pallet,
+    PalletArray,
+    SignedImmediate
 }
 
 // PhaseUseFlags fields in different db2s

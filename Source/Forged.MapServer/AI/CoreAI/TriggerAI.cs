@@ -9,18 +9,18 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class TriggerAI : NullCreatureAI
 {
-	public TriggerAI(Creature c) : base(c) { }
+    public TriggerAI(Creature c) : base(c) { }
 
-	public override void IsSummonedBy(WorldObject summoner)
-	{
-		if (Me.Spells[0] != 0)
-		{
-			CastSpellExtraArgs extra = new()
-			{
-				OriginalCaster = summoner.GUID
-			};
+    public override void IsSummonedBy(WorldObject summoner)
+    {
+        if (Me.Spells[0] != 0)
+        {
+            CastSpellExtraArgs extra = new()
+            {
+                OriginalCaster = summoner.GUID
+            };
 
-			Me.CastSpell(Me, Me.Spells[0], extra);
-		}
-	}
+            Me.CastSpell(Me, Me.Spells[0], extra);
+        }
+    }
 }

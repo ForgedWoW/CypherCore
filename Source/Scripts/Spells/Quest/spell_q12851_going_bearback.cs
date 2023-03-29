@@ -12,43 +12,43 @@ namespace Scripts.Spells.Quest;
 [Script] // 54798 FLAMING Arrow Triggered Effect
 internal class spell_q12851_going_bearback : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectApply, 0, AuraType.PeriodicDummy, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectAfterApply));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectApply, 0, AuraType.PeriodicDummy, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectAfterApply));
+    }
 
-	private void HandleEffectApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var caster = Caster;
+    private void HandleEffectApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var caster = Caster;
 
-		if (caster)
-		{
-			var target = Target;
+        if (caster)
+        {
+            var target = Target;
 
-			// Already in fire
-			if (target.HasAura(QuestSpellIds.Ablaze))
-				return;
+            // Already in fire
+            if (target.HasAura(QuestSpellIds.Ablaze))
+                return;
 
-			var player = caster.CharmerOrOwnerPlayerOrPlayerItself;
+            var player = caster.CharmerOrOwnerPlayerOrPlayerItself;
 
-			if (player)
-				switch (target.Entry)
-				{
-					case CreatureIds.Frostworg:
-						target.CastSpell(player, QuestSpellIds.FrostworgCredit, true);
-						target.CastSpell(target, QuestSpellIds.Immolation, true);
-						target.CastSpell(target, QuestSpellIds.Ablaze, true);
+            if (player)
+                switch (target.Entry)
+                {
+                    case CreatureIds.Frostworg:
+                        target.CastSpell(player, QuestSpellIds.FrostworgCredit, true);
+                        target.CastSpell(target, QuestSpellIds.Immolation, true);
+                        target.CastSpell(target, QuestSpellIds.Ablaze, true);
 
-						break;
-					case CreatureIds.Frostgiant:
-						target.CastSpell(player, QuestSpellIds.FrostgiantCredit, true);
-						target.CastSpell(target, QuestSpellIds.Immolation, true);
-						target.CastSpell(target, QuestSpellIds.Ablaze, true);
+                        break;
+                    case CreatureIds.Frostgiant:
+                        target.CastSpell(player, QuestSpellIds.FrostgiantCredit, true);
+                        target.CastSpell(target, QuestSpellIds.Immolation, true);
+                        target.CastSpell(target, QuestSpellIds.Ablaze, true);
 
-						break;
-				}
-		}
-	}
+                        break;
+                }
+        }
+    }
 }

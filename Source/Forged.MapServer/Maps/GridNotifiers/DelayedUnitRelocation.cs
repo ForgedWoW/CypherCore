@@ -17,49 +17,49 @@ public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
     private readonly CellCoord _p;
     private readonly float _radius;
 
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public DelayedUnitRelocation(Cell c, CellCoord pair, Map map, float radius, GridType gridType)
-	{
-		_map = map;
-		_cell = c;
-		_p = pair;
-		_radius = radius;
-		GridType = gridType;
-	}
+    public DelayedUnitRelocation(Cell c, CellCoord pair, Map map, float radius, GridType gridType)
+    {
+        _map = map;
+        _cell = c;
+        _p = pair;
+        _radius = radius;
+        GridType = gridType;
+    }
 
-	public void Visit(IList<Creature> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var creature = objs[i];
+    public void Visit(IList<Creature> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var creature = objs[i];
 
-			if (!creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
-				continue;
+            if (!creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
+                continue;
 
-			CreatureRelocationNotifier relocate = new(creature, GridType.All);
+            CreatureRelocationNotifier relocate = new(creature, GridType.All);
 
-			_cell.Visit(_p, relocate, _map, creature, _radius);
-		}
-	}
+            _cell.Visit(_p, relocate, _map, creature, _radius);
+        }
+    }
 
-	public void Visit(IList<Player> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var player = objs[i];
-			var viewPoint = player.SeerView;
+    public void Visit(IList<Player> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var player = objs[i];
+            var viewPoint = player.SeerView;
 
-			if (!viewPoint.IsNeedNotify(NotifyFlags.VisibilityChanged))
-				continue;
+            if (!viewPoint.IsNeedNotify(NotifyFlags.VisibilityChanged))
+                continue;
 
-			if (player != viewPoint && !viewPoint.Location.IsPositionValid)
-				continue;
+            if (player != viewPoint && !viewPoint.Location.IsPositionValid)
+                continue;
 
-			var relocate = new PlayerRelocationNotifier(player, GridType.All);
-			Cell.VisitGrid(viewPoint, relocate, _radius, false);
+            var relocate = new PlayerRelocationNotifier(player, GridType.All);
+            Cell.VisitGrid(viewPoint, relocate, _radius, false);
 
-			relocate.SendToSelf();
-		}
-	}
+            relocate.SendToSelf();
+        }
+    }
 }

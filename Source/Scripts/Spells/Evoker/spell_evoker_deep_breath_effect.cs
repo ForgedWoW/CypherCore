@@ -10,8 +10,8 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.BLACK_DEEP_BREATH_EFFECT)]
 public class spell_evoker_deep_breath_effect : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		Caster.Events.AddEventAtOffset(() => { Caster.CastSpell(Caster, EvokerSpells.BLACK_DEEP_BREATH_END); }, TimeSpan.FromMilliseconds(880));
-	}
+    public void AfterCast()
+    {
+        Caster.Events.AddEventAtOffset(() => { Caster.CastSpell(Caster, EvokerSpells.BLACK_DEEP_BREATH_END); }, TimeSpan.FromMilliseconds(880));
+    }
 }

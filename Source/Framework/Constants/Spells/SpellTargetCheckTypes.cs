@@ -5,15 +5,15 @@ namespace Framework.Constants;
 
 public enum SpellTargetCheckTypes
 {
-	Default,
-	Entry,
-	Enemy,
-	Ally,
-	Party,
-	Raid,
-	RaidClass,
-	Passenger,
-	Summoned,
-	Threat,
-	Tap
+    Default,
+    Entry,
+    Enemy,
+    Ally,
+    Party,
+    Raid,
+    RaidClass,
+    Passenger,
+    Summoned,
+    Threat,
+    Tap
 }

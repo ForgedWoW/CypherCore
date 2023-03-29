@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum CreatureFlightMovementType
 {
-	None,
-	DisableGravity,
-	CanFly,
+    None,
+    DisableGravity,
+    CanFly,
 
-	Max
+    Max
 }

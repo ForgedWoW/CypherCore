@@ -12,29 +12,29 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(231489)]
 internal class spell_warlock_compounding_horror : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var damage = HitDamage;
-		var stacks = 0;
-		var aur = caster.GetAura(WarlockSpells.COMPOUNDING_HORROR);
+        var damage = HitDamage;
+        var stacks = 0;
+        var aur = caster.GetAura(WarlockSpells.COMPOUNDING_HORROR);
 
-		if (aur != null)
-			stacks = aur.StackAmount;
+        if (aur != null)
+            stacks = aur.StackAmount;
 
-		HitDamage = damage * stacks;
+        HitDamage = damage * stacks;
 
-		caster.RemoveAura(WarlockSpells.COMPOUNDING_HORROR);
-	}
+        caster.RemoveAura(WarlockSpells.COMPOUNDING_HORROR);
+    }
 }

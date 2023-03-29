@@ -10,11 +10,11 @@ namespace Scripts.Spells.Priest;
 [SpellScript(2050)]
 public class spell_pri_holy_word_serenity : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var player = Caster.AsPlayer;
+    public void OnCast()
+    {
+        var player = Caster.AsPlayer;
 
-		if (player != null)
-			player.SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORLD_SALVATION, TimeSpan.FromSeconds(-30000));
-	}
+        if (player != null)
+            player.SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORLD_SALVATION, TimeSpan.FromSeconds(-30000));
+    }
 }

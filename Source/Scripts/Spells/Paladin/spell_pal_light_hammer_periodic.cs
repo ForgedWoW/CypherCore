@@ -12,23 +12,23 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(114918)] // 114918 - Light's Hammer (Periodic)
 internal class spell_pal_light_hammer_periodic : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
+    }
 
-	private void HandleEffectPeriodic(AuraEffect aurEff)
-	{
-		var lightHammer = Target;
-		var originalCaster = lightHammer.OwnerUnit;
+    private void HandleEffectPeriodic(AuraEffect aurEff)
+    {
+        var lightHammer = Target;
+        var originalCaster = lightHammer.OwnerUnit;
 
-		if (originalCaster != null)
-		{
-			originalCaster.CastSpell(lightHammer.Location, PaladinSpells.LightHammerDamage, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
-			originalCaster.CastSpell(lightHammer.Location, PaladinSpells.LightHammerHealing, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
-		}
-	}
+        if (originalCaster != null)
+        {
+            originalCaster.CastSpell(lightHammer.Location, PaladinSpells.LightHammerDamage, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+            originalCaster.CastSpell(lightHammer.Location, PaladinSpells.LightHammerHealing, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+        }
+    }
 }

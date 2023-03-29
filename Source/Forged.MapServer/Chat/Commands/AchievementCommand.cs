@@ -9,20 +9,20 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("achievement")]
 internal class AchievementCommand
 {
-	[Command("add", CypherStrings.CommandAchievementAddHelp, RBACPermissions.CommandAchievementAdd)]
+    [Command("add", CypherStrings.CommandAchievementAddHelp, RBACPermissions.CommandAchievementAdd)]
     private static bool HandleAchievementAddCommand(CommandHandler handler, AchievementRecord achievementEntry)
-	{
-		var target = handler.SelectedPlayer;
+    {
+        var target = handler.SelectedPlayer;
 
-		if (!target)
-		{
-			handler.SendSysMessage(CypherStrings.NoCharSelected);
+        if (!target)
+        {
+            handler.SendSysMessage(CypherStrings.NoCharSelected);
 
-			return false;
-		}
+            return false;
+        }
 
-		target.CompletedAchievement(achievementEntry);
+        target.CompletedAchievement(achievementEntry);
 
-		return true;
-	}
+        return true;
+    }
 }

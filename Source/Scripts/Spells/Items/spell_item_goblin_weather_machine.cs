@@ -12,18 +12,18 @@ namespace Scripts.Spells.Items;
 [Script] // 46203 - Goblin Weather Machine
 internal class spell_item_goblin_weather_machine : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleScript(int effIndex)
+    {
+        var target = HitUnit;
 
-		var spellId = RandomHelper.RAND(ItemSpellIds.PersonalizedWeather1, ItemSpellIds.PersonalizedWeather2, ItemSpellIds.PersonalizedWeather3, ItemSpellIds.PersonalizedWeather4);
-		target.CastSpell(target, spellId, new CastSpellExtraArgs(Spell));
-	}
+        var spellId = RandomHelper.RAND(ItemSpellIds.PersonalizedWeather1, ItemSpellIds.PersonalizedWeather2, ItemSpellIds.PersonalizedWeather3, ItemSpellIds.PersonalizedWeather4);
+        target.CastSpell(target, spellId, new CastSpellExtraArgs(Spell));
+    }
 }

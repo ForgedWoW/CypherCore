@@ -8,18 +8,18 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildNewsPkt : ServerPacket
 {
-	public List<GuildNewsEvent> NewsEvents;
+    public List<GuildNewsEvent> NewsEvents;
 
-	public GuildNewsPkt() : base(ServerOpcodes.GuildNews)
-	{
-		NewsEvents = new List<GuildNewsEvent>();
-	}
+    public GuildNewsPkt() : base(ServerOpcodes.GuildNews)
+    {
+        NewsEvents = new List<GuildNewsEvent>();
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(NewsEvents.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(NewsEvents.Count);
 
-		foreach (var newsEvent in NewsEvents)
-			newsEvent.Write(_worldPacket);
-	}
+        foreach (var newsEvent in NewsEvents)
+            newsEvent.Write(_worldPacket);
+    }
 }

@@ -5,8 +5,8 @@ namespace Forged.MapServer.Spells;
 
 public enum SpellEffectHandleMode
 {
-	Launch,
-	LaunchTarget,
-	Hit,
-	HitTarget
+    Launch,
+    LaunchTarget,
+    Hit,
+    HitTarget
 }

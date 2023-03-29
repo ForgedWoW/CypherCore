@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public sealed class PlayerChoiceResponseRewardEntry
 {
-	public ItemInstance Item;
-	public int Quantity;
+    public ItemInstance Item;
+    public int Quantity;
 
-	public void Write(WorldPacket data)
-	{
-		Item = new ItemInstance();
-		Item.Write(data);
-		data.WriteInt32(Quantity);
-	}
+    public void Write(WorldPacket data)
+    {
+        Item = new ItemInstance();
+        Item.Write(data);
+        data.WriteInt32(Quantity);
+    }
 }

@@ -11,28 +11,28 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(200163)]
 public class spell_hun_throwing_axes : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
-		var target = ExplTargetUnit;
+    public void OnCast()
+    {
+        var caster = Caster;
+        var target = ExplTargetUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		var targetGUID = target.GUID;
-		var throwCount = SpellInfo.GetEffect(0).BasePoints;
+        var targetGUID = target.GUID;
+        var throwCount = SpellInfo.GetEffect(0).BasePoints;
 
-		for (byte i = 0; i < throwCount; ++i)
-			caster.Events.AddEventAtOffset(() =>
-											{
-												if (caster != null)
-												{
-													Unit target = ObjectAccessor.GetCreature(caster, targetGUID);
+        for (byte i = 0; i < throwCount; ++i)
+            caster.Events.AddEventAtOffset(() =>
+                                           {
+                                               if (caster != null)
+                                               {
+                                                   Unit target = ObjectAccessor.GetCreature(caster, targetGUID);
 
-													if (target != null)
-														caster.CastSpell(target, HunterSpells.THOWING_AXES_DAMAGE, false);
-												}
-											},
-											TimeSpan.FromMilliseconds(500 * i));
-	}
+                                                   if (target != null)
+                                                       caster.CastSpell(target, HunterSpells.THOWING_AXES_DAMAGE, false);
+                                               }
+                                           },
+                                           TimeSpan.FromMilliseconds(500 * i));
+    }
 }

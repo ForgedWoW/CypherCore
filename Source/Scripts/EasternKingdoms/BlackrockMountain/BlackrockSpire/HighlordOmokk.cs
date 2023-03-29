@@ -10,49 +10,49 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire.HighlordOmokk
 
 internal struct SpellIds
 {
-	public const uint Frenzy = 8269;
-	public const uint KnockAway = 10101;
+    public const uint Frenzy = 8269;
+    public const uint KnockAway = 10101;
 }
 
 [Script]
 internal class boss_highlord_omokk : BossAI
 {
-	public boss_highlord_omokk(Creature creature) : base(creature, DataTypes.HighlordOmokk) { }
+    public boss_highlord_omokk(Creature creature) : base(creature, DataTypes.HighlordOmokk) { }
 
-	public override void Reset()
-	{
-		_Reset();
-	}
+    public override void Reset()
+    {
+        _Reset();
+    }
 
-	public override void JustEngagedWith(Unit who)
-	{
-		base.JustEngagedWith(who);
+    public override void JustEngagedWith(Unit who)
+    {
+        base.JustEngagedWith(who);
 
-		Scheduler.Schedule(TimeSpan.FromSeconds(20),
-							task =>
-							{
-								DoCastVictim(SpellIds.Frenzy);
-								task.Repeat(TimeSpan.FromMinutes(1));
-							});
+        Scheduler.Schedule(TimeSpan.FromSeconds(20),
+                           task =>
+                           {
+                               DoCastVictim(SpellIds.Frenzy);
+                               task.Repeat(TimeSpan.FromMinutes(1));
+                           });
 
-		Scheduler.Schedule(TimeSpan.FromSeconds(18),
-							task =>
-							{
-								DoCastVictim(SpellIds.KnockAway);
-								task.Repeat(TimeSpan.FromSeconds(12));
-							});
-	}
+        Scheduler.Schedule(TimeSpan.FromSeconds(18),
+                           task =>
+                           {
+                               DoCastVictim(SpellIds.KnockAway);
+                               task.Repeat(TimeSpan.FromSeconds(12));
+                           });
+    }
 
-	public override void JustDied(Unit killer)
-	{
-		_JustDied();
-	}
+    public override void JustDied(Unit killer)
+    {
+        _JustDied();
+    }
 
-	public override void UpdateAI(uint diff)
-	{
-		if (!UpdateVictim())
-			return;
+    public override void UpdateAI(uint diff)
+    {
+        if (!UpdateVictim())
+            return;
 
-		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
-	}
+        Scheduler.Update(diff, () => DoMeleeAttackIfReady());
+    }
 }

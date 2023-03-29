@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class GuildSetFocusedAchievement : ClientPacket
 {
-	public uint AchievementID;
-	public GuildSetFocusedAchievement(WorldPacket packet) : base(packet) { }
+    public uint AchievementID;
+    public GuildSetFocusedAchievement(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		AchievementID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        AchievementID = _worldPacket.ReadUInt32();
+    }
 }

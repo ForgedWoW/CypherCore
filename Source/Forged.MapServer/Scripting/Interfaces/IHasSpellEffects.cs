@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces;
 
 public interface IHasSpellEffects
 {
-	List<ISpellEffect> SpellEffects { get; }
+    List<ISpellEffect> SpellEffects { get; }
 }

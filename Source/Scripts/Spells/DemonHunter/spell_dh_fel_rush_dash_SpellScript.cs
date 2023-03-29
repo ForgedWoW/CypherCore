@@ -11,16 +11,16 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(197923)]
 public class spell_dh_fel_rush_dash_SpellScript : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(PreventTrigger, 6, SpellEffectName.TriggerSpell, SpellScriptHookType.Launch));
-		SpellEffects.Add(new EffectHandler(PreventTrigger, 6, SpellEffectName.TriggerSpell, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(PreventTrigger, 6, SpellEffectName.TriggerSpell, SpellScriptHookType.Launch));
+        SpellEffects.Add(new EffectHandler(PreventTrigger, 6, SpellEffectName.TriggerSpell, SpellScriptHookType.EffectHit));
+    }
 
-	private void PreventTrigger(int effIndex)
-	{
-		PreventHitEffect(effIndex);
-	}
+    private void PreventTrigger(int effIndex)
+    {
+        PreventHitEffect(effIndex);
+    }
 }

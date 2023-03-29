@@ -9,21 +9,21 @@ namespace Forged.MapServer.Spells;
 
 public class CorpseTargetInfo : TargetInfoBase
 {
-	public ObjectGuid TargetGuid;
-	public ulong TimeDelay;
+    public ObjectGuid TargetGuid;
+    public ulong TimeDelay;
 
-	public override void DoTargetSpellHit(Spell spell, SpellEffectInfo spellEffectInfo)
-	{
-		var corpse = ObjectAccessor.GetCorpse(spell.Caster, TargetGuid);
+    public override void DoTargetSpellHit(Spell spell, SpellEffectInfo spellEffectInfo)
+    {
+        var corpse = ObjectAccessor.GetCorpse(spell.Caster, TargetGuid);
 
-		if (corpse == null)
-			return;
+        if (corpse == null)
+            return;
 
-		spell.CallScriptBeforeHitHandlers(SpellMissInfo.None);
+        spell.CallScriptBeforeHitHandlers(SpellMissInfo.None);
 
-		spell.HandleEffects(null, null, null, corpse, spellEffectInfo, SpellEffectHandleMode.HitTarget);
+        spell.HandleEffects(null, null, null, corpse, spellEffectInfo, SpellEffectHandleMode.HitTarget);
 
-		spell.CallScriptOnHitHandlers();
-		spell.CallScriptAfterHitHandlers();
-	}
+        spell.CallScriptOnHitHandlers();
+        spell.CallScriptAfterHitHandlers();
+    }
 }

@@ -3,12 +3,10 @@
 
 using System.Runtime.Serialization;
 
-namespace Framework.Web
+namespace Framework.Web;
+
+[DataContract]
+public class RealmListTicketClientInformation
 {
-    [DataContract]
-    public class RealmListTicketClientInformation
-    {
-        [DataMember(Name = "info")]
-        public RealmListTicketInformation Info { get; set; } = new RealmListTicketInformation();
-    }
+    [DataMember(Name = "info")] public RealmListTicketInformation Info { get; set; } = new();
 }

@@ -8,23 +8,23 @@ namespace Scripts.Spells.Generic;
 
 internal class CorruptingPlagueSearcher : ICheck<Unit>
 {
-	private readonly double _distance;
+    private readonly double _distance;
 
-	private readonly Unit _unit;
+    private readonly Unit _unit;
 
-	public CorruptingPlagueSearcher(Unit obj, double distance)
-	{
-		_unit = obj;
-		_distance = distance;
-	}
+    public CorruptingPlagueSearcher(Unit obj, double distance)
+    {
+        _unit = obj;
+        _distance = distance;
+    }
 
-	public bool Invoke(Unit u)
-	{
-		if (_unit.GetDistance2d(u) < _distance &&
-			(u.Entry == CreatureIds.ApexisFlayer || u.Entry == CreatureIds.ShardHideBoar || u.Entry == CreatureIds.AetherRay) &&
-			!u.HasAura(GenericSpellIds.CorruptingPlague))
-			return true;
+    public bool Invoke(Unit u)
+    {
+        if (_unit.GetDistance2d(u) < _distance &&
+            (u.Entry == CreatureIds.ApexisFlayer || u.Entry == CreatureIds.ShardHideBoar || u.Entry == CreatureIds.AetherRay) &&
+            !u.HasAura(GenericSpellIds.CorruptingPlague))
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

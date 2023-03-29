@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum AreaTriggerActionTypes
 {
-	Cast = 0,
-	AddAura = 1,
-	Teleport = 2,
-	Max = 3
+    Cast = 0,
+    AddAura = 1,
+    Teleport = 2,
+    Max = 3
 }

@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarCommunityInvite : ServerPacket
 {
-	public List<CalendarEventInitialInviteInfo> Invites = new();
-	public CalendarCommunityInvite() : base(ServerOpcodes.CalendarCommunityInvite) { }
+    public List<CalendarEventInitialInviteInfo> Invites = new();
+    public CalendarCommunityInvite() : base(ServerOpcodes.CalendarCommunityInvite) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Invites.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Invites.Count);
 
-		foreach (var invite in Invites)
-		{
-			_worldPacket.WritePackedGuid(invite.InviteGuid);
-			_worldPacket.WriteUInt8(invite.Level);
-		}
-	}
+        foreach (var invite in Invites)
+        {
+            _worldPacket.WritePackedGuid(invite.InviteGuid);
+            _worldPacket.WriteUInt8(invite.Level);
+        }
+    }
 }

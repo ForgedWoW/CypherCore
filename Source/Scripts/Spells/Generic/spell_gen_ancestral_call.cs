@@ -10,17 +10,17 @@ namespace Scripts.Spells.Generic;
 [Script] // 274738 - Ancestral Call (Mag'har Orc Racial)
 internal class spell_gen_ancestral_call : SpellScript, ISpellOnCast
 {
-	private static readonly uint[] AncestralCallBuffs =
-	{
-		GenericSpellIds.RictusOfTheLaughingSkull, GenericSpellIds.ZealOfTheBurningBlade, GenericSpellIds.FerocityOfTheFrostwolf, GenericSpellIds.MightOfTheBlackrock
-	};
+    private static readonly uint[] AncestralCallBuffs =
+    {
+        GenericSpellIds.RictusOfTheLaughingSkull, GenericSpellIds.ZealOfTheBurningBlade, GenericSpellIds.FerocityOfTheFrostwolf, GenericSpellIds.MightOfTheBlackrock
+    };
 
 
-	public void OnCast()
-	{
-		var caster = Caster;
-		var spellId = AncestralCallBuffs.SelectRandom();
+    public void OnCast()
+    {
+        var caster = Caster;
+        var spellId = AncestralCallBuffs.SelectRandom();
 
-		caster.CastSpell(caster, spellId, true);
-	}
+        caster.CastSpell(caster, spellId, true);
+    }
 }

@@ -12,29 +12,29 @@ namespace Scripts.Spells.Generic;
 [Script("spell_gen_eject_passenger_3", 2)]
 internal class spell_gen_eject_passenger_with_seatId : SpellScript, IHasSpellEffects
 {
-	private readonly sbyte _seatId;
+    private readonly sbyte _seatId;
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public spell_gen_eject_passenger_with_seatId(sbyte seatId)
-	{
-		_seatId = seatId;
-	}
+    public spell_gen_eject_passenger_with_seatId(sbyte seatId)
+    {
+        _seatId = seatId;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(EjectPassenger, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(EjectPassenger, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void EjectPassenger(int effIndex)
-	{
-		var vehicle = HitUnit.VehicleKit1;
+    private void EjectPassenger(int effIndex)
+    {
+        var vehicle = HitUnit.VehicleKit1;
 
-		if (vehicle != null)
-		{
-			var passenger = vehicle.GetPassenger(_seatId);
+        if (vehicle != null)
+        {
+            var passenger = vehicle.GetPassenger(_seatId);
 
-			passenger?.ExitVehicle();
-		}
-	}
+            passenger?.ExitVehicle();
+        }
+    }
 }

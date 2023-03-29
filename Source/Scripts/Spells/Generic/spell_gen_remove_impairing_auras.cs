@@ -11,15 +11,15 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_remove_impairing_auras : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScriptEffect(int effIndex)
-	{
-		HitUnit.RemoveMovementImpairingAuras(true);
-	}
+    private void HandleScriptEffect(int effIndex)
+    {
+        HitUnit.RemoveMovementImpairingAuras(true);
+    }
 }

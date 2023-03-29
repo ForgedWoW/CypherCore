@@ -2,8 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Net.Sockets;
-using Forged.MapServer.Server;
-using Framework.Constants;
 using Framework.Networking;
 using Serilog;
 
@@ -15,58 +13,58 @@ public class WorldSocketManager : SocketManager<WorldSocket>
     private int _socketSendBufferSize;
     private bool _tcpNoDelay;
 
-	public override bool StartNetwork(string bindIp, int port, int threadCount)
-	{
-		_tcpNoDelay = ConfigMgr.GetDefaultValue("Network.TcpNodelay", true);
+    public override bool StartNetwork(string bindIp, int port, int threadCount)
+    {
+        _tcpNoDelay = ConfigMgr.GetDefaultValue("Network.TcpNodelay", true);
 
-		Log.Logger.Debug("Max allowed socket connections {0}", ushort.MaxValue);
+        Log.Logger.Debug("Max allowed socket connections {0}", ushort.MaxValue);
 
-		// -1 means use default
-		_socketSendBufferSize = ConfigMgr.GetDefaultValue("Network.OutKBuff", -1);
+        // -1 means use default
+        _socketSendBufferSize = ConfigMgr.GetDefaultValue("Network.OutKBuff", -1);
 
-		if (!base.StartNetwork(bindIp, port, threadCount))
-			return false;
+        if (!base.StartNetwork(bindIp, port, threadCount))
+            return false;
 
-		_instanceAcceptor = new AsyncAcceptor();
+        _instanceAcceptor = new AsyncAcceptor();
 
-		if (!_instanceAcceptor.Start(bindIp, GetDefaultValue("InstanceServerPort", 8086)))
-		{
-			Log.Logger.Error("StartNetwork failed to start instance AsyncAcceptor");
+        if (!_instanceAcceptor.Start(bindIp, GetDefaultValue("InstanceServerPort", 8086)))
+        {
+            Log.Logger.Error("StartNetwork failed to start instance AsyncAcceptor");
 
-			return false;
-		}
+            return false;
+        }
 
-		_instanceAcceptor.AsyncAcceptSocket(OnSocketOpen);
+        _instanceAcceptor.AsyncAcceptSocket(OnSocketOpen);
 
-		return true;
-	}
+        return true;
+    }
 
-	public override void StopNetwork()
-	{
-		_instanceAcceptor.Close();
-		base.StopNetwork();
+    public override void StopNetwork()
+    {
+        _instanceAcceptor.Close();
+        base.StopNetwork();
 
-		_instanceAcceptor = null;
-	}
+        _instanceAcceptor = null;
+    }
 
-	public override void OnSocketOpen(Socket sock)
-	{
-		// set some options here
-		try
-		{
-			if (_socketSendBufferSize >= 0)
-				sock.SendBufferSize = _socketSendBufferSize;
+    public override void OnSocketOpen(Socket sock)
+    {
+        // set some options here
+        try
+        {
+            if (_socketSendBufferSize >= 0)
+                sock.SendBufferSize = _socketSendBufferSize;
 
-			// Set TCP_NODELAY.
-			sock.NoDelay = _tcpNoDelay;
-		}
-		catch (SocketException ex)
-		{
-			Log.Logger.Error(ex);
+            // Set TCP_NODELAY.
+            sock.NoDelay = _tcpNoDelay;
+        }
+        catch (SocketException ex)
+        {
+            Log.Logger.Error(ex);
 
-			return;
-		}
+            return;
+        }
 
-		base.OnSocketOpen(sock);
-	}
+        base.OnSocketOpen(sock);
+    }
 }

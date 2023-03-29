@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetUpdateNotify : ClientPacket
 {
-	public ObjectGuid PetGuid;
+    public ObjectGuid PetGuid;
 
-	public BattlePetUpdateNotify(WorldPacket packet) : base(packet) { }
+    public BattlePetUpdateNotify(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PetGuid = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        PetGuid = _worldPacket.ReadPackedGuid();
+    }
 }

@@ -12,37 +12,37 @@ namespace Scripts.Spells.Druid;
 [SpellScript(5487)]
 public class spell_dru_bear_form : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModShapeshift, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ModShapeshift, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModShapeshift, AuraEffectHandleModes.Real));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ModShapeshift, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		caster.CastSpell(caster, BearFormSpells.BEARFORM_OVERRIDE, true);
+        caster.CastSpell(caster, BearFormSpells.BEARFORM_OVERRIDE, true);
 
-		if (caster.HasSpell(BearFormSpells.STAMPEDING_ROAR))
-			caster.CastSpell(caster, BearFormSpells.STAMPEDING_ROAR_BEAR_OVERRIDE, true);
-	}
+        if (caster.HasSpell(BearFormSpells.STAMPEDING_ROAR))
+            caster.CastSpell(caster, BearFormSpells.STAMPEDING_ROAR_BEAR_OVERRIDE, true);
+    }
 
-	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		caster.RemoveAura(BearFormSpells.BEARFORM_OVERRIDE);
+        caster.RemoveAura(BearFormSpells.BEARFORM_OVERRIDE);
 
-		if (caster.HasSpell(BearFormSpells.STAMPEDING_ROAR))
-			caster.RemoveAura(BearFormSpells.STAMPEDING_ROAR_BEAR_OVERRIDE);
-	}
+        if (caster.HasSpell(BearFormSpells.STAMPEDING_ROAR))
+            caster.RemoveAura(BearFormSpells.STAMPEDING_ROAR_BEAR_OVERRIDE);
+    }
 }

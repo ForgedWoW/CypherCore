@@ -14,44 +14,44 @@ namespace Scripts.Spells.Warrior;
 [Script]
 internal class spell_warr_sweeping_strikes : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	private Unit _procTarget;
+    private Unit _procTarget;
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		_procTarget = eventInfo.Actor.SelectNearbyTarget(eventInfo.ProcTarget);
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        _procTarget = eventInfo.Actor.SelectNearbyTarget(eventInfo.ProcTarget);
 
-		return _procTarget;
-	}
+        return _procTarget;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var damageInfo = eventInfo.DamageInfo;
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var damageInfo = eventInfo.DamageInfo;
 
-		if (damageInfo != null)
-		{
-			var spellInfo = damageInfo.SpellInfo;
+        if (damageInfo != null)
+        {
+            var spellInfo = damageInfo.SpellInfo;
 
-			if (spellInfo != null &&
-				(spellInfo.Id == WarriorSpells.BLADESTORM_PERIODIC_WHIRLWIND || (spellInfo.Id == WarriorSpells.EXECUTE && !_procTarget.HasAuraState(AuraStateType.Wounded20Percent))))
-			{
-				// If triggered by Execute (while Target is not under 20% hp) or Bladestorm deals normalized weapon Damage
-				Target.CastSpell(_procTarget, WarriorSpells.SWEEPING_STRIKES_EXTRA_ATTACK_2, new CastSpellExtraArgs(aurEff));
-			}
-			else
-			{
-				CastSpellExtraArgs args = new(aurEff);
-				args.AddSpellMod(SpellValueMod.BasePoint0, (int)damageInfo.Damage);
-				Target.CastSpell(_procTarget, WarriorSpells.SWEEPING_STRIKES_EXTRA_ATTACK_1, args);
-			}
-		}
-	}
+            if (spellInfo != null &&
+                (spellInfo.Id == WarriorSpells.BLADESTORM_PERIODIC_WHIRLWIND || (spellInfo.Id == WarriorSpells.EXECUTE && !_procTarget.HasAuraState(AuraStateType.Wounded20Percent))))
+            {
+                // If triggered by Execute (while Target is not under 20% hp) or Bladestorm deals normalized weapon Damage
+                Target.CastSpell(_procTarget, WarriorSpells.SWEEPING_STRIKES_EXTRA_ATTACK_2, new CastSpellExtraArgs(aurEff));
+            }
+            else
+            {
+                CastSpellExtraArgs args = new(aurEff);
+                args.AddSpellMod(SpellValueMod.BasePoint0, (int)damageInfo.Damage);
+                Target.CastSpell(_procTarget, WarriorSpells.SWEEPING_STRIKES_EXTRA_ATTACK_1, args);
+            }
+        }
+    }
 }

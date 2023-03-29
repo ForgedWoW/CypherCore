@@ -11,28 +11,28 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(63900)]
 public class spell_hun_pet_thunderstomp : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
 
-	private void HandleDamage(int effIndex)
-	{
-		var caster = Caster;
-		var owner = Caster.OwnerUnit;
-		var target = HitUnit;
+    private void HandleDamage(int effIndex)
+    {
+        var caster = Caster;
+        var owner = Caster.OwnerUnit;
+        var target = HitUnit;
 
-		if (owner == null || target == null)
-			return;
+        if (owner == null || target == null)
+            return;
 
-		double dmg = 1.5f * (owner.UnitData.RangedAttackPower * 0.250f);
+        double dmg = 1.5f * (owner.UnitData.RangedAttackPower * 0.250f);
 
-		dmg = caster.SpellDamageBonusDone(target, SpellInfo, dmg, DamageEffectType.Direct, GetEffectInfo(0), 1, Spell);
-		dmg = target.SpellDamageBonusTaken(caster, SpellInfo, dmg, DamageEffectType.Direct);
+        dmg = caster.SpellDamageBonusDone(target, SpellInfo, dmg, DamageEffectType.Direct, GetEffectInfo(0), 1, Spell);
+        dmg = target.SpellDamageBonusTaken(caster, SpellInfo, dmg, DamageEffectType.Direct);
 
-		HitDamage = dmg;
-	}
+        HitDamage = dmg;
+    }
 }

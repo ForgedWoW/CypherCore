@@ -10,10 +10,10 @@ namespace Scripts.Spells.Monk;
 [CreatureScript(63508)]
 public class npc_monk_xuen : ScriptedAI
 {
-	public npc_monk_xuen(Creature creature) : base(creature) { }
+    public npc_monk_xuen(Creature creature) : base(creature) { }
 
-	public override void IsSummonedBy(WorldObject UnnamedParameter)
-	{
-		Me.CastSpell(Me, MonkSpells.XUEN_AURA, true);
-	}
+    public override void IsSummonedBy(WorldObject UnnamedParameter)
+    {
+        Me.CastSpell(Me, MonkSpells.XUEN_AURA, true);
+    }
 }

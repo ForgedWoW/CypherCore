@@ -11,36 +11,36 @@ namespace Scripts.Spells.Quest;
 [Script] // 24195 - Grom's Tribute
 internal class spell_quest_uther_grom_tribute : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var caster = Caster.AsPlayer;
+    private void HandleScript(int effIndex)
+    {
+        var caster = Caster.AsPlayer;
 
-		if (!caster)
-			return;
+        if (!caster)
+            return;
 
-		uint spell = caster.Race switch
-		{
-			Race.Troll    => QuestSpellIds.GromsTrollTribute,
-			Race.Tauren   => QuestSpellIds.GromsTaurenTribute,
-			Race.Undead   => QuestSpellIds.GromsUndeadTribute,
-			Race.Orc      => QuestSpellIds.GromsOrcTribute,
-			Race.BloodElf => QuestSpellIds.GromsBloodelfTribute,
-			Race.Human    => QuestSpellIds.UthersHumanTribute,
-			Race.Gnome    => QuestSpellIds.UthersGnomeTribute,
-			Race.Dwarf    => QuestSpellIds.UthersDwarfTribute,
-			Race.NightElf => QuestSpellIds.UthersNightelfTribute,
-			Race.Draenei  => QuestSpellIds.UthersDraeneiTribute,
-			_             => 0
-		};
+        uint spell = caster.Race switch
+        {
+            Race.Troll    => QuestSpellIds.GromsTrollTribute,
+            Race.Tauren   => QuestSpellIds.GromsTaurenTribute,
+            Race.Undead   => QuestSpellIds.GromsUndeadTribute,
+            Race.Orc      => QuestSpellIds.GromsOrcTribute,
+            Race.BloodElf => QuestSpellIds.GromsBloodelfTribute,
+            Race.Human    => QuestSpellIds.UthersHumanTribute,
+            Race.Gnome    => QuestSpellIds.UthersGnomeTribute,
+            Race.Dwarf    => QuestSpellIds.UthersDwarfTribute,
+            Race.NightElf => QuestSpellIds.UthersNightelfTribute,
+            Race.Draenei  => QuestSpellIds.UthersDraeneiTribute,
+            _             => 0
+        };
 
-		if (spell != 0)
-			caster.CastSpell(caster, spell);
-	}
+        if (spell != 0)
+            caster.CastSpell(caster, spell);
+    }
 }

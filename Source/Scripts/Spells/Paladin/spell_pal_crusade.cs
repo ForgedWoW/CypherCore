@@ -15,25 +15,25 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(231895)]
 public class spell_pal_crusade : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.AddPctModifier));
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.AddPctModifier, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.AddPctModifier));
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.AddPctModifier, AuraScriptHookType.EffectProc));
+    }
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		amount.Value /= 10;
-	}
+    private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        amount.Value /= 10;
+    }
 
-	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
-	{
-		var powerCosts = eventInfo.SpellInfo.CalcPowerCost(eventInfo.Actor, SpellSchoolMask.Holy);
+    private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+    {
+        var powerCosts = eventInfo.SpellInfo.CalcPowerCost(eventInfo.Actor, SpellSchoolMask.Holy);
 
-		foreach (var powerCost in powerCosts)
-			if (powerCost.Power == PowerType.HolyPower)
-				Aura.ModStackAmount(powerCost.Amount, AuraRemoveMode.Default, false);
-	}
+        foreach (var powerCost in powerCosts)
+            if (powerCost.Power == PowerType.HolyPower)
+                Aura.ModStackAmount(powerCost.Amount, AuraRemoveMode.Default, false);
+    }
 }

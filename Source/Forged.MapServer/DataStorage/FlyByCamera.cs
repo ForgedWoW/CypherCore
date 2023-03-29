@@ -7,6 +7,6 @@ namespace Forged.MapServer.DataStorage;
 
 public class FlyByCamera
 {
-	public uint TimeStamp;
-	public Vector4 Locations;
+    public uint TimeStamp;
+    public Vector4 Locations;
 }

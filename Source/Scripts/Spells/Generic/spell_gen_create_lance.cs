@@ -11,26 +11,26 @@ namespace Scripts.Spells.Generic;
 [Script] // 63845 - Create Lance
 internal class spell_gen_create_lance : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
+    private void HandleScript(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
 
-		var target = HitPlayer;
+        var target = HitPlayer;
 
-		if (target)
-		{
-			if (target.Team == TeamFaction.Alliance)
-				Caster.CastSpell(target, GenericSpellIds.CreateLanceAlliance, true);
-			else
-				Caster.CastSpell(target, GenericSpellIds.CreateLanceHorde, true);
-		}
-	}
+        if (target)
+        {
+            if (target.Team == TeamFaction.Alliance)
+                Caster.CastSpell(target, GenericSpellIds.CreateLanceAlliance, true);
+            else
+                Caster.CastSpell(target, GenericSpellIds.CreateLanceHorde, true);
+        }
+    }
 }

@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class OptOutOfLoot : ClientPacket
 {
-	public bool PassOnLoot;
-	public OptOutOfLoot(WorldPacket packet) : base(packet) { }
+    public bool PassOnLoot;
+    public OptOutOfLoot(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PassOnLoot = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        PassOnLoot = _worldPacket.HasBit();
+    }
 }

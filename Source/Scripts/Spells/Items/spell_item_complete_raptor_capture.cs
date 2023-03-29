@@ -11,24 +11,24 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_complete_raptor_capture : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		if (HitCreature)
-		{
-			HitCreature.DespawnOrUnsummon();
+        if (HitCreature)
+        {
+            HitCreature.DespawnOrUnsummon();
 
-			//cast spell Raptor Capture Credit
-			caster.CastSpell(caster, ItemSpellIds.RaptorCaptureCredit, true);
-		}
-	}
+            //cast spell Raptor Capture Credit
+            caster.CastSpell(caster, ItemSpellIds.RaptorCaptureCredit, true);
+        }
+    }
 }

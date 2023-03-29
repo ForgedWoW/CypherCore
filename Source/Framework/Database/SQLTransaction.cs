@@ -8,25 +8,25 @@ namespace Framework.Database;
 
 public class SQLTransaction
 {
-	public List<MySqlCommand> commands { get; }
+    public List<MySqlCommand> commands { get; }
 
-	public SQLTransaction()
-	{
-		commands = new List<MySqlCommand>();
-	}
+    public SQLTransaction()
+    {
+        commands = new List<MySqlCommand>();
+    }
 
-	public void Append(PreparedStatement stmt)
-	{
-		MySqlCommand cmd = new(stmt.CommandText);
+    public void Append(PreparedStatement stmt)
+    {
+        MySqlCommand cmd = new(stmt.CommandText);
 
-		foreach (var parameter in stmt.Parameters)
-			cmd.Parameters.AddWithValue("@" + parameter.Key, parameter.Value);
+        foreach (var parameter in stmt.Parameters)
+            cmd.Parameters.AddWithValue("@" + parameter.Key, parameter.Value);
 
-		commands.Add(cmd);
-	}
+        commands.Add(cmd);
+    }
 
-	public void Append(string sql, params object[] args)
-	{
-		commands.Add(new MySqlCommand(string.Format(sql, args)));
-	}
+    public void Append(string sql, params object[] args)
+    {
+        commands.Add(new MySqlCommand(string.Format(sql, args)));
+    }
 }

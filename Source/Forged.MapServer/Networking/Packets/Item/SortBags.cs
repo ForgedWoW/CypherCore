@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class SortBags : ClientPacket
 {
-	public SortBags(WorldPacket packet) : base(packet) { }
+    public SortBags(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

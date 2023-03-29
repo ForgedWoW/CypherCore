@@ -9,20 +9,20 @@ namespace Forged.MapServer.Collision;
 
 public class AreaInfoCallback : WorkerCallback
 {
-	public readonly AreaInfo AInfo = new();
+    public readonly AreaInfo AInfo = new();
 
     private readonly ModelInstance[] _prims;
 
-	public AreaInfoCallback(ModelInstance[] val)
-	{
-		_prims = val;
-	}
+    public AreaInfoCallback(ModelInstance[] val)
+    {
+        _prims = val;
+    }
 
-	public override void Invoke(Vector3 point, int entry)
-	{
-		if (_prims[entry] == null)
-			return;
+    public override void Invoke(Vector3 point, int entry)
+    {
+        if (_prims[entry] == null)
+            return;
 
-		_prims[entry].IntersectPoint(point, AInfo);
-	}
+        _prims[entry].IntersectPoint(point, AInfo);
+    }
 }

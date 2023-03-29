@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IWorld;
 
 public interface IWorldOnUpdate : IScriptObject
 {
-	void OnUpdate(uint diff);
+    void OnUpdate(uint diff);
 }

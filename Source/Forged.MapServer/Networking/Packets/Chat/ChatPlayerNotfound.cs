@@ -10,14 +10,14 @@ internal class ChatPlayerNotfound : ServerPacket
 {
     private readonly string Name;
 
-	public ChatPlayerNotfound(string name) : base(ServerOpcodes.ChatPlayerNotfound)
-	{
-		Name = name;
-	}
+    public ChatPlayerNotfound(string name) : base(ServerOpcodes.ChatPlayerNotfound)
+    {
+        Name = name;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(Name.GetByteCount(), 9);
-		_worldPacket.WriteString(Name);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBits(Name.GetByteCount(), 9);
+        _worldPacket.WriteString(Name);
+    }
 }

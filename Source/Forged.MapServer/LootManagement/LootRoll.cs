@@ -365,10 +365,10 @@ public class LootRoll
     }
 
     /**
-	 * \brief Check if all player have voted and return true in that case. Also return current winner.
-	 * \param winnerItr > will be different than m_rollCoteMap.end() if winner exist. (Someone voted greed or need)
-	 * \returns true if all players voted
-	 */
+     * \brief Check if all player have voted and return true in that case. Also return current winner.
+     * \param winnerItr > will be different than m_rollCoteMap.end() if winner exist. (Someone voted greed or need)
+     * \returns true if all players voted
+     */
     private bool AllPlayerVoted(ref KeyValuePair<ObjectGuid, PlayerRollVote> winnerPair)
     {
         uint notVoted = 0;

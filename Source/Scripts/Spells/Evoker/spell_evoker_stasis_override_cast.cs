@@ -6,14 +6,13 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
-using System.Collections.Generic;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.STASIS_OVERRIDE_SPELL)]
 public class spell_evoker_stasis_override_cast : SpellScript, ISpellOnCast
 {
-	public void OnCast()
+    public void OnCast()
     {
         if (!Caster.TryGetAsPlayer(out var player))
             return;
@@ -31,19 +30,24 @@ public class spell_evoker_stasis_override_cast : SpellScript, ISpellOnCast
     }
 
 
-
     void CastSpell(Player player, Aura orbAura)
     {
         if (orbAura == null) return;
 
         orbAura.ForEachAuraScript<IAuraScriptValues>(a =>
         {
-            if (a.ScriptValues.TryGetValue("spell", out object obj))
+            if (a.ScriptValues.TryGetValue("spell", out var obj))
             {
                 if (obj == null) return;
 
-                Spell spell = (Spell)obj;
-                player.CastSpell(spell.Targets, spell.SpellInfo.Id, new CastSpellExtraArgs(true) { EmpowerStage = spell.EmpoweredStage });
+                var spell = (Spell)obj;
+
+                player.CastSpell(spell.Targets,
+                                 spell.SpellInfo.Id,
+                                 new CastSpellExtraArgs(true)
+                                 {
+                                     EmpowerStage = spell.EmpoweredStage
+                                 });
             }
         });
 

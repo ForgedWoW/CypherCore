@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Talent;
 
 internal class LearnTalents : ClientPacket
 {
-	public Array<ushort> Talents = new(PlayerConst.MaxTalentTiers);
-	public LearnTalents(WorldPacket packet) : base(packet) { }
+    public Array<ushort> Talents = new(PlayerConst.MaxTalentTiers);
+    public LearnTalents(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var count = _worldPacket.ReadBits<uint>(6);
+    public override void Read()
+    {
+        var count = _worldPacket.ReadBits<uint>(6);
 
-		for (var i = 0; i < count; ++i)
-			Talents[i] = _worldPacket.ReadUInt16();
-	}
+        for (var i = 0; i < count; ++i)
+            Talents[i] = _worldPacket.ReadUInt16();
+    }
 }

@@ -10,27 +10,27 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(185358)]
 public class spell_hun_arcane_shot : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    public void OnHit()
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (caster.HasAura(HunterSpells.MARKING_TARGETS))
-		{
-			caster.CastSpell(target, HunterSpells.HUNTERS_MARK_AURA, true);
-			caster.CastSpell(caster, HunterSpells.HUNTERS_MARK_AURA_2, true);
-			caster.RemoveAura(HunterSpells.MARKING_TARGETS);
-		}
+        if (caster.HasAura(HunterSpells.MARKING_TARGETS))
+        {
+            caster.CastSpell(target, HunterSpells.HUNTERS_MARK_AURA, true);
+            caster.CastSpell(caster, HunterSpells.HUNTERS_MARK_AURA_2, true);
+            caster.RemoveAura(HunterSpells.MARKING_TARGETS);
+        }
 
-		if (caster.HasAura(HunterSpells.LETHAL_SHOTS) && RandomHelper.randChance(20))
-			if (caster.SpellHistory.HasCooldown(HunterSpells.RAPID_FIRE))
-				caster.SpellHistory.ModifyCooldown(HunterSpells.RAPID_FIRE, TimeSpan.FromSeconds(-5000));
+        if (caster.HasAura(HunterSpells.LETHAL_SHOTS) && RandomHelper.randChance(20))
+            if (caster.SpellHistory.HasCooldown(HunterSpells.RAPID_FIRE))
+                caster.SpellHistory.ModifyCooldown(HunterSpells.RAPID_FIRE, TimeSpan.FromSeconds(-5000));
 
-		if (caster.HasAura(HunterSpells.CALLING_THE_SHOTS))
-			if (caster.SpellHistory.HasCooldown(HunterSpells.TRUESHOT))
-				caster.SpellHistory.ModifyCooldown(HunterSpells.TRUESHOT, TimeSpan.FromSeconds(-2500));
-	}
+        if (caster.HasAura(HunterSpells.CALLING_THE_SHOTS))
+            if (caster.SpellHistory.HasCooldown(HunterSpells.TRUESHOT))
+                caster.SpellHistory.ModifyCooldown(HunterSpells.TRUESHOT, TimeSpan.FromSeconds(-2500));
+    }
 }

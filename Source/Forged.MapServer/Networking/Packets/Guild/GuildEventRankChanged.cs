@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventRankChanged : ServerPacket
 {
-	public uint RankID;
-	public GuildEventRankChanged() : base(ServerOpcodes.GuildEventRankChanged) { }
+    public uint RankID;
+    public GuildEventRankChanged() : base(ServerOpcodes.GuildEventRankChanged) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(RankID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(RankID);
+    }
 }

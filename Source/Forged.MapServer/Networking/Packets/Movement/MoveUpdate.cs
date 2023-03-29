@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MoveUpdate : ServerPacket
 {
-	public MovementInfo Status;
-	public MoveUpdate() : base(ServerOpcodes.MoveUpdate, ConnectionType.Instance) { }
+    public MovementInfo Status;
+    public MoveUpdate() : base(ServerOpcodes.MoveUpdate, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		MovementExtensions.WriteMovementInfo(_worldPacket, Status);
-	}
+    public override void Write()
+    {
+        MovementExtensions.WriteMovementInfo(_worldPacket, Status);
+    }
 }

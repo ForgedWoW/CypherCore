@@ -12,20 +12,20 @@ namespace Scripts.Spells.Monk;
 [Script] // 117952 - Crackling Jade Lightning
 internal class spell_monk_crackling_jade_lightning : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDamage));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDamage));
+    }
 
-	private void OnTick(AuraEffect aurEff)
-	{
-		var caster = Caster;
+    private void OnTick(AuraEffect aurEff)
+    {
+        var caster = Caster;
 
-		if (caster)
-			if (caster.HasAura(MonkSpells.StanceOfTheSpiritedCrane))
-				caster.CastSpell(caster, MonkSpells.CracklingJadeLightningChiProc, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-	}
+        if (caster)
+            if (caster.HasAura(MonkSpells.StanceOfTheSpiritedCrane))
+                caster.CastSpell(caster, MonkSpells.CracklingJadeLightningChiProc, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+    }
 }

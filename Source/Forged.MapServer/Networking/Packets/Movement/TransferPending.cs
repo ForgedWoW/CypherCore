@@ -8,34 +8,34 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class TransferPending : ServerPacket
 {
-	public int MapID = -1;
-	public Position OldMapPosition;
-	public ShipTransferPending? Ship;
-	public int? TransferSpellID;
-	public TransferPending() : base(ServerOpcodes.TransferPending) { }
+    public int MapID = -1;
+    public Position OldMapPosition;
+    public ShipTransferPending? Ship;
+    public int? TransferSpellID;
+    public TransferPending() : base(ServerOpcodes.TransferPending) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(MapID);
-		_worldPacket.WriteXYZ(OldMapPosition);
-		_worldPacket.WriteBit(Ship.HasValue);
-		_worldPacket.WriteBit(TransferSpellID.HasValue);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(MapID);
+        _worldPacket.WriteXYZ(OldMapPosition);
+        _worldPacket.WriteBit(Ship.HasValue);
+        _worldPacket.WriteBit(TransferSpellID.HasValue);
 
-		if (Ship.HasValue)
-		{
-			_worldPacket.WriteUInt32(Ship.Value.Id);
-			_worldPacket.WriteInt32(Ship.Value.OriginMapID);
-		}
+        if (Ship.HasValue)
+        {
+            _worldPacket.WriteUInt32(Ship.Value.Id);
+            _worldPacket.WriteInt32(Ship.Value.OriginMapID);
+        }
 
-		if (TransferSpellID.HasValue)
-			_worldPacket.WriteInt32(TransferSpellID.Value);
+        if (TransferSpellID.HasValue)
+            _worldPacket.WriteInt32(TransferSpellID.Value);
 
-		_worldPacket.FlushBits();
-	}
+        _worldPacket.FlushBits();
+    }
 
-	public struct ShipTransferPending
-	{
-		public uint Id;         // gameobject_template.entry of the transport the player is teleporting on
-		public int OriginMapID; // Map id the player is currently on (before teleport)
-	}
+    public struct ShipTransferPending
+    {
+        public uint Id;         // gameobject_template.entry of the transport the player is teleporting on
+        public int OriginMapID; // Map id the player is currently on (before teleport)
+    }
 }

@@ -12,33 +12,33 @@ namespace Scripts.Spells.Items;
 [Script] // 13180 - Gnomish Mind Control Cap
 internal class spell_item_mind_control_cap_SpellScript : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		if (!CastItem)
-			return false;
+    public override bool Load()
+    {
+        if (!CastItem)
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (target)
-		{
-			if (RandomHelper.randChance(95))
-				caster.CastSpell(target, RandomHelper.randChance(32) ? ItemSpellIds.Dullard : ItemSpellIds.GnomishMindControlCap, new CastSpellExtraArgs(CastItem));
-			else
-				target.CastSpell(caster, ItemSpellIds.GnomishMindControlCap, true); // backfire - 5% chance
-		}
-	}
+        if (target)
+        {
+            if (RandomHelper.randChance(95))
+                caster.CastSpell(target, RandomHelper.randChance(32) ? ItemSpellIds.Dullard : ItemSpellIds.GnomishMindControlCap, new CastSpellExtraArgs(CastItem));
+            else
+                target.CastSpell(caster, ItemSpellIds.GnomishMindControlCap, true); // backfire - 5% chance
+        }
+    }
 }

@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public sealed class UpdateVasPurchaseStates : ClientPacket
 {
-	public UpdateVasPurchaseStates(WorldPacket packet) : base(packet) { }
+    public UpdateVasPurchaseStates(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

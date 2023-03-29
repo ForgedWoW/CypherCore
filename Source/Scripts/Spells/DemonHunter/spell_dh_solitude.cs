@@ -17,32 +17,32 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(211509)]
 public class spell_dh_solitude : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
+    }
 
-	private void HandlePeriodic(AuraEffect UnnamedParameter)
-	{
-		PreventDefaultAction();
+    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    {
+        PreventDefaultAction();
 
-		var caster = Caster;
+        var caster = Caster;
 
-		if (caster == null || !SpellInfo.GetEffect(1).IsEffect())
-			return;
+        if (caster == null || !SpellInfo.GetEffect(1).IsEffect())
+            return;
 
-		var range = (float)SpellInfo.GetEffect(1).BasePoints;
-		var allies = new List<Unit>();
-		var check = new AnyFriendlyUnitInObjectRangeCheck(caster, caster, range, true);
-		var searcher = new UnitListSearcher(caster, allies, check, GridType.All);
-		Cell.VisitGrid(caster, searcher, range);
-		allies.Remove(caster);
+        var range = (float)SpellInfo.GetEffect(1).BasePoints;
+        var allies = new List<Unit>();
+        var check = new AnyFriendlyUnitInObjectRangeCheck(caster, caster, range, true);
+        var searcher = new UnitListSearcher(caster, allies, check, GridType.All);
+        Cell.VisitGrid(caster, searcher, range);
+        allies.Remove(caster);
 
-		if (allies.Count == 0 && !caster.HasAura(DemonHunterSpells.SOLITUDE_BUFF))
-			caster.CastSpell(caster, DemonHunterSpells.SOLITUDE_BUFF, true);
-		else if (allies.Count > 0)
-			caster.RemoveAura(DemonHunterSpells.SOLITUDE_BUFF);
-	}
+        if (allies.Count == 0 && !caster.HasAura(DemonHunterSpells.SOLITUDE_BUFF))
+            caster.CastSpell(caster, DemonHunterSpells.SOLITUDE_BUFF, true);
+        else if (allies.Count > 0)
+            caster.RemoveAura(DemonHunterSpells.SOLITUDE_BUFF);
+    }
 }

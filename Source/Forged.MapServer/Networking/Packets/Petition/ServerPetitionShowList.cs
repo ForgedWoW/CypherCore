@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class ServerPetitionShowList : ServerPacket
 {
-	public ObjectGuid Unit;
-	public uint Price = 0;
-	public ServerPetitionShowList() : base(ServerOpcodes.PetitionShowList) { }
+    public ObjectGuid Unit;
+    public uint Price = 0;
+    public ServerPetitionShowList() : base(ServerOpcodes.PetitionShowList) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Unit);
-		_worldPacket.WriteUInt32(Price);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Unit);
+        _worldPacket.WriteUInt32(Price);
+    }
 }

@@ -8,18 +8,18 @@ namespace Scripts.Spells.Evoker;
 
 // all empower spells
 [SpellScript(EvokerSpells.GREEN_DREAM_BREATH,
-			EvokerSpells.GREEN_DREAM_BREATH_2,
-			EvokerSpells.BLUE_ETERNITY_SURGE,
-			EvokerSpells.BLUE_ETERNITY_SURGE_2,
-			EvokerSpells.RED_FIRE_BREATH,
-			EvokerSpells.RED_FIRE_BREATH_2,
-			EvokerSpells.GREEN_SPIRITBLOOM,
-			EvokerSpells.GREEN_SPIRITBLOOM_2)]
+             EvokerSpells.GREEN_DREAM_BREATH_2,
+             EvokerSpells.BLUE_ETERNITY_SURGE,
+             EvokerSpells.BLUE_ETERNITY_SURGE_2,
+             EvokerSpells.RED_FIRE_BREATH,
+             EvokerSpells.RED_FIRE_BREATH_2,
+             EvokerSpells.GREEN_SPIRITBLOOM,
+             EvokerSpells.GREEN_SPIRITBLOOM_2)]
 public class spell_evoker_animosity : SpellScript, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		if (Caster.TryGetAsPlayer(out var player) && player.HasSpell(EvokerSpells.ANIMOSITY) && player.TryGetAura(EvokerSpells.RED_DRAGONRAGE, out var aura))
-			aura.ModDuration(GetEffectInfo(0).BasePoints);
-	}
+    public void AfterHit()
+    {
+        if (Caster.TryGetAsPlayer(out var player) && player.HasSpell(EvokerSpells.ANIMOSITY) && player.TryGetAura(EvokerSpells.RED_DRAGONRAGE, out var aura))
+            aura.ModDuration(GetEffectInfo(0).BasePoints);
+    }
 }

@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum QuestType
 {
-	AutoComplete = 0,
-	Disabled = 1,
-	Normal = 2,
-	Task = 3,
-	Max = 4
+    AutoComplete = 0,
+    Disabled = 1,
+    Normal = 2,
+    Task = 3,
+    Max = 4
 }

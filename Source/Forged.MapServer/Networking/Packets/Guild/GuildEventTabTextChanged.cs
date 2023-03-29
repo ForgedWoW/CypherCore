@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventTabTextChanged : ServerPacket
 {
-	public int Tab;
-	public GuildEventTabTextChanged() : base(ServerOpcodes.GuildEventTabTextChanged) { }
+    public int Tab;
+    public GuildEventTabTextChanged() : base(ServerOpcodes.GuildEventTabTextChanged) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Tab);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Tab);
+    }
 }

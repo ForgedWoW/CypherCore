@@ -12,27 +12,27 @@ namespace Forged.MapServer.Handlers;
 
 public class SceneHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.SceneTriggerEvent)]
+    [WorldPacketHandler(ClientOpcodes.SceneTriggerEvent)]
     private void HandleSceneTriggerEvent(SceneTriggerEvent sceneTriggerEvent)
-	{
-		Log.Logger.Debug("HandleSceneTriggerEvent: SceneInstanceID: {0} Event: {1}", sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
+    {
+        Log.Logger.Debug("HandleSceneTriggerEvent: SceneInstanceID: {0} Event: {1}", sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
 
-		Player.SceneMgr.OnSceneTrigger(sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
-	}
+        Player.SceneMgr.OnSceneTrigger(sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.ScenePlaybackComplete)]
+    [WorldPacketHandler(ClientOpcodes.ScenePlaybackComplete)]
     private void HandleScenePlaybackComplete(ScenePlaybackComplete scenePlaybackComplete)
-	{
-		Log.Logger.Debug("HandleScenePlaybackComplete: SceneInstanceID: {0}", scenePlaybackComplete.SceneInstanceID);
+    {
+        Log.Logger.Debug("HandleScenePlaybackComplete: SceneInstanceID: {0}", scenePlaybackComplete.SceneInstanceID);
 
-		Player.SceneMgr.OnSceneComplete(scenePlaybackComplete.SceneInstanceID);
-	}
+        Player.SceneMgr.OnSceneComplete(scenePlaybackComplete.SceneInstanceID);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.ScenePlaybackCanceled)]
+    [WorldPacketHandler(ClientOpcodes.ScenePlaybackCanceled)]
     private void HandleScenePlaybackCanceled(ScenePlaybackCanceled scenePlaybackCanceled)
-	{
-		Log.Logger.Debug("HandleScenePlaybackCanceled: SceneInstanceID: {0}", scenePlaybackCanceled.SceneInstanceID);
+    {
+        Log.Logger.Debug("HandleScenePlaybackCanceled: SceneInstanceID: {0}", scenePlaybackCanceled.SceneInstanceID);
 
-		Player.SceneMgr.OnSceneCancel(scenePlaybackCanceled.SceneInstanceID);
-	}
+        Player.SceneMgr.OnSceneCancel(scenePlaybackCanceled.SceneInstanceID);
+    }
 }

@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum SpellClickUserTypes
 {
-	Any = 0,
-	Friend = 1,
-	Raid = 2,
-	Party = 3,
-	Max = 4
+    Any = 0,
+    Friend = 1,
+    Raid = 2,
+    Party = 3,
+    Max = 4
 }

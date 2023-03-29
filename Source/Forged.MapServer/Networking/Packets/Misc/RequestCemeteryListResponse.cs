@@ -8,18 +8,18 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class RequestCemeteryListResponse : ServerPacket
 {
-	public bool IsGossipTriggered;
-	public List<uint> CemeteryID = new();
-	public RequestCemeteryListResponse() : base(ServerOpcodes.RequestCemeteryListResponse, ConnectionType.Instance) { }
+    public bool IsGossipTriggered;
+    public List<uint> CemeteryID = new();
+    public RequestCemeteryListResponse() : base(ServerOpcodes.RequestCemeteryListResponse, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(IsGossipTriggered);
-		_worldPacket.FlushBits();
+    public override void Write()
+    {
+        _worldPacket.WriteBit(IsGossipTriggered);
+        _worldPacket.FlushBits();
 
-		_worldPacket.WriteInt32(CemeteryID.Count);
+        _worldPacket.WriteInt32(CemeteryID.Count);
 
-		foreach (var cemetery in CemeteryID)
-			_worldPacket.WriteUInt32(cemetery);
-	}
+        foreach (var cemetery in CemeteryID)
+            _worldPacket.WriteUInt32(cemetery);
+    }
 }

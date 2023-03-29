@@ -5,13 +5,13 @@ namespace Framework.Constants;
 
 public enum GameObjectDynamicLowFlags : ushort
 {
-	HideModel = 0x02,
-	Activate = 0x04,
-	Animate = 0x08,
-	Depleted = 0x10,
-	Sparkle = 0x20,
-	Stopped = 0x40,
-	NoInterract = 0x80,
-	InvertedMovement = 0x100,
-	Highlight = 0x200
+    HideModel = 0x02,
+    Activate = 0x04,
+    Animate = 0x08,
+    Depleted = 0x10,
+    Sparkle = 0x20,
+    Stopped = 0x40,
+    NoInterract = 0x80,
+    InvertedMovement = 0x100,
+    Highlight = 0x200
 }

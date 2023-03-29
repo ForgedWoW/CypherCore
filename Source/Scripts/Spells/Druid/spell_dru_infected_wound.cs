@@ -10,11 +10,11 @@ namespace Scripts.Spells.Druid;
 [SpellScript(48484)]
 public class spell_dru_infected_wound : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo.Id == DruidSpells.RAKE)
-			return true;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo.Id == DruidSpells.RAKE)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

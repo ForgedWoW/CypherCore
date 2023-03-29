@@ -11,19 +11,19 @@ namespace Scripts.Spells.Items;
 [Script] // 17512 - Piccolo of the Flaming Fire
 internal class spell_item_piccolo_of_the_flaming_fire : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		var target = HitPlayer;
+    private void HandleScript(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        var target = HitPlayer;
 
-		if (target)
-			target.HandleEmoteCommand(Emote.StateDance);
-	}
+        if (target)
+            target.HandleEmoteCommand(Emote.StateDance);
+    }
 }

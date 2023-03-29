@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Vehicle;
 
 public class MoveChangeVehicleSeats : ClientPacket
 {
-	public ObjectGuid DstVehicle;
-	public MovementInfo Status;
-	public byte DstSeatIndex = 255;
-	public MoveChangeVehicleSeats(WorldPacket packet) : base(packet) { }
+    public ObjectGuid DstVehicle;
+    public MovementInfo Status;
+    public byte DstSeatIndex = 255;
+    public MoveChangeVehicleSeats(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Status = MovementExtensions.ReadMovementInfo(_worldPacket);
-		DstVehicle = _worldPacket.ReadPackedGuid();
-		DstSeatIndex = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        Status = MovementExtensions.ReadMovementInfo(_worldPacket);
+        DstVehicle = _worldPacket.ReadPackedGuid();
+        DstSeatIndex = _worldPacket.ReadUInt8();
+    }
 }

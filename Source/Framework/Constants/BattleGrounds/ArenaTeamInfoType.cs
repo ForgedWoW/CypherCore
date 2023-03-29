@@ -5,12 +5,12 @@ namespace Framework.Constants;
 
 public enum ArenaTeamInfoType
 {
-	Id = 0,
-	Type = 1,   // new in 3.2 - team type?
-	Member = 2, // 0 - captain, 1 - member
-	GamesWeek = 3,
-	GamesSeason = 4,
-	WinsSeason = 5,
-	PersonalRating = 6,
-	End = 7
+    Id = 0,
+    Type = 1,   // new in 3.2 - team type?
+    Member = 2, // 0 - captain, 1 - member
+    GamesWeek = 3,
+    GamesSeason = 4,
+    WinsSeason = 5,
+    PersonalRating = 6,
+    End = 7
 }

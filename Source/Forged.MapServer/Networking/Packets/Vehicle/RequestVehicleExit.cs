@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Vehicle;
 
 public class RequestVehicleExit : ClientPacket
 {
-	public RequestVehicleExit(WorldPacket packet) : base(packet) { }
+    public RequestVehicleExit(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

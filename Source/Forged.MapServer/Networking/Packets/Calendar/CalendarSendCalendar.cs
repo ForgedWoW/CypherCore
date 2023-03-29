@@ -8,26 +8,26 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarSendCalendar : ServerPacket
 {
-	public long ServerTime;
-	public List<CalendarSendCalendarInviteInfo> Invites = new();
-	public List<CalendarSendCalendarRaidLockoutInfo> RaidLockouts = new();
-	public List<CalendarSendCalendarEventInfo> Events = new();
-	public CalendarSendCalendar() : base(ServerOpcodes.CalendarSendCalendar) { }
+    public long ServerTime;
+    public List<CalendarSendCalendarInviteInfo> Invites = new();
+    public List<CalendarSendCalendarRaidLockoutInfo> RaidLockouts = new();
+    public List<CalendarSendCalendarEventInfo> Events = new();
+    public CalendarSendCalendar() : base(ServerOpcodes.CalendarSendCalendar) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedTime(ServerTime);
-		_worldPacket.WriteInt32(Invites.Count);
-		_worldPacket.WriteInt32(Events.Count);
-		_worldPacket.WriteInt32(RaidLockouts.Count);
+    public override void Write()
+    {
+        _worldPacket.WritePackedTime(ServerTime);
+        _worldPacket.WriteInt32(Invites.Count);
+        _worldPacket.WriteInt32(Events.Count);
+        _worldPacket.WriteInt32(RaidLockouts.Count);
 
-		foreach (var invite in Invites)
-			invite.Write(_worldPacket);
+        foreach (var invite in Invites)
+            invite.Write(_worldPacket);
 
-		foreach (var lockout in RaidLockouts)
-			lockout.Write(_worldPacket);
+        foreach (var lockout in RaidLockouts)
+            lockout.Write(_worldPacket);
 
-		foreach (var Event in Events)
-			Event.Write(_worldPacket);
-	}
+        foreach (var Event in Events)
+            Event.Write(_worldPacket);
+    }
 }

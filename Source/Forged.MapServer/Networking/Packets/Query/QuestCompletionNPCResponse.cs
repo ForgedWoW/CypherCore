@@ -8,21 +8,21 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 internal class QuestCompletionNPCResponse : ServerPacket
 {
-	public List<QuestCompletionNPC> QuestCompletionNPCs = new();
-	public QuestCompletionNPCResponse() : base(ServerOpcodes.QuestCompletionNpcResponse, ConnectionType.Instance) { }
+    public List<QuestCompletionNPC> QuestCompletionNPCs = new();
+    public QuestCompletionNPCResponse() : base(ServerOpcodes.QuestCompletionNpcResponse, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(QuestCompletionNPCs.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(QuestCompletionNPCs.Count);
 
-		foreach (var quest in QuestCompletionNPCs)
-		{
-			_worldPacket.WriteUInt32(quest.QuestID);
+        foreach (var quest in QuestCompletionNPCs)
+        {
+            _worldPacket.WriteUInt32(quest.QuestID);
 
-			_worldPacket.WriteInt32(quest.NPCs.Count);
+            _worldPacket.WriteInt32(quest.NPCs.Count);
 
-			foreach (var npc in quest.NPCs)
-				_worldPacket.WriteUInt32(npc);
-		}
-	}
+            foreach (var npc in quest.NPCs)
+                _worldPacket.WriteUInt32(npc);
+        }
+    }
 }

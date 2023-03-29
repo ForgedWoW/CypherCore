@@ -7,23 +7,23 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class CTextEmote : ClientPacket
 {
-	public ObjectGuid Target;
-	public int EmoteID;
-	public int SoundIndex;
-	public uint[] SpellVisualKitIDs;
-	public int SequenceVariation;
-	public CTextEmote(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Target;
+    public int EmoteID;
+    public int SoundIndex;
+    public uint[] SpellVisualKitIDs;
+    public int SequenceVariation;
+    public CTextEmote(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Target = _worldPacket.ReadPackedGuid();
-		EmoteID = _worldPacket.ReadInt32();
-		SoundIndex = _worldPacket.ReadInt32();
+    public override void Read()
+    {
+        Target = _worldPacket.ReadPackedGuid();
+        EmoteID = _worldPacket.ReadInt32();
+        SoundIndex = _worldPacket.ReadInt32();
 
-		SpellVisualKitIDs = new uint[_worldPacket.ReadUInt32()];
-		SequenceVariation = _worldPacket.ReadInt32();
+        SpellVisualKitIDs = new uint[_worldPacket.ReadUInt32()];
+        SequenceVariation = _worldPacket.ReadInt32();
 
-		for (var i = 0; i < SpellVisualKitIDs.Length; ++i)
-			SpellVisualKitIDs[i] = _worldPacket.ReadUInt32();
-	}
+        for (var i = 0; i < SpellVisualKitIDs.Length; ++i)
+            SpellVisualKitIDs[i] = _worldPacket.ReadUInt32();
+    }
 }

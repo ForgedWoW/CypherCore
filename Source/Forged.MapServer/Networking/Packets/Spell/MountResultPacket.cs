@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class MountResultPacket : ServerPacket
 {
-	public uint Result;
-	public MountResultPacket() : base(ServerOpcodes.MountResult, ConnectionType.Instance) { }
+    public uint Result;
+    public MountResultPacket() : base(ServerOpcodes.MountResult, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(Result);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(Result);
+    }
 }

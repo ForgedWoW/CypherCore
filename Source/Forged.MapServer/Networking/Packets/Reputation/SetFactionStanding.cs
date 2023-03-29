@@ -8,21 +8,21 @@ namespace Forged.MapServer.Networking.Packets.Reputation;
 
 internal class SetFactionStanding : ServerPacket
 {
-	public float BonusFromAchievementSystem;
-	public List<FactionStandingData> Faction = new();
-	public bool ShowVisual;
-	public SetFactionStanding() : base(ServerOpcodes.SetFactionStanding, ConnectionType.Instance) { }
+    public float BonusFromAchievementSystem;
+    public List<FactionStandingData> Faction = new();
+    public bool ShowVisual;
+    public SetFactionStanding() : base(ServerOpcodes.SetFactionStanding, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteFloat(BonusFromAchievementSystem);
+    public override void Write()
+    {
+        _worldPacket.WriteFloat(BonusFromAchievementSystem);
 
-		_worldPacket.WriteInt32(Faction.Count);
+        _worldPacket.WriteInt32(Faction.Count);
 
-		foreach (var factionStanding in Faction)
-			factionStanding.Write(_worldPacket);
+        foreach (var factionStanding in Faction)
+            factionStanding.Write(_worldPacket);
 
-		_worldPacket.WriteBit(ShowVisual);
-		_worldPacket.FlushBits();
-	}
+        _worldPacket.WriteBit(ShowVisual);
+        _worldPacket.FlushBits();
+    }
 }

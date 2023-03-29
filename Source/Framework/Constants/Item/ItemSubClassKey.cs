@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum ItemSubClassKey
 {
-	Key = 0,
-	Lockpick = 1,
-	Max = 2
+    Key = 0,
+    Lockpick = 1,
+    Max = 2
 }

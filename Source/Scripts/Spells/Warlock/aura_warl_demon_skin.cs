@@ -13,24 +13,24 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(WarlockSpells.DEMON_SKIN)]
 internal class aura_warl_demon_skin : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(Periodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(Periodic, 0, AuraType.PeriodicDummy));
+    }
 
-	void Periodic(AuraEffect eff)
-	{
-		if (!TryGetCaster(out var caster)) return;
+    void Periodic(AuraEffect eff)
+    {
+        if (!TryGetCaster(out var caster)) return;
 
-		var absorb = (caster.MaxHealth * (GetEffect(0).BaseAmount / 10)) / 100.0f;
+        var absorb = (caster.MaxHealth * (GetEffect(0).BaseAmount / 10)) / 100.0f;
 
-		if (caster.TryGetAura(WarlockSpells.SOUL_LEECH_ABSORB, out var aur) && aur.TryGetEffect(0, out var auraEffect))
-			absorb += auraEffect.Amount;
+        if (caster.TryGetAura(WarlockSpells.SOUL_LEECH_ABSORB, out var aur) && aur.TryGetEffect(0, out var auraEffect))
+            absorb += auraEffect.Amount;
 
-		var threshold = (caster.MaxHealth * GetEffect(1).BaseAmount) / 100.0f;
-		absorb = Math.Min(absorb, threshold);
-		caster.CastSpell(caster, WarlockSpells.SOUL_LEECH_ABSORB, absorb, true);
-	}
+        var threshold = (caster.MaxHealth * GetEffect(1).BaseAmount) / 100.0f;
+        absorb = Math.Min(absorb, threshold);
+        caster.CastSpell(caster, WarlockSpells.SOUL_LEECH_ABSORB, absorb, true);
+    }
 }

@@ -7,17 +7,17 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class PartyUninvite : ClientPacket
 {
-	public byte PartyIndex;
-	public ObjectGuid TargetGUID;
-	public string Reason;
-	public PartyUninvite(WorldPacket packet) : base(packet) { }
+    public byte PartyIndex;
+    public ObjectGuid TargetGUID;
+    public string Reason;
+    public PartyUninvite(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PartyIndex = _worldPacket.ReadUInt8();
-		TargetGUID = _worldPacket.ReadPackedGuid();
+    public override void Read()
+    {
+        PartyIndex = _worldPacket.ReadUInt8();
+        TargetGUID = _worldPacket.ReadPackedGuid();
 
-		var reasonLen = _worldPacket.ReadBits<byte>(8);
-		Reason = _worldPacket.ReadString(reasonLen);
-	}
+        var reasonLen = _worldPacket.ReadBits<byte>(8);
+        Reason = _worldPacket.ReadString(reasonLen);
+    }
 }

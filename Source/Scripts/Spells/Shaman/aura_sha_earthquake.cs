@@ -13,19 +13,19 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(61882)]
 public class aura_sha_earthquake : AuraScript
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 1, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 1, AuraType.PeriodicDummy));
+    }
 
-	private void HandlePeriodic(AuraEffect UnnamedParameter)
-	{
-		var at = Target.GetAreaTrigger(ShamanSpells.EARTHQUAKE);
+    private void HandlePeriodic(AuraEffect UnnamedParameter)
+    {
+        var at = Target.GetAreaTrigger(ShamanSpells.EARTHQUAKE);
 
-		if (at != null)
-			Target.CastSpell(at.Location, ShamanSpells.EARTHQUAKE_TICK, true);
-	}
+        if (at != null)
+            Target.CastSpell(at.Location, ShamanSpells.EARTHQUAKE_TICK, true);
+    }
 }

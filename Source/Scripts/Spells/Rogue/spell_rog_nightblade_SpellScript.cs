@@ -11,21 +11,21 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(195452)]
 public class spell_rog_nightblade_SpellScript : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleLaunch, 0, SpellEffectName.ApplyAura, SpellScriptHookType.LaunchTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleLaunch, 0, SpellEffectName.ApplyAura, SpellScriptHookType.LaunchTarget));
+    }
 
-	private void HandleLaunch(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleLaunch(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		target.RemoveAurasDueToSpell(RogueSpells.NIGHTBLADE, caster.GUID);
-	}
+        target.RemoveAurasDueToSpell(RogueSpells.NIGHTBLADE, caster.GUID);
+    }
 }

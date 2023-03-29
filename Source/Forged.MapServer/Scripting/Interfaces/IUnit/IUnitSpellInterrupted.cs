@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IUnit;
 
 public interface IUnitSpellInterrupted : IScriptObject
 {
-	void SpellInterrupted(Spell spellInterrupted, Spell interruptedBy);
+    void SpellInterrupted(Spell spellInterrupted, Spell interruptedBy);
 }

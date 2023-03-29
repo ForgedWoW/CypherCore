@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraScriptLoaderGetAuraScript : IScriptObject
 {
-	AuraScript GetAuraScript();
+    AuraScript GetAuraScript();
 }

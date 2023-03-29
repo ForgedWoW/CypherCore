@@ -5,10 +5,10 @@ namespace Forged.MapServer.DataStorage;
 
 public struct ContentTuningLevels
 {
-	public short MinLevel;
-	public short MaxLevel;
-	public short MinLevelWithDelta;
-	public short MaxLevelWithDelta;
-	public short TargetLevelMin;
-	public short TargetLevelMax;
+    public short MinLevel;
+    public short MaxLevel;
+    public short MinLevelWithDelta;
+    public short MaxLevelWithDelta;
+    public short TargetLevelMin;
+    public short TargetLevelMax;
 }

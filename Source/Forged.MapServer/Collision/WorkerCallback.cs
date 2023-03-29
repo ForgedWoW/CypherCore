@@ -9,16 +9,16 @@ namespace Forged.MapServer.Collision;
 
 public class WorkerCallback
 {
-	public virtual void Invoke(Vector3 point, int entry) { }
-	public virtual void Invoke(Vector3 point, GameObjectModel obj) { }
+    public virtual void Invoke(Vector3 point, int entry) { }
+    public virtual void Invoke(Vector3 point, GameObjectModel obj) { }
 
-	public virtual bool Invoke(Ray ray, int entry, ref float distance, bool pStopAtFirstHit)
-	{
-		return false;
-	}
+    public virtual bool Invoke(Ray ray, int entry, ref float distance, bool pStopAtFirstHit)
+    {
+        return false;
+    }
 
-	public virtual bool Invoke(Ray r, IModel obj, ref float distance)
-	{
-		return false;
-	}
+    public virtual bool Invoke(Ray r, IModel obj, ref float distance)
+    {
+        return false;
+    }
 }

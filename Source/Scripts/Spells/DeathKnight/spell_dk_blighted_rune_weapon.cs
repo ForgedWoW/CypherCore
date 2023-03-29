@@ -11,18 +11,18 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(195758)]
 public class spell_dk_blighted_rune_weapon : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleHit(int effIndex)
+    {
+        var target = HitUnit;
 
-		if (target != null)
-			Caster.CastSpell(target, DeathKnightSpells.FESTERING_WOUND, true);
-	}
+        if (target != null)
+            Caster.CastSpell(target, DeathKnightSpells.FESTERING_WOUND, true);
+    }
 }

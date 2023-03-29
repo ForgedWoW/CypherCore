@@ -12,43 +12,43 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_replenishment : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, 255, Targets.UnitCasterAreaRaid));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, 255, Targets.UnitCasterAreaRaid));
+    }
 
-	private void RemoveInvalidTargets(List<WorldObject> targets)
-	{
-		// In arenas Replenishment may only affect the caster
-		var caster = Caster.AsPlayer;
+    private void RemoveInvalidTargets(List<WorldObject> targets)
+    {
+        // In arenas Replenishment may only affect the caster
+        var caster = Caster.AsPlayer;
 
-		if (caster)
-			if (caster.InArena)
-			{
-				targets.Clear();
-				targets.Add(caster);
+        if (caster)
+            if (caster.InArena)
+            {
+                targets.Clear();
+                targets.Add(caster);
 
-				return;
-			}
+                return;
+            }
 
-		targets.RemoveAll(obj =>
-		{
-			var target = obj.AsUnit;
+        targets.RemoveAll(obj =>
+        {
+            var target = obj.AsUnit;
 
-			if (target)
-				return target.DisplayPowerType != PowerType.Mana;
+            if (target)
+                return target.DisplayPowerType != PowerType.Mana;
 
-			return true;
-		});
+            return true;
+        });
 
-		byte maxTargets = 10;
+        byte maxTargets = 10;
 
-		if (targets.Count > maxTargets)
-		{
-			targets.Sort(new PowerPctOrderPred(PowerType.Mana));
-			targets.Resize(maxTargets);
-		}
-	}
+        if (targets.Count > maxTargets)
+        {
+            targets.Sort(new PowerPctOrderPred(PowerType.Mana));
+            targets.Resize(maxTargets);
+        }
+    }
 }

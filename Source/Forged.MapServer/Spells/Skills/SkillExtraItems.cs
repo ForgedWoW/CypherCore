@@ -22,94 +22,94 @@ public class SkillExtraItems
 
     // loads the extra item creation info from DB
     public void LoadSkillExtraItemTable()
-	{
-		var oldMSTime = Time.MSTime;
+    {
+        var oldMSTime = Time.MSTime;
 
-		_skillExtraItemStorage.Clear(); // need for reload
+        _skillExtraItemStorage.Clear(); // need for reload
 
-		//                                             0               1                       2                    3
-		var result = _worldDatabase.Query("SELECT spellId, requiredSpecialization, additionalCreateChance, additionalMaxNum FROM skill_extra_item_template");
+        //                                             0               1                       2                    3
+        var result = _worldDatabase.Query("SELECT spellId, requiredSpecialization, additionalCreateChance, additionalMaxNum FROM skill_extra_item_template");
 
-		if (result.IsEmpty())
-		{
-			Log.Logger.Information("Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
 
-			return;
-		}
+            return;
+        }
 
-		uint count = 0;
+        uint count = 0;
 
-		do
-		{
-			var spellId = result.Read<uint>(0);
+        do
+        {
+            var spellId = result.Read<uint>(0);
 
-			if (!_spellManager.HasSpellInfo(spellId))
-			{
-				Log.Logger.Error("Skill specialization {0} has non-existent spell id in `skill_extra_item_template`!", spellId);
+            if (!_spellManager.HasSpellInfo(spellId))
+            {
+                Log.Logger.Error("Skill specialization {0} has non-existent spell id in `skill_extra_item_template`!", spellId);
 
-				continue;
-			}
+                continue;
+            }
 
-			var requiredSpecialization = result.Read<uint>(1);
+            var requiredSpecialization = result.Read<uint>(1);
 
-			if (!_spellManager.HasSpellInfo(requiredSpecialization))
-			{
-				Log.Logger.Error("Skill specialization {0} have not existed required specialization spell id {1} in `skill_extra_item_template`!", spellId, requiredSpecialization);
+            if (!_spellManager.HasSpellInfo(requiredSpecialization))
+            {
+                Log.Logger.Error("Skill specialization {0} have not existed required specialization spell id {1} in `skill_extra_item_template`!", spellId, requiredSpecialization);
 
-				continue;
-			}
+                continue;
+            }
 
-			var additionalCreateChance = result.Read<double>(2);
+            var additionalCreateChance = result.Read<double>(2);
 
-			if (additionalCreateChance <= 0.0f)
-			{
-				Log.Logger.Error("Skill specialization {0} has too low additional create chance in `skill_extra_item_template`!", spellId);
+            if (additionalCreateChance <= 0.0f)
+            {
+                Log.Logger.Error("Skill specialization {0} has too low additional create chance in `skill_extra_item_template`!", spellId);
 
-				continue;
-			}
+                continue;
+            }
 
-			var additionalMaxNum = result.Read<byte>(3);
+            var additionalMaxNum = result.Read<byte>(3);
 
-			if (additionalMaxNum == 0)
-			{
-				Log.Logger.Error("Skill specialization {0} has 0 max number of extra items in `skill_extra_item_template`!", spellId);
+            if (additionalMaxNum == 0)
+            {
+                Log.Logger.Error("Skill specialization {0} has 0 max number of extra items in `skill_extra_item_template`!", spellId);
 
-				continue;
-			}
+                continue;
+            }
 
-			SkillExtraItemEntry skillExtraItemEntry = new()
-			{
-				RequiredSpecialization = requiredSpecialization,
-				AdditionalCreateChance = additionalCreateChance,
-				AdditionalMaxNum = additionalMaxNum
-			};
+            SkillExtraItemEntry skillExtraItemEntry = new()
+            {
+                RequiredSpecialization = requiredSpecialization,
+                AdditionalCreateChance = additionalCreateChance,
+                AdditionalMaxNum = additionalMaxNum
+            };
 
-			_skillExtraItemStorage[spellId] = skillExtraItemEntry;
-			++count;
-		} while (result.NextRow());
+            _skillExtraItemStorage[spellId] = skillExtraItemEntry;
+            ++count;
+        } while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} spell specialization definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-	}
+        Log.Logger.Information("Loaded {0} spell specialization definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+    }
 
-	public bool CanCreateExtraItems(Player player, uint spellId, ref double additionalChance, ref byte additionalMax)
-	{
-		// get the info for the specified spell
-		var specEntry = _skillExtraItemStorage.LookupByKey(spellId);
+    public bool CanCreateExtraItems(Player player, uint spellId, ref double additionalChance, ref byte additionalMax)
+    {
+        // get the info for the specified spell
+        var specEntry = _skillExtraItemStorage.LookupByKey(spellId);
 
-		if (specEntry == null)
-			return false;
+        if (specEntry == null)
+            return false;
 
-		// the player doesn't have the required specialization, return false
-		if (!player.HasSpell(specEntry.RequiredSpecialization))
-			return false;
+        // the player doesn't have the required specialization, return false
+        if (!player.HasSpell(specEntry.RequiredSpecialization))
+            return false;
 
-		// set the arguments to the appropriate values
-		additionalChance = specEntry.AdditionalCreateChance;
-		additionalMax = specEntry.AdditionalMaxNum;
+        // set the arguments to the appropriate values
+        additionalChance = specEntry.AdditionalCreateChance;
+        additionalMax = specEntry.AdditionalMaxNum;
 
-		// enable extra item creation
-		return true;
-	}
+        // enable extra item creation
+        return true;
+    }
 }
 
 // struct to store information about perfection procs

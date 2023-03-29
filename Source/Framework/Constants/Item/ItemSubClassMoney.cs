@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum ItemSubClassMoney
 {
-	Money = 0, // Obsolete
-	Max = 1
+    Money = 0, // Obsolete
+    Max = 1
 }

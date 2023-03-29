@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Crafting;
 
 internal struct SpellReducedReagent
 {
-	public int ItemID;
-	public int Quantity;
+    public int ItemID;
+    public int Quantity;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(ItemID);
-		data.WriteInt32(Quantity);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(ItemID);
+        data.WriteInt32(Quantity);
+    }
 }

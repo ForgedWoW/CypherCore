@@ -9,23 +9,23 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class PartyCommandResult : ServerPacket
 {
-	public string Name;
-	public byte Command;
-	public byte Result;
-	public uint ResultData;
-	public ObjectGuid ResultGUID;
-	public PartyCommandResult() : base(ServerOpcodes.PartyCommandResult) { }
+    public string Name;
+    public byte Command;
+    public byte Result;
+    public uint ResultData;
+    public ObjectGuid ResultGUID;
+    public PartyCommandResult() : base(ServerOpcodes.PartyCommandResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(Name.GetByteCount(), 9);
-		_worldPacket.WriteBits(Command, 4);
-		_worldPacket.WriteBits(Result, 6);
+    public override void Write()
+    {
+        _worldPacket.WriteBits(Name.GetByteCount(), 9);
+        _worldPacket.WriteBits(Command, 4);
+        _worldPacket.WriteBits(Result, 6);
 
-		_worldPacket.WriteUInt32(ResultData);
-		_worldPacket.WritePackedGuid(ResultGUID);
-		_worldPacket.WriteString(Name);
-	}
+        _worldPacket.WriteUInt32(ResultData);
+        _worldPacket.WritePackedGuid(ResultGUID);
+        _worldPacket.WriteString(Name);
+    }
 }
 
 //Structs

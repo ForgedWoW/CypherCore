@@ -8,7 +8,7 @@ namespace Framework.Constants;
 [Flags]
 public enum ToyFlags
 {
-	None = 0,
-	Favorite = 0x01,
-	HasFanfare = 0x02
+    None = 0,
+    Favorite = 0x01,
+    HasFanfare = 0x02
 }

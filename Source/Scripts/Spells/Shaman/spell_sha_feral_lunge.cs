@@ -12,21 +12,21 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(196884)]
 public class spell_sha_feral_lunge : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDamage(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleDamage(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		caster.CastSpell(target, ShamanSpells.FERAL_LUNGE_DAMAGE, true);
-	}
+        caster.CastSpell(target, ShamanSpells.FERAL_LUNGE_DAMAGE, true);
+    }
 }

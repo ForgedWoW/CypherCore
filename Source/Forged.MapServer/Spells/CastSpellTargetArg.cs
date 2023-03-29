@@ -8,73 +8,73 @@ namespace Forged.MapServer.Spells;
 
 public class CastSpellTargetArg
 {
-	public SpellCastTargets Targets;
+    public SpellCastTargets Targets;
 
-	public CastSpellTargetArg()
-	{
-		Targets = new SpellCastTargets();
-	}
+    public CastSpellTargetArg()
+    {
+        Targets = new SpellCastTargets();
+    }
 
-	public CastSpellTargetArg(WorldObject target)
-	{
-		if (target != null)
-		{
-			var unitTarget = target.AsUnit;
+    public CastSpellTargetArg(WorldObject target)
+    {
+        if (target != null)
+        {
+            var unitTarget = target.AsUnit;
 
-			if (unitTarget != null)
-			{
-				Targets = new SpellCastTargets
-				{
-					UnitTarget = unitTarget
-				};
-			}
-			else
-			{
-				var goTarget = target.AsGameObject;
+            if (unitTarget != null)
+            {
+                Targets = new SpellCastTargets
+                {
+                    UnitTarget = unitTarget
+                };
+            }
+            else
+            {
+                var goTarget = target.AsGameObject;
 
-				if (goTarget != null)
-				{
-					Targets = new SpellCastTargets
-					{
-						GOTarget = goTarget
-					};
-				}
-				else
-				{
-					var itemTarget = target.AsItem;
+                if (goTarget != null)
+                {
+                    Targets = new SpellCastTargets
+                    {
+                        GOTarget = goTarget
+                    };
+                }
+                else
+                {
+                    var itemTarget = target.AsItem;
 
-					if (itemTarget != null)
-						Targets = new SpellCastTargets
-						{
-							ItemTarget = itemTarget
-						};
-				}
-				// error when targeting anything other than units and gameobjects
-			}
-		}
-		else
-		{
-			Targets = new SpellCastTargets(); // nullptr is allowed
-		}
-	}
+                    if (itemTarget != null)
+                        Targets = new SpellCastTargets
+                        {
+                            ItemTarget = itemTarget
+                        };
+                }
+                // error when targeting anything other than units and gameobjects
+            }
+        }
+        else
+        {
+            Targets = new SpellCastTargets(); // nullptr is allowed
+        }
+    }
 
-	public CastSpellTargetArg(Item itemTarget)
-	{
-		Targets = new SpellCastTargets
-		{
-			ItemTarget = itemTarget
-		};
-	}
+    public CastSpellTargetArg(Item itemTarget)
+    {
+        Targets = new SpellCastTargets
+        {
+            ItemTarget = itemTarget
+        };
+    }
 
-	public CastSpellTargetArg(Position dest)
-	{
-		Targets = new SpellCastTargets();
-		Targets.SetDst(dest);
-	}
+    public CastSpellTargetArg(Position dest)
+    {
+        Targets = new SpellCastTargets();
+        Targets.SetDst(dest);
+    }
 
-	public CastSpellTargetArg(SpellCastTargets targets)
-	{
-		Targets = new SpellCastTargets();
-		Targets = targets;
-	}
+    public CastSpellTargetArg(SpellCastTargets targets)
+    {
+        Targets = new SpellCastTargets();
+        Targets = targets;
+    }
 }

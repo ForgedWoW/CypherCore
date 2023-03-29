@@ -12,22 +12,22 @@ namespace Scripts.Spells.Generic;
 [Script] // 62418 Impale
 internal class spell_gen_remove_on_health_pct : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicDamage));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicDamage));
+    }
 
-	private void PeriodicTick(AuraEffect aurEff)
-	{
-		// they apply Damage so no need to check for ticks here
+    private void PeriodicTick(AuraEffect aurEff)
+    {
+        // they apply Damage so no need to check for ticks here
 
-		if (Target.HealthAbovePct(GetEffectInfo(1).CalcValue()))
-		{
-			Remove(AuraRemoveMode.EnemySpell);
-			PreventDefaultAction();
-		}
-	}
+        if (Target.HealthAbovePct(GetEffectInfo(1).CalcValue()))
+        {
+            Remove(AuraRemoveMode.EnemySpell);
+            PreventDefaultAction();
+        }
+    }
 }

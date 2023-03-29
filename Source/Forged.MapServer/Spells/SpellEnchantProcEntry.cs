@@ -7,8 +7,8 @@ namespace Forged.MapServer.Spells;
 
 public class SpellEnchantProcEntry
 {
-	public float Chance;                         // if nonzero - overwrite SpellItemEnchantment value
-	public float ProcsPerMinute;                 // if nonzero - chance to proc is equal to value * aura caster's weapon speed / 60
-	public uint HitMask;                         // if nonzero - bitmask for matching proc condition based on hit result, see enum ProcFlagsHit
-	public EnchantProcAttributes AttributesMask; // bitmask, see EnchantProcAttributes
+    public float Chance;                         // if nonzero - overwrite SpellItemEnchantment value
+    public float ProcsPerMinute;                 // if nonzero - chance to proc is equal to value * aura caster's weapon speed / 60
+    public uint HitMask;                         // if nonzero - bitmask for matching proc condition based on hit result, see enum ProcFlagsHit
+    public EnchantProcAttributes AttributesMask; // bitmask, see EnchantProcAttributes
 }

@@ -12,17 +12,17 @@ namespace Scripts.Spells.Mage;
 [Script] // 44457 - Living Bomb
 internal class spell_mage_living_bomb : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		Caster.CastSpell(HitUnit, MageSpells.LivingBombPeriodic, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint2, 1));
-	}
+    private void HandleDummy(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        Caster.CastSpell(HitUnit, MageSpells.LivingBombPeriodic, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint2, 1));
+    }
 }

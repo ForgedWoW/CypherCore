@@ -7,8 +7,8 @@ namespace Forged.MapServer.Pools;
 
 public class QuestPool
 {
-	public uint PoolId;
-	public uint NumActive;
-	public MultiMap<uint, uint> Members = new();
-	public List<uint> ActiveQuests = new();
+    public uint PoolId;
+    public uint NumActive;
+    public MultiMap<uint, uint> Members = new();
+    public List<uint> ActiveQuests = new();
 }

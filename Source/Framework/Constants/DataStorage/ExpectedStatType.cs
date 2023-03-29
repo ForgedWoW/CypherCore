@@ -5,14 +5,14 @@ namespace Framework.Constants;
 
 public enum ExpectedStatType : byte
 {
-	CreatureHealth = 0,
-	PlayerHealth = 1,
-	CreatureAutoAttackDps = 2,
-	CreatureArmor = 3,
-	PlayerMana = 4,
-	PlayerPrimaryStat = 5,
-	PlayerSecondaryStat = 6,
-	ArmorConstant = 7,
-	None = 8,
-	CreatureSpellDamage = 9
+    CreatureHealth = 0,
+    PlayerHealth = 1,
+    CreatureAutoAttackDps = 2,
+    CreatureArmor = 3,
+    PlayerMana = 4,
+    PlayerPrimaryStat = 5,
+    PlayerSecondaryStat = 6,
+    ArmorConstant = 7,
+    None = 8,
+    CreatureSpellDamage = 9
 }

@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IWorld;
 
 public interface IWorldOnOpenStateChange : IScriptObject
 {
-	void OnOpenStateChange(bool open);
+    void OnOpenStateChange(bool open);
 }

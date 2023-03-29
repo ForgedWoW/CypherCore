@@ -11,16 +11,16 @@ namespace Scripts.Spells.Generic;
 [Script] // 28471 - ClearAll
 internal class spell_clear_all : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var caster = Caster;
-		caster.RemoveAllAurasOnDeath();
-	}
+    private void HandleScript(int effIndex)
+    {
+        var caster = Caster;
+        caster.RemoveAllAurasOnDeath();
+    }
 }

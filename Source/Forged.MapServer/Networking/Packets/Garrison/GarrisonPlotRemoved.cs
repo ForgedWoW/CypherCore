@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonPlotRemoved : ServerPacket
 {
-	public uint GarrPlotInstanceID;
-	public GarrisonPlotRemoved() : base(ServerOpcodes.GarrisonPlotRemoved, ConnectionType.Instance) { }
+    public uint GarrPlotInstanceID;
+    public GarrisonPlotRemoved() : base(ServerOpcodes.GarrisonPlotRemoved, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(GarrPlotInstanceID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(GarrPlotInstanceID);
+    }
 }

@@ -9,13 +9,13 @@ namespace Scripts.SpellFixes.Warlock;
 
 public class BuringRushSpellFix : ISpellManagerSpellLateFix
 {
-	public int[] SpellIds => new[]
-	{
-		111400
-	};
+    public int[] SpellIds => new[]
+    {
+        111400
+    };
 
-	public void ApplySpellFix(SpellInfo spellInfo)
-	{
-		spellInfo.NegativeEffects = new HashSet<int>(); // no negitive effects for burning rush
-	}
+    public void ApplySpellFix(SpellInfo spellInfo)
+    {
+        spellInfo.NegativeEffects = new HashSet<int>(); // no negitive effects for burning rush
+    }
 }

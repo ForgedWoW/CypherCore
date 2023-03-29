@@ -5,9 +5,9 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarGetCalendar : ClientPacket
 {
-	public CalendarGetCalendar(WorldPacket packet) : base(packet) { }
+    public CalendarGetCalendar(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }
 
 //Structs

@@ -11,20 +11,20 @@ namespace Scripts.Spells.Quest;
 [Script] // 43882 - Scourging Crystal Controller Dummy
 internal class spell_q11396_11399_scourging_crystal_controller_dummy : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleDummy(int effIndex)
+    {
+        var target = HitUnit;
 
-		if (target)
-			if (target.IsTypeId(TypeId.Unit))
-				target.RemoveAura(QuestSpellIds.ForceShieldArcanePurpleX3);
-	}
+        if (target)
+            if (target.IsTypeId(TypeId.Unit))
+                target.RemoveAura(QuestSpellIds.ForceShieldArcanePurpleX3);
+    }
 }

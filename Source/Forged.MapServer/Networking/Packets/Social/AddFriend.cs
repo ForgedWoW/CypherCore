@@ -5,15 +5,15 @@ namespace Forged.MapServer.Networking.Packets.Social;
 
 public class AddFriend : ClientPacket
 {
-	public string Notes;
-	public string Name;
-	public AddFriend(WorldPacket packet) : base(packet) { }
+    public string Notes;
+    public string Name;
+    public AddFriend(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var nameLength = _worldPacket.ReadBits<uint>(9);
-		var noteslength = _worldPacket.ReadBits<uint>(10);
-		Name = _worldPacket.ReadString(nameLength);
-		Notes = _worldPacket.ReadString(noteslength);
-	}
+    public override void Read()
+    {
+        var nameLength = _worldPacket.ReadBits<uint>(9);
+        var noteslength = _worldPacket.ReadBits<uint>(10);
+        Name = _worldPacket.ReadString(nameLength);
+        Notes = _worldPacket.ReadString(noteslength);
+    }
 }

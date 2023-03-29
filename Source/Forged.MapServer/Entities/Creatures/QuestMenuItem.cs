@@ -5,6 +5,6 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public struct QuestMenuItem
 {
-	public uint QuestId;
-	public byte QuestIcon;
+    public uint QuestId;
+    public byte QuestIcon;
 }

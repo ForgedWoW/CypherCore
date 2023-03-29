@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellOnEpowerSpellStart : ISpellScript
 {
-	void EmpowerSpellStart();
+    void EmpowerSpellStart();
 }

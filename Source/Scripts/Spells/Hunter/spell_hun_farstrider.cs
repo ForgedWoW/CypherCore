@@ -13,34 +13,34 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(199523)]
 public class spell_hun_farstrider : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if ((eventInfo.HitMask & ProcFlagsHit.Critical) != 0)
-			return true;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if ((eventInfo.HitMask & ProcFlagsHit.Critical) != 0)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        PreventDefaultAction();
 
-		var player = Caster.AsPlayer;
+        var player = Caster.AsPlayer;
 
-		if (player != null)
-		{
-			if (player.HasSpell(HunterSpells.DISENGAGE))
-				player.SpellHistory.ResetCooldown(HunterSpells.DISENGAGE, true);
+        if (player != null)
+        {
+            if (player.HasSpell(HunterSpells.DISENGAGE))
+                player.SpellHistory.ResetCooldown(HunterSpells.DISENGAGE, true);
 
-			if (player.HasSpell(HunterSpells.HARPOON))
-				player.SpellHistory.ResetCooldown(HunterSpells.DISENGAGE, true);
-		}
-	}
+            if (player.HasSpell(HunterSpells.HARPOON))
+                player.SpellHistory.ResetCooldown(HunterSpells.DISENGAGE, true);
+        }
+    }
 }

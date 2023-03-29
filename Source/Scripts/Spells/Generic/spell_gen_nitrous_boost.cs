@@ -12,21 +12,21 @@ namespace Scripts.Spells.Generic;
 [Script] // 27746 -  Nitrous Boost
 internal class spell_gen_nitrous_boost : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 1, AuraType.PeriodicTriggerSpell));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 1, AuraType.PeriodicTriggerSpell));
+    }
 
-	private void PeriodicTick(AuraEffect aurEff)
-	{
-		PreventDefaultAction();
+    private void PeriodicTick(AuraEffect aurEff)
+    {
+        PreventDefaultAction();
 
-		if (Caster != null &&
-			Target.GetPower(PowerType.Mana) >= 10)
-			Target.ModifyPower(PowerType.Mana, -10);
-		else
-			Remove();
-	}
+        if (Caster != null &&
+            Target.GetPower(PowerType.Mana) >= 10)
+            Target.ModifyPower(PowerType.Mana, -10);
+        else
+            Remove();
+    }
 }

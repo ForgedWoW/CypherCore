@@ -4,19 +4,18 @@
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Mage
+namespace Scripts.Spells.Mage;
+
+[SpellScript(382289)]
+public class spell_mage_tempest_barrier : SpellScript, ISpellOnCast
 {
-    [SpellScript(382289)]
-    public class spell_mage_tempest_barrier : SpellScript, ISpellOnCast
+    public void OnCast()
     {
-        public void OnCast()
-        {
-            double absorb = 0;
-            if (Caster.TryGetAura(MageSpells.TEMPEST_BARRIER, out var tempestBarrier))
-            {
-                absorb = MathFunctions.ApplyPct(Caster.Health, tempestBarrier.GetEffect(0).Amount);
-            }
-            Caster.CastSpell(Caster, 382290, absorb, false);
-        }
+        double absorb = 0;
+
+        if (Caster.TryGetAura(MageSpells.TEMPEST_BARRIER, out var tempestBarrier))
+            absorb = MathFunctions.ApplyPct(Caster.Health, tempestBarrier.GetEffect(0).Amount);
+
+        Caster.CastSpell(Caster, 382290, absorb, false);
     }
 }

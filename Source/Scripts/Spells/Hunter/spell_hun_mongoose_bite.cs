@@ -9,20 +9,20 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(190928)]
 public class spell_hun_mongoose_bite : SpellScript, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		var dur = 0;
-		var aur = Caster.GetAura(HunterSpells.MONGOOSE_FURY);
+    public void AfterHit()
+    {
+        var dur = 0;
+        var aur = Caster.GetAura(HunterSpells.MONGOOSE_FURY);
 
-		if (aur != null)
-			dur = aur.Duration;
+        if (aur != null)
+            dur = aur.Duration;
 
-		Caster.CastSpell(Caster, HunterSpells.MONGOOSE_FURY, true);
+        Caster.CastSpell(Caster, HunterSpells.MONGOOSE_FURY, true);
 
-		aur = Caster.GetAura(HunterSpells.MONGOOSE_FURY);
+        aur = Caster.GetAura(HunterSpells.MONGOOSE_FURY);
 
-		if (aur != null)
-			if (dur != 0)
-				aur.SetDuration(dur);
-	}
+        if (aur != null)
+            if (dur != 0)
+                aur.SetDuration(dur);
+    }
 }

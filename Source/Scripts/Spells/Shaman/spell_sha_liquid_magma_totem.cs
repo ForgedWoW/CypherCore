@@ -13,31 +13,31 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(192223)]
 internal class spell_sha_liquid_magma_totem : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(HandleTargetSelect, 0, Targets.UnitDestAreaEnemy));
-		SpellEffects.Add(new EffectHandler(HandleEffectHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(HandleTargetSelect, 0, Targets.UnitDestAreaEnemy));
+        SpellEffects.Add(new EffectHandler(HandleEffectHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleEffectHitTarget(int effIndex)
-	{
-		var hitUnit = HitUnit;
+    private void HandleEffectHitTarget(int effIndex)
+    {
+        var hitUnit = HitUnit;
 
-		if (hitUnit != null)
-			Caster.CastSpell(hitUnit, ShamanSpells.LiquidMagmaHit, true);
-	}
+        if (hitUnit != null)
+            Caster.CastSpell(hitUnit, ShamanSpells.LiquidMagmaHit, true);
+    }
 
-	private void HandleTargetSelect(List<WorldObject> targets)
-	{
-		// choose one random Target from targets
-		if (targets.Count > 1)
-		{
-			var selected = targets.SelectRandom();
-			targets.Clear();
-			targets.Add(selected);
-		}
-	}
+    private void HandleTargetSelect(List<WorldObject> targets)
+    {
+        // choose one random Target from targets
+        if (targets.Count > 1)
+        {
+            var selected = targets.SelectRandom();
+            targets.Clear();
+            targets.Add(selected);
+        }
+    }
 }

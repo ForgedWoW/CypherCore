@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IScene;
 
 public interface ISceneOnSceneTrigger : IScriptObject
 {
-	void OnSceneTriggerEvent(Player player, uint sceneInstanceID, SceneTemplate sceneTemplate, string triggerName);
+    void OnSceneTriggerEvent(Player player, uint sceneInstanceID, SceneTemplate sceneTemplate, string triggerName);
 }

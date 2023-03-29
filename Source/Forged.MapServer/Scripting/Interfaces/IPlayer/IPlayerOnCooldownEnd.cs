@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 
 public interface IPlayerOnCooldownEnd : IScriptObject, IClassRescriction
 {
-	void OnCooldownEnd(Player player, SpellInfo spellInfo, uint itemId, uint categoryId);
+    void OnCooldownEnd(Player player, SpellInfo spellInfo, uint itemId, uint categoryId);
 }

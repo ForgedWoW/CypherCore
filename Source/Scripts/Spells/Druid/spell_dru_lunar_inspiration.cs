@@ -12,22 +12,22 @@ namespace Scripts.Spells.Druid;
 [Script] // 155580 - Lunar Inspiration
 internal class spell_dru_lunar_inspiration : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(AfterApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
+        AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
-	private void AfterApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.CastSpell(Target, DruidSpellIds.LunarInspirationOverride, true);
-	}
+    private void AfterApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.CastSpell(Target, DruidSpellIds.LunarInspirationOverride, true);
+    }
 
-	private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.RemoveAura(DruidSpellIds.LunarInspirationOverride);
-	}
+    private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.RemoveAura(DruidSpellIds.LunarInspirationOverride);
+    }
 }

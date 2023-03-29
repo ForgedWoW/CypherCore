@@ -13,18 +13,18 @@ namespace Scripts.Spells.Shaman;
 [CreatureScript(97285)]
 public class npc_wind_rush_totem : ScriptedAI
 {
-	public npc_wind_rush_totem(Creature creature) : base(creature) { }
+    public npc_wind_rush_totem(Creature creature) : base(creature) { }
 
-	public override void Reset()
-	{
-		var time = TimeSpan.FromSeconds(1);
+    public override void Reset()
+    {
+        var time = TimeSpan.FromSeconds(1);
 
-		Me.Events.AddRepeatEventAtOffset(() =>
-										{
-											Me.CastSpell(Me, TotemSpells.TOTEM_WIND_RUSH_EFFECT, true);
+        Me.Events.AddRepeatEventAtOffset(() =>
+                                         {
+                                             Me.CastSpell(Me, TotemSpells.TOTEM_WIND_RUSH_EFFECT, true);
 
-											return time;
-										},
-										time);
-	}
+                                             return time;
+                                         },
+                                         time);
+    }
 }

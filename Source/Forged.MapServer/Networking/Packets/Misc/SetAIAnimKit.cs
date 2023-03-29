@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class SetAIAnimKit : ServerPacket
 {
-	public ObjectGuid Unit;
-	public ushort AnimKitID;
-	public SetAIAnimKit() : base(ServerOpcodes.SetAiAnimKit, ConnectionType.Instance) { }
+    public ObjectGuid Unit;
+    public ushort AnimKitID;
+    public SetAIAnimKit() : base(ServerOpcodes.SetAiAnimKit, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Unit);
-		_worldPacket.WriteUInt16(AnimKitID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Unit);
+        _worldPacket.WriteUInt16(AnimKitID);
+    }
 }

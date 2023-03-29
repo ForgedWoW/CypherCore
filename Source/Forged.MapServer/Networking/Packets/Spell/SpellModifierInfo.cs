@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellModifierInfo
 {
-	public byte ModIndex;
-	public List<SpellModifierData> ModifierData = new();
+    public byte ModIndex;
+    public List<SpellModifierData> ModifierData = new();
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteUInt8(ModIndex);
-		data.WriteInt32(ModifierData.Count);
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt8(ModIndex);
+        data.WriteInt32(ModifierData.Count);
 
-		foreach (var modData in ModifierData)
-			modData.Write(data);
-	}
+        foreach (var modData in ModifierData)
+            modData.Write(data);
+    }
 }

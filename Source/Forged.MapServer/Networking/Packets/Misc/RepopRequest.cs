@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class RepopRequest : ClientPacket
 {
-	public bool CheckInstance;
-	public RepopRequest(WorldPacket packet) : base(packet) { }
+    public bool CheckInstance;
+    public RepopRequest(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		CheckInstance = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        CheckInstance = _worldPacket.HasBit();
+    }
 }

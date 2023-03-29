@@ -42,14 +42,14 @@ public class WorldServiceManager
                         continue;
                     }
 
-					_serviceHandlers[key] = new WorldServiceHandler(methodInfo, parameters);
+                    _serviceHandlers[key] = new WorldServiceHandler(methodInfo, parameters);
                 }
             }
         }
     }
 
-	public WorldServiceHandler GetHandler(uint serviceHash, uint methodId)
-	{
-		return _serviceHandlers.LookupByKey((serviceHash, methodId));
-	}
+    public WorldServiceHandler GetHandler(uint serviceHash, uint methodId)
+    {
+        return _serviceHandlers.LookupByKey((serviceHash, methodId));
+    }
 }

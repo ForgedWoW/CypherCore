@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum ReportMajorCategory
 {
-	InappropriateCommunication = 0,
-	GameplaySabotage = 1,
-	Cheating = 2,
-	InappropriateName = 3,
+    InappropriateCommunication = 0,
+    GameplaySabotage = 1,
+    Cheating = 2,
+    InappropriateName = 3,
 }

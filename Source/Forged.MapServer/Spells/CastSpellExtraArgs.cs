@@ -11,141 +11,141 @@ namespace Forged.MapServer.Spells;
 
 public class CastSpellExtraArgs
 {
-	public TriggerCastFlags TriggerFlags;
-	public Item CastItem;
-	public Spell TriggeringSpell;
-	public AuraEffect TriggeringAura;
-	public ObjectGuid OriginalCaster = ObjectGuid.Empty;
-	public Difficulty CastDifficulty;
-	public ObjectGuid OriginalCastId = ObjectGuid.Empty;
-	public int? OriginalCastItemLevel;
-	public Dictionary<SpellValueMod, double> SpellValueOverrides = new();
-	public object CustomArg;
-	public byte? EmpowerStage;
+    public TriggerCastFlags TriggerFlags;
+    public Item CastItem;
+    public Spell TriggeringSpell;
+    public AuraEffect TriggeringAura;
+    public ObjectGuid OriginalCaster = ObjectGuid.Empty;
+    public Difficulty CastDifficulty;
+    public ObjectGuid OriginalCastId = ObjectGuid.Empty;
+    public int? OriginalCastItemLevel;
+    public Dictionary<SpellValueMod, double> SpellValueOverrides = new();
+    public object CustomArg;
+    public byte? EmpowerStage;
 
-	public CastSpellExtraArgs() { }
+    public CastSpellExtraArgs() { }
 
-	public CastSpellExtraArgs(bool triggered)
-	{
-		TriggerFlags = triggered ? TriggerCastFlags.FullMask : TriggerCastFlags.None;
-	}
+    public CastSpellExtraArgs(bool triggered)
+    {
+        TriggerFlags = triggered ? TriggerCastFlags.FullMask : TriggerCastFlags.None;
+    }
 
-	public CastSpellExtraArgs(TriggerCastFlags trigger)
-	{
-		TriggerFlags = trigger;
-	}
+    public CastSpellExtraArgs(TriggerCastFlags trigger)
+    {
+        TriggerFlags = trigger;
+    }
 
-	public CastSpellExtraArgs(Item item)
-	{
-		TriggerFlags = TriggerCastFlags.FullMask;
-		CastItem = item;
-	}
+    public CastSpellExtraArgs(Item item)
+    {
+        TriggerFlags = TriggerCastFlags.FullMask;
+        CastItem = item;
+    }
 
-	public CastSpellExtraArgs(Spell triggeringSpell)
-	{
-		TriggerFlags = TriggerCastFlags.FullMask;
-		SetTriggeringSpell(triggeringSpell);
-	}
+    public CastSpellExtraArgs(Spell triggeringSpell)
+    {
+        TriggerFlags = TriggerCastFlags.FullMask;
+        SetTriggeringSpell(triggeringSpell);
+    }
 
-	public CastSpellExtraArgs(AuraEffect eff)
-	{
-		TriggerFlags = TriggerCastFlags.FullMask;
-		SetTriggeringAura(eff);
-	}
+    public CastSpellExtraArgs(AuraEffect eff)
+    {
+        TriggerFlags = TriggerCastFlags.FullMask;
+        SetTriggeringAura(eff);
+    }
 
-	public CastSpellExtraArgs(Difficulty castDifficulty)
-	{
-		CastDifficulty = castDifficulty;
-	}
+    public CastSpellExtraArgs(Difficulty castDifficulty)
+    {
+        CastDifficulty = castDifficulty;
+    }
 
-	public CastSpellExtraArgs(SpellValueMod mod, double val)
-	{
-		SpellValueOverrides.Add(mod, val);
-	}
+    public CastSpellExtraArgs(SpellValueMod mod, double val)
+    {
+        SpellValueOverrides.Add(mod, val);
+    }
 
-	public CastSpellExtraArgs SetTriggerFlags(TriggerCastFlags flag)
-	{
-		TriggerFlags = flag;
+    public CastSpellExtraArgs SetTriggerFlags(TriggerCastFlags flag)
+    {
+        TriggerFlags = flag;
 
-		return this;
-	}
+        return this;
+    }
 
-	public CastSpellExtraArgs SetCastItem(Item item)
-	{
-		CastItem = item;
+    public CastSpellExtraArgs SetCastItem(Item item)
+    {
+        CastItem = item;
 
-		return this;
-	}
+        return this;
+    }
 
-	public CastSpellExtraArgs SetIsTriggered(bool triggered)
-	{
-		TriggerFlags = triggered ? TriggerCastFlags.FullMask : TriggerCastFlags.None;
+    public CastSpellExtraArgs SetIsTriggered(bool triggered)
+    {
+        TriggerFlags = triggered ? TriggerCastFlags.FullMask : TriggerCastFlags.None;
 
-		return this;
-	}
+        return this;
+    }
 
-	public CastSpellExtraArgs SetSpellValueMod(SpellValueMod mod, double val)
-	{
-		SpellValueOverrides[mod] = val;
+    public CastSpellExtraArgs SetSpellValueMod(SpellValueMod mod, double val)
+    {
+        SpellValueOverrides[mod] = val;
 
-		return this;
-	}
+        return this;
+    }
 
-	public CastSpellExtraArgs SetTriggeringSpell(Spell triggeringSpell)
-	{
-		TriggeringSpell = triggeringSpell;
+    public CastSpellExtraArgs SetTriggeringSpell(Spell triggeringSpell)
+    {
+        TriggeringSpell = triggeringSpell;
 
-		if (triggeringSpell != null)
-		{
-			OriginalCastItemLevel = triggeringSpell.CastItemLevel;
-			OriginalCastId = triggeringSpell.CastId;
-		}
+        if (triggeringSpell != null)
+        {
+            OriginalCastItemLevel = triggeringSpell.CastItemLevel;
+            OriginalCastId = triggeringSpell.CastId;
+        }
 
-		return this;
-	}
+        return this;
+    }
 
-	public CastSpellExtraArgs SetTriggeringAura(AuraEffect triggeringAura)
-	{
-		TriggeringAura = triggeringAura;
+    public CastSpellExtraArgs SetTriggeringAura(AuraEffect triggeringAura)
+    {
+        TriggeringAura = triggeringAura;
 
-		if (triggeringAura != null)
-			OriginalCastId = triggeringAura.Base.CastId;
+        if (triggeringAura != null)
+            OriginalCastId = triggeringAura.Base.CastId;
 
-		return this;
-	}
+        return this;
+    }
 
-	public CastSpellExtraArgs SetOriginalCaster(ObjectGuid guid)
-	{
-		OriginalCaster = guid;
+    public CastSpellExtraArgs SetOriginalCaster(ObjectGuid guid)
+    {
+        OriginalCaster = guid;
 
-		return this;
-	}
+        return this;
+    }
 
-	public CastSpellExtraArgs SetCastDifficulty(Difficulty castDifficulty)
-	{
-		CastDifficulty = castDifficulty;
+    public CastSpellExtraArgs SetCastDifficulty(Difficulty castDifficulty)
+    {
+        CastDifficulty = castDifficulty;
 
-		return this;
-	}
+        return this;
+    }
 
-	public CastSpellExtraArgs SetOriginalCastId(ObjectGuid castId)
-	{
-		OriginalCastId = castId;
+    public CastSpellExtraArgs SetOriginalCastId(ObjectGuid castId)
+    {
+        OriginalCastId = castId;
 
-		return this;
-	}
+        return this;
+    }
 
-	public CastSpellExtraArgs AddSpellMod(SpellValueMod mod, double val)
-	{
-		SpellValueOverrides[mod] = val;
+    public CastSpellExtraArgs AddSpellMod(SpellValueMod mod, double val)
+    {
+        SpellValueOverrides[mod] = val;
 
-		return this;
-	}
+        return this;
+    }
 
-	public CastSpellExtraArgs SetCustomArg(object customArg)
-	{
-		CustomArg = customArg;
+    public CastSpellExtraArgs SetCustomArg(object customArg)
+    {
+        CustomArg = customArg;
 
-		return this;
-	}
+        return this;
+    }
 }

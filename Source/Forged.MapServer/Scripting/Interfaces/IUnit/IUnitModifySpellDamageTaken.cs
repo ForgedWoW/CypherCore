@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IUnit;
 
 public interface IUnitModifySpellDamageTaken : IScriptObject
 {
-	void ModifySpellDamageTaken(Unit target, Unit attacker, ref double damage, SpellInfo spellInfo);
+    void ModifySpellDamageTaken(Unit target, Unit attacker, ref double damage, SpellInfo spellInfo);
 }

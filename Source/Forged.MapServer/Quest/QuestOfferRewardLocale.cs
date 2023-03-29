@@ -8,5 +8,5 @@ namespace Forged.MapServer.Quest;
 
 public class QuestOfferRewardLocale
 {
-	public StringArray RewardText = new((int)Locale.Total);
+    public StringArray RewardText = new((int)Locale.Total);
 }

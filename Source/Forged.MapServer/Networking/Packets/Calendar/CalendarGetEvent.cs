@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarGetEvent : ClientPacket
 {
-	public ulong EventID;
-	public CalendarGetEvent(WorldPacket packet) : base(packet) { }
+    public ulong EventID;
+    public CalendarGetEvent(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		EventID = _worldPacket.ReadUInt64();
-	}
+    public override void Read()
+    {
+        EventID = _worldPacket.ReadUInt64();
+    }
 }

@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class BroadcastSummonResponse : ServerPacket
 {
-	public ObjectGuid Target;
-	public bool Accepted;
+    public ObjectGuid Target;
+    public bool Accepted;
 
-	public BroadcastSummonResponse() : base(ServerOpcodes.BroadcastSummonResponse) { }
+    public BroadcastSummonResponse() : base(ServerOpcodes.BroadcastSummonResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Target);
-		_worldPacket.WriteBit(Accepted);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Target);
+        _worldPacket.WriteBit(Accepted);
+        _worldPacket.FlushBits();
+    }
 }

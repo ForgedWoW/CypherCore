@@ -12,11 +12,11 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(184361)]
 public class spell_warr_enrage : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo.Id == WarriorSpells.BLOODTHIRST_DAMAGE && (eventInfo.HitMask & ProcFlagsHit.Critical) != 0)
-			return true;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo.Id == WarriorSpells.BLOODTHIRST_DAMAGE && (eventInfo.HitMask & ProcFlagsHit.Critical) != 0)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

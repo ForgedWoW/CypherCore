@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class ConversationLineStarted : ClientPacket
 {
-	public ObjectGuid ConversationGUID;
-	public uint LineID;
+    public ObjectGuid ConversationGUID;
+    public uint LineID;
 
-	public ConversationLineStarted(WorldPacket packet) : base(packet) { }
+    public ConversationLineStarted(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ConversationGUID = _worldPacket.ReadPackedGuid();
-		LineID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        ConversationGUID = _worldPacket.ReadPackedGuid();
+        LineID = _worldPacket.ReadUInt32();
+    }
 }

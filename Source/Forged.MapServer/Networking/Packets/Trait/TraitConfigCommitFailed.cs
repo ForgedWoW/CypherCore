@@ -7,22 +7,22 @@ namespace Forged.MapServer.Networking.Packets.Trait;
 
 internal class TraitConfigCommitFailed : ServerPacket
 {
-	public int ConfigID;
-	public uint SpellID;
-	public int Reason;
+    public int ConfigID;
+    public uint SpellID;
+    public int Reason;
 
-	public TraitConfigCommitFailed(int configId = 0, uint spellId = 0, int reason = 0) : base(ServerOpcodes.TraitConfigCommitFailed)
-	{
-		ConfigID = configId;
-		SpellID = spellId;
-		Reason = reason;
-	}
+    public TraitConfigCommitFailed(int configId = 0, uint spellId = 0, int reason = 0) : base(ServerOpcodes.TraitConfigCommitFailed)
+    {
+        ConfigID = configId;
+        SpellID = spellId;
+        Reason = reason;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(ConfigID);
-		_worldPacket.WriteUInt32(SpellID);
-		_worldPacket.WriteBits(Reason, 4);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(ConfigID);
+        _worldPacket.WriteUInt32(SpellID);
+        _worldPacket.WriteBits(Reason, 4);
+        _worldPacket.FlushBits();
+    }
 }

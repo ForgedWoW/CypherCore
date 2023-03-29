@@ -8,7 +8,7 @@ namespace Framework.Constants;
 [Flags]
 public enum TaxiNodeFlags : ushort
 {
-	Alliance = 0x1,
-	Horde = 0x2,
-	UseFavoriteMount = 0x10
+    Alliance = 0x1,
+    Horde = 0x2,
+    UseFavoriteMount = 0x10
 }

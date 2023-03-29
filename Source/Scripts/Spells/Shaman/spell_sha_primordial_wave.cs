@@ -9,24 +9,24 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(375982)]
 public class spell_sha_primordial_wave : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var player = Caster.AsPlayer;
-		var victim = HitUnit;
+    public void OnHit()
+    {
+        var player = Caster.AsPlayer;
+        var victim = HitUnit;
 
-		if (player == null || victim == null)
-			return;
+        if (player == null || victim == null)
+            return;
 
-		if (player.IsFriendlyTo(victim))
-		{
-			player.CastSpell(victim, ShamanSpells.PrimordialWaveHealing, true);
-		}
-		else
-		{
-			player.CastSpell(victim, ShamanSpells.PrimordialWaveDamage, true);
-			player.AddAura(ShamanSpells.FlameShock, victim);
-		}
+        if (player.IsFriendlyTo(victim))
+        {
+            player.CastSpell(victim, ShamanSpells.PrimordialWaveHealing, true);
+        }
+        else
+        {
+            player.CastSpell(victim, ShamanSpells.PrimordialWaveDamage, true);
+            player.AddAura(ShamanSpells.FlameShock, victim);
+        }
 
-		player.AddAura(ShamanSpells.PrimordialWaveAura, player);
-	}
+        player.AddAura(ShamanSpells.PrimordialWaveAura, player);
+    }
 }

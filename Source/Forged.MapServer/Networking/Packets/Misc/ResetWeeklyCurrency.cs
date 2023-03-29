@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class ResetWeeklyCurrency : ServerPacket
 {
-	public ResetWeeklyCurrency() : base(ServerOpcodes.ResetWeeklyCurrency, ConnectionType.Instance) { }
+    public ResetWeeklyCurrency() : base(ServerOpcodes.ResetWeeklyCurrency, ConnectionType.Instance) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

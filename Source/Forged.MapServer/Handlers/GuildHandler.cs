@@ -12,42 +12,42 @@ namespace Forged.MapServer.Handlers;
 
 public class GuildHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.GuildGetRanks)]
+    [WorldPacketHandler(ClientOpcodes.GuildGetRanks)]
     private void HandleGuildGetRanks(GuildGetRanks packet)
-	{
-		var guild = Global.GuildMgr.GetGuildByGuid(packet.GuildGUID);
+    {
+        var guild = Global.GuildMgr.GetGuildByGuid(packet.GuildGUID);
 
-		if (guild)
-			if (guild.IsMember(Player.GUID))
-				guild.SendGuildRankInfo(this);
-	}
+        if (guild)
+            if (guild.IsMember(Player.GUID))
+                guild.SendGuildRankInfo(this);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.GuildBankRemainingWithdrawMoneyQuery)]
+    [WorldPacketHandler(ClientOpcodes.GuildBankRemainingWithdrawMoneyQuery)]
     private void HandleGuildBankMoneyWithdrawn(GuildBankRemainingWithdrawMoneyQuery packet)
-	{
-		var guild = Player.Guild;
+    {
+        var guild = Player.Guild;
 
-		if (guild)
-			guild.SendMoneyInfo(this);
-	}
+        if (guild)
+            guild.SendMoneyInfo(this);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.GuildPermissionsQuery)]
+    [WorldPacketHandler(ClientOpcodes.GuildPermissionsQuery)]
     private void HandleGuildPermissionsQuery(GuildPermissionsQuery packet)
-	{
-		var guild = Player.Guild;
+    {
+        var guild = Player.Guild;
 
-		if (guild)
-			guild.SendPermissions(this);
-	}
+        if (guild)
+            guild.SendPermissions(this);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.GuildGetRoster)]
+    [WorldPacketHandler(ClientOpcodes.GuildGetRoster)]
     private void HandleGuildGetRoster(GuildGetRoster packet)
-	{
-		var guild = Player.Guild;
+    {
+        var guild = Player.Guild;
 
-		if (guild)
-			guild.HandleRoster(this);
-		else
-			Guild.SendCommandResult(this, GuildCommandType.GetRoster, GuildCommandError.PlayerNotInGuild);
-	}
+        if (guild)
+            guild.HandleRoster(this);
+        else
+            Guild.SendCommandResult(this, GuildCommandType.GetRoster, GuildCommandError.PlayerNotInGuild);
+    }
 }

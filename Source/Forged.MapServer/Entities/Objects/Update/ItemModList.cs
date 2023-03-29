@@ -9,52 +9,52 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class ItemModList : BaseUpdateData<Item>
 {
-	public DynamicUpdateField<ItemMod> Values = new(0, 0);
+    public DynamicUpdateField<ItemMod> Values = new(0, 0);
 
-	public ItemModList() : base(1) { }
+    public ItemModList() : base(1) { }
 
-	public void WriteCreate(WorldPacket data, Item owner, Player receiver)
-	{
-		data.WriteBits(Values.Size(), 6);
+    public void WriteCreate(WorldPacket data, Item owner, Player receiver)
+    {
+        data.WriteBits(Values.Size(), 6);
 
-		for (var i = 0; i < Values.Size(); ++i)
-			Values[i].WriteCreate(data, owner, receiver);
+        for (var i = 0; i < Values.Size(); ++i)
+            Values[i].WriteCreate(data, owner, receiver);
 
-		data.FlushBits();
-	}
+        data.FlushBits();
+    }
 
-	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Item owner, Player receiver)
-	{
-		var changesMask = ChangesMask;
+    public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Item owner, Player receiver)
+    {
+        var changesMask = ChangesMask;
 
-		if (ignoreChangesMask)
-			changesMask.SetAll();
+        if (ignoreChangesMask)
+            changesMask.SetAll();
 
-		data.WriteBits(changesMask.GetBlock(0), 1);
+        data.WriteBits(changesMask.GetBlock(0), 1);
 
-		if (changesMask[0])
-			if (changesMask[0])
-			{
-				if (!ignoreChangesMask)
-					Values.WriteUpdateMask(data, 6);
-				else
-					WriteCompleteDynamicFieldUpdateMask(Values.Size(), data, 6);
-			}
+        if (changesMask[0])
+            if (changesMask[0])
+            {
+                if (!ignoreChangesMask)
+                    Values.WriteUpdateMask(data, 6);
+                else
+                    WriteCompleteDynamicFieldUpdateMask(Values.Size(), data, 6);
+            }
 
-		data.FlushBits();
+        data.FlushBits();
 
-		if (changesMask[0])
-			if (changesMask[0])
-				for (var i = 0; i < Values.Size(); ++i)
-					if (Values.HasChanged(i) || ignoreChangesMask)
-						Values[i].WriteUpdate(data, ignoreChangesMask, owner, receiver);
+        if (changesMask[0])
+            if (changesMask[0])
+                for (var i = 0; i < Values.Size(); ++i)
+                    if (Values.HasChanged(i) || ignoreChangesMask)
+                        Values[i].WriteUpdate(data, ignoreChangesMask, owner, receiver);
 
-		data.FlushBits();
-	}
+        data.FlushBits();
+    }
 
-	public override void ClearChangesMask()
-	{
-		ClearChangesMask(Values);
-		ChangesMask.ResetAll();
-	}
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Values);
+        ChangesMask.ResetAll();
+    }
 }

@@ -13,24 +13,24 @@ namespace Scripts.Spells.Druid;
 [Script] // 40121 - Swift Flight Form (Passive)
 internal class spell_dru_swift_flight_passive : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Load()
-	{
-		return Caster.IsTypeId(TypeId.Player);
-	}
+    public override bool Load()
+    {
+        return Caster.IsTypeId(TypeId.Player);
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.ModIncreaseVehicleFlightSpeed));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.ModIncreaseVehicleFlightSpeed));
+    }
 
-	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		var caster = Caster.AsPlayer;
+    private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        var caster = Caster.AsPlayer;
 
-		if (caster != null)
-			if (caster.GetSkillValue(SkillType.Riding) >= 375)
-				amount.Value = 310;
-	}
+        if (caster != null)
+            if (caster.GetSkillValue(SkillType.Riding) >= 375)
+                amount.Value = 310;
+    }
 }

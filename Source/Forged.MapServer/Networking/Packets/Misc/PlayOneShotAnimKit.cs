@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class PlayOneShotAnimKit : ServerPacket
 {
-	public ObjectGuid Unit;
-	public ushort AnimKitID;
-	public PlayOneShotAnimKit() : base(ServerOpcodes.PlayOneShotAnimKit) { }
+    public ObjectGuid Unit;
+    public ushort AnimKitID;
+    public PlayOneShotAnimKit() : base(ServerOpcodes.PlayOneShotAnimKit) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Unit);
-		_worldPacket.WriteUInt16(AnimKitID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Unit);
+        _worldPacket.WriteUInt16(AnimKitID);
+    }
 }

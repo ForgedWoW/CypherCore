@@ -11,15 +11,15 @@ namespace Scripts.Spells.Druid;
 [Script] //  93402 - Sunfire
 internal class spell_dru_sunfire : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleOnHit(int effIndex)
-	{
-		Caster.CastSpell(HitUnit, DruidSpellIds.SunfireDamage, true);
-	}
+    private void HandleOnHit(int effIndex)
+    {
+        Caster.CastSpell(HitUnit, DruidSpellIds.SunfireDamage, true);
+    }
 }

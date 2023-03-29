@@ -9,20 +9,20 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraUpdatePeriodic : IAuraEffectHandler
 {
-	void UpdatePeriodic(AuraEffect aurEff);
+    void UpdatePeriodic(AuraEffect aurEff);
 }
 
 public class AuraEffectUpdatePeriodicHandler : AuraEffectHandler, IAuraUpdatePeriodic
 {
-	private readonly Action<AuraEffect> _fn;
+    private readonly Action<AuraEffect> _fn;
 
-	public AuraEffectUpdatePeriodicHandler(Action<AuraEffect> fn, int effectIndex, AuraType auraType) : base(effectIndex, auraType, AuraScriptHookType.EffectUpdatePeriodic)
-	{
-		_fn = fn;
-	}
+    public AuraEffectUpdatePeriodicHandler(Action<AuraEffect> fn, int effectIndex, AuraType auraType) : base(effectIndex, auraType, AuraScriptHookType.EffectUpdatePeriodic)
+    {
+        _fn = fn;
+    }
 
-	public void UpdatePeriodic(AuraEffect aurEff)
-	{
-		_fn(aurEff);
-	}
+    public void UpdatePeriodic(AuraEffect aurEff)
+    {
+        _fn(aurEff);
+    }
 }

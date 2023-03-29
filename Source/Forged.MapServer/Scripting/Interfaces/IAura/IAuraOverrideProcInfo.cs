@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraOverrideProcInfo : IAuraScript
 {
-	SpellProcEntry SpellProcEntry { get; }
+    SpellProcEntry SpellProcEntry { get; }
 }

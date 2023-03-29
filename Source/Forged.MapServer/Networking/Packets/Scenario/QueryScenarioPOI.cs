@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Scenario;
 
 internal class QueryScenarioPOI : ClientPacket
 {
-	public Array<int> MissingScenarioPOIs = new(50);
-	public QueryScenarioPOI(WorldPacket packet) : base(packet) { }
+    public Array<int> MissingScenarioPOIs = new(50);
+    public QueryScenarioPOI(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var count = _worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        var count = _worldPacket.ReadUInt32();
 
-		for (var i = 0; i < count; ++i)
-			MissingScenarioPOIs[i] = _worldPacket.ReadInt32();
-	}
+        for (var i = 0; i < count; ++i)
+            MissingScenarioPOIs[i] = _worldPacket.ReadInt32();
+    }
 }

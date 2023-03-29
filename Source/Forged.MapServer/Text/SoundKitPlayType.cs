@@ -5,7 +5,7 @@ namespace Forged.MapServer.Text;
 
 public enum SoundKitPlayType
 {
-	Normal = 0,
-	ObjectSound = 1,
-	Max = 2,
+    Normal = 0,
+    ObjectSound = 1,
+    Max = 2,
 }

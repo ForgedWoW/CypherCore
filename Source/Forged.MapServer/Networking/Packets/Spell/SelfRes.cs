@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class SelfRes : ClientPacket
 {
-	public uint SpellId;
-	public SelfRes(WorldPacket packet) : base(packet) { }
+    public uint SpellId;
+    public SelfRes(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		SpellId = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        SpellId = _worldPacket.ReadUInt32();
+    }
 }

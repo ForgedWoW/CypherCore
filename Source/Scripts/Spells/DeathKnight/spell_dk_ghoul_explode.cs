@@ -11,26 +11,26 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 47496 - Explode, Ghoul spell for Corpse Explosion
 internal class spell_dk_ghoul_explode : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new EffectHandler(Suicide, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+        SpellEffects.Add(new EffectHandler(Suicide, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDamage(int effIndex)
-	{
-		HitDamage = (int)Caster.CountPctFromMaxHealth(GetEffectInfo(2).CalcValue(Caster));
-	}
+    private void HandleDamage(int effIndex)
+    {
+        HitDamage = (int)Caster.CountPctFromMaxHealth(GetEffectInfo(2).CalcValue(Caster));
+    }
 
-	private void Suicide(int effIndex)
-	{
-		var unitTarget = HitUnit;
+    private void Suicide(int effIndex)
+    {
+        var unitTarget = HitUnit;
 
-		if (unitTarget)
-			// Corpse Explosion (Suicide)
-			unitTarget.CastSpell(unitTarget, DeathKnightSpells.CorpseExplosionTriggered, true);
-	}
+        if (unitTarget)
+            // Corpse Explosion (Suicide)
+            unitTarget.CastSpell(unitTarget, DeathKnightSpells.CorpseExplosionTriggered, true);
+    }
 }

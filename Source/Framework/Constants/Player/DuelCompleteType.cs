@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum DuelCompleteType
 {
-	Interrupted = 0,
-	Won = 1,
-	Fled = 2
+    Interrupted = 0,
+    Won = 1,
+    Fled = 2
 }

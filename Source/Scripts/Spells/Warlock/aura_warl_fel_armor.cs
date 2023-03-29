@@ -11,31 +11,31 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(WarlockSpells.FEL_ARMOR_DMG_DELAY)]
 internal class aura_warl_fel_armor : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicDamage, 0, Framework.Constants.AuraType.PeriodicDamage));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicDamage, 0, Framework.Constants.AuraType.PeriodicDamage));
+    }
 
-	void PeriodicDamage(AuraEffect eff)
-	{
-		if (!TryGetCasterAsPlayer(out var player) || !player.TryGetAura(WarlockSpells.FEL_ARMOR_DMG_DELAY_REMAINING, out var felArmor))
-			return;
+    void PeriodicDamage(AuraEffect eff)
+    {
+        if (!TryGetCasterAsPlayer(out var player) || !player.TryGetAura(WarlockSpells.FEL_ARMOR_DMG_DELAY_REMAINING, out var felArmor))
+            return;
 
-		if (felArmor.TryGetEffect(1, out var remaining))
-		{
-			var rem = remaining.Amount - eff.Amount;
+        if (felArmor.TryGetEffect(1, out var remaining))
+        {
+            var rem = remaining.Amount - eff.Amount;
 
-			if (rem <= 0)
-			{
-				player.RemoveAura(felArmor);
-				player.RemoveAura(eff.Base);
-			}
-			else
-			{
-				remaining.SetAmount(rem);
-			}
-		}
-	}
+            if (rem <= 0)
+            {
+                player.RemoveAura(felArmor);
+                player.RemoveAura(eff.Base);
+            }
+            else
+            {
+                remaining.SetAmount(rem);
+            }
+        }
+    }
 }

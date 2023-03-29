@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonPlotPlaced : ServerPacket
 {
-	public GarrisonType GarrTypeID;
-	public GarrisonPlotInfo PlotInfo;
-	public GarrisonPlotPlaced() : base(ServerOpcodes.GarrisonPlotPlaced, ConnectionType.Instance) { }
+    public GarrisonType GarrTypeID;
+    public GarrisonPlotInfo PlotInfo;
+    public GarrisonPlotPlaced() : base(ServerOpcodes.GarrisonPlotPlaced, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32((int)GarrTypeID);
-		PlotInfo.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32((int)GarrTypeID);
+        PlotInfo.Write(_worldPacket);
+    }
 }

@@ -9,21 +9,21 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(47568)]
 public class spell_dk_empower_rune_weapon : SpellScript
 {
-	public void OnHit()
-	{
-		var caster = Caster;
+    public void OnHit()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var player = caster.AsPlayer;
+        if (caster != null)
+        {
+            var player = caster.AsPlayer;
 
-			if (player != null)
-			{
-				for (byte i = 0; i < PlayerConst.MaxRunes; ++i)
-					player.SetRuneCooldown(i, 0);
+            if (player != null)
+            {
+                for (byte i = 0; i < PlayerConst.MaxRunes; ++i)
+                    player.SetRuneCooldown(i, 0);
 
-				player.ResyncRunes();
-			}
-		}
-	}
+                player.ResyncRunes();
+            }
+        }
+    }
 }

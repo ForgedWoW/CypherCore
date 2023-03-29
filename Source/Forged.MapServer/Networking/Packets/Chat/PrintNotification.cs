@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class PrintNotification : ServerPacket
 {
-	public string NotifyText;
+    public string NotifyText;
 
-	public PrintNotification(string notifyText) : base(ServerOpcodes.PrintNotification)
-	{
-		NotifyText = notifyText;
-	}
+    public PrintNotification(string notifyText) : base(ServerOpcodes.PrintNotification)
+    {
+        NotifyText = notifyText;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(NotifyText.GetByteCount(), 12);
-		_worldPacket.WriteString(NotifyText);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBits(NotifyText.GetByteCount(), 12);
+        _worldPacket.WriteString(NotifyText);
+    }
 }

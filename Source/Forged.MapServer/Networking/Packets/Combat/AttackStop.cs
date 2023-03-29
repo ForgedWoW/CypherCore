@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public class AttackStop : ClientPacket
 {
-	public AttackStop(WorldPacket packet) : base(packet) { }
+    public AttackStop(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

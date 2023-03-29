@@ -13,37 +13,37 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(212623)]
 public class spell_warlock_singe_magic : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public SpellCastResult CheckCast()
-	{
-		var caster = Caster;
+    public SpellCastResult CheckCast()
+    {
+        var caster = Caster;
 
-		if (caster == null || !caster.AsPlayer)
-			return SpellCastResult.BadTargets;
+        if (caster == null || !caster.AsPlayer)
+            return SpellCastResult.BadTargets;
 
-		if (caster.AsPlayer.CurrentPet && caster.AsPlayer.CurrentPet.Entry == 416)
-			return SpellCastResult.SpellCastOk;
+        if (caster.AsPlayer.CurrentPet && caster.AsPlayer.CurrentPet.Entry == 416)
+            return SpellCastResult.SpellCastOk;
 
-		return SpellCastResult.CantDoThatRightNow;
-	}
+        return SpellCastResult.CantDoThatRightNow;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		var pet = caster.AsPlayer.CurrentPet;
+        var pet = caster.AsPlayer.CurrentPet;
 
-		if (pet != null)
-			pet.CastSpell(target, WarlockSpells.SINGE_MAGIC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)GetEffectInfo(0).BasePoints));
-	}
+        if (pet != null)
+            pet.CastSpell(target, WarlockSpells.SINGE_MAGIC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)GetEffectInfo(0).BasePoints));
+    }
 }

@@ -12,46 +12,46 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(198304)]
 public class spell_warr_intercept : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public SpellCastResult CheckCast()
-	{
-		var caster = Caster;
-		var target = ExplTargetUnit;
-		var pos = target.Location;
+    public SpellCastResult CheckCast()
+    {
+        var caster = Caster;
+        var target = ExplTargetUnit;
+        var pos = target.Location;
 
-		if (caster.GetDistance(pos) < 8.0f && !caster.IsFriendlyTo(target))
-			return SpellCastResult.TooClose;
+        if (caster.GetDistance(pos) < 8.0f && !caster.IsFriendlyTo(target))
+            return SpellCastResult.TooClose;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (target == null)
-			return;
+        if (target == null)
+            return;
 
-		if (target.IsFriendlyTo(caster))
-		{
-			caster.CastSpell(target, WarriorSpells.INTERVENE_TRIGGER, true);
-		}
-		else
-		{
-			caster.CastSpell(target, WarriorSpells.CHARGE_EFFECT, true);
+        if (target.IsFriendlyTo(caster))
+        {
+            caster.CastSpell(target, WarriorSpells.INTERVENE_TRIGGER, true);
+        }
+        else
+        {
+            caster.CastSpell(target, WarriorSpells.CHARGE_EFFECT, true);
 
-			if (caster.HasAura(WarriorSpells.WARBRINGER))
-				caster.CastSpell(target, WarriorSpells.WARBRINGER_ROOT, true);
-			else
-				caster.CastSpell(target, WarriorSpells.INTERCEPT_STUN, true);
-		}
-	}
+            if (caster.HasAura(WarriorSpells.WARBRINGER))
+                caster.CastSpell(target, WarriorSpells.WARBRINGER_ROOT, true);
+            else
+                caster.CastSpell(target, WarriorSpells.INTERCEPT_STUN, true);
+        }
+    }
 }

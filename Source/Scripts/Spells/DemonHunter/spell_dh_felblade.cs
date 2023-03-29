@@ -11,22 +11,22 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(232893)]
 public class spell_dh_felblade : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleOnHit(int effIndex)
-	{
-		if (!Caster || !HitUnit)
-			return;
+    private void HandleOnHit(int effIndex)
+    {
+        if (!Caster || !HitUnit)
+            return;
 
-		if (Caster.GetDistance2d(HitUnit) <= 15.0f)
-		{
-			Caster.CastSpell(HitUnit, DemonHunterSpells.FELBLADE_CHARGE, true);
-			Caster.CastSpell(HitUnit, DemonHunterSpells.FELBLADE_DAMAGE, true);
-		}
-	}
+        if (Caster.GetDistance2d(HitUnit) <= 15.0f)
+        {
+            Caster.CastSpell(HitUnit, DemonHunterSpells.FELBLADE_CHARGE, true);
+            Caster.CastSpell(HitUnit, DemonHunterSpells.FELBLADE_DAMAGE, true);
+        }
+    }
 }

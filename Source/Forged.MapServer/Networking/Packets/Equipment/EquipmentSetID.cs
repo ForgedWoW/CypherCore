@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Equipment;
 
 public class EquipmentSetID : ServerPacket
 {
-	public ulong GUID; // Set Identifier
-	public int Type;
-	public uint SetID; // Index
-	public EquipmentSetID() : base(ServerOpcodes.EquipmentSetId, ConnectionType.Instance) { }
+    public ulong GUID; // Set Identifier
+    public int Type;
+    public uint SetID; // Index
+    public EquipmentSetID() : base(ServerOpcodes.EquipmentSetId, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt64(GUID);
-		_worldPacket.WriteInt32(Type);
-		_worldPacket.WriteUInt32(SetID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt64(GUID);
+        _worldPacket.WriteInt32(Type);
+        _worldPacket.WriteUInt32(SetID);
+    }
 }

@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class CrossedInebriationThreshold : ServerPacket
 {
-	public ObjectGuid Guid;
-	public uint ItemID;
-	public uint Threshold;
-	public CrossedInebriationThreshold() : base(ServerOpcodes.CrossedInebriationThreshold) { }
+    public ObjectGuid Guid;
+    public uint ItemID;
+    public uint Threshold;
+    public CrossedInebriationThreshold() : base(ServerOpcodes.CrossedInebriationThreshold) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Guid);
-		_worldPacket.WriteUInt32(Threshold);
-		_worldPacket.WriteUInt32(ItemID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Guid);
+        _worldPacket.WriteUInt32(Threshold);
+        _worldPacket.WriteUInt32(ItemID);
+    }
 }

@@ -9,25 +9,25 @@ namespace Scripts.Spells.Priest;
 [SpellScript(265202)]
 public class spell_pri_holy_word_salvation : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		var caster = Caster;
+    public void AfterCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var eff = GetEffectInfo(1);
-		var friendlyList = caster.GetPlayerListInGrid(40);
+        var eff = GetEffectInfo(1);
+        var friendlyList = caster.GetPlayerListInGrid(40);
 
-		foreach (var friendPlayers in friendlyList)
-			if (friendPlayers.IsFriendlyTo(caster))
-			{
-				caster.CastSpell(friendPlayers, PriestSpells.RENEW, true);
+        foreach (var friendPlayers in friendlyList)
+            if (friendPlayers.IsFriendlyTo(caster))
+            {
+                caster.CastSpell(friendPlayers, PriestSpells.RENEW, true);
 
-				var prayer = friendPlayers.GetAura(PriestSpells.PRAYER_OF_MENDING_AURA);
+                var prayer = friendPlayers.GetAura(PriestSpells.PRAYER_OF_MENDING_AURA);
 
-				if (prayer != null)
-					prayer.ModStackAmount(eff.BasePoints);
-			}
-	}
+                if (prayer != null)
+                    prayer.ModStackAmount(eff.BasePoints);
+            }
+    }
 }

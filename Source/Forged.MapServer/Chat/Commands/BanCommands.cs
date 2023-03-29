@@ -4,7 +4,6 @@
 using System;
 using System.Net;
 using Forged.MapServer.Globals;
-using Forged.MapServer.Server;
 using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Commands;
@@ -12,152 +11,152 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("ban")]
 internal class BanCommands
 {
-	[Command("account", RBACPermissions.CommandBanAccount, true)]
+    [Command("account", RBACPermissions.CommandBanAccount, true)]
     private static bool HandleBanAccountCommand(CommandHandler handler, string playerName, uint duration, string reason)
-	{
-		return HandleBanHelper(BanMode.Account, playerName, duration, reason, handler);
-	}
+    {
+        return HandleBanHelper(BanMode.Account, playerName, duration, reason, handler);
+    }
 
-	[Command("character", RBACPermissions.CommandBanCharacter, true)]
+    [Command("character", RBACPermissions.CommandBanCharacter, true)]
     private static bool HandleBanCharacterCommand(CommandHandler handler, string playerName, uint duration, string reason)
-	{
-		if (playerName.IsEmpty())
-			return false;
+    {
+        if (playerName.IsEmpty())
+            return false;
 
-		if (duration == 0)
-			return false;
+        if (duration == 0)
+            return false;
 
-		if (reason.IsEmpty())
-			return false;
+        if (reason.IsEmpty())
+            return false;
 
-		if (!GameObjectManager.NormalizePlayerName(ref playerName))
-		{
-			handler.SendSysMessage(CypherStrings.PlayerNotFound);
+        if (!GameObjectManager.NormalizePlayerName(ref playerName))
+        {
+            handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
-			return false;
-		}
+            return false;
+        }
 
-		var author = handler.Session != null ? handler.Session.PlayerName : "Server";
+        var author = handler.Session != null ? handler.Session.PlayerName : "Server";
 
-		switch (Global.WorldMgr.BanCharacter(playerName, duration, reason, author))
-		{
-			case BanReturn.Success:
-			{
-				if (duration > 0)
-				{
-					if (GetDefaultValue("ShowBanInWorld", false))
-						Global.WorldMgr.SendWorldText(CypherStrings.BanCharacterYoubannedmessageWorld, author, playerName, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
-					else
-						handler.SendSysMessage(CypherStrings.BanYoubanned, playerName, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
-				}
-				else
-				{
-					if (GetDefaultValue("ShowBanInWorld", false))
-						Global.WorldMgr.SendWorldText(CypherStrings.BanCharacterYoupermbannedmessageWorld, author, playerName, reason);
-					else
-						handler.SendSysMessage(CypherStrings.BanYoupermbanned, playerName, reason);
-				}
+        switch (Global.WorldMgr.BanCharacter(playerName, duration, reason, author))
+        {
+            case BanReturn.Success:
+            {
+                if (duration > 0)
+                {
+                    if (GetDefaultValue("ShowBanInWorld", false))
+                        Global.WorldMgr.SendWorldText(CypherStrings.BanCharacterYoubannedmessageWorld, author, playerName, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
+                    else
+                        handler.SendSysMessage(CypherStrings.BanYoubanned, playerName, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
+                }
+                else
+                {
+                    if (GetDefaultValue("ShowBanInWorld", false))
+                        Global.WorldMgr.SendWorldText(CypherStrings.BanCharacterYoupermbannedmessageWorld, author, playerName, reason);
+                    else
+                        handler.SendSysMessage(CypherStrings.BanYoupermbanned, playerName, reason);
+                }
 
-				break;
-			}
-			case BanReturn.Notfound:
-			{
-				handler.SendSysMessage(CypherStrings.BanNotfound, "character", playerName);
+                break;
+            }
+            case BanReturn.Notfound:
+            {
+                handler.SendSysMessage(CypherStrings.BanNotfound, "character", playerName);
 
-				return false;
-			}
-			default:
-				break;
-		}
+                return false;
+            }
+            default:
+                break;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	[Command("playeraccount", RBACPermissions.CommandBanPlayeraccount, true)]
+    [Command("playeraccount", RBACPermissions.CommandBanPlayeraccount, true)]
     private static bool HandleBanAccountByCharCommand(CommandHandler handler, string playerName, uint duration, string reason)
-	{
-		return HandleBanHelper(BanMode.Character, playerName, duration, reason, handler);
-	}
+    {
+        return HandleBanHelper(BanMode.Character, playerName, duration, reason, handler);
+    }
 
-	[Command("ip", RBACPermissions.CommandBanIp, true)]
+    [Command("ip", RBACPermissions.CommandBanIp, true)]
     private static bool HandleBanIPCommand(CommandHandler handler, string ipAddress, uint duration, string reason)
-	{
-		return HandleBanHelper(BanMode.IP, ipAddress, duration, reason, handler);
-	}
+    {
+        return HandleBanHelper(BanMode.IP, ipAddress, duration, reason, handler);
+    }
 
     private static bool HandleBanHelper(BanMode mode, string nameOrIP, uint duration, string reason, CommandHandler handler)
-	{
-		if (nameOrIP.IsEmpty())
-			return false;
+    {
+        if (nameOrIP.IsEmpty())
+            return false;
 
-		if (reason.IsEmpty())
-			return false;
+        if (reason.IsEmpty())
+            return false;
 
-		switch (mode)
-		{
-			case BanMode.Character:
-				if (!GameObjectManager.NormalizePlayerName(ref nameOrIP))
-				{
-					handler.SendSysMessage(CypherStrings.PlayerNotFound);
+        switch (mode)
+        {
+            case BanMode.Character:
+                if (!GameObjectManager.NormalizePlayerName(ref nameOrIP))
+                {
+                    handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
-					return false;
-				}
+                    return false;
+                }
 
-				break;
-			case BanMode.IP:
-				if (!IPAddress.TryParse(nameOrIP, out _))
-					return false;
+                break;
+            case BanMode.IP:
+                if (!IPAddress.TryParse(nameOrIP, out _))
+                    return false;
 
-				break;
-		}
+                break;
+        }
 
-		var author = handler.Session ? handler.Session.PlayerName : "Server";
+        var author = handler.Session ? handler.Session.PlayerName : "Server";
 
-		switch (Global.WorldMgr.BanAccount(mode, nameOrIP, duration, reason, author))
-		{
-			case BanReturn.Success:
-				if (duration > 0)
-				{
-					if (GetDefaultValue("ShowBanInWorld", false))
-						Global.WorldMgr.SendWorldText(CypherStrings.BanAccountYoubannedmessageWorld, author, nameOrIP, Time.secsToTimeString(duration), reason);
-					else
-						handler.SendSysMessage(CypherStrings.BanYoubanned, nameOrIP, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
-				}
-				else
-				{
-					if (GetDefaultValue("ShowBanInWorld", false))
-						Global.WorldMgr.SendWorldText(CypherStrings.BanAccountYoupermbannedmessageWorld, author, nameOrIP, reason);
-					else
-						handler.SendSysMessage(CypherStrings.BanYoupermbanned, nameOrIP, reason);
-				}
+        switch (Global.WorldMgr.BanAccount(mode, nameOrIP, duration, reason, author))
+        {
+            case BanReturn.Success:
+                if (duration > 0)
+                {
+                    if (GetDefaultValue("ShowBanInWorld", false))
+                        Global.WorldMgr.SendWorldText(CypherStrings.BanAccountYoubannedmessageWorld, author, nameOrIP, Time.secsToTimeString(duration), reason);
+                    else
+                        handler.SendSysMessage(CypherStrings.BanYoubanned, nameOrIP, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
+                }
+                else
+                {
+                    if (GetDefaultValue("ShowBanInWorld", false))
+                        Global.WorldMgr.SendWorldText(CypherStrings.BanAccountYoupermbannedmessageWorld, author, nameOrIP, reason);
+                    else
+                        handler.SendSysMessage(CypherStrings.BanYoupermbanned, nameOrIP, reason);
+                }
 
-				break;
-			case BanReturn.SyntaxError:
-				return false;
-			case BanReturn.Notfound:
-				switch (mode)
-				{
-					default:
-						handler.SendSysMessage(CypherStrings.BanNotfound, "account", nameOrIP);
+                break;
+            case BanReturn.SyntaxError:
+                return false;
+            case BanReturn.Notfound:
+                switch (mode)
+                {
+                    default:
+                        handler.SendSysMessage(CypherStrings.BanNotfound, "account", nameOrIP);
 
-						break;
-					case BanMode.Character:
-						handler.SendSysMessage(CypherStrings.BanNotfound, "character", nameOrIP);
+                        break;
+                    case BanMode.Character:
+                        handler.SendSysMessage(CypherStrings.BanNotfound, "character", nameOrIP);
 
-						break;
-					case BanMode.IP:
-						handler.SendSysMessage(CypherStrings.BanNotfound, "ip", nameOrIP);
+                        break;
+                    case BanMode.IP:
+                        handler.SendSysMessage(CypherStrings.BanNotfound, "ip", nameOrIP);
 
-						break;
-				}
+                        break;
+                }
 
-				return false;
-			case BanReturn.Exists:
-				handler.SendSysMessage(CypherStrings.BanExists);
+                return false;
+            case BanReturn.Exists:
+                handler.SendSysMessage(CypherStrings.BanExists);
 
-				break;
-		}
+                break;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

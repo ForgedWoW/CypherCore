@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public struct QuestDescEmote
 {
-	public QuestDescEmote(int type = 0, uint delay = 0)
-	{
-		Type = type;
-		Delay = delay;
-	}
+    public QuestDescEmote(int type = 0, uint delay = 0)
+    {
+        Type = type;
+        Delay = delay;
+    }
 
-	public int Type;
-	public uint Delay;
+    public int Type;
+    public uint Delay;
 }

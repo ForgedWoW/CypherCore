@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarClearPendingAction : ServerPacket
 {
-	public CalendarClearPendingAction() : base(ServerOpcodes.CalendarClearPendingAction) { }
+    public CalendarClearPendingAction() : base(ServerOpcodes.CalendarClearPendingAction) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

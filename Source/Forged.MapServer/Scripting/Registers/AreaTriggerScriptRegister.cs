@@ -8,12 +8,12 @@ namespace Forged.MapServer.Scripting.Registers;
 
 public class AreaTriggerScriptRegister : IScriptRegister
 {
-	public Type AttributeType => typeof(AreaTriggerScriptAttribute);
+    public Type AttributeType => typeof(AreaTriggerScriptAttribute);
 
-	public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
-	{
-		if (attribute is AreaTriggerScriptAttribute { AreaTriggerIds: { } } atScript)
-			foreach (var id in atScript.AreaTriggerIds)
-				Global.ObjectMgr.RegisterAreaTriggerScript(id, scriptName);
-	}
+    public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
+    {
+        if (attribute is AreaTriggerScriptAttribute { AreaTriggerIds: { } } atScript)
+            foreach (var id in atScript.AreaTriggerIds)
+                Global.ObjectMgr.RegisterAreaTriggerScript(id, scriptName);
+    }
 }

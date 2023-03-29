@@ -5,14 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class CreatureXDisplay
 {
-	public uint CreatureDisplayID;
-	public float Scale = 1.0f;
-	public float Probability = 1.0f;
+    public uint CreatureDisplayID;
+    public float Scale = 1.0f;
+    public float Probability = 1.0f;
 
-	public CreatureXDisplay(uint creatureDisplayID, float displayScale, float probability)
-	{
-		CreatureDisplayID = creatureDisplayID;
-		Scale = displayScale;
-		Probability = probability;
-	}
+    public CreatureXDisplay(uint creatureDisplayID, float displayScale, float probability)
+    {
+        CreatureDisplayID = creatureDisplayID;
+        Scale = displayScale;
+        Probability = probability;
+    }
 }

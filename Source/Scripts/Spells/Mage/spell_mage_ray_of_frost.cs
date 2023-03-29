@@ -11,10 +11,10 @@ namespace Scripts.Spells.Mage;
 [Script] // 205021 - Ray of Frost
 internal class spell_mage_ray_of_frost : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
+    public void OnHit()
+    {
+        var caster = Caster;
 
-		caster?.CastSpell(caster, MageSpells.RayOfFrostFingersOfFrost, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
-	}
+        caster?.CastSpell(caster, MageSpells.RayOfFrostFingersOfFrost, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+    }
 }

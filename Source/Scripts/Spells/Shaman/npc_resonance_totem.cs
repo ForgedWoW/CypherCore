@@ -12,18 +12,18 @@ namespace Scripts.Spells.Shaman;
 [CreatureScript(102392)]
 public class npc_resonance_totem : ScriptedAI
 {
-	public npc_resonance_totem(Creature creature) : base(creature) { }
+    public npc_resonance_totem(Creature creature) : base(creature) { }
 
-	public override void Reset()
-	{
-		var time = TimeSpan.FromSeconds(1);
+    public override void Reset()
+    {
+        var time = TimeSpan.FromSeconds(1);
 
-		Me.Events.AddRepeatEventAtOffset(() =>
-										{
-											Me.CastSpell(Me, TotemSpells.TOTEM_RESONANCE_EFFECT, true);
+        Me.Events.AddRepeatEventAtOffset(() =>
+                                         {
+                                             Me.CastSpell(Me, TotemSpells.TOTEM_RESONANCE_EFFECT, true);
 
-											return time;
-										},
-										time);
-	}
+                                             return time;
+                                         },
+                                         time);
+    }
 }

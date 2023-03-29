@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class MoveInitActiveMoverComplete : ClientPacket
 {
-	public uint Ticks;
+    public uint Ticks;
 
-	public MoveInitActiveMoverComplete(WorldPacket packet) : base(packet) { }
+    public MoveInitActiveMoverComplete(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Ticks = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        Ticks = _worldPacket.ReadUInt32();
+    }
 }

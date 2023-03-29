@@ -10,51 +10,51 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire.Quartermaster
 
 internal struct SpellIds
 {
-	public const uint Shoot = 16496;
-	public const uint Stunbomb = 16497;
-	public const uint HealingPotion = 15504;
-	public const uint Hookednet = 15609;
+    public const uint Shoot = 16496;
+    public const uint Stunbomb = 16497;
+    public const uint HealingPotion = 15504;
+    public const uint Hookednet = 15609;
 }
 
 [Script]
 internal class quartermaster_zigris : BossAI
 {
-	public quartermaster_zigris(Creature creature) : base(creature, DataTypes.QuartermasterZigris) { }
+    public quartermaster_zigris(Creature creature) : base(creature, DataTypes.QuartermasterZigris) { }
 
-	public override void Reset()
-	{
-		_Reset();
-	}
+    public override void Reset()
+    {
+        _Reset();
+    }
 
-	public override void JustEngagedWith(Unit who)
-	{
-		base.JustEngagedWith(who);
+    public override void JustEngagedWith(Unit who)
+    {
+        base.JustEngagedWith(who);
 
-		Scheduler.Schedule(TimeSpan.FromSeconds(1),
-							task =>
-							{
-								DoCastVictim(SpellIds.Shoot);
-								task.Repeat(TimeSpan.FromMilliseconds(500));
-							});
+        Scheduler.Schedule(TimeSpan.FromSeconds(1),
+                           task =>
+                           {
+                               DoCastVictim(SpellIds.Shoot);
+                               task.Repeat(TimeSpan.FromMilliseconds(500));
+                           });
 
-		Scheduler.Schedule(TimeSpan.FromSeconds(16),
-							task =>
-							{
-								DoCastVictim(SpellIds.Stunbomb);
-								task.Repeat(TimeSpan.FromSeconds(14));
-							});
-	}
+        Scheduler.Schedule(TimeSpan.FromSeconds(16),
+                           task =>
+                           {
+                               DoCastVictim(SpellIds.Stunbomb);
+                               task.Repeat(TimeSpan.FromSeconds(14));
+                           });
+    }
 
-	public override void JustDied(Unit killer)
-	{
-		_JustDied();
-	}
+    public override void JustDied(Unit killer)
+    {
+        _JustDied();
+    }
 
-	public override void UpdateAI(uint diff)
-	{
-		if (!UpdateVictim())
-			return;
+    public override void UpdateAI(uint diff)
+    {
+        if (!UpdateVictim())
+            return;
 
-		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
-	}
+        Scheduler.Update(diff, () => DoMeleeAttackIfReady());
+    }
 }

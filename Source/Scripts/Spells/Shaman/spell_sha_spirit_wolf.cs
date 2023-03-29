@@ -13,27 +13,27 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(260878)]
 internal class spell_sha_spirit_wolf : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Any, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Any, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Any, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterApply));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Any, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		var target = Target;
+    private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        var target = Target;
 
-		if (target.HasAura(ShamanSpells.SpiritWolfTalent) &&
-			target.HasAura(ShamanSpells.GhostWolf))
-			target.CastSpell(target, ShamanSpells.SpiritWolfPeriodic, new CastSpellExtraArgs(aurEff));
-	}
+        if (target.HasAura(ShamanSpells.SpiritWolfTalent) &&
+            target.HasAura(ShamanSpells.GhostWolf))
+            target.CastSpell(target, ShamanSpells.SpiritWolfPeriodic, new CastSpellExtraArgs(aurEff));
+    }
 
-	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.RemoveAura(ShamanSpells.SpiritWolfPeriodic);
-		Target.RemoveAura(ShamanSpells.SpiritWolfAura);
-	}
+    private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.RemoveAura(ShamanSpells.SpiritWolfPeriodic);
+        Target.RemoveAura(ShamanSpells.SpiritWolfAura);
+    }
 }

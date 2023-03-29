@@ -15,24 +15,24 @@ public class PlayerDistWorker : IGridNotifierPlayer
     private readonly float _dist;
     private readonly IDoWork<Player> _doWork;
 
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public PlayerDistWorker(WorldObject searcher, float dist, IDoWork<Player> work, GridType gridType)
-	{
-		_searcher = searcher;
-		_dist = dist;
-		_doWork = work;
-		GridType = gridType;
-	}
+    public PlayerDistWorker(WorldObject searcher, float dist, IDoWork<Player> work, GridType gridType)
+    {
+        _searcher = searcher;
+        _dist = dist;
+        _doWork = work;
+        GridType = gridType;
+    }
 
-	public void Visit(IList<Player> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var player = objs[i];
+    public void Visit(IList<Player> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var player = objs[i];
 
-			if (player.InSamePhase(_searcher) && player.IsWithinDist(_searcher, _dist))
-				_doWork.Invoke(player);
-		}
-	}
+            if (player.InSamePhase(_searcher) && player.IsWithinDist(_searcher, _dist))
+                _doWork.Invoke(player);
+        }
+    }
 }

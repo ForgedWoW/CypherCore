@@ -12,24 +12,24 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(205290)]
 public class spell_pal_wake_of_ashes : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamages, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDamages, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDamages(int effIndex)
-	{
-		var target = HitCreature;
+    private void HandleDamages(int effIndex)
+    {
+        var target = HitCreature;
 
-		if (target != null)
-		{
-			var creTemplate = target.Template;
+        if (target != null)
+        {
+            var creTemplate = target.Template;
 
-			if (creTemplate != null)
-				if (creTemplate.CreatureType == CreatureType.Demon || creTemplate.CreatureType == CreatureType.Undead)
-					Caster.CastSpell(target, PaladinSpells.WAKE_OF_ASHES_STUN, true);
-		}
-	}
+            if (creTemplate != null)
+                if (creTemplate.CreatureType == CreatureType.Demon || creTemplate.CreatureType == CreatureType.Undead)
+                    Caster.CastSpell(target, PaladinSpells.WAKE_OF_ASHES_STUN, true);
+        }
+    }
 }

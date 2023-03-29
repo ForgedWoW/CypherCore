@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class PartyKillLog : ServerPacket
 {
-	public ObjectGuid Player;
-	public ObjectGuid Victim;
-	public PartyKillLog() : base(ServerOpcodes.PartyKillLog) { }
+    public ObjectGuid Player;
+    public ObjectGuid Victim;
+    public PartyKillLog() : base(ServerOpcodes.PartyKillLog) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Player);
-		_worldPacket.WritePackedGuid(Victim);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Player);
+        _worldPacket.WritePackedGuid(Victim);
+    }
 }

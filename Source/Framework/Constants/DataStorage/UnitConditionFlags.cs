@@ -8,5 +8,5 @@ namespace Framework.Constants;
 [Flags]
 public enum UnitConditionFlags
 {
-	LogicOr = 0x1
+    LogicOr = 0x1
 }

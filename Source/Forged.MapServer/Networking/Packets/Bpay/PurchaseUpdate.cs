@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class PurchaseUpdate : ServerPacket
 {
-	public List<BpayPurchase> Purchase { get; set; } = new();
+    public List<BpayPurchase> Purchase { get; set; } = new();
 
-	public PurchaseUpdate() : base(ServerOpcodes.BattlePayPurchaseUpdate) { }
+    public PurchaseUpdate() : base(ServerOpcodes.BattlePayPurchaseUpdate) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32((uint)Purchase.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32((uint)Purchase.Count);
 
-		foreach (var purchaseData in Purchase)
-			purchaseData.Write(_worldPacket);
-	}
+        foreach (var purchaseData in Purchase)
+            purchaseData.Write(_worldPacket);
+    }
 }

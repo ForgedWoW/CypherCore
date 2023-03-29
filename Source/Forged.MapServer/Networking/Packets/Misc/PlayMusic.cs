@@ -9,13 +9,13 @@ public class PlayMusic : ServerPacket
 {
     private readonly uint SoundKitID;
 
-	public PlayMusic(uint soundKitID) : base(ServerOpcodes.PlayMusic)
-	{
-		SoundKitID = soundKitID;
-	}
+    public PlayMusic(uint soundKitID) : base(ServerOpcodes.PlayMusic)
+    {
+        SoundKitID = soundKitID;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(SoundKitID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(SoundKitID);
+    }
 }

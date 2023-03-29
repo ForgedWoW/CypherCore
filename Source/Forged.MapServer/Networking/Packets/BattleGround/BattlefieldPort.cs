@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class BattlefieldPort : ClientPacket
 {
-	public RideTicket Ticket = new();
-	public bool AcceptedInvite;
-	public BattlefieldPort(WorldPacket packet) : base(packet) { }
+    public RideTicket Ticket = new();
+    public bool AcceptedInvite;
+    public BattlefieldPort(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Ticket.Read(_worldPacket);
-		AcceptedInvite = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        Ticket.Read(_worldPacket);
+        AcceptedInvite = _worldPacket.HasBit();
+    }
 }

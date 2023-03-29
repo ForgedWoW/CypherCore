@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetSummon : ClientPacket
 {
-	public ObjectGuid PetGuid;
-	public BattlePetSummon(WorldPacket packet) : base(packet) { }
+    public ObjectGuid PetGuid;
+    public BattlePetSummon(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PetGuid = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        PetGuid = _worldPacket.ReadPackedGuid();
+    }
 }

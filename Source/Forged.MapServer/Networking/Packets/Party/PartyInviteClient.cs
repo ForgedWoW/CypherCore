@@ -7,24 +7,24 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class PartyInviteClient : ClientPacket
 {
-	public byte PartyIndex;
-	public uint ProposedRoles;
-	public string TargetName;
-	public string TargetRealm;
-	public ObjectGuid TargetGUID;
-	public PartyInviteClient(WorldPacket packet) : base(packet) { }
+    public byte PartyIndex;
+    public uint ProposedRoles;
+    public string TargetName;
+    public string TargetRealm;
+    public ObjectGuid TargetGUID;
+    public PartyInviteClient(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		PartyIndex = _worldPacket.ReadUInt8();
+    public override void Read()
+    {
+        PartyIndex = _worldPacket.ReadUInt8();
 
-		var targetNameLen = _worldPacket.ReadBits<uint>(9);
-		var targetRealmLen = _worldPacket.ReadBits<uint>(9);
+        var targetNameLen = _worldPacket.ReadBits<uint>(9);
+        var targetRealmLen = _worldPacket.ReadBits<uint>(9);
 
-		ProposedRoles = _worldPacket.ReadUInt32();
-		TargetGUID = _worldPacket.ReadPackedGuid();
+        ProposedRoles = _worldPacket.ReadUInt32();
+        TargetGUID = _worldPacket.ReadPackedGuid();
 
-		TargetName = _worldPacket.ReadString(targetNameLen);
-		TargetRealm = _worldPacket.ReadString(targetRealmLen);
-	}
+        TargetName = _worldPacket.ReadString(targetNameLen);
+        TargetRealm = _worldPacket.ReadString(targetRealmLen);
+    }
 }

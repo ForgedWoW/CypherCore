@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum SpellDmgClass
 {
-	None = 0,
-	Magic = 1,
-	Melee = 2,
-	Ranged = 3
+    None = 0,
+    Magic = 1,
+    Melee = 2,
+    Ranged = 3
 }

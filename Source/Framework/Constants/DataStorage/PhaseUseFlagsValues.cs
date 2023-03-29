@@ -8,9 +8,9 @@ namespace Framework.Constants;
 [Flags]
 public enum PhaseUseFlagsValues : byte
 {
-	None = 0x0,
-	AlwaysVisible = 0x1,
-	Inverse = 0x2,
+    None = 0x0,
+    AlwaysVisible = 0x1,
+    Inverse = 0x2,
 
-	All = AlwaysVisible | Inverse
+    All = AlwaysVisible | Inverse
 }

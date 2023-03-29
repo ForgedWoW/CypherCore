@@ -5,12 +5,12 @@ namespace Framework.Constants;
 
 public enum PlayerConditionLfgStatus
 {
-	InLFGDungeon = 1,
-	InLFGRandomDungeon = 2,
-	InLFGFirstRandomDungeon = 3,
-	PartialClear = 4,
-	StrangerCount = 5,
-	VoteKickCount = 6,
-	BootCount = 7,
-	GearDiff = 8
+    InLFGDungeon = 1,
+    InLFGRandomDungeon = 2,
+    InLFGFirstRandomDungeon = 3,
+    PartialClear = 4,
+    StrangerCount = 5,
+    VoteKickCount = 6,
+    BootCount = 7,
+    GearDiff = 8
 }

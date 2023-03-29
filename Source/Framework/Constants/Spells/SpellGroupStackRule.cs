@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum SpellGroupStackRule
 {
-	Default,
-	Exclusive,
-	ExclusiveFromSameCaster,
-	ExclusiveSameEffect,
-	ExclusiveHighest,
-	Max
+    Default,
+    Exclusive,
+    ExclusiveFromSameCaster,
+    ExclusiveSameEffect,
+    ExclusiveHighest,
+    Max
 }

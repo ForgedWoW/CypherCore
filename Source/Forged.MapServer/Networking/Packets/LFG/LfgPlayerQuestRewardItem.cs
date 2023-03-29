@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 public struct LfgPlayerQuestRewardItem
 {
-	public LfgPlayerQuestRewardItem(uint itemId, uint quantity)
-	{
-		ItemID = itemId;
-		Quantity = quantity;
-	}
+    public LfgPlayerQuestRewardItem(uint itemId, uint quantity)
+    {
+        ItemID = itemId;
+        Quantity = quantity;
+    }
 
-	public uint ItemID;
-	public uint Quantity;
+    public uint ItemID;
+    public uint Quantity;
 }

@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class RequestGuildRewardsList : ClientPacket
 {
-	public long CurrentVersion;
-	public RequestGuildRewardsList(WorldPacket packet) : base(packet) { }
+    public long CurrentVersion;
+    public RequestGuildRewardsList(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		CurrentVersion = _worldPacket.ReadInt64();
-	}
+    public override void Read()
+    {
+        CurrentVersion = _worldPacket.ReadInt64();
+    }
 }

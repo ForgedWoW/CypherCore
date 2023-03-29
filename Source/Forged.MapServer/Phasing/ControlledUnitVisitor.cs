@@ -13,39 +13,39 @@ internal class ControlledUnitVisitor
 {
     private readonly HashSet<WorldObject> _visited = new();
 
-	public ControlledUnitVisitor(WorldObject owner)
-	{
-		_visited.Add(owner);
-	}
+    public ControlledUnitVisitor(WorldObject owner)
+    {
+        _visited.Add(owner);
+    }
 
-	public void VisitControlledOf(Unit unit, Action<Unit> func)
-	{
-		foreach (var controlled in unit.Controlled)
-			// Player inside nested vehicle should not phase the root vehicle and its accessories (only direct root vehicle control does)
-			if (!controlled.IsPlayer && controlled.Vehicle1 == null)
-				if (_visited.Add(controlled))
-					func(controlled);
+    public void VisitControlledOf(Unit unit, Action<Unit> func)
+    {
+        foreach (var controlled in unit.Controlled)
+            // Player inside nested vehicle should not phase the root vehicle and its accessories (only direct root vehicle control does)
+            if (!controlled.IsPlayer && controlled.Vehicle1 == null)
+                if (_visited.Add(controlled))
+                    func(controlled);
 
-		foreach (var summonGuid in unit.SummonSlot)
-			if (!summonGuid.IsEmpty)
-			{
-				var summon = ObjectAccessor.GetCreature(unit, summonGuid);
+        foreach (var summonGuid in unit.SummonSlot)
+            if (!summonGuid.IsEmpty)
+            {
+                var summon = ObjectAccessor.GetCreature(unit, summonGuid);
 
-				if (summon != null)
-					if (_visited.Add(summon))
-						func(summon);
-			}
+                if (summon != null)
+                    if (_visited.Add(summon))
+                        func(summon);
+            }
 
-		var vehicle = unit.VehicleKit1;
+        var vehicle = unit.VehicleKit1;
 
-		if (vehicle != null)
-			foreach (var seatPair in vehicle.Seats)
-			{
-				var passenger = Global.ObjAccessor.GetUnit(unit, seatPair.Value.Passenger.Guid);
+        if (vehicle != null)
+            foreach (var seatPair in vehicle.Seats)
+            {
+                var passenger = Global.ObjAccessor.GetUnit(unit, seatPair.Value.Passenger.Guid);
 
-				if (passenger != null && passenger != unit)
-					if (_visited.Add(passenger))
-						func(passenger);
-			}
-	}
+                if (passenger != null && passenger != unit)
+                    if (_visited.Add(passenger))
+                        func(passenger);
+            }
+    }
 }

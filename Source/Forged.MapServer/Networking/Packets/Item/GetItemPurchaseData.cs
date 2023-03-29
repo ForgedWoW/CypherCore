@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class GetItemPurchaseData : ClientPacket
 {
-	public ObjectGuid ItemGUID;
-	public GetItemPurchaseData(WorldPacket packet) : base(packet) { }
+    public ObjectGuid ItemGUID;
+    public GetItemPurchaseData(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ItemGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        ItemGUID = _worldPacket.ReadPackedGuid();
+    }
 }

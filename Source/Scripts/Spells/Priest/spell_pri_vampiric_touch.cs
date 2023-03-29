@@ -13,45 +13,45 @@ namespace Scripts.Spells.Priest;
 [Script] // 34914 - Vampiric Touch
 internal class spell_pri_vampiric_touch : AuraScript, IAfterAuraDispel, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public void HandleDispel(DispelInfo dispelInfo)
-	{
-		var caster = Caster;
+    public void HandleDispel(DispelInfo dispelInfo)
+    {
+        var caster = Caster;
 
-		if (caster)
-		{
-			var target = OwnerAsUnit;
+        if (caster)
+        {
+            var target = OwnerAsUnit;
 
-			if (target)
-			{
-				var aurEff = GetEffect(1);
+            if (target)
+            {
+                var aurEff = GetEffect(1);
 
-				if (aurEff != null)
-				{
-					// backfire Damage
-					CastSpellExtraArgs args = new(aurEff);
-					args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount * 8);
-					caster.CastSpell(target, PriestSpells.VAMPIRIC_TOUCH_DISPEL, args);
-				}
-			}
-		}
-	}
+                if (aurEff != null)
+                {
+                    // backfire Damage
+                    CastSpellExtraArgs args = new(aurEff);
+                    args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount * 8);
+                    caster.CastSpell(target, PriestSpells.VAMPIRIC_TOUCH_DISPEL, args);
+                }
+            }
+        }
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 2, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 2, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.ProcTarget == Caster;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.ProcTarget == Caster;
+    }
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		eventInfo.ProcTarget.CastSpell((Unit)null, PriestSpells.GEN_REPLENISHMENT, new CastSpellExtraArgs(aurEff));
-	}
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        eventInfo.ProcTarget.CastSpell((Unit)null, PriestSpells.GEN_REPLENISHMENT, new CastSpellExtraArgs(aurEff));
+    }
 }

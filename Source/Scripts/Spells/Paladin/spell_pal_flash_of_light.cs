@@ -10,8 +10,8 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(19750)]
 public class spell_pal_flash_of_light : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		Caster.RemoveAura(PaladinSpells.InfusionOfLightAura);
-	}
+    public void OnHit()
+    {
+        Caster.RemoveAura(PaladinSpells.InfusionOfLightAura);
+    }
 }

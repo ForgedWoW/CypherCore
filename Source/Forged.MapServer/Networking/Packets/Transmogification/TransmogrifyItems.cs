@@ -8,23 +8,23 @@ namespace Forged.MapServer.Networking.Packets.Transmogification;
 
 internal class TransmogrifyItems : ClientPacket
 {
-	public ObjectGuid Npc;
-	public Array<TransmogrifyItem> Items = new(13);
-	public bool CurrentSpecOnly;
-	public TransmogrifyItems(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Npc;
+    public Array<TransmogrifyItem> Items = new(13);
+    public bool CurrentSpecOnly;
+    public TransmogrifyItems(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var itemsCount = _worldPacket.ReadUInt32();
-		Npc = _worldPacket.ReadPackedGuid();
+    public override void Read()
+    {
+        var itemsCount = _worldPacket.ReadUInt32();
+        Npc = _worldPacket.ReadPackedGuid();
 
-		for (var i = 0; i < itemsCount; ++i)
-		{
-			TransmogrifyItem item = new();
-			item.Read(_worldPacket);
-			Items[i] = item;
-		}
+        for (var i = 0; i < itemsCount; ++i)
+        {
+            TransmogrifyItem item = new();
+            item.Read(_worldPacket);
+            Items[i] = item;
+        }
 
-		CurrentSpecOnly = _worldPacket.HasBit();
-	}
+        CurrentSpecOnly = _worldPacket.HasBit();
+    }
 }

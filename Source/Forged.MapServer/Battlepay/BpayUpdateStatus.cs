@@ -5,7 +5,7 @@ namespace Forged.MapServer.Battlepay;
 
 public enum BpayUpdateStatus
 {
-	Loading = 9,
-	Ready = 6,
-	Finish = 3
+    Loading = 9,
+    Ready = 6,
+    Finish = 3
 }

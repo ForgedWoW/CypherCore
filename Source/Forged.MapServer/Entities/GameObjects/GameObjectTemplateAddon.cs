@@ -5,9 +5,9 @@ namespace Forged.MapServer.Entities.GameObjects;
 
 public class GameObjectTemplateAddon : GameObjectOverride
 {
-	public uint Mingold;
-	public uint Maxgold;
-	public uint[] ArtKits = new uint[5];
-	public uint WorldEffectId;
-	public uint AiAnimKitId;
+    public uint Mingold;
+    public uint Maxgold;
+    public uint[] ArtKits = new uint[5];
+    public uint WorldEffectId;
+    public uint AiAnimKitId;
 }

@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellAmmo
 {
-	public int DisplayID;
-	public sbyte InventoryType;
+    public int DisplayID;
+    public sbyte InventoryType;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(DisplayID);
-		data.WriteInt8(InventoryType);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(DisplayID);
+        data.WriteInt8(InventoryType);
+    }
 }

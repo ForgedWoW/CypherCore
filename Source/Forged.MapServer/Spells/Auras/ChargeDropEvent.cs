@@ -10,17 +10,17 @@ public class ChargeDropEvent : BasicEvent
     private readonly Aura _base;
     private readonly AuraRemoveMode _mode;
 
-	public ChargeDropEvent(Aura aura, AuraRemoveMode mode)
-	{
-		_base = aura;
-		_mode = mode;
-	}
+    public ChargeDropEvent(Aura aura, AuraRemoveMode mode)
+    {
+        _base = aura;
+        _mode = mode;
+    }
 
-	public override bool Execute(ulong etime, uint pTime)
-	{
-		// _base is always valid (look in Aura._Remove())
-		_base.ModChargesDelayed(-1, _mode);
+    public override bool Execute(ulong etime, uint pTime)
+    {
+        // _base is always valid (look in Aura._Remove())
+        _base.ModChargesDelayed(-1, _mode);
 
-		return true;
-	}
+        return true;
+    }
 }

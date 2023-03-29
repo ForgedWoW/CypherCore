@@ -10,19 +10,19 @@ namespace Scripts.Spells.Warlock;
 [Script] // 710 - Banish
 internal class spell_warl_banish : SpellScript, ISpellBeforeHit
 {
-	public void BeforeHit(SpellMissInfo missInfo)
-	{
-		if (missInfo != SpellMissInfo.Immune)
-			return;
+    public void BeforeHit(SpellMissInfo missInfo)
+    {
+        if (missInfo != SpellMissInfo.Immune)
+            return;
 
-		var target = HitUnit;
+        var target = HitUnit;
 
-		if (target)
-		{
-			// Casting Banish on a banished Target will Remove applied aura
-			var banishAura = target.GetAura(SpellInfo.Id, Caster.GUID);
+        if (target)
+        {
+            // Casting Banish on a banished Target will Remove applied aura
+            var banishAura = target.GetAura(SpellInfo.Id, Caster.GUID);
 
-			banishAura?.Remove();
-		}
-	}
+            banishAura?.Remove();
+        }
+    }
 }

@@ -8,7 +8,7 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct NotInLFGAppend : IChannelAppender
 {
-	public ChatNotify GetNotificationType() => ChatNotify.NotInLfgNotice;
+    public ChatNotify GetNotificationType() => ChatNotify.NotInLfgNotice;
 
-	public void Append(ChannelNotify data) { }
+    public void Append(ChannelNotify data) { }
 }

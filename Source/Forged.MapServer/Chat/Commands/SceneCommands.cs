@@ -9,77 +9,77 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("scene")]
 internal class SceneCommands
 {
-	[Command("cancel", RBACPermissions.CommandSceneCancel)]
+    [Command("cancel", RBACPermissions.CommandSceneCancel)]
     private static bool HandleCancelSceneCommand(CommandHandler handler, uint sceneScriptPackageId)
-	{
-		var target = handler.SelectedPlayerOrSelf;
+    {
+        var target = handler.SelectedPlayerOrSelf;
 
-		if (!target)
-		{
-			handler.SendSysMessage(CypherStrings.PlayerNotFound);
+        if (!target)
+        {
+            handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
-			return false;
-		}
+            return false;
+        }
 
-		if (!CliDB.SceneScriptPackageStorage.HasRecord(sceneScriptPackageId))
-			return false;
+        if (!CliDB.SceneScriptPackageStorage.HasRecord(sceneScriptPackageId))
+            return false;
 
-		target.SceneMgr.CancelSceneByPackageId(sceneScriptPackageId);
+        target.SceneMgr.CancelSceneByPackageId(sceneScriptPackageId);
 
-		return true;
-	}
+        return true;
+    }
 
-	[Command("debug", RBACPermissions.CommandSceneDebug)]
+    [Command("debug", RBACPermissions.CommandSceneDebug)]
     private static bool HandleDebugSceneCommand(CommandHandler handler)
-	{
-		var player = handler.Session.Player;
+    {
+        var player = handler.Session.Player;
 
-		if (player)
-		{
-			player.SceneMgr.ToggleDebugSceneMode();
-			handler.SendSysMessage(player.SceneMgr.IsInDebugSceneMode() ? CypherStrings.CommandSceneDebugOn : CypherStrings.CommandSceneDebugOff);
-		}
+        if (player)
+        {
+            player.SceneMgr.ToggleDebugSceneMode();
+            handler.SendSysMessage(player.SceneMgr.IsInDebugSceneMode() ? CypherStrings.CommandSceneDebugOn : CypherStrings.CommandSceneDebugOff);
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	[Command("play", RBACPermissions.CommandScenePlay)]
+    [Command("play", RBACPermissions.CommandScenePlay)]
     private static bool HandlePlaySceneCommand(CommandHandler handler, uint sceneId)
-	{
-		var target = handler.SelectedPlayerOrSelf;
+    {
+        var target = handler.SelectedPlayerOrSelf;
 
-		if (!target)
-		{
-			handler.SendSysMessage(CypherStrings.PlayerNotFound);
+        if (!target)
+        {
+            handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
-			return false;
-		}
+            return false;
+        }
 
-		if (Global.ObjectMgr.GetSceneTemplate(sceneId) == null)
-			return false;
+        if (Global.ObjectMgr.GetSceneTemplate(sceneId) == null)
+            return false;
 
-		target.SceneMgr.PlayScene(sceneId);
+        target.SceneMgr.PlayScene(sceneId);
 
-		return true;
-	}
+        return true;
+    }
 
-	[Command("playpackage", RBACPermissions.CommandScenePlayPackage)]
+    [Command("playpackage", RBACPermissions.CommandScenePlayPackage)]
     private static bool HandlePlayScenePackageCommand(CommandHandler handler, uint sceneScriptPackageId, SceneFlags? flags)
-	{
-		var target = handler.SelectedPlayerOrSelf;
+    {
+        var target = handler.SelectedPlayerOrSelf;
 
-		if (!target)
-		{
-			handler.SendSysMessage(CypherStrings.PlayerNotFound);
+        if (!target)
+        {
+            handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
-			return false;
-		}
+            return false;
+        }
 
-		if (!CliDB.SceneScriptPackageStorage.HasRecord(sceneScriptPackageId))
-			return false;
+        if (!CliDB.SceneScriptPackageStorage.HasRecord(sceneScriptPackageId))
+            return false;
 
-		target.SceneMgr.PlaySceneByPackageId(sceneScriptPackageId, flags.GetValueOrDefault(0));
+        target.SceneMgr.PlaySceneByPackageId(sceneScriptPackageId, flags.GetValueOrDefault(0));
 
-		return true;
-	}
+        return true;
+    }
 }

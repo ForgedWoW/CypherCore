@@ -13,73 +13,73 @@ public class AsyncAcceptor
     private TcpListener _listener;
     private volatile bool _closed;
 
-	public bool Start(string ip, int port)
-	{
-		if (!IPAddress.TryParse(ip, out var bindIP))
-		{
-			Log.Logger.Error($"Server can't be started: Invalid IP-Address: {ip}");
+    public bool Start(string ip, int port)
+    {
+        if (!IPAddress.TryParse(ip, out var bindIP))
+        {
+            Log.Logger.Error($"Server can't be started: Invalid IP-Address: {ip}");
 
-			return false;
-		}
+            return false;
+        }
 
-		try
-		{
-			_listener = new TcpListener(bindIP, port);
-			_listener.Start();
-		}
-		catch (SocketException ex)
-		{
-			Log.Logger.Error(ex, "");
+        try
+        {
+            _listener = new TcpListener(bindIP, port);
+            _listener.Start();
+        }
+        catch (SocketException ex)
+        {
+            Log.Logger.Error(ex, "");
 
-			return false;
-		}
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public async void AsyncAcceptSocket(SocketAcceptDelegate mgrHandler)
-	{
-		try
-		{
-			var _socket = await _listener.AcceptSocketAsync();
+    public async void AsyncAcceptSocket(SocketAcceptDelegate mgrHandler)
+    {
+        try
+        {
+            var _socket = await _listener.AcceptSocketAsync();
 
-			if (_socket != null)
-			{
-				mgrHandler(_socket);
+            if (_socket != null)
+            {
+                mgrHandler(_socket);
 
-				if (!_closed)
-					AsyncAcceptSocket(mgrHandler);
-			}
-		}
-		catch (ObjectDisposedException ex)
-		{
-			Log.Logger.Error(ex, "");
-		}
-	}
+                if (!_closed)
+                    AsyncAcceptSocket(mgrHandler);
+            }
+        }
+        catch (ObjectDisposedException ex)
+        {
+            Log.Logger.Error(ex, "");
+        }
+    }
 
-	public async void AsyncAccept<T>() where T : ISocket
-	{
-		try
-		{
-			var socket = await _listener.AcceptSocketAsync();
+    public async void AsyncAccept<T>() where T : ISocket
+    {
+        try
+        {
+            var socket = await _listener.AcceptSocketAsync();
 
-			if (socket != null)
-			{
-				var newSocket = (T)Activator.CreateInstance(typeof(T), socket);
-				newSocket.Accept();
+            if (socket != null)
+            {
+                var newSocket = (T)Activator.CreateInstance(typeof(T), socket);
+                newSocket.Accept();
 
-				if (!_closed)
-					AsyncAccept<T>();
-			}
-		}
-		catch (ObjectDisposedException) { }
-	}
+                if (!_closed)
+                    AsyncAccept<T>();
+            }
+        }
+        catch (ObjectDisposedException) { }
+    }
 
-	public void Close()
-	{
-		if (_closed)
-			return;
+    public void Close()
+    {
+        if (_closed)
+            return;
 
-		_closed = true;
-	}
+        _closed = true;
+    }
 }

@@ -14,25 +14,25 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(211720)]
 public class spell_warlock_artifact_thalkiels_discord : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var caster = Caster;
-		var target = eventInfo.ActionTarget;
+    private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var caster = Caster;
+        var target = eventInfo.ActionTarget;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (!caster.IsValidAttackTarget(target))
-			return;
+        if (!caster.IsValidAttackTarget(target))
+            return;
 
-		caster.CastSpell(target, aurEff.GetSpellEffectInfo().TriggerSpell, true);
-	}
+        caster.CastSpell(target, aurEff.GetSpellEffectInfo().TriggerSpell, true);
+    }
 }

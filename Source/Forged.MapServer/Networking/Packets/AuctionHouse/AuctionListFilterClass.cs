@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public class AuctionListFilterClass
 {
-	public int ItemClass;
-	public Array<AuctionListFilterSubClass> SubClassFilters = new(31);
+    public int ItemClass;
+    public Array<AuctionListFilterSubClass> SubClassFilters = new(31);
 
-	public AuctionListFilterClass(WorldPacket data)
-	{
-		ItemClass = data.ReadInt32();
-		var subClassFilterCount = data.ReadBits<uint>(5);
+    public AuctionListFilterClass(WorldPacket data)
+    {
+        ItemClass = data.ReadInt32();
+        var subClassFilterCount = data.ReadBits<uint>(5);
 
-		for (var i = 0; i < subClassFilterCount; ++i)
-			SubClassFilters[i] = new AuctionListFilterSubClass(data);
-	}
+        for (var i = 0; i < subClassFilterCount; ++i)
+            SubClassFilters[i] = new AuctionListFilterSubClass(data);
+    }
 }

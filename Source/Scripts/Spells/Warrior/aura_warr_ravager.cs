@@ -13,32 +13,32 @@ namespace Scripts.Spells.Warrior;
 // Ravager - 228920
 [SpellScript(new uint[]
 {
-	152277, 228920
+    152277, 228920
 })]
 public class aura_warr_ravager : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Dummy, AuraEffectHandleModes.RealOrReapplyMask));
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 2, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Dummy, AuraEffectHandleModes.RealOrReapplyMask));
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 2, AuraType.PeriodicDummy));
+    }
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var player = Target.AsPlayer;
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        var player = Target.AsPlayer;
 
-		if (player != null)
-			if (player.GetPrimarySpecialization() == TalentSpecialization.WarriorProtection)
-				player.CastSpell(player, WarriorSpells.RAVAGER_PARRY, true);
-	}
+        if (player != null)
+            if (player.GetPrimarySpecialization() == TalentSpecialization.WarriorProtection)
+                player.CastSpell(player, WarriorSpells.RAVAGER_PARRY, true);
+    }
 
-	private void OnTick(AuraEffect UnnamedParameter)
-	{
-		var creature = Target.GetSummonedCreatureByEntry(WarriorSpells.NPC_WARRIOR_RAVAGER);
+    private void OnTick(AuraEffect UnnamedParameter)
+    {
+        var creature = Target.GetSummonedCreatureByEntry(WarriorSpells.NPC_WARRIOR_RAVAGER);
 
-		if (creature != null)
-			Target.CastSpell(creature.Location, WarriorSpells.RAVAGER_DAMAGE, true);
-	}
+        if (creature != null)
+            Target.CastSpell(creature.Location, WarriorSpells.RAVAGER_DAMAGE, true);
+    }
 }

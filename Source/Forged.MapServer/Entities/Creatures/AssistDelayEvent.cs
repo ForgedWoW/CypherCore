@@ -18,34 +18,34 @@ public class AssistDelayEvent : BasicEvent
 
     private AssistDelayEvent() { }
 
-	public AssistDelayEvent(ObjectGuid victim, Unit owner)
-	{
-		m_victim = victim;
-		m_owner = owner;
-	}
+    public AssistDelayEvent(ObjectGuid victim, Unit owner)
+    {
+        m_victim = victim;
+        m_owner = owner;
+    }
 
-	public override bool Execute(ulong etime, uint pTime)
-	{
-		var victim = Global.ObjAccessor.GetUnit(m_owner, m_victim);
+    public override bool Execute(ulong etime, uint pTime)
+    {
+        var victim = Global.ObjAccessor.GetUnit(m_owner, m_victim);
 
-		if (victim != null)
-			while (!m_assistants.Empty())
-			{
-				var assistant = m_owner.Map.GetCreature(m_assistants[0]);
-				m_assistants.RemoveAt(0);
+        if (victim != null)
+            while (!m_assistants.Empty())
+            {
+                var assistant = m_owner.Map.GetCreature(m_assistants[0]);
+                m_assistants.RemoveAt(0);
 
-				if (assistant != null && assistant.CanAssistTo(m_owner, victim))
-				{
-					assistant.SetNoCallAssistance(true);
-					assistant.EngageWithTarget(victim);
-				}
-			}
+                if (assistant != null && assistant.CanAssistTo(m_owner, victim))
+                {
+                    assistant.SetNoCallAssistance(true);
+                    assistant.EngageWithTarget(victim);
+                }
+            }
 
-		return true;
-	}
+        return true;
+    }
 
-	public void AddAssistant(ObjectGuid guid)
-	{
-		m_assistants.Add(guid);
-	}
+    public void AddAssistant(ObjectGuid guid)
+    {
+        m_assistants.Add(guid);
+    }
 }

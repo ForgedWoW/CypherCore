@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IFormula;
 
 public interface IFormulaOnHonorCalculation : IScriptObject
 {
-	void OnHonorCalculation(double honor, uint level, double multiplier);
+    void OnHonorCalculation(double honor, uint level, double multiplier);
 }

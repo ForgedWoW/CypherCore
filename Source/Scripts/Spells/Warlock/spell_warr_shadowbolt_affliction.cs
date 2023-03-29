@@ -10,15 +10,15 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(232670)]
 public class spell_warr_shadowbolt_affliction : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    public void OnHit()
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		if (caster.HasAura(WarlockSpells.SHADOW_EMBRACE))
-			caster.AddAura(WarlockSpells.SHADOW_EMBRACE_TARGET_DEBUFF, target);
-	}
+        if (caster.HasAura(WarlockSpells.SHADOW_EMBRACE))
+            caster.AddAura(WarlockSpells.SHADOW_EMBRACE_TARGET_DEBUFF, target);
+    }
 }

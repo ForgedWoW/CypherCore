@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class OpeningCinematic : ClientPacket
 {
-	public OpeningCinematic(WorldPacket packet) : base(packet) { }
+    public OpeningCinematic(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

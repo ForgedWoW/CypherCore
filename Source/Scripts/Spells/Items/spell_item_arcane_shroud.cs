@@ -13,18 +13,18 @@ namespace Scripts.Spells.Items;
 [Script] // 26400 - Arcane Shroud
 internal class spell_item_arcane_shroud : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ModThreat));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ModThreat));
+    }
 
-	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		var diff = (int)OwnerAsUnit.Level - 60;
+    private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        var diff = (int)OwnerAsUnit.Level - 60;
 
-		if (diff > 0)
-			amount.Value += 2 * diff;
-	}
+        if (diff > 0)
+            amount.Value += 2 * diff;
+    }
 }

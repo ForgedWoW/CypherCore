@@ -13,22 +13,22 @@ namespace Scripts.Spells.Generic;
 [Script] // 66020 Chains of Ice
 internal class spell_gen_chains_of_ice : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectUpdatePeriodicHandler(UpdatePeriodic, 1, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectUpdatePeriodicHandler(UpdatePeriodic, 1, AuraType.PeriodicDummy));
+    }
 
-	private void UpdatePeriodic(AuraEffect aurEff)
-	{
-		// Get 0 effect aura
-		var slow = Aura.GetEffect(0);
+    private void UpdatePeriodic(AuraEffect aurEff)
+    {
+        // Get 0 effect aura
+        var slow = Aura.GetEffect(0);
 
-		if (slow == null)
-			return;
+        if (slow == null)
+            return;
 
-		var newAmount = Math.Min(slow.Amount + aurEff.Amount, 0);
-		slow.ChangeAmount(newAmount);
-	}
+        var newAmount = Math.Min(slow.Amount + aurEff.Amount, 0);
+        slow.ChangeAmount(newAmount);
+    }
 }

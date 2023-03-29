@@ -10,36 +10,36 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 [CreatureScript(49520)]
 public class npc_lightning_orbs : NullCreatureAI
 {
-	private uint TurnTimer;
+    private uint TurnTimer;
 
-	public npc_lightning_orbs(Creature creature) : base(creature) { }
+    public npc_lightning_orbs(Creature creature) : base(creature) { }
 
-	public override void Reset()
-	{
-		TurnTimer = 100;
-		var vehicle = Me.VehicleKit1;
+    public override void Reset()
+    {
+        TurnTimer = 100;
+        var vehicle = Me.VehicleKit1;
 
-		if (vehicle != null)
-			for (sbyte i = 0; i < 8; i++)
-				if (vehicle.HasEmptySeat(i))
-				{
-					Creature pas = Me.SummonCreature(49521, Me.Location.X, Me.Location.Y, Me.Location.Z);
+        if (vehicle != null)
+            for (sbyte i = 0; i < 8; i++)
+                if (vehicle.HasEmptySeat(i))
+                {
+                    Creature pas = Me.SummonCreature(49521, Me.Location.X, Me.Location.Y, Me.Location.Z);
 
-					if (pas != null)
-						pas.EnterVehicle(Me, i);
-				}
-	}
+                    if (pas != null)
+                        pas.EnterVehicle(Me, i);
+                }
+    }
 
-	public override void UpdateAI(uint diff)
-	{
-		if (TurnTimer <= diff)
-		{
-			Me.SetFacingTo(Me.Location.Orientation + 0.05233f);
-			TurnTimer = 100;
-		}
-		else
-		{
-			TurnTimer -= diff;
-		}
-	}
+    public override void UpdateAI(uint diff)
+    {
+        if (TurnTimer <= diff)
+        {
+            Me.SetFacingTo(Me.Location.Orientation + 0.05233f);
+            TurnTimer = 100;
+        }
+        else
+        {
+            TurnTimer -= diff;
+        }
+    }
 }

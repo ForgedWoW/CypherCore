@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum BattlePetXpSource
 {
-	PetBattle = 0,
-	SpellEffect = 1,
+    PetBattle = 0,
+    SpellEffect = 1,
 
-	Count
+    Count
 }

@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class BuySucceeded : ServerPacket
 {
-	public ObjectGuid VendorGUID;
-	public uint Muid;
-	public uint QuantityBought;
-	public uint NewQuantity;
-	public BuySucceeded() : base(ServerOpcodes.BuySucceeded) { }
+    public ObjectGuid VendorGUID;
+    public uint Muid;
+    public uint QuantityBought;
+    public uint NewQuantity;
+    public BuySucceeded() : base(ServerOpcodes.BuySucceeded) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(VendorGUID);
-		_worldPacket.WriteUInt32(Muid);
-		_worldPacket.WriteUInt32(NewQuantity);
-		_worldPacket.WriteUInt32(QuantityBought);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(VendorGUID);
+        _worldPacket.WriteUInt32(Muid);
+        _worldPacket.WriteUInt32(NewQuantity);
+        _worldPacket.WriteUInt32(QuantityBought);
+    }
 }

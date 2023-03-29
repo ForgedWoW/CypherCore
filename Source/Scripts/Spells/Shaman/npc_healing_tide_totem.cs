@@ -12,18 +12,18 @@ namespace Scripts.Spells.Shaman;
 [CreatureScript(59764)]
 public class npc_healing_tide_totem : ScriptedAI
 {
-	public npc_healing_tide_totem(Creature creature) : base(creature) { }
+    public npc_healing_tide_totem(Creature creature) : base(creature) { }
 
-	public override void Reset()
-	{
-		var time = TimeSpan.FromMilliseconds(1900);
+    public override void Reset()
+    {
+        var time = TimeSpan.FromMilliseconds(1900);
 
-		Me.Events.AddRepeatEventAtOffset(() =>
-										{
-											Me.CastSpell(Me, TotemSpells.TOTEM_HEALING_TIDE_EFFECT, true);
+        Me.Events.AddRepeatEventAtOffset(() =>
+                                         {
+                                             Me.CastSpell(Me, TotemSpells.TOTEM_HEALING_TIDE_EFFECT, true);
 
-											return time;
-										},
-										time);
-	}
+                                             return time;
+                                         },
+                                         time);
+    }
 }

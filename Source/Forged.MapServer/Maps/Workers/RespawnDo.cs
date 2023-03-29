@@ -9,18 +9,18 @@ namespace Forged.MapServer.Maps.Workers;
 
 public class RespawnDo : IDoWork<WorldObject>
 {
-	public void Invoke(WorldObject obj)
-	{
-		switch (obj.TypeId)
-		{
-			case TypeId.Unit:
-				obj.AsCreature.Respawn();
+    public void Invoke(WorldObject obj)
+    {
+        switch (obj.TypeId)
+        {
+            case TypeId.Unit:
+                obj.AsCreature.Respawn();
 
-				break;
-			case TypeId.GameObject:
-				obj.AsGameObject.Respawn();
+                break;
+            case TypeId.GameObject:
+                obj.AsGameObject.Respawn();
 
-				break;
-		}
-	}
+                break;
+        }
+    }
 }

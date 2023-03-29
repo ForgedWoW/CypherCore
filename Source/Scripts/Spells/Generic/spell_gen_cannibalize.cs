@@ -13,37 +13,37 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_cannibalize : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public SpellCastResult CheckCast()
-	{
-		var caster = Caster;
-		var max_range = SpellInfo.GetMaxRange(false);
-		// search for nearby enemy corpse in range
-		var check = new AnyDeadUnitSpellTargetInRangeCheck<Unit>(caster, max_range, SpellInfo, SpellTargetCheckTypes.Enemy, SpellTargetObjectTypes.CorpseEnemy);
-		var searcher = new UnitSearcher(caster, check, GridType.Grid);
-		Cell.VisitGrid(caster, searcher, max_range);
+    public SpellCastResult CheckCast()
+    {
+        var caster = Caster;
+        var max_range = SpellInfo.GetMaxRange(false);
+        // search for nearby enemy corpse in range
+        var check = new AnyDeadUnitSpellTargetInRangeCheck<Unit>(caster, max_range, SpellInfo, SpellTargetCheckTypes.Enemy, SpellTargetObjectTypes.CorpseEnemy);
+        var searcher = new UnitSearcher(caster, check, GridType.Grid);
+        Cell.VisitGrid(caster, searcher, max_range);
 
-		if (!searcher.GetTarget())
-		{
-			searcher.GridType = GridType.World;
-			Cell.VisitGrid(caster, searcher, max_range);
-		}
+        if (!searcher.GetTarget())
+        {
+            searcher.GridType = GridType.World;
+            Cell.VisitGrid(caster, searcher, max_range);
+        }
 
-		if (!searcher.GetTarget())
-			return SpellCastResult.NoEdibleCorpses;
+        if (!searcher.GetTarget())
+            return SpellCastResult.NoEdibleCorpses;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		Caster.CastSpell(Caster, GenericSpellIds.CannibalizeTriggered, false);
-	}
+    private void HandleDummy(int effIndex)
+    {
+        Caster.CastSpell(Caster, GenericSpellIds.CannibalizeTriggered, false);
+    }
 }

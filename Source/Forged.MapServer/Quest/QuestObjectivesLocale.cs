@@ -8,5 +8,5 @@ namespace Forged.MapServer.Quest;
 
 public class QuestObjectivesLocale
 {
-	public StringArray Description = new((int)Locale.Total);
+    public StringArray Description = new((int)Locale.Total);
 }

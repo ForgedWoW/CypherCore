@@ -12,36 +12,36 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class spell_monk_gift_of_the_ox_aura : ScriptObjectAutoAdd, IPlayerOnTakeDamage
 {
-	public enum UsedSpells
-	{
-		HEALING_SPHERE_COOLDOWN = 224863
-	}
+    public enum UsedSpells
+    {
+        HEALING_SPHERE_COOLDOWN = 224863
+    }
 
-	public List<uint> spellsToCast = new()
-	{
-		MonkSpells.GIFT_OF_THE_OX_AT_RIGHT,
-		MonkSpells.GIFT_OF_THE_OX_AT_LEFT
-	};
+    public List<uint> spellsToCast = new()
+    {
+        MonkSpells.GIFT_OF_THE_OX_AT_RIGHT,
+        MonkSpells.GIFT_OF_THE_OX_AT_LEFT
+    };
 
-	public PlayerClass PlayerClass { get; } = PlayerClass.Monk;
+    public PlayerClass PlayerClass { get; } = PlayerClass.Monk;
 
-	public spell_monk_gift_of_the_ox_aura() : base("spell_monk_gift_of_the_ox_aura") { }
+    public spell_monk_gift_of_the_ox_aura() : base("spell_monk_gift_of_the_ox_aura") { }
 
-	public void OnPlayerTakeDamage(Player victim, double damage, SpellSchoolMask UnnamedParameter)
-	{
-		if (damage == 0 || victim == null)
-			return;
+    public void OnPlayerTakeDamage(Player victim, double damage, SpellSchoolMask UnnamedParameter)
+    {
+        if (damage == 0 || victim == null)
+            return;
 
-		if (!victim.HasAura(MonkSpells.GIFT_OF_THE_OX_AURA))
-			return;
+        if (!victim.HasAura(MonkSpells.GIFT_OF_THE_OX_AURA))
+            return;
 
-		var spellToCast = spellsToCast[RandomHelper.IRand(0, (spellsToCast.Count - 1))];
+        var spellToCast = spellsToCast[RandomHelper.IRand(0, (spellsToCast.Count - 1))];
 
-		if (RandomHelper.randChance((0.75 * damage / victim.MaxHealth) * (3 - 2 * (victim.HealthPct / 100)) * 100))
-			if (!victim.HasAura(UsedSpells.HEALING_SPHERE_COOLDOWN))
-			{
-				victim.CastSpell(victim, UsedSpells.HEALING_SPHERE_COOLDOWN, true);
-				victim.CastSpell(victim, spellToCast, true);
-			}
-	}
+        if (RandomHelper.randChance((0.75 * damage / victim.MaxHealth) * (3 - 2 * (victim.HealthPct / 100)) * 100))
+            if (!victim.HasAura(UsedSpells.HEALING_SPHERE_COOLDOWN))
+            {
+                victim.CastSpell(victim, UsedSpells.HEALING_SPHERE_COOLDOWN, true);
+                victim.CastSpell(victim, spellToCast, true);
+            }
+    }
 }

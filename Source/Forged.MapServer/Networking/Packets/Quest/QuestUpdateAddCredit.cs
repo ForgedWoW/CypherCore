@@ -8,21 +8,21 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestUpdateAddCredit : ServerPacket
 {
-	public ObjectGuid VictimGUID;
-	public int ObjectID;
-	public uint QuestID;
-	public ushort Count;
-	public ushort Required;
-	public byte ObjectiveType;
-	public QuestUpdateAddCredit() : base(ServerOpcodes.QuestUpdateAddCredit, ConnectionType.Instance) { }
+    public ObjectGuid VictimGUID;
+    public int ObjectID;
+    public uint QuestID;
+    public ushort Count;
+    public ushort Required;
+    public byte ObjectiveType;
+    public QuestUpdateAddCredit() : base(ServerOpcodes.QuestUpdateAddCredit, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(VictimGUID);
-		_worldPacket.WriteUInt32(QuestID);
-		_worldPacket.WriteInt32(ObjectID);
-		_worldPacket.WriteUInt16(Count);
-		_worldPacket.WriteUInt16(Required);
-		_worldPacket.WriteUInt8(ObjectiveType);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(VictimGUID);
+        _worldPacket.WriteUInt32(QuestID);
+        _worldPacket.WriteInt32(ObjectID);
+        _worldPacket.WriteUInt16(Count);
+        _worldPacket.WriteUInt16(Required);
+        _worldPacket.WriteUInt8(ObjectiveType);
+    }
 }

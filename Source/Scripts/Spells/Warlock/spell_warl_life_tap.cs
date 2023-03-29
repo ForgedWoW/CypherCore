@@ -12,31 +12,31 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(1454)]
 public class spell_warl_life_tap : SpellScript, IHasSpellEffects, ISpellCheckCast
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public SpellCastResult CheckCast()
-	{
-		if (Caster.HealthPct > 15.0f || Caster.HasAura(lifeTap.LIFE_TAP_GLYPH))
-			return SpellCastResult.SpellCastOk;
+    public SpellCastResult CheckCast()
+    {
+        if (Caster.HealthPct > 15.0f || Caster.HasAura(lifeTap.LIFE_TAP_GLYPH))
+            return SpellCastResult.SpellCastOk;
 
-		return SpellCastResult.Fizzle;
-	}
+        return SpellCastResult.Fizzle;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 0, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 0, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleOnHitTarget(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		// if (!GetCaster()->HasAura(LIFE_TAP_GLYPH))
-		//   GetCaster()->EnergizeBySpell(GetCaster(), LIFE_TAP, int32(GetCaster()->GetMaxHealth() * GetSpellInfo()->GetEffect(uint::0).BasePoints / 100), PowerType.Mana); TODO REWRITE
-	}
+    private void HandleOnHitTarget(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        // if (!GetCaster()->HasAura(LIFE_TAP_GLYPH))
+        //   GetCaster()->EnergizeBySpell(GetCaster(), LIFE_TAP, int32(GetCaster()->GetMaxHealth() * GetSpellInfo()->GetEffect(uint::0).BasePoints / 100), PowerType.Mana); TODO REWRITE
+    }
 
-	public struct lifeTap
-	{
-		public const uint LIFE_TAP = 1454;
-		public const uint LIFE_TAP_GLYPH = 63320;
-	}
+    public struct lifeTap
+    {
+        public const uint LIFE_TAP = 1454;
+        public const uint LIFE_TAP_GLYPH = 63320;
+    }
 }

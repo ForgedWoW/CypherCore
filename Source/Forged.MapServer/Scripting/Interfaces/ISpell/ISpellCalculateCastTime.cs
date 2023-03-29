@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellCalculateCastTime : ISpellScript
 {
-	public int CalcCastTime(int castTime);
+    public int CalcCastTime(int castTime);
 }

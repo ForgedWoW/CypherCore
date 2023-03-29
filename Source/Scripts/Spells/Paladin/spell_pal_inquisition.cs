@@ -11,18 +11,18 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(84963)]
 public class spell_pal_inquisition : SpellScript, ISpellOnTakePower, ISpellAfterHit
 {
-	private double m_powerTaken = 0.0f;
+    private double m_powerTaken = 0.0f;
 
-	public void AfterHit()
-	{
-		var aura = Caster.GetAura(SpellInfo.Id);
+    public void AfterHit()
+    {
+        var aura = Caster.GetAura(SpellInfo.Id);
 
-		if (aura != null)
-			aura.SetDuration((int)(aura.Duration * m_powerTaken));
-	}
+        if (aura != null)
+            aura.SetDuration((int)(aura.Duration * m_powerTaken));
+    }
 
-	public void TakePower(SpellPowerCost powerCost)
-	{
-		m_powerTaken = powerCost.Amount;
-	}
+    public void TakePower(SpellPowerCost powerCost)
+    {
+        m_powerTaken = powerCost.Amount;
+    }
 }

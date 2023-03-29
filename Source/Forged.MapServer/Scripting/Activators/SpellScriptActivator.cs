@@ -10,15 +10,15 @@ namespace Forged.MapServer.Scripting.Activators;
 
 public class SpellScriptActivator : IScriptActivator
 {
-	public List<string> ScriptBaseTypes => new()
-	{
-		nameof(SpellScript)
-	};
+    public List<string> ScriptBaseTypes => new()
+    {
+        nameof(SpellScript)
+    };
 
-	public IScriptObject Activate(Type type, string name, ScriptAttribute attribute)
-	{
-		name = name.Replace("_SpellScript", "");
+    public IScriptObject Activate(Type type, string name, ScriptAttribute attribute)
+    {
+        name = name.Replace("_SpellScript", "");
 
-		return (IScriptObject)Activator.CreateInstance(typeof(GenericSpellScriptLoader<>).MakeGenericType(type), name, attribute.Args);
-	}
+        return (IScriptObject)Activator.CreateInstance(typeof(GenericSpellScriptLoader<>).MakeGenericType(type), name, attribute.Args);
+    }
 }

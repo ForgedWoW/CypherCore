@@ -11,28 +11,28 @@ namespace Scripts.Spells.Quest;
 [Script] // 52090 Ahunae's Knife
 internal class spell_q12659_ahunaes_knife : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		return Caster.IsTypeId(TypeId.Player);
-	}
+    public override bool Load()
+    {
+        return Caster.IsTypeId(TypeId.Player);
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster.AsPlayer;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster.AsPlayer;
 
-		var target = HitCreature;
+        var target = HitCreature;
 
-		if (target)
-		{
-			target.DespawnOrUnsummon();
-			caster.KilledMonsterCredit(CreatureIds.ScalpsKcBunny);
-		}
-	}
+        if (target)
+        {
+            target.DespawnOrUnsummon();
+            caster.KilledMonsterCredit(CreatureIds.ScalpsKcBunny);
+        }
+    }
 }

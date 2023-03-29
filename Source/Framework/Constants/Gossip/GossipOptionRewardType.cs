@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum GossipOptionRewardType
 {
-	Item = 0,
-	Currency = 1
+    Item = 0,
+    Currency = 1
 }

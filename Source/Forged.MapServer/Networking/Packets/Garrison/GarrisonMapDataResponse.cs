@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonMapDataResponse : ServerPacket
 {
-	public List<GarrisonBuildingMapData> Buildings = new();
-	public GarrisonMapDataResponse() : base(ServerOpcodes.GarrisonMapDataResponse, ConnectionType.Instance) { }
+    public List<GarrisonBuildingMapData> Buildings = new();
+    public GarrisonMapDataResponse() : base(ServerOpcodes.GarrisonMapDataResponse, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Buildings.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Buildings.Count);
 
-		foreach (var landmark in Buildings)
-			landmark.Write(_worldPacket);
-	}
+        foreach (var landmark in Buildings)
+            landmark.Write(_worldPacket);
+    }
 }

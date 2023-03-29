@@ -12,21 +12,21 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(108359)]
 public class spell_warl_dark_regeneration : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.ObsModHealth, AuraEffectHandleModes.Real));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.ObsModHealth, AuraEffectHandleModes.Real));
+    }
 
-	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		if (Target)
-		{
-			var pet = Target.GetGuardianPet();
+    private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        if (Target)
+        {
+            var pet = Target.GetGuardianPet();
 
-			if (pet != null)
-				pet.CastSpell(pet, WarlockSpells.DARK_REGENERATION, true);
-		}
-	}
+            if (pet != null)
+                pet.CastSpell(pet, WarlockSpells.DARK_REGENERATION, true);
+        }
+    }
 }

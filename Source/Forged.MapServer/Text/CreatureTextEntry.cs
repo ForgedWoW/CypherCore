@@ -7,17 +7,17 @@ namespace Forged.MapServer.Text;
 
 public class CreatureTextEntry
 {
-	public uint creatureId;
-	public byte groupId;
-	public byte id;
-	public string text;
-	public ChatMsg type;
-	public Language lang;
-	public float probability;
-	public Emote emote;
-	public uint duration;
-	public uint sound;
-	public SoundKitPlayType SoundPlayType;
-	public uint BroadcastTextId;
-	public CreatureTextRange TextRange;
+    public uint creatureId;
+    public byte groupId;
+    public byte id;
+    public string text;
+    public ChatMsg type;
+    public Language lang;
+    public float probability;
+    public Emote emote;
+    public uint duration;
+    public uint sound;
+    public SoundKitPlayType SoundPlayType;
+    public uint BroadcastTextId;
+    public CreatureTextRange TextRange;
 }

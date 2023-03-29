@@ -7,19 +7,19 @@ namespace Forged.MapServer.Scripting.BaseScripts;
 
 public class AreaTriggerScriptLoader : ScriptObject, IAreaTriggerScriptLoaderGetTriggerScriptScript
 {
-	public AreaTriggerScriptLoader(string name) : base(name)
-	{
-		Global.ScriptMgr.AddScript(this);
-	}
+    public AreaTriggerScriptLoader(string name) : base(name)
+    {
+        Global.ScriptMgr.AddScript(this);
+    }
 
-	public override bool IsDatabaseBound()
-	{
-		return true;
-	}
+    public override bool IsDatabaseBound()
+    {
+        return true;
+    }
 
-	// Should return a fully valid SpellScript.
-	public virtual AreaTriggerScript GetAreaTriggerScript()
-	{
-		return null;
-	}
+    // Should return a fully valid SpellScript.
+    public virtual AreaTriggerScript GetAreaTriggerScript()
+    {
+        return null;
+    }
 }

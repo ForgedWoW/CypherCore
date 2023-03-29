@@ -13,50 +13,50 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(157695)]
 public class spell_warl_demonbolt : SpellScript, IHasSpellEffects
 {
-	private int _summons = 0;
+    private int _summons = 0;
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CountSummons, 2, Targets.UnitCasterAndSummons));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(CountSummons, 2, Targets.UnitCasterAndSummons));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleHit(int effIndex)
+    {
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (caster == null || target == null)
-			return;
+        if (caster == null || target == null)
+            return;
 
-		var damage = HitDamage;
-		MathFunctions.AddPct(ref damage, _summons * 20);
-		HitDamage = damage;
-	}
+        var damage = HitDamage;
+        MathFunctions.AddPct(ref damage, _summons * 20);
+        HitDamage = damage;
+    }
 
-	private void CountSummons(List<WorldObject> targets)
-	{
-		var caster = Caster;
+    private void CountSummons(List<WorldObject> targets)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		foreach (var wo in targets)
-		{
-			if (!wo.AsCreature)
-				continue;
+        foreach (var wo in targets)
+        {
+            if (!wo.AsCreature)
+                continue;
 
-			if (wo.AsCreature.OwnerUnit != caster)
-				continue;
+            if (wo.AsCreature.OwnerUnit != caster)
+                continue;
 
-			if (wo.AsCreature.CreatureType != CreatureType.Demon)
-				continue;
+            if (wo.AsCreature.CreatureType != CreatureType.Demon)
+                continue;
 
-			_summons++;
-		}
+            _summons++;
+        }
 
-		targets.Clear();
-	}
+        targets.Clear();
+    }
 }

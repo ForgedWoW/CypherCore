@@ -11,25 +11,25 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 70656 - Advantage (T10 4P Melee Bonus)
 internal class spell_dk_advantage_t10_4p : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var caster = eventInfo.Actor;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var caster = eventInfo.Actor;
 
-		if (caster)
-		{
-			var player = caster.AsPlayer;
+        if (caster)
+        {
+            var player = caster.AsPlayer;
 
-			if (!player ||
-				caster.Class != PlayerClass.Deathknight)
-				return false;
+            if (!player ||
+                caster.Class != PlayerClass.Deathknight)
+                return false;
 
-			for (byte i = 0; i < player.GetMaxPower(PowerType.Runes); ++i)
-				if (player.GetRuneCooldown(i) == 0)
-					return false;
+            for (byte i = 0; i < player.GetMaxPower(PowerType.Runes); ++i)
+                if (player.GetRuneCooldown(i) == 0)
+                    return false;
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

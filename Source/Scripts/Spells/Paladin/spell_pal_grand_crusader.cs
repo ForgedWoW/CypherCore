@@ -13,21 +13,21 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(85043)] // -85043 - Grand Crusader
 internal class spell_pal_grand_crusader : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return Target.IsTypeId(TypeId.Player);
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return Target.IsTypeId(TypeId.Player);
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		Target.SpellHistory.ResetCooldown(PaladinSpells.AvengersShield, true);
-	}
+    private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        Target.SpellHistory.ResetCooldown(PaladinSpells.AvengersShield, true);
+    }
 }

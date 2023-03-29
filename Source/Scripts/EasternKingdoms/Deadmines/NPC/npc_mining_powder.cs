@@ -13,17 +13,17 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 [CreatureScript(48284)]
 public class npc_mining_powder : ScriptedAI
 {
-	private bool _damaged = false;
+    private bool _damaged = false;
 
-	public npc_mining_powder(Creature creature) : base(creature) { }
+    public npc_mining_powder(Creature creature) : base(creature) { }
 
-	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
-	{
-		if (_damaged)
-			return;
+    public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
+    {
+        if (_damaged)
+            return;
 
-		_damaged = true;
-		Me.CastSpell(Me, DMSpells.EXPLODE);
-		Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(100));
-	}
+        _damaged = true;
+        Me.CastSpell(Me, DMSpells.EXPLODE);
+        Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(100));
+    }
 }

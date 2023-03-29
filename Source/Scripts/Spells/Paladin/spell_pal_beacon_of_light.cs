@@ -11,16 +11,16 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(53563)]
 public class spell_pal_beacon_of_light : SpellScript, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		var target = ExplTargetUnit;
+    public SpellCastResult CheckCast()
+    {
+        var target = ExplTargetUnit;
 
-		if (target == null)
-			return SpellCastResult.DontReport;
+        if (target == null)
+            return SpellCastResult.DontReport;
 
-		if (target.HasAura(PaladinSpells.BEACON_OF_FAITH))
-			return SpellCastResult.BadTargets;
+        if (target.HasAura(PaladinSpells.BEACON_OF_FAITH))
+            return SpellCastResult.BadTargets;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

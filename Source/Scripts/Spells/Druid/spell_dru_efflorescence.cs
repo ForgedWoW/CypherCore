@@ -9,21 +9,21 @@ namespace Scripts.Spells.Druid;
 [SpellScript(145205)]
 public class spell_dru_efflorescence : SpellScript, ISpellOnCast
 {
-	public void OnCast()
-	{
-		var caster = Caster;
+    public void OnCast()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var efflorescence = caster.GetSummonedCreatureByEntry(eCreature.NPC_EFFLORESCENCE);
+        if (caster != null)
+        {
+            var efflorescence = caster.GetSummonedCreatureByEntry(eCreature.NPC_EFFLORESCENCE);
 
-			if (efflorescence != null)
-				efflorescence.DespawnOrUnsummon();
-		}
-	}
+            if (efflorescence != null)
+                efflorescence.DespawnOrUnsummon();
+        }
+    }
 
-	private struct eCreature
-	{
-		public static readonly uint NPC_EFFLORESCENCE = 47649;
-	}
+    private struct eCreature
+    {
+        public static readonly uint NPC_EFFLORESCENCE = 47649;
+    }
 }

@@ -12,36 +12,36 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_nitro_boosts_backfire : AuraScript, IHasAuraEffects
 {
-	private double lastZ = MapConst.InvalidHeight;
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    private double lastZ = MapConst.InvalidHeight;
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 1, AuraType.PeriodicTriggerSpell, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodicDummy, 1, AuraType.PeriodicTriggerSpell));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 1, AuraType.PeriodicTriggerSpell, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodicDummy, 1, AuraType.PeriodicTriggerSpell));
+    }
 
-	private void HandleApply(AuraEffect effect, AuraEffectHandleModes mode)
-	{
-		lastZ = Target.Location.Z;
-	}
+    private void HandleApply(AuraEffect effect, AuraEffectHandleModes mode)
+    {
+        lastZ = Target.Location.Z;
+    }
 
-	private void HandlePeriodicDummy(AuraEffect effect)
-	{
-		PreventDefaultAction();
-		var curZ = Target.Location.Z;
+    private void HandlePeriodicDummy(AuraEffect effect)
+    {
+        PreventDefaultAction();
+        var curZ = Target.Location.Z;
 
-		if (curZ < lastZ)
-		{
-			if (RandomHelper.randChance(80)) // we don't have enough sniffs to verify this, guesstimate
-				Target.CastSpell(Target, ItemSpellIds.NitroBoostsParachute, new CastSpellExtraArgs(effect));
+        if (curZ < lastZ)
+        {
+            if (RandomHelper.randChance(80)) // we don't have enough sniffs to verify this, guesstimate
+                Target.CastSpell(Target, ItemSpellIds.NitroBoostsParachute, new CastSpellExtraArgs(effect));
 
-			Aura.Remove();
-		}
-		else
-		{
-			lastZ = curZ;
-		}
-	}
+            Aura.Remove();
+        }
+        else
+        {
+            lastZ = curZ;
+        }
+    }
 }

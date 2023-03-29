@@ -9,29 +9,29 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarEventInviteInfo
 {
-	public ObjectGuid Guid;
-	public ulong InviteID;
-	public long ResponseTime;
-	public byte Level = 1;
-	public CalendarInviteStatus Status;
-	public CalendarModerationRank Moderator;
-	public byte InviteType;
-	public string Notes;
+    public ObjectGuid Guid;
+    public ulong InviteID;
+    public long ResponseTime;
+    public byte Level = 1;
+    public CalendarInviteStatus Status;
+    public CalendarModerationRank Moderator;
+    public byte InviteType;
+    public string Notes;
 
-	public void Write(WorldPacket data)
-	{
-		data.WritePackedGuid(Guid);
-		data.WriteUInt64(InviteID);
+    public void Write(WorldPacket data)
+    {
+        data.WritePackedGuid(Guid);
+        data.WriteUInt64(InviteID);
 
-		data.WriteUInt8(Level);
-		data.WriteUInt8((byte)Status);
-		data.WriteUInt8((byte)Moderator);
-		data.WriteUInt8(InviteType);
+        data.WriteUInt8(Level);
+        data.WriteUInt8((byte)Status);
+        data.WriteUInt8((byte)Moderator);
+        data.WriteUInt8(InviteType);
 
-		data.WritePackedTime(ResponseTime);
+        data.WritePackedTime(ResponseTime);
 
-		data.WriteBits(Notes.GetByteCount(), 8);
-		data.FlushBits();
-		data.WriteString(Notes);
-	}
+        data.WriteBits(Notes.GetByteCount(), 8);
+        data.FlushBits();
+        data.WriteString(Notes);
+    }
 }

@@ -5,18 +5,18 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildInviteByName : ClientPacket
 {
-	public string Name;
-	public int? Unused910;
-	public GuildInviteByName(WorldPacket packet) : base(packet) { }
+    public string Name;
+    public int? Unused910;
+    public GuildInviteByName(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var nameLen = _worldPacket.ReadBits<uint>(9);
-		var hasUnused910 = _worldPacket.HasBit();
+    public override void Read()
+    {
+        var nameLen = _worldPacket.ReadBits<uint>(9);
+        var hasUnused910 = _worldPacket.HasBit();
 
-		Name = _worldPacket.ReadString(nameLen);
+        Name = _worldPacket.ReadString(nameLen);
 
-		if (hasUnused910)
-			Unused910 = _worldPacket.ReadInt32();
-	}
+        if (hasUnused910)
+            Unused910 = _worldPacket.ReadInt32();
+    }
 }

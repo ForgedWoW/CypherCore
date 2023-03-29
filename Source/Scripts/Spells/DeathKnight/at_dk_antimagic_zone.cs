@@ -10,17 +10,17 @@ namespace Scripts.Spells.DeathKnight;
 [Script]
 public class at_dk_antimagic_zone : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	public void OnUnitEnter(Unit unit)
-	{
-		//TODO: Improve unit targets
-		if (unit.IsPlayer && !unit.IsHostileTo(At.GetCaster()))
-			if (!unit.HasAura(DeathKnightSpells.ANTIMAGIC_ZONE_DAMAGE_TAKEN))
-				unit.AddAura(DeathKnightSpells.ANTIMAGIC_ZONE_DAMAGE_TAKEN, unit);
-	}
+    public void OnUnitEnter(Unit unit)
+    {
+        //TODO: Improve unit targets
+        if (unit.IsPlayer && !unit.IsHostileTo(At.GetCaster()))
+            if (!unit.HasAura(DeathKnightSpells.ANTIMAGIC_ZONE_DAMAGE_TAKEN))
+                unit.AddAura(DeathKnightSpells.ANTIMAGIC_ZONE_DAMAGE_TAKEN, unit);
+    }
 
-	public void OnUnitExit(Unit unit)
-	{
-		if (unit.HasAura(DeathKnightSpells.ANTIMAGIC_ZONE_DAMAGE_TAKEN))
-			unit.RemoveAura(DeathKnightSpells.ANTIMAGIC_ZONE_DAMAGE_TAKEN);
-	}
+    public void OnUnitExit(Unit unit)
+    {
+        if (unit.HasAura(DeathKnightSpells.ANTIMAGIC_ZONE_DAMAGE_TAKEN))
+            unit.RemoveAura(DeathKnightSpells.ANTIMAGIC_ZONE_DAMAGE_TAKEN);
+    }
 }

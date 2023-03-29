@@ -10,49 +10,49 @@ public class MovementForces
     private readonly List<MovementForce> _forces = new();
     private float _modMagnitude = 1.0f;
 
-	public float ModMagnitude
-	{
-		get => _modMagnitude;
-		set => _modMagnitude = value;
-	}
+    public float ModMagnitude
+    {
+        get => _modMagnitude;
+        set => _modMagnitude = value;
+    }
 
-	public bool IsEmpty => _forces.Empty() && _modMagnitude == 1.0f;
+    public bool IsEmpty => _forces.Empty() && _modMagnitude == 1.0f;
 
-	public List<MovementForce> GetForces()
-	{
-		return _forces;
-	}
+    public List<MovementForce> GetForces()
+    {
+        return _forces;
+    }
 
-	public bool Add(MovementForce newForce)
-	{
-		var movementForce = FindMovementForce(newForce.ID);
+    public bool Add(MovementForce newForce)
+    {
+        var movementForce = FindMovementForce(newForce.ID);
 
-		if (movementForce == null)
-		{
-			_forces.Add(newForce);
+        if (movementForce == null)
+        {
+            _forces.Add(newForce);
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public bool Remove(ObjectGuid id)
-	{
-		var movementForce = FindMovementForce(id);
+    public bool Remove(ObjectGuid id)
+    {
+        var movementForce = FindMovementForce(id);
 
-		if (movementForce != null)
-		{
-			_forces.Remove(movementForce);
+        if (movementForce != null)
+        {
+            _forces.Remove(movementForce);
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
     private MovementForce FindMovementForce(ObjectGuid id)
-	{
-		return _forces.Find(force => force.ID == id);
-	}
+    {
+        return _forces.Find(force => force.ID == id);
+    }
 }

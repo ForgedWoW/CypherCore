@@ -8,18 +8,18 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class SpellOrDamageImmune : ServerPacket
 {
-	public ObjectGuid CasterGUID;
-	public ObjectGuid VictimGUID;
-	public uint SpellID;
-	public bool IsPeriodic;
-	public SpellOrDamageImmune() : base(ServerOpcodes.SpellOrDamageImmune, ConnectionType.Instance) { }
+    public ObjectGuid CasterGUID;
+    public ObjectGuid VictimGUID;
+    public uint SpellID;
+    public bool IsPeriodic;
+    public SpellOrDamageImmune() : base(ServerOpcodes.SpellOrDamageImmune, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(CasterGUID);
-		_worldPacket.WritePackedGuid(VictimGUID);
-		_worldPacket.WriteUInt32(SpellID);
-		_worldPacket.WriteBit(IsPeriodic);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(CasterGUID);
+        _worldPacket.WritePackedGuid(VictimGUID);
+        _worldPacket.WriteUInt32(SpellID);
+        _worldPacket.WriteBit(IsPeriodic);
+        _worldPacket.FlushBits();
+    }
 }

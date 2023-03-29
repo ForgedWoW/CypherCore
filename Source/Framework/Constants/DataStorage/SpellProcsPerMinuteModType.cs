@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum SpellProcsPerMinuteModType : byte
 {
-	Haste = 1,
-	Crit = 2,
-	Class = 3,
-	Spec = 4,
-	Race = 5,
-	ItemLevel = 6,
-	Battleground = 7
+    Haste = 1,
+    Crit = 2,
+    Class = 3,
+    Spec = 4,
+    Race = 5,
+    ItemLevel = 6,
+    Battleground = 7
 }

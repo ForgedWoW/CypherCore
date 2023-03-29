@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Inspect;
 
 public class Inspect : ClientPacket
 {
-	public ObjectGuid Target;
-	public Inspect(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Target;
+    public Inspect(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Target = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Target = _worldPacket.ReadPackedGuid();
+    }
 }

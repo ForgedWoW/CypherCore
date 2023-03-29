@@ -10,24 +10,24 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraEffectAbsorb : IAuraEffectHandler
 {
-	double HandleAbsorb(AuraEffect aura, DamageInfo damageInfo, double absorbAmount);
+    double HandleAbsorb(AuraEffect aura, DamageInfo damageInfo, double absorbAmount);
 }
 
 public class AuraEffectAbsorbHandler : AuraEffectHandler, IAuraEffectAbsorb
 {
-	private readonly Func<AuraEffect, DamageInfo, double, double> _fn;
+    private readonly Func<AuraEffect, DamageInfo, double, double> _fn;
 
-	public AuraEffectAbsorbHandler(Func<AuraEffect, DamageInfo, double, double> fn, int effectIndex, bool overkill = false, AuraScriptHookType hookType = AuraScriptHookType.EffectAbsorb) : base(effectIndex, overkill ? AuraType.SchoolAbsorbOverkill : AuraType.SchoolAbsorb, hookType)
-	{
-		_fn = fn;
+    public AuraEffectAbsorbHandler(Func<AuraEffect, DamageInfo, double, double> fn, int effectIndex, bool overkill = false, AuraScriptHookType hookType = AuraScriptHookType.EffectAbsorb) : base(effectIndex, overkill ? AuraType.SchoolAbsorbOverkill : AuraType.SchoolAbsorb, hookType)
+    {
+        _fn = fn;
 
-		if (hookType != AuraScriptHookType.EffectAbsorb &&
-			hookType != AuraScriptHookType.EffectAfterAbsorb)
-			throw new Exception($"Hook Type {hookType} is not valid for {nameof(AuraEffectAbsorbHandler)}. Use {AuraScriptHookType.EffectAbsorb} or {AuraScriptHookType.EffectAfterAbsorb}");
-	}
+        if (hookType != AuraScriptHookType.EffectAbsorb &&
+            hookType != AuraScriptHookType.EffectAfterAbsorb)
+            throw new Exception($"Hook Type {hookType} is not valid for {nameof(AuraEffectAbsorbHandler)}. Use {AuraScriptHookType.EffectAbsorb} or {AuraScriptHookType.EffectAfterAbsorb}");
+    }
 
-	public double HandleAbsorb(AuraEffect aura, DamageInfo damageInfo, double absorbAmount)
-	{
-		return _fn(aura, damageInfo, absorbAmount);
-	}
+    public double HandleAbsorb(AuraEffect aura, DamageInfo damageInfo, double absorbAmount)
+    {
+        return _fn(aura, damageInfo, absorbAmount);
+    }
 }

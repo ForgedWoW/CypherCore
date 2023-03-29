@@ -8,7 +8,7 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct MutedAppend : IChannelAppender
 {
-	public ChatNotify GetNotificationType() => ChatNotify.MutedNotice;
+    public ChatNotify GetNotificationType() => ChatNotify.MutedNotice;
 
-	public void Append(ChannelNotify data) { }
+    public void Append(ChannelNotify data) { }
 }

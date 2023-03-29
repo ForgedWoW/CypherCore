@@ -10,24 +10,24 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(201427)]
 public class spell_dh_annihilation : SpellScript, ISpellBeforeHit
 {
-	public void BeforeHit(SpellMissInfo missInfo)
-	{
-		var caster = Caster;
+    public void BeforeHit(SpellMissInfo missInfo)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			var target = caster.Victim;
+        if (caster != null)
+        {
+            var target = caster.Victim;
 
-			if (target == null)
-				return;
+            if (target == null)
+                return;
 
-			var attackPower = caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) + 28.7f;
-			var damage = HitDamage;
+            var attackPower = caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) + 28.7f;
+            var damage = HitDamage;
 
-			HitDamage = damage + attackPower;
+            HitDamage = damage + attackPower;
 
-			if (RandomHelper.randChance(20))
-				caster.ModifyPower(PowerType.Fury, +20);
-		}
-	}
+            if (RandomHelper.randChance(20))
+                caster.ModifyPower(PowerType.Fury, +20);
+        }
+    }
 }

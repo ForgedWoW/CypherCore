@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class RequestPlayedTime : ClientPacket
 {
-	public bool TriggerScriptEvent;
-	public RequestPlayedTime(WorldPacket packet) : base(packet) { }
+    public bool TriggerScriptEvent;
+    public RequestPlayedTime(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		TriggerScriptEvent = _worldPacket.HasBit();
-	}
+    public override void Read()
+    {
+        TriggerScriptEvent = _worldPacket.HasBit();
+    }
 }

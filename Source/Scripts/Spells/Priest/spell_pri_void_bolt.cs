@@ -11,35 +11,35 @@ namespace Scripts.Spells.Priest;
 [SpellScript(234746)]
 public class spell_pri_void_bolt : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleEffectScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleEffectScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleEffectScriptEffect(int effIndex)
-	{
-		var voidBoltDurationBuffAura = Caster.GetAura(PriestSpells.VOID_BOLT_DURATION);
+    private void HandleEffectScriptEffect(int effIndex)
+    {
+        var voidBoltDurationBuffAura = Caster.GetAura(PriestSpells.VOID_BOLT_DURATION);
 
-		if (voidBoltDurationBuffAura != null)
-		{
-			var unit = HitUnit;
+        if (voidBoltDurationBuffAura != null)
+        {
+            var unit = HitUnit;
 
-			if (unit != null)
-			{
-				var durationIncreaseMs = voidBoltDurationBuffAura.GetEffect(0).BaseAmount;
+            if (unit != null)
+            {
+                var durationIncreaseMs = voidBoltDurationBuffAura.GetEffect(0).BaseAmount;
 
-				var pain = unit.GetAura(PriestSpells.SHADOW_WORD_PAIN, Caster.GUID);
+                var pain = unit.GetAura(PriestSpells.SHADOW_WORD_PAIN, Caster.GUID);
 
-				if (pain != null)
-					pain.ModDuration(durationIncreaseMs);
+                if (pain != null)
+                    pain.ModDuration(durationIncreaseMs);
 
-				var vampiricTouch = unit.GetAura(PriestSpells.VAMPIRIC_TOUCH, Caster.GUID);
+                var vampiricTouch = unit.GetAura(PriestSpells.VAMPIRIC_TOUCH, Caster.GUID);
 
-				if (vampiricTouch != null)
-					vampiricTouch.ModDuration(durationIncreaseMs);
-			}
-		}
-	}
+                if (vampiricTouch != null)
+                    vampiricTouch.ModDuration(durationIncreaseMs);
+            }
+        }
+    }
 }

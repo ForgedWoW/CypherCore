@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildChallengeUpdateRequest : ClientPacket
 {
-	public GuildChallengeUpdateRequest(WorldPacket packet) : base(packet) { }
+    public GuildChallengeUpdateRequest(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

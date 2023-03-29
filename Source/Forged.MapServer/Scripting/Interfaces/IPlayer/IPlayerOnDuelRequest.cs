@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 // Called when a Duel is requested
 public interface IPlayerOnDuelRequest : IScriptObject
 {
-	void OnDuelRequest(Player target, Player challenger);
+    void OnDuelRequest(Player target, Player challenger);
 }

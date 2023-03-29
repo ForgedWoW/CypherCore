@@ -5,10 +5,10 @@ namespace Forged.MapServer.DataStorage;
 
 public struct ConversationActorTemplate
 {
-	public int Id;
-	public uint Index;
-	public ConversationActorWorldObjectTemplate WorldObjectTemplate;
-	public ConversationActorNoObjectTemplate NoObjectTemplate;
-	public ConversationActorActivePlayerTemplate ActivePlayerTemplate;
-	public ConversationActorTalkingHeadTemplate TalkingHeadTemplate;
+    public int Id;
+    public uint Index;
+    public ConversationActorWorldObjectTemplate WorldObjectTemplate;
+    public ConversationActorNoObjectTemplate NoObjectTemplate;
+    public ConversationActorActivePlayerTemplate ActivePlayerTemplate;
+    public ConversationActorTalkingHeadTemplate TalkingHeadTemplate;
 }

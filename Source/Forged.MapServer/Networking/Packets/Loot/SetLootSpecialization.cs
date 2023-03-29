@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class SetLootSpecialization : ClientPacket
 {
-	public uint SpecID;
-	public SetLootSpecialization(WorldPacket packet) : base(packet) { }
+    public uint SpecID;
+    public SetLootSpecialization(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		SpecID = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        SpecID = _worldPacket.ReadUInt32();
+    }
 }

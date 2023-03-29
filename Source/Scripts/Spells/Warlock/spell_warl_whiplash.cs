@@ -13,33 +13,33 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(119909)]
 public class spell_warl_whiplash : SpellScript, ISpellAfterHit, ISpellCheckCast
 {
-	public void AfterHit()
-	{
-		var caster = Caster;
-		var dest = ExplTargetDest;
-		var pet = caster.GetGuardianPet();
+    public void AfterHit()
+    {
+        var caster = Caster;
+        var dest = ExplTargetDest;
+        var pet = caster.GetGuardianPet();
 
-		if (caster == null || pet == null || dest == null)
-			return;
+        if (caster == null || pet == null || dest == null)
+            return;
 
-		/*if (pet->GetEntry() != PET_ENTRY_SUCCUBUS)
-			return;*/
+        /*if (pet->GetEntry() != PET_ENTRY_SUCCUBUS)
+            return;*/
 
-		pet.CastSpell(new Position(dest.X, dest.Y, dest.Z), WarlockSpells.SUCCUBUS_WHIPLASH, true);
-		caster.AsPlayer.SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(25));
-	}
+        pet.CastSpell(new Position(dest.X, dest.Y, dest.Z), WarlockSpells.SUCCUBUS_WHIPLASH, true);
+        caster.AsPlayer.SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(25));
+    }
 
-	public SpellCastResult CheckCast()
-	{
-		var caster = Caster;
-		var pet = caster.GetGuardianPet();
+    public SpellCastResult CheckCast()
+    {
+        var caster = Caster;
+        var pet = caster.GetGuardianPet();
 
-		if (caster == null || pet == null)
-			return SpellCastResult.DontReport;
+        if (caster == null || pet == null)
+            return SpellCastResult.DontReport;
 
-		if (pet.SpellHistory.HasCooldown(WarlockSpells.SUCCUBUS_WHIPLASH))
-			return SpellCastResult.CantDoThatRightNow;
+        if (pet.SpellHistory.HasCooldown(WarlockSpells.SUCCUBUS_WHIPLASH))
+            return SpellCastResult.CantDoThatRightNow;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

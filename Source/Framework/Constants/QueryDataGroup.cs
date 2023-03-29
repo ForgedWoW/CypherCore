@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum QueryDataGroup
 {
-	Creatures = 0x01,
-	Gameobjects = 0x02,
-	Items = 0x04,
-	Quests = 0x08,
-	POIs = 0x10,
+    Creatures = 0x01,
+    Gameobjects = 0x02,
+    Items = 0x04,
+    Quests = 0x08,
+    POIs = 0x10,
 
-	All = 0xFF
+    All = 0xFF
 }

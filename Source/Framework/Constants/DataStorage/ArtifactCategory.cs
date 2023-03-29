@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum ArtifactCategory
 {
-	Primary = 1,
-	Fishing = 2
+    Primary = 1,
+    Fishing = 2
 }

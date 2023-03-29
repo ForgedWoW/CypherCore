@@ -10,12 +10,12 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(WarlockSpells.RAIN_OF_FIRE_DAMAGE)]
 internal class spell_warl_rain_of_fire_damage : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var caster = Caster;
+    public void OnHit()
+    {
+        var caster = Caster;
 
-		if (caster.TryGetAura(WarlockSpells.INFERNO_AURA, out var inferno))
-			if (RandomHelper.randChance(inferno.GetEffect(0).BaseAmount))
-				caster.ModifyPower(PowerType.SoulShards, 1);
-	}
+        if (caster.TryGetAura(WarlockSpells.INFERNO_AURA, out var inferno))
+            if (RandomHelper.randChance(inferno.GetEffect(0).BaseAmount))
+                caster.ModifyPower(PowerType.SoulShards, 1);
+    }
 }

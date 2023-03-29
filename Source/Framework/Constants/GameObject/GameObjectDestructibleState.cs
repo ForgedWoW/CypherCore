@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum GameObjectDestructibleState
 {
-	Intact = 0,
-	Damaged = 1,
-	Destroyed = 2,
-	Rebuilding = 3
+    Intact = 0,
+    Damaged = 1,
+    Destroyed = 2,
+    Rebuilding = 3
 }

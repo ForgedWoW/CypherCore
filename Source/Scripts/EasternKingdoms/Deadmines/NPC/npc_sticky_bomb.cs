@@ -12,77 +12,77 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 [CreatureScript(47314)]
 public class npc_sticky_bomb : NullCreatureAI
 {
-	private readonly InstanceScript _instance;
+    private readonly InstanceScript _instance;
 
-	private uint _phase;
-	private uint _uiTimer;
+    private uint _phase;
+    private uint _uiTimer;
 
-	public npc_sticky_bomb(Creature pCreature) : base(pCreature)
-	{
-		_instance = pCreature.InstanceScript;
-	}
+    public npc_sticky_bomb(Creature pCreature) : base(pCreature)
+    {
+        _instance = pCreature.InstanceScript;
+    }
 
-	public override void Reset()
-	{
-		_phase = 1;
-		_uiTimer = 500;
+    public override void Reset()
+    {
+        _phase = 1;
+        _uiTimer = 500;
 
-		if (!Me)
-			return;
+        if (!Me)
+            return;
 
-		DoCast(Me, eSpels.CHEST_BOMB);
-	}
+        DoCast(Me, eSpels.CHEST_BOMB);
+    }
 
-	public override void UpdateAI(uint uiDiff)
-	{
-		if (!Me)
-			return;
+    public override void UpdateAI(uint uiDiff)
+    {
+        if (!Me)
+            return;
 
-		if (_uiTimer < uiDiff)
-		{
-			switch (_phase)
-			{
-				case 1:
-					DoCast(Me, eSpels.ARMING_VISUAL_YELLOW);
-					_uiTimer = 700;
+        if (_uiTimer < uiDiff)
+        {
+            switch (_phase)
+            {
+                case 1:
+                    DoCast(Me, eSpels.ARMING_VISUAL_YELLOW);
+                    _uiTimer = 700;
 
-					break;
+                    break;
 
-				case 2:
-					DoCast(Me, eSpels.ARMING_VISUAL_ORANGE);
-					_uiTimer = 600;
+                case 2:
+                    DoCast(Me, eSpels.ARMING_VISUAL_ORANGE);
+                    _uiTimer = 600;
 
-					break;
+                    break;
 
-				case 3:
-					DoCast(Me, eSpels.ARMING_VISUAL_RED);
-					_uiTimer = 500;
+                case 3:
+                    DoCast(Me, eSpels.ARMING_VISUAL_RED);
+                    _uiTimer = 500;
 
-					break;
+                    break;
 
-				case 4:
-					DoCast(Me, eSpels.BOMB_ARMED_STATE);
-					_uiTimer = 400;
+                case 4:
+                    DoCast(Me, eSpels.BOMB_ARMED_STATE);
+                    _uiTimer = 400;
 
-					break;
+                    break;
 
-				case 5:
-					DoCast(Me, Me.Map.IsHeroic ? eSpels.STICKY_BOMB_EXPLODE_H : eSpels.STICKY_BOMB_EXPLODE);
-					_uiTimer = 300;
+                case 5:
+                    DoCast(Me, Me.Map.IsHeroic ? eSpels.STICKY_BOMB_EXPLODE_H : eSpels.STICKY_BOMB_EXPLODE);
+                    _uiTimer = 300;
 
-					break;
+                    break;
 
-				case 6:
-					Me.DespawnOrUnsummon();
+                case 6:
+                    Me.DespawnOrUnsummon();
 
-					break;
-			}
+                    break;
+            }
 
-			_phase++;
-		}
-		else
-		{
-			_uiTimer -= uiDiff;
-		}
-	}
+            _phase++;
+        }
+        else
+        {
+            _uiTimer -= uiDiff;
+        }
+    }
 }

@@ -15,18 +15,18 @@ namespace Scripts.Spells.Generic;
 [Script("spell_pri_shadow_protection")]
 internal class spell_gen_increase_stats_buff : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		if (HitUnit.IsInRaidWith(Caster))
-			Caster.CastSpell(Caster, (uint)EffectValue + 1, true); // raid buff
-		else
-			Caster.CastSpell(HitUnit, (uint)EffectValue, true); // single-Target buff
-	}
+    private void HandleDummy(int effIndex)
+    {
+        if (HitUnit.IsInRaidWith(Caster))
+            Caster.CastSpell(Caster, (uint)EffectValue + 1, true); // raid buff
+        else
+            Caster.CastSpell(HitUnit, (uint)EffectValue, true); // single-Target buff
+    }
 }

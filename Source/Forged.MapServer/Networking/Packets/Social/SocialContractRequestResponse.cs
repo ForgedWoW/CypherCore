@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Social;
 
 internal class SocialContractRequestResponse : ServerPacket
 {
-	public bool ShowSocialContract;
+    public bool ShowSocialContract;
 
-	public SocialContractRequestResponse() : base(ServerOpcodes.SocialContractRequestResponse) { }
+    public SocialContractRequestResponse() : base(ServerOpcodes.SocialContractRequestResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(ShowSocialContract);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBit(ShowSocialContract);
+        _worldPacket.FlushBits();
+    }
 }

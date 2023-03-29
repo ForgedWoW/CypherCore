@@ -13,39 +13,39 @@ public class CreatureRelocationNotifier : IGridNotifierCreature, IGridNotifierPl
 {
     private readonly Creature _creature;
 
-	public GridType GridType { get; set; }
+    public GridType GridType { get; set; }
 
-	public CreatureRelocationNotifier(Creature c, GridType gridType)
-	{
-		_creature = c;
-		GridType = gridType;
-	}
+    public CreatureRelocationNotifier(Creature c, GridType gridType)
+    {
+        _creature = c;
+        GridType = gridType;
+    }
 
-	public void Visit(IList<Creature> objs)
-	{
-		if (!_creature.IsAlive)
-			return;
+    public void Visit(IList<Creature> objs)
+    {
+        if (!_creature.IsAlive)
+            return;
 
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var creature = objs[i];
-			NotifierHelpers.CreatureUnitRelocationWorker(_creature, creature);
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var creature = objs[i];
+            NotifierHelpers.CreatureUnitRelocationWorker(_creature, creature);
 
-			if (!creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
-				NotifierHelpers.CreatureUnitRelocationWorker(creature, _creature);
-		}
-	}
+            if (!creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
+                NotifierHelpers.CreatureUnitRelocationWorker(creature, _creature);
+        }
+    }
 
-	public void Visit(IList<Player> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var player = objs[i];
+    public void Visit(IList<Player> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var player = objs[i];
 
-			if (!player.SeerView.IsNeedNotify(NotifyFlags.VisibilityChanged))
-				player.UpdateVisibilityOf(_creature);
+            if (!player.SeerView.IsNeedNotify(NotifyFlags.VisibilityChanged))
+                player.UpdateVisibilityOf(_creature);
 
-			NotifierHelpers.CreatureUnitRelocationWorker(_creature, player);
-		}
-	}
+            NotifierHelpers.CreatureUnitRelocationWorker(_creature, player);
+        }
+    }
 }

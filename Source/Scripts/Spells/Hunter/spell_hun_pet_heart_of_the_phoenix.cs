@@ -12,34 +12,34 @@ namespace Scripts.Spells.Hunter;
 [Script]
 internal class spell_hun_pet_heart_of_the_phoenix : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		if (!Caster.IsPet)
-			return false;
+    public override bool Load()
+    {
+        if (!Caster.IsPet)
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var caster = Caster;
-		var owner = caster.OwnerUnit;
+    private void HandleScript(int effIndex)
+    {
+        var caster = Caster;
+        var owner = caster.OwnerUnit;
 
-		if (owner)
-			if (!caster.HasAura(HunterSpells.PetHeartOfThePhoenixDebuff))
-			{
-				CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-				args.AddSpellMod(SpellValueMod.BasePoint0, 100);
-				owner.CastSpell(caster, HunterSpells.PetHeartOfThePhoenixTriggered, args);
-				caster.CastSpell(caster, HunterSpells.PetHeartOfThePhoenixDebuff, true);
-			}
-	}
+        if (owner)
+            if (!caster.HasAura(HunterSpells.PetHeartOfThePhoenixDebuff))
+            {
+                CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+                args.AddSpellMod(SpellValueMod.BasePoint0, 100);
+                owner.CastSpell(caster, HunterSpells.PetHeartOfThePhoenixTriggered, args);
+                caster.CastSpell(caster, HunterSpells.PetHeartOfThePhoenixDebuff, true);
+            }
+    }
 }

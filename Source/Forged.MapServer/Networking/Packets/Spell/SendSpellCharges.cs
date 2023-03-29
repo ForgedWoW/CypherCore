@@ -8,12 +8,12 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SendSpellCharges : ServerPacket
 {
-	public List<SpellChargeEntry> Entries = new();
-	public SendSpellCharges() : base(ServerOpcodes.SendSpellCharges, ConnectionType.Instance) { }
+    public List<SpellChargeEntry> Entries = new();
+    public SendSpellCharges() : base(ServerOpcodes.SendSpellCharges, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Entries.Count);
-		Entries.ForEach(p => p.Write(_worldPacket));
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Entries.Count);
+        Entries.ForEach(p => p.Write(_worldPacket));
+    }
 }

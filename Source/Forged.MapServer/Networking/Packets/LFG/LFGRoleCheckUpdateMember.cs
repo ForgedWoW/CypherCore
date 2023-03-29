@@ -7,25 +7,25 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 public class LFGRoleCheckUpdateMember
 {
-	public ObjectGuid Guid;
-	public uint RolesDesired;
-	public byte Level;
-	public bool RoleCheckComplete;
+    public ObjectGuid Guid;
+    public uint RolesDesired;
+    public byte Level;
+    public bool RoleCheckComplete;
 
-	public LFGRoleCheckUpdateMember(ObjectGuid guid, uint rolesDesired, byte level, bool roleCheckComplete)
-	{
-		Guid = guid;
-		RolesDesired = rolesDesired;
-		Level = level;
-		RoleCheckComplete = roleCheckComplete;
-	}
+    public LFGRoleCheckUpdateMember(ObjectGuid guid, uint rolesDesired, byte level, bool roleCheckComplete)
+    {
+        Guid = guid;
+        RolesDesired = rolesDesired;
+        Level = level;
+        RoleCheckComplete = roleCheckComplete;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WritePackedGuid(Guid);
-		data.WriteUInt32(RolesDesired);
-		data.WriteUInt8(Level);
-		data.WriteBit(RoleCheckComplete);
-		data.FlushBits();
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WritePackedGuid(Guid);
+        data.WriteUInt32(RolesDesired);
+        data.WriteUInt8(Level);
+        data.WriteBit(RoleCheckComplete);
+        data.FlushBits();
+    }
 }

@@ -11,11 +11,11 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(187878)]
 public class spell_sha_crash_lightning_aura : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo.Id == ShamanSpells.STORMSTRIKE_MAIN || eventInfo.SpellInfo.Id == ShamanSpells.LAVA_LASH)
-			return true;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo.Id == ShamanSpells.STORMSTRIKE_MAIN || eventInfo.SpellInfo.Id == ShamanSpells.LAVA_LASH)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

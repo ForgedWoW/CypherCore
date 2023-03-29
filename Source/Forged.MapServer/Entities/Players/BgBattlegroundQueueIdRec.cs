@@ -7,8 +7,8 @@ namespace Forged.MapServer.Entities.Players;
 
 public class BgBattlegroundQueueIdRec
 {
-	public BattlegroundQueueTypeId BgQueueTypeId { get; set; }
-	public uint InvitedToInstance { get; set; }
-	public uint JoinTime { get; set; }
-	public bool Mercenary { get; set; }
+    public BattlegroundQueueTypeId BgQueueTypeId { get; set; }
+    public uint InvitedToInstance { get; set; }
+    public uint JoinTime { get; set; }
+    public bool Mercenary { get; set; }
 }

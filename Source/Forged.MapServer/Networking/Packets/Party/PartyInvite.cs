@@ -12,65 +12,65 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class PartyInvite : ServerPacket
 {
-	public bool MightCRZYou;
-	public bool MustBeBNetFriend;
-	public bool AllowMultipleRoles;
-	public bool QuestSessionActive;
-	public ushort Unk1;
+    public bool MightCRZYou;
+    public bool MustBeBNetFriend;
+    public bool AllowMultipleRoles;
+    public bool QuestSessionActive;
+    public ushort Unk1;
 
-	public bool CanAccept;
+    public bool CanAccept;
 
-	// Inviter
-	public VirtualRealmInfo InviterRealm;
-	public ObjectGuid InviterGUID;
-	public ObjectGuid InviterBNetAccountId;
-	public string InviterName;
+    // Inviter
+    public VirtualRealmInfo InviterRealm;
+    public ObjectGuid InviterGUID;
+    public ObjectGuid InviterBNetAccountId;
+    public string InviterName;
 
-	// Realm
-	public bool IsXRealm;
+    // Realm
+    public bool IsXRealm;
 
-	// Lfg
-	public uint ProposedRoles;
-	public int LfgCompletedMask;
-	public List<int> LfgSlots = new();
-	public PartyInvite() : base(ServerOpcodes.PartyInvite) { }
+    // Lfg
+    public uint ProposedRoles;
+    public int LfgCompletedMask;
+    public List<int> LfgSlots = new();
+    public PartyInvite() : base(ServerOpcodes.PartyInvite) { }
 
-	public void Initialize(Player inviter, uint proposedRoles, bool canAccept)
-	{
-		CanAccept = canAccept;
+    public void Initialize(Player inviter, uint proposedRoles, bool canAccept)
+    {
+        CanAccept = canAccept;
 
-		InviterName = inviter.GetName();
-		InviterGUID = inviter.GUID;
-		InviterBNetAccountId = inviter.Session.AccountGUID;
+        InviterName = inviter.GetName();
+        InviterGUID = inviter.GUID;
+        InviterBNetAccountId = inviter.Session.AccountGUID;
 
-		ProposedRoles = proposedRoles;
+        ProposedRoles = proposedRoles;
 
-		var realm = Global.WorldMgr.Realm;
-		InviterRealm = new VirtualRealmInfo(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName);
-	}
+        var realm = Global.WorldMgr.Realm;
+        InviterRealm = new VirtualRealmInfo(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName);
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBit(CanAccept);
-		_worldPacket.WriteBit(MightCRZYou);
-		_worldPacket.WriteBit(IsXRealm);
-		_worldPacket.WriteBit(MustBeBNetFriend);
-		_worldPacket.WriteBit(AllowMultipleRoles);
-		_worldPacket.WriteBit(QuestSessionActive);
-		_worldPacket.WriteBits(InviterName.GetByteCount(), 6);
+    public override void Write()
+    {
+        _worldPacket.WriteBit(CanAccept);
+        _worldPacket.WriteBit(MightCRZYou);
+        _worldPacket.WriteBit(IsXRealm);
+        _worldPacket.WriteBit(MustBeBNetFriend);
+        _worldPacket.WriteBit(AllowMultipleRoles);
+        _worldPacket.WriteBit(QuestSessionActive);
+        _worldPacket.WriteBits(InviterName.GetByteCount(), 6);
 
-		InviterRealm.Write(_worldPacket);
+        InviterRealm.Write(_worldPacket);
 
-		_worldPacket.WritePackedGuid(InviterGUID);
-		_worldPacket.WritePackedGuid(InviterBNetAccountId);
-		_worldPacket.WriteUInt16(Unk1);
-		_worldPacket.WriteUInt32(ProposedRoles);
-		_worldPacket.WriteInt32(LfgSlots.Count);
-		_worldPacket.WriteInt32(LfgCompletedMask);
+        _worldPacket.WritePackedGuid(InviterGUID);
+        _worldPacket.WritePackedGuid(InviterBNetAccountId);
+        _worldPacket.WriteUInt16(Unk1);
+        _worldPacket.WriteUInt32(ProposedRoles);
+        _worldPacket.WriteInt32(LfgSlots.Count);
+        _worldPacket.WriteInt32(LfgCompletedMask);
 
-		_worldPacket.WriteString(InviterName);
+        _worldPacket.WriteString(InviterName);
 
-		foreach (var LfgSlot in LfgSlots)
-			_worldPacket.WriteInt32(LfgSlot);
-	}
+        foreach (var LfgSlot in LfgSlots)
+            _worldPacket.WriteInt32(LfgSlot);
+    }
 }

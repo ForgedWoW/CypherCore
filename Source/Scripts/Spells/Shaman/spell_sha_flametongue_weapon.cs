@@ -12,29 +12,29 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(318038)]
 internal class spell_sha_flametongue_weapon : SpellScript, ISpellOnCast, ISpellCheckCast
 {
-	Item _item;
+    Item _item;
 
-	public SpellCastResult CheckCast()
-	{
-		var player = Caster.AsPlayer;
-		var slot = EquipmentSlot.MainHand;
+    public SpellCastResult CheckCast()
+    {
+        var player = Caster.AsPlayer;
+        var slot = EquipmentSlot.MainHand;
 
-		if (player.GetPrimarySpecialization() == TalentSpecialization.ShamanEnhancement)
-			slot = EquipmentSlot.OffHand;
+        if (player.GetPrimarySpecialization() == TalentSpecialization.ShamanEnhancement)
+            slot = EquipmentSlot.OffHand;
 
-		_item = player.GetItemByPos(InventorySlots.Bag0, slot);
+        _item = player.GetItemByPos(InventorySlots.Bag0, slot);
 
-		return _item == null || !_item.Template.IsWeapon ? SpellCastResult.TargetNoWeapons : SpellCastResult.SpellCastOk;
-	}
+        return _item == null || !_item.Template.IsWeapon ? SpellCastResult.TargetNoWeapons : SpellCastResult.SpellCastOk;
+    }
 
 
-	public override bool Load()
-	{
-		return Caster.IsTypeId(TypeId.Player);
-	}
+    public override bool Load()
+    {
+        return Caster.IsTypeId(TypeId.Player);
+    }
 
-	public void OnCast()
-	{
-		Caster.CastSpell(_item, ShamanSpells.FlametongueWeaponEnchant, true);
-	}
+    public void OnCast()
+    {
+        Caster.CastSpell(_item, ShamanSpells.FlametongueWeaponEnchant, true);
+    }
 }

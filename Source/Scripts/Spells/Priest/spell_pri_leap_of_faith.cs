@@ -11,42 +11,42 @@ namespace Scripts.Spells.Priest;
 [SpellScript(73325)]
 public class spell_pri_leap_of_faith : SpellScript, IHasSpellEffects, ISpellOnHit
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public void OnHit()
-	{
-		var _player = Caster.AsPlayer;
+    public void OnHit()
+    {
+        var _player = Caster.AsPlayer;
 
-		if (_player != null)
-		{
-			var target = HitUnit;
+        if (_player != null)
+        {
+            var target = HitUnit;
 
-			if (target != null)
-			{
-				target.CastSpell(_player, PriestSpells.LEAP_OF_FAITH_JUMP, true);
+            if (target != null)
+            {
+                target.CastSpell(_player, PriestSpells.LEAP_OF_FAITH_JUMP, true);
 
-				if (_player.HasAura(PriestSpells.BODY_AND_SOUL_AURA))
-					_player.CastSpell(target, PriestSpells.BODY_AND_SOUL_SPEED, true);
-			}
-		}
-	}
+                if (_player.HasAura(PriestSpells.BODY_AND_SOUL_AURA))
+                    _player.CastSpell(target, PriestSpells.BODY_AND_SOUL_SPEED, true);
+            }
+        }
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleScript(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (caster.HasAura(PriestSpells.LEAP_OF_FAITH_GLYPH))
-			HitUnit.RemoveMovementImpairingAuras(false);
+        if (caster.HasAura(PriestSpells.LEAP_OF_FAITH_GLYPH))
+            HitUnit.RemoveMovementImpairingAuras(false);
 
-		HitUnit.CastSpell(caster, PriestSpells.LEAP_OF_FAITH_EFFECT, true);
-	}
+        HitUnit.CastSpell(caster, PriestSpells.LEAP_OF_FAITH_EFFECT, true);
+    }
 }

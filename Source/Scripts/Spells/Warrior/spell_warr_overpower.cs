@@ -12,32 +12,32 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(7384)]
 public class spell_warr_overpower : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleEffect, 0, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleEffect, 0, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleEffect(int effIndex)
-	{
-		if (!Caster)
-			return;
+    private void HandleEffect(int effIndex)
+    {
+        if (!Caster)
+            return;
 
-		uint spellId = 0;
+        uint spellId = 0;
 
-		if (Caster.HasAura(WarriorSpells.UNRELENTING_ASSAULT_RANK_1))
-			spellId = WarriorSpells.UNRELENTING_ASSAULT_TRIGGER_1;
-		else if (Caster.HasAura(WarriorSpells.UNRELENTING_ASSAULT_RANK_2))
-			spellId = WarriorSpells.UNRELENTING_ASSAULT_TRIGGER_2;
+        if (Caster.HasAura(WarriorSpells.UNRELENTING_ASSAULT_RANK_1))
+            spellId = WarriorSpells.UNRELENTING_ASSAULT_TRIGGER_1;
+        else if (Caster.HasAura(WarriorSpells.UNRELENTING_ASSAULT_RANK_2))
+            spellId = WarriorSpells.UNRELENTING_ASSAULT_TRIGGER_2;
 
-		if (spellId == 0)
-			return;
+        if (spellId == 0)
+            return;
 
-		var target = HitPlayer;
+        var target = HitPlayer;
 
-		if (target != null)
-			if (target.IsNonMeleeSpellCast(false, false, true)) // UNIT_STATE_CASTING should not be used here, it's present during a tick for instant casts
-				target.CastSpell(target, spellId, true);
-	}
+        if (target != null)
+            if (target.IsNonMeleeSpellCast(false, false, true)) // UNIT_STATE_CASTING should not be used here, it's present during a tick for instant casts
+                target.CastSpell(target, spellId, true);
+    }
 }

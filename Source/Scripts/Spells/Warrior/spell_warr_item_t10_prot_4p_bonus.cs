@@ -13,14 +13,14 @@ namespace Scripts.Spells.Warrior;
 [Script] // 7.1.5
 internal class spell_warr_item_t10_prot_4p_bonus : AuraScript, IAuraOnProc
 {
-	public void OnProc(ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    public void OnProc(ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		var target = eventInfo.ActionTarget;
-		var bp0 = (int)MathFunctions.CalculatePct(target.MaxHealth, GetEffectInfo(1).CalcValue());
-		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-		args.AddSpellMod(SpellValueMod.BasePoint0, bp0);
-		target.CastSpell((Unit)null, WarriorSpells.STOICISM, args);
-	}
+        var target = eventInfo.ActionTarget;
+        var bp0 = (int)MathFunctions.CalculatePct(target.MaxHealth, GetEffectInfo(1).CalcValue());
+        CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+        args.AddSpellMod(SpellValueMod.BasePoint0, bp0);
+        target.CastSpell((Unit)null, WarriorSpells.STOICISM, args);
+    }
 }

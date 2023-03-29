@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IGuild;
 
 public interface IGuildOnEvent : IScriptObject
 {
-	void OnEvent(Guild guild, byte eventType, ulong playerGuid1, ulong playerGuid2, byte newRank);
+    void OnEvent(Guild guild, byte eventType, ulong playerGuid1, ulong playerGuid2, byte newRank);
 }

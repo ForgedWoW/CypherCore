@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum PartyOperation
 {
-	Invite = 0,
-	UnInvite = 1,
-	Leave = 2,
-	Swap = 4
+    Invite = 0,
+    UnInvite = 1,
+    Leave = 2,
+    Swap = 4
 }

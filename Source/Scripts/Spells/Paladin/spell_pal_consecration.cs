@@ -12,18 +12,18 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(26573)] // 26573 - Consecration
 internal class spell_pal_consecration : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
+    }
 
-	private void HandleEffectPeriodic(AuraEffect aurEff)
-	{
-		var at = Target.GetAreaTrigger(PaladinSpells.CONSECRATION);
+    private void HandleEffectPeriodic(AuraEffect aurEff)
+    {
+        var at = Target.GetAreaTrigger(PaladinSpells.CONSECRATION);
 
-		if (at != null)
-			Target.CastSpell(at.Location, PaladinSpells.CONSECRATION_DAMAGE, new CastSpellExtraArgs());
-	}
+        if (at != null)
+            Target.CastSpell(at.Location, PaladinSpells.CONSECRATION_DAMAGE, new CastSpellExtraArgs());
+    }
 }

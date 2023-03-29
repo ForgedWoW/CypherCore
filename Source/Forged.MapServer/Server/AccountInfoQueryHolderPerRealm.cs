@@ -7,14 +7,14 @@ namespace Forged.MapServer.Server;
 
 internal class AccountInfoQueryHolderPerRealm : SQLQueryHolder<AccountInfoQueryLoad>
 {
-	public void Initialize(uint accountId, uint battlenetAccountId)
-	{
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_ACCOUNT_DATA);
-		stmt.AddValue(0, accountId);
-		SetQuery(AccountInfoQueryLoad.GlobalAccountDataIndexPerRealm, stmt);
+    public void Initialize(uint accountId, uint battlenetAccountId)
+    {
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_ACCOUNT_DATA);
+        stmt.AddValue(0, accountId);
+        SetQuery(AccountInfoQueryLoad.GlobalAccountDataIndexPerRealm, stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_TUTORIALS);
-		stmt.AddValue(0, accountId);
-		SetQuery(AccountInfoQueryLoad.TutorialsIndexPerRealm, stmt);
-	}
+        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_TUTORIALS);
+        stmt.AddValue(0, accountId);
+        SetQuery(AccountInfoQueryLoad.TutorialsIndexPerRealm, stmt);
+    }
 }

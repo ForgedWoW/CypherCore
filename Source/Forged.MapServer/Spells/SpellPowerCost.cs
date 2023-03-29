@@ -7,6 +7,6 @@ namespace Forged.MapServer.Spells;
 
 public class SpellPowerCost
 {
-	public PowerType Power;
-	public int Amount;
+    public PowerType Power;
+    public int Amount;
 }

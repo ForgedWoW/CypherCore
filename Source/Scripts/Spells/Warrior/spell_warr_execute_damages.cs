@@ -12,16 +12,16 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(260798)]
 public class spell_warr_execute_damages : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDamage(int effIndex)
-	{
-		var damageMultiplier = Caster.VariableStorage.GetValue<double>("spell_warr_execute_damages::multiplier", 1.0f);
-		HitDamage = (int)(HitDamage * damageMultiplier);
-	}
+    private void HandleDamage(int effIndex)
+    {
+        var damageMultiplier = Caster.VariableStorage.GetValue<double>("spell_warr_execute_damages::multiplier", 1.0f);
+        HitDamage = (int)(HitDamage * damageMultiplier);
+    }
 }

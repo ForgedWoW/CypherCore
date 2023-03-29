@@ -14,19 +14,19 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(28820)]
 internal class spell_sha_t3_8p_bonus : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 1, AuraType.PeriodicTriggerSpell));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 1, AuraType.PeriodicTriggerSpell));
+    }
 
-	private void PeriodicTick(AuraEffect aurEff)
-	{
-		PreventDefaultAction();
+    private void PeriodicTick(AuraEffect aurEff)
+    {
+        PreventDefaultAction();
 
-		// Need remove self if Lightning Shield not active
-		if (Target.GetAuraEffect(AuraType.ProcTriggerSpell, SpellFamilyNames.Shaman, new FlagArray128(0x400), Caster.GUID) == null)
-			Remove();
-	}
+        // Need remove self if Lightning Shield not active
+        if (Target.GetAuraEffect(AuraType.ProcTriggerSpell, SpellFamilyNames.Shaman, new FlagArray128(0x400), Caster.GUID) == null)
+            Remove();
+    }
 }

@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum CalendarModerationRank
 {
-	Player = 0,
-	Moderator = 1,
-	Owner = 2
+    Player = 0,
+    Moderator = 1,
+    Owner = 2
 }

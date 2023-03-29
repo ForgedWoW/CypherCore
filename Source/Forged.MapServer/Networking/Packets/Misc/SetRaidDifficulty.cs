@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class SetRaidDifficulty : ClientPacket
 {
-	public int DifficultyID;
-	public byte Legacy;
-	public SetRaidDifficulty(WorldPacket packet) : base(packet) { }
+    public int DifficultyID;
+    public byte Legacy;
+    public SetRaidDifficulty(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		DifficultyID = _worldPacket.ReadInt32();
-		Legacy = _worldPacket.ReadUInt8();
-	}
+    public override void Read()
+    {
+        DifficultyID = _worldPacket.ReadInt32();
+        Legacy = _worldPacket.ReadUInt8();
+    }
 }

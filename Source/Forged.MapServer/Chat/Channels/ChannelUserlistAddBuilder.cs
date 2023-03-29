@@ -14,28 +14,28 @@ internal class ChannelUserlistAddBuilder : MessageBuilder
     private readonly Channel _source;
     private readonly ObjectGuid _guid;
 
-	public ChannelUserlistAddBuilder(Channel source, ObjectGuid guid)
-	{
-		_source = source;
-		_guid = guid;
-	}
+    public ChannelUserlistAddBuilder(Channel source, ObjectGuid guid)
+    {
+        _source = source;
+        _guid = guid;
+    }
 
-	public override PacketSenderOwning<UserlistAdd> Invoke(Locale locale = Locale.enUS)
-	{
-		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+    public override PacketSenderOwning<UserlistAdd> Invoke(Locale locale = Locale.enUS)
+    {
+        var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
-		PacketSenderOwning<UserlistAdd> userlistAdd = new()
-		{
-			Data =
-			{
-				AddedUserGUID = _guid,
-				ChannelFlags = _source.GetFlags(),
-				UserFlags = _source.GetPlayerFlags(_guid),
-				ChannelID = _source.GetChannelId(),
-				ChannelName = _source.GetName(localeIdx)
-			}
-		};
+        PacketSenderOwning<UserlistAdd> userlistAdd = new()
+        {
+            Data =
+            {
+                AddedUserGUID = _guid,
+                ChannelFlags = _source.GetFlags(),
+                UserFlags = _source.GetPlayerFlags(_guid),
+                ChannelID = _source.GetChannelId(),
+                ChannelName = _source.GetName(localeIdx)
+            }
+        };
 
-		return userlistAdd;
-	}
+        return userlistAdd;
+    }
 }

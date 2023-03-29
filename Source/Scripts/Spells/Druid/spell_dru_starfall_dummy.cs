@@ -12,39 +12,39 @@ namespace Scripts.Spells.Druid;
 [Script] // 50286 - Starfall (Dummy)
 internal class spell_dru_starfall_dummy : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaEnemy));
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaEnemy));
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		targets.Resize(2);
-	}
+    private void FilterTargets(List<WorldObject> targets)
+    {
+        targets.Resize(2);
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		// Shapeshifting into an animal form or mounting cancels the effect
-		if (caster.CreatureType == CreatureType.Beast ||
-			caster.IsMounted)
-		{
-			var spellInfo = TriggeringSpell;
+        // Shapeshifting into an animal form or mounting cancels the effect
+        if (caster.CreatureType == CreatureType.Beast ||
+            caster.IsMounted)
+        {
+            var spellInfo = TriggeringSpell;
 
-			if (spellInfo != null)
-				caster.RemoveAura(spellInfo.Id);
+            if (spellInfo != null)
+                caster.RemoveAura(spellInfo.Id);
 
-			return;
-		}
+            return;
+        }
 
-		// Any effect which causes you to lose control of your character will supress the starfall effect.
-		if (caster.HasUnitState(UnitState.Controlled))
-			return;
+        // Any effect which causes you to lose control of your character will supress the starfall effect.
+        if (caster.HasUnitState(UnitState.Controlled))
+            return;
 
-		caster.CastSpell(HitUnit, (uint)EffectValue, true);
-	}
+        caster.CastSpell(HitUnit, (uint)EffectValue, true);
+    }
 }

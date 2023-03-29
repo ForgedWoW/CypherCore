@@ -8,27 +8,27 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionReplicateItems : ClientPacket
 {
-	public ObjectGuid Auctioneer;
-	public uint ChangeNumberGlobal;
-	public uint ChangeNumberCursor;
-	public uint ChangeNumberTombstone;
-	public uint Count;
-	public AddOnInfo? TaintedBy;
+    public ObjectGuid Auctioneer;
+    public uint ChangeNumberGlobal;
+    public uint ChangeNumberCursor;
+    public uint ChangeNumberTombstone;
+    public uint Count;
+    public AddOnInfo? TaintedBy;
 
-	public AuctionReplicateItems(WorldPacket packet) : base(packet) { }
+    public AuctionReplicateItems(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Auctioneer = _worldPacket.ReadPackedGuid();
-		ChangeNumberGlobal = _worldPacket.ReadUInt32();
-		ChangeNumberCursor = _worldPacket.ReadUInt32();
-		ChangeNumberTombstone = _worldPacket.ReadUInt32();
-		Count = _worldPacket.ReadUInt32();
+    public override void Read()
+    {
+        Auctioneer = _worldPacket.ReadPackedGuid();
+        ChangeNumberGlobal = _worldPacket.ReadUInt32();
+        ChangeNumberCursor = _worldPacket.ReadUInt32();
+        ChangeNumberTombstone = _worldPacket.ReadUInt32();
+        Count = _worldPacket.ReadUInt32();
 
-		if (_worldPacket.HasBit())
-		{
-			TaintedBy = new AddOnInfo();
-			TaintedBy.Value.Read(_worldPacket);
-		}
-	}
+        if (_worldPacket.HasBit())
+        {
+            TaintedBy = new AddOnInfo();
+            TaintedBy.Value.Read(_worldPacket);
+        }
+    }
 }

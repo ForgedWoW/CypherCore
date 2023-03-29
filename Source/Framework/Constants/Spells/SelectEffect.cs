@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum SelectEffect
 {
-	DontCare = 0, //All spell effects allowed
-	Damage,       //Spell does damage
-	Healing,      //Spell does healing
-	Aura          //Spell applies an aura
+    DontCare = 0, //All spell effects allowed
+    Damage,       //Spell does damage
+    Healing,      //Spell does healing
+    Aura          //Spell applies an aura
 }

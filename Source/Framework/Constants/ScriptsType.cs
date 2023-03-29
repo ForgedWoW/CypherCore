@@ -5,11 +5,11 @@ namespace Framework.Constants;
 
 public enum ScriptsType
 {
-	First = 1,
+    First = 1,
 
-	Spell = First,
-	Event,
-	Waypoint,
+    Spell = First,
+    Event,
+    Waypoint,
 
-	Last
+    Last
 }

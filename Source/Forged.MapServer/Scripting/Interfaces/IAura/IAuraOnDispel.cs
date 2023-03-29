@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraOnDispel : IAuraScript
 {
-	void OnDispel(DispelInfo dispelInfo);
+    void OnDispel(DispelInfo dispelInfo);
 }

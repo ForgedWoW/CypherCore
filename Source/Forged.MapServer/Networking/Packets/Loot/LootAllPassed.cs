@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootAllPassed : ServerPacket
 {
-	public ObjectGuid LootObj;
-	public LootItemData Item = new();
-	public LootAllPassed() : base(ServerOpcodes.LootAllPassed) { }
+    public ObjectGuid LootObj;
+    public LootItemData Item = new();
+    public LootAllPassed() : base(ServerOpcodes.LootAllPassed) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(LootObj);
-		Item.Write(_worldPacket);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(LootObj);
+        Item.Write(_worldPacket);
+    }
 }

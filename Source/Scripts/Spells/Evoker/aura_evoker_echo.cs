@@ -10,23 +10,23 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.ECHO_AURA)]
 public class aura_evoker_echo : AuraScript, IAuraOnProc
 {
-	public void OnProc(ProcEventInfo info)
-	{
-		if (info.SpellInfo.Id != EvokerSpells.ECHO && Caster.TryGetAura(EvokerSpells.ECHO, out var echoAura))
-		{
-			var healInfo = info.HealInfo;
+    public void OnProc(ProcEventInfo info)
+    {
+        if (info.SpellInfo.Id != EvokerSpells.ECHO && Caster.TryGetAura(EvokerSpells.ECHO, out var echoAura))
+        {
+            var healInfo = info.HealInfo;
 
-			if (healInfo == null)
-				return;
+            if (healInfo == null)
+                return;
 
-			HealInfo newHeal = new(healInfo.Healer,
-									healInfo.Target,
-									healInfo.Heal * (echoAura.SpellInfo.GetEffect(1).BasePoints * 0.01),
-									healInfo.SpellInfo,
-									healInfo.SchoolMask);
+            HealInfo newHeal = new(healInfo.Healer,
+                                   healInfo.Target,
+                                   healInfo.Heal * (echoAura.SpellInfo.GetEffect(1).BasePoints * 0.01),
+                                   healInfo.SpellInfo,
+                                   healInfo.SchoolMask);
 
-			Unit.DealHeal(healInfo);
-			echoAura.Remove();
-		}
-	}
+            Unit.DealHeal(healInfo);
+            echoAura.Remove();
+        }
+    }
 }

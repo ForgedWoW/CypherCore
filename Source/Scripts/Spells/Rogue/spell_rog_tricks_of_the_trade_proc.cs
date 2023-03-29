@@ -12,15 +12,15 @@ namespace Scripts.Spells.Rogue;
 [Script] // 59628 - Tricks of the Trade (Proc)
 internal class spell_rog_tricks_of_the_trade_proc : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-	{
-		Target.GetThreatManager().UnregisterRedirectThreat(RogueSpells.TricksOfTheTrade);
-	}
+    private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+    {
+        Target.GetThreatManager().UnregisterRedirectThreat(RogueSpells.TricksOfTheTrade);
+    }
 }

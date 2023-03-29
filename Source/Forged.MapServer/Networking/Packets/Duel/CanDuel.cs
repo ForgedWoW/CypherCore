@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Duel;
 
 public class CanDuel : ClientPacket
 {
-	public ObjectGuid TargetGUID;
-	public CanDuel(WorldPacket packet) : base(packet) { }
+    public ObjectGuid TargetGUID;
+    public CanDuel(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		TargetGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        TargetGUID = _worldPacket.ReadPackedGuid();
+    }
 }

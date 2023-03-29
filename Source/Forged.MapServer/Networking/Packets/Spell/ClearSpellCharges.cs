@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class ClearSpellCharges : ServerPacket
 {
-	public bool IsPet;
-	public uint Category;
-	public ClearSpellCharges() : base(ServerOpcodes.ClearSpellCharges, ConnectionType.Instance) { }
+    public bool IsPet;
+    public uint Category;
+    public ClearSpellCharges() : base(ServerOpcodes.ClearSpellCharges, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(Category);
-		_worldPacket.WriteBit(IsPet);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(Category);
+        _worldPacket.WriteBit(IsPet);
+        _worldPacket.FlushBits();
+    }
 }

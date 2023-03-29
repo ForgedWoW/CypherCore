@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class DestroyArenaUnit : ServerPacket
 {
-	public ObjectGuid Guid;
-	public DestroyArenaUnit() : base(ServerOpcodes.DestroyArenaUnit) { }
+    public ObjectGuid Guid;
+    public DestroyArenaUnit() : base(ServerOpcodes.DestroyArenaUnit) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Guid);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Guid);
+    }
 }

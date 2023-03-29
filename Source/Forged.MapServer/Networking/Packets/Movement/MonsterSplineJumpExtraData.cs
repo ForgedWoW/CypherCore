@@ -5,14 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public struct MonsterSplineJumpExtraData
 {
-	public float JumpGravity;
-	public uint StartTime;
-	public uint Duration;
+    public float JumpGravity;
+    public uint StartTime;
+    public uint Duration;
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteFloat(JumpGravity);
-		data.WriteUInt32(StartTime);
-		data.WriteUInt32(Duration);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteFloat(JumpGravity);
+        data.WriteUInt32(StartTime);
+        data.WriteUInt32(Duration);
+    }
 }

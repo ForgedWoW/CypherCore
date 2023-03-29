@@ -8,6 +8,6 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal interface IChannelAppender
 {
-	void Append(ChannelNotify data);
-	ChatNotify GetNotificationType();
+    void Append(ChannelNotify data);
+    ChatNotify GetNotificationType();
 }

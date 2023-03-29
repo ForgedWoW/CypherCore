@@ -7,39 +7,39 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 public struct LFGPlayerRewards
 {
-	public LFGPlayerRewards(uint id, uint quantity, int bonusQuantity, bool isCurrency)
-	{
-		Quantity = quantity;
-		BonusQuantity = bonusQuantity;
-		RewardItem = null;
-		RewardCurrency = null;
+    public LFGPlayerRewards(uint id, uint quantity, int bonusQuantity, bool isCurrency)
+    {
+        Quantity = quantity;
+        BonusQuantity = bonusQuantity;
+        RewardItem = null;
+        RewardCurrency = null;
 
-		if (!isCurrency)
-			RewardItem = new ItemInstance
-			{
-				ItemID = id
-			};
-		else
-			RewardCurrency = id;
-	}
+        if (!isCurrency)
+            RewardItem = new ItemInstance
+            {
+                ItemID = id
+            };
+        else
+            RewardCurrency = id;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteBit(RewardItem != null);
-		data.WriteBit(RewardCurrency.HasValue);
+    public void Write(WorldPacket data)
+    {
+        data.WriteBit(RewardItem != null);
+        data.WriteBit(RewardCurrency.HasValue);
 
-		if (RewardItem != null)
-			RewardItem.Write(data);
+        if (RewardItem != null)
+            RewardItem.Write(data);
 
-		data.WriteUInt32(Quantity);
-		data.WriteInt32(BonusQuantity);
+        data.WriteUInt32(Quantity);
+        data.WriteInt32(BonusQuantity);
 
-		if (RewardCurrency.HasValue)
-			data.WriteUInt32(RewardCurrency.Value);
-	}
+        if (RewardCurrency.HasValue)
+            data.WriteUInt32(RewardCurrency.Value);
+    }
 
-	public ItemInstance RewardItem;
-	public uint? RewardCurrency;
-	public uint Quantity;
-	public int BonusQuantity;
+    public ItemInstance RewardItem;
+    public uint? RewardCurrency;
+    public uint Quantity;
+    public int BonusQuantity;
 }

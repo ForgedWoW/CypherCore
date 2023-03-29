@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class UpdateLastInstance : ServerPacket
 {
-	public uint MapID;
-	public UpdateLastInstance() : base(ServerOpcodes.UpdateLastInstance) { }
+    public uint MapID;
+    public UpdateLastInstance() : base(ServerOpcodes.UpdateLastInstance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(MapID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(MapID);
+    }
 }
 
 //Structs

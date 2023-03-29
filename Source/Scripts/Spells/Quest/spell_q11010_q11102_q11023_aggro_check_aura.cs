@@ -12,19 +12,19 @@ namespace Scripts.Spells.Quest;
 [Script] // 40113 Knockdown Fel Cannon: The Aggro Check Aura
 internal class spell_q11010_q11102_q11023_aggro_check_aura : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleTriggerSpell, 0, AuraType.PeriodicTriggerSpell));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandleTriggerSpell, 0, AuraType.PeriodicTriggerSpell));
+    }
 
-	private void HandleTriggerSpell(AuraEffect aurEff)
-	{
-		var target = Target;
+    private void HandleTriggerSpell(AuraEffect aurEff)
+    {
+        var target = Target;
 
-		if (target)
-			// On trigger proccing
-			target.CastSpell(target, QuestSpellIds.AggroCheck);
-	}
+        if (target)
+            // On trigger proccing
+            target.CastSpell(target, QuestSpellIds.AggroCheck);
+    }
 }

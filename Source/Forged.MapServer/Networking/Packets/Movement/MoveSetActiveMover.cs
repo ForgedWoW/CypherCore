@@ -8,12 +8,12 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MoveSetActiveMover : ServerPacket
 {
-	public ObjectGuid MoverGUID;
+    public ObjectGuid MoverGUID;
 
-	public MoveSetActiveMover() : base(ServerOpcodes.MoveSetActiveMover) { }
+    public MoveSetActiveMover() : base(ServerOpcodes.MoveSetActiveMover) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(MoverGUID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(MoverGUID);
+    }
 }

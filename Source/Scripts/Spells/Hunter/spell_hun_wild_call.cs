@@ -13,27 +13,27 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(185789)]
 public class spell_hun_wild_call : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.SpellInfo.Id == HunterSpells.AUTO_SHOT && (eventInfo.HitMask & ProcFlagsHit.Critical) != 0)
-			return true;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.SpellInfo.Id == HunterSpells.AUTO_SHOT && (eventInfo.HitMask & ProcFlagsHit.Critical) != 0)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		var player = Caster.AsPlayer;
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        var player = Caster.AsPlayer;
 
-		if (player != null)
-			if (player.SpellHistory.HasCooldown(HunterSpells.BARBED_SHOT))
-				player.SpellHistory.ResetCooldown(HunterSpells.BARBED_SHOT, true);
-	}
+        if (player != null)
+            if (player.SpellHistory.HasCooldown(HunterSpells.BARBED_SHOT))
+                player.SpellHistory.ResetCooldown(HunterSpells.BARBED_SHOT, true);
+    }
 }

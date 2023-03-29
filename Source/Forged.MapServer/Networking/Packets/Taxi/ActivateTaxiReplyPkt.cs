@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.Taxi;
 
 internal class ActivateTaxiReplyPkt : ServerPacket
 {
-	public ActivateTaxiReply Reply;
-	public ActivateTaxiReplyPkt() : base(ServerOpcodes.ActivateTaxiReply) { }
+    public ActivateTaxiReply Reply;
+    public ActivateTaxiReplyPkt() : base(ServerOpcodes.ActivateTaxiReply) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits(Reply, 4);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBits(Reply, 4);
+        _worldPacket.FlushBits();
+    }
 }

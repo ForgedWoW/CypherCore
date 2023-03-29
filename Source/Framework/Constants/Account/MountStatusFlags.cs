@@ -8,7 +8,7 @@ namespace Framework.Constants;
 [Flags]
 public enum MountStatusFlags
 {
-	None = 0x00,
-	NeedsFanfare = 0x01,
-	IsFavorite = 0x02
+    None = 0x00,
+    NeedsFanfare = 0x01,
+    IsFavorite = 0x02
 }

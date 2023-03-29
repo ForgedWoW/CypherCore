@@ -5,12 +5,12 @@ namespace Forged.MapServer.Maps.Instances;
 
 public class DungeonEncounterData
 {
-	public uint BossId { get; set; }
-	public uint[] DungeonEncounterId { get; set; } = new uint[4];
+    public uint BossId { get; set; }
+    public uint[] DungeonEncounterId { get; set; } = new uint[4];
 
-	public DungeonEncounterData(uint bossId, params uint[] dungeonEncounterIds)
-	{
-		BossId = bossId;
-		DungeonEncounterId = dungeonEncounterIds;
-	}
+    public DungeonEncounterData(uint bossId, params uint[] dungeonEncounterIds)
+    {
+        BossId = bossId;
+        DungeonEncounterId = dungeonEncounterIds;
+    }
 }

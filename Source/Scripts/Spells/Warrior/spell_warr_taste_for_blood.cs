@@ -12,15 +12,15 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(206333)]
 public class spell_warr_taste_for_blood : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if ((eventInfo.HitMask & ProcFlagsHit.Critical) != 0 && eventInfo.SpellInfo.Id == WarriorSpells.BLOODTHIRST_DAMAGE)
-		{
-			Aura.SetDuration(0);
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if ((eventInfo.HitMask & ProcFlagsHit.Critical) != 0 && eventInfo.SpellInfo.Id == WarriorSpells.BLOODTHIRST_DAMAGE)
+        {
+            Aura.SetDuration(0);
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

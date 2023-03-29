@@ -6,12 +6,12 @@ using Forged.MapServer.Spells;
 namespace Forged.MapServer.Scripting.Interfaces.ISpellManager;
 
 /// <summary>
-///  Applies spell fixes after LoadSpellInfoImmunities, LoadSpellInfoDiminishing, LoadSpellInfoCustomAttributes and LoadSkillLineAbilityMap all have effected the spell.
-///  This will override any of those calculations.
+///     Applies spell fixes after LoadSpellInfoImmunities, LoadSpellInfoDiminishing, LoadSpellInfoCustomAttributes and LoadSkillLineAbilityMap all have effected the spell.
+///     This will override any of those calculations.
 /// </summary>
 public interface ISpellManagerSpellLateFix
 {
-	int[] SpellIds { get; }
+    int[] SpellIds { get; }
 
-	void ApplySpellFix(SpellInfo spellInfo);
+    void ApplySpellFix(SpellInfo spellInfo);
 }

@@ -13,37 +13,37 @@ namespace Scripts.Spells.Items;
 [Script] // 17619 - Alchemist Stone
 internal class spell_item_alchemist_stone : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.DamageInfo.SpellInfo.SpellFamilyName == SpellFamilyNames.Potion;
-	}
+    private bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.DamageInfo.SpellInfo.SpellFamilyName == SpellFamilyNames.Potion;
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
 
-		uint spellId = 0;
-		var amount = (int)(eventInfo.DamageInfo.Damage * 0.4f);
+        uint spellId = 0;
+        var amount = (int)(eventInfo.DamageInfo.Damage * 0.4f);
 
-		if (eventInfo.DamageInfo.SpellInfo.HasEffect(SpellEffectName.Heal))
-			spellId = ItemSpellIds.AlchemistStoneExtraHeal;
-		else if (eventInfo.DamageInfo.SpellInfo.HasEffect(SpellEffectName.Energize))
-			spellId = ItemSpellIds.AlchemistStoneExtraMana;
+        if (eventInfo.DamageInfo.SpellInfo.HasEffect(SpellEffectName.Heal))
+            spellId = ItemSpellIds.AlchemistStoneExtraHeal;
+        else if (eventInfo.DamageInfo.SpellInfo.HasEffect(SpellEffectName.Energize))
+            spellId = ItemSpellIds.AlchemistStoneExtraMana;
 
-		if (spellId == 0)
-			return;
+        if (spellId == 0)
+            return;
 
-		var caster = eventInfo.ActionTarget;
-		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, amount);
-		caster.CastSpell((Unit)null, spellId, args);
-	}
+        var caster = eventInfo.ActionTarget;
+        CastSpellExtraArgs args = new(aurEff);
+        args.AddSpellMod(SpellValueMod.BasePoint0, amount);
+        caster.CastSpell((Unit)null, spellId, args);
+    }
 }

@@ -13,17 +13,17 @@ namespace Scripts.Spells.Mage;
 [Script] // 61062 - Improved Mana Gems
 internal class spell_mage_imp_mana_gems : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		eventInfo.Actor.CastSpell((Unit)null, MageSpells.ManaSurge, true);
-	}
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        eventInfo.Actor.CastSpell((Unit)null, MageSpells.ManaSurge, true);
+    }
 }

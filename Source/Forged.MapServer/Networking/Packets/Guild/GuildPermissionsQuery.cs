@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildPermissionsQuery : ClientPacket
 {
-	public GuildPermissionsQuery(WorldPacket packet) : base(packet) { }
+    public GuildPermissionsQuery(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

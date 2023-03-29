@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootRelease : ClientPacket
 {
-	public ObjectGuid Unit;
-	public LootRelease(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Unit;
+    public LootRelease(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Unit = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Unit = _worldPacket.ReadPackedGuid();
+    }
 }

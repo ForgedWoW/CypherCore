@@ -11,34 +11,34 @@ namespace Scripts.Spells.Quest;
 [Script] // 51840 Despawn Fruit Tosser
 internal class spell_q12634_despawn_fruit_tosser : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var spellId = QuestSpellIds.BananasFallToGround;
+    private void HandleDummy(int effIndex)
+    {
+        var spellId = QuestSpellIds.BananasFallToGround;
 
-		switch (RandomHelper.URand(0, 3))
-		{
-			case 1:
-				spellId = QuestSpellIds.OrangeFallsToGround;
+        switch (RandomHelper.URand(0, 3))
+        {
+            case 1:
+                spellId = QuestSpellIds.OrangeFallsToGround;
 
-				break;
-			case 2:
-				spellId = QuestSpellIds.PapayaFallsToGround;
+                break;
+            case 2:
+                spellId = QuestSpellIds.PapayaFallsToGround;
 
-				break;
-		}
+                break;
+        }
 
-		// sometimes, if you're lucky, you get a dwarf
-		if (RandomHelper.randChance(5))
-			spellId = QuestSpellIds.SummonAdventurousDwarf;
+        // sometimes, if you're lucky, you get a dwarf
+        if (RandomHelper.randChance(5))
+            spellId = QuestSpellIds.SummonAdventurousDwarf;
 
-		Caster.CastSpell(Caster, spellId, true);
-	}
+        Caster.CastSpell(Caster, spellId, true);
+    }
 }

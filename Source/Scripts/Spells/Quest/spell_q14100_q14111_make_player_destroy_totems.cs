@@ -12,19 +12,19 @@ namespace Scripts.Spells.Quest;
 [Script] // 66744 - Make Player Destroy Totems
 internal class spell_q14100_q14111_make_player_destroy_totems : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScriptEffect(int effIndex)
-	{
-		var player = HitPlayer;
+    private void HandleScriptEffect(int effIndex)
+    {
+        var player = HitPlayer;
 
-		if (player)
-			player.CastSpell(player, QuestSpellIds.TotemOfTheEarthenRing, new CastSpellExtraArgs(TriggerCastFlags.FullMask)); // ignore reagent cost, consumed by quest
-	}
+        if (player)
+            player.CastSpell(player, QuestSpellIds.TotemOfTheEarthenRing, new CastSpellExtraArgs(TriggerCastFlags.FullMask)); // ignore reagent cost, consumed by quest
+    }
 }

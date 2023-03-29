@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class MoveSkipTime : ServerPacket
 {
-	public ObjectGuid MoverGUID;
-	public uint TimeSkipped;
-	public MoveSkipTime() : base(ServerOpcodes.MoveSkipTime, ConnectionType.Instance) { }
+    public ObjectGuid MoverGUID;
+    public uint TimeSkipped;
+    public MoveSkipTime() : base(ServerOpcodes.MoveSkipTime, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(MoverGUID);
-		_worldPacket.WriteUInt32(TimeSkipped);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(MoverGUID);
+        _worldPacket.WriteUInt32(TimeSkipped);
+    }
 }

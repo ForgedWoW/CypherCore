@@ -15,38 +15,38 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 89832 - Death Strike Enabler - DEATH_STRIKE_ENABLER
 internal class spell_dk_death_strike_enabler : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	// Amount of seconds we calculate Damage over
-	private double[] _damagePerSecond = new double[5];
+    // Amount of seconds we calculate Damage over
+    private double[] _damagePerSecond = new double[5];
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.DamageInfo != null;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.DamageInfo != null;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.PeriodicDummy, AuraScriptHookType.EffectProc));
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(HandleCalcAmount, 0, AuraType.PeriodicDummy));
-		AuraEffects.Add(new AuraEffectUpdatePeriodicHandler(Update, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.PeriodicDummy, AuraScriptHookType.EffectProc));
+        AuraEffects.Add(new AuraEffectCalcAmountHandler(HandleCalcAmount, 0, AuraType.PeriodicDummy));
+        AuraEffects.Add(new AuraEffectUpdatePeriodicHandler(Update, 0, AuraType.PeriodicDummy));
+    }
 
-	private void Update(AuraEffect aurEff)
-	{
-		// Move backwards all datas by one from [23][0][0][0][0] -> [0][23][0][0][0]
-		_damagePerSecond = Enumerable.Range(1, _damagePerSecond.Length).Select(i => _damagePerSecond[i % _damagePerSecond.Length]).ToArray();
-		_damagePerSecond[0] = 0;
-	}
+    private void Update(AuraEffect aurEff)
+    {
+        // Move backwards all datas by one from [23][0][0][0][0] -> [0][23][0][0][0]
+        _damagePerSecond = Enumerable.Range(1, _damagePerSecond.Length).Select(i => _damagePerSecond[i % _damagePerSecond.Length]).ToArray();
+        _damagePerSecond[0] = 0;
+    }
 
-	private void HandleCalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		canBeRecalculated.Value = true;
-		amount.Value = Enumerable.Range(1, _damagePerSecond.Length).Sum();
-	}
+    private void HandleCalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+    {
+        canBeRecalculated.Value = true;
+        amount.Value = Enumerable.Range(1, _damagePerSecond.Length).Sum();
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		_damagePerSecond[0] += eventInfo.DamageInfo.Damage;
-	}
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        _damagePerSecond[0] += eventInfo.DamageInfo.Damage;
+    }
 }

@@ -8,30 +8,30 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellCategoryCooldown : ServerPacket
 {
-	public List<CategoryCooldownInfo> CategoryCooldowns = new();
+    public List<CategoryCooldownInfo> CategoryCooldowns = new();
 
-	public SpellCategoryCooldown() : base(ServerOpcodes.CategoryCooldown, ConnectionType.Instance) { }
+    public SpellCategoryCooldown() : base(ServerOpcodes.CategoryCooldown, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(CategoryCooldowns.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(CategoryCooldowns.Count);
 
-		foreach (var cooldown in CategoryCooldowns)
-		{
-			_worldPacket.WriteUInt32(cooldown.Category);
-			_worldPacket.WriteInt32(cooldown.ModCooldown);
-		}
-	}
+        foreach (var cooldown in CategoryCooldowns)
+        {
+            _worldPacket.WriteUInt32(cooldown.Category);
+            _worldPacket.WriteInt32(cooldown.ModCooldown);
+        }
+    }
 
-	public class CategoryCooldownInfo
-	{
-		public uint Category;   // SpellCategory Id
-		public int ModCooldown; // Reduced Cooldown in ms
+    public class CategoryCooldownInfo
+    {
+        public uint Category;   // SpellCategory Id
+        public int ModCooldown; // Reduced Cooldown in ms
 
-		public CategoryCooldownInfo(uint category, int cooldown)
-		{
-			Category = category;
-			ModCooldown = cooldown;
-		}
-	}
+        public CategoryCooldownInfo(uint category, int cooldown)
+        {
+            Category = category;
+            ModCooldown = cooldown;
+        }
+    }
 }

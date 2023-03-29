@@ -10,10 +10,10 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class at_monk_ring_of_peace : AreaTriggerScript, IAreaTriggerOnUnitEnter
 {
-	public void OnUnitEnter(Unit target)
-	{
-		if (At.GetCaster())
-			if (At.GetCaster().IsValidAttackTarget(target))
-				target.CastSpell(target, MonkSpells.RING_OF_PEACE_KNOCKBACK, true);
-	}
+    public void OnUnitEnter(Unit target)
+    {
+        if (At.GetCaster())
+            if (At.GetCaster().IsValidAttackTarget(target))
+                target.CastSpell(target, MonkSpells.RING_OF_PEACE_KNOCKBACK, true);
+    }
 }

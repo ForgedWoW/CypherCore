@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum ArenaTeams
 {
-	None = 0,
-	Ally = 2,
-	Horde = 4,
-	Any = 6
+    None = 0,
+    Ally = 2,
+    Horde = 4,
+    Any = 6
 }

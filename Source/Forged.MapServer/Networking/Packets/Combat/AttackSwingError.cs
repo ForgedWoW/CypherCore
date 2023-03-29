@@ -9,14 +9,14 @@ public class AttackSwingError : ServerPacket
 {
     private readonly AttackSwingErr Reason;
 
-	public AttackSwingError(AttackSwingErr reason = AttackSwingErr.CantAttack) : base(ServerOpcodes.AttackSwingError)
-	{
-		Reason = reason;
-	}
+    public AttackSwingError(AttackSwingErr reason = AttackSwingErr.CantAttack) : base(ServerOpcodes.AttackSwingError)
+    {
+        Reason = reason;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteBits((uint)Reason, 3);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteBits((uint)Reason, 3);
+        _worldPacket.FlushBits();
+    }
 }

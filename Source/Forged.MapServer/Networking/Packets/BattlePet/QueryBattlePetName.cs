@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class QueryBattlePetName : ClientPacket
 {
-	public ObjectGuid BattlePetID;
-	public ObjectGuid UnitGUID;
-	public QueryBattlePetName(WorldPacket packet) : base(packet) { }
+    public ObjectGuid BattlePetID;
+    public ObjectGuid UnitGUID;
+    public QueryBattlePetName(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		BattlePetID = _worldPacket.ReadPackedGuid();
-		UnitGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        BattlePetID = _worldPacket.ReadPackedGuid();
+        UnitGUID = _worldPacket.ReadPackedGuid();
+    }
 }

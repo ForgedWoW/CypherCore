@@ -10,13 +10,13 @@ public class SendUnlearnSpells : ServerPacket
 {
     private readonly List<uint> Spells = new();
 
-	public SendUnlearnSpells() : base(ServerOpcodes.SendUnlearnSpells, ConnectionType.Instance) { }
+    public SendUnlearnSpells() : base(ServerOpcodes.SendUnlearnSpells, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(Spells.Count);
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(Spells.Count);
 
-		foreach (var spell in Spells)
-			_worldPacket.WriteUInt32(spell);
-	}
+        foreach (var spell in Spells)
+            _worldPacket.WriteUInt32(spell);
+    }
 }

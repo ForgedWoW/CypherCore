@@ -9,20 +9,20 @@ namespace Forged.MapServer.Networking.Packets.Channel;
 
 internal class UserlistRemove : ServerPacket
 {
-	public ObjectGuid RemovedUserGUID;
-	public ChannelFlags ChannelFlags;
-	public uint ChannelID;
-	public string ChannelName;
-	public UserlistRemove() : base(ServerOpcodes.UserlistRemove) { }
+    public ObjectGuid RemovedUserGUID;
+    public ChannelFlags ChannelFlags;
+    public uint ChannelID;
+    public string ChannelName;
+    public UserlistRemove() : base(ServerOpcodes.UserlistRemove) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(RemovedUserGUID);
-		_worldPacket.WriteUInt32((uint)ChannelFlags);
-		_worldPacket.WriteUInt32(ChannelID);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(RemovedUserGUID);
+        _worldPacket.WriteUInt32((uint)ChannelFlags);
+        _worldPacket.WriteUInt32(ChannelID);
 
-		_worldPacket.WriteBits(ChannelName.GetByteCount(), 7);
-		_worldPacket.FlushBits();
-		_worldPacket.WriteString(ChannelName);
-	}
+        _worldPacket.WriteBits(ChannelName.GetByteCount(), 7);
+        _worldPacket.FlushBits();
+        _worldPacket.WriteString(ChannelName);
+    }
 }

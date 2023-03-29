@@ -8,21 +8,21 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarInviteNotesAlert : ServerPacket
 {
-	public ulong EventID;
-	public string Notes;
+    public ulong EventID;
+    public string Notes;
 
-	public CalendarInviteNotesAlert(ulong eventID, string notes) : base(ServerOpcodes.CalendarInviteNotesAlert)
-	{
-		EventID = eventID;
-		Notes = notes;
-	}
+    public CalendarInviteNotesAlert(ulong eventID, string notes) : base(ServerOpcodes.CalendarInviteNotesAlert)
+    {
+        EventID = eventID;
+        Notes = notes;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt64(EventID);
+    public override void Write()
+    {
+        _worldPacket.WriteUInt64(EventID);
 
-		_worldPacket.WriteBits(Notes.GetByteCount(), 8);
-		_worldPacket.FlushBits();
-		_worldPacket.WriteString(Notes);
-	}
+        _worldPacket.WriteBits(Notes.GetByteCount(), 8);
+        _worldPacket.FlushBits();
+        _worldPacket.WriteString(Notes);
+    }
 }

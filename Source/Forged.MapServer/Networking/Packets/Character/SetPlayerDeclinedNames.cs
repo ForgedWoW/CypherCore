@@ -9,24 +9,24 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class SetPlayerDeclinedNames : ClientPacket
 {
-	public ObjectGuid Player;
-	public DeclinedName DeclinedNames;
+    public ObjectGuid Player;
+    public DeclinedName DeclinedNames;
 
-	public SetPlayerDeclinedNames(WorldPacket packet) : base(packet)
-	{
-		DeclinedNames = new DeclinedName();
-	}
+    public SetPlayerDeclinedNames(WorldPacket packet) : base(packet)
+    {
+        DeclinedNames = new DeclinedName();
+    }
 
-	public override void Read()
-	{
-		Player = _worldPacket.ReadPackedGuid();
+    public override void Read()
+    {
+        Player = _worldPacket.ReadPackedGuid();
 
-		var stringLengths = new byte[SharedConst.MaxDeclinedNameCases];
+        var stringLengths = new byte[SharedConst.MaxDeclinedNameCases];
 
-		for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-			stringLengths[i] = _worldPacket.ReadBits<byte>(7);
+        for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
+            stringLengths[i] = _worldPacket.ReadBits<byte>(7);
 
-		for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-			DeclinedNames.Name[i] = _worldPacket.ReadString(stringLengths[i]);
-	}
+        for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
+            DeclinedNames.Name[i] = _worldPacket.ReadString(stringLengths[i]);
+    }
 }

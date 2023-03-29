@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildSetGuildMaster : ClientPacket
 {
-	public string NewMasterName;
-	public GuildSetGuildMaster(WorldPacket packet) : base(packet) { }
+    public string NewMasterName;
+    public GuildSetGuildMaster(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var nameLen = _worldPacket.ReadBits<uint>(9);
-		NewMasterName = _worldPacket.ReadString(nameLen);
-	}
+    public override void Read()
+    {
+        var nameLen = _worldPacket.ReadBits<uint>(9);
+        NewMasterName = _worldPacket.ReadString(nameLen);
+    }
 }

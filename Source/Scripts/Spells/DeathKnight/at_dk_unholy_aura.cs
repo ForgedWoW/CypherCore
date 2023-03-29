@@ -10,17 +10,17 @@ namespace Scripts.Spells.DeathKnight;
 [Script]
 public class at_dk_unholy_aura : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	public void OnUnitEnter(Unit unit)
-	{
-		var caster = At.GetCaster();
+    public void OnUnitEnter(Unit unit)
+    {
+        var caster = At.GetCaster();
 
-		if (caster != null)
-			if (!unit.IsFriendlyTo(caster))
-				caster.CastSpell(unit, DeathKnightSpells.UNHOLY_AURA, true);
-	}
+        if (caster != null)
+            if (!unit.IsFriendlyTo(caster))
+                caster.CastSpell(unit, DeathKnightSpells.UNHOLY_AURA, true);
+    }
 
-	public void OnUnitExit(Unit unit)
-	{
-		unit.RemoveAura(DeathKnightSpells.UNHOLY_AURA);
-	}
+    public void OnUnitExit(Unit unit)
+    {
+        unit.RemoveAura(DeathKnightSpells.UNHOLY_AURA);
+    }
 }

@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IUnit;
 
 public interface IUnitOnDamage : IScriptObject
 {
-	void OnDamage(Unit attacker, Unit victim, ref double damage);
+    void OnDamage(Unit attacker, Unit victim, ref double damage);
 }

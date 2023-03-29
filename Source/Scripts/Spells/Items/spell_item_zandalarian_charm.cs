@@ -14,35 +14,35 @@ namespace Scripts.Spells.Items;
 [Script("spell_item_restless_strength", ItemSpellIds.RestlessStrengthAuraStack)]
 internal class spell_item_zandalarian_charm : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	private readonly uint _spellId;
+    private readonly uint _spellId;
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public spell_item_zandalarian_charm(uint SpellId)
-	{
-		_spellId = SpellId;
-	}
+    public spell_item_zandalarian_charm(uint SpellId)
+    {
+        _spellId = SpellId;
+    }
 
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var spellInfo = eventInfo.SpellInfo;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var spellInfo = eventInfo.SpellInfo;
 
-		if (spellInfo != null)
-			if (spellInfo.Id != ScriptSpellId)
-				return true;
+        if (spellInfo != null)
+            if (spellInfo.Id != ScriptSpellId)
+                return true;
 
-		return false;
-	}
+        return false;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleStackDrop, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleStackDrop, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleStackDrop(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		Target.RemoveAuraFromStack(_spellId);
-	}
+    private void HandleStackDrop(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        Target.RemoveAuraFromStack(_spellId);
+    }
 }

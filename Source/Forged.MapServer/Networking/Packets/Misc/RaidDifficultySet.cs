@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class RaidDifficultySet : ServerPacket
 {
-	public int DifficultyID;
-	public bool Legacy;
-	public RaidDifficultySet() : base(ServerOpcodes.RaidDifficultySet) { }
+    public int DifficultyID;
+    public bool Legacy;
+    public RaidDifficultySet() : base(ServerOpcodes.RaidDifficultySet) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(DifficultyID);
-		_worldPacket.WriteUInt8((byte)(Legacy ? 1 : 0));
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(DifficultyID);
+        _worldPacket.WriteUInt8((byte)(Legacy ? 1 : 0));
+    }
 }

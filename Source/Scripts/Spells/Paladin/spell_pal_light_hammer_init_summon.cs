@@ -11,22 +11,22 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(122773)] // 122773 - Light's Hammer
 internal class spell_pal_light_hammer_init_summon : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		foreach (var summonedObject in Spell.GetExecuteLogEffect(SpellEffectName.Summon).GenericVictimTargets)
-		{
-			var hammer = Global.ObjAccessor.GetUnit(Caster, summonedObject.Victim);
+    public void AfterCast()
+    {
+        foreach (var summonedObject in Spell.GetExecuteLogEffect(SpellEffectName.Summon).GenericVictimTargets)
+        {
+            var hammer = Global.ObjAccessor.GetUnit(Caster, summonedObject.Victim);
 
-			if (hammer != null)
-			{
-				hammer.CastSpell(hammer,
-								PaladinSpells.LightHammerCosmetic,
-								new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell));
+            if (hammer != null)
+            {
+                hammer.CastSpell(hammer,
+                                 PaladinSpells.LightHammerCosmetic,
+                                 new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell));
 
-				hammer.CastSpell(hammer,
-								PaladinSpells.LightHammerPeriodic,
-								new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell));
-			}
-		}
-	}
+                hammer.CastSpell(hammer,
+                                 PaladinSpells.LightHammerPeriodic,
+                                 new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell));
+            }
+        }
+    }
 }

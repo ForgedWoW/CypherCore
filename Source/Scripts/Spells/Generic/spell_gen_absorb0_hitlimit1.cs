@@ -14,24 +14,24 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_absorb0_hitlimit1 : AuraScript, IHasAuraEffects
 {
-	private double limit;
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    private double limit;
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Load()
-	{
-		// Max Absorb stored in 1 dummy effect
-		limit = SpellInfo.GetEffect(1).CalcValue();
+    public override bool Load()
+    {
+        // Max Absorb stored in 1 dummy effect
+        limit = SpellInfo.GetEffect(1).CalcValue();
 
-		return true;
-	}
+        return true;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0, false, AuraScriptHookType.EffectAbsorb));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0, false, AuraScriptHookType.EffectAbsorb));
+    }
 
-	private double Absorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
-	{
-		return Math.Min(limit, absorbAmount);
-	}
+    private double Absorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
+    {
+        return Math.Min(limit, absorbAmount);
+    }
 }

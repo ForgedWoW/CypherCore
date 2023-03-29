@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraOnApply : IAuraScript
 {
-	void AuraApply();
+    void AuraApply();
 }

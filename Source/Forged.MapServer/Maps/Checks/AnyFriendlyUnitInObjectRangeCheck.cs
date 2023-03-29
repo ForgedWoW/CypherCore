@@ -17,35 +17,35 @@ public class AnyFriendlyUnitInObjectRangeCheck : ICheck<Unit>
     private readonly bool _incOwnRadius;
     private readonly bool _incTargetRadius;
 
-	public AnyFriendlyUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, bool playerOnly = false, bool incOwnRadius = true, bool incTargetRadius = true)
-	{
-		_obj = obj;
-		_funit = funit;
-		_range = range;
-		_playerOnly = playerOnly;
-		_incOwnRadius = incOwnRadius;
-		_incTargetRadius = incTargetRadius;
-	}
+    public AnyFriendlyUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, bool playerOnly = false, bool incOwnRadius = true, bool incTargetRadius = true)
+    {
+        _obj = obj;
+        _funit = funit;
+        _range = range;
+        _playerOnly = playerOnly;
+        _incOwnRadius = incOwnRadius;
+        _incTargetRadius = incTargetRadius;
+    }
 
-	public bool Invoke(Unit u)
-	{
-		if (!u.IsAlive)
-			return false;
+    public bool Invoke(Unit u)
+    {
+        if (!u.IsAlive)
+            return false;
 
-		var searchRadius = _range;
+        var searchRadius = _range;
 
-		if (_incOwnRadius)
-			searchRadius += _obj.CombatReach;
+        if (_incOwnRadius)
+            searchRadius += _obj.CombatReach;
 
-		if (_incTargetRadius)
-			searchRadius += u.CombatReach;
+        if (_incTargetRadius)
+            searchRadius += u.CombatReach;
 
-		if (!u.IsInMap(_obj) || !u.InSamePhase(_obj) || !u.Location.IsWithinDoubleVerticalCylinder(_obj.Location, searchRadius, searchRadius))
-			return false;
+        if (!u.IsInMap(_obj) || !u.InSamePhase(_obj) || !u.Location.IsWithinDoubleVerticalCylinder(_obj.Location, searchRadius, searchRadius))
+            return false;
 
-		if (!_funit.IsFriendlyTo(u))
-			return false;
+        if (!_funit.IsFriendlyTo(u))
+            return false;
 
-		return !_playerOnly || u.TypeId == TypeId.Player;
-	}
+        return !_playerOnly || u.TypeId == TypeId.Player;
+    }
 }

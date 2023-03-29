@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces;
 
 public interface IClassRescriction
 {
-	PlayerClass PlayerClass { get; }
+    PlayerClass PlayerClass { get; }
 }

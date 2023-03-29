@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class MoveTimeSkipped : ClientPacket
 {
-	public ObjectGuid MoverGUID;
-	public uint TimeSkipped;
-	public MoveTimeSkipped(WorldPacket packet) : base(packet) { }
+    public ObjectGuid MoverGUID;
+    public uint TimeSkipped;
+    public MoveTimeSkipped(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		MoverGUID = _worldPacket.ReadPackedGuid();
-		TimeSkipped = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        MoverGUID = _worldPacket.ReadPackedGuid();
+        TimeSkipped = _worldPacket.ReadUInt32();
+    }
 }

@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class DFGetJoinStatus : ClientPacket
 {
-	public DFGetJoinStatus(WorldPacket packet) : base(packet) { }
+    public DFGetJoinStatus(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

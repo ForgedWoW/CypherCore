@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Bank;
 
 public class BuyBankSlot : ClientPacket
 {
-	public ObjectGuid Guid;
-	public BuyBankSlot(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Guid;
+    public BuyBankSlot(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Guid = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Guid = _worldPacket.ReadPackedGuid();
+    }
 }

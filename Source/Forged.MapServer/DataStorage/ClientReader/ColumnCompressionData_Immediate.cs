@@ -5,7 +5,7 @@ namespace Forged.MapServer.DataStorage.ClientReader;
 
 public struct ColumnCompressionData_Immediate
 {
-	public int BitOffset;
-	public int BitWidth;
-	public int Flags; // 0x1 signed
+    public int BitOffset;
+    public int BitWidth;
+    public int Flags; // 0x1 signed
 }

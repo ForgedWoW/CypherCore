@@ -11,33 +11,33 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_red_rider_air_rifle : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleScript(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (target)
-		{
-			caster.CastSpell(caster, ItemSpellIds.AirRifleHoldVisual, true);
-			// needed because this spell shares GCD with its triggered spells (which must not be cast with triggered flag)
-			var player = caster.AsPlayer;
+        if (target)
+        {
+            caster.CastSpell(caster, ItemSpellIds.AirRifleHoldVisual, true);
+            // needed because this spell shares GCD with its triggered spells (which must not be cast with triggered flag)
+            var player = caster.AsPlayer;
 
-			if (player)
-				player.SpellHistory.CancelGlobalCooldown(SpellInfo);
+            if (player)
+                player.SpellHistory.CancelGlobalCooldown(SpellInfo);
 
-			if (RandomHelper.URand(0, 4) != 0)
-				caster.CastSpell(target, ItemSpellIds.AirRifleShoot, false);
-			else
-				caster.CastSpell(caster, ItemSpellIds.AirRifleShootSelf, false);
-		}
-	}
+            if (RandomHelper.URand(0, 4) != 0)
+                caster.CastSpell(target, ItemSpellIds.AirRifleShoot, false);
+            else
+                caster.CastSpell(caster, ItemSpellIds.AirRifleShootSelf, false);
+        }
+    }
 }

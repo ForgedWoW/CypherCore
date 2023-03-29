@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildBankSetTabText : ClientPacket
 {
-	public int Tab;
-	public string TabText;
-	public GuildBankSetTabText(WorldPacket packet) : base(packet) { }
+    public int Tab;
+    public string TabText;
+    public GuildBankSetTabText(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Tab = _worldPacket.ReadInt32();
-		TabText = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(14));
-	}
+    public override void Read()
+    {
+        Tab = _worldPacket.ReadInt32();
+        TabText = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(14));
+    }
 }

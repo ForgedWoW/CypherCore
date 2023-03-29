@@ -12,19 +12,19 @@ namespace Scripts.Spells.Items;
 [Script] // 71563 - Deadly Precision Dummy
 internal class spell_item_deadly_precision_dummy : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var spellInfo = Global.SpellMgr.GetSpellInfo(ItemSpellIds.DeadlyPrecision, CastDifficulty);
-		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-		args.AddSpellMod(SpellValueMod.AuraStack, (int)spellInfo.StackAmount);
-		Caster.CastSpell(Caster, spellInfo.Id, args);
-	}
+    private void HandleDummy(int effIndex)
+    {
+        var spellInfo = Global.SpellMgr.GetSpellInfo(ItemSpellIds.DeadlyPrecision, CastDifficulty);
+        CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+        args.AddSpellMod(SpellValueMod.AuraStack, (int)spellInfo.StackAmount);
+        Caster.CastSpell(Caster, spellInfo.Id, args);
+    }
 }

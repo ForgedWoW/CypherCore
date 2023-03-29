@@ -10,14 +10,14 @@ public class LocalizedString
 {
     private readonly StringArray stringStorage = new((int)Locale.Total);
 
-	public string this[Locale locale]
-	{
-		get { return stringStorage[(int)locale] ?? ""; }
-		set { stringStorage[(int)locale] = value; }
-	}
+    public string this[Locale locale]
+    {
+        get { return stringStorage[(int)locale] ?? ""; }
+        set { stringStorage[(int)locale] = value; }
+    }
 
-	public bool HasString(Locale locale = SharedConst.DefaultLocale)
-	{
-		return !string.IsNullOrEmpty(stringStorage[(int)locale]);
-	}
+    public bool HasString(Locale locale = SharedConst.DefaultLocale)
+    {
+        return !string.IsNullOrEmpty(stringStorage[(int)locale]);
+    }
 }

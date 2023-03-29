@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum SpellCategories
 {
-	HealthManaPotions = 4,
-	DevourMagic = 12,
-	Judgement = 1210, // Judgement (seal trigger)
-	Food = 11,
-	Drink = 59
+    HealthManaPotions = 4,
+    DevourMagic = 12,
+    Judgement = 1210, // Judgement (seal trigger)
+    Food = 11,
+    Drink = 59
 }

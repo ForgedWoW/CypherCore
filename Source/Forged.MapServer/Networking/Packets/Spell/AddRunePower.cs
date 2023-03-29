@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class AddRunePower : ServerPacket
 {
-	public uint AddedRunesMask;
-	public AddRunePower() : base(ServerOpcodes.AddRunePower, ConnectionType.Instance) { }
+    public uint AddedRunesMask;
+    public AddRunePower() : base(ServerOpcodes.AddRunePower, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(AddedRunesMask);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(AddedRunesMask);
+    }
 }

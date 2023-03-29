@@ -9,5 +9,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 // Called when a player takes damage
 public interface IPlayerOnTakeDamage : IScriptObject, IClassRescriction
 {
-	void OnPlayerTakeDamage(Player player, double amount, SpellSchoolMask schoolMask);
+    void OnPlayerTakeDamage(Player player, double amount, SpellSchoolMask schoolMask);
 }

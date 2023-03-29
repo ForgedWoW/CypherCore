@@ -10,15 +10,15 @@ internal class CustomLoadScreen : ServerPacket
     private readonly uint TeleportSpellID;
     private readonly uint LoadingScreenID;
 
-	public CustomLoadScreen(uint teleportSpellId, uint loadingScreenId) : base(ServerOpcodes.CustomLoadScreen)
-	{
-		TeleportSpellID = teleportSpellId;
-		LoadingScreenID = loadingScreenId;
-	}
+    public CustomLoadScreen(uint teleportSpellId, uint loadingScreenId) : base(ServerOpcodes.CustomLoadScreen)
+    {
+        TeleportSpellID = teleportSpellId;
+        LoadingScreenID = loadingScreenId;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(TeleportSpellID);
-		_worldPacket.WriteUInt32(LoadingScreenID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(TeleportSpellID);
+        _worldPacket.WriteUInt32(LoadingScreenID);
+    }
 }

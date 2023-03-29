@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 public interface IAreaTriggerOnPeriodicProc : IAreaTriggerScript
 {
-	public void OnPeriodicProc();
+    public void OnPeriodicProc();
 }

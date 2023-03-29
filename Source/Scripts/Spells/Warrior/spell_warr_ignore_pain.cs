@@ -12,25 +12,25 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(190456)]
 public class spell_warr_ignore_pain : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-		{
-			if (caster.HasAura(WarriorSpells.RENEWED_FURY))
-				caster.CastSpell(caster, WarriorSpells.RENEWED_FURY_EFFECT, true);
+        if (caster != null)
+        {
+            if (caster.HasAura(WarriorSpells.RENEWED_FURY))
+                caster.CastSpell(caster, WarriorSpells.RENEWED_FURY_EFFECT, true);
 
-			if (caster.HasAura(WarriorSpells.VENGEANCE_AURA))
-				caster.CastSpell(caster, WarriorSpells.VENGEANCE_FOCUSED_RAGE, true);
-		}
-	}
+            if (caster.HasAura(WarriorSpells.VENGEANCE_AURA))
+                caster.CastSpell(caster, WarriorSpells.VENGEANCE_FOCUSED_RAGE, true);
+        }
+    }
 }

@@ -13,23 +13,23 @@ namespace Scripts.Spells.Rogue;
 [Script] // 76806 - Mastery: Main Gauche
 internal class spell_rog_mastery_main_gauche : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		return eventInfo.DamageInfo != null && eventInfo.DamageInfo.Victim != null;
-	}
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        return eventInfo.DamageInfo != null && eventInfo.DamageInfo.Victim != null;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
-	{
-		var target = Target;
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
+    {
+        var target = Target;
 
-		target?.CastSpell(procInfo.DamageInfo.Victim, RogueSpells.MainGauche, new CastSpellExtraArgs(aurEff));
-	}
+        target?.CastSpell(procInfo.DamageInfo.Victim, RogueSpells.MainGauche, new CastSpellExtraArgs(aurEff));
+    }
 }

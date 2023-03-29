@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class ReadItemResultOK : ServerPacket
 {
-	public ObjectGuid Item;
-	public ReadItemResultOK() : base(ServerOpcodes.ReadItemResultOk) { }
+    public ObjectGuid Item;
+    public ReadItemResultOK() : base(ServerOpcodes.ReadItemResultOk) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Item);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Item);
+    }
 }

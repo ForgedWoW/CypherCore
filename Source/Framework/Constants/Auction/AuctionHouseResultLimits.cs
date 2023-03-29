@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum AuctionHouseResultLimits
 {
-	Browse = 500,
-	Items = 50
+    Browse = 500,
+    Items = 50
 }

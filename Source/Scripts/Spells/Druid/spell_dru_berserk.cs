@@ -10,10 +10,10 @@ namespace Scripts.Spells.Druid;
 [Script] // 77758 - Berserk
 internal class spell_dru_berserk : SpellScript, ISpellBeforeCast
 {
-	public void BeforeCast()
-	{
-		// Change into cat form
-		if (Caster.ShapeshiftForm != ShapeShiftForm.BearForm)
-			Caster.CastSpell(Caster, DruidSpellIds.BearForm, true);
-	}
+    public void BeforeCast()
+    {
+        // Change into cat form
+        if (Caster.ShapeshiftForm != ShapeShiftForm.BearForm)
+            Caster.CastSpell(Caster, DruidSpellIds.BearForm, true);
+    }
 }

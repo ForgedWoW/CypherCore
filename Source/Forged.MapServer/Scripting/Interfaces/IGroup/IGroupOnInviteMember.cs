@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IGroup;
 
 public interface IGroupOnInviteMember : IScriptObject
 {
-	void OnInviteMember(PlayerGroup group, ObjectGuid guid);
+    void OnInviteMember(PlayerGroup group, ObjectGuid guid);
 }

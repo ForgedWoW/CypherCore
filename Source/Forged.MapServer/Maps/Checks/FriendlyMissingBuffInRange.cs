@@ -13,22 +13,22 @@ public class FriendlyMissingBuffInRange : ICheck<Creature>
     private readonly float _range;
     private readonly uint _spell;
 
-	public FriendlyMissingBuffInRange(Unit obj, float range, uint spellid)
-	{
-		_obj = obj;
-		_range = range;
-		_spell = spellid;
-	}
+    public FriendlyMissingBuffInRange(Unit obj, float range, uint spellid)
+    {
+        _obj = obj;
+        _range = range;
+        _spell = spellid;
+    }
 
-	public bool Invoke(Creature u)
-	{
-		if (u.IsAlive &&
-			u.IsInCombat &&
-			!_obj.IsHostileTo(u) &&
-			_obj.IsWithinDist(u, _range) &&
-			!(u.HasAura(_spell)))
-			return true;
+    public bool Invoke(Creature u)
+    {
+        if (u.IsAlive &&
+            u.IsInCombat &&
+            !_obj.IsHostileTo(u) &&
+            _obj.IsWithinDist(u, _range) &&
+            !(u.HasAura(_spell)))
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

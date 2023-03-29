@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraScriptValues : IAuraScript
 {
-	Dictionary<string, object> ScriptValues { get; }
+    Dictionary<string, object> ScriptValues { get; }
 }

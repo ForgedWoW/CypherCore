@@ -7,13 +7,13 @@ namespace Forged.MapServer.Maps;
 
 public class MMapData
 {
-	public Dictionary<uint, Detour.dtNavMeshQuery> navMeshQueries = new(); // instanceId to query
+    public Dictionary<uint, Detour.dtNavMeshQuery> navMeshQueries = new(); // instanceId to query
 
-	public Detour.dtNavMesh navMesh;
-	public Dictionary<uint, ulong> loadedTileRefs = new(); // maps [map grid coords] to [dtTile]
+    public Detour.dtNavMesh navMesh;
+    public Dictionary<uint, ulong> loadedTileRefs = new(); // maps [map grid coords] to [dtTile]
 
-	public MMapData(Detour.dtNavMesh mesh)
-	{
-		navMesh = mesh;
-	}
+    public MMapData(Detour.dtNavMesh mesh)
+    {
+        navMesh = mesh;
+    }
 }

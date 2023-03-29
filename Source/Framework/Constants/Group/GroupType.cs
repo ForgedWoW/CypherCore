@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum GroupType
 {
-	None = 0,
-	Normal = 1,
-	WorldPvp = 4,
+    None = 0,
+    Normal = 1,
+    WorldPvp = 4,
 }

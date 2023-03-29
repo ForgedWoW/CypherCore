@@ -7,20 +7,20 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellEffect
 {
-	int EffectIndex { get; }
+    int EffectIndex { get; }
 
-	SpellScriptHookType HookType { get; }
+    SpellScriptHookType HookType { get; }
 }
 
 public class SpellEffect : ISpellEffect
 {
-	public int EffectIndex { get; private set; }
+    public int EffectIndex { get; private set; }
 
-	public SpellScriptHookType HookType { get; private set; }
+    public SpellScriptHookType HookType { get; private set; }
 
-	public SpellEffect(int effectIndex, SpellScriptHookType hookType)
-	{
-		EffectIndex = effectIndex;
-		HookType = hookType;
-	}
+    public SpellEffect(int effectIndex, SpellScriptHookType hookType)
+    {
+        EffectIndex = effectIndex;
+        HookType = hookType;
+    }
 }

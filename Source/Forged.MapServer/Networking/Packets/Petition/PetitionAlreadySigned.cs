@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class PetitionAlreadySigned : ServerPacket
 {
-	public ObjectGuid SignerGUID;
-	public PetitionAlreadySigned() : base(ServerOpcodes.PetitionAlreadySigned) { }
+    public ObjectGuid SignerGUID;
+    public PetitionAlreadySigned() : base(ServerOpcodes.PetitionAlreadySigned) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(SignerGUID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(SignerGUID);
+    }
 }

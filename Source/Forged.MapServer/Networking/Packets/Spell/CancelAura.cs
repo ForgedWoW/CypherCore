@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class CancelAura : ClientPacket
 {
-	public ObjectGuid CasterGUID;
-	public uint SpellID;
-	public CancelAura(WorldPacket packet) : base(packet) { }
+    public ObjectGuid CasterGUID;
+    public uint SpellID;
+    public CancelAura(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		SpellID = _worldPacket.ReadUInt32();
-		CasterGUID = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        SpellID = _worldPacket.ReadUInt32();
+        CasterGUID = _worldPacket.ReadPackedGuid();
+    }
 }
 
 //Structs

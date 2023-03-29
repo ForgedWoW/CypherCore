@@ -10,10 +10,10 @@ namespace Scripts.Spells.DemonHunter;
 [Script]
 internal class areatrigger_dh_sigil_of_misery : AreaTriggerScript, IAreaTriggerOnRemove
 {
-	public void OnRemove()
-	{
-		var caster = At.GetCaster();
+    public void OnRemove()
+    {
+        var caster = At.GetCaster();
 
-		caster?.CastSpell(At.Location, DemonHunterSpells.SigilOfMiseryAoe, new CastSpellExtraArgs());
-	}
+        caster?.CastSpell(At.Location, DemonHunterSpells.SigilOfMiseryAoe, new CastSpellExtraArgs());
+    }
 }

@@ -11,21 +11,21 @@ namespace Scripts.Spells.Generic;
 [Script] // 70769 Divine Storm!
 internal class spell_gen_divine_storm_cd_reset : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		return Caster.IsTypeId(TypeId.Player);
-	}
+    public override bool Load()
+    {
+        return Caster.IsTypeId(TypeId.Player);
+    }
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		Caster.SpellHistory.ResetCooldown(GenericSpellIds.DivineStorm, true);
-	}
+    private void HandleScript(int effIndex)
+    {
+        Caster.SpellHistory.ResetCooldown(GenericSpellIds.DivineStorm, true);
+    }
 }

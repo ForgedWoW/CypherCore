@@ -13,29 +13,29 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(81136)]
 public class spell_dk_crimsom_scourge : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var target = Target;
-		target.HasAura(DeathKnightSpells.BLOOD_PLAGUE);
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var target = Target;
+        target.HasAura(DeathKnightSpells.BLOOD_PLAGUE);
 
-		return true;
-	}
+        return true;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		if (RandomHelper.randChance(40))
-			caster.CastSpell(caster, 81141, true);
-	}
+        if (RandomHelper.randChance(40))
+            caster.CastSpell(caster, 81141, true);
+    }
 }

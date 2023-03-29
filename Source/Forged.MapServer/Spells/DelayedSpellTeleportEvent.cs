@@ -16,30 +16,30 @@ internal class DelayedSpellTeleportEvent : BasicEvent
     private readonly TeleportToOptions _options;
     private readonly uint _spellId;
 
-	public DelayedSpellTeleportEvent(Unit target, WorldLocation targetDest, TeleportToOptions options, uint spellId)
-	{
-		_target = target;
-		_targetDest = targetDest;
-		_options = options;
-		_spellId = spellId;
-	}
+    public DelayedSpellTeleportEvent(Unit target, WorldLocation targetDest, TeleportToOptions options, uint spellId)
+    {
+        _target = target;
+        _targetDest = targetDest;
+        _options = options;
+        _spellId = spellId;
+    }
 
-	public override bool Execute(ulong etime, uint pTime)
-	{
-		if (_targetDest.MapId == _target.Location.MapId)
-		{
-			_target.NearTeleportTo(_targetDest, (_options & TeleportToOptions.Spell) != 0);
-		}
-		else
-		{
-			var player = _target.AsPlayer;
+    public override bool Execute(ulong etime, uint pTime)
+    {
+        if (_targetDest.MapId == _target.Location.MapId)
+        {
+            _target.NearTeleportTo(_targetDest, (_options & TeleportToOptions.Spell) != 0);
+        }
+        else
+        {
+            var player = _target.AsPlayer;
 
-			if (player != null)
-				player.TeleportTo(_targetDest, _options);
-			else
-				Log.Logger.Error($"Spell::EffectTeleportUnitsWithVisualLoadingScreen - spellId {_spellId} attempted to teleport creature to a different map.");
-		}
+            if (player != null)
+                player.TeleportTo(_targetDest, _options);
+            else
+                Log.Logger.Error($"Spell::EffectTeleportUnitsWithVisualLoadingScreen - spellId {_spellId} attempted to teleport creature to a different map.");
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

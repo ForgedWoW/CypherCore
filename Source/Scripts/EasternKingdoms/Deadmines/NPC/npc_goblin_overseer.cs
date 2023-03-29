@@ -12,40 +12,40 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 [CreatureScript(48279)]
 public class npc_goblin_overseer : ScriptedAI
 {
-	public uint MotivateTimer;
+    public uint MotivateTimer;
 
-	private bool _threat;
+    private bool _threat;
 
-	public npc_goblin_overseer(Creature creature) : base(creature) { }
+    public npc_goblin_overseer(Creature creature) : base(creature) { }
 
-	public override void Reset()
-	{
-		MotivateTimer = 4000;
-		_threat = true;
-	}
+    public override void Reset()
+    {
+        MotivateTimer = 4000;
+        _threat = true;
+    }
 
-	public override void UpdateAI(uint diff)
-	{
-		if (MotivateTimer <= diff)
-		{
-			var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
+    public override void UpdateAI(uint diff)
+    {
+        if (MotivateTimer <= diff)
+        {
+            var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
-			if (target != null)
-				DoCast(target, boss_vanessa_vancleef.Spells.MOTIVATE);
+            if (target != null)
+                DoCast(target, boss_vanessa_vancleef.Spells.MOTIVATE);
 
-			MotivateTimer = RandomHelper.URand(8000, 11000);
-		}
-		else
-		{
-			MotivateTimer -= diff;
-		}
+            MotivateTimer = RandomHelper.URand(8000, 11000);
+        }
+        else
+        {
+            MotivateTimer -= diff;
+        }
 
-		if (HealthBelowPct(50) && !_threat)
-		{
-			DoCast(Me, boss_vanessa_vancleef.Spells.THREATENING);
-			_threat = true;
-		}
+        if (HealthBelowPct(50) && !_threat)
+        {
+            DoCast(Me, boss_vanessa_vancleef.Spells.THREATENING);
+            _threat = true;
+        }
 
-		DoMeleeAttackIfReady();
-	}
+        DoMeleeAttackIfReady();
+    }
 }

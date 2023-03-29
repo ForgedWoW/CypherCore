@@ -14,31 +14,31 @@ internal class PowerUsersSelector : ICheck<Unit>
     private readonly float _dist;
     private readonly bool _playerOnly;
 
-	public PowerUsersSelector(Unit unit, PowerType power, float dist, bool playerOnly)
-	{
-		_me = unit;
-		_power = power;
-		_dist = dist;
-		_playerOnly = playerOnly;
-	}
+    public PowerUsersSelector(Unit unit, PowerType power, float dist, bool playerOnly)
+    {
+        _me = unit;
+        _power = power;
+        _dist = dist;
+        _playerOnly = playerOnly;
+    }
 
-	public bool Invoke(Unit target)
-	{
-		if (_me == null || target == null)
-			return false;
+    public bool Invoke(Unit target)
+    {
+        if (_me == null || target == null)
+            return false;
 
-		if (target.DisplayPowerType != _power)
-			return false;
+        if (target.DisplayPowerType != _power)
+            return false;
 
-		if (_playerOnly && target.TypeId != TypeId.Player)
-			return false;
+        if (_playerOnly && target.TypeId != TypeId.Player)
+            return false;
 
-		if (_dist > 0.0f && !_me.IsWithinCombatRange(target, _dist))
-			return false;
+        if (_dist > 0.0f && !_me.IsWithinCombatRange(target, _dist))
+            return false;
 
-		if (_dist < 0.0f && _me.IsWithinCombatRange(target, -_dist))
-			return false;
+        if (_dist < 0.0f && _me.IsWithinCombatRange(target, -_dist))
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 }

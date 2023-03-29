@@ -5,12 +5,12 @@ namespace Framework.Constants;
 
 public enum ArtifactPowerFlag : byte
 {
-	Gold = 0x01,
-	NoLinkRequired = 0x02,
-	Final = 0x04,
-	ScalesWithNumPowers = 0x08,
-	DontCountFirstBonusRank = 0x10,
-	MaxRankWithTier = 0x20,
+    Gold = 0x01,
+    NoLinkRequired = 0x02,
+    Final = 0x04,
+    ScalesWithNumPowers = 0x08,
+    DontCountFirstBonusRank = 0x10,
+    MaxRankWithTier = 0x20,
 
-	First = NoLinkRequired | DontCountFirstBonusRank,
+    First = NoLinkRequired | DontCountFirstBonusRank,
 }

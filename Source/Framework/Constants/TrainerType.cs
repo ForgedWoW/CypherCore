@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum TrainerType
 {
-	None = 0,
-	Talent = 1,
-	Tradeskills = 2,
-	Pets = 3
+    None = 0,
+    Talent = 1,
+    Tradeskills = 2,
+    Pets = 3
 }

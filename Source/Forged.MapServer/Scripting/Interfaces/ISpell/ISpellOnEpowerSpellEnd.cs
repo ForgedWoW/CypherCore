@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellOnEpowerSpellEnd : ISpellScript
 {
-	void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta);
+    void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta);
 }

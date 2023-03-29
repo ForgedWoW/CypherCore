@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum PlayerSlots
 {
-	// first slot for item stored (in any way in player items data)
-	Start = 0,
+    // first slot for item stored (in any way in player items data)
+    Start = 0,
 
-	// last+1 slot for item stored (in any way in player items data)
-	End = 218,
-	Count = (End - Start)
+    // last+1 slot for item stored (in any way in player items data)
+    End = 218,
+    Count = (End - Start)
 }

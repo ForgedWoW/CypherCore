@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class MoveTeleportAck : ClientPacket
 {
-	public ObjectGuid MoverGUID;
+    public ObjectGuid MoverGUID;
     private int AckIndex;
     private int MoveTime;
-	public MoveTeleportAck(WorldPacket packet) : base(packet) { }
+    public MoveTeleportAck(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		MoverGUID = _worldPacket.ReadPackedGuid();
-		AckIndex = _worldPacket.ReadInt32();
-		MoveTime = _worldPacket.ReadInt32();
-	}
+    public override void Read()
+    {
+        MoverGUID = _worldPacket.ReadPackedGuid();
+        AckIndex = _worldPacket.ReadInt32();
+        MoveTime = _worldPacket.ReadInt32();
+    }
 }

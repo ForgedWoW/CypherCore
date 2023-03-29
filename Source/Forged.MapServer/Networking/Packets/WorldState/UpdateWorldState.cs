@@ -7,16 +7,16 @@ namespace Forged.MapServer.Networking.Packets.WorldState;
 
 public class UpdateWorldState : ServerPacket
 {
-	public int Value;
-	public bool Hidden; // @todo: research
-	public uint VariableID;
-	public UpdateWorldState() : base(ServerOpcodes.UpdateWorldState, ConnectionType.Instance) { }
+    public int Value;
+    public bool Hidden; // @todo: research
+    public uint VariableID;
+    public UpdateWorldState() : base(ServerOpcodes.UpdateWorldState, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(VariableID);
-		_worldPacket.WriteInt32(Value);
-		_worldPacket.WriteBit(Hidden);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(VariableID);
+        _worldPacket.WriteInt32(Value);
+        _worldPacket.WriteBit(Hidden);
+        _worldPacket.FlushBits();
+    }
 }

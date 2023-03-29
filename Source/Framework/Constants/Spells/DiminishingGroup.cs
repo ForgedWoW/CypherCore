@@ -5,15 +5,15 @@ namespace Framework.Constants;
 
 public enum DiminishingGroup
 {
-	None = 0,
-	Root = 1,
-	Stun = 2,
-	Incapacitate = 3,
-	Disorient = 4,
-	Silence = 5,
-	AOEKnockback = 6,
-	Taunt = 7,
-	LimitOnly = 8,
+    None = 0,
+    Root = 1,
+    Stun = 2,
+    Incapacitate = 3,
+    Disorient = 4,
+    Silence = 5,
+    AOEKnockback = 6,
+    Taunt = 7,
+    LimitOnly = 8,
 
-	Max
+    Max
 }

@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum WorldStateExpressionValueType
 {
-	Constant = 1,
-	WorldState = 2,
-	Function = 3
+    Constant = 1,
+    WorldState = 2,
+    Function = 3
 }

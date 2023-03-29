@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public class AttackStart : ServerPacket
 {
-	public ObjectGuid Attacker;
-	public ObjectGuid Victim;
-	public AttackStart() : base(ServerOpcodes.AttackStart, ConnectionType.Instance) { }
+    public ObjectGuid Attacker;
+    public ObjectGuid Victim;
+    public AttackStart() : base(ServerOpcodes.AttackStart, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Attacker);
-		_worldPacket.WritePackedGuid(Victim);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Attacker);
+        _worldPacket.WritePackedGuid(Victim);
+    }
 }

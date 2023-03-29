@@ -18,50 +18,50 @@ public class WorldServiceHandler
     private readonly Type _requestType;
     private readonly Type _responseType;
 
-	public WorldServiceHandler(MethodInfo info, ParameterInfo[] parameters)
-	{
-		_requestType = parameters[0].ParameterType;
+    public WorldServiceHandler(MethodInfo info, ParameterInfo[] parameters)
+    {
+        _requestType = parameters[0].ParameterType;
 
-		if (parameters.Length > 1)
-			_responseType = parameters[1].ParameterType;
+        if (parameters.Length > 1)
+            _responseType = parameters[1].ParameterType;
 
-		if (_responseType != null)
-			_methodCaller = info.CreateDelegate(Expression.GetDelegateType(new[]
-			{
-				typeof(WorldSession), _requestType, _responseType, info.ReturnType
-			}));
-		else
-			_methodCaller = info.CreateDelegate(Expression.GetDelegateType(new[]
-			{
-				typeof(WorldSession), _requestType, info.ReturnType
-			}));
-	}
+        if (_responseType != null)
+            _methodCaller = info.CreateDelegate(Expression.GetDelegateType(new[]
+            {
+                typeof(WorldSession), _requestType, _responseType, info.ReturnType
+            }));
+        else
+            _methodCaller = info.CreateDelegate(Expression.GetDelegateType(new[]
+            {
+                typeof(WorldSession), _requestType, info.ReturnType
+            }));
+    }
 
-	public void Invoke(WorldSession session, MethodCall methodCall, CodedInputStream stream)
-	{
-		var request = (IMessage)Activator.CreateInstance(_requestType);
-		request.MergeFrom(stream);
+    public void Invoke(WorldSession session, MethodCall methodCall, CodedInputStream stream)
+    {
+        var request = (IMessage)Activator.CreateInstance(_requestType);
+        request.MergeFrom(stream);
 
-		BattlenetRpcErrorCode status;
+        BattlenetRpcErrorCode status;
 
-		if (_responseType != null)
-		{
-			var response = (IMessage)Activator.CreateInstance(_responseType);
-			status = (BattlenetRpcErrorCode)_methodCaller.DynamicInvoke(session, request, response);
-			Log.Logger.Debug("{0} Client called server Method: {1}) Returned: {2} Status: {3}.", session.RemoteAddress, request, response, status);
+        if (_responseType != null)
+        {
+            var response = (IMessage)Activator.CreateInstance(_responseType);
+            status = (BattlenetRpcErrorCode)_methodCaller.DynamicInvoke(session, request, response);
+            Log.Logger.Debug("{0} Client called server Method: {1}) Returned: {2} Status: {3}.", session.RemoteAddress, request, response, status);
 
-			if (status == 0)
-				session.SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, response);
-			else
-				session.SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, status);
-		}
-		else
-		{
-			status = (BattlenetRpcErrorCode)_methodCaller.DynamicInvoke(session, request);
-			Log.Logger.Debug("{0} Client called server Method: {1}) Status: {2}.", session.RemoteAddress, request, status);
+            if (status == 0)
+                session.SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, response);
+            else
+                session.SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, status);
+        }
+        else
+        {
+            status = (BattlenetRpcErrorCode)_methodCaller.DynamicInvoke(session, request);
+            Log.Logger.Debug("{0} Client called server Method: {1}) Status: {2}.", session.RemoteAddress, request, status);
 
-			if (status != 0)
-				session.SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, status);
-		}
-	}
+            if (status != 0)
+                session.SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, status);
+        }
+    }
 }

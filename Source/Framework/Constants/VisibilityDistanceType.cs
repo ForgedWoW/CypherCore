@@ -5,12 +5,12 @@ namespace Framework.Constants;
 
 public enum VisibilityDistanceType
 {
-	Normal = 0,
-	Tiny = 1,
-	Small = 2,
-	Large = 3,
-	Gigantic = 4,
-	Infinite = 5,
+    Normal = 0,
+    Tiny = 1,
+    Small = 2,
+    Large = 3,
+    Gigantic = 4,
+    Infinite = 5,
 
-	Max
+    Max
 }

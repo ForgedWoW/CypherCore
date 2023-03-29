@@ -12,42 +12,42 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(3026)]
 public class spell_warlock_use_soulstone : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SelfResurrect, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SelfResurrect, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		var player = Caster.AsPlayer;
+    private void HandleHit(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        var player = Caster.AsPlayer;
 
-		if (player == null)
-			return;
+        if (player == null)
+            return;
 
-		var originalCaster = OriginalCaster;
+        var originalCaster = OriginalCaster;
 
-		// already have one active request
-		if (player.IsResurrectRequested)
-			return;
+        // already have one active request
+        if (player.IsResurrectRequested)
+            return;
 
-		var healthPct = SpellInfo.GetEffect(1).CalcValue(originalCaster);
-		var manaPct = SpellInfo.GetEffect(0).CalcValue(originalCaster);
+        var healthPct = SpellInfo.GetEffect(1).CalcValue(originalCaster);
+        var manaPct = SpellInfo.GetEffect(0).CalcValue(originalCaster);
 
-		var health = player.CountPctFromMaxHealth(healthPct);
-		var mana = 0;
+        var health = player.CountPctFromMaxHealth(healthPct);
+        var mana = 0;
 
-		if (player.GetMaxPower(PowerType.Mana) > 0)
-			mana = MathFunctions.CalculatePct(player.GetMaxPower(PowerType.Mana), manaPct);
+        if (player.GetMaxPower(PowerType.Mana) > 0)
+            mana = MathFunctions.CalculatePct(player.GetMaxPower(PowerType.Mana), manaPct);
 
-		player.ResurrectPlayer(0.0f);
-		player.SetHealth(health);
-		player.SetPower(PowerType.Mana, mana);
-		player.SetPower(PowerType.Rage, 0);
-		player.SetPower(PowerType.Energy, player.GetMaxPower(PowerType.Energy));
-		player.SetPower(PowerType.Focus, 0);
-		player.SpawnCorpseBones();
-	}
+        player.ResurrectPlayer(0.0f);
+        player.SetHealth(health);
+        player.SetPower(PowerType.Mana, mana);
+        player.SetPower(PowerType.Rage, 0);
+        player.SetPower(PowerType.Energy, player.GetMaxPower(PowerType.Energy));
+        player.SetPower(PowerType.Focus, 0);
+        player.SpawnCorpseBones();
+    }
 }

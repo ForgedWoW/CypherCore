@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class SpellInterruptLog : ServerPacket
 {
-	public ObjectGuid Caster;
-	public ObjectGuid Victim;
-	public uint InterruptedSpellID;
-	public uint SpellID;
-	public SpellInterruptLog() : base(ServerOpcodes.SpellInterruptLog, ConnectionType.Instance) { }
+    public ObjectGuid Caster;
+    public ObjectGuid Victim;
+    public uint InterruptedSpellID;
+    public uint SpellID;
+    public SpellInterruptLog() : base(ServerOpcodes.SpellInterruptLog, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Caster);
-		_worldPacket.WritePackedGuid(Victim);
-		_worldPacket.WriteUInt32(InterruptedSpellID);
-		_worldPacket.WriteUInt32(SpellID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Caster);
+        _worldPacket.WritePackedGuid(Victim);
+        _worldPacket.WriteUInt32(InterruptedSpellID);
+        _worldPacket.WriteUInt32(SpellID);
+    }
 }

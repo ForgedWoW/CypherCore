@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum ArenaErrorType
 {
-	NoTeam = 0,
-	ExpiredCAIS = 1,
-	CantUseBattleground = 2
+    NoTeam = 0,
+    ExpiredCAIS = 1,
+    CantUseBattleground = 2
 }

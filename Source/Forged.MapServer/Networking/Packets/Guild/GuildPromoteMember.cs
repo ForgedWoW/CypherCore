@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildPromoteMember : ClientPacket
 {
-	public ObjectGuid Promotee;
-	public GuildPromoteMember(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Promotee;
+    public GuildPromoteMember(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Promotee = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        Promotee = _worldPacket.ReadPackedGuid();
+    }
 }

@@ -8,30 +8,30 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class SpellAbsorbLog : CombatLogServerPacket
 {
-	public ObjectGuid Attacker;
-	public ObjectGuid Victim;
-	public ObjectGuid Caster;
-	public uint AbsorbedSpellID;
-	public uint AbsorbSpellID;
-	public int Absorbed;
-	public uint OriginalDamage;
-	public bool Unk;
-	public SpellAbsorbLog() : base(ServerOpcodes.SpellAbsorbLog, ConnectionType.Instance) { }
+    public ObjectGuid Attacker;
+    public ObjectGuid Victim;
+    public ObjectGuid Caster;
+    public uint AbsorbedSpellID;
+    public uint AbsorbSpellID;
+    public int Absorbed;
+    public uint OriginalDamage;
+    public bool Unk;
+    public SpellAbsorbLog() : base(ServerOpcodes.SpellAbsorbLog, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Attacker);
-		_worldPacket.WritePackedGuid(Victim);
-		_worldPacket.WriteUInt32(AbsorbedSpellID);
-		_worldPacket.WriteUInt32(AbsorbSpellID);
-		_worldPacket.WritePackedGuid(Caster);
-		_worldPacket.WriteInt32(Absorbed);
-		_worldPacket.WriteUInt32(OriginalDamage);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Attacker);
+        _worldPacket.WritePackedGuid(Victim);
+        _worldPacket.WriteUInt32(AbsorbedSpellID);
+        _worldPacket.WriteUInt32(AbsorbSpellID);
+        _worldPacket.WritePackedGuid(Caster);
+        _worldPacket.WriteInt32(Absorbed);
+        _worldPacket.WriteUInt32(OriginalDamage);
 
-		_worldPacket.WriteBit(Unk);
-		WriteLogDataBit();
-		FlushBits();
+        _worldPacket.WriteBit(Unk);
+        WriteLogDataBit();
+        FlushBits();
 
-		WriteLogData();
-	}
+        WriteLogData();
+    }
 }

@@ -9,16 +9,16 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class CharacterCreateInfo
 {
-	// User specified variables
-	public Race RaceId = Race.None;
-	public PlayerClass ClassId = PlayerClass.None;
-	public Gender Sex = Gender.None;
-	public Array<ChrCustomizationChoice> Customizations = new(72);
-	public uint? TemplateSet;
-	public bool IsTrialBoost;
-	public bool UseNPE;
-	public string Name;
+    // User specified variables
+    public Race RaceId = Race.None;
+    public PlayerClass ClassId = PlayerClass.None;
+    public Gender Sex = Gender.None;
+    public Array<ChrCustomizationChoice> Customizations = new(72);
+    public uint? TemplateSet;
+    public bool IsTrialBoost;
+    public bool UseNPE;
+    public string Name;
 
-	// Server side data
-	public byte CharCount = 0;
+    // Server side data
+    public byte CharCount = 0;
 }

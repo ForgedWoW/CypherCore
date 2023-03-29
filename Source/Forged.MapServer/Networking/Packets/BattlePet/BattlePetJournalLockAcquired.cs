@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetJournalLockAcquired : ServerPacket
 {
-	public BattlePetJournalLockAcquired() : base(ServerOpcodes.BattlePetJournalLockAcquired) { }
+    public BattlePetJournalLockAcquired() : base(ServerOpcodes.BattlePetJournalLockAcquired) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

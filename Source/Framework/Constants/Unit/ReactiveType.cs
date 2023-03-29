@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum ReactiveType
 {
-	Defense = 0,
-	Defense2 = 1,
-	Max = 2
+    Defense = 0,
+    Defense2 = 1,
+    Max = 2
 }

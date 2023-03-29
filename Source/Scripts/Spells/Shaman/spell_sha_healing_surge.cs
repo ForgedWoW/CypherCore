@@ -12,29 +12,29 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(188070)]
 public class spell_sha_healing_surge : SpellScript, IHasSpellEffects, ISpellCalculateCastTime
 {
-	private int _takenPower = 0;
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    private int _takenPower = 0;
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public int CalcCastTime(int castTime)
-	{
-		var requiredMaelstrom = (int)GetEffectInfo(2).BasePoints;
+    public int CalcCastTime(int castTime)
+    {
+        var requiredMaelstrom = (int)GetEffectInfo(2).BasePoints;
 
-		if (Caster.GetPower(PowerType.Maelstrom) >= requiredMaelstrom)
-		{
-			castTime = 0;
-			_takenPower = requiredMaelstrom;
-		}
+        if (Caster.GetPower(PowerType.Maelstrom) >= requiredMaelstrom)
+        {
+            castTime = 0;
+            _takenPower = requiredMaelstrom;
+        }
 
-		return castTime;
-	}
+        return castTime;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleEnergize, 1, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleEnergize, 1, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleEnergize(int effIndex)
-	{
-		EffectValue = -_takenPower;
-	}
+    private void HandleEnergize(int effIndex)
+    {
+        EffectValue = -_takenPower;
+    }
 }

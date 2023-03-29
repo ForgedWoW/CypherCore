@@ -7,26 +7,26 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class SeasonInfo : ServerPacket
 {
-	public int MythicPlusDisplaySeasonID;
-	public int MythicPlusMilestoneSeasonID;
-	public int PreviousArenaSeason;
-	public int CurrentArenaSeason;
-	public int PvpSeasonID;
-	public int ConquestWeeklyProgressCurrencyID;
-	public bool WeeklyRewardChestsEnabled;
-	public SeasonInfo() : base(ServerOpcodes.SeasonInfo) { }
+    public int MythicPlusDisplaySeasonID;
+    public int MythicPlusMilestoneSeasonID;
+    public int PreviousArenaSeason;
+    public int CurrentArenaSeason;
+    public int PvpSeasonID;
+    public int ConquestWeeklyProgressCurrencyID;
+    public bool WeeklyRewardChestsEnabled;
+    public SeasonInfo() : base(ServerOpcodes.SeasonInfo) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32(MythicPlusDisplaySeasonID);
-		_worldPacket.WriteInt32(MythicPlusMilestoneSeasonID);
-		_worldPacket.WriteInt32(CurrentArenaSeason);
-		_worldPacket.WriteInt32(PreviousArenaSeason);
-		_worldPacket.WriteInt32(ConquestWeeklyProgressCurrencyID);
-		_worldPacket.WriteInt32(PvpSeasonID);
-		_worldPacket.WriteBit(WeeklyRewardChestsEnabled);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32(MythicPlusDisplaySeasonID);
+        _worldPacket.WriteInt32(MythicPlusMilestoneSeasonID);
+        _worldPacket.WriteInt32(CurrentArenaSeason);
+        _worldPacket.WriteInt32(PreviousArenaSeason);
+        _worldPacket.WriteInt32(ConquestWeeklyProgressCurrencyID);
+        _worldPacket.WriteInt32(PvpSeasonID);
+        _worldPacket.WriteBit(WeeklyRewardChestsEnabled);
+        _worldPacket.FlushBits();
+    }
 }
 
 //Structs

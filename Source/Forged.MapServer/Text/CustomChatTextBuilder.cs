@@ -14,17 +14,17 @@ public class CustomChatTextBuilder : MessageBuilder
     private readonly Language _language;
     private readonly WorldObject _target;
 
-	public CustomChatTextBuilder(WorldObject obj, ChatMsg msgType, string text, Language language = Language.Universal, WorldObject target = null)
-	{
-		_source = obj;
-		_msgType = msgType;
-		_text = text;
-		_language = language;
-		_target = target;
-	}
+    public CustomChatTextBuilder(WorldObject obj, ChatMsg msgType, string text, Language language = Language.Universal, WorldObject target = null)
+    {
+        _source = obj;
+        _msgType = msgType;
+        _text = text;
+        _language = language;
+        _target = target;
+    }
 
-	public override ChatPacketSender Invoke(Locale locale)
-	{
-		return new ChatPacketSender(_msgType, _language, _source, _target, _text, 0, locale);
-	}
+    public override ChatPacketSender Invoke(Locale locale)
+    {
+        return new ChatPacketSender(_msgType, _language, _source, _target, _text, 0, locale);
+    }
 }

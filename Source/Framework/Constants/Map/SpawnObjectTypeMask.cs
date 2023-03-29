@@ -5,10 +5,10 @@ namespace Framework.Constants;
 
 public enum SpawnObjectTypeMask
 {
-	Creature = (1 << SpawnObjectType.Creature),
-	GameObject = (1 << SpawnObjectType.GameObject),
-	AreaTrigger = (1 << SpawnObjectType.AreaTrigger),
+    Creature = (1 << SpawnObjectType.Creature),
+    GameObject = (1 << SpawnObjectType.GameObject),
+    AreaTrigger = (1 << SpawnObjectType.AreaTrigger),
 
-	WithData = (1 << SpawnObjectType.NumSpawnTypesWithData) - 1,
-	All = (1 << SpawnObjectType.NumSpawnTypes) - 1
+    WithData = (1 << SpawnObjectType.NumSpawnTypesWithData) - 1,
+    All = (1 << SpawnObjectType.NumSpawnTypes) - 1
 }

@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum NotifyFlags
 {
-	None = 0x00,
-	AIRelocation = 0x01,
-	VisibilityChanged = 0x02,
-	All = 0xFF
+    None = 0x00,
+    AIRelocation = 0x01,
+    VisibilityChanged = 0x02,
+    All = 0xFF
 }

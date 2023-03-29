@@ -10,33 +10,33 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC;
 [CreatureScript(49539)]
 public class npc_james_dm : ScriptedAI
 {
-	public npc_james_dm(Creature creature) : base(creature) { }
+    public npc_james_dm(Creature creature) : base(creature) { }
 
-	public override void JustDied(Unit killer)
-	{
-		var Vanessa = Me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
+    public override void JustDied(Unit killer)
+    {
+        var Vanessa = Me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
 
-		if (Vanessa != null)
-		{
-			var pAI = (npc_vanessa_nightmare)Vanessa.AI;
+        if (Vanessa != null)
+        {
+            var pAI = (npc_vanessa_nightmare)Vanessa.AI;
 
-			if (pAI != null)
-				pAI.WorgenKilled();
-		}
-	}
+            if (pAI != null)
+                pAI.WorgenKilled();
+        }
+    }
 
-	public override void UpdateAI(uint diff)
-	{
-		if (!Me.VehicleKit1)
-			return;
+    public override void UpdateAI(uint diff)
+    {
+        if (!Me.VehicleKit1)
+            return;
 
-		var Calissa = Me.VehicleKit1.GetPassenger(0);
+        var Calissa = Me.VehicleKit1.GetPassenger(0);
 
-		if (Calissa != null)
-		{
-			Calissa.SetInCombatWith(Me, true);
-			Calissa.GetThreatManager().AddThreat(Me, 100000.0f);
-			DoZoneInCombat();
-		}
-	}
+        if (Calissa != null)
+        {
+            Calissa.SetInCombatWith(Me, true);
+            Calissa.GetThreatManager().AddThreat(Me, 100000.0f);
+            DoZoneInCombat();
+        }
+    }
 }

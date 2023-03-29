@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class UseCritterItem : ClientPacket
 {
-	public ObjectGuid ItemGuid;
-	public UseCritterItem(WorldPacket packet) : base(packet) { }
+    public ObjectGuid ItemGuid;
+    public UseCritterItem(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ItemGuid = _worldPacket.ReadPackedGuid();
-	}
+    public override void Read()
+    {
+        ItemGuid = _worldPacket.ReadPackedGuid();
+    }
 }

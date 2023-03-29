@@ -33,665 +33,665 @@ namespace Forged.MapServer.Handlers;
 
 public class MiscHandler : IWorldSessionHandler
 {
-	public void SendLoadCUFProfiles()
-	{
-		var player = Player;
+    public void SendLoadCUFProfiles()
+    {
+        var player = Player;
 
-		LoadCUFProfiles loadCUFProfiles = new();
+        LoadCUFProfiles loadCUFProfiles = new();
 
-		for (byte i = 0; i < PlayerConst.MaxCUFProfiles; ++i)
-		{
-			var cufProfile = player.GetCUFProfile(i);
+        for (byte i = 0; i < PlayerConst.MaxCUFProfiles; ++i)
+        {
+            var cufProfile = player.GetCUFProfile(i);
 
-			if (cufProfile != null)
-				loadCUFProfiles.CUFProfiles.Add(cufProfile);
-		}
+            if (cufProfile != null)
+                loadCUFProfiles.CUFProfiles.Add(cufProfile);
+        }
 
-		SendPacket(loadCUFProfiles);
-	}
+        SendPacket(loadCUFProfiles);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.RequestAccountData, Status = SessionStatus.Authed)]
+    [WorldPacketHandler(ClientOpcodes.RequestAccountData, Status = SessionStatus.Authed)]
     private void HandleRequestAccountData(RequestAccountData request)
-	{
-		if (request.DataType > AccountDataTypes.Max)
-			return;
+    {
+        if (request.DataType > AccountDataTypes.Max)
+            return;
 
-		var adata = GetAccountData(request.DataType);
+        var adata = GetAccountData(request.DataType);
 
-		UpdateAccountData data = new();
-		data.Player = Player ? Player.GUID : ObjectGuid.Empty;
-		data.Time = (uint)adata.Time;
-		data.DataType = request.DataType;
+        UpdateAccountData data = new();
+        data.Player = Player ? Player.GUID : ObjectGuid.Empty;
+        data.Time = (uint)adata.Time;
+        data.DataType = request.DataType;
 
-		if (!Extensions.IsEmpty(adata.Data))
-		{
-			data.Size = (uint)adata.Data.Length;
-			data.CompressedData = new ByteBuffer(ZLib.Compress(Encoding.UTF8.GetBytes((string)adata.Data)));
-		}
+        if (!Extensions.IsEmpty(adata.Data))
+        {
+            data.Size = (uint)adata.Data.Length;
+            data.CompressedData = new ByteBuffer(ZLib.Compress(Encoding.UTF8.GetBytes((string)adata.Data)));
+        }
 
-		SendPacket(data);
-	}
+        SendPacket(data);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.SetSelection)]
+    [WorldPacketHandler(ClientOpcodes.SetSelection)]
     private void HandleSetSelection(SetSelection packet)
-	{
-		Player.SetSelection(packet.Selection);
-	}
+    {
+        Player.SetSelection(packet.Selection);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.ObjectUpdateFailed, Processing = PacketProcessing.Inplace)]
+    [WorldPacketHandler(ClientOpcodes.ObjectUpdateFailed, Processing = PacketProcessing.Inplace)]
     private void HandleObjectUpdateFailed(ObjectUpdateFailed objectUpdateFailed)
-	{
-		Log.Logger.Error("Object update failed for {0} for player {1} ({2})", objectUpdateFailed.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
+    {
+        Log.Logger.Error("Object update failed for {0} for player {1} ({2})", objectUpdateFailed.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
 
-		// If create object failed for current player then client will be stuck on loading screen
-		if (Player.GUID == objectUpdateFailed.ObjectGUID)
-		{
-			LogoutPlayer(true);
+        // If create object failed for current player then client will be stuck on loading screen
+        if (Player.GUID == objectUpdateFailed.ObjectGUID)
+        {
+            LogoutPlayer(true);
 
-			return;
-		}
+            return;
+        }
 
-		// Pretend we've never seen this object
-		Player.ClientGuiDs.Remove(objectUpdateFailed.ObjectGUID);
-	}
+        // Pretend we've never seen this object
+        Player.ClientGuiDs.Remove(objectUpdateFailed.ObjectGUID);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.ObjectUpdateRescued, Processing = PacketProcessing.Inplace)]
+    [WorldPacketHandler(ClientOpcodes.ObjectUpdateRescued, Processing = PacketProcessing.Inplace)]
     private void HandleObjectUpdateRescued(ObjectUpdateRescued objectUpdateRescued)
-	{
-		Log.Logger.Error("Object update rescued for {0} for player {1} ({2})", objectUpdateRescued.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
+    {
+        Log.Logger.Error("Object update rescued for {0} for player {1} ({2})", objectUpdateRescued.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
 
-		// Client received values update after destroying object
-		// re-register object in m_clientGUIDs to send DestroyObject on next visibility update
-		lock (Player.ClientGuiDs)
-		{
-			Player.ClientGuiDs.Add(objectUpdateRescued.ObjectGUID);
-		}
-	}
+        // Client received values update after destroying object
+        // re-register object in m_clientGUIDs to send DestroyObject on next visibility update
+        lock (Player.ClientGuiDs)
+        {
+            Player.ClientGuiDs.Add(objectUpdateRescued.ObjectGUID);
+        }
+    }
 
 
-	[WorldPacketHandler(ClientOpcodes.SetActionBarToggles)]
+    [WorldPacketHandler(ClientOpcodes.SetActionBarToggles)]
     private void HandleSetActionBarToggles(SetActionBarToggles packet)
-	{
-		if (!Player) // ignore until not logged (check needed because STATUS_AUTHED)
-		{
-			if (packet.Mask != 0)
-				Log.Logger.Error("WorldSession.HandleSetActionBarToggles in not logged state with value: {0}, ignored", packet.Mask);
+    {
+        if (!Player) // ignore until not logged (check needed because STATUS_AUTHED)
+        {
+            if (packet.Mask != 0)
+                Log.Logger.Error("WorldSession.HandleSetActionBarToggles in not logged state with value: {0}, ignored", packet.Mask);
 
-			return;
-		}
+            return;
+        }
 
-		Player.SetMultiActionBars(packet.Mask);
-	}
+        Player.SetMultiActionBars(packet.Mask);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.CompleteCinematic)]
+    [WorldPacketHandler(ClientOpcodes.CompleteCinematic)]
     private void HandleCompleteCinematic(CompleteCinematic packet)
-	{
-		// If player has sight bound to visual waypoint NPC we should remove it
-		Player. // If player has sight bound to visual waypoint NPC we should remove it
-			CinematicMgr.EndCinematic();
-	}
+    {
+        // If player has sight bound to visual waypoint NPC we should remove it
+        Player. // If player has sight bound to visual waypoint NPC we should remove it
+            CinematicMgr.EndCinematic();
+    }
 
-	[WorldPacketHandler(ClientOpcodes.NextCinematicCamera)]
+    [WorldPacketHandler(ClientOpcodes.NextCinematicCamera)]
     private void HandleNextCinematicCamera(NextCinematicCamera packet)
-	{
-		// Sent by client when cinematic actually begun. So we begin the server side process
-		Player. // Sent by client when cinematic actually begun. So we begin the server side process
-			CinematicMgr.NextCinematicCamera();
-	}
+    {
+        // Sent by client when cinematic actually begun. So we begin the server side process
+        Player. // Sent by client when cinematic actually begun. So we begin the server side process
+            CinematicMgr.NextCinematicCamera();
+    }
 
-	[WorldPacketHandler(ClientOpcodes.CompleteMovie)]
+    [WorldPacketHandler(ClientOpcodes.CompleteMovie)]
     private void HandleCompleteMovie(CompleteMovie packet)
-	{
-		var movie = _player.Movie;
+    {
+        var movie = _player.Movie;
 
-		if (movie == 0)
-			return;
+        if (movie == 0)
+            return;
 
-		_player.Movie = 0;
-		Global.ScriptMgr.ForEach<IPlayerOnMovieComplete>(p => p.OnMovieComplete(_player, movie));
-	}
+        _player.Movie = 0;
+        Global.ScriptMgr.ForEach<IPlayerOnMovieComplete>(p => p.OnMovieComplete(_player, movie));
+    }
 
-	[WorldPacketHandler(ClientOpcodes.ViolenceLevel, Processing = PacketProcessing.Inplace, Status = SessionStatus.Authed)]
+    [WorldPacketHandler(ClientOpcodes.ViolenceLevel, Processing = PacketProcessing.Inplace, Status = SessionStatus.Authed)]
     private void HandleViolenceLevel(ViolenceLevel violenceLevel)
-	{
-		// do something?
-	}
+    {
+        // do something?
+    }
 
-	[WorldPacketHandler(ClientOpcodes.AreaTrigger, Processing = PacketProcessing.Inplace)]
+    [WorldPacketHandler(ClientOpcodes.AreaTrigger, Processing = PacketProcessing.Inplace)]
     private void HandleAreaTrigger(AreaTriggerPkt packet)
-	{
-		var player = Player;
+    {
+        var player = Player;
 
-		if (player.IsInFlight)
-		{
-			Log.Logger.Debug("HandleAreaTrigger: Player '{0}' (GUID: {1}) in flight, ignore Area Trigger ID:{2}",
-							player.GetName(),
-							player.GUID.ToString(),
-							packet.AreaTriggerID);
+        if (player.IsInFlight)
+        {
+            Log.Logger.Debug("HandleAreaTrigger: Player '{0}' (GUID: {1}) in flight, ignore Area Trigger ID:{2}",
+                             player.GetName(),
+                             player.GUID.ToString(),
+                             packet.AreaTriggerID);
 
-			return;
-		}
+            return;
+        }
 
-		var atEntry = CliDB.AreaTriggerStorage.LookupByKey(packet.AreaTriggerID);
+        var atEntry = CliDB.AreaTriggerStorage.LookupByKey(packet.AreaTriggerID);
 
-		if (atEntry == null)
-		{
-			Log.Logger.Debug("HandleAreaTrigger: Player '{0}' (GUID: {1}) send unknown (by DBC) Area Trigger ID:{2}",
-							player.GetName(),
-							player.GUID.ToString(),
-							packet.AreaTriggerID);
+        if (atEntry == null)
+        {
+            Log.Logger.Debug("HandleAreaTrigger: Player '{0}' (GUID: {1}) send unknown (by DBC) Area Trigger ID:{2}",
+                             player.GetName(),
+                             player.GUID.ToString(),
+                             packet.AreaTriggerID);
 
-			return;
-		}
+            return;
+        }
 
-		if (packet.Entered && !player.IsInAreaTriggerRadius(atEntry))
-		{
-			Log.Logger.Debug("HandleAreaTrigger: Player '{0}' ({1}) too far, ignore Area Trigger ID: {2}",
-							player.GetName(),
-							player.GUID.ToString(),
-							packet.AreaTriggerID);
+        if (packet.Entered && !player.IsInAreaTriggerRadius(atEntry))
+        {
+            Log.Logger.Debug("HandleAreaTrigger: Player '{0}' ({1}) too far, ignore Area Trigger ID: {2}",
+                             player.GetName(),
+                             player.GUID.ToString(),
+                             packet.AreaTriggerID);
 
-			return;
-		}
+            return;
+        }
 
-		if (player.IsDebugAreaTriggers)
-			player.SendSysMessage(packet.Entered ? CypherStrings.DebugAreatriggerEntered : CypherStrings.DebugAreatriggerLeft, packet.AreaTriggerID);
+        if (player.IsDebugAreaTriggers)
+            player.SendSysMessage(packet.Entered ? CypherStrings.DebugAreatriggerEntered : CypherStrings.DebugAreatriggerLeft, packet.AreaTriggerID);
 
-		if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.AreatriggerClientTriggered, atEntry.Id, player))
-			return;
+        if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.AreatriggerClientTriggered, atEntry.Id, player))
+            return;
 
-		if (Global.ScriptMgr.OnAreaTrigger(player, atEntry, packet.Entered))
-			return;
+        if (Global.ScriptMgr.OnAreaTrigger(player, atEntry, packet.Entered))
+            return;
 
-		if (player.IsAlive)
-		{
-			// not using Player.UpdateQuestObjectiveProgress, ObjectID in quest_objectives can be set to -1, areatrigger_involvedrelation then holds correct id
-			var quests = Global.ObjectMgr.GetQuestsForAreaTrigger(packet.AreaTriggerID);
+        if (player.IsAlive)
+        {
+            // not using Player.UpdateQuestObjectiveProgress, ObjectID in quest_objectives can be set to -1, areatrigger_involvedrelation then holds correct id
+            var quests = Global.ObjectMgr.GetQuestsForAreaTrigger(packet.AreaTriggerID);
 
-			if (quests != null)
-			{
-				var anyObjectiveChangedCompletionState = false;
+            if (quests != null)
+            {
+                var anyObjectiveChangedCompletionState = false;
 
-				foreach (var questId in quests)
-				{
-					var qInfo = Global.ObjectMgr.GetQuestTemplate(questId);
-					var slot = player.FindQuestSlot(questId);
+                foreach (var questId in quests)
+                {
+                    var qInfo = Global.ObjectMgr.GetQuestTemplate(questId);
+                    var slot = player.FindQuestSlot(questId);
 
-					if (qInfo != null && slot < SharedConst.MaxQuestLogSize && player.GetQuestStatus(questId) == QuestStatus.Incomplete)
-					{
-						foreach (var obj in qInfo.Objectives)
-						{
-							if (obj.Type != QuestObjectiveType.AreaTrigger)
-								continue;
+                    if (qInfo != null && slot < SharedConst.MaxQuestLogSize && player.GetQuestStatus(questId) == QuestStatus.Incomplete)
+                    {
+                        foreach (var obj in qInfo.Objectives)
+                        {
+                            if (obj.Type != QuestObjectiveType.AreaTrigger)
+                                continue;
 
-							if (!player.IsQuestObjectiveCompletable(slot, qInfo, obj))
-								continue;
+                            if (!player.IsQuestObjectiveCompletable(slot, qInfo, obj))
+                                continue;
 
-							if (player.IsQuestObjectiveComplete(slot, qInfo, obj))
-								continue;
+                            if (player.IsQuestObjectiveComplete(slot, qInfo, obj))
+                                continue;
 
-							if (obj.ObjectID != -1 && obj.ObjectID != packet.AreaTriggerID)
-								continue;
+                            if (obj.ObjectID != -1 && obj.ObjectID != packet.AreaTriggerID)
+                                continue;
 
-							player.SetQuestObjectiveData(obj, 1);
-							player.SendQuestUpdateAddCreditSimple(obj);
-							anyObjectiveChangedCompletionState = true;
+                            player.SetQuestObjectiveData(obj, 1);
+                            player.SendQuestUpdateAddCreditSimple(obj);
+                            anyObjectiveChangedCompletionState = true;
 
-							break;
-						}
+                            break;
+                        }
 
-						player.AreaExploredOrEventHappens(questId);
+                        player.AreaExploredOrEventHappens(questId);
 
-						if (player.CanCompleteQuest(questId))
-							player.CompleteQuest(questId);
-					}
-				}
+                        if (player.CanCompleteQuest(questId))
+                            player.CompleteQuest(questId);
+                    }
+                }
 
-				if (anyObjectiveChangedCompletionState)
-					player.UpdateVisibleGameobjectsOrSpellClicks();
-			}
-		}
+                if (anyObjectiveChangedCompletionState)
+                    player.UpdateVisibleGameobjectsOrSpellClicks();
+            }
+        }
 
-		if (Global.ObjectMgr.IsTavernAreaTrigger(packet.AreaTriggerID))
-		{
-			// set resting flag we are in the inn
-			player. // set resting flag we are in the inn
-				RestMgr.SetRestFlag(RestFlag.Tavern, atEntry.Id);
+        if (Global.ObjectMgr.IsTavernAreaTrigger(packet.AreaTriggerID))
+        {
+            // set resting flag we are in the inn
+            player. // set resting flag we are in the inn
+                RestMgr.SetRestFlag(RestFlag.Tavern, atEntry.Id);
 
-			if (Global.WorldMgr.IsFFAPvPRealm)
-				player.RemovePvpFlag(UnitPVPStateFlags.FFAPvp);
+            if (Global.WorldMgr.IsFFAPvPRealm)
+                player.RemovePvpFlag(UnitPVPStateFlags.FFAPvp);
 
-			return;
-		}
+            return;
+        }
 
-		var bg = player.Battleground;
+        var bg = player.Battleground;
 
-		if (bg)
-			bg.HandleAreaTrigger(player, packet.AreaTriggerID, packet.Entered);
+        if (bg)
+            bg.HandleAreaTrigger(player, packet.AreaTriggerID, packet.Entered);
 
-		var pvp = player.GetOutdoorPvP();
+        var pvp = player.GetOutdoorPvP();
 
-		if (pvp != null)
-			if (pvp.HandleAreaTrigger(player, packet.AreaTriggerID, packet.Entered))
-				return;
+        if (pvp != null)
+            if (pvp.HandleAreaTrigger(player, packet.AreaTriggerID, packet.Entered))
+                return;
 
-		var at = Global.ObjectMgr.GetAreaTrigger(packet.AreaTriggerID);
+        var at = Global.ObjectMgr.GetAreaTrigger(packet.AreaTriggerID);
 
-		if (at == null)
-			return;
+        if (at == null)
+            return;
 
-		var teleported = false;
+        var teleported = false;
 
-		if (player.Location.MapId != at.target_mapId)
-		{
-			if (!player.IsAlive)
-			{
-				if (player.HasCorpse)
-				{
-					// let enter in ghost mode in instance that connected to inner instance with corpse
-					var corpseMap = player.CorpseLocation.MapId;
+        if (player.Location.MapId != at.target_mapId)
+        {
+            if (!player.IsAlive)
+            {
+                if (player.HasCorpse)
+                {
+                    // let enter in ghost mode in instance that connected to inner instance with corpse
+                    var corpseMap = player.CorpseLocation.MapId;
 
-					do
-					{
-						if (corpseMap == at.target_mapId)
-							break;
+                    do
+                    {
+                        if (corpseMap == at.target_mapId)
+                            break;
 
-						var corpseInstance = Global.ObjectMgr.GetInstanceTemplate(corpseMap);
-						corpseMap = corpseInstance != null ? corpseInstance.Parent : 0;
-					} while (corpseMap != 0);
+                        var corpseInstance = Global.ObjectMgr.GetInstanceTemplate(corpseMap);
+                        corpseMap = corpseInstance != null ? corpseInstance.Parent : 0;
+                    } while (corpseMap != 0);
 
-					if (corpseMap == 0)
-					{
-						SendPacket(new AreaTriggerNoCorpse());
+                    if (corpseMap == 0)
+                    {
+                        SendPacket(new AreaTriggerNoCorpse());
 
-						return;
-					}
+                        return;
+                    }
 
-					Log.Logger.Debug($"MAP: Player '{player.GetName()}' has corpse in instance {at.target_mapId} and can enter.");
-				}
-				else
-				{
-					Log.Logger.Debug($"Map::CanPlayerEnter - player '{player.GetName()}' is dead but does not have a corpse!");
-				}
-			}
+                    Log.Logger.Debug($"MAP: Player '{player.GetName()}' has corpse in instance {at.target_mapId} and can enter.");
+                }
+                else
+                {
+                    Log.Logger.Debug($"Map::CanPlayerEnter - player '{player.GetName()}' is dead but does not have a corpse!");
+                }
+            }
 
-			var denyReason = Map.PlayerCannotEnter(at.target_mapId, player);
+            var denyReason = Map.PlayerCannotEnter(at.target_mapId, player);
 
-			if (denyReason != null)
-			{
-				switch (denyReason.Reason)
-				{
-					case TransferAbortReason.MapNotAllowed:
-						Log.Logger.Debug($"MAP: Player '{player.GetName()}' attempted to enter map with id {at.target_mapId} which has no entry");
+            if (denyReason != null)
+            {
+                switch (denyReason.Reason)
+                {
+                    case TransferAbortReason.MapNotAllowed:
+                        Log.Logger.Debug($"MAP: Player '{player.GetName()}' attempted to enter map with id {at.target_mapId} which has no entry");
 
-						break;
-					case TransferAbortReason.Difficulty:
-						Log.Logger.Debug($"MAP: Player '{player.GetName()}' attempted to enter instance map {at.target_mapId} but the requested difficulty was not found");
+                        break;
+                    case TransferAbortReason.Difficulty:
+                        Log.Logger.Debug($"MAP: Player '{player.GetName()}' attempted to enter instance map {at.target_mapId} but the requested difficulty was not found");
 
-						break;
-					case TransferAbortReason.NeedGroup:
-						Log.Logger.Debug($"MAP: Player '{player.GetName()}' must be in a raid group to enter map {at.target_mapId}");
-						player.SendRaidGroupOnlyMessage(RaidGroupReason.Only, 0);
+                        break;
+                    case TransferAbortReason.NeedGroup:
+                        Log.Logger.Debug($"MAP: Player '{player.GetName()}' must be in a raid group to enter map {at.target_mapId}");
+                        player.SendRaidGroupOnlyMessage(RaidGroupReason.Only, 0);
 
-						break;
-					case TransferAbortReason.LockedToDifferentInstance:
-						Log.Logger.Debug($"MAP: Player '{player.GetName()}' cannot enter instance map {at.target_mapId} because their permanent bind is incompatible with their group's");
+                        break;
+                    case TransferAbortReason.LockedToDifferentInstance:
+                        Log.Logger.Debug($"MAP: Player '{player.GetName()}' cannot enter instance map {at.target_mapId} because their permanent bind is incompatible with their group's");
 
-						break;
-					case TransferAbortReason.AlreadyCompletedEncounter:
-						Log.Logger.Debug($"MAP: Player '{player.GetName()}' cannot enter instance map {at.target_mapId} because their permanent bind is incompatible with their group's");
+                        break;
+                    case TransferAbortReason.AlreadyCompletedEncounter:
+                        Log.Logger.Debug($"MAP: Player '{player.GetName()}' cannot enter instance map {at.target_mapId} because their permanent bind is incompatible with their group's");
 
-						break;
-					case TransferAbortReason.TooManyInstances:
-						Log.Logger.Debug("MAP: Player '{0}' cannot enter instance map {1} because he has exceeded the maximum number of instances per hour.", player.GetName(), at.target_mapId);
+                        break;
+                    case TransferAbortReason.TooManyInstances:
+                        Log.Logger.Debug("MAP: Player '{0}' cannot enter instance map {1} because he has exceeded the maximum number of instances per hour.", player.GetName(), at.target_mapId);
 
-						break;
-					case TransferAbortReason.MaxPlayers:
-					case TransferAbortReason.ZoneInCombat:
-						break;
-					case TransferAbortReason.NotFound:
-						Log.Logger.Debug($"MAP: Player '{player.GetName()}' cannot enter instance map {at.target_mapId} because instance is resetting.");
+                        break;
+                    case TransferAbortReason.MaxPlayers:
+                    case TransferAbortReason.ZoneInCombat:
+                        break;
+                    case TransferAbortReason.NotFound:
+                        Log.Logger.Debug($"MAP: Player '{player.GetName()}' cannot enter instance map {at.target_mapId} because instance is resetting.");
 
-						break;
-					default:
-						break;
-				}
+                        break;
+                    default:
+                        break;
+                }
 
-				if (denyReason.Reason != TransferAbortReason.NeedGroup)
-					player.SendTransferAborted(at.target_mapId, denyReason.Reason, denyReason.Arg, denyReason.MapDifficultyXConditionId);
+                if (denyReason.Reason != TransferAbortReason.NeedGroup)
+                    player.SendTransferAborted(at.target_mapId, denyReason.Reason, denyReason.Arg, denyReason.MapDifficultyXConditionId);
 
-				if (!player.IsAlive && player.HasCorpse)
-					if (player.CorpseLocation.MapId == at.target_mapId)
-					{
-						player.ResurrectPlayer(0.5f);
-						player.SpawnCorpseBones();
-					}
+                if (!player.IsAlive && player.HasCorpse)
+                    if (player.CorpseLocation.MapId == at.target_mapId)
+                    {
+                        player.ResurrectPlayer(0.5f);
+                        player.SpawnCorpseBones();
+                    }
 
-				return;
-			}
+                return;
+            }
 
-			var group = player.Group;
+            var group = player.Group;
 
-			if (group)
-				if (group.IsLFGGroup && player.Map.IsDungeon)
-					teleported = player.TeleportToBGEntryPoint();
-		}
+            if (group)
+                if (group.IsLFGGroup && player.Map.IsDungeon)
+                    teleported = player.TeleportToBGEntryPoint();
+        }
 
-		if (!teleported)
-		{
-			WorldSafeLocsEntry entranceLocation = null;
-			var mapEntry = CliDB.MapStorage.LookupByKey(at.target_mapId);
+        if (!teleported)
+        {
+            WorldSafeLocsEntry entranceLocation = null;
+            var mapEntry = CliDB.MapStorage.LookupByKey(at.target_mapId);
 
-			if (mapEntry.Instanceable())
-			{
-				// Check if we can contact the instancescript of the instance for an updated entrance location
-				var targetInstanceId = Global.MapMgr.FindInstanceIdForPlayer(at.target_mapId, _player);
+            if (mapEntry.Instanceable())
+            {
+                // Check if we can contact the instancescript of the instance for an updated entrance location
+                var targetInstanceId = Global.MapMgr.FindInstanceIdForPlayer(at.target_mapId, _player);
 
-				if (targetInstanceId != 0)
-				{
-					var map = Global.MapMgr.FindMap(at.target_mapId, targetInstanceId);
+                if (targetInstanceId != 0)
+                {
+                    var map = Global.MapMgr.FindMap(at.target_mapId, targetInstanceId);
 
-					if (map != null)
-					{
-						var instanceMap = map.ToInstanceMap;
+                    if (map != null)
+                    {
+                        var instanceMap = map.ToInstanceMap;
 
-						if (instanceMap)
-						{
-							var instanceScript = instanceMap.InstanceScript;
+                        if (instanceMap)
+                        {
+                            var instanceScript = instanceMap.InstanceScript;
 
-							if (instanceScript != null)
-								entranceLocation = Global.ObjectMgr.GetWorldSafeLoc(instanceScript.GetEntranceLocation());
-						}
-					}
-				}
+                            if (instanceScript != null)
+                                entranceLocation = Global.ObjectMgr.GetWorldSafeLoc(instanceScript.GetEntranceLocation());
+                        }
+                    }
+                }
 
-				// Finally check with the instancesave for an entrance location if we did not get a valid one from the instancescript
-				if (entranceLocation == null)
-				{
-					var group = player.Group;
-					var difficulty = group ? group.GetDifficultyID(mapEntry) : player.GetDifficultyId(mapEntry);
-					var instanceOwnerGuid = group ? group.GetRecentInstanceOwner(at.target_mapId) : player.GUID;
-					var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, new MapDb2Entries(mapEntry, Global.DB2Mgr.GetDownscaledMapDifficultyData(at.target_mapId, ref difficulty)));
+                // Finally check with the instancesave for an entrance location if we did not get a valid one from the instancescript
+                if (entranceLocation == null)
+                {
+                    var group = player.Group;
+                    var difficulty = group ? group.GetDifficultyID(mapEntry) : player.GetDifficultyId(mapEntry);
+                    var instanceOwnerGuid = group ? group.GetRecentInstanceOwner(at.target_mapId) : player.GUID;
+                    var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, new MapDb2Entries(mapEntry, Global.DB2Mgr.GetDownscaledMapDifficultyData(at.target_mapId, ref difficulty)));
 
-					if (instanceLock != null)
-						entranceLocation = Global.ObjectMgr.GetWorldSafeLoc(instanceLock.GetData().EntranceWorldSafeLocId);
-				}
-			}
+                    if (instanceLock != null)
+                        entranceLocation = Global.ObjectMgr.GetWorldSafeLoc(instanceLock.GetData().EntranceWorldSafeLocId);
+                }
+            }
 
-			if (entranceLocation != null)
-				player.TeleportTo(entranceLocation.Loc, TeleportToOptions.NotLeaveTransport);
-			else
-				player.TeleportTo(at.target_mapId, at.target_X, at.target_Y, at.target_Z, at.target_Orientation, TeleportToOptions.NotLeaveTransport);
-		}
-	}
+            if (entranceLocation != null)
+                player.TeleportTo(entranceLocation.Loc, TeleportToOptions.NotLeaveTransport);
+            else
+                player.TeleportTo(at.target_mapId, at.target_X, at.target_Y, at.target_Z, at.target_Orientation, TeleportToOptions.NotLeaveTransport);
+        }
+    }
 
-	[WorldPacketHandler(ClientOpcodes.SaveCufProfiles, Processing = PacketProcessing.Inplace)]
+    [WorldPacketHandler(ClientOpcodes.SaveCufProfiles, Processing = PacketProcessing.Inplace)]
     private void HandleSaveCUFProfiles(SaveCUFProfiles packet)
-	{
-		if (packet.CUFProfiles.Count > PlayerConst.MaxCUFProfiles)
-		{
-			Log.Logger.Error("HandleSaveCUFProfiles - {0} tried to save more than {1} CUF profiles. Hacking attempt?", PlayerName, PlayerConst.MaxCUFProfiles);
+    {
+        if (packet.CUFProfiles.Count > PlayerConst.MaxCUFProfiles)
+        {
+            Log.Logger.Error("HandleSaveCUFProfiles - {0} tried to save more than {1} CUF profiles. Hacking attempt?", PlayerName, PlayerConst.MaxCUFProfiles);
 
-			return;
-		}
+            return;
+        }
 
-		for (byte i = 0; i < packet.CUFProfiles.Count; ++i)
-			Player.SaveCUFProfile(i, packet.CUFProfiles[i]);
+        for (byte i = 0; i < packet.CUFProfiles.Count; ++i)
+            Player.SaveCUFProfile(i, packet.CUFProfiles[i]);
 
-		for (var i = (byte)packet.CUFProfiles.Count; i < PlayerConst.MaxCUFProfiles; ++i)
-			Player.SaveCUFProfile(i, null);
-	}
+        for (var i = (byte)packet.CUFProfiles.Count; i < PlayerConst.MaxCUFProfiles; ++i)
+            Player.SaveCUFProfile(i, null);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.SetAdvancedCombatLogging, Processing = PacketProcessing.Inplace)]
+    [WorldPacketHandler(ClientOpcodes.SetAdvancedCombatLogging, Processing = PacketProcessing.Inplace)]
     private void HandleSetAdvancedCombatLogging(SetAdvancedCombatLogging setAdvancedCombatLogging)
-	{
-		Player.SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
-	}
+    {
+        Player.SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.MountSpecialAnim)]
+    [WorldPacketHandler(ClientOpcodes.MountSpecialAnim)]
     private void HandleMountSpecialAnim(MountSpecial mountSpecial)
-	{
-		SpecialMountAnim specialMountAnim = new();
-		specialMountAnim.UnitGUID = _player.GUID;
-		specialMountAnim.SpellVisualKitIDs.AddRange(mountSpecial.SpellVisualKitIDs);
-		specialMountAnim.SequenceVariation = mountSpecial.SequenceVariation;
-		Player.SendMessageToSet(specialMountAnim, false);
-	}
+    {
+        SpecialMountAnim specialMountAnim = new();
+        specialMountAnim.UnitGUID = _player.GUID;
+        specialMountAnim.SpellVisualKitIDs.AddRange(mountSpecial.SpellVisualKitIDs);
+        specialMountAnim.SequenceVariation = mountSpecial.SequenceVariation;
+        Player.SendMessageToSet(specialMountAnim, false);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.CloseInteraction)]
+    [WorldPacketHandler(ClientOpcodes.CloseInteraction)]
     private void HandleCloseInteraction(CloseInteraction closeInteraction)
-	{
-		if (_player.PlayerTalkClass.GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
-			_player.PlayerTalkClass.GetInteractionData().Reset();
-	}
+    {
+        if (_player.PlayerTalkClass.GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
+            _player.PlayerTalkClass.GetInteractionData().Reset();
+    }
 
-	[WorldPacketHandler(ClientOpcodes.ConversationLineStarted)]
+    [WorldPacketHandler(ClientOpcodes.ConversationLineStarted)]
     private void HandleConversationLineStarted(ConversationLineStarted conversationLineStarted)
-	{
-		var convo = ObjectAccessor.GetConversation(_player, conversationLineStarted.ConversationGUID);
+    {
+        var convo = ObjectAccessor.GetConversation(_player, conversationLineStarted.ConversationGUID);
 
-		if (convo != null)
-			Global.ScriptMgr.RunScript<IConversationOnConversationLineStarted>(script => script.OnConversationLineStarted(convo, conversationLineStarted.LineID, _player), convo.GetScriptId());
-	}
+        if (convo != null)
+            Global.ScriptMgr.RunScript<IConversationOnConversationLineStarted>(script => script.OnConversationLineStarted(convo, conversationLineStarted.LineID, _player), convo.GetScriptId());
+    }
 
-	[WorldPacketHandler(ClientOpcodes.RequestLatestSplashScreen)]
+    [WorldPacketHandler(ClientOpcodes.RequestLatestSplashScreen)]
     private void HandleRequestLatestSplashScreen(RequestLatestSplashScreen requestLatestSplashScreen)
-	{
-		UISplashScreenRecord splashScreen = null;
+    {
+        UISplashScreenRecord splashScreen = null;
 
-		foreach (var itr in CliDB.UISplashScreenStorage.Values)
-		{
-			var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(itr.CharLevelConditionID);
+        foreach (var itr in CliDB.UISplashScreenStorage.Values)
+        {
+            var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(itr.CharLevelConditionID);
 
-			if (playerCondition != null)
-				if (!ConditionManager.IsPlayerMeetingCondition(_player, playerCondition))
-					continue;
+            if (playerCondition != null)
+                if (!ConditionManager.IsPlayerMeetingCondition(_player, playerCondition))
+                    continue;
 
-			splashScreen = itr;
-		}
+            splashScreen = itr;
+        }
 
-		SplashScreenShowLatest splashScreenShowLatest = new();
-		splashScreenShowLatest.UISplashScreenID = splashScreen != null ? splashScreen.Id : 0;
-		SendPacket(splashScreenShowLatest);
-	}
+        SplashScreenShowLatest splashScreenShowLatest = new();
+        splashScreenShowLatest.UISplashScreenID = splashScreen != null ? splashScreen.Id : 0;
+        SendPacket(splashScreenShowLatest);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.ChatUnregisterAllAddonPrefixes)]
+    [WorldPacketHandler(ClientOpcodes.ChatUnregisterAllAddonPrefixes)]
     private void HandleUnregisterAllAddonPrefixes(ChatUnregisterAllAddonPrefixes packet)
-	{
-		_registeredAddonPrefixes.Clear();
-	}
+    {
+        _registeredAddonPrefixes.Clear();
+    }
 
-	[WorldPacketHandler(ClientOpcodes.TogglePvp)]
+    [WorldPacketHandler(ClientOpcodes.TogglePvp)]
     private void HandleTogglePvP(TogglePvP packet)
-	{
-		if (!Player.HasPlayerFlag(PlayerFlags.InPVP))
-		{
-			Player.SetPlayerFlag(PlayerFlags.InPVP);
-			Player.RemovePlayerFlag(PlayerFlags.PVPTimer);
+    {
+        if (!Player.HasPlayerFlag(PlayerFlags.InPVP))
+        {
+            Player.SetPlayerFlag(PlayerFlags.InPVP);
+            Player.RemovePlayerFlag(PlayerFlags.PVPTimer);
 
-			if (!Player.IsPvP || Player.PvpInfo.EndTimer != 0)
-				Player.UpdatePvP(true, true);
-		}
-		else if (!Player.IsWarModeLocalActive)
-		{
-			Player.RemovePlayerFlag(PlayerFlags.InPVP);
-			Player.SetPlayerFlag(PlayerFlags.PVPTimer);
+            if (!Player.IsPvP || Player.PvpInfo.EndTimer != 0)
+                Player.UpdatePvP(true, true);
+        }
+        else if (!Player.IsWarModeLocalActive)
+        {
+            Player.RemovePlayerFlag(PlayerFlags.InPVP);
+            Player.SetPlayerFlag(PlayerFlags.PVPTimer);
 
-			if (!Player.PvpInfo.IsHostile && Player.IsPvP)
-				Player.PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
-		}
-	}
+            if (!Player.PvpInfo.IsHostile && Player.IsPvP)
+                Player.PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
+        }
+    }
 
-	[WorldPacketHandler(ClientOpcodes.SetPvp)]
+    [WorldPacketHandler(ClientOpcodes.SetPvp)]
     private void HandleSetPvP(SetPvP packet)
-	{
-		if (packet.EnablePVP)
-		{
-			Player.SetPlayerFlag(PlayerFlags.InPVP);
-			Player.RemovePlayerFlag(PlayerFlags.PVPTimer);
+    {
+        if (packet.EnablePVP)
+        {
+            Player.SetPlayerFlag(PlayerFlags.InPVP);
+            Player.RemovePlayerFlag(PlayerFlags.PVPTimer);
 
-			if (!Player.IsPvP || Player.PvpInfo.EndTimer != 0)
-				Player.UpdatePvP(true, true);
-		}
-		else if (!Player.IsWarModeLocalActive)
-		{
-			Player.RemovePlayerFlag(PlayerFlags.InPVP);
-			Player.SetPlayerFlag(PlayerFlags.PVPTimer);
+            if (!Player.IsPvP || Player.PvpInfo.EndTimer != 0)
+                Player.UpdatePvP(true, true);
+        }
+        else if (!Player.IsWarModeLocalActive)
+        {
+            Player.RemovePlayerFlag(PlayerFlags.InPVP);
+            Player.SetPlayerFlag(PlayerFlags.PVPTimer);
 
-			if (!Player.PvpInfo.IsHostile && Player.IsPvP)
-				Player.PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
-		}
-	}
+            if (!Player.PvpInfo.IsHostile && Player.IsPvP)
+                Player.PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
+        }
+    }
 
-	[WorldPacketHandler(ClientOpcodes.SetWarMode)]
+    [WorldPacketHandler(ClientOpcodes.SetWarMode)]
     private void HandleSetWarMode(SetWarMode packet)
-	{
-		_player.SetWarModeDesired(packet.Enable);
-	}
+    {
+        _player.SetWarModeDesired(packet.Enable);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.FarSight)]
+    [WorldPacketHandler(ClientOpcodes.FarSight)]
     private void HandleFarSight(FarSight farSight)
-	{
-		if (farSight.Enable)
-		{
-			Log.Logger.Debug("Added FarSight {0} to player {1}", Player.ActivePlayerData.FarsightObject.ToString(), Player.GUID.ToString());
-			var target = Player.Viewpoint;
+    {
+        if (farSight.Enable)
+        {
+            Log.Logger.Debug("Added FarSight {0} to player {1}", Player.ActivePlayerData.FarsightObject.ToString(), Player.GUID.ToString());
+            var target = Player.Viewpoint;
 
-			if (target)
-				Player.SetSeer(target);
-			else
-				Log.Logger.Debug("Player {0} (GUID: {1}) requests non-existing seer {2}", Player.GetName(), Player.GUID.ToString(), Player.ActivePlayerData.FarsightObject.ToString());
-		}
-		else
-		{
-			Log.Logger.Debug("Player {0} set vision to self", Player.GUID.ToString());
-			Player.SetSeer(Player);
-		}
+            if (target)
+                Player.SetSeer(target);
+            else
+                Log.Logger.Debug("Player {0} (GUID: {1}) requests non-existing seer {2}", Player.GetName(), Player.GUID.ToString(), Player.ActivePlayerData.FarsightObject.ToString());
+        }
+        else
+        {
+            Log.Logger.Debug("Player {0} set vision to self", Player.GUID.ToString());
+            Player.SetSeer(Player);
+        }
 
-		Player.UpdateVisibilityForPlayer();
-	}
+        Player.UpdateVisibilityForPlayer();
+    }
 
-	[WorldPacketHandler(ClientOpcodes.SetTitle, Processing = PacketProcessing.Inplace)]
+    [WorldPacketHandler(ClientOpcodes.SetTitle, Processing = PacketProcessing.Inplace)]
     private void HandleSetTitle(SetTitle packet)
-	{
-		// -1 at none
-		if (packet.TitleID > 0)
-		{
-			if (!Player.HasTitle((uint)packet.TitleID))
-				return;
-		}
-		else
-		{
-			packet.TitleID = 0;
-		}
+    {
+        // -1 at none
+        if (packet.TitleID > 0)
+        {
+            if (!Player.HasTitle((uint)packet.TitleID))
+                return;
+        }
+        else
+        {
+            packet.TitleID = 0;
+        }
 
-		Player.SetChosenTitle((uint)packet.TitleID);
-	}
+        Player.SetChosenTitle((uint)packet.TitleID);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.ResetInstances)]
+    [WorldPacketHandler(ClientOpcodes.ResetInstances)]
     private void HandleResetInstances(ResetInstances packet)
-	{
-		var map = _player.Map;
+    {
+        var map = _player.Map;
 
-		if (map != null && map.Instanceable)
-			return;
+        if (map != null && map.Instanceable)
+            return;
 
-		var group = Player.Group;
+        var group = Player.Group;
 
-		if (group)
-		{
-			if (!group.IsLeader(Player.GUID))
-				return;
+        if (group)
+        {
+            if (!group.IsLeader(Player.GUID))
+                return;
 
-			if (group.IsLFGGroup)
-				return;
+            if (group.IsLFGGroup)
+                return;
 
-			group.ResetInstances(InstanceResetMethod.Manual, _player);
-		}
-		else
-		{
-			Player.ResetInstances(InstanceResetMethod.Manual);
-		}
-	}
+            group.ResetInstances(InstanceResetMethod.Manual, _player);
+        }
+        else
+        {
+            Player.ResetInstances(InstanceResetMethod.Manual);
+        }
+    }
 
-	[WorldPacketHandler(ClientOpcodes.SetTaxiBenchmarkMode, Processing = PacketProcessing.Inplace)]
+    [WorldPacketHandler(ClientOpcodes.SetTaxiBenchmarkMode, Processing = PacketProcessing.Inplace)]
     private void HandleSetTaxiBenchmark(SetTaxiBenchmarkMode packet)
-	{
-		if (packet.Enable)
-			_player.SetPlayerFlag(PlayerFlags.TaxiBenchmark);
-		else
-			_player.RemovePlayerFlag(PlayerFlags.TaxiBenchmark);
-	}
+    {
+        if (packet.Enable)
+            _player.SetPlayerFlag(PlayerFlags.TaxiBenchmark);
+        else
+            _player.RemovePlayerFlag(PlayerFlags.TaxiBenchmark);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.GuildSetFocusedAchievement)]
+    [WorldPacketHandler(ClientOpcodes.GuildSetFocusedAchievement)]
     private void HandleGuildSetFocusedAchievement(GuildSetFocusedAchievement setFocusedAchievement)
-	{
-		var guild = Global.GuildMgr.GetGuildById(Player.GuildId);
+    {
+        var guild = Global.GuildMgr.GetGuildById(Player.GuildId);
 
-		if (guild)
-			guild.GetAchievementMgr().SendAchievementInfo(Player, setFocusedAchievement.AchievementID);
-	}
+        if (guild)
+            guild.GetAchievementMgr().SendAchievementInfo(Player, setFocusedAchievement.AchievementID);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.InstanceLockResponse)]
+    [WorldPacketHandler(ClientOpcodes.InstanceLockResponse)]
     private void HandleInstanceLockResponse(InstanceLockResponse packet)
-	{
-		if (!Player.HasPendingBind)
-		{
-			Log.Logger.Information("InstanceLockResponse: Player {0} (guid {1}) tried to bind himself/teleport to graveyard without a pending bind!",
-									Player.GetName(),
-									Player.GUID.ToString());
+    {
+        if (!Player.HasPendingBind)
+        {
+            Log.Logger.Information("InstanceLockResponse: Player {0} (guid {1}) tried to bind himself/teleport to graveyard without a pending bind!",
+                                   Player.GetName(),
+                                   Player.GUID.ToString());
 
-			return;
-		}
+            return;
+        }
 
-		if (packet.AcceptLock)
-			Player.ConfirmPendingBind();
-		else
-			Player.RepopAtGraveyard();
+        if (packet.AcceptLock)
+            Player.ConfirmPendingBind();
+        else
+            Player.RepopAtGraveyard();
 
-		Player.SetPendingBind(0, 0);
-	}
+        Player.SetPendingBind(0, 0);
+    }
 
-	[WorldPacketHandler(ClientOpcodes.Warden3Data)]
+    [WorldPacketHandler(ClientOpcodes.Warden3Data)]
     private void HandleWarden3Data(WardenData packet)
-	{
-		if (_warden == null || packet.Data.GetSize() == 0)
-			return;
+    {
+        if (_warden == null || packet.Data.GetSize() == 0)
+            return;
 
-		_warden.DecryptData(packet.Data.GetData());
-		var opcode = (WardenOpcodes)packet.Data.ReadUInt8();
+        _warden.DecryptData(packet.Data.GetData());
+        var opcode = (WardenOpcodes)packet.Data.ReadUInt8();
 
-		switch (opcode)
-		{
-			case WardenOpcodes.CmsgModuleMissing:
-				_warden.SendModuleToClient();
+        switch (opcode)
+        {
+            case WardenOpcodes.CmsgModuleMissing:
+                _warden.SendModuleToClient();
 
-				break;
-			case WardenOpcodes.CmsgModuleOk:
-				_warden.RequestHash();
+                break;
+            case WardenOpcodes.CmsgModuleOk:
+                _warden.RequestHash();
 
-				break;
-			case WardenOpcodes.SmsgCheatChecksRequest:
-				_warden.HandleData(packet.Data);
+                break;
+            case WardenOpcodes.SmsgCheatChecksRequest:
+                _warden.HandleData(packet.Data);
 
-				break;
-			case WardenOpcodes.CmsgMemChecksResult:
-				Log.Logger.Debug("NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
+                break;
+            case WardenOpcodes.CmsgMemChecksResult:
+                Log.Logger.Debug("NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
 
-				break;
-			case WardenOpcodes.CmsgHashResult:
-				_warden.HandleHashResult(packet.Data);
-				_warden.InitializeModule();
+                break;
+            case WardenOpcodes.CmsgHashResult:
+                _warden.HandleHashResult(packet.Data);
+                _warden.InitializeModule();
 
-				break;
-			case WardenOpcodes.CmsgModuleFailed:
-				Log.Logger.Debug("NYI WARDEN_CMSG_MODULE_FAILED received!");
+                break;
+            case WardenOpcodes.CmsgModuleFailed:
+                Log.Logger.Debug("NYI WARDEN_CMSG_MODULE_FAILED received!");
 
-				break;
-			default:
-				Log.Logger.Debug("Got unknown warden opcode {0} of size {1}.", opcode, packet.Data.GetSize() - 1);
+                break;
+            default:
+                Log.Logger.Debug("Got unknown warden opcode {0} of size {1}.", opcode, packet.Data.GetSize() - 1);
 
-				break;
-		}
-	}
+                break;
+        }
+    }
 }

@@ -14,30 +14,30 @@ namespace Scripts.Spells.Paladin;
 [Script]
 public class spell_pal_absolution : ScriptObjectAutoAdd, IPlayerOnSpellCast
 {
-	public PlayerClass PlayerClass { get; } = PlayerClass.Paladin;
+    public PlayerClass PlayerClass { get; } = PlayerClass.Paladin;
 
-	public spell_pal_absolution() : base("absolution") { }
+    public spell_pal_absolution() : base("absolution") { }
 
-	public void OnSpellCast(Player player, Spell spell, bool skipCheck)
-	{
-		if (player.Class != PlayerClass.Paladin)
-			return;
+    public void OnSpellCast(Player player, Spell spell, bool skipCheck)
+    {
+        if (player.Class != PlayerClass.Paladin)
+            return;
 
-		uint absolution = 212056;
+        uint absolution = 212056;
 
-		if (spell.SpellInfo.Id == absolution)
-		{
-			var allies = new List<Unit>();
-			player.GetFriendlyUnitListInRange(allies, 30.0f, false);
+        if (spell.SpellInfo.Id == absolution)
+        {
+            var allies = new List<Unit>();
+            player.GetFriendlyUnitListInRange(allies, 30.0f, false);
 
-			foreach (var targets in allies)
-				if (targets.IsDead)
-				{
-					var playerTarget = targets.AsPlayer;
+            foreach (var targets in allies)
+                if (targets.IsDead)
+                {
+                    var playerTarget = targets.AsPlayer;
 
-					if (playerTarget != null)
-						playerTarget.ResurrectPlayer(0.35f, false);
-				}
-		}
-	}
+                    if (playerTarget != null)
+                        playerTarget.ResurrectPlayer(0.35f, false);
+                }
+        }
+    }
 }

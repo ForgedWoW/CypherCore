@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum AuctionCommand
 {
-	SellItem = 0,
-	Cancel = 1,
-	PlaceBid = 2
+    SellItem = 0,
+    Cancel = 1,
+    PlaceBid = 2
 }

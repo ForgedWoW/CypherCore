@@ -10,11 +10,11 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(198590)] // 198590 - Drain Soul
 internal class spell_warl_drain_soul : SpellScript, ISpellCalculateMultiplier
 {
-	public double CalcMultiplier(double multiplier)
-	{
-		if (Caster.HasAuraState(AuraStateType.Wounded20Percent))
-			multiplier *= 2;
+    public double CalcMultiplier(double multiplier)
+    {
+        if (Caster.HasAuraState(AuraStateType.Wounded20Percent))
+            multiplier *= 2;
 
-		return multiplier;
-	}
+        return multiplier;
+    }
 }

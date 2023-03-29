@@ -11,27 +11,27 @@ namespace Scripts.Spells.Generic;
 [Script] // 64208 - Consumption
 internal class spell_gen_consumption : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamageCalc, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.LaunchTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDamageCalc, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.LaunchTarget));
+    }
 
-	private void HandleDamageCalc(int effIndex)
-	{
-		var caster = Caster.AsCreature;
+    private void HandleDamageCalc(int effIndex)
+    {
+        var caster = Caster.AsCreature;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		double damage = 0f;
-		var createdBySpell = Global.SpellMgr.GetSpellInfo(caster.UnitData.CreatedBySpell, CastDifficulty);
+        double damage = 0f;
+        var createdBySpell = Global.SpellMgr.GetSpellInfo(caster.UnitData.CreatedBySpell, CastDifficulty);
 
-		if (createdBySpell != null)
-			damage = createdBySpell.GetEffect(2).CalcValue();
+        if (createdBySpell != null)
+            damage = createdBySpell.GetEffect(2).CalcValue();
 
-		if (damage != 0)
-			EffectValue = damage;
-	}
+        if (damage != 0)
+            EffectValue = damage;
+    }
 }

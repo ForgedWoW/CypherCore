@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class InstanceReset : ServerPacket
 {
-	public uint MapID;
-	public InstanceReset() : base(ServerOpcodes.InstanceReset) { }
+    public uint MapID;
+    public InstanceReset() : base(ServerOpcodes.InstanceReset) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(MapID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(MapID);
+    }
 }

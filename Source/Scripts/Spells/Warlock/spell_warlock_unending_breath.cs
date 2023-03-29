@@ -12,21 +12,21 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(5697)]
 internal class spell_warlock_unending_breath : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.ApplyAura, SpellScriptHookType.LaunchTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.ApplyAura, SpellScriptHookType.LaunchTarget));
+    }
 
-	private void HandleHit(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		var caster = Caster;
-		var target = HitUnit;
+    private void HandleHit(int effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        var caster = Caster;
+        var target = HitUnit;
 
-		if (target != null)
-			if (caster.HasAura(WarlockSpells.SOULBURN))
-				caster.CastSpell(target, WarlockSpells.SOULBURN_UNENDING_BREATH, true);
-	}
+        if (target != null)
+            if (caster.HasAura(WarlockSpells.SOULBURN))
+                caster.CastSpell(target, WarlockSpells.SOULBURN_UNENDING_BREATH, true);
+    }
 }

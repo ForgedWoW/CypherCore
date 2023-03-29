@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Vehicle;
 
 public class RequestVehicleNextSeat : ClientPacket
 {
-	public RequestVehicleNextSeat(WorldPacket packet) : base(packet) { }
+    public RequestVehicleNextSeat(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

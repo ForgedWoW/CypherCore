@@ -10,17 +10,17 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_map_of_the_geyser_fields : SpellScript, ISpellCheckCast
 {
-	public SpellCastResult CheckCast()
-	{
-		var caster = Caster;
+    public SpellCastResult CheckCast()
+    {
+        var caster = Caster;
 
-		if (caster.FindNearestCreature(CreatureIds.SouthSinkhole, 30.0f, true) ||
-			caster.FindNearestCreature(CreatureIds.NortheastSinkhole, 30.0f, true) ||
-			caster.FindNearestCreature(CreatureIds.NorthwestSinkhole, 30.0f, true))
-			return SpellCastResult.SpellCastOk;
+        if (caster.FindNearestCreature(CreatureIds.SouthSinkhole, 30.0f, true) ||
+            caster.FindNearestCreature(CreatureIds.NortheastSinkhole, 30.0f, true) ||
+            caster.FindNearestCreature(CreatureIds.NorthwestSinkhole, 30.0f, true))
+            return SpellCastResult.SpellCastOk;
 
-		SetCustomCastResultMessage(SpellCustomErrors.MustBeCloseToSinkhole);
+        SetCustomCastResultMessage(SpellCustomErrors.MustBeCloseToSinkhole);
 
-		return SpellCastResult.CustomError;
-	}
+        return SpellCastResult.CustomError;
+    }
 }

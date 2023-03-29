@@ -8,7 +8,7 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct InviteWrongFactionAppend : IChannelAppender
 {
-	public ChatNotify GetNotificationType() => ChatNotify.InviteWrongFactionNotice;
+    public ChatNotify GetNotificationType() => ChatNotify.InviteWrongFactionNotice;
 
-	public void Append(ChannelNotify data) { }
+    public void Append(ChannelNotify data) { }
 }

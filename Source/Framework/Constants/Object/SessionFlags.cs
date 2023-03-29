@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum SessionFlags
 {
-	None = 0x00,
-	FromRedirect = 0x01,
-	HasRedirected = 0x02
+    None = 0x00,
+    FromRedirect = 0x01,
+    HasRedirected = 0x02
 }

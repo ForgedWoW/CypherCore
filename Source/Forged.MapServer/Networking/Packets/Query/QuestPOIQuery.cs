@@ -5,15 +5,15 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class QuestPOIQuery : ClientPacket
 {
-	public int MissingQuestCount;
-	public uint[] MissingQuestPOIs = new uint[125];
-	public QuestPOIQuery(WorldPacket packet) : base(packet) { }
+    public int MissingQuestCount;
+    public uint[] MissingQuestPOIs = new uint[125];
+    public QuestPOIQuery(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		MissingQuestCount = _worldPacket.ReadInt32();
+    public override void Read()
+    {
+        MissingQuestCount = _worldPacket.ReadInt32();
 
-		for (byte i = 0; i < MissingQuestCount; ++i)
-			MissingQuestPOIs[i] = _worldPacket.ReadUInt32();
-	}
+        for (byte i = 0; i < MissingQuestCount; ++i)
+            MissingQuestPOIs[i] = _worldPacket.ReadUInt32();
+    }
 }

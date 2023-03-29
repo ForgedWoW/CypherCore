@@ -11,10 +11,10 @@ namespace Scripts.Spells.Shaman;
 [CreatureScript(5925)]
 public class npc_grounding_totem : ScriptedAI
 {
-	public npc_grounding_totem(Creature creature) : base(creature) { }
+    public npc_grounding_totem(Creature creature) : base(creature) { }
 
-	public override void Reset()
-	{
-		Me.CastSpell(Me, TotemSpells.TOTEM_GROUDING_TOTEM_EFFECT, true);
-	}
+    public override void Reset()
+    {
+        Me.CastSpell(Me, TotemSpells.TOTEM_GROUDING_TOTEM_EFFECT, true);
+    }
 }

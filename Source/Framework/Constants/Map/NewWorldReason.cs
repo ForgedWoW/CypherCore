@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum NewWorldReason
 {
-	Normal = 16,   // Normal map change
-	Seamless = 21, // Teleport to another map without a loading screen, used for outdoor scenarios
+    Normal = 16,   // Normal map change
+    Seamless = 21, // Teleport to another map without a loading screen, used for outdoor scenarios
 }

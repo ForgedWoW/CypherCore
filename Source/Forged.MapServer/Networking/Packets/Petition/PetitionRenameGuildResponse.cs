@@ -9,17 +9,17 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class PetitionRenameGuildResponse : ServerPacket
 {
-	public ObjectGuid PetitionGuid;
-	public string NewGuildName;
-	public PetitionRenameGuildResponse() : base(ServerOpcodes.PetitionRenameGuildResponse) { }
+    public ObjectGuid PetitionGuid;
+    public string NewGuildName;
+    public PetitionRenameGuildResponse() : base(ServerOpcodes.PetitionRenameGuildResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(PetitionGuid);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(PetitionGuid);
 
-		_worldPacket.WriteBits(NewGuildName.GetByteCount(), 7);
-		_worldPacket.FlushBits();
+        _worldPacket.WriteBits(NewGuildName.GetByteCount(), 7);
+        _worldPacket.FlushBits();
 
-		_worldPacket.WriteString(NewGuildName);
-	}
+        _worldPacket.WriteString(NewGuildName);
+    }
 }

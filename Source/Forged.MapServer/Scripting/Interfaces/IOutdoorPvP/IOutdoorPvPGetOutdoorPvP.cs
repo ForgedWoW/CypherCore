@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IOutdoorPvP;
 
 public interface IOutdoorPvPGetOutdoorPvP : IScriptObject
 {
-	OutdoorPvP GetOutdoorPvP(Map map);
+    OutdoorPvP GetOutdoorPvP(Map map);
 }

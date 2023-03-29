@@ -11,35 +11,35 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_socrethars_stone : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		return (Caster.Area == 3900 || Caster.Area == 3742);
-	}
+    public override bool Load()
+    {
+        return (Caster.Area == 3900 || Caster.Area == 3742);
+    }
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = Caster;
+    private void HandleDummy(int effIndex)
+    {
+        var caster = Caster;
 
-		switch (caster.Area)
-		{
-			case 3900:
-				caster.CastSpell(caster, ItemSpellIds.SocretharToSeat, true);
+        switch (caster.Area)
+        {
+            case 3900:
+                caster.CastSpell(caster, ItemSpellIds.SocretharToSeat, true);
 
-				break;
-			case 3742:
-				caster.CastSpell(caster, ItemSpellIds.SocretharFromSeat, true);
+                break;
+            case 3742:
+                caster.CastSpell(caster, ItemSpellIds.SocretharFromSeat, true);
 
-				break;
-			default:
-				return;
-		}
-	}
+                break;
+            default:
+                return;
+        }
+    }
 }

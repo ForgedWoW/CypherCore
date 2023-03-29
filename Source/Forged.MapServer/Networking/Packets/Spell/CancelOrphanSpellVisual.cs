@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class CancelOrphanSpellVisual : ServerPacket
 {
-	public uint SpellVisualID;
-	public CancelOrphanSpellVisual() : base(ServerOpcodes.CancelOrphanSpellVisual) { }
+    public uint SpellVisualID;
+    public CancelOrphanSpellVisual() : base(ServerOpcodes.CancelOrphanSpellVisual) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt32(SpellVisualID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(SpellVisualID);
+    }
 }

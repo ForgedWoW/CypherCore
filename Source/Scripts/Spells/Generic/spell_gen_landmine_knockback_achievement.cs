@@ -11,26 +11,26 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_landmine_knockback_achievement : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var target = HitPlayer;
+    private void HandleScript(int effIndex)
+    {
+        var target = HitPlayer;
 
-		if (target)
-		{
-			var aura = GetHitAura();
+        if (target)
+        {
+            var aura = GetHitAura();
 
-			if (aura == null ||
-				aura.StackAmount < 10)
-				return;
+            if (aura == null ||
+                aura.StackAmount < 10)
+                return;
 
-			target.CastSpell(target, GenericSpellIds.LandmineKnockbackAchievement, true);
-		}
-	}
+            target.CastSpell(target, GenericSpellIds.LandmineKnockbackAchievement, true);
+        }
+    }
 }

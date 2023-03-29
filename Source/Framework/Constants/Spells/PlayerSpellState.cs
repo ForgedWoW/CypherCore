@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum PlayerSpellState
 {
-	Unchanged = 0,
-	Changed = 1,
-	New = 2,
-	Removed = 3,
-	Temporary = 4
+    Unchanged = 0,
+    Changed = 1,
+    New = 2,
+    Removed = 3,
+    Temporary = 4
 }

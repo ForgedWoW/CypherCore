@@ -11,16 +11,16 @@ namespace Scripts.Spells.Quest;
 [Script] // 48682 - Escape from Silverbrook - Periodic Dummy
 internal class spell_q12308_escape_from_silverbrook : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		Caster.CastSpell(Caster, QuestSpellIds.SummonWorgen, true);
-	}
+    private void HandleDummy(int effIndex)
+    {
+        Caster.CastSpell(Caster, QuestSpellIds.SummonWorgen, true);
+    }
 }

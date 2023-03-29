@@ -11,21 +11,21 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_despawn_target : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDespawn, SpellConst.EffectAll, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDespawn, SpellConst.EffectAll, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDespawn(int effIndex)
-	{
-		if (EffectInfo.IsEffect(SpellEffectName.Dummy) ||
-			EffectInfo.IsEffect(SpellEffectName.ScriptEffect))
-		{
-			var target = HitCreature;
+    private void HandleDespawn(int effIndex)
+    {
+        if (EffectInfo.IsEffect(SpellEffectName.Dummy) ||
+            EffectInfo.IsEffect(SpellEffectName.ScriptEffect))
+        {
+            var target = HitCreature;
 
-			target?.DespawnOrUnsummon();
-		}
-	}
+            target?.DespawnOrUnsummon();
+        }
+    }
 }

@@ -11,39 +11,39 @@ namespace Scripts.Spells.Quest;
 [Script] // 49587 Seeds of Nature's Wrath
 internal class spell_q12459_seeds_of_natures_wrath : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleDummy(int effIndex)
-	{
-		var creatureTarget = HitCreature;
+    private void HandleDummy(int effIndex)
+    {
+        var creatureTarget = HitCreature;
 
-		if (creatureTarget)
-		{
-			uint uiNewEntry = 0;
+        if (creatureTarget)
+        {
+            uint uiNewEntry = 0;
 
-			switch (creatureTarget.Entry)
-			{
-				case CreatureIds.ReanimatedFrostwyrm:
-					uiNewEntry = CreatureIds.WeakReanimatedFrostwyrm;
+            switch (creatureTarget.Entry)
+            {
+                case CreatureIds.ReanimatedFrostwyrm:
+                    uiNewEntry = CreatureIds.WeakReanimatedFrostwyrm;
 
-					break;
-				case CreatureIds.Turgid:
-					uiNewEntry = CreatureIds.WeakTurgid;
+                    break;
+                case CreatureIds.Turgid:
+                    uiNewEntry = CreatureIds.WeakTurgid;
 
-					break;
-				case CreatureIds.Deathgaze:
-					uiNewEntry = CreatureIds.WeakDeathgaze;
+                    break;
+                case CreatureIds.Deathgaze:
+                    uiNewEntry = CreatureIds.WeakDeathgaze;
 
-					break;
-			}
+                    break;
+            }
 
-			if (uiNewEntry != 0)
-				creatureTarget.UpdateEntry(uiNewEntry);
-		}
-	}
+            if (uiNewEntry != 0)
+                creatureTarget.UpdateEntry(uiNewEntry);
+        }
+    }
 }

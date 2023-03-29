@@ -5,15 +5,15 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 internal class QueryQuestCompletionNPCs : ClientPacket
 {
-	public uint[] QuestCompletionNPCs;
-	public QueryQuestCompletionNPCs(WorldPacket packet) : base(packet) { }
+    public uint[] QuestCompletionNPCs;
+    public QueryQuestCompletionNPCs(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		var questCount = _worldPacket.ReadUInt32();
-		QuestCompletionNPCs = new uint[questCount];
+    public override void Read()
+    {
+        var questCount = _worldPacket.ReadUInt32();
+        QuestCompletionNPCs = new uint[questCount];
 
-		for (uint i = 0; i < questCount; ++i)
-			QuestCompletionNPCs[i] = _worldPacket.ReadUInt32();
-	}
+        for (uint i = 0; i < questCount; ++i)
+            QuestCompletionNPCs[i] = _worldPacket.ReadUInt32();
+    }
 }

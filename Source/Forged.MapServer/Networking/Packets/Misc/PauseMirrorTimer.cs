@@ -7,19 +7,19 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class PauseMirrorTimer : ServerPacket
 {
-	public bool Paused = true;
-	public MirrorTimerType Timer;
+    public bool Paused = true;
+    public MirrorTimerType Timer;
 
-	public PauseMirrorTimer(MirrorTimerType timer, bool paused) : base(ServerOpcodes.PauseMirrorTimer)
-	{
-		Timer = timer;
-		Paused = paused;
-	}
+    public PauseMirrorTimer(MirrorTimerType timer, bool paused) : base(ServerOpcodes.PauseMirrorTimer)
+    {
+        Timer = timer;
+        Paused = paused;
+    }
 
-	public override void Write()
-	{
-		_worldPacket.WriteInt32((int)Timer);
-		_worldPacket.WriteBit(Paused);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteInt32((int)Timer);
+        _worldPacket.WriteBit(Paused);
+        _worldPacket.FlushBits();
+    }
 }

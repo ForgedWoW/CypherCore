@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class ReadyCheckResponse : ServerPacket
 {
-	public ObjectGuid PartyGUID;
-	public ObjectGuid Player;
-	public bool IsReady;
-	public ReadyCheckResponse() : base(ServerOpcodes.ReadyCheckResponse) { }
+    public ObjectGuid PartyGUID;
+    public ObjectGuid Player;
+    public bool IsReady;
+    public ReadyCheckResponse() : base(ServerOpcodes.ReadyCheckResponse) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(PartyGUID);
-		_worldPacket.WritePackedGuid(Player);
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(PartyGUID);
+        _worldPacket.WritePackedGuid(Player);
 
-		_worldPacket.WriteBit(IsReady);
-		_worldPacket.FlushBits();
-	}
+        _worldPacket.WriteBit(IsReady);
+        _worldPacket.FlushBits();
+    }
 }

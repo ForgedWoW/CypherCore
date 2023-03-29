@@ -14,42 +14,42 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(105792)]
 public class spell_sha_lava_lash_spread_flame_shock : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Load()
-	{
-		return Caster.TypeId == TypeId.Player;
-	}
+    public override bool Load()
+    {
+        return Caster.TypeId == TypeId.Player;
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaEnemy));
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaEnemy));
+        SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, ShamanSpells.FLAME_SHOCK, Caster.GUID));
-	}
+    private void FilterTargets(List<WorldObject> targets)
+    {
+        targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, ShamanSpells.FLAME_SHOCK, Caster.GUID));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var mainTarget = ExplTargetUnit;
+    private void HandleScript(int effIndex)
+    {
+        var mainTarget = ExplTargetUnit;
 
-		if (mainTarget != null)
-		{
-			var flameShock = mainTarget.GetAura(ShamanSpells.FLAME_SHOCK, Caster.GUID);
+        if (mainTarget != null)
+        {
+            var flameShock = mainTarget.GetAura(ShamanSpells.FLAME_SHOCK, Caster.GUID);
 
-			if (flameShock != null)
-			{
-				var newAura = Caster.AddAura(ShamanSpells.FLAME_SHOCK, HitUnit);
+            if (flameShock != null)
+            {
+                var newAura = Caster.AddAura(ShamanSpells.FLAME_SHOCK, HitUnit);
 
-				if (newAura != null)
-				{
-					newAura.SetDuration(flameShock.Duration);
-					newAura.SetMaxDuration(flameShock.Duration);
-				}
-			}
-		}
-	}
+                if (newAura != null)
+                {
+                    newAura.SetDuration(flameShock.Duration);
+                    newAura.SetMaxDuration(flameShock.Duration);
+                }
+            }
+        }
+    }
 }

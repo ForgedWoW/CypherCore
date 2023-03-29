@@ -8,5 +8,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 public interface IAreaTriggerOnTrigger : IScriptObject
 {
-	bool OnTrigger(Player player, AreaTriggerRecord trigger);
+    bool OnTrigger(Player player, AreaTriggerRecord trigger);
 }

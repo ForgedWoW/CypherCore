@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class CompleteMovie : ClientPacket
 {
-	public CompleteMovie(WorldPacket packet) : base(packet) { }
+    public CompleteMovie(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

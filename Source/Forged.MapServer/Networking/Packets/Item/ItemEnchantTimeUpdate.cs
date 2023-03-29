@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class ItemEnchantTimeUpdate : ServerPacket
 {
-	public ObjectGuid OwnerGuid;
-	public ObjectGuid ItemGuid;
-	public uint DurationLeft;
-	public uint Slot;
-	public ItemEnchantTimeUpdate() : base(ServerOpcodes.ItemEnchantTimeUpdate, ConnectionType.Instance) { }
+    public ObjectGuid OwnerGuid;
+    public ObjectGuid ItemGuid;
+    public uint DurationLeft;
+    public uint Slot;
+    public ItemEnchantTimeUpdate() : base(ServerOpcodes.ItemEnchantTimeUpdate, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ItemGuid);
-		_worldPacket.WriteUInt32(DurationLeft);
-		_worldPacket.WriteUInt32(Slot);
-		_worldPacket.WritePackedGuid(OwnerGuid);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ItemGuid);
+        _worldPacket.WriteUInt32(DurationLeft);
+        _worldPacket.WriteUInt32(Slot);
+        _worldPacket.WritePackedGuid(OwnerGuid);
+    }
 }

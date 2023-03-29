@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class SetMeleeAnimKit : ServerPacket
 {
-	public ObjectGuid Unit;
-	public ushort AnimKitID;
-	public SetMeleeAnimKit() : base(ServerOpcodes.SetMeleeAnimKit, ConnectionType.Instance) { }
+    public ObjectGuid Unit;
+    public ushort AnimKitID;
+    public SetMeleeAnimKit() : base(ServerOpcodes.SetMeleeAnimKit, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Unit);
-		_worldPacket.WriteUInt16(AnimKitID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Unit);
+        _worldPacket.WriteUInt16(AnimKitID);
+    }
 }

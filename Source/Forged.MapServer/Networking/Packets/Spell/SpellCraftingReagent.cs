@@ -5,18 +5,18 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellCraftingReagent
 {
-	public int ItemID;
-	public int DataSlotIndex;
-	public int Quantity;
-	public byte? Unknown_1000;
+    public int ItemID;
+    public int DataSlotIndex;
+    public int Quantity;
+    public byte? Unknown_1000;
 
-	public void Read(WorldPacket data)
-	{
-		ItemID = data.ReadInt32();
-		DataSlotIndex = data.ReadInt32();
-		Quantity = data.ReadInt32();
+    public void Read(WorldPacket data)
+    {
+        ItemID = data.ReadInt32();
+        DataSlotIndex = data.ReadInt32();
+        Quantity = data.ReadInt32();
 
-		if (data.HasBit())
-			Unknown_1000 = data.ReadUInt8();
-	}
+        if (data.HasBit())
+            Unknown_1000 = data.ReadUInt8();
+    }
 }

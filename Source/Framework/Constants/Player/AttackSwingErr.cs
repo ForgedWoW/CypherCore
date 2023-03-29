@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum AttackSwingErr
 {
-	NotInRange = 0,
-	BadFacing = 1,
-	CantAttack = 2,
-	DeadTarget = 3
+    NotInRange = 0,
+    BadFacing = 1,
+    CantAttack = 2,
+    DeadTarget = 3
 }

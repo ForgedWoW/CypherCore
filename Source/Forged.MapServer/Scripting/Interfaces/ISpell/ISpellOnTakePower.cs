@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellOnTakePower : ISpellScript
 {
-	public void TakePower(SpellPowerCost cost);
+    public void TakePower(SpellPowerCost cost);
 }

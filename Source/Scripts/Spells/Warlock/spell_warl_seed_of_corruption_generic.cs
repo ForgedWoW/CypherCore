@@ -18,43 +18,43 @@ namespace Scripts.Spells.Warlock;
 // 70388 - Seed of Corruption
 [SpellScript(new uint[]
 {
-	32863, 36123, 38252, 39367, 44141, 70388
+    32863, 36123, 38252, 39367, 44141, 70388
 })] // Monster spells, triggered only on amount drop (not on death)
 internal class spell_warl_seed_of_corruption_generic : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var damageInfo = eventInfo.DamageInfo;
+    private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+    {
+        PreventDefaultAction();
+        var damageInfo = eventInfo.DamageInfo;
 
-		if (damageInfo == null ||
-			damageInfo.Damage == 0)
-			return;
+        if (damageInfo == null ||
+            damageInfo.Damage == 0)
+            return;
 
-		var amount = aurEff.Amount - (int)damageInfo.Damage;
+        var amount = aurEff.Amount - (int)damageInfo.Damage;
 
-		if (amount > 0)
-		{
-			aurEff.SetAmount(amount);
+        if (amount > 0)
+        {
+            aurEff.SetAmount(amount);
 
-			return;
-		}
+            return;
+        }
 
-		Remove();
+        Remove();
 
-		var caster = Caster;
+        var caster = Caster;
 
-		if (!caster)
-			return;
+        if (!caster)
+            return;
 
-		caster.CastSpell(eventInfo.ActionTarget, WarlockSpells.SEED_OF_CORRUPTION_GENERIC, new CastSpellExtraArgs(aurEff));
-	}
+        caster.CastSpell(eventInfo.ActionTarget, WarlockSpells.SEED_OF_CORRUPTION_GENERIC, new CastSpellExtraArgs(aurEff));
+    }
 }

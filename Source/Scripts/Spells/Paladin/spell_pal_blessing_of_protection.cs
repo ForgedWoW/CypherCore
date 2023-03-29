@@ -11,29 +11,29 @@ namespace Scripts.Spells.Paladin;
 // 204018 - Blessing of Spellwarding
 [SpellScript(new uint[]
 {
-	1022, 204018
+    1022, 204018
 })]
 internal class spell_pal_blessing_of_protection : SpellScript, ISpellCheckCast, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		var target = HitUnit;
+    public void AfterHit()
+    {
+        var target = HitUnit;
 
-		if (target)
-		{
-			Caster.CastSpell(target, PaladinSpells.Forbearance, true);
-			Caster.CastSpell(target, PaladinSpells.ImmuneShieldMarker, true);
-		}
-	}
+        if (target)
+        {
+            Caster.CastSpell(target, PaladinSpells.Forbearance, true);
+            Caster.CastSpell(target, PaladinSpells.ImmuneShieldMarker, true);
+        }
+    }
 
-	public SpellCastResult CheckCast()
-	{
-		var target = ExplTargetUnit;
+    public SpellCastResult CheckCast()
+    {
+        var target = ExplTargetUnit;
 
-		if (!target ||
-			target.HasAura(PaladinSpells.Forbearance))
-			return SpellCastResult.TargetAurastate;
+        if (!target ||
+            target.HasAura(PaladinSpells.Forbearance))
+            return SpellCastResult.TargetAurastate;
 
-		return SpellCastResult.SpellCastOk;
-	}
+        return SpellCastResult.SpellCastOk;
+    }
 }

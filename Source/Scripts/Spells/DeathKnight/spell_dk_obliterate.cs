@@ -12,26 +12,26 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(49020)]
 public class spell_dk_obliterate : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+    }
 
 
-	private void HandleHit(int effIndex)
-	{
-		Caster.RemoveAura(DeathKnightSpells.KILLING_MACHINE);
+    private void HandleHit(int effIndex)
+    {
+        Caster.RemoveAura(DeathKnightSpells.KILLING_MACHINE);
 
-		if (Caster.HasAura(DeathKnightSpells.ICECAP))
-			if (Caster.SpellHistory.HasCooldown(DeathKnightSpells.PILLAR_OF_FROST))
-				Caster.SpellHistory.ModifyCooldown(DeathKnightSpells.PILLAR_OF_FROST, TimeSpan.FromSeconds(-3000));
+        if (Caster.HasAura(DeathKnightSpells.ICECAP))
+            if (Caster.SpellHistory.HasCooldown(DeathKnightSpells.PILLAR_OF_FROST))
+                Caster.SpellHistory.ModifyCooldown(DeathKnightSpells.PILLAR_OF_FROST, TimeSpan.FromSeconds(-3000));
 
-		if (Caster.HasAura(DeathKnightSpells.INEXORABLE_ASSAULT_STACK))
-			Caster.CastSpell(HitUnit, DeathKnightSpells.INEXORABLE_ASSAULT_DAMAGE, true);
+        if (Caster.HasAura(DeathKnightSpells.INEXORABLE_ASSAULT_STACK))
+            Caster.CastSpell(HitUnit, DeathKnightSpells.INEXORABLE_ASSAULT_DAMAGE, true);
 
-		if (Caster.HasAura(DeathKnightSpells.RIME) && RandomHelper.randChance(45))
-			Caster.CastSpell(null, DeathKnightSpells.RIME_BUFF, true);
-	}
+        if (Caster.HasAura(DeathKnightSpells.RIME) && RandomHelper.randChance(45))
+            Caster.CastSpell(null, DeathKnightSpells.RIME_BUFF, true);
+    }
 }

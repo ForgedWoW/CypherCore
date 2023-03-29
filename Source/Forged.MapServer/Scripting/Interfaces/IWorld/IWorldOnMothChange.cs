@@ -5,5 +5,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IWorld;
 
 public interface IWorldOnMotdChange : IScriptObject
 {
-	void OnMotdChange(string newMotd);
+    void OnMotdChange(string newMotd);
 }

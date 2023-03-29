@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum FlagsControlType
 {
-	Apply = 1,
-	Remove = 2
+    Apply = 1,
+    Remove = 2
 }

@@ -13,34 +13,34 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(199483)]
 public class spell_hun_camouflage : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModStealth, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ModStealth, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModStealth, AuraEffectHandleModes.Real));
+        AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.ModStealth, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+    }
 
 
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		if (Caster && Caster.IsPlayer)
-		{
-			Unit pet = Caster.GetGuardianPet();
+    private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        if (Caster && Caster.IsPlayer)
+        {
+            Unit pet = Caster.GetGuardianPet();
 
-			if (pet != null)
-				pet.CastSpell(pet, HunterSpells.CAMOUFLAGE, true);
-		}
-	}
+            if (pet != null)
+                pet.CastSpell(pet, HunterSpells.CAMOUFLAGE, true);
+        }
+    }
 
-	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		if (Caster && Caster.IsPlayer)
-		{
-			Unit pet = Caster.GetGuardianPet();
+    private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        if (Caster && Caster.IsPlayer)
+        {
+            Unit pet = Caster.GetGuardianPet();
 
-			if (pet != null)
-				pet.RemoveAura(HunterSpells.CAMOUFLAGE);
-		}
-	}
+            if (pet != null)
+                pet.RemoveAura(HunterSpells.CAMOUFLAGE);
+        }
+    }
 }

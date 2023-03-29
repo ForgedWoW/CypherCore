@@ -14,23 +14,23 @@ public class FriendlyBelowHpPctEntryInRange : ICheck<Unit>
     private readonly byte _pct;
     private readonly bool _excludeSelf;
 
-	public FriendlyBelowHpPctEntryInRange(Unit obj, uint entry, float range, byte pct, bool excludeSelf)
-	{
-		_obj = obj;
-		_entry = entry;
-		_range = range;
-		_pct = pct;
-		_excludeSelf = excludeSelf;
-	}
+    public FriendlyBelowHpPctEntryInRange(Unit obj, uint entry, float range, byte pct, bool excludeSelf)
+    {
+        _obj = obj;
+        _entry = entry;
+        _range = range;
+        _pct = pct;
+        _excludeSelf = excludeSelf;
+    }
 
-	public bool Invoke(Unit u)
-	{
-		if (_excludeSelf && _obj.GUID == u.GUID)
-			return false;
+    public bool Invoke(Unit u)
+    {
+        if (_excludeSelf && _obj.GUID == u.GUID)
+            return false;
 
-		if (u.Entry == _entry && u.IsAlive && u.IsInCombat && !_obj.IsHostileTo(u) && _obj.IsWithinDist(u, _range) && u.HealthBelowPct(_pct))
-			return true;
+        if (u.Entry == _entry && u.IsAlive && u.IsInCombat && !_obj.IsHostileTo(u) && _obj.IsWithinDist(u, _range) && u.HealthBelowPct(_pct))
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

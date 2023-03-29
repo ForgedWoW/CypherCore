@@ -10,13 +10,13 @@ namespace Scripts.Spells.Mage;
 [SpellScript(235711)]
 public class spell_mage_chrono_shift : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		var _spellCanProc = (eventInfo.SpellInfo.Id == MageSpells.ARCANE_BARRAGE || eventInfo.SpellInfo.Id == MageSpells.ARCANE_BARRAGE_TRIGGERED);
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        var _spellCanProc = (eventInfo.SpellInfo.Id == MageSpells.ARCANE_BARRAGE || eventInfo.SpellInfo.Id == MageSpells.ARCANE_BARRAGE_TRIGGERED);
 
-		if (_spellCanProc)
-			return true;
+        if (_spellCanProc)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 }

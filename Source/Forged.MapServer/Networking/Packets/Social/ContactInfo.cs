@@ -23,34 +23,34 @@ public class ContactInfo
     private readonly ObjectGuid Guid;
     private readonly ObjectGuid WowAccountGuid;
 
-	public ContactInfo(ObjectGuid guid, FriendInfo friendInfo)
-	{
-		Guid = guid;
-		WowAccountGuid = friendInfo.WowAccountGuid;
-		VirtualRealmAddr = Global.WorldMgr.VirtualRealmAddress;
-		NativeRealmAddr = Global.WorldMgr.VirtualRealmAddress;
-		TypeFlags = friendInfo.Flags;
-		Notes = friendInfo.Note;
-		Status = friendInfo.Status;
-		AreaID = friendInfo.Area;
-		Level = friendInfo.Level;
-		ClassID = friendInfo.Class;
-	}
+    public ContactInfo(ObjectGuid guid, FriendInfo friendInfo)
+    {
+        Guid = guid;
+        WowAccountGuid = friendInfo.WowAccountGuid;
+        VirtualRealmAddr = Global.WorldMgr.VirtualRealmAddress;
+        NativeRealmAddr = Global.WorldMgr.VirtualRealmAddress;
+        TypeFlags = friendInfo.Flags;
+        Notes = friendInfo.Note;
+        Status = friendInfo.Status;
+        AreaID = friendInfo.Area;
+        Level = friendInfo.Level;
+        ClassID = friendInfo.Class;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WritePackedGuid(Guid);
-		data.WritePackedGuid(WowAccountGuid);
-		data.WriteUInt32(VirtualRealmAddr);
-		data.WriteUInt32(NativeRealmAddr);
-		data.WriteUInt32((uint)TypeFlags);
-		data.WriteUInt8((byte)Status);
-		data.WriteUInt32(AreaID);
-		data.WriteUInt32(Level);
-		data.WriteUInt32((uint)ClassID);
-		data.WriteBits(Notes.GetByteCount(), 10);
-		data.WriteBit(Mobile);
-		data.FlushBits();
-		data.WriteString(Notes);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WritePackedGuid(Guid);
+        data.WritePackedGuid(WowAccountGuid);
+        data.WriteUInt32(VirtualRealmAddr);
+        data.WriteUInt32(NativeRealmAddr);
+        data.WriteUInt32((uint)TypeFlags);
+        data.WriteUInt8((byte)Status);
+        data.WriteUInt32(AreaID);
+        data.WriteUInt32(Level);
+        data.WriteUInt32((uint)ClassID);
+        data.WriteBits(Notes.GetByteCount(), 10);
+        data.WriteBit(Mobile);
+        data.FlushBits();
+        data.WriteString(Notes);
+    }
 }

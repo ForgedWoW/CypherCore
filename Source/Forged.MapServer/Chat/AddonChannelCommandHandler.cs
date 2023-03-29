@@ -4,115 +4,114 @@
 using System.Text;
 using Forged.MapServer.Networking.Packets.Chat;
 using Forged.MapServer.Server;
-using Forged.MapServer.Services;
 using Framework.Constants;
 
 namespace Forged.MapServer.Chat;
 
 internal class AddonChannelCommandHandler : CommandHandler
 {
-	public static string PREFIX = "ForgedCore";
+    public static string PREFIX = "ForgedCore";
 
     private string _echo;
     private bool _hadAck;
     private bool _humanReadable;
 
-	public AddonChannelCommandHandler(WorldSession session) : base(session) { }
+    public AddonChannelCommandHandler(WorldSession session) : base(session) { }
 
-	public override bool ParseCommands(string str)
-	{
-		if (str.Length < 5)
-			return false;
+    public override bool ParseCommands(string str)
+    {
+        if (str.Length < 5)
+            return false;
 
-		var opcode = str[0];
-		_echo = str.Substring(1);
+        var opcode = str[0];
+        _echo = str.Substring(1);
 
-		switch (opcode)
-		{
-			case 'p': // p Ping
-				SendAck();
+        switch (opcode)
+        {
+            case 'p': // p Ping
+                SendAck();
 
-				return true;
-			case 'h': // h Issue human-readable command
-			case 'i': // i Issue command
-				if (str.Length < 6)
-					return false;
+                return true;
+            case 'h': // h Issue human-readable command
+            case 'i': // i Issue command
+                if (str.Length < 6)
+                    return false;
 
-				_humanReadable = opcode == 'h';
-				var cmd = str.Substring(5);
+                _humanReadable = opcode == 'h';
+                var cmd = str.Substring(5);
 
-				if (_ParseCommands(cmd)) // actual command starts at str[5]
-				{
-					if (!_hadAck)
-						SendAck();
+                if (_ParseCommands(cmd)) // actual command starts at str[5]
+                {
+                    if (!_hadAck)
+                        SendAck();
 
-					if (HasSentErrorMessage)
-						SendFailed();
-					else
-						SendOK();
-				}
-				else
-				{
-					SendSysMessage(CypherStrings.CmdInvalid, cmd);
-					SendFailed();
-				}
+                    if (HasSentErrorMessage)
+                        SendFailed();
+                    else
+                        SendOK();
+                }
+                else
+                {
+                    SendSysMessage(CypherStrings.CmdInvalid, cmd);
+                    SendFailed();
+                }
 
-				return true;
-			default:
-				return false;
-		}
-	}
+                return true;
+            default:
+                return false;
+        }
+    }
 
-	public override void SendSysMessage(string str, bool escapeCharacters)
-	{
-		if (!_hadAck)
-			SendAck();
+    public override void SendSysMessage(string str, bool escapeCharacters)
+    {
+        if (!_hadAck)
+            SendAck();
 
-		StringBuilder msg = new("m");
-		msg.Append(_echo, 0, 4);
-		var body = str;
+        StringBuilder msg = new("m");
+        msg.Append(_echo, 0, 4);
+        var body = str;
 
-		if (escapeCharacters)
-			body.Replace("|", "||");
+        if (escapeCharacters)
+            body.Replace("|", "||");
 
-		int pos, lastpos;
+        int pos, lastpos;
 
-		for (lastpos = 0, pos = body.IndexOf('\n', lastpos); pos != -1; lastpos = pos + 1, pos = body.IndexOf('\n', lastpos))
-		{
-			var line = msg;
-			line.Append(body, lastpos, pos - lastpos);
-			Send(line.ToString());
-		}
+        for (lastpos = 0, pos = body.IndexOf('\n', lastpos); pos != -1; lastpos = pos + 1, pos = body.IndexOf('\n', lastpos))
+        {
+            var line = msg;
+            line.Append(body, lastpos, pos - lastpos);
+            Send(line.ToString());
+        }
 
-		msg.Append(body, lastpos, pos - lastpos);
-		Send(msg.ToString());
-	}
+        msg.Append(body, lastpos, pos - lastpos);
+        Send(msg.ToString());
+    }
 
-	public override bool IsHumanReadable()
-	{
-		return _humanReadable;
-	}
+    public override bool IsHumanReadable()
+    {
+        return _humanReadable;
+    }
 
     private void Send(string msg)
-	{
-		ChatPkt chat = new();
-		chat.Initialize(ChatMsg.Whisper, Language.Addon, Session.Player, Session.Player, msg, 0, "", Locale.enUS, PREFIX);
-		Session.SendPacket(chat);
-	}
+    {
+        ChatPkt chat = new();
+        chat.Initialize(ChatMsg.Whisper, Language.Addon, Session.Player, Session.Player, msg, 0, "", Locale.enUS, PREFIX);
+        Session.SendPacket(chat);
+    }
 
     private void SendAck() // a Command acknowledged, no body
-	{
-		Send($"a{_echo:4}\0");
-		_hadAck = true;
-	}
+    {
+        Send($"a{_echo:4}\0");
+        _hadAck = true;
+    }
 
     private void SendOK() // o Command OK, no body
-	{
-		Send($"o{_echo:4}\0");
-	}
+    {
+        Send($"o{_echo:4}\0");
+    }
 
     private void SendFailed() // f Command failed, no body
-	{
-		Send($"f{_echo:4}\0");
-	}
+    {
+        Send($"f{_echo:4}\0");
+    }
 }

@@ -7,16 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootMoneyNotify : ServerPacket
 {
-	public ulong Money;
-	public ulong MoneyMod;
-	public bool SoleLooter;
-	public LootMoneyNotify() : base(ServerOpcodes.LootMoneyNotify) { }
+    public ulong Money;
+    public ulong MoneyMod;
+    public bool SoleLooter;
+    public LootMoneyNotify() : base(ServerOpcodes.LootMoneyNotify) { }
 
-	public override void Write()
-	{
-		_worldPacket.WriteUInt64(Money);
-		_worldPacket.WriteUInt64(MoneyMod);
-		_worldPacket.WriteBit(SoleLooter);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WriteUInt64(Money);
+        _worldPacket.WriteUInt64(MoneyMod);
+        _worldPacket.WriteBit(SoleLooter);
+        _worldPacket.FlushBits();
+    }
 }

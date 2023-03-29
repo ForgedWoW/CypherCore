@@ -8,15 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class MoveRemoveMovementForce : ServerPacket
 {
-	public ObjectGuid MoverGUID;
-	public int SequenceIndex;
-	public ObjectGuid ID;
-	public MoveRemoveMovementForce() : base(ServerOpcodes.MoveRemoveMovementForce, ConnectionType.Instance) { }
+    public ObjectGuid MoverGUID;
+    public int SequenceIndex;
+    public ObjectGuid ID;
+    public MoveRemoveMovementForce() : base(ServerOpcodes.MoveRemoveMovementForce, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(MoverGUID);
-		_worldPacket.WriteInt32(SequenceIndex);
-		_worldPacket.WritePackedGuid(ID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(MoverGUID);
+        _worldPacket.WriteInt32(SequenceIndex);
+        _worldPacket.WritePackedGuid(ID);
+    }
 }

@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Taxi;
 
 internal class TaxiRequestEarlyLanding : ClientPacket
 {
-	public TaxiRequestEarlyLanding(WorldPacket packet) : base(packet) { }
+    public TaxiRequestEarlyLanding(WorldPacket packet) : base(packet) { }
 
-	public override void Read() { }
+    public override void Read() { }
 }

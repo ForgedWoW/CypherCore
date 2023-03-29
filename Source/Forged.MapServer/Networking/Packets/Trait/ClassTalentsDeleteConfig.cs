@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Trait;
 
 internal class ClassTalentsDeleteConfig : ClientPacket
 {
-	public int ConfigID;
+    public int ConfigID;
 
-	public ClassTalentsDeleteConfig(WorldPacket packet) : base(packet) { }
+    public ClassTalentsDeleteConfig(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		ConfigID = _worldPacket.ReadInt32();
-	}
+    public override void Read()
+    {
+        ConfigID = _worldPacket.ReadInt32();
+    }
 }

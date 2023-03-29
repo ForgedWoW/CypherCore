@@ -14,18 +14,18 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(195255)]
 public class aura_sha_stormlash : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		var caster = Caster;
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			caster.CastSpell(caster, ShamanSpells.STORMLASH_BUFF, true);
-	}
+        if (caster != null)
+            caster.CastSpell(caster, ShamanSpells.STORMLASH_BUFF, true);
+    }
 }

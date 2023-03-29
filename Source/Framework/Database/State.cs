@@ -5,6 +5,6 @@ namespace Framework.Database;
 
 public enum State
 {
-	RELEASED,
-	ARCHIVED
+    RELEASED,
+    ARCHIVED
 }

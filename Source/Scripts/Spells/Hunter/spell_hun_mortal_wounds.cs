@@ -14,36 +14,36 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(201075)]
 public class spell_hun_mortal_wounds : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if ((eventInfo.HitMask & ProcFlagsHit.None) != 0 && eventInfo.SpellInfo.Id == HunterSpells.LACERATE)
-			return true;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if ((eventInfo.HitMask & ProcFlagsHit.None) != 0 && eventInfo.SpellInfo.Id == HunterSpells.LACERATE)
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		PreventDefaultAction();
+    private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+    {
+        PreventDefaultAction();
 
-		var player = Caster.AsPlayer;
+        var player = Caster.AsPlayer;
 
-		if (player != null)
-		{
-			var chargeCatId = Global.SpellMgr.GetSpellInfo(HunterSpells.MONGOOSE_BITE, Difficulty.None).ChargeCategoryId;
+        if (player != null)
+        {
+            var chargeCatId = Global.SpellMgr.GetSpellInfo(HunterSpells.MONGOOSE_BITE, Difficulty.None).ChargeCategoryId;
 
-			var mongooseBite = CliDB.SpellCategoryStorage.LookupByKey(chargeCatId);
+            var mongooseBite = CliDB.SpellCategoryStorage.LookupByKey(chargeCatId);
 
-			if (mongooseBite != null)
-				player.SpellHistory.RestoreCharge(chargeCatId);
-		}
-	}
+            if (mongooseBite != null)
+                player.SpellHistory.RestoreCharge(chargeCatId);
+        }
+    }
 }

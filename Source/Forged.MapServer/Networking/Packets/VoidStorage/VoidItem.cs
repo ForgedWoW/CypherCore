@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
 internal struct VoidItem
 {
-	public void Write(WorldPacket data)
-	{
-		data.WritePackedGuid(Guid);
-		data.WritePackedGuid(Creator);
-		data.WriteUInt32(Slot);
-		Item.Write(data);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WritePackedGuid(Guid);
+        data.WritePackedGuid(Creator);
+        data.WriteUInt32(Slot);
+        Item.Write(data);
+    }
 
-	public ObjectGuid Guid;
-	public ObjectGuid Creator;
-	public uint Slot;
-	public ItemInstance Item;
+    public ObjectGuid Guid;
+    public ObjectGuid Creator;
+    public uint Slot;
+    public ItemInstance Item;
 }

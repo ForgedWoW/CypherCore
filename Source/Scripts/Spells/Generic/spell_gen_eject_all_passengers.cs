@@ -9,11 +9,11 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_eject_all_passengers : SpellScript, ISpellAfterHit
 {
-	public void AfterHit()
-	{
-		var vehicle = HitUnit.VehicleKit1;
+    public void AfterHit()
+    {
+        var vehicle = HitUnit.VehicleKit1;
 
-		if (vehicle)
-			vehicle.RemoveAllPassengers();
-	}
+        if (vehicle)
+            vehicle.RemoveAllPassengers();
+    }
 }

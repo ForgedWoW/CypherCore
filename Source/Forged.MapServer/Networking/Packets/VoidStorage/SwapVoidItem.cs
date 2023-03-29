@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
 internal class SwapVoidItem : ClientPacket
 {
-	public ObjectGuid Npc;
-	public ObjectGuid VoidItemGuid;
-	public uint DstSlot;
-	public SwapVoidItem(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Npc;
+    public ObjectGuid VoidItemGuid;
+    public uint DstSlot;
+    public SwapVoidItem(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Npc = _worldPacket.ReadPackedGuid();
-		VoidItemGuid = _worldPacket.ReadPackedGuid();
-		DstSlot = _worldPacket.ReadUInt32();
-	}
+    public override void Read()
+    {
+        Npc = _worldPacket.ReadPackedGuid();
+        VoidItemGuid = _worldPacket.ReadPackedGuid();
+        DstSlot = _worldPacket.ReadUInt32();
+    }
 }

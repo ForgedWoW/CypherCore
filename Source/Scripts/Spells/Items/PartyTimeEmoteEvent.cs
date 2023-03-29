@@ -10,25 +10,25 @@ namespace Scripts.Spells.Items;
 
 internal class PartyTimeEmoteEvent : BasicEvent
 {
-	private readonly Player _player;
+    private readonly Player _player;
 
-	public PartyTimeEmoteEvent(Player player)
-	{
-		_player = player;
-	}
+    public PartyTimeEmoteEvent(Player player)
+    {
+        _player = player;
+    }
 
-	public override bool Execute(ulong etime, uint pTime)
-	{
-		if (!_player.HasAura(ItemSpellIds.PartyTime))
-			return true;
+    public override bool Execute(ulong etime, uint pTime)
+    {
+        if (!_player.HasAura(ItemSpellIds.PartyTime))
+            return true;
 
-		if (_player.IsMoving)
-			_player.HandleEmoteCommand(RandomHelper.RAND(Emote.OneshotApplaud, Emote.OneshotLaugh, Emote.OneshotCheer, Emote.OneshotChicken));
-		else
-			_player.HandleEmoteCommand(RandomHelper.RAND(Emote.OneshotApplaud, Emote.OneshotDancespecial, Emote.OneshotLaugh, Emote.OneshotCheer, Emote.OneshotChicken));
+        if (_player.IsMoving)
+            _player.HandleEmoteCommand(RandomHelper.RAND(Emote.OneshotApplaud, Emote.OneshotLaugh, Emote.OneshotCheer, Emote.OneshotChicken));
+        else
+            _player.HandleEmoteCommand(RandomHelper.RAND(Emote.OneshotApplaud, Emote.OneshotDancespecial, Emote.OneshotLaugh, Emote.OneshotCheer, Emote.OneshotChicken));
 
-		_player.Events.AddEventAtOffset(this, TimeSpan.FromSeconds(RandomHelper.RAND(5, 10, 15)));
+        _player.Events.AddEventAtOffset(this, TimeSpan.FromSeconds(RandomHelper.RAND(5, 10, 15)));
 
-		return false; // do not delete re-added event in EventProcessor::Update
-	}
+        return false; // do not delete re-added event in EventProcessor::Update
+    }
 }

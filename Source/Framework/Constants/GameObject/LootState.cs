@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum LootState
 {
-	NotReady = 0,
-	Ready, // can be ready but despawned, and then not possible activate until spawn
-	Activated,
-	JustDeactivated
+    NotReady = 0,
+    Ready, // can be ready but despawned, and then not possible activate until spawn
+    Activated,
+    JustDeactivated
 }

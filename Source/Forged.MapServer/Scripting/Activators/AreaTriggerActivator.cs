@@ -10,13 +10,13 @@ namespace Forged.MapServer.Scripting.Activators;
 
 public class AreaTriggerActivator : IScriptActivator
 {
-	public List<string> ScriptBaseTypes => new()
-	{
-		nameof(AreaTriggerScript)
-	};
+    public List<string> ScriptBaseTypes => new()
+    {
+        nameof(AreaTriggerScript)
+    };
 
-	public IScriptObject Activate(Type type, string name, ScriptAttribute attribute)
-	{
-		return (IScriptObject)Activator.CreateInstance(typeof(GenericAreaTriggerScriptLoader<>).MakeGenericType(type), name, attribute.Args);
-	}
+    public IScriptObject Activate(Type type, string name, ScriptAttribute attribute)
+    {
+        return (IScriptObject)Activator.CreateInstance(typeof(GenericAreaTriggerScriptLoader<>).MakeGenericType(type), name, attribute.Args);
+    }
 }

@@ -5,6 +5,6 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public interface IHasChangesMask
 {
-	void ClearChangesMask();
-	UpdateMask GetUpdateMask();
+    void ClearChangesMask();
+    UpdateMask GetUpdateMask();
 }

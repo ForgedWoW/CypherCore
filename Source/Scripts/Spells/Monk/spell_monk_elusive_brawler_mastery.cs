@@ -11,11 +11,11 @@ namespace Scripts.Spells.Monk;
 [SpellScript(117906)]
 public class spell_monk_elusive_brawler_mastery : AuraScript, IAuraCheckProc
 {
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.TypeMask.HasFlag(ProcFlags.TakenHitMask))
-			return true;
+    public bool CheckProc(ProcEventInfo eventInfo)
+    {
+        if (eventInfo.TypeMask.HasFlag(ProcFlags.TakenHitMask))
+            return true;
 
-		return eventInfo.ProcSpell && (eventInfo.ProcSpell.SpellInfo.Id == MonkSpells.BLACKOUT_STRIKE || eventInfo.ProcSpell.SpellInfo.Id == MonkSpells.BREATH_OF_FIRE);
-	}
+        return eventInfo.ProcSpell && (eventInfo.ProcSpell.SpellInfo.Id == MonkSpells.BLACKOUT_STRIKE || eventInfo.ProcSpell.SpellInfo.Id == MonkSpells.BREATH_OF_FIRE);
+    }
 }

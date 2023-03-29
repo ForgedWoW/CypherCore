@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum ItemSubClassReagent
 {
-	Reagent = 0,
-	Keystone = 1,
-	ContextToken = 2,
-	Max
+    Reagent = 0,
+    Keystone = 1,
+    ContextToken = 2,
+    Max
 }

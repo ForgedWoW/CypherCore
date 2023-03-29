@@ -10,12 +10,12 @@ namespace Scripts.Spells.Warlock;
 [Script]
 public class spell_warlock_4p_t14_pve : SpellScript, ISpellAfterCast
 {
-	public void AfterCast()
-	{
-		var caster = Caster;
+    public void AfterCast()
+    {
+        var caster = Caster;
 
-		if (caster != null)
-			if (caster.HasAura(WarlockSpells.T14_BONUS))
-				caster.CastSpell(caster, WarlockSpells.RAGING_SOUL, true);
-	}
+        if (caster != null)
+            if (caster.HasAura(WarlockSpells.T14_BONUS))
+                caster.CastSpell(caster, WarlockSpells.RAGING_SOUL, true);
+    }
 }

@@ -7,17 +7,17 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class ChatMessageWhisper : ClientPacket
 {
-	public Language Language = Language.Universal;
-	public string Text;
-	public string Target;
-	public ChatMessageWhisper(WorldPacket packet) : base(packet) { }
+    public Language Language = Language.Universal;
+    public string Text;
+    public string Target;
+    public ChatMessageWhisper(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Language = (Language)_worldPacket.ReadInt32();
-		var targetLen = _worldPacket.ReadBits<uint>(9);
-		var textLen = _worldPacket.ReadBits<uint>(11);
-		Target = _worldPacket.ReadString(targetLen);
-		Text = _worldPacket.ReadString(textLen);
-	}
+    public override void Read()
+    {
+        Language = (Language)_worldPacket.ReadInt32();
+        var targetLen = _worldPacket.ReadBits<uint>(9);
+        var textLen = _worldPacket.ReadBits<uint>(11);
+        Target = _worldPacket.ReadString(targetLen);
+        Text = _worldPacket.ReadString(textLen);
+    }
 }

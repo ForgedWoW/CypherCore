@@ -5,7 +5,7 @@ namespace Framework.Constants;
 
 public enum InstanceResetResult
 {
-	Success,
-	NotEmpty,
-	CannotReset
+    Success,
+    NotEmpty,
+    CannotReset
 }

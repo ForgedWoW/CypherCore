@@ -13,20 +13,20 @@ namespace Scripts.Spells.Warrior;
 [Script] // 32215 - Victorious State
 internal class spell_warr_victorious_state : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleOnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectProcHandler(HandleOnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+    }
 
-	private void HandleOnProc(AuraEffect aurEff, ProcEventInfo procInfo)
-	{
-		if (procInfo.Actor.TypeId == TypeId.Player &&
-			procInfo.Actor.AsPlayer.GetPrimarySpecialization() == TalentSpecialization.WarriorFury)
-			PreventDefaultAction();
+    private void HandleOnProc(AuraEffect aurEff, ProcEventInfo procInfo)
+    {
+        if (procInfo.Actor.TypeId == TypeId.Player &&
+            procInfo.Actor.AsPlayer.GetPrimarySpecialization() == TalentSpecialization.WarriorFury)
+            PreventDefaultAction();
 
-		procInfo.Actor.SpellHistory.ResetCooldown(WarriorSpells.IMPENDING_VICTORY, true);
-	}
+        procInfo.Actor.SpellHistory.ResetCooldown(WarriorSpells.IMPENDING_VICTORY, true);
+    }
 }

@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public struct VehicleTeleport
 {
-	public byte VehicleSeatIndex;
-	public bool VehicleExitVoluntary;
-	public bool VehicleExitTeleport;
+    public byte VehicleSeatIndex;
+    public bool VehicleExitVoluntary;
+    public bool VehicleExitTeleport;
 }

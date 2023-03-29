@@ -9,8 +9,8 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 50842 - Blood Boil
 internal class spell_dk_blood_boil : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		Caster.CastSpell(HitUnit, DeathKnightSpells.BloodPlague, true);
-	}
+    public void OnHit()
+    {
+        Caster.CastSpell(HitUnit, DeathKnightSpells.BloodPlague, true);
+    }
 }

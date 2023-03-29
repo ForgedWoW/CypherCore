@@ -9,15 +9,15 @@ public class LambdaBasicEvent : BasicEvent
 {
     private readonly Action _callback;
 
-	public LambdaBasicEvent(Action callback) : base()
-	{
-		_callback = callback;
-	}
+    public LambdaBasicEvent(Action callback) : base()
+    {
+        _callback = callback;
+    }
 
-	public override bool Execute(ulong etime, uint pTime)
-	{
-		_callback();
+    public override bool Execute(ulong etime, uint pTime)
+    {
+        _callback();
 
-		return true;
-	}
+        return true;
+    }
 }

@@ -12,16 +12,16 @@ namespace Scripts.Spells.Hunter;
 [Script] // 212431 - Explosive Shot
 class spell_hun_explosive_shot : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
+    }
 
-	void HandlePeriodic(AuraEffect aurEff)
-	{
-		Caster?.CastSpell(Target, HunterSpells.ExplosiveShotDamage, true);
-	}
+    void HandlePeriodic(AuraEffect aurEff)
+    {
+        Caster?.CastSpell(Target, HunterSpells.ExplosiveShotDamage, true);
+    }
 }

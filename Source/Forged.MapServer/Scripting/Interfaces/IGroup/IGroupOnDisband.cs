@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.IGroup;
 
 public interface IGroupOnDisband : IScriptObject
 {
-	void OnDisband(PlayerGroup group);
+    void OnDisband(PlayerGroup group);
 }

@@ -10,20 +10,20 @@ namespace Scripts.Spells.Monk;
 [SpellScript(116705)]
 public class spell_monk_spear_hand_strike : SpellScript, ISpellOnHit
 {
-	public void OnHit()
-	{
-		var _player = Caster.AsPlayer;
+    public void OnHit()
+    {
+        var _player = Caster.AsPlayer;
 
-		if (_player != null)
-		{
-			var target = HitUnit;
+        if (_player != null)
+        {
+            var target = HitUnit;
 
-			if (target != null)
-				if (target.IsInFront(_player))
-				{
-					_player.CastSpell(target, MonkSpells.SPEAR_HAND_STRIKE_SILENCE, true);
-					_player.SpellHistory.AddCooldown(116705, 0, TimeSpan.FromSeconds(15));
-				}
-		}
-	}
+            if (target != null)
+                if (target.IsInFront(_player))
+                {
+                    _player.CastSpell(target, MonkSpells.SPEAR_HAND_STRIKE_SILENCE, true);
+                    _player.SpellHistory.AddCooldown(116705, 0, TimeSpan.FromSeconds(15));
+                }
+        }
+    }
 }

@@ -11,19 +11,19 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(43264)]
 public class spell_dk_army_periodic_taunt : SpellScript, ISpellCheckCast
 {
-	public override bool Load()
-	{
-		return Caster.IsGuardian;
-	}
+    public override bool Load()
+    {
+        return Caster.IsGuardian;
+    }
 
-	public SpellCastResult CheckCast()
-	{
-		var owner = Caster.OwnerUnit;
+    public SpellCastResult CheckCast()
+    {
+        var owner = Caster.OwnerUnit;
 
-		if (owner != null)
-			if (!owner.HasAura(DeathKnightSpells.GLYPH_OF_ARMY_OF_THE_DEAD))
-				return SpellCastResult.SpellCastOk;
+        if (owner != null)
+            if (!owner.HasAura(DeathKnightSpells.GLYPH_OF_ARMY_OF_THE_DEAD))
+                return SpellCastResult.SpellCastOk;
 
-		return SpellCastResult.SpellUnavailable;
-	}
+        return SpellCastResult.SpellUnavailable;
+    }
 }

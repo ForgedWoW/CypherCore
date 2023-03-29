@@ -11,21 +11,21 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_remove_flight_auras : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var target = HitUnit;
+    private void HandleScript(int effIndex)
+    {
+        var target = HitUnit;
 
-		if (target)
-		{
-			target.RemoveAurasByType(AuraType.Fly);
-			target.RemoveAurasByType(AuraType.ModIncreaseMountedFlightSpeed);
-		}
-	}
+        if (target)
+        {
+            target.RemoveAurasByType(AuraType.Fly);
+            target.RemoveAurasByType(AuraType.ModIncreaseMountedFlightSpeed);
+        }
+    }
 }

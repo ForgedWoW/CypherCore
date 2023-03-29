@@ -8,19 +8,19 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class STextEmote : ServerPacket
 {
-	public ObjectGuid SourceGUID;
-	public ObjectGuid SourceAccountGUID;
-	public ObjectGuid TargetGUID;
-	public int SoundIndex = -1;
-	public int EmoteID;
-	public STextEmote() : base(ServerOpcodes.TextEmote, ConnectionType.Instance) { }
+    public ObjectGuid SourceGUID;
+    public ObjectGuid SourceAccountGUID;
+    public ObjectGuid TargetGUID;
+    public int SoundIndex = -1;
+    public int EmoteID;
+    public STextEmote() : base(ServerOpcodes.TextEmote, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(SourceGUID);
-		_worldPacket.WritePackedGuid(SourceAccountGUID);
-		_worldPacket.WriteInt32(EmoteID);
-		_worldPacket.WriteInt32(SoundIndex);
-		_worldPacket.WritePackedGuid(TargetGUID);
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(SourceGUID);
+        _worldPacket.WritePackedGuid(SourceAccountGUID);
+        _worldPacket.WriteInt32(EmoteID);
+        _worldPacket.WriteInt32(SoundIndex);
+        _worldPacket.WritePackedGuid(TargetGUID);
+    }
 }

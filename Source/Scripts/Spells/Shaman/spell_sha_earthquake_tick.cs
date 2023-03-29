@@ -13,35 +13,35 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(77478)]
 internal class spell_sha_earthquake_tick : SpellScript, ISpellOnHit, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
 
-	public void OnHit()
-	{
-		var target = HitUnit;
+    public void OnHit()
+    {
+        var target = HitUnit;
 
-		if (target != null)
-			if (RandomHelper.randChance(GetEffectInfo(1).CalcValue()))
-			{
-				var areaTriggers = Caster.GetAreaTriggers(ShamanSpells.Earthquake);
-				var foundAreaTrigger = areaTriggers.Find(at => at.GUID == Spell.OriginalCasterGuid);
+        if (target != null)
+            if (RandomHelper.randChance(GetEffectInfo(1).CalcValue()))
+            {
+                var areaTriggers = Caster.GetAreaTriggers(ShamanSpells.Earthquake);
+                var foundAreaTrigger = areaTriggers.Find(at => at.GUID == Spell.OriginalCasterGuid);
 
-				if (foundAreaTrigger != null)
-					foundAreaTrigger.ForEachAreaTriggerScript<IAreaTriggerScriptValues>(a =>
-					{
-						if (a.ScriptValues.TryAdd(target.GUID.ToString(), target.GUID))
-							Caster.CastSpell(target, ShamanSpells.EarthquakeKnockingDown, true);
-					});
-			}
-	}
+                if (foundAreaTrigger != null)
+                    foundAreaTrigger.ForEachAreaTriggerScript<IAreaTriggerScriptValues>(a =>
+                    {
+                        if (a.ScriptValues.TryAdd(target.GUID.ToString(), target.GUID))
+                            Caster.CastSpell(target, ShamanSpells.EarthquakeKnockingDown, true);
+                    });
+            }
+    }
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamageCalc, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.LaunchTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleDamageCalc, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.LaunchTarget));
+    }
 
-	private void HandleDamageCalc(int effIndex)
-	{
-		EffectValue = (int)(Caster.SpellBaseDamageBonusDone(SpellSchoolMask.Nature) * 0.391f);
-	}
+    private void HandleDamageCalc(int effIndex)
+    {
+        EffectValue = (int)(Caster.SpellBaseDamageBonusDone(SpellSchoolMask.Nature) * 0.391f);
+    }
 }

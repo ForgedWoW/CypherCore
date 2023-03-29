@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public enum MirrorTimerType
 {
-	Disabled = -1,
-	Fatigue = 0,
-	Breath = 1,
-	Fire = 2, // feign death
-	Max = 3
+    Disabled = -1,
+    Fatigue = 0,
+    Breath = 1,
+    Fire = 2, // feign death
+    Max = 3
 }

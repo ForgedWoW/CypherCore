@@ -11,36 +11,36 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_bonked : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
+    public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-	}
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleScript, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+    }
 
-	private void HandleScript(int effIndex)
-	{
-		var target = HitPlayer;
+    private void HandleScript(int effIndex)
+    {
+        var target = HitPlayer;
 
-		if (target)
-		{
-			var aura = GetHitAura();
+        if (target)
+        {
+            var aura = GetHitAura();
 
-			if (!(aura != null && aura.StackAmount == 3))
-				return;
+            if (!(aura != null && aura.StackAmount == 3))
+                return;
 
-			target.CastSpell(target, GenericSpellIds.FormSwordDefeat, true);
-			target.RemoveAura(GenericSpellIds.Bonked);
+            target.CastSpell(target, GenericSpellIds.FormSwordDefeat, true);
+            target.RemoveAura(GenericSpellIds.Bonked);
 
-			aura = target.GetAura(GenericSpellIds.Onguard);
+            aura = target.GetAura(GenericSpellIds.Onguard);
 
-			if (aura != null)
-			{
-				var item = target.GetItemByGuid(aura.CastItemGuid);
+            if (aura != null)
+            {
+                var item = target.GetItemByGuid(aura.CastItemGuid);
 
-				if (item)
-					target.DestroyItemCount(item.Entry, 1, true);
-			}
-		}
-	}
+                if (item)
+                    target.DestroyItemCount(item.Entry, 1, true);
+            }
+        }
+    }
 }

@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventDisbanded : ServerPacket
 {
-	public GuildEventDisbanded() : base(ServerOpcodes.GuildEventDisbanded) { }
+    public GuildEventDisbanded() : base(ServerOpcodes.GuildEventDisbanded) { }
 
-	public override void Write() { }
+    public override void Write() { }
 }

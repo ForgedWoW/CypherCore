@@ -10,19 +10,19 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 121916 - Glyph of the Geist (Unholy)
 internal class spell_dk_pet_geist_transform : SpellScript, ISpellCheckCast
 {
-	public override bool Load()
-	{
-		return Caster.IsPet;
-	}
+    public override bool Load()
+    {
+        return Caster.IsPet;
+    }
 
-	public SpellCastResult CheckCast()
-	{
-		var owner = Caster.OwnerUnit;
+    public SpellCastResult CheckCast()
+    {
+        var owner = Caster.OwnerUnit;
 
-		if (owner)
-			if (owner.HasAura(DeathKnightSpells.GlyphOfTheGeist))
-				return SpellCastResult.SpellCastOk;
+        if (owner)
+            if (owner.HasAura(DeathKnightSpells.GlyphOfTheGeist))
+                return SpellCastResult.SpellCastOk;
 
-		return SpellCastResult.SpellUnavailable;
-	}
+        return SpellCastResult.SpellUnavailable;
+    }
 }

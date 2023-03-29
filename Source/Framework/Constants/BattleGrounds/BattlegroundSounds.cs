@@ -5,8 +5,8 @@ namespace Framework.Constants;
 
 public enum BattlegroundSounds
 {
-	HordeWins = 8454,
-	AllianceWins = 8455,
-	BgStart = 3439,
-	BgStartL70etc = 11803
+    HordeWins = 8454,
+    AllianceWins = 8455,
+    BgStart = 3439,
+    BgStartL70etc = 11803
 }

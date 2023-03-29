@@ -12,22 +12,22 @@ namespace Scripts.Spells.Priest;
 [SpellScript(232698)]
 public class spell_pri_shadowform : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectApply, 0, AuraType.AddPctModifier, AuraEffectHandleModes.RealOrReapplyMask));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectRemove, 0, AuraType.AddPctModifier, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectAfterRemove));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectApply, 0, AuraType.AddPctModifier, AuraEffectHandleModes.RealOrReapplyMask));
+        AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectRemove, 0, AuraType.AddPctModifier, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectAfterRemove));
+    }
 
-	private void HandleEffectApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		Target.CastSpell(Target, Target.HasAura(PriestSpells.GLYPH_OF_SHADOW) ? PriestSpells.SHADOWFORM_VISUAL_WITH_GLYPH : PriestSpells.SHADOWFORM_VISUAL_WITHOUT_GLYPH, true);
-	}
+    private void HandleEffectApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        Target.CastSpell(Target, Target.HasAura(PriestSpells.GLYPH_OF_SHADOW) ? PriestSpells.SHADOWFORM_VISUAL_WITH_GLYPH : PriestSpells.SHADOWFORM_VISUAL_WITHOUT_GLYPH, true);
+    }
 
-	private void HandleEffectRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		Target.RemoveAura(Target.HasAura(PriestSpells.GLYPH_OF_SHADOW) ? PriestSpells.SHADOWFORM_VISUAL_WITH_GLYPH : PriestSpells.SHADOWFORM_VISUAL_WITHOUT_GLYPH);
-	}
+    private void HandleEffectRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+    {
+        Target.RemoveAura(Target.HasAura(PriestSpells.GLYPH_OF_SHADOW) ? PriestSpells.SHADOWFORM_VISUAL_WITH_GLYPH : PriestSpells.SHADOWFORM_VISUAL_WITHOUT_GLYPH);
+    }
 }

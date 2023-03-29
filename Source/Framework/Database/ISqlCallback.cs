@@ -5,5 +5,5 @@ namespace Framework.Database;
 
 public interface ISqlCallback
 {
-	bool InvokeIfReady();
+    bool InvokeIfReady();
 }

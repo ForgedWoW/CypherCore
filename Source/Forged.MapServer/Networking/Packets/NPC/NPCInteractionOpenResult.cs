@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class NPCInteractionOpenResult : ServerPacket
 {
-	public ObjectGuid Npc;
-	public PlayerInteractionType InteractionType;
-	public bool Success = true;
-	public NPCInteractionOpenResult() : base(ServerOpcodes.NpcInteractionOpenResult) { }
+    public ObjectGuid Npc;
+    public PlayerInteractionType InteractionType;
+    public bool Success = true;
+    public NPCInteractionOpenResult() : base(ServerOpcodes.NpcInteractionOpenResult) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(Npc);
-		_worldPacket.WriteInt32((int)InteractionType);
-		_worldPacket.WriteBit(Success);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(Npc);
+        _worldPacket.WriteInt32((int)InteractionType);
+        _worldPacket.WriteBit(Success);
+        _worldPacket.FlushBits();
+    }
 }

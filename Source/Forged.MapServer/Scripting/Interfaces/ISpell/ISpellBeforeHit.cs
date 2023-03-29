@@ -7,5 +7,5 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellBeforeHit : ISpellScript
 {
-	public void BeforeHit(SpellMissInfo missInfo);
+    public void BeforeHit(SpellMissInfo missInfo);
 }

@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class GameObjectCustomAnim : ServerPacket
 {
-	public ObjectGuid ObjectGUID;
-	public uint CustomAnim;
-	public bool PlayAsDespawn;
-	public GameObjectCustomAnim() : base(ServerOpcodes.GameObjectCustomAnim, ConnectionType.Instance) { }
+    public ObjectGuid ObjectGUID;
+    public uint CustomAnim;
+    public bool PlayAsDespawn;
+    public GameObjectCustomAnim() : base(ServerOpcodes.GameObjectCustomAnim, ConnectionType.Instance) { }
 
-	public override void Write()
-	{
-		_worldPacket.WritePackedGuid(ObjectGUID);
-		_worldPacket.WriteUInt32(CustomAnim);
-		_worldPacket.WriteBit(PlayAsDespawn);
-		_worldPacket.FlushBits();
-	}
+    public override void Write()
+    {
+        _worldPacket.WritePackedGuid(ObjectGUID);
+        _worldPacket.WriteUInt32(CustomAnim);
+        _worldPacket.WriteBit(PlayAsDespawn);
+        _worldPacket.FlushBits();
+    }
 }

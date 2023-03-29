@@ -12,24 +12,24 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(257044)]
 public class spell_hun_rapid_fire : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+    public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 1, AuraType.PeriodicDummy));
-	}
+    public override void Register()
+    {
+        AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 1, AuraType.PeriodicDummy));
+    }
 
-	private void OnTick(AuraEffect aurEff)
-	{
-		var target = Target;
+    private void OnTick(AuraEffect aurEff)
+    {
+        var target = Target;
 
-		if (target != null)
-			if (Caster)
-			{
-				Caster.CastSpell(target, HunterSpells.RAPID_FIRE_MISSILE, true);
+        if (target != null)
+            if (Caster)
+            {
+                Caster.CastSpell(target, HunterSpells.RAPID_FIRE_MISSILE, true);
 
-				if (Caster.GetPowerPct(PowerType.Focus) != 100)
-					Caster.ModifyPower(PowerType.Focus, +1);
-			}
-	}
+                if (Caster.GetPowerPct(PowerType.Focus) != 100)
+                    Caster.ModifyPower(PowerType.Focus, +1);
+            }
+    }
 }

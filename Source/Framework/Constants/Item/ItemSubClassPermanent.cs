@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public enum ItemSubClassPermanent
 {
-	Permanent = 0,
-	Max = 1
+    Permanent = 0,
+    Max = 1
 }

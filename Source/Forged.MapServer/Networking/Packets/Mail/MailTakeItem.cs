@@ -7,15 +7,15 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailTakeItem : ClientPacket
 {
-	public ObjectGuid Mailbox;
-	public ulong MailID;
-	public ulong AttachID;
-	public MailTakeItem(WorldPacket packet) : base(packet) { }
+    public ObjectGuid Mailbox;
+    public ulong MailID;
+    public ulong AttachID;
+    public MailTakeItem(WorldPacket packet) : base(packet) { }
 
-	public override void Read()
-	{
-		Mailbox = _worldPacket.ReadPackedGuid();
-		MailID = _worldPacket.ReadUInt64();
-		AttachID = _worldPacket.ReadUInt64();
-	}
+    public override void Read()
+    {
+        Mailbox = _worldPacket.ReadPackedGuid();
+        MailID = _worldPacket.ReadUInt64();
+        AttachID = _worldPacket.ReadUInt64();
+    }
 }

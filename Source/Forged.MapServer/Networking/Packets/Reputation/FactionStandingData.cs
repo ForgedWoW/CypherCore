@@ -5,17 +5,17 @@ namespace Forged.MapServer.Networking.Packets.Reputation;
 
 internal struct FactionStandingData
 {
-	public FactionStandingData(int index, int standing)
-	{
-		Index = index;
-		Standing = standing;
-	}
+    public FactionStandingData(int index, int standing)
+    {
+        Index = index;
+        Standing = standing;
+    }
 
-	public void Write(WorldPacket data)
-	{
-		data.WriteInt32(Index);
-		data.WriteInt32(Standing);
-	}
+    public void Write(WorldPacket data)
+    {
+        data.WriteInt32(Index);
+        data.WriteInt32(Standing);
+    }
 
     private readonly int Index;
     private readonly int Standing;

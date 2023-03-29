@@ -5,9 +5,9 @@ namespace Forged.MapServer.Warden;
 
 public enum WardenCheckCategory
 {
-	Inject = 0, // checks that test whether the client's execution has been interfered with
-	Lua,        // checks that test whether the lua sandbox has been modified
-	Modded,     // checks that test whether the client has been modified
+    Inject = 0, // checks that test whether the client's execution has been interfered with
+    Lua,        // checks that test whether the lua sandbox has been modified
+    Modded,     // checks that test whether the client has been modified
 
-	Max // SKIP
+    Max // SKIP
 }

@@ -11,30 +11,30 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(191427)]
 public class spell_dh_metamorphosis : SpellScript, ISpellBeforeCast
 {
-	public void BeforeCast()
-	{
-		var caster = Caster;
+    public void BeforeCast()
+    {
+        var caster = Caster;
 
-		if (caster == null)
-			return;
+        if (caster == null)
+            return;
 
-		var player = caster.AsPlayer;
+        var player = caster.AsPlayer;
 
-		if (player == null)
-			return;
+        if (player == null)
+            return;
 
-		var dest = ExplTargetDest;
+        var dest = ExplTargetDest;
 
-		if (dest != null)
-			player.CastSpell(new Position(dest.X, dest.Y, dest.Z), DemonHunterSpells.METAMORPHOSIS_JUMP, true);
+        if (dest != null)
+            player.CastSpell(new Position(dest.X, dest.Y, dest.Z), DemonHunterSpells.METAMORPHOSIS_JUMP, true);
 
-		if (player.HasAura(DemonHunterSpells.DEMON_REBORN)) // Remove CD of Eye Beam, Chaos Nova and Blur
-		{
-			player.SpellHistory.ResetCooldown(DemonHunterSpells.CHAOS_NOVA, true);
-			player.SpellHistory.ResetCooldown(DemonHunterSpells.BLUR, true);
-			player.SpellHistory.AddCooldown(DemonHunterSpells.BLUR_BUFF, 0, TimeSpan.FromMinutes(1));
-			player.SpellHistory.ResetCooldown(DemonHunterSpells.BLUR_BUFF, true);
-			player.SpellHistory.ResetCooldown(DemonHunterSpells.EYE_BEAM, true);
-		}
-	}
+        if (player.HasAura(DemonHunterSpells.DEMON_REBORN)) // Remove CD of Eye Beam, Chaos Nova and Blur
+        {
+            player.SpellHistory.ResetCooldown(DemonHunterSpells.CHAOS_NOVA, true);
+            player.SpellHistory.ResetCooldown(DemonHunterSpells.BLUR, true);
+            player.SpellHistory.AddCooldown(DemonHunterSpells.BLUR_BUFF, 0, TimeSpan.FromMinutes(1));
+            player.SpellHistory.ResetCooldown(DemonHunterSpells.BLUR_BUFF, true);
+            player.SpellHistory.ResetCooldown(DemonHunterSpells.EYE_BEAM, true);
+        }
+    }
 }
