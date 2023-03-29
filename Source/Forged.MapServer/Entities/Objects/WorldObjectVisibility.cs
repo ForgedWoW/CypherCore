@@ -13,13 +13,6 @@ public class WorldObjectVisibility
     private float? _visibilityDistanceOverride;
     private SmoothPhasing _smoothPhasing;
 
-    public WorldObjectVisibility(WorldObject worldObject)
-    {
-        ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive | GhostVisibilityType.Ghost);
-        ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
-        _worldObject = worldObject;
-    }
-
     public FlaggedArray32<StealthType> Stealth { get; set; } = new(2);
     public FlaggedArray32<StealthType> StealthDetect { get; set; } = new(2);
     public FlaggedArray64<InvisibilityType> Invisibility { get; set; } = new((int)InvisibilityType.Max);
@@ -43,6 +36,13 @@ public class WorldObjectVisibility
 
     private bool IsFarVisible { get; set; }
     private bool IsVisibilityOverridden => _visibilityDistanceOverride.HasValue;
+
+    public WorldObjectVisibility(WorldObject worldObject)
+    {
+        ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive | GhostVisibilityType.Ghost);
+        ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
+        _worldObject = worldObject;
+    }
 
     public virtual bool CanNeverSee(WorldObject obj)
     {
@@ -127,7 +127,6 @@ public class WorldObjectVisibility
                 return SharedConst.MaxVisibilityDistance;
 
             return _worldObject.AsPlayer.CinematicMgr.IsOnCinematic() ? SharedConst.DefaultVisibilityInstance : _worldObject.Location.Map.VisibilityRange;
-
         }
 
         if (_worldObject.IsDynObject && _worldObject.IsActive)
