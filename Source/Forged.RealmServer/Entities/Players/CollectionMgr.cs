@@ -52,7 +52,7 @@ public class CollectionMgr
 	{
 		var oldMsTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT spellId, otherFactionSpellId FROM mount_definitions");
+		var result = _worldDatabase.Query("SELECT spellId, otherFactionSpellId FROM mount_definitions");
 
 		if (result.IsEmpty())
 		{
@@ -66,14 +66,14 @@ public class CollectionMgr
 			var spellId = result.Read<uint>(0);
 			var otherFactionSpellId = result.Read<uint>(1);
 
-			if (Global.DB2Mgr.GetMount(spellId) == null)
+			if (_db2Manager.GetMount(spellId) == null)
 			{
 				Log.outError(LogFilter.Sql, "Mount spell {0} defined in `mount_definitions` does not exist in Mount.db2, skipped", spellId);
 
 				continue;
 			}
 
-			if (otherFactionSpellId != 0 && Global.DB2Mgr.GetMount(otherFactionSpellId) == null)
+			if (otherFactionSpellId != 0 && _db2Manager.GetMount(otherFactionSpellId) == null)
 			{
 				Log.outError(LogFilter.Sql, "otherFactionSpellId {0} defined in `mount_definitions` for spell {1} does not exist in Mount.db2, skipped", otherFactionSpellId, spellId);
 
@@ -152,7 +152,7 @@ public class CollectionMgr
 
 	public void OnItemAdded(Item item)
 	{
-		if (Global.DB2Mgr.GetHeirloomByItemId(item.Entry) != null)
+		if (_db2Manager.GetHeirloomByItemId(item.Entry) != null)
 			AddHeirloom(item.Entry, 0);
 
 		AddItemAppearance(item);
@@ -168,7 +168,7 @@ public class CollectionMgr
 			var itemId = result.Read<uint>(0);
 			var flags = (HeirloomPlayerFlags)result.Read<uint>(1);
 
-			var heirloom = Global.DB2Mgr.GetHeirloomByItemId(itemId);
+			var heirloom = _db2Manager.GetHeirloomByItemId(itemId);
 
 			if (heirloom == null)
 				continue;
@@ -230,7 +230,7 @@ public class CollectionMgr
 		if (!player)
 			return;
 
-		var heirloom = Global.DB2Mgr.GetHeirloomByItemId(itemId);
+		var heirloom = _db2Manager.GetHeirloomByItemId(itemId);
 
 		if (heirloom == null)
 			return;
@@ -270,7 +270,7 @@ public class CollectionMgr
 			return;
 
 		// Check already owned heirloom for upgrade kits
-		var heirloom = Global.DB2Mgr.GetHeirloomByItemId(item.Entry);
+		var heirloom = _db2Manager.GetHeirloomByItemId(item.Entry);
 
 		if (heirloom != null)
 		{
@@ -284,12 +284,12 @@ public class CollectionMgr
 			uint newItemId = 0;
 			HeirloomRecord heirloomDiff;
 
-			while ((heirloomDiff = Global.DB2Mgr.GetHeirloomByItemId(heirloomItemId)) != null)
+			while ((heirloomDiff = _db2Manager.GetHeirloomByItemId(heirloomItemId)) != null)
 			{
 				if (player.GetItemByEntry(heirloomDiff.ItemID))
 					newItemId = heirloomDiff.ItemID;
 
-				var heirloomSub = Global.DB2Mgr.GetHeirloomByItemId(heirloomDiff.StaticUpgradedItemID);
+				var heirloomSub = _db2Manager.GetHeirloomByItemId(heirloomDiff.StaticUpgradedItemID);
 
 				if (heirloomSub != null)
 				{
@@ -346,7 +346,7 @@ public class CollectionMgr
 			var mountSpellId = result.Read<uint>(0);
 			var flags = (MountStatusFlags)result.Read<byte>(1);
 
-			if (Global.DB2Mgr.GetMount(mountSpellId) == null)
+			if (_db2Manager.GetMount(mountSpellId) == null)
 				continue;
 
 			_mounts[mountSpellId] = flags;
@@ -372,7 +372,7 @@ public class CollectionMgr
 		if (!player)
 			return false;
 
-		var mount = Global.DB2Mgr.GetMount(spellId);
+		var mount = _db2Manager.GetMount(spellId);
 
 		if (mount == null)
 			return false;
@@ -387,7 +387,7 @@ public class CollectionMgr
 		// Mount condition only applies to using it, should still learn it.
 		if (mount.PlayerConditionID != 0)
 		{
-			var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(mount.PlayerConditionID);
+			var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(mount.PlayerConditionID);
 
 			if (playerCondition != null && !ConditionManager.IsPlayerMeetingCondition(player, playerCondition))
 				return false;
@@ -471,7 +471,7 @@ public class CollectionMgr
 
 		foreach (var hiddenItem in hiddenAppearanceItems)
 		{
-			var hiddenAppearance = Global.DB2Mgr.GetItemModifiedAppearance(hiddenItem, 0);
+			var hiddenAppearance = _db2Manager.GetItemModifiedAppearance(hiddenItem, 0);
 
 			//ASSERT(hiddenAppearance);
 			if (_appearances.Length <= hiddenAppearance.Id)
@@ -550,7 +550,7 @@ public class CollectionMgr
 
 	public void AddItemAppearance(uint itemId, uint appearanceModId = 0)
 	{
-		var itemModifiedAppearance = Global.DB2Mgr.GetItemModifiedAppearance(itemId, appearanceModId);
+		var itemModifiedAppearance = _db2Manager.GetItemModifiedAppearance(itemId, appearanceModId);
 
 		if (!CanAddAppearance(itemModifiedAppearance))
 			return;
@@ -600,7 +600,7 @@ public class CollectionMgr
 		List<uint> appearances = new();
 
 		foreach (int id in _appearances)
-			appearances.Add((uint)CliDB.ItemModifiedAppearanceStorage.LookupByKey(id).ItemAppearanceID);
+			appearances.Add((uint)_cliDb.ItemModifiedAppearanceStorage.LookupByKey(id).ItemAppearanceID);
 
 		return appearances;
 	}
@@ -654,14 +654,14 @@ public class CollectionMgr
 
 	public void AddTransmogSet(uint transmogSetId)
 	{
-		var items = Global.DB2Mgr.GetTransmogSetItems(transmogSetId);
+		var items = _db2Manager.GetTransmogSetItems(transmogSetId);
 
 		if (items.Empty())
 			return;
 
 		foreach (var item in items)
 		{
-			var itemModifiedAppearance = CliDB.ItemModifiedAppearanceStorage.LookupByKey(item.ItemModifiedAppearanceID);
+			var itemModifiedAppearance = _cliDb.ItemModifiedAppearanceStorage.LookupByKey(item.ItemModifiedAppearanceID);
 
 			if (itemModifiedAppearance == null)
 				continue;
@@ -830,7 +830,7 @@ public class CollectionMgr
 		if (itemModifiedAppearance.TransmogSourceTypeEnum == 6 || itemModifiedAppearance.TransmogSourceTypeEnum == 9)
 			return false;
 
-		if (!CliDB.ItemSearchNameStorage.ContainsKey(itemModifiedAppearance.ItemID))
+		if (!_cliDb.ItemSearchNameStorage.ContainsKey(itemModifiedAppearance.ItemID))
 			return false;
 
 		var itemTemplate = _gameObjectManager.GetItemTemplate(itemModifiedAppearance.ItemID);
@@ -938,7 +938,7 @@ public class CollectionMgr
 			_temporaryAppearances.Remove(itemModifiedAppearance.Id);
 		}
 
-		var item = CliDB.ItemStorage.LookupByKey(itemModifiedAppearance.ItemID);
+		var item = _cliDb.ItemStorage.LookupByKey(itemModifiedAppearance.ItemID);
 
 		if (item != null)
 		{
@@ -948,7 +948,7 @@ public class CollectionMgr
 				_owner.Player.UpdateCriteria(CriteriaType.LearnAnyTransmogInSlot, (ulong)transmogSlot, itemModifiedAppearance.Id);
 		}
 
-		var sets = Global.DB2Mgr.GetTransmogSetsForItemModifiedAppearance(itemModifiedAppearance.Id);
+		var sets = _db2Manager.GetTransmogSetsForItemModifiedAppearance(itemModifiedAppearance.Id);
 
 		foreach (var set in sets)
 			if (IsSetCompleted(set.Id))
@@ -967,7 +967,7 @@ public class CollectionMgr
 
 	bool IsSetCompleted(uint transmogSetId)
 	{
-		var transmogSetItems = Global.DB2Mgr.GetTransmogSetItems(transmogSetId);
+		var transmogSetItems = _db2Manager.GetTransmogSetItems(transmogSetId);
 
 		if (transmogSetItems.Empty())
 			return false;
@@ -979,12 +979,12 @@ public class CollectionMgr
 
 		foreach (var transmogSetItem in transmogSetItems)
 		{
-			var itemModifiedAppearance = CliDB.ItemModifiedAppearanceStorage.LookupByKey(transmogSetItem.ItemModifiedAppearanceID);
+			var itemModifiedAppearance = _cliDb.ItemModifiedAppearanceStorage.LookupByKey(transmogSetItem.ItemModifiedAppearanceID);
 
 			if (itemModifiedAppearance == null)
 				continue;
 
-			var item = CliDB.ItemStorage.LookupByKey(itemModifiedAppearance.ItemID);
+			var item = _cliDb.ItemStorage.LookupByKey(itemModifiedAppearance.ItemID);
 
 			if (item == null)
 				continue;

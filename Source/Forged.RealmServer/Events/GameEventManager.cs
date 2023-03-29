@@ -26,7 +26,7 @@ public class GameEventManager
 	readonly List<ushort> _activeEvents = new();
     private readonly GameTime _gameTime;
     private readonly WorldManager _worldManager;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly CharacterDatabase _characterDatabase;
     private readonly WorldDatabase _worldDatabase;
     private readonly GameObjectManager _gameObjectManager;
@@ -51,7 +51,7 @@ public class GameEventManager
     {
         _gameTime = gameTime;
         _worldManager = worldManager;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _characterDatabase = characterDatabase;
         _worldDatabase = worldDatabase;
         _gameObjectManager = gameObjectManager;
@@ -246,7 +246,7 @@ public class GameEventManager
 
 				if (pGameEvent.holiday_id != HolidayIds.None)
 				{
-					if (!_cliDB.HolidaysStorage.ContainsKey((uint)pGameEvent.holiday_id))
+					if (!_cliDb.HolidaysStorage.ContainsKey((uint)pGameEvent.holiday_id))
 					{
 						Log.Logger.Error($"`game_event` game event id ({event_id}) contains nonexisting holiday id {pGameEvent.holiday_id}.");
 						pGameEvent.holiday_id = HolidayIds.None;
@@ -1497,7 +1497,7 @@ public class GameEventManager
 
 			if (bgTypeId != BattlegroundTypeId.None)
 			{
-				var bl = _cliDB.BattlemasterListStorage.LookupByKey((uint)_battlegroundManager.WeekendHolidayIdToBGType(Event.holiday_id));
+				var bl = _cliDb.BattlemasterListStorage.LookupByKey((uint)_battlegroundManager.WeekendHolidayIdToBGType(Event.holiday_id));
 
 				if (bl != null)
 					if (bl.HolidayWorldState != 0)
@@ -1564,7 +1564,7 @@ public class GameEventManager
 		if (gameEvent.holidayStage == 0) // Ignore holiday
 			return;
 
-		var holiday = _cliDB.HolidaysStorage.LookupByKey((uint)gameEvent.holiday_id);
+		var holiday = _cliDb.HolidaysStorage.LookupByKey((uint)gameEvent.holiday_id);
 
 		if (holiday.Date[0] == 0 || holiday.Duration[0] == 0) // Invalid definitions
 		{

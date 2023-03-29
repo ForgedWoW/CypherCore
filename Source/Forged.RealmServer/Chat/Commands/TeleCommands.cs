@@ -35,7 +35,7 @@ class TeleCommands
 			return false;
 		}
 
-		var map = CliDB.MapStorage.LookupByKey(tele.mapId);
+		var map = _cliDb.MapStorage.LookupByKey(tele.mapId);
 
 		if (map == null || (map.IsBattlegroundOrArena() && (player.Location.MapId != tele.mapId || !player.IsGameMaster)))
 		{
@@ -132,7 +132,7 @@ class TeleCommands
 		if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
 			return false;
 
-		var map = CliDB.MapStorage.LookupByKey(tele.mapId);
+		var map = _cliDb.MapStorage.LookupByKey(tele.mapId);
 
 		if (map == null || map.IsBattlegroundOrArena())
 		{
@@ -358,7 +358,7 @@ class TeleCommands
 
 				WorldDatabase.EscapeString(ref normalizedName);
 
-				var result = DB.World.Query($"SELECT c.position_x, c.position_y, c.position_z, c.orientation, c.map, ct.name FROM creature c INNER JOIN creature_template ct ON c.id = ct.entry WHERE ct.name LIKE '{normalizedName}'");
+				var result = _worldDatabase.Query($"SELECT c.position_x, c.position_y, c.position_z, c.orientation, c.map, ct.name FROM creature c INNER JOIN creature_template ct ON c.id = ct.entry WHERE ct.name LIKE '{normalizedName}'");
 
 				if (result.IsEmpty())
 				{

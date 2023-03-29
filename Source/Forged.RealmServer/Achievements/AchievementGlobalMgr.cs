@@ -21,14 +21,14 @@ public class AchievementGlobalMgr
 	readonly Dictionary<uint, AchievementReward> _achievementRewards = new();
 	readonly Dictionary<uint, AchievementRewardLocale> _achievementRewardLocales = new();
 	readonly Dictionary<uint, uint> _achievementScripts = new();
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly CharacterDatabase _characterDatabase;
     private readonly WorldDatabase _worldDatabase;
     private readonly GameObjectManager _gameObjectManager;
 
     AchievementGlobalMgr(CliDB cliDB, CharacterDatabase characterDatabase, WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
     {
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _characterDatabase = characterDatabase;
         _worldDatabase = worldDatabase;
         _gameObjectManager = gameObjectManager;
@@ -89,7 +89,7 @@ public class AchievementGlobalMgr
 	{
 		var oldMSTime = Time.MSTime;
 
-		if (_cliDB.AchievementStorage.Empty())
+		if (_cliDb.AchievementStorage.Empty())
 		{
 			Log.Logger.Information("Loaded 0 achievement references.");
 
@@ -98,7 +98,7 @@ public class AchievementGlobalMgr
 
 		uint count = 0;
 
-		foreach (var achievement in _cliDB.AchievementStorage.Values)
+		foreach (var achievement in _cliDb.AchievementStorage.Values)
 		{
 			if (achievement.SharesCriteria == 0)
 				continue;
@@ -108,7 +108,7 @@ public class AchievementGlobalMgr
 		}
 
 		// Once Bitten, Twice Shy (10 player) - Icecrown Citadel
-		var achievement1 = _cliDB.AchievementStorage.LookupByKey(4539u);
+		var achievement1 = _cliDb.AchievementStorage.LookupByKey(4539u);
 
 		if (achievement1 != null)
 			achievement1.InstanceID = 631; // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
@@ -136,7 +136,7 @@ public class AchievementGlobalMgr
 			var achievementId = result.Read<uint>(0);
 			var scriptName = result.Read<string>(1);
 
-			var achievement = _cliDB.AchievementStorage.LookupByKey(achievementId);
+			var achievement = _cliDb.AchievementStorage.LookupByKey(achievementId);
 
 			if (achievement == null)
 			{
@@ -158,7 +158,7 @@ public class AchievementGlobalMgr
 		// Populate _allCompletedAchievements with all realm first achievement ids to make multithreaded access safer
 		// while it will not prevent races, it will prevent crashes that happen because std::unordered_map key was added
 		// instead the only potential race will happen on value associated with the key
-		foreach (var achievement in _cliDB.AchievementStorage.Values)
+		foreach (var achievement in _cliDb.AchievementStorage.Values)
 			if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
 				_allCompletedAchievements[achievement.Id] = DateTime.MinValue;
 
@@ -174,7 +174,7 @@ public class AchievementGlobalMgr
 		do
 		{
 			var achievementId = result.Read<uint>(0);
-			var achievement = _cliDB.AchievementStorage.LookupByKey(achievementId);
+			var achievement = _cliDb.AchievementStorage.LookupByKey(achievementId);
 
 			if (achievement == null)
 			{
@@ -215,7 +215,7 @@ public class AchievementGlobalMgr
 		do
 		{
 			var id = result.Read<uint>(0);
-			var achievement = _cliDB.AchievementStorage.LookupByKey(id);
+			var achievement = _cliDb.AchievementStorage.LookupByKey(id);
 
 			if (achievement == null)
 			{
@@ -246,7 +246,7 @@ public class AchievementGlobalMgr
 
 			if (reward.TitleId[0] != 0)
 			{
-				var titleEntry = _cliDB.CharTitlesStorage.LookupByKey(reward.TitleId[0]);
+				var titleEntry = _cliDb.CharTitlesStorage.LookupByKey(reward.TitleId[0]);
 
 				if (titleEntry == null)
 				{
@@ -257,7 +257,7 @@ public class AchievementGlobalMgr
 
 			if (reward.TitleId[1] != 0)
 			{
-				var titleEntry = _cliDB.CharTitlesStorage.LookupByKey(reward.TitleId[1]);
+				var titleEntry = _cliDb.CharTitlesStorage.LookupByKey(reward.TitleId[1]);
 
 				if (titleEntry == null)
 				{
@@ -292,7 +292,7 @@ public class AchievementGlobalMgr
 
 			if (reward.MailTemplateId != 0)
 			{
-				if (!_cliDB.MailTemplateStorage.ContainsKey(reward.MailTemplateId))
+				if (!_cliDb.MailTemplateStorage.ContainsKey(reward.MailTemplateId))
 				{
 					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) is using an invalid MailTemplateId ({reward.MailTemplateId}).");
 					reward.MailTemplateId = 0;

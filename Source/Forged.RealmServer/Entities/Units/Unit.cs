@@ -97,16 +97,16 @@ public partial class Unit : WorldObject
 
 			if (IsMounted)
 			{
-				var mountDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(MountDisplayId);
+				var mountDisplayInfo = _cliDb.CreatureDisplayInfoStorage.LookupByKey(MountDisplayId);
 
 				if (mountDisplayInfo != null)
 				{
-					var mountModelData = CliDB.CreatureModelDataStorage.LookupByKey(mountDisplayInfo.ModelID);
+					var mountModelData = _cliDb.CreatureModelDataStorage.LookupByKey(mountDisplayInfo.ModelID);
 
 					if (mountModelData != null)
 					{
-						var displayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(NativeDisplayId);
-						var modelData = CliDB.CreatureModelDataStorage.LookupByKey(displayInfo.ModelID);
+						var displayInfo = _cliDb.CreatureDisplayInfoStorage.LookupByKey(NativeDisplayId);
+						var modelData = _cliDb.CreatureModelDataStorage.LookupByKey(displayInfo.ModelID);
 						var collisionHeight = scaleMod * ((mountModelData.MountHeight * mountDisplayInfo.CreatureModelScale) + (modelData.CollisionHeight * modelData.ModelScale * displayInfo.CreatureModelScale * 0.5f));
 
 						return collisionHeight == 0.0f ? MapConst.DefaultCollesionHeight : collisionHeight;
@@ -115,8 +115,8 @@ public partial class Unit : WorldObject
 			}
 
 			//! Dismounting case - use basic default model data
-			var defaultDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(NativeDisplayId);
-			var defaultModelData = CliDB.CreatureModelDataStorage.LookupByKey(defaultDisplayInfo.ModelID);
+			var defaultDisplayInfo = _cliDb.CreatureDisplayInfoStorage.LookupByKey(NativeDisplayId);
+			var defaultModelData = _cliDb.CreatureModelDataStorage.LookupByKey(defaultDisplayInfo.ModelID);
 
 			var collisionHeight1 = scaleMod * defaultModelData.CollisionHeight * defaultModelData.ModelScale * defaultDisplayInfo.CreatureModelScale;
 
@@ -360,7 +360,7 @@ public partial class Unit : WorldObject
 			if (IsTypeId(TypeId.Player))
 			{
 				var form = ShapeshiftForm;
-				var ssEntry = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)form);
+				var ssEntry = _cliDb.SpellShapeshiftFormStorage.LookupByKey((uint)form);
 
 				if (ssEntry != null && ssEntry.CreatureType > 0)
 				{
@@ -368,7 +368,7 @@ public partial class Unit : WorldObject
 				}
 				else
 				{
-					var raceEntry = CliDB.ChrRacesStorage.LookupByKey(Race);
+					var raceEntry = _cliDb.ChrRacesStorage.LookupByKey(Race);
 
 					return (CreatureType)raceEntry.CreatureType;
 				}
@@ -694,7 +694,7 @@ public partial class Unit : WorldObject
 		packet.Guid = GUID;
 		packet.EmoteID = (uint)emoteId;
 
-		var emotesEntry = CliDB.EmotesStorage.LookupByKey(emoteId);
+		var emotesEntry = _cliDb.EmotesStorage.LookupByKey(emoteId);
 
 		if (emotesEntry != null && spellVisualKitIds != null)
 			if (emotesEntry.AnimId == (uint)Anim.MountSpecial || emotesEntry.AnimId == (uint)Anim.MountSelfSpecial)
@@ -725,7 +725,7 @@ public partial class Unit : WorldObject
 
 		if (form != 0)
 		{
-			var shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey(form);
+			var shapeshift = _cliDb.SpellShapeshiftFormStorage.LookupByKey(form);
 
 			if (shapeshift == null)
 				return true;
@@ -737,18 +737,18 @@ public partial class Unit : WorldObject
 		if (displayId == NativeDisplayId)
 			return false;
 
-		var display = CliDB.CreatureDisplayInfoStorage.LookupByKey(displayId);
+		var display = _cliDb.CreatureDisplayInfoStorage.LookupByKey(displayId);
 
 		if (display == null)
 			return true;
 
-		var displayExtra = CliDB.CreatureDisplayInfoExtraStorage.LookupByKey(display.ExtendedDisplayInfoID);
+		var displayExtra = _cliDb.CreatureDisplayInfoExtraStorage.LookupByKey(display.ExtendedDisplayInfoID);
 
 		if (displayExtra == null)
 			return true;
 
-		var model = CliDB.CreatureModelDataStorage.LookupByKey(display.ModelID);
-		var race = CliDB.ChrRacesStorage.LookupByKey(displayExtra.DisplayRaceID);
+		var model = _cliDb.CreatureModelDataStorage.LookupByKey(display.ModelID);
+		var race = _cliDb.ChrRacesStorage.LookupByKey(displayExtra.DisplayRaceID);
 
 		if (model != null && !model.GetFlags().HasFlag(CreatureModelDataFlags.CanMountWhileTransformedAsThis))
 			if (race != null && !race.GetFlags().HasFlag(ChrRacesFlag.CanMount))
@@ -833,7 +833,7 @@ public partial class Unit : WorldObject
 
 	public void Talk(uint textId, ChatMsg msgType, float textRange, WorldObject target)
 	{
-		if (!CliDB.BroadcastTextStorage.ContainsKey(textId))
+		if (!_cliDb.BroadcastTextStorage.ContainsKey(textId))
 		{
 			Log.outError(LogFilter.Unit, "Unit.Talk: `broadcast_text` (Id: {0}) was not found", textId);
 
@@ -866,7 +866,7 @@ public partial class Unit : WorldObject
 		if (!target)
 			return;
 
-		var bct = CliDB.BroadcastTextStorage.LookupByKey(textId);
+		var bct = _cliDb.BroadcastTextStorage.LookupByKey(textId);
 
 		if (bct == null)
 		{
@@ -877,7 +877,7 @@ public partial class Unit : WorldObject
 
 		var locale = target.Session.SessionDbLocaleIndex;
 		ChatPkt data = new();
-		data.Initialize(isBossWhisper ? ChatMsg.RaidBossWhisper : ChatMsg.MonsterWhisper, Language.Universal, this, target, Global.DB2Mgr.GetBroadcastTextValue(bct, locale, Gender), 0, "", locale);
+		data.Initialize(isBossWhisper ? ChatMsg.RaidBossWhisper : ChatMsg.MonsterWhisper, Language.Universal, this, target, _db2Manager.GetBroadcastTextValue(bct, locale, Gender), 0, "", locale);
 		target.SendPacket(data);
 	}
 
@@ -1664,7 +1664,7 @@ public partial class Unit : WorldObject
 
 				if (artifact != null)
 				{
-					var artifactAppearance = CliDB.ArtifactAppearanceStorage.LookupByKey(artifact.GetModifier(ItemModifier.ArtifactAppearanceId));
+					var artifactAppearance = _cliDb.ArtifactAppearanceStorage.LookupByKey(artifact.GetModifier(ItemModifier.ArtifactAppearanceId));
 
 					if (artifactAppearance != null)
 						if ((ShapeShiftForm)artifactAppearance.OverrideShapeshiftFormID == form)
@@ -1672,7 +1672,7 @@ public partial class Unit : WorldObject
 				}
 			}
 
-			var formModelData = Global.DB2Mgr.GetShapeshiftFormModelData(Race, thisPlayer.NativeGender, form);
+			var formModelData = _db2Manager.GetShapeshiftFormModelData(Race, thisPlayer.NativeGender, form);
 
 			if (formModelData != null)
 			{
@@ -1715,7 +1715,7 @@ public partial class Unit : WorldObject
 
 						if (displayInfo != null)
 						{
-							var choiceReq = CliDB.ChrCustomizationReqStorage.LookupByKey(formModelData.Choices[i].ChrCustomizationReqID);
+							var choiceReq = _cliDb.ChrCustomizationReqStorage.LookupByKey(formModelData.Choices[i].ChrCustomizationReqID);
 
 							if (choiceReq == null || thisPlayer.Session.MeetsChrCustomizationReq(choiceReq, Class, false, thisPlayer.PlayerData.Customizations))
 								displayIds.Add(displayInfo.DisplayID);
@@ -1757,7 +1757,7 @@ public partial class Unit : WorldObject
 		}
 
 		uint modelid = 0;
-		var formEntry = CliDB.SpellShapeshiftFormStorage.LookupByKey(form);
+		var formEntry = _cliDb.SpellShapeshiftFormStorage.LookupByKey(form);
 
 		if (formEntry != null && formEntry.CreatureDisplayID[0] != 0)
 		{
@@ -1934,7 +1934,7 @@ public partial class Unit : WorldObject
 				}
 				else if (TypeId == TypeId.Player)
 				{
-					var cEntry = CliDB.ChrClassesStorage.LookupByKey(Class);
+					var cEntry = _cliDb.ChrClassesStorage.LookupByKey(Class);
 
 					if (cEntry != null && cEntry.DisplayPower < PowerType.Max)
 						displayPower = cEntry.DisplayPower;
@@ -1945,7 +1945,7 @@ public partial class Unit : WorldObject
 
 					if (vehicle)
 					{
-						var powerDisplay = CliDB.PowerDisplayStorage.LookupByKey(vehicle.GetVehicleInfo().PowerDisplayID[0]);
+						var powerDisplay = _cliDb.PowerDisplayStorage.LookupByKey(vehicle.GetVehicleInfo().PowerDisplayID[0]);
 
 						if (powerDisplay != null)
 							displayPower = (PowerType)powerDisplay.ActualType;
@@ -1985,7 +1985,7 @@ public partial class Unit : WorldObject
 
 	public void PlayOneShotAnimKitId(ushort animKitId)
 	{
-		if (!CliDB.AnimKitStorage.ContainsKey(animKitId))
+		if (!_cliDb.AnimKitStorage.ContainsKey(animKitId))
 		{
 			Log.outError(LogFilter.Unit, "Unit.PlayOneShotAnimKitId using invalid AnimKit ID: {0}", animKitId);
 
@@ -2003,7 +2003,7 @@ public partial class Unit : WorldObject
 		if (_aiAnimKitId == animKitId)
 			return;
 
-		if (animKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(animKitId))
+		if (animKitId != 0 && !_cliDb.AnimKitStorage.ContainsKey(animKitId))
 			return;
 
 		_aiAnimKitId = animKitId;
@@ -2019,7 +2019,7 @@ public partial class Unit : WorldObject
 		if (_movementAnimKitId == animKitId)
 			return;
 
-		if (animKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(animKitId))
+		if (animKitId != 0 && !_cliDb.AnimKitStorage.ContainsKey(animKitId))
 			return;
 
 		_movementAnimKitId = animKitId;
@@ -2035,7 +2035,7 @@ public partial class Unit : WorldObject
 		if (_meleeAnimKitId == animKitId)
 			return;
 
-		if (animKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(animKitId))
+		if (animKitId != 0 && !_cliDb.AnimKitStorage.ContainsKey(animKitId))
 			return;
 
 		_meleeAnimKitId = animKitId;
@@ -2834,7 +2834,7 @@ public partial class Unit : WorldObject
 			attacker?.AI?.DamageDealt(victim, ref tmpDamage, damagetype);
 
 			// Hook for OnDamage Event
-			Global.ScriptMgr.ForEach<IUnitOnDamage>(p => p.OnDamage(attacker, victim, ref tmpDamage));
+			_scriptManager.ForEach<IUnitOnDamage>(p => p.OnDamage(attacker, victim, ref tmpDamage));
 
 			// if any script modified damage, we need to also apply the same modification to unscaled damage value
 			if (tmpDamage != damageTaken)
@@ -3958,7 +3958,7 @@ public partial class Unit : WorldObject
 		}
 
 		// Expansion and ContentTuningID necessary? Does Player get a ContentTuningID too ?
-		var armorConstant = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, attackerLevel, -2, 0, attackerClass);
+		var armorConstant = _db2Manager.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, attackerLevel, -2, 0, attackerClass);
 
 		if ((armor + armorConstant) == 0)
 			return damage;

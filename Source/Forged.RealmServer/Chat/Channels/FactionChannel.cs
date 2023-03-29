@@ -23,7 +23,7 @@ public class FactionChannel
     private readonly WorldConfig _worldConfig;
     private readonly CharacterDatabase _characterDatabase;
     private readonly WorldManager _worldManager;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     readonly ObjectGuidGenerator _guidGenerator;
 
 	public FactionChannel(TeamFaction team, WorldConfig worldConfig, CharacterDatabase characterDatabase, 
@@ -33,7 +33,7 @@ public class FactionChannel
         _worldConfig = worldConfig;
         _characterDatabase = characterDatabase;
         _worldManager = worldManager;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _guidGenerator = new ObjectGuidGenerator(HighGuid.ChatChannel);
 	}
 
@@ -140,7 +140,7 @@ public class FactionChannel
 
     internal ObjectGuid CreateBuiltinChannelGuid(uint channelId, AreaTableRecord zoneEntry = null)
 	{
-		var channelEntry = _cliDB.ChatChannelsStorage.LookupByKey(channelId);
+		var channelEntry = _cliDb.ChatChannelsStorage.LookupByKey(channelId);
 		var zoneId = zoneEntry != null ? zoneEntry.Id : 0;
 
 		if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Global | ChannelDBCFlags.CityOnly))

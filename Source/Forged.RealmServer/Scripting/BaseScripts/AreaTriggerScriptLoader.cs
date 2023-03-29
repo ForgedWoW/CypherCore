@@ -9,7 +9,7 @@ public class AreaTriggerScriptLoader : ScriptObject, IAreaTriggerScriptLoaderGet
 {
 	public AreaTriggerScriptLoader(string name) : base(name)
 	{
-		Global.ScriptMgr.AddScript(this);
+		_scriptManager.AddScript(this);
 	}
 
 	public override bool IsDatabaseBound()

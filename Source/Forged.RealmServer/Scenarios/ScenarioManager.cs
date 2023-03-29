@@ -1,71 +1,43 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using Framework.Configuration;
-using Framework.Constants;
-using Framework.Database;
 using Forged.RealmServer.Achievements;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Maps;
+using Framework.Constants;
+using Framework.Database;
+using System;
+using System.Collections.Generic;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace Forged.RealmServer.Scenarios;
 
-public class ScenarioManager : Singleton<ScenarioManager>
+public class ScenarioManager
 {
-	readonly Dictionary<uint, ScenarioData> _scenarioData = new();
+    private readonly IConfiguration _configuration;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly CliDB _cliDb;
+    private readonly CriteriaManager _criteriaManager;
+    readonly Dictionary<uint, ScenarioData> _scenarioData = new();
 	readonly MultiMap<uint, ScenarioPOI> _scenarioPOIStore = new();
 	readonly Dictionary<Tuple<uint, byte>, ScenarioDBData> _scenarioDBData = new();
-	ScenarioManager() { }
 
-	public InstanceScenario CreateInstanceScenario(InstanceMap map, int team)
-	{
-		var dbData = _scenarioDBData.LookupByKey(Tuple.Create(map.Id, (byte)map.DifficultyID));
-
-		// No scenario registered for this map and difficulty in the database
-		if (dbData == null)
-			return null;
-
-		uint scenarioID = 0;
-
-		switch (team)
-		{
-			case TeamIds.Alliance:
-				scenarioID = dbData.Scenario_A;
-
-				break;
-			case TeamIds.Horde:
-				scenarioID = dbData.Scenario_H;
-
-				break;
-			default:
-				break;
-		}
-
-		var scenarioData = _scenarioData.LookupByKey(scenarioID);
-
-		if (scenarioData == null)
-		{
-			Log.Logger.Error(
-						"Table `scenarios` contained data linking scenario (Id: {0}) to map (Id: {1}), difficulty (Id: {2}) but no scenario data was found related to that scenario Id.",
-						scenarioID,
-						map.Id,
-						map.DifficultyID);
-
-			return null;
-		}
-
-		return new InstanceScenario(map, scenarioData);
-	}
-
+	public ScenarioManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB, CriteriaManager criteriaManager)
+    {
+        _configuration = configuration;
+        _worldDatabase = worldDatabase;
+        _cliDb = cliDB;
+        _criteriaManager = criteriaManager;
+    }
+	
 	public void LoadDBData()
 	{
 		_scenarioDBData.Clear();
 
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT map, difficulty, scenario_A, scenario_H FROM scenarios");
+		var result = _worldDatabase.Query("SELECT map, difficulty, scenario_A, scenario_H FROM scenarios");
 
 		if (result.IsEmpty())
 		{
@@ -118,13 +90,13 @@ public class ScenarioManager : Singleton<ScenarioManager>
 		Dictionary<uint, Dictionary<byte, ScenarioStepRecord>> scenarioSteps = new();
 		uint deepestCriteriaTreeSize = 0;
 
-		foreach (var step in CliDB.ScenarioStepStorage.Values)
+		foreach (var step in _cliDb.ScenarioStepStorage.Values)
 		{
 			if (!scenarioSteps.ContainsKey(step.ScenarioID))
 				scenarioSteps[step.ScenarioID] = new Dictionary<byte, ScenarioStepRecord>();
 
 			scenarioSteps[step.ScenarioID][step.OrderIndex] = step;
-			var tree = Global.CriteriaMgr.GetCriteriaTree(step.CriteriaTreeId);
+			var tree = _criteriaManager.GetCriteriaTree(step.CriteriaTreeId);
 
 			if (tree != null)
 			{
@@ -136,7 +108,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 
 		//ASSERT(deepestCriteriaTreeSize < MAX_ALLOWED_SCENARIO_POI_QUERY_SIZE, "MAX_ALLOWED_SCENARIO_POI_QUERY_SIZE must be at least {0}", deepestCriteriaTreeSize + 1);
 
-		foreach (var scenario in CliDB.ScenarioStorage.Values)
+		foreach (var scenario in _cliDb.ScenarioStorage.Values)
 		{
 			ScenarioData data = new();
 			data.Entry = scenario;
@@ -154,7 +126,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 		uint count = 0;
 
 		//                                         0               1          2     3      4        5         6      7              8                  9
-		var result = DB.World.Query("SELECT CriteriaTreeID, BlobIndex, Idx1, MapID, UiMapID, Priority, Flags, WorldEffectID, PlayerConditionID, NavigationPlayerConditionID FROM scenario_poi ORDER BY CriteriaTreeID, Idx1");
+		var result = _worldDatabase.Query("SELECT CriteriaTreeID, BlobIndex, Idx1, MapID, UiMapID, Priority, Flags, WorldEffectID, PlayerConditionID, NavigationPlayerConditionID FROM scenario_poi ORDER BY CriteriaTreeID, Idx1");
 
 		if (result.IsEmpty())
 		{
@@ -166,7 +138,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 		Dictionary<uint, MultiMap<int, ScenarioPOIPoint>> allPoints = new();
 
 		//                                               0               1    2  3  4
-		var pointsResult = DB.World.Query("SELECT CriteriaTreeID, Idx1, X, Y, Z FROM scenario_poi_points ORDER BY CriteriaTreeID DESC, Idx1, Idx2");
+		var pointsResult = _worldDatabase.Query("SELECT CriteriaTreeID, Idx1, X, Y, Z FROM scenario_poi_points ORDER BY CriteriaTreeID DESC, Idx1, Idx2");
 
 		if (!pointsResult.IsEmpty())
 			do
@@ -196,7 +168,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 			var playerConditionID = result.Read<int>(8);
 			var navigationPlayerConditionID = result.Read<int>(9);
 
-			if (Global.CriteriaMgr.GetCriteriaTree(criteriaTreeID) == null)
+			if (_criteriaManager.GetCriteriaTree(criteriaTreeID) == null)
 				Log.Logger.Error($"`scenario_poi` CriteriaTreeID ({criteriaTreeID}) Idx1 ({idx1}) does not correspond to a valid criteria tree");
 
 			var blobs = allPoints.LookupByKey(criteriaTreeID);
@@ -214,8 +186,8 @@ public class ScenarioManager : Singleton<ScenarioManager>
 				}
 			}
 
-			if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-				DB.World.Execute($"DELETE FROM scenario_poi WHERE criteriaTreeID = {criteriaTreeID}");
+			if (_configuration.GetDefaultValue("load.autoclean", false))
+				_worldDatabase.Execute($"DELETE FROM scenario_poi WHERE criteriaTreeID = {criteriaTreeID}");
 			else
 				Log.Logger.Error($"Table scenario_poi references unknown scenario poi points for criteria tree id {criteriaTreeID} POI id {blobIndex}");
 		} while (result.NextRow());

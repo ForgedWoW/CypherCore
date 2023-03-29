@@ -21,11 +21,11 @@ public class LanguageManager
 
 	readonly MultiMap<uint, LanguageDesc> _langsMap = new();
 	readonly MultiMap<Tuple<uint, byte>, string> _wordsMap = new();
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
 
     LanguageManager(CliDB cliDB)
     {
-        _cliDB = cliDB;
+        _cliDb = cliDB;
 
 		LoadLanguages();
 		LoadLanguagesWords();
@@ -42,7 +42,7 @@ public class LanguageManager
 		var oldMSTime = Time.MSTime;
 
 		// Load languages from Languages.db2. Just the id, we don't need the name
-		foreach (var langEntry in _cliDB.LanguagesStorage.Values)
+		foreach (var langEntry in _cliDb.LanguagesStorage.Values)
 		{
 			var spellsRange = _langsMap.LookupByKey(langEntry.Id);
 
@@ -67,7 +67,7 @@ public class LanguageManager
 
 		uint wordsNum = 0;
 
-		foreach (var wordEntry in _cliDB.LanguageWordsStorage.Values)
+		foreach (var wordEntry in _cliDb.LanguageWordsStorage.Values)
 		{
 			var length = (byte)Math.Min(18, wordEntry.Word.Length);
 
@@ -144,7 +144,7 @@ public class LanguageManager
 
 	public bool IsLanguageExist(Language languageId)
 	{
-		return _cliDB.LanguagesStorage.HasRecord((uint)languageId);
+		return _cliDb.LanguagesStorage.HasRecord((uint)languageId);
 	}
 
 	public List<LanguageDesc> GetLanguageDescById(Language languageId)

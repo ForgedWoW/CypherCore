@@ -30,7 +30,7 @@ class MiscAddItemCommands
 
 			if (!string.IsNullOrEmpty(itemName))
 			{
-				var record = CliDB.ItemSparseStorage.Values.FirstOrDefault(itemSparse =>
+				var record = _cliDb.ItemSparseStorage.Values.FirstOrDefault(itemSparse =>
 				{
 					for (Locale i = 0; i < Locale.Total; ++i)
 						if (itemName == itemSparse.Display[i])
@@ -91,7 +91,7 @@ class MiscAddItemCommands
 
 			if (itemContext != ItemContext.None && itemContext < ItemContext.Max)
 			{
-				var contextBonuses = Global.DB2Mgr.GetDefaultItemBonusTree(itemId, itemContext);
+				var contextBonuses = _db2Manager.GetDefaultItemBonusTree(itemId, itemContext);
 				bonusListIDs.AddRange(contextBonuses);
 			}
 		}
@@ -234,7 +234,7 @@ class MiscAddItemCommands
 
 				if (itemContext != ItemContext.None && itemContext < ItemContext.Max)
 				{
-					var contextBonuses = Global.DB2Mgr.GetDefaultItemBonusTree(template.Value.Id, itemContext);
+					var contextBonuses = _db2Manager.GetDefaultItemBonusTree(template.Value.Id, itemContext);
 					bonusListIDsForItem.AddRange(contextBonuses);
 				}
 
@@ -292,7 +292,7 @@ class MiscAddItemCommands
 			{
 				var itemName = itemNameStr.Substring(1);
 
-				var itr = CliDB.ItemSparseStorage.Values.FirstOrDefault(sparse =>
+				var itr = _cliDb.ItemSparseStorage.Values.FirstOrDefault(sparse =>
 				{
 					for (var i = Locale.enUS; i < Locale.Total; ++i)
 						if (itemName == sparse.Display[i])
@@ -348,7 +348,7 @@ class MiscAddItemCommands
 
 			if (itemContext != ItemContext.None && itemContext < ItemContext.Max)
 			{
-				var contextBonuses = Global.DB2Mgr.GetDefaultItemBonusTree(itemId, itemContext);
+				var contextBonuses = _db2Manager.GetDefaultItemBonusTree(itemId, itemContext);
 				bonusListIDs.AddRange(contextBonuses);
 			}
 		}

@@ -18,7 +18,7 @@ public class CharacterDatabaseCleaner
     private readonly WorldManager _worldManager;
     private readonly CriteriaManager _criteriaManager;
     private readonly CharacterDatabase _characterDatabase;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
 
     public CharacterDatabaseCleaner(WorldConfig worldConfig, WorldManager worldManager, CriteriaManager criteriaManager,
 		CharacterDatabase characterDatabase, CliDB cliDB)
@@ -27,7 +27,7 @@ public class CharacterDatabaseCleaner
         _worldManager = worldManager;
         _criteriaManager = criteriaManager;
         _characterDatabase = characterDatabase;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
     }
 
     public void CleanDatabase()
@@ -118,7 +118,7 @@ public class CharacterDatabaseCleaner
 
 	bool SkillCheck(uint skill)
 	{
-		return _cliDB.SkillLineStorage.ContainsKey(skill);
+		return _cliDb.SkillLineStorage.ContainsKey(skill);
 	}
 
 	void CleanCharacterSkills()
@@ -128,12 +128,12 @@ public class CharacterDatabaseCleaner
 
 	bool TalentCheck(uint talent_id)
 	{
-		var talentInfo = _cliDB.TalentStorage.LookupByKey(talent_id);
+		var talentInfo = _cliDb.TalentStorage.LookupByKey(talent_id);
 
 		if (talentInfo == null)
 			return false;
 
-		return _cliDB.ChrSpecializationStorage.ContainsKey(talentInfo.SpecID);
+		return _cliDb.ChrSpecializationStorage.ContainsKey(talentInfo.SpecID);
 	}
 
 	void CleanCharacterTalent()

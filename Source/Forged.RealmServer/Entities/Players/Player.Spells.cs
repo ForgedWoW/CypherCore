@@ -27,7 +27,7 @@ public partial class Player
 				continue;
 
 			var pskill = pair.Key;
-			var rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(pskill, Race, Class);
+			var rcEntry = _db2Manager.GetSkillRaceClassInfo(pskill, Race, Class);
 
 			if (rcEntry == null)
 				continue;
@@ -216,7 +216,7 @@ public partial class Player
 			if (!spellClickInfo.IsFitToRequirements(this, creature))
 				return false;
 
-			if (Global.ConditionMgr.IsObjectMeetingSpellClickConditions(creature.Entry, spellClickInfo.spellId, this, creature))
+			if (_conditionManager.IsObjectMeetingSpellClickConditions(creature.Entry, spellClickInfo.spellId, this, creature))
 				return true;
 		}
 
@@ -256,7 +256,7 @@ public partial class Player
 
 	public void LearnSpecializationSpells()
 	{
-		var specSpells = Global.DB2Mgr.GetSpecializationSpells(GetPrimarySpecialization());
+		var specSpells = _db2Manager.GetSpecializationSpells(GetPrimarySpecialization());
 
 		if (specSpells != null)
 			for (var j = 0; j < specSpells.Count; ++j)
@@ -379,7 +379,7 @@ public partial class Player
 		if (enchant_id == 0)
 			return;
 
-		var pEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
+		var pEnchant = _cliDb.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
 
 		if (pEnchant == null)
 			return;
@@ -400,7 +400,7 @@ public partial class Player
 			if (item.GetSocketColor((uint)(slot - EnchantmentSlot.Sock1)) == 0)
 			{
 				// Check if the requirements for the prismatic socket are met before applying the gem stats
-				var pPrismaticEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(item.GetEnchantmentId(EnchantmentSlot.Prismatic));
+				var pPrismaticEnchant = _cliDb.SpellItemEnchantmentStorage.LookupByKey(item.GetEnchantmentId(EnchantmentSlot.Prismatic));
 
 				if (pPrismaticEnchant == null || (pPrismaticEnchant.RequiredSkillID > 0 && pPrismaticEnchant.RequiredSkillRank > GetSkillValue((SkillType)pPrismaticEnchant.RequiredSkillID)))
 					return;
@@ -462,17 +462,17 @@ public partial class Player
 
 							var minLevel = pEnchant.GetFlags().HasFlag(SpellItemEnchantmentFlags.ScaleAsAGem) ? 1 : 60u;
 							var scalingLevel = Level;
-							var maxLevel = (byte)(pEnchant.MaxLevel != 0 ? pEnchant.MaxLevel : CliDB.SpellScalingGameTable.GetTableRowCount() - 1);
+							var maxLevel = (byte)(pEnchant.MaxLevel != 0 ? pEnchant.MaxLevel : _cliDb.SpellScalingGameTable.GetTableRowCount() - 1);
 
 							if (minLevel > Level)
 								scalingLevel = minLevel;
 							else if (maxLevel < Level)
 								scalingLevel = maxLevel;
 
-							var spellScaling = CliDB.SpellScalingGameTable.GetRow(scalingLevel);
+							var spellScaling = _cliDb.SpellScalingGameTable.GetRow(scalingLevel);
 
 							if (spellScaling != null)
-								enchant_amount = (uint)(pEnchant.EffectScalingPoints[s] * CliDB.GetSpellScalingColumnForClass(spellScaling, scalingClass));
+								enchant_amount = (uint)(pEnchant.EffectScalingPoints[s] * _cliDb.GetSpellScalingColumnForClass(spellScaling, scalingClass));
 						}
 
 						enchant_amount = Math.Max(enchant_amount, 1u);
@@ -490,17 +490,17 @@ public partial class Player
 
 							var minLevel = pEnchant.GetFlags().HasFlag(SpellItemEnchantmentFlags.ScaleAsAGem) ? 1 : 60u;
 							var scalingLevel = Level;
-							var maxLevel = (byte)(pEnchant.MaxLevel != 0 ? pEnchant.MaxLevel : CliDB.SpellScalingGameTable.GetTableRowCount() - 1);
+							var maxLevel = (byte)(pEnchant.MaxLevel != 0 ? pEnchant.MaxLevel : _cliDb.SpellScalingGameTable.GetTableRowCount() - 1);
 
 							if (minLevel > Level)
 								scalingLevel = minLevel;
 							else if (maxLevel < Level)
 								scalingLevel = maxLevel;
 
-							var spellScaling = CliDB.SpellScalingGameTable.GetRow(scalingLevel);
+							var spellScaling = _cliDb.SpellScalingGameTable.GetRow(scalingLevel);
 
 							if (spellScaling != null)
-								enchant_amount = (uint)(pEnchant.EffectScalingPoints[s] * CliDB.GetSpellScalingColumnForClass(spellScaling, scalingClass));
+								enchant_amount = (uint)(pEnchant.EffectScalingPoints[s] * _cliDb.GetSpellScalingColumnForClass(spellScaling, scalingClass));
 						}
 
 						enchant_amount = Math.Max(enchant_amount, 1u);
@@ -764,7 +764,7 @@ public partial class Player
 			SetSkillTempBonus(skillStatusData.Pos, (ushort)(skillInfoField.SkillTempBonus[skillStatusData.Pos] + val));
 
 		// Apply/Remove bonus to child skill lines
-		var childSkillLines = Global.DB2Mgr.GetSkillLinesForParentSkill(skillid);
+		var childSkillLines = _db2Manager.GetSkillLinesForParentSkill(skillid);
 
 		if (childSkillLines != null)
 			foreach (var childSkillLine in childSkillLines)
@@ -875,7 +875,7 @@ public partial class Player
 
 	public bool CanUseMastery()
 	{
-		var chrSpec = CliDB.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
+		var chrSpec = _cliDb.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
 
 		if (chrSpec != null)
 			return HasSpell(chrSpec.MasterySpellID[0]) || HasSpell(chrSpec.MasterySpellID[1]);
@@ -907,7 +907,7 @@ public partial class Player
 
 	public void SetSkill(uint id, uint step, uint newVal, uint maxVal)
 	{
-		var skillEntry = CliDB.SkillLineStorage.LookupByKey(id);
+		var skillEntry = _cliDb.SkillLineStorage.LookupByKey(id);
 
 		if (skillEntry == null)
 		{
@@ -1041,12 +1041,12 @@ public partial class Player
 
 
 				// remove all spells that related to this skill
-				var skillLineAbilities = Global.DB2Mgr.GetSkillLineAbilitiesBySkill(id);
+				var skillLineAbilities = _db2Manager.GetSkillLineAbilitiesBySkill(id);
 
 				foreach (var skillLineAbility in skillLineAbilities)
 					RemoveSpell(Global.SpellMgr.GetFirstSpellInChain(skillLineAbility.Spell));
 
-				var childSkillLines = Global.DB2Mgr.GetSkillLinesForParentSkill(id);
+				var childSkillLines = _db2Manager.GetSkillLinesForParentSkill(id);
 
 				if (childSkillLines != null)
 					foreach (var childSkillLine in childSkillLines)
@@ -1079,7 +1079,7 @@ public partial class Player
 			{
 				if (skillEntry.ParentTierIndex > 0)
 				{
-					var rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(skillEntry.ParentSkillLineID, Race, Class);
+					var rcEntry = _db2Manager.GetSkillRaceClassInfo(skillEntry.ParentSkillLineID, Race, Class);
 
 					if (rcEntry != null)
 					{
@@ -1096,7 +1096,7 @@ public partial class Player
 			else
 			{
 				// also learn missing child skills at 0 value
-				var childSkillLines = Global.DB2Mgr.GetSkillLinesForParentSkill(id);
+				var childSkillLines = _db2Manager.GetSkillLinesForParentSkill(id);
 
 				if (childSkillLines != null)
 					foreach (var childSkillLine in childSkillLines)
@@ -1315,7 +1315,7 @@ public partial class Player
 		for (EnchantmentSlot e_slot = 0; e_slot < EnchantmentSlot.Max; ++e_slot)
 		{
 			var enchant_id = item.GetEnchantmentId(e_slot);
-			var pEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
+			var pEnchant = _cliDb.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
 
 			if (pEnchant == null)
 				continue;
@@ -1367,7 +1367,7 @@ public partial class Player
 		var raceMask = SharedConst.GetMaskForRace(race);
 		var classMask = ClassMask;
 
-		var skillLineAbilities = Global.DB2Mgr.GetSkillLineAbilitiesBySkill(skillId);
+		var skillLineAbilities = _db2Manager.GetSkillLineAbilitiesBySkill(skillId);
 
 		foreach (var ability in skillLineAbilities)
 		{
@@ -1423,7 +1423,7 @@ public partial class Player
 
 	public int GetProfessionSlotFor(uint skillId)
 	{
-		var skillEntry = CliDB.SkillLineStorage.LookupByKey(skillId);
+		var skillEntry = _cliDb.SkillLineStorage.LookupByKey(skillId);
 
 		if (skillEntry == null)
 			return -1;
@@ -2495,7 +2495,7 @@ public partial class Player
 		if (runeIndex == (int)PowerType.Max)
 			return;
 
-		var runeEntry = Global.DB2Mgr.GetPowerTypeEntry(PowerType.Runes);
+		var runeEntry = _db2Manager.GetPowerTypeEntry(PowerType.Runes);
 
 		var cooldown = GetRuneBaseCooldown();
 		SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenFlatModifier, (int)runeIndex), (float)(1 * Time.InMilliseconds) / cooldown - runeEntry.RegenPeace);
@@ -2625,7 +2625,7 @@ public partial class Player
 						chance = GetWeaponProcChance();
 					}
 
-					if (RandomHelper.randChance(chance) && Global.ScriptMgr.RunScriptRet<IItemOnCastItemCombatSpell>(tmpscript => tmpscript.OnCastItemCombatSpell(this, damageInfo.Victim, spellInfo, item), item.ScriptId))
+					if (RandomHelper.randChance(chance) && _scriptManager.RunScriptRet<IItemOnCastItemCombatSpell>(tmpscript => tmpscript.OnCastItemCombatSpell(this, damageInfo.Victim, spellInfo, item), item.ScriptId))
 						CastSpell(damageInfo.Victim, spellInfo.Id, item);
 				}
 
@@ -2633,7 +2633,7 @@ public partial class Player
 		for (byte e_slot = 0; e_slot < (byte)EnchantmentSlot.Max; ++e_slot)
 		{
 			var enchant_id = item.GetEnchantmentId((EnchantmentSlot)e_slot);
-			var pEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
+			var pEnchant = _cliDb.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
 
 			if (pEnchant == null)
 				continue;
@@ -2740,7 +2740,7 @@ public partial class Player
 
 		if (myClassOnly)
 		{
-			var clsEntry = CliDB.ChrClassesStorage.LookupByKey(Class);
+			var clsEntry = _cliDb.ChrClassesStorage.LookupByKey(Class);
 
 			if (clsEntry == null)
 				return;
@@ -2877,11 +2877,11 @@ public partial class Player
 	{
 		for (uint i = 0; i < PlayerConst.MaxSpecializations; ++i)
 		{
-			var specialization = Global.DB2Mgr.GetChrSpecializationByIndex(Class, i);
+			var specialization = _db2Manager.GetChrSpecializationByIndex(Class, i);
 
 			if (specialization != null)
 			{
-				var specSpells = Global.DB2Mgr.GetSpecializationSpells(specialization.Id);
+				var specSpells = _db2Manager.GetSpecializationSpells(specialization.Id);
 
 				if (specSpells != null)
 					for (var j = 0; j < specSpells.Count; ++j)
@@ -2908,9 +2908,9 @@ public partial class Player
 	{
 		uint i = 0;
 
-		foreach (var skillLine in CliDB.SkillLineStorage.Values)
+		foreach (var skillLine in _cliDb.SkillLineStorage.Values)
 		{
-			var rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(skillLine.Id, Race, Class);
+			var rcEntry = _db2Manager.GetSkillRaceClassInfo(skillLine.Id, Race, Class);
 
 			if (rcEntry != null)
 			{
@@ -2935,7 +2935,7 @@ public partial class Player
 					if (ench_id == 0)
 						continue;
 
-					var Enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(ench_id);
+					var Enchant = _cliDb.SpellItemEnchantmentStorage.LookupByKey(ench_id);
 
 					if (Enchant == null)
 						return;
@@ -2953,7 +2953,7 @@ public partial class Player
 					// rather than the gem requirements itself. If the socket has no color it is a prismatic socket.
 					if ((slot == EnchantmentSlot.Sock1 || slot == EnchantmentSlot.Sock2 || slot == EnchantmentSlot.Sock3) && _items[i].GetSocketColor((uint)(slot - EnchantmentSlot.Sock1)) == 0)
 					{
-						var pPrismaticEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(_items[i].GetEnchantmentId(EnchantmentSlot.Prismatic));
+						var pPrismaticEnchant = _cliDb.SpellItemEnchantmentStorage.LookupByKey(_items[i].GetEnchantmentId(EnchantmentSlot.Prismatic));
 
 						if (pPrismaticEnchant != null && pPrismaticEnchant.RequiredSkillID == skill_id)
 						{
@@ -3094,7 +3094,7 @@ public partial class Player
 		if (enchantmentcondition == 0)
 			return true;
 
-		var Condition = CliDB.SpellItemEnchantmentConditionStorage.LookupByKey(enchantmentcondition);
+		var Condition = _cliDb.SpellItemEnchantmentConditionStorage.LookupByKey(enchantmentcondition);
 
 		if (Condition == null)
 			return true;
@@ -3120,7 +3120,7 @@ public partial class Player
 					if (gemProto == null)
 						continue;
 
-					var gemProperty = CliDB.GemPropertiesStorage.LookupByKey(gemProto.GemProperties);
+					var gemProperty = _cliDb.GemPropertiesStorage.LookupByKey(gemProto.GemProperties);
 
 					if (gemProperty == null)
 						continue;
@@ -3188,7 +3188,7 @@ public partial class Player
 				if (enchant_id == 0)
 					continue;
 
-				var enchantEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
+				var enchantEntry = _cliDb.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
 
 				if (enchantEntry == null)
 					continue;
@@ -3212,7 +3212,7 @@ public partial class Player
 
 	int FindEmptyProfessionSlotFor(uint skillId)
 	{
-		var skillEntry = CliDB.SkillLineStorage.LookupByKey(skillId);
+		var skillEntry = _cliDb.SkillLineStorage.LookupByKey(skillId);
 
 		if (skillEntry == null)
 			return -1;
@@ -3501,7 +3501,7 @@ public partial class Player
 			{
 				if (spell.TraitDefinitionId.HasValue)
 				{
-					var traitDefinition = CliDB.TraitDefinitionStorage.LookupByKey(spell.TraitDefinitionId.Value);
+					var traitDefinition = _cliDb.TraitDefinitionStorage.LookupByKey(spell.TraitDefinitionId.Value);
 
 					if (traitDefinition != null)
 						RemoveOverrideSpell((uint)traitDefinition.OverridesSpellID, spellId);
@@ -3678,7 +3678,7 @@ public partial class Player
 
 				if (traitConfig != null)
 				{
-					var traitEntryIndex = traitConfig.Entries.FindIndexIf(traitEntry => { return CliDB.TraitNodeEntryStorage.LookupByKey(traitEntry.TraitNodeEntryID)?.TraitDefinitionID == traitDefinitionId; });
+					var traitEntryIndex = traitConfig.Entries.FindIndexIf(traitEntry => { return _cliDb.TraitNodeEntryStorage.LookupByKey(traitEntry.TraitNodeEntryID)?.TraitDefinitionID == traitDefinitionId; });
 
 					var rank = 0;
 
@@ -3695,7 +3695,7 @@ public partial class Player
 								if (traitDefinitionEffectPoint.EffectIndex >= spellInfo.Effects.Count)
 									continue;
 
-								double basePoints = Global.DB2Mgr.GetCurveValueAt((uint)traitDefinitionEffectPoint.CurveID, rank);
+								double basePoints = _db2Manager.GetCurveValueAt((uint)traitDefinitionEffectPoint.CurveID, rank);
 
 								if (traitDefinitionEffectPoint.GetOperationType() == TraitPointsOperationType.Multiply)
 									basePoints *= spellInfo.GetEffect(traitDefinitionEffectPoint.EffectIndex).CalcBaseValue(this, null, 0, -1);
@@ -3714,7 +3714,7 @@ public partial class Player
 
 		if (traitDefinitionId.HasValue)
 		{
-			var traitDefinition = CliDB.TraitDefinitionStorage.LookupByKey(traitDefinitionId.Value);
+			var traitDefinition = _cliDb.TraitDefinitionStorage.LookupByKey(traitDefinitionId.Value);
 
 			if (traitDefinition != null)
 				AddOverrideSpell(traitDefinition.OverridesSpellID, spellId);
@@ -3755,7 +3755,7 @@ public partial class Player
 			// not ranked skills
 			foreach (var _spell_idx in skill_bounds)
 			{
-				var pSkill = CliDB.SkillLineStorage.LookupByKey(_spell_idx.SkillLine);
+				var pSkill = _cliDb.SkillLineStorage.LookupByKey(_spell_idx.SkillLine);
 
 				if (pSkill == null)
 					continue;
@@ -3766,7 +3766,7 @@ public partial class Player
 				// Runeforging special case
 				if ((_spell_idx.AcquireMethod == AbilityLearnType.OnSkillLearn && !HasSkill((SkillType)_spell_idx.SkillLine)) || ((_spell_idx.SkillLine == (int)SkillType.Runeforging) && _spell_idx.TrivialSkillLineRankHigh == 0))
 				{
-					var rcInfo = Global.DB2Mgr.GetSkillRaceClassInfo(_spell_idx.SkillLine, Race, Class);
+					var rcInfo = _db2Manager.GetSkillRaceClassInfo(_spell_idx.SkillLine, Race, Class);
 
 					if (rcInfo != null)
 						LearnDefaultSkill(rcInfo);
@@ -3805,7 +3805,7 @@ public partial class Player
 		}
 
 		// needs to be when spell is already learned, to prevent infinite recursion crashes
-		if (Global.DB2Mgr.GetMount(spellId) != null)
+		if (_db2Manager.GetMount(spellId) != null)
 			Session.CollectionMgr.AddMount(spellId, MountStatusFlags.None, false, !IsInWorld);
 
 		// return true (for send learn packet) only if spell active (in case ranked spells) and not replace old spell

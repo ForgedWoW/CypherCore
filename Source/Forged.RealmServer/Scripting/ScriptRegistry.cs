@@ -21,7 +21,7 @@ public class ScriptRegistry
 		{
 			// We're dealing with a code-only script; just add it.
 			_scriptMap[Interlocked.Increment(ref _scriptIdCounter)] = script;
-			Global.ScriptMgr.IncrementScriptCount();
+			_scriptManager.IncrementScriptCount();
 
 			return;
 		}
@@ -57,7 +57,7 @@ public class ScriptRegistry
 					_scriptMap[id] = script;
 				}
 
-				Global.ScriptMgr.IncrementScriptCount();
+				_scriptManager.IncrementScriptCount();
 			}
 		}
 		else

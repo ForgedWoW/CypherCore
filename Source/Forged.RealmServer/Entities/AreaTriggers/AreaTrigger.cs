@@ -678,10 +678,10 @@ public class AreaTrigger : WorldObject
 
 		if (GetTemplate() != null)
 		{
-			var conditions = Global.ConditionMgr.GetConditionsForAreaTrigger(GetTemplate().Id.Id, GetTemplate().Id.IsServerSide);
+			var conditions = _conditionManager.GetConditionsForAreaTrigger(GetTemplate().Id.Id, GetTemplate().Id.IsServerSide);
 
 			if (!conditions.Empty())
-				targetList.RemoveAll(target => !Global.ConditionMgr.IsObjectMeetToConditions(target, conditions));
+				targetList.RemoveAll(target => !_conditionManager.IsObjectMeetToConditions(target, conditions));
 		}
 
 		HandleUnitEnterExit(targetList);
@@ -709,7 +709,7 @@ public class AreaTrigger : WorldObject
 
 		if (GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasDynamicShape))
 			if (CreateProperties.MorphCurveId != 0)
-				radius = MathFunctions.lerp(_shape.SphereDatas.Radius, _shape.SphereDatas.RadiusTarget, Global.DB2Mgr.GetCurveValueAt(CreateProperties.MorphCurveId, Progress));
+				radius = MathFunctions.lerp(_shape.SphereDatas.Radius, _shape.SphereDatas.RadiusTarget, _db2Manager.GetCurveValueAt(CreateProperties.MorphCurveId, Progress));
 
 		SearchUnits(targetList, radius, true);
 	}
@@ -1136,7 +1136,7 @@ public class AreaTrigger : WorldObject
 
 		if (CreateProperties.MoveCurveId != 0)
 		{
-			var progress = Global.DB2Mgr.GetCurveValueAt(CreateProperties.MoveCurveId, currentTimePercent);
+			var progress = _db2Manager.GetCurveValueAt(CreateProperties.MoveCurveId, currentTimePercent);
 
 			if (progress < 0.0f || progress > 1.0f)
 				Log.outError(LogFilter.AreaTrigger, $"AreaTrigger (Id: {Entry}, AreaTriggerCreatePropertiesId: {CreateProperties.Id}) has wrong progress ({progress}) caused by curve calculation (MoveCurveId: {CreateProperties.MorphCurveId})");
@@ -1186,7 +1186,7 @@ public class AreaTrigger : WorldObject
 
 	void LoadScripts()
 	{
-		_loadedScripts = Global.ScriptMgr.CreateAreaTriggerScripts(_areaTriggerId, this);
+		_loadedScripts = _scriptManager.CreateAreaTriggerScripts(_areaTriggerId, this);
 
 		foreach (var script in _loadedScripts)
 		{

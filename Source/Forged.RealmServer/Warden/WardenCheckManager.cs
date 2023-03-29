@@ -1,27 +1,35 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
+using System;
+using System.Collections.Generic;
 
 namespace Forged.RealmServer;
 
-public class WardenCheckManager : Singleton<WardenCheckManager>
+public class WardenCheckManager
 {
-	static readonly byte WARDEN_MAX_LUA_CHECK_LENGTH = 170;
+    private readonly WorldConfig _worldConfig;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly CharacterDatabase _characterDatabase;
+    static readonly byte WARDEN_MAX_LUA_CHECK_LENGTH = 170;
 	readonly List<WardenCheck> _checks = new();
 	readonly Dictionary<uint, byte[]> _checkResults = new();
 	readonly List<ushort>[] _pools = new List<ushort>[(int)WardenCheckCategory.Max];
 
 	public ushort MaxValidCheckId => (ushort)_checks.Count;
 
-	WardenCheckManager()
-	{
-		for (var i = 0; i < (int)WardenCheckCategory.Max; ++i)
+	public WardenCheckManager(WorldConfig worldConfig, WorldDatabase worldDatabase, CharacterDatabase characterDatabase)
+    {
+        _worldConfig = worldConfig;
+        _worldDatabase = worldDatabase;
+        _characterDatabase = characterDatabase;
+
+        for (var i = 0; i < (int)WardenCheckCategory.Max; ++i)
 			_pools[i] = new List<ushort>();
-	}
+    }
 
 	public void LoadWardenChecks()
 	{
@@ -36,7 +44,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 		}
 
 		//                                         0   1     2     3       4        5       6    7
-		var result = DB.World.Query("SELECT id, type, data, result, address, length, str, comment FROM warden_checks ORDER BY id ASC");
+		var result = _worldDatabase.Query("SELECT id, type, data, result, address, length, str, comment FROM warden_checks ORDER BY id ASC");
 
 		if (result.IsEmpty())
 		{

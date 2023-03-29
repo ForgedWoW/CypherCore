@@ -211,7 +211,7 @@ public partial class Creature : Unit
 
 		// get difficulty 1 mode entry
 		CreatureTemplate cInfo = null;
-		var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(Map.DifficultyID);
+		var difficultyEntry = _cliDb.DifficultyStorage.LookupByKey(Map.DifficultyID);
 
 		while (cInfo == null && difficultyEntry != null)
 		{
@@ -230,7 +230,7 @@ public partial class Creature : Unit
 			if (difficultyEntry.FallbackDifficultyID == 0)
 				break;
 
-			difficultyEntry = CliDB.DifficultyStorage.LookupByKey(difficultyEntry.FallbackDifficultyID);
+			difficultyEntry = _cliDb.DifficultyStorage.LookupByKey(difficultyEntry.FallbackDifficultyID);
 		}
 
 		if (cInfo == null)
@@ -348,7 +348,7 @@ public partial class Creature : Unit
 
 		ReplaceAllDynamicFlags((UnitDynFlags)dynamicFlags);
 
-		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.StateAnimID), Global.DB2Mgr.GetEmptyAnimStateID());
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.StateAnimID), _db2Manager.GetEmptyAnimStateID());
 
 		SetCanDualWield(cInfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.UseOffhandAttack));
 
@@ -385,7 +385,7 @@ public partial class Creature : Unit
 		}
 
 		// checked and error show at loading templates
-		var factionTemplate = CliDB.FactionTemplateStorage.LookupByKey(cInfo.Faction);
+		var factionTemplate = _cliDb.FactionTemplateStorage.LookupByKey(cInfo.Faction);
 
 		if (factionTemplate != null)
 			SetPvP(factionTemplate.Flags.HasAnyFlag((ushort)FactionTemplateFlags.PVP));
@@ -1343,13 +1343,13 @@ public partial class Creature : Unit
 		// update in DB
 		SQLTransaction trans = new();
 
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_CREATURE);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_CREATURE);
 		stmt.AddValue(0, SpawnId);
 		trans.Append(stmt);
 
 		byte index = 0;
 
-		stmt = DB.World.GetPreparedStatement(WorldStatements.INS_CREATURE);
+		stmt = _worldDatabase.GetPreparedStatement(WorldStatements.INS_CREATURE);
 		stmt.AddValue(index++, SpawnId);
 		stmt.AddValue(index++, Entry);
 		stmt.AddValue(index++, mapid);
@@ -1375,7 +1375,7 @@ public partial class Creature : Unit
 		stmt.AddValue(index++, (uint)dynamicflags);
 		trans.Append(stmt);
 
-		DB.World.CommitTransaction(trans);
+		_worldDatabase.CommitTransaction(trans);
 	}
 
 	public void SelectLevel()
@@ -1628,48 +1628,48 @@ public partial class Creature : Unit
 		// ... and the database
 		trans = new SQLTransaction();
 
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_CREATURE);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_CREATURE);
 		stmt.AddValue(0, spawnId);
 		trans.Append(stmt);
 
-		stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_SPAWNGROUP_MEMBER);
+		stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_SPAWNGROUP_MEMBER);
 		stmt.AddValue(0, (byte)SpawnObjectType.Creature);
 		stmt.AddValue(1, spawnId);
 		trans.Append(stmt);
 
-		stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_CREATURE_ADDON);
+		stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_CREATURE_ADDON);
 		stmt.AddValue(0, spawnId);
 		trans.Append(stmt);
 
-		stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_GAME_EVENT_CREATURE);
+		stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_GAME_EVENT_CREATURE);
 		stmt.AddValue(0, spawnId);
 		trans.Append(stmt);
 
-		stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_GAME_EVENT_MODEL_EQUIP);
+		stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_GAME_EVENT_MODEL_EQUIP);
 		stmt.AddValue(0, spawnId);
 		trans.Append(stmt);
 
-		stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN);
+		stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN);
 		stmt.AddValue(0, spawnId);
 		stmt.AddValue(1, (uint)CreatureLinkedRespawnType.CreatureToCreature);
 		trans.Append(stmt);
 
-		stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN);
+		stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN);
 		stmt.AddValue(0, spawnId);
 		stmt.AddValue(1, (uint)CreatureLinkedRespawnType.CreatureToGO);
 		trans.Append(stmt);
 
-		stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN_MASTER);
+		stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN_MASTER);
 		stmt.AddValue(0, spawnId);
 		stmt.AddValue(1, (uint)CreatureLinkedRespawnType.CreatureToCreature);
 		trans.Append(stmt);
 
-		stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN_MASTER);
+		stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN_MASTER);
 		stmt.AddValue(0, spawnId);
 		stmt.AddValue(1, (uint)CreatureLinkedRespawnType.GOToCreature);
 		trans.Append(stmt);
 
-		DB.World.CommitTransaction(trans);
+		_worldDatabase.CommitTransaction(trans);
 
 		return true;
 	}
@@ -2479,14 +2479,14 @@ public partial class Creature : Unit
 	public void ApplyLevelScaling()
 	{
 		var scaling = Template.GetLevelScaling(Map.DifficultyID);
-		var levels = Global.DB2Mgr.GetContentTuningData(scaling.ContentTuningId, 0);
+		var levels = _db2Manager.GetContentTuningData(scaling.ContentTuningId, 0);
 
 		if (levels.HasValue)
 		{
 			SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ScalingLevelMin), levels.Value.MinLevel);
 			SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ScalingLevelMax), levels.Value.MaxLevel);
 		}
-		else if (ConfigMgr.GetDefaultValue("CreatureScaling.DefaultMaxLevel", false))
+		else if (_configuration.GetDefaultValue("CreatureScaling.DefaultMaxLevel", false))
 		{
 			SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ScalingLevelMin), 1);
 			SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ScalingLevelMax), _worldConfig.GetIntValue(WorldCfg.MaxPlayerLevel));
@@ -2518,7 +2518,7 @@ public partial class Creature : Unit
 		var cInfo = Template;
 		var scaling = cInfo.GetLevelScaling(Map.DifficultyID);
 
-		return Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureAutoAttackDps, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (PlayerClass)cInfo.UnitClass);
+		return _db2Manager.EvaluateExpectedStat(ExpectedStatType.CreatureAutoAttackDps, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (PlayerClass)cInfo.UnitClass);
 	}
 
 	public override float GetDamageMultiplierForTarget(WorldObject target)
@@ -2573,7 +2573,7 @@ public partial class Creature : Unit
 
 				if (playerTarget != null)
 				{
-					if (scalingFactionGroup != 0 && CliDB.FactionTemplateStorage.LookupByKey(CliDB.ChrRacesStorage.LookupByKey(playerTarget.Race).FactionID).FactionGroup != scalingFactionGroup)
+					if (scalingFactionGroup != 0 && _cliDb.FactionTemplateStorage.LookupByKey(_cliDb.ChrRacesStorage.LookupByKey(playerTarget.Race).FactionID).FactionGroup != scalingFactionGroup)
 						scalingLevelMin = scalingLevelMax;
 
 					int maxCreatureScalingLevel = playerTarget.ActivePlayerData.MaxCreatureScalingLevel;
@@ -3261,7 +3261,7 @@ public partial class Creature : Unit
 		{
 			byte wildBattlePetLevel = 1;
 
-			var areaTable = CliDB.AreaTableStorage.LookupByKey(Zone);
+			var areaTable = _cliDb.AreaTableStorage.LookupByKey(Zone);
 
 			if (areaTable != null)
 				if (areaTable.WildBattlePetLevelMin > 0)
@@ -3338,7 +3338,7 @@ public partial class Creature : Unit
 	{
 		var cInfo = Template;
 		var scaling = cInfo.GetLevelScaling(Map.DifficultyID);
-		var baseHealth = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (PlayerClass)cInfo.UnitClass);
+		var baseHealth = _db2Manager.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (PlayerClass)cInfo.UnitClass);
 
 		return (ulong)(baseHealth * cInfo.ModHealth * cInfo.ModHealthExtra);
 	}
@@ -3347,7 +3347,7 @@ public partial class Creature : Unit
 	{
 		var cInfo = Template;
 		var scaling = cInfo.GetLevelScaling(Map.DifficultyID);
-		var baseArmor = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureArmor, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (PlayerClass)cInfo.UnitClass);
+		var baseArmor = _db2Manager.EvaluateExpectedStat(ExpectedStatType.CreatureArmor, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (PlayerClass)cInfo.UnitClass);
 
 		return baseArmor * cInfo.ModArmor;
 	}

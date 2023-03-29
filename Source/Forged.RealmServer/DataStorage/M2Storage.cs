@@ -19,7 +19,7 @@ public class M2Storage
 
 		var oldMSTime = Time.MSTime;
 
-		foreach (var cameraEntry in CliDB.CinematicCameraStorage.Values)
+		foreach (var cameraEntry in _cliDb.CinematicCameraStorage.Values)
 		{
 			var filename = dataPath + "/cameras/" + $"FILE{cameraEntry.FileDataID:X8}.xxx";
 

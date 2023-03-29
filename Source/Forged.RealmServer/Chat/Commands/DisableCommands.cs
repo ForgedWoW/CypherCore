@@ -48,7 +48,7 @@ class DisableCommands
 				}
 				case DisableType.Map:
 				{
-					if (!CliDB.MapStorage.ContainsKey(entry))
+					if (!_cliDb.MapStorage.ContainsKey(entry))
 					{
 						handler.SendSysMessage(CypherStrings.CommandNomapfound);
 
@@ -59,7 +59,7 @@ class DisableCommands
 				}
 				case DisableType.Battleground:
 				{
-					if (!CliDB.BattlemasterListStorage.ContainsKey(entry))
+					if (!_cliDb.BattlemasterListStorage.ContainsKey(entry))
 					{
 						handler.SendSysMessage(CypherStrings.CommandNoBattlegroundFound);
 
@@ -70,7 +70,7 @@ class DisableCommands
 				}
 				case DisableType.Criteria:
 				{
-					if (Global.CriteriaMgr.GetCriteria(entry) == null)
+					if (_criteriaManager.GetCriteria(entry) == null)
 					{
 						handler.SendSysMessage(CypherStrings.CommandNoAchievementCriteriaFound);
 
@@ -92,7 +92,7 @@ class DisableCommands
 				}
 				case DisableType.VMAP:
 				{
-					if (!CliDB.MapStorage.ContainsKey(entry))
+					if (!_cliDb.MapStorage.ContainsKey(entry))
 					{
 						handler.SendSysMessage(CypherStrings.CommandNomapfound);
 
@@ -103,7 +103,7 @@ class DisableCommands
 				}
 				case DisableType.MMAP:
 				{
-					if (!CliDB.MapStorage.ContainsKey(entry))
+					if (!_cliDb.MapStorage.ContainsKey(entry))
 					{
 						handler.SendSysMessage(CypherStrings.CommandNomapfound);
 
@@ -116,10 +116,10 @@ class DisableCommands
 					break;
 			}
 
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_DISABLES);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_DISABLES);
 			stmt.AddValue(0, entry);
 			stmt.AddValue(1, (byte)disableType);
-			var result = DB.World.Query(stmt);
+			var result = _worldDatabase.Query(stmt);
 
 			if (!result.IsEmpty())
 			{
@@ -128,12 +128,12 @@ class DisableCommands
 				return false;
 			}
 
-			stmt = DB.World.GetPreparedStatement(WorldStatements.INS_DISABLES);
+			stmt = _worldDatabase.GetPreparedStatement(WorldStatements.INS_DISABLES);
 			stmt.AddValue(0, entry);
 			stmt.AddValue(1, (byte)disableType);
 			stmt.AddValue(2, flags);
 			stmt.AddValue(3, disableComment);
-			DB.World.Execute(stmt);
+			_worldDatabase.Execute(stmt);
 
 			handler.SendSysMessage($"Add Disabled {disableType} (Id: {entry}) for reason {disableComment}");
 
@@ -197,10 +197,10 @@ class DisableCommands
 			if (entry == 0)
 				return false;
 
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_DISABLES);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_DISABLES);
 			stmt.AddValue(0, entry);
 			stmt.AddValue(1, (byte)disableType);
-			var result = DB.World.Query(stmt);
+			var result = _worldDatabase.Query(stmt);
 
 			if (result.IsEmpty())
 			{
@@ -209,10 +209,10 @@ class DisableCommands
 				return false;
 			}
 
-			stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_DISABLES);
+			stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_DISABLES);
 			stmt.AddValue(0, entry);
 			stmt.AddValue(1, (byte)disableType);
-			DB.World.Execute(stmt);
+			_worldDatabase.Execute(stmt);
 
 			handler.SendSysMessage($"Remove Disabled {disableType} (Id: {entry})");
 

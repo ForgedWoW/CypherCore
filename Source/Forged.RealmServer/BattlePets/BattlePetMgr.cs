@@ -62,7 +62,7 @@ public class BattlePetMgr
 		if (!result.IsEmpty())
 			_gameObjectManager.GetGenerator(HighGuid.BattlePet).Set(result.Read<ulong>(0) + 1);
 
-		foreach (var battlePetSpecies in CliDB.BattlePetSpeciesStorage.Values)
+		foreach (var battlePetSpecies in _cliDb.BattlePetSpeciesStorage.Values)
 		{
 			var creatureId = battlePetSpecies.CreatureID;
 
@@ -70,7 +70,7 @@ public class BattlePetMgr
 				_battlePetSpeciesByCreature[creatureId] = battlePetSpecies;
 		}
 
-		foreach (var battlePetBreedState in CliDB.BattlePetBreedStateStorage.Values)
+		foreach (var battlePetBreedState in _cliDb.BattlePetBreedStateStorage.Values)
 		{
 			if (!BattlePetBreedStates.ContainsKey(battlePetBreedState.BattlePetBreedID))
 				BattlePetBreedStates[battlePetBreedState.BattlePetBreedID] = new Dictionary<BattlePetState, int>();
@@ -78,7 +78,7 @@ public class BattlePetMgr
 			BattlePetBreedStates[battlePetBreedState.BattlePetBreedID][(BattlePetState)battlePetBreedState.BattlePetStateID] = battlePetBreedState.Value;
 		}
 
-		foreach (var battlePetSpeciesState in CliDB.BattlePetSpeciesStateStorage.Values)
+		foreach (var battlePetSpeciesState in _cliDb.BattlePetSpeciesStateStorage.Values)
 		{
 			if (!BattlePetSpeciesStates.ContainsKey(battlePetSpeciesState.BattlePetSpeciesID))
 				BattlePetSpeciesStates[battlePetSpeciesState.BattlePetSpeciesID] = new Dictionary<BattlePetState, int>();
@@ -147,7 +147,7 @@ public class BattlePetMgr
 				var species = petsResult.Read<uint>(1);
 				var ownerGuid = !petsResult.IsNull(11) ? ObjectGuid.Create(HighGuid.Player, petsResult.Read<ulong>(11)) : ObjectGuid.Empty;
 
-				var speciesEntry = CliDB.BattlePetSpeciesStorage.LookupByKey(species);
+				var speciesEntry = _cliDb.BattlePetSpeciesStorage.LookupByKey(species);
 
 				if (speciesEntry != null)
 				{
@@ -353,7 +353,7 @@ public class BattlePetMgr
 
 	public void AddPet(uint species, uint display, ushort breed, BattlePetBreedQuality quality, ushort level = 1)
 	{
-		var battlePetSpecies = CliDB.BattlePetSpeciesStorage.LookupByKey(species);
+		var battlePetSpecies = _cliDb.BattlePetSpeciesStorage.LookupByKey(species);
 
 		if (battlePetSpecies == null) // should never happen
 			return;
@@ -530,7 +530,7 @@ public class BattlePetMgr
 		if (pet == null)
 			return;
 
-		var battlePetSpecies = CliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
+		var battlePetSpecies = _cliDb.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
 
 		if (battlePetSpecies != null)
 			if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.NotTradable))
@@ -590,7 +590,7 @@ public class BattlePetMgr
 		if (quality > BattlePetBreedQuality.Rare)
 			return;
 
-		var battlePetSpecies = CliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
+		var battlePetSpecies = _cliDb.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
 
 		if (battlePetSpecies != null)
 			if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.CantBattle))
@@ -629,7 +629,7 @@ public class BattlePetMgr
 		if (xp <= 0 || xpSource >= BattlePetXpSource.Count)
 			return;
 
-		var battlePetSpecies = CliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
+		var battlePetSpecies = _cliDb.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
 
 		if (battlePetSpecies != null)
 			if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.CantBattle))
@@ -640,13 +640,13 @@ public class BattlePetMgr
 		if (level >= SharedConst.MaxBattlePetLevel)
 			return;
 
-		var xpEntry = CliDB.BattlePetXPGameTable.GetRow(level);
+		var xpEntry = _cliDb.BattlePetXPGameTable.GetRow(level);
 
 		if (xpEntry == null)
 			return;
 
 		var player = _owner.Player;
-		var nextLevelXp = (ushort)CliDB.GetBattlePetXPPerLevel(xpEntry);
+		var nextLevelXp = (ushort)_cliDb.GetBattlePetXPPerLevel(xpEntry);
 
 		if (xpSource == BattlePetXpSource.PetBattle)
 			xp = (ushort)(xp * player.GetTotalAuraMultiplier(AuraType.ModBattlePetXpPct));
@@ -657,12 +657,12 @@ public class BattlePetMgr
 		{
 			xp -= nextLevelXp;
 
-			xpEntry = CliDB.BattlePetXPGameTable.GetRow(++level);
+			xpEntry = _cliDb.BattlePetXPGameTable.GetRow(++level);
 
 			if (xpEntry == null)
 				return;
 
-			nextLevelXp = (ushort)CliDB.GetBattlePetXPPerLevel(xpEntry);
+			nextLevelXp = (ushort)_cliDb.GetBattlePetXPPerLevel(xpEntry);
 
 			player.UpdateCriteria(CriteriaType.BattlePetReachLevel, pet.PacketInfo.Species, level);
 
@@ -693,7 +693,7 @@ public class BattlePetMgr
 		if (pet == null)
 			return;
 
-		var battlePetSpecies = CliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
+		var battlePetSpecies = _cliDb.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
 
 		if (battlePetSpecies != null)
 			if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.CantBattle))
@@ -777,7 +777,7 @@ public class BattlePetMgr
 		if (pet == null)
 			return;
 
-		var speciesEntry = CliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
+		var speciesEntry = _cliDb.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
 
 		if (speciesEntry == null)
 			return;
@@ -858,7 +858,7 @@ public class BattlePetMgr
 
 	static void LoadAvailablePetBreeds()
 	{
-		var result = DB.World.Query("SELECT speciesId, breedId FROM battle_pet_breeds");
+		var result = _worldDatabase.Query("SELECT speciesId, breedId FROM battle_pet_breeds");
 
 		if (result.IsEmpty())
 		{
@@ -874,7 +874,7 @@ public class BattlePetMgr
 			var speciesId = result.Read<uint>(0);
 			var breedId = result.Read<ushort>(1);
 
-			if (!CliDB.BattlePetSpeciesStorage.ContainsKey(speciesId))
+			if (!_cliDb.BattlePetSpeciesStorage.ContainsKey(speciesId))
 			{
 				Log.Logger.Error("Non-existing BattlePetSpecies.db2 entry {0} was referenced in `battle_pet_breeds` by row ({1}, {2}).", speciesId, speciesId, breedId);
 
@@ -892,7 +892,7 @@ public class BattlePetMgr
 
 	static void LoadDefaultPetQualities()
 	{
-		var result = DB.World.Query("SELECT speciesId, quality FROM battle_pet_quality");
+		var result = _worldDatabase.Query("SELECT speciesId, quality FROM battle_pet_quality");
 
 		if (result.IsEmpty())
 		{
@@ -906,7 +906,7 @@ public class BattlePetMgr
 			var speciesId = result.Read<uint>(0);
 			var quality = (BattlePetBreedQuality)result.Read<byte>(1);
 
-			var battlePetSpecies = CliDB.BattlePetSpeciesStorage.LookupByKey(speciesId);
+			var battlePetSpecies = _cliDb.BattlePetSpeciesStorage.LookupByKey(speciesId);
 
 			if (battlePetSpecies == null)
 			{

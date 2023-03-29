@@ -69,13 +69,13 @@ public class CriteriaHandler
 
 		foreach (var criteria in criteriaList)
 		{
-			var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
+			var trees = _criteriaManager.GetCriteriaTreesByCriteria(criteria.Id);
 
 			if (!CanUpdateCriteria(criteria, trees, miscValue1, miscValue2, miscValue3, refe, referencePlayer))
 				continue;
 
 			// requirements not found in the dbc
-			var data = Global.CriteriaMgr.GetCriteriaDataSet(criteria);
+			var data = _criteriaManager.GetCriteriaDataSet(criteria);
 
 			if (data != null)
 				if (!data.Meets(referencePlayer, refe, (uint)miscValue1, (uint)miscValue2))
@@ -494,7 +494,7 @@ public class CriteriaHandler
 				// Time is up, remove timer and reset progress
 				if (value <= timeDiff)
 				{
-					var criteriaTree = Global.CriteriaMgr.GetCriteriaTree(key);
+					var criteriaTree = _criteriaManager.GetCriteriaTree(key);
 
 					if (criteriaTree.Criteria != null)
 						RemoveCriteriaProgress(criteriaTree.Criteria);
@@ -510,14 +510,14 @@ public class CriteriaHandler
 
 	public void StartCriteriaTimer(CriteriaStartEvent startEvent, uint entry, uint timeLost = 0)
 	{
-		var criteriaList = Global.CriteriaMgr.GetTimedCriteriaByType(startEvent);
+		var criteriaList = _criteriaManager.GetTimedCriteriaByType(startEvent);
 
 		foreach (var criteria in criteriaList)
 		{
 			if (criteria.Entry.StartAsset != entry)
 				continue;
 
-			var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
+			var trees = _criteriaManager.GetCriteriaTreesByCriteria(criteria.Id);
 			var canStart = false;
 
 			foreach (var tree in trees)
@@ -539,14 +539,14 @@ public class CriteriaHandler
 
 	public void RemoveCriteriaTimer(CriteriaStartEvent startEvent, uint entry)
 	{
-		var criteriaList = Global.CriteriaMgr.GetTimedCriteriaByType(startEvent);
+		var criteriaList = _criteriaManager.GetTimedCriteriaByType(startEvent);
 
 		foreach (var criteria in criteriaList)
 		{
 			if (criteria.Entry.StartAsset != entry)
 				continue;
 
-			var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
+			var trees = _criteriaManager.GetCriteriaTreesByCriteria(criteria.Id);
 
 			// Remove the timer from all trees
 			foreach (var tree in trees)
@@ -569,7 +569,7 @@ public class CriteriaHandler
 
 		if (criteria.Entry.StartTimer != 0)
 		{
-			trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
+			trees = _criteriaManager.GetCriteriaTreesByCriteria(criteria.Id);
 
 			if (trees.Empty())
 				return;
@@ -1186,7 +1186,7 @@ public class CriteriaHandler
 						return false;
 				}
 
-				var data = Global.CriteriaMgr.GetCriteriaDataSet(criteria);
+				var data = _criteriaManager.GetCriteriaDataSet(criteria);
 
 				if (data != null)
 					if (!data.Meets(referencePlayer, refe))
@@ -1231,7 +1231,7 @@ public class CriteriaHandler
 				break;
 			case CriteriaType.RevealWorldMapOverlay:
 			{
-				var worldOverlayEntry = CliDB.WorldMapOverlayStorage.LookupByKey(criteria.Entry.Asset);
+				var worldOverlayEntry = _cliDb.MapOverlayStorage.LookupByKey(criteria.Entry.Asset);
 
 				if (worldOverlayEntry == null)
 					break;
@@ -1240,7 +1240,7 @@ public class CriteriaHandler
 
 				for (var j = 0; j < SharedConst.MaxWorldMapOverlayArea; ++j)
 				{
-					var area = CliDB.AreaTableStorage.LookupByKey(worldOverlayEntry.AreaID[j]);
+					var area = _cliDb.AreaTableStorage.LookupByKey(worldOverlayEntry.AreaID[j]);
 
 					if (area == null)
 						break;
@@ -1413,7 +1413,7 @@ public class CriteriaHandler
 			}
 			case ModifierTreeType.PlayerMeetsCondition: // 2
 			{
-				var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(reqValue);
+				var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(reqValue);
 
 				if (playerCondition == null || !ConditionManager.IsPlayerMeetingCondition(referencePlayer, playerCondition))
 					return false;
@@ -1533,7 +1533,7 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.LegacyDungeonDifficulty: // 20
 			{
-				var difficulty = CliDB.DifficultyStorage.LookupByKey(referencePlayer.Map.DifficultyID);
+				var difficulty = _cliDb.DifficultyStorage.LookupByKey(referencePlayer.Map.DifficultyID);
 
 				if (difficulty == null || difficulty.OldEnumValue == -1 || difficulty.OldEnumValue != reqValue)
 					return false;
@@ -1658,7 +1658,7 @@ public class CriteriaHandler
 			case ModifierTreeType.PlayerIsInZone: // 41
 			{
 				var zoneId = referencePlayer.Area;
-				var areaEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
+				var areaEntry = _cliDb.AreaTableStorage.LookupByKey(zoneId);
 
 				if (areaEntry != null)
 					if (areaEntry.HasFlag(AreaFlags.Unk9))
@@ -1675,7 +1675,7 @@ public class CriteriaHandler
 					return false;
 
 				var zoneId = refe.Area;
-				var areaEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
+				var areaEntry = _cliDb.AreaTableStorage.LookupByKey(zoneId);
 
 				if (areaEntry != null)
 					if (areaEntry.HasFlag(AreaFlags.Unk9))
@@ -1751,7 +1751,7 @@ public class CriteriaHandler
 				if (refe == null || !refe.IsPlayer)
 					return false;
 
-				var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(reqValue);
+				var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(reqValue);
 
 				if (playerCondition == null || !ConditionManager.IsPlayerMeetingCondition(refe.AsPlayer, playerCondition))
 					return false;
@@ -1812,7 +1812,7 @@ public class CriteriaHandler
 			case ModifierTreeType.ResearchProjectBranch: // 66 NYI
 				return false;
 			case ModifierTreeType.WorldStateExpression: // 67
-				var worldStateExpression = CliDB.WorldStateExpressionStorage.LookupByKey(reqValue);
+				var worldStateExpression = _cliDb.StateExpressionStorage.LookupByKey(reqValue);
 
 				if (worldStateExpression != null)
 					return ConditionManager.IsPlayerMeetingExpression(referencePlayer, worldStateExpression);
@@ -1844,7 +1844,7 @@ public class CriteriaHandler
 
 				break;
 			case ModifierTreeType.ModifierTree: // 73
-				var nextModifierTree = Global.CriteriaMgr.GetModifierTree(reqValue);
+				var nextModifierTree = _criteriaManager.GetModifierTree(reqValue);
 
 				if (nextModifierTree != null)
 					return ModifierTreeSatisfied(nextModifierTree, miscValue1, miscValue2, refe, referencePlayer);
@@ -1872,7 +1872,7 @@ public class CriteriaHandler
 
 					do
 					{
-						var categoryEntry = CliDB.AchievementCategoryStorage.LookupByKey(category);
+						var categoryEntry = _cliDb.AchievementCategoryStorage.LookupByKey(category);
 
 						if (categoryEntry?.Parent == -1)
 							break;
@@ -1887,7 +1887,7 @@ public class CriteriaHandler
 
 				foreach (var achievementId in referencePlayer.CompletedAchievementIds)
 				{
-					var achievement = CliDB.AchievementStorage.LookupByKey(achievementId);
+					var achievement = _cliDb.AchievementStorage.LookupByKey(achievementId);
 
 					if (getRootAchievementCategory(achievement) == SharedConst.AchivementCategoryPetBattles)
 						petAchievementPoints += achievement.Points;
@@ -1905,7 +1905,7 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.BattlePetType: // 78
 			{
-				var speciesEntry = CliDB.BattlePetSpeciesStorage.LookupByKey(miscValue1);
+				var speciesEntry = _cliDb.BattlePetSpeciesStorage.LookupByKey(miscValue1);
 
 				if (speciesEntry?.PetTypeEnum != reqValue)
 					return false;
@@ -1975,7 +1975,7 @@ public class CriteriaHandler
 
 				break;
 			case ModifierTreeType.ServerExpansionEqualOrGreaterThan: // 92
-				if (ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpansions", true) && _worldConfig.GetIntValue(WorldCfg.Expansion) < reqValue)
+				if (_configuration.GetDefaultValue("character.EnforceRaceAndClassExpansions", true) && _worldConfig.GetIntValue(WorldCfg.Expansion) < reqValue)
 					return false;
 
 				break;
@@ -1986,12 +1986,12 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.FriendshipRepReactionIsMet: // 94
 			{
-				var friendshipRepReaction = CliDB.FriendshipRepReactionStorage.LookupByKey(reqValue);
+				var friendshipRepReaction = _cliDb.FriendshipRepReactionStorage.LookupByKey(reqValue);
 
 				if (friendshipRepReaction == null)
 					return false;
 
-				var friendshipReputation = CliDB.FriendshipReputationStorage.LookupByKey(friendshipRepReaction.FriendshipRepID);
+				var friendshipReputation = _cliDb.FriendshipReputationStorage.LookupByKey(friendshipRepReaction.FriendshipRepID);
 
 				if (friendshipReputation == null)
 					return false;
@@ -2032,7 +2032,7 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.PlayerLanguageSkillEqualOrGreaterThan: // 100
 			{
-				var languageDescs = Global.LanguageMgr.GetLanguageDescById((Language)reqValue);
+				var languageDescs = _languageManager.GetLanguageDescById((Language)reqValue);
 
 				if (!languageDescs.Any(desc => referencePlayer.GetSkillValue((SkillType)desc.SkillId) >= secondaryAsset))
 					return false;
@@ -2090,7 +2090,7 @@ public class CriteriaHandler
 				break;
 			}
 			case ModifierTreeType.PlayerHasCompletedQuest: // 110
-				var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(reqValue);
+				var questBit = _db2Manager.GetQuestUniqueBitFlag(reqValue);
 
 				if (questBit != 0)
 					if ((referencePlayer.ActivePlayerData.QuestCompleted[((int)questBit - 1) >> 6] & (1ul << (((int)questBit - 1) & 63))) == 0)
@@ -2123,7 +2123,7 @@ public class CriteriaHandler
 			}
 			case ModifierTreeType.PlayerHasExploredArea: // 113
 			{
-				var areaTable = CliDB.AreaTableStorage.LookupByKey(reqValue);
+				var areaTable = _cliDb.AreaTableStorage.LookupByKey(reqValue);
 
 				if (areaTable == null)
 					return false;
@@ -2153,12 +2153,12 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.PlayerFaction: // 116
 			{
-				var race = CliDB.ChrRacesStorage.LookupByKey(referencePlayer.Race);
+				var race = _cliDb.ChrRacesStorage.LookupByKey(referencePlayer.Race);
 
 				if (race == null)
 					return false;
 
-				var faction = CliDB.FactionTemplateStorage.LookupByKey(race.FactionID);
+				var faction = _cliDb.FactionTemplateStorage.LookupByKey(race.FactionID);
 
 				if (faction == null)
 					return false;
@@ -2250,7 +2250,7 @@ public class CriteriaHandler
 
 				var followerCount = garrison.CountFollowers(follower =>
 				{
-					var garrFollower = CliDB.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
+					var garrFollower = _cliDb.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
 
 					return garrFollower?.GarrFollowerTypeID == tertiaryAsset && follower.PacketInfo.FollowerLevel >= secondaryAsset;
 				});
@@ -2269,7 +2269,7 @@ public class CriteriaHandler
 
 				var followerCount = garrison.CountFollowers(follower =>
 				{
-					var garrFollower = CliDB.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
+					var garrFollower = _cliDb.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
 
 					return garrFollower?.GarrFollowerTypeID == tertiaryAsset && follower.PacketInfo.Quality >= secondaryAsset;
 				});
@@ -2288,7 +2288,7 @@ public class CriteriaHandler
 
 				var followerCount = garrison.CountFollowers(follower =>
 				{
-					var garrFollower = CliDB.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
+					var garrFollower = _cliDb.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
 
 					return garrFollower?.GarrFollowerTypeID == tertiaryAsset && follower.PacketInfo.FollowerLevel >= reqValue && follower.HasAbility((uint)secondaryAsset);
 				});
@@ -2305,14 +2305,14 @@ public class CriteriaHandler
 				if (garrison == null)
 					return false;
 
-				var traitEntry = CliDB.GarrAbilityStorage.LookupByKey(secondaryAsset);
+				var traitEntry = _cliDb.GarrAbilityStorage.LookupByKey(secondaryAsset);
 
 				if (traitEntry == null || !traitEntry.Flags.HasAnyFlag(GarrisonAbilityFlags.Trait))
 					return false;
 
 				var followerCount = garrison.CountFollowers(follower =>
 				{
-					var garrFollower = CliDB.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
+					var garrFollower = _cliDb.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
 
 					return garrFollower?.GarrFollowerTypeID == tertiaryAsset && follower.PacketInfo.FollowerLevel >= reqValue && follower.HasAbility((uint)secondaryAsset);
 				});
@@ -2331,7 +2331,7 @@ public class CriteriaHandler
 
 				var followerCount = garrison.CountFollowers(follower =>
 				{
-					var followerBuilding = CliDB.GarrBuildingStorage.LookupByKey(follower.PacketInfo.CurrentBuildingID);
+					var followerBuilding = _cliDb.GarrBuildingStorage.LookupByKey(follower.PacketInfo.CurrentBuildingID);
 
 					if (followerBuilding == null)
 						return false;
@@ -2353,14 +2353,14 @@ public class CriteriaHandler
 				if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)tertiaryAsset)
 					return false;
 
-				var traitEntry = CliDB.GarrAbilityStorage.LookupByKey(reqValue);
+				var traitEntry = _cliDb.GarrAbilityStorage.LookupByKey(reqValue);
 
 				if (traitEntry == null || !traitEntry.Flags.HasAnyFlag(GarrisonAbilityFlags.Trait))
 					return false;
 
 				var followerCount = garrison.CountFollowers(follower =>
 				{
-					var followerBuilding = CliDB.GarrBuildingStorage.LookupByKey(follower.PacketInfo.CurrentBuildingID);
+					var followerBuilding = _cliDb.GarrBuildingStorage.LookupByKey(follower.PacketInfo.CurrentBuildingID);
 
 					if (followerBuilding == null)
 						return false;
@@ -2387,7 +2387,7 @@ public class CriteriaHandler
 					if (follower.PacketInfo.FollowerLevel < reqValue)
 						return false;
 
-					var followerBuilding = CliDB.GarrBuildingStorage.LookupByKey(follower.PacketInfo.CurrentBuildingID);
+					var followerBuilding = _cliDb.GarrBuildingStorage.LookupByKey(follower.PacketInfo.CurrentBuildingID);
 
 					if (followerBuilding == null)
 						return false;
@@ -2412,7 +2412,7 @@ public class CriteriaHandler
 					if (plot.BuildingInfo.PacketInfo == null)
 						continue;
 
-					var building = CliDB.GarrBuildingStorage.LookupByKey(plot.BuildingInfo.PacketInfo.GarrBuildingID);
+					var building = _cliDb.GarrBuildingStorage.LookupByKey(plot.BuildingInfo.PacketInfo.GarrBuildingID);
 
 					if (building == null || building.UpgradeLevel < reqValue || building.BuildingType != secondaryAsset)
 						continue;
@@ -2458,7 +2458,7 @@ public class CriteriaHandler
 				return false;
 			case ModifierTreeType.GarrisonBuildingIsUnderConstruction: // 140
 			{
-				var building = CliDB.GarrBuildingStorage.LookupByKey(reqValue);
+				var building = _cliDb.GarrBuildingStorage.LookupByKey(reqValue);
 
 				if (building == null)
 					return false;
@@ -2492,7 +2492,7 @@ public class CriteriaHandler
 					if (plot.BuildingInfo.PacketInfo == null)
 						continue;
 
-					var building = CliDB.GarrBuildingStorage.LookupByKey(plot.BuildingInfo.PacketInfo.GarrBuildingID);
+					var building = _cliDb.GarrBuildingStorage.LookupByKey(plot.BuildingInfo.PacketInfo.GarrBuildingID);
 
 					if (building == null || building.UpgradeLevel != secondaryAsset || building.BuildingType != reqValue)
 						continue;
@@ -2531,7 +2531,7 @@ public class CriteriaHandler
 			}
 			case ModifierTreeType.GarrisonFollowerHasTrait: // 144
 			{
-				var traitEntry = CliDB.GarrAbilityStorage.LookupByKey(reqValue);
+				var traitEntry = _cliDb.GarrAbilityStorage.LookupByKey(reqValue);
 
 				if (traitEntry == null || !traitEntry.Flags.HasAnyFlag(GarrisonAbilityFlags.Trait))
 					return false;
@@ -2624,7 +2624,7 @@ public class CriteriaHandler
 					if (plot.BuildingInfo.PacketInfo == null || plot.BuildingInfo.PacketInfo.GarrBuildingID != miscValue1)
 						continue;
 
-					var building = CliDB.GarrBuildingStorage.LookupByKey(plot.BuildingInfo.PacketInfo.GarrBuildingID);
+					var building = _cliDb.GarrBuildingStorage.LookupByKey(plot.BuildingInfo.PacketInfo.GarrBuildingID);
 
 					if (building == null || building.UpgradeLevel != reqValue)
 						continue;
@@ -2670,7 +2670,7 @@ public class CriteriaHandler
 
 				foreach (var slot in referencePlayer.Session.BattlePetMgr.Slots)
 				{
-					var species = CliDB.BattlePetSpeciesStorage.LookupByKey(slot.Pet.Species);
+					var species = _cliDb.BattlePetSpeciesStorage.LookupByKey(slot.Pet.Species);
 
 					if (species != null)
 						if (species.PetTypeEnum == secondaryAsset)
@@ -2763,7 +2763,7 @@ public class CriteriaHandler
 					if (plot.BuildingInfo.PacketInfo == null)
 						return false;
 
-					var building = CliDB.GarrBuildingStorage.LookupByKey(plot.BuildingInfo.PacketInfo.GarrBuildingID);
+					var building = _cliDb.GarrBuildingStorage.LookupByKey(plot.BuildingInfo.PacketInfo.GarrBuildingID);
 
 					if (building == null || building.UpgradeLevel != reqValue)
 						return false;
@@ -2799,7 +2799,7 @@ public class CriteriaHandler
 
 				var followerCount = garrison.CountFollowers(follower =>
 				{
-					var garrFollower = CliDB.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
+					var garrFollower = _cliDb.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
 
 					return garrFollower?.GarrFollowerTypeID == tertiaryAsset && follower.GetItemLevel() >= secondaryAsset;
 				});
@@ -2854,7 +2854,7 @@ public class CriteriaHandler
 
 				var followerCount = garrison.CountFollowers(follower =>
 				{
-					var garrFollower = CliDB.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
+					var garrFollower = _cliDb.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
 
 					return garrFollower?.GarrFollowerTypeID == tertiaryAsset && follower.PacketInfo.FollowerLevel == secondaryAsset;
 				});
@@ -2891,7 +2891,7 @@ public class CriteriaHandler
 
 				foreach (var plot in garrison.GetPlots())
 				{
-					var garrPlotInstance = CliDB.GarrPlotInstanceStorage.LookupByKey(plot.PacketInfo.GarrPlotInstanceID);
+					var garrPlotInstance = _cliDb.GarrPlotInstanceStorage.LookupByKey(plot.PacketInfo.GarrPlotInstanceID);
 
 					if (garrPlotInstance == null || garrPlotInstance.GarrPlotID != secondaryAsset)
 						continue;
@@ -2931,7 +2931,7 @@ public class CriteriaHandler
 			{
 				foreach (var pair in referencePlayer.Session.CollectionMgr.GetAccountMounts())
 				{
-					var mount = Global.DB2Mgr.GetMount(pair.Key);
+					var mount = _db2Manager.GetMount(pair.Key);
 
 					if (mount == null)
 						continue;
@@ -2951,7 +2951,7 @@ public class CriteriaHandler
 
 				var followerCount = garrison.CountFollowers(follower =>
 				{
-					var garrFollower = CliDB.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
+					var garrFollower = _cliDb.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
 
 					if (garrFollower == null)
 						return false;
@@ -2982,7 +2982,7 @@ public class CriteriaHandler
 				return false;
 			case ModifierTreeType.GarrisonFollowerType: // 187
 			{
-				var garrFollower = CliDB.GarrFollowerStorage.LookupByKey(miscValue1);
+				var garrFollower = _cliDb.GarrFollowerStorage.LookupByKey(miscValue1);
 
 				if (garrFollower == null || garrFollower.GarrFollowerTypeID != reqValue)
 					return false;
@@ -3071,7 +3071,7 @@ public class CriteriaHandler
 
 					if (artifact != null)
 					{
-						var artifactAppearance = CliDB.ArtifactAppearanceStorage.LookupByKey(artifact.GetModifier(ItemModifier.ArtifactAppearanceId));
+						var artifactAppearance = _cliDb.ArtifactAppearanceStorage.LookupByKey(artifact.GetModifier(ItemModifier.ArtifactAppearanceId));
 
 						if (artifactAppearance != null)
 							if (artifactAppearance.ArtifactAppearanceSetID == reqValue)
@@ -3145,7 +3145,7 @@ public class CriteriaHandler
 				return false;
 			case ModifierTreeType.PlayerIsInPvpBrawl: // 220
 			{
-				var bg = CliDB.BattlemasterListStorage.LookupByKey(referencePlayer.BattlegroundTypeId);
+				var bg = _cliDb.BattlemasterListStorage.LookupByKey(referencePlayer.BattlegroundTypeId);
 
 				if (bg == null || !bg.Flags.HasFlag(BattlemasterListFlags.Brawl))
 					return false;
@@ -3154,7 +3154,7 @@ public class CriteriaHandler
 			}
 			case ModifierTreeType.ParagonReputationLevelWithFactionEqualOrGreaterThan: // 221
 			{
-				var faction = CliDB.FactionStorage.LookupByKey(secondaryAsset);
+				var faction = _cliDb.FactionStorage.LookupByKey(secondaryAsset);
 
 				if (faction == null)
 					return false;
@@ -3166,7 +3166,7 @@ public class CriteriaHandler
 			}
 			case ModifierTreeType.PlayerHasItemWithBonusListFromTreeAndQuality: // 222
 			{
-				var bonusListIDs = Global.DB2Mgr.GetAllItemBonusTreeBonuses(reqValue);
+				var bonusListIDs = _db2Manager.GetAllItemBonusTreeBonuses(reqValue);
 
 				if (bonusListIDs.Empty())
 					return false;
@@ -3265,11 +3265,11 @@ public class CriteriaHandler
 					{
 						itemSubclass = itemTemplate.SubClass;
 
-						var itemModifiedAppearance = Global.DB2Mgr.GetItemModifiedAppearance(visibleItem.ItemID, visibleItem.ItemAppearanceModID);
+						var itemModifiedAppearance = _db2Manager.GetItemModifiedAppearance(visibleItem.ItemID, visibleItem.ItemAppearanceModID);
 
 						if (itemModifiedAppearance != null)
 						{
-							var itemModifiedAppearaceExtra = CliDB.ItemModifiedAppearanceExtraStorage.LookupByKey(itemModifiedAppearance.Id);
+							var itemModifiedAppearaceExtra = _cliDb.ItemModifiedAppearanceExtraStorage.LookupByKey(itemModifiedAppearance.Id);
 
 							if (itemModifiedAppearaceExtra != null)
 								if (itemModifiedAppearaceExtra.DisplayWeaponSubclassID > 0)
@@ -3293,11 +3293,11 @@ public class CriteriaHandler
 					{
 						itemSubclass = itemTemplate.SubClass;
 
-						var itemModifiedAppearance = Global.DB2Mgr.GetItemModifiedAppearance(visibleItem.ItemID, visibleItem.ItemAppearanceModID);
+						var itemModifiedAppearance = _db2Manager.GetItemModifiedAppearance(visibleItem.ItemID, visibleItem.ItemAppearanceModID);
 
 						if (itemModifiedAppearance != null)
 						{
-							var itemModifiedAppearaceExtra = CliDB.ItemModifiedAppearanceExtraStorage.LookupByKey(itemModifiedAppearance.Id);
+							var itemModifiedAppearaceExtra = _cliDb.ItemModifiedAppearanceExtraStorage.LookupByKey(itemModifiedAppearance.Id);
 
 							if (itemModifiedAppearaceExtra != null)
 								if (itemModifiedAppearaceExtra.DisplayWeaponSubclassID > 0)
@@ -3312,7 +3312,7 @@ public class CriteriaHandler
 			}
 			case ModifierTreeType.PlayerPvpTier: // 234
 			{
-				var pvpTier = CliDB.PvpTierStorage.LookupByKey(reqValue);
+				var pvpTier = _cliDb.PvpTierStorage.LookupByKey(reqValue);
 
 				if (pvpTier == null)
 					return false;
@@ -3339,7 +3339,7 @@ public class CriteriaHandler
 			case ModifierTreeType.PlayerIsOnQuestInQuestline: // 236
 			{
 				var isOnQuest = false;
-				var questLineQuests = Global.DB2Mgr.GetQuestsForQuestLine(reqValue);
+				var questLineQuests = _db2Manager.GetQuestsForQuestLine(reqValue);
 
 				if (!questLineQuests.Empty())
 					isOnQuest = questLineQuests.Any(questLineQuest => referencePlayer.FindQuestSlot(questLineQuest.QuestID) < SharedConst.MaxQuestLogSize);
@@ -3367,7 +3367,7 @@ public class CriteriaHandler
 				if (pvpInfo == null)
 					return false;
 
-				var pvpTier = CliDB.PvpTierStorage.LookupByKey(pvpInfo.PvpTierID);
+				var pvpTier = _cliDb.PvpTierStorage.LookupByKey(pvpInfo.PvpTierID);
 
 				if (pvpTier == null)
 					return false;
@@ -3379,7 +3379,7 @@ public class CriteriaHandler
 			}
 			case ModifierTreeType.PlayerCanAcceptQuestInQuestline: // 240
 			{
-				var questLineQuests = Global.DB2Mgr.GetQuestsForQuestLine(reqValue);
+				var questLineQuests = _db2Manager.GetQuestsForQuestLine(reqValue);
 
 				if (questLineQuests.Empty())
 					return false;
@@ -3401,7 +3401,7 @@ public class CriteriaHandler
 			}
 			case ModifierTreeType.PlayerHasCompletedQuestline: // 241
 			{
-				var questLineQuests = Global.DB2Mgr.GetQuestsForQuestLine(reqValue);
+				var questLineQuests = _db2Manager.GetQuestsForQuestLine(reqValue);
 
 				if (questLineQuests.Empty())
 					return false;
@@ -3414,7 +3414,7 @@ public class CriteriaHandler
 			}
 			case ModifierTreeType.PlayerHasCompletedQuestlineQuestCount: // 242
 			{
-				var questLineQuests = Global.DB2Mgr.GetQuestsForQuestLine(reqValue);
+				var questLineQuests = _db2Manager.GetQuestsForQuestLine(reqValue);
 
 				if (questLineQuests.Empty())
 					return false;
@@ -3432,7 +3432,7 @@ public class CriteriaHandler
 			}
 			case ModifierTreeType.PlayerHasCompletedPercentageOfQuestline: // 243
 			{
-				var questLineQuests = Global.DB2Mgr.GetQuestsForQuestLine(reqValue);
+				var questLineQuests = _db2Manager.GetQuestsForQuestLine(reqValue);
 
 				if (questLineQuests.Empty())
 					return false;
@@ -3471,12 +3471,12 @@ public class CriteriaHandler
 				return false;
 			case ModifierTreeType.PlayerVisibleRace: // 252
 			{
-				var creatureDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(referencePlayer.DisplayId);
+				var creatureDisplayInfo = _cliDb.CreatureDisplayInfoStorage.LookupByKey(referencePlayer.DisplayId);
 
 				if (creatureDisplayInfo == null)
 					return false;
 
-				var creatureDisplayInfoExtra = CliDB.CreatureDisplayInfoExtraStorage.LookupByKey(creatureDisplayInfo.ExtendedDisplayInfoID);
+				var creatureDisplayInfoExtra = _cliDb.CreatureDisplayInfoExtraStorage.LookupByKey(creatureDisplayInfo.ExtendedDisplayInfoID);
 
 				if (creatureDisplayInfoExtra == null)
 					return false;
@@ -3491,12 +3491,12 @@ public class CriteriaHandler
 				if (refe == null || !refe.IsUnit)
 					return false;
 
-				var creatureDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(refe.AsUnit.DisplayId);
+				var creatureDisplayInfo = _cliDb.CreatureDisplayInfoStorage.LookupByKey(refe.AsUnit.DisplayId);
 
 				if (creatureDisplayInfo == null)
 					return false;
 
-				var creatureDisplayInfoExtra = CliDB.CreatureDisplayInfoExtraStorage.LookupByKey(creatureDisplayInfo.ExtendedDisplayInfoID);
+				var creatureDisplayInfoExtra = _cliDb.CreatureDisplayInfoExtraStorage.LookupByKey(creatureDisplayInfo.ExtendedDisplayInfoID);
 
 				if (creatureDisplayInfoExtra == null)
 					return false;
@@ -3508,17 +3508,17 @@ public class CriteriaHandler
 			}
 			case ModifierTreeType.FriendshipRepReactionEqual: // 254
 			{
-				var friendshipRepReaction = CliDB.FriendshipRepReactionStorage.LookupByKey(reqValue);
+				var friendshipRepReaction = _cliDb.FriendshipRepReactionStorage.LookupByKey(reqValue);
 
 				if (friendshipRepReaction == null)
 					return false;
 
-				var friendshipReputation = CliDB.FriendshipReputationStorage.LookupByKey(friendshipRepReaction.FriendshipRepID);
+				var friendshipReputation = _cliDb.FriendshipReputationStorage.LookupByKey(friendshipRepReaction.FriendshipRepID);
 
 				if (friendshipReputation == null)
 					return false;
 
-				var friendshipReactions = Global.DB2Mgr.GetFriendshipRepReactions(reqValue);
+				var friendshipReactions = _db2Manager.GetFriendshipRepReactions(reqValue);
 
 				if (friendshipReactions == null)
 					return false;
@@ -3608,7 +3608,7 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.PlayerLootSpecializationMatchesRole: // 263
 			{
-				var spec = CliDB.ChrSpecializationStorage.LookupByKey(referencePlayer.GetPrimarySpecialization());
+				var spec = _cliDb.ChrSpecializationStorage.LookupByKey(referencePlayer.GetPrimarySpecialization());
 
 				if (spec == null || spec.Role != reqValue)
 					return false;
@@ -3622,7 +3622,7 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.TransmogSource: // 265
 			{
-				var itemModifiedAppearance = CliDB.ItemModifiedAppearanceStorage.LookupByKey(miscValue2);
+				var itemModifiedAppearance = _cliDb.ItemModifiedAppearanceStorage.LookupByKey(miscValue2);
 
 				if (itemModifiedAppearance == null)
 					return false;
@@ -3677,7 +3677,7 @@ public class CriteriaHandler
 			case ModifierTreeType.PlayerLevelWithinContentTuning: // 268
 			{
 				var level = referencePlayer.Level;
-				var levels = Global.DB2Mgr.GetContentTuningData(reqValue, 0);
+				var levels = _db2Manager.GetContentTuningData(reqValue, 0);
 
 				if (levels.HasValue)
 				{
@@ -3695,7 +3695,7 @@ public class CriteriaHandler
 					return false;
 
 				var level = refe.AsUnit.Level;
-				var levels = Global.DB2Mgr.GetContentTuningData(reqValue, 0);
+				var levels = _db2Manager.GetContentTuningData(reqValue, 0);
 
 				if (levels.HasValue)
 				{
@@ -3721,7 +3721,7 @@ public class CriteriaHandler
 			case ModifierTreeType.PlayerLevelWithinOrAboveContentTuning: // 272
 			{
 				var level = referencePlayer.Level;
-				var levels = Global.DB2Mgr.GetContentTuningData(reqValue, 0);
+				var levels = _db2Manager.GetContentTuningData(reqValue, 0);
 
 				if (levels.HasValue)
 					return secondaryAsset != 0 ? level >= levels.Value.MinLevelWithDelta : level >= levels.Value.MinLevel;
@@ -3734,7 +3734,7 @@ public class CriteriaHandler
 					return false;
 
 				var level = refe.AsUnit.Level;
-				var levels = Global.DB2Mgr.GetContentTuningData(reqValue, 0);
+				var levels = _db2Manager.GetContentTuningData(reqValue, 0);
 
 				if (levels.HasValue)
 					return secondaryAsset != 0 ? level >= levels.Value.MinLevelWithDelta : level >= levels.Value.MinLevel;
@@ -3858,8 +3858,8 @@ public class CriteriaHandler
 				return false;
 			case ModifierTreeType.PlayerIsInAreaGroup: // 298
 			{
-				var areas = Global.DB2Mgr.GetAreasForGroup(reqValue);
-				var area = CliDB.AreaTableStorage.LookupByKey(referencePlayer.Area);
+				var areas = _db2Manager.GetAreasForGroup(reqValue);
+				var area = _cliDb.AreaTableStorage.LookupByKey(referencePlayer.Area);
 
 				if (area != null)
 					foreach (var areaInGroup in areas)
@@ -3873,8 +3873,8 @@ public class CriteriaHandler
 				if (!refe)
 					return false;
 
-				var areas = Global.DB2Mgr.GetAreasForGroup(reqValue);
-				var area = CliDB.AreaTableStorage.LookupByKey(refe.Area);
+				var areas = _db2Manager.GetAreasForGroup(reqValue);
+				var area = _cliDb.AreaTableStorage.LookupByKey(refe.Area);
 
 				if (area != null)
 					foreach (var areaInGroup in areas)
@@ -3894,7 +3894,7 @@ public class CriteriaHandler
 
 				break;
 			case ModifierTreeType.ItemIsAzeriteArmor: // 302
-				if (Global.DB2Mgr.GetAzeriteEmpoweredItem((uint)miscValue1) == null)
+				if (_db2Manager.GetAzeriteEmpoweredItem((uint)miscValue1) == null)
 					return false;
 
 				break;
@@ -3940,7 +3940,7 @@ public class CriteriaHandler
 				return false;
 			case ModifierTreeType.PlayerSpellShapeshiftFormCreatureDisplayInfoSelection: // 308
 			{
-				var formModelData = Global.DB2Mgr.GetShapeshiftFormModelData(referencePlayer.Race, referencePlayer.NativeGender, (ShapeShiftForm)secondaryAsset);
+				var formModelData = _db2Manager.GetShapeshiftFormModelData(referencePlayer.Race, referencePlayer.NativeGender, (ShapeShiftForm)secondaryAsset);
 
 				if (formModelData == null)
 					return false;
@@ -4011,7 +4011,7 @@ public class CriteriaHandler
 			}
 			case ModifierTreeType.PlayerBestWeeklyWinPvpTier: // 324
 			{
-				var pvpTier = CliDB.PvpTierStorage.LookupByKey(reqValue);
+				var pvpTier = _cliDb.PvpTierStorage.LookupByKey(reqValue);
 
 				if (pvpTier == null)
 					return false;
@@ -4033,7 +4033,7 @@ public class CriteriaHandler
 				if (pvpInfo == null)
 					return false;
 
-				var pvpTier = CliDB.PvpTierStorage.LookupByKey(pvpInfo.WeeklyBestWinPvpTierID);
+				var pvpTier = _cliDb.PvpTierStorage.LookupByKey(pvpInfo.WeeklyBestWinPvpTierID);
 
 				if (pvpTier == null)
 					return false;
@@ -4181,7 +4181,7 @@ public class CriteriaHandler
 						continue;
 
 					foreach (var traitEntry in traitConfig.Entries)
-						if (CliDB.TraitNodeEntryStorage.LookupByKey(traitEntry.TraitNodeEntryID)?.GetNodeEntryType() == TraitNodeEntryType.ProfPath)
+						if (_cliDb.TraitNodeEntryStorage.LookupByKey(traitEntry.TraitNodeEntryID)?.GetNodeEntryType() == TraitNodeEntryType.ProfPath)
 							ranks += (uint)(traitEntry.Rank + traitEntry.GrantedRanks);
 				}
 

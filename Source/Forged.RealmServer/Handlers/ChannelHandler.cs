@@ -17,24 +17,24 @@ namespace Forged.RealmServer;
 public class ChannelHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly ChannelManager _channelManager;
 
     public ChannelHandler(WorldSession session, CliDB cliDB, ChannelManager channelManager)
     {
         _session = session;
-		_cliDB = cliDB;
+		_cliDb = cliDB;
         _channelManager = channelManager;
     }
 
     [WorldPacketHandler(ClientOpcodes.ChatJoinChannel)]
 	void HandleJoinChannel(JoinChannel packet)
 	{
-		var zone = _cliDB.AreaTableStorage.LookupByKey(_session.Player.Zone);
+		var zone = _cliDb.AreaTableStorage.LookupByKey(_session.Player.Zone);
 
 		if (packet.ChatChannelId != 0)
 		{
-			var channel = _cliDB.ChatChannelsStorage.LookupByKey((uint)packet.ChatChannelId);
+			var channel = _cliDb.ChatChannelsStorage.LookupByKey((uint)packet.ChatChannelId);
 
 			if (channel == null)
 				return;
@@ -104,11 +104,11 @@ public class ChannelHandler : IWorldSessionHandler
 		if (string.IsNullOrEmpty(packet.ChannelName) && packet.ZoneChannelID == 0)
 			return;
 
-		var zone = _cliDB.AreaTableStorage.LookupByKey(_session.Player.Zone);
+		var zone = _cliDb.AreaTableStorage.LookupByKey(_session.Player.Zone);
 
 		if (packet.ZoneChannelID != 0)
 		{
-			var channel = _cliDB.ChatChannelsStorage.LookupByKey((uint)packet.ZoneChannelID);
+			var channel = _cliDb.ChatChannelsStorage.LookupByKey((uint)packet.ZoneChannelID);
 
 			if (channel == null)
 				return;

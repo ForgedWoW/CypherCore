@@ -17,14 +17,14 @@ public class AzeriteHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
     private readonly Player _player;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly DB2Manager _dB2Manager;
 
     public AzeriteHandler(WorldSession session, Player player, CliDB cliDB, DB2Manager dB2Manager)
     {
         _session = session;
         _player = player;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _dB2Manager = dB2Manager;
     }
 
@@ -53,7 +53,7 @@ public class AzeriteHandler : IWorldSessionHandler
 		if (!azeriteItem || !azeriteItem.CanUseEssences())
 			return;
 
-		var milestonePower = _cliDB.AzeriteItemMilestonePowerStorage.LookupByKey((uint)azeriteEssenceUnlockMilestone.AzeriteItemMilestonePowerID);
+		var milestonePower = _cliDb.AzeriteItemMilestonePowerStorage.LookupByKey((uint)azeriteEssenceUnlockMilestone.AzeriteItemMilestonePowerID);
 
 		if (milestonePower == null || milestonePower.RequiredLevel > azeriteItem.GetLevel())
 			return;
@@ -233,7 +233,7 @@ public class AzeriteHandler : IWorldSessionHandler
 		if (item == null)
 			return;
 
-		var azeritePower = _cliDB.AzeritePowerStorage.LookupByKey((uint)azeriteEmpoweredItemSelectPower.AzeritePowerID);
+		var azeritePower = _cliDb.AzeritePowerStorage.LookupByKey((uint)azeriteEmpoweredItemSelectPower.AzeritePowerID);
 
 		if (azeritePower == null)
 			return;

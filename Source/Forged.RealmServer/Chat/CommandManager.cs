@@ -42,8 +42,8 @@ public class CommandManager
 			}
 		}
 
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_COMMANDS);
-		var result = DB.World.Query(stmt);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_COMMANDS);
+		var result = _worldDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 			do
@@ -90,7 +90,7 @@ public class CommandManager
 
 	public static void InitConsole()
 	{
-		if (ConfigMgr.GetDefaultValue("BeepAtStart", true))
+		if (_configuration.GetDefaultValue("BeepAtStart", true))
 			Console.Beep();
 
 		Console.ForegroundColor = ConsoleColor.Green;

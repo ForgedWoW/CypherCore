@@ -36,7 +36,7 @@ public class WorldManager
     private readonly WorldDatabase _worldDatabase;
     private readonly CharacterDatabase _characterDatabase;
     private readonly SupportManager _supportManager;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private ClassFactory _classFactory;
     private AccountManager _accountManager;
     private CharacterCache _characterCache;
@@ -272,7 +272,7 @@ public class WorldManager
         _worldDatabase = worldDatabase;
         _characterDatabase = characterDatabase;
         _supportManager = supportManager;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _realm = realm;
         _gameTime = gameTime;
 
@@ -1957,11 +1957,11 @@ public class WorldManager
             {
                 var race = result.Read<byte>(0);
 
-                var raceEntry = _cliDB.ChrRacesStorage.LookupByKey(race);
+                var raceEntry = _cliDb.ChrRacesStorage.LookupByKey(race);
 
                 if (raceEntry != null)
                 {
-                    var raceFaction = _cliDB.FactionTemplateStorage.LookupByKey((uint)raceEntry.FactionID);
+                    var raceFaction = _cliDb.FactionTemplateStorage.LookupByKey((uint)raceEntry.FactionID);
 
                     if (raceFaction != null)
                     {

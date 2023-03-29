@@ -1,26 +1,37 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using Framework.Constants;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Forged.RealmServer.Entities.Players;
+using Framework.Constants;
+using Serilog;
+using System;
+using System.Collections.Generic;
 
 namespace Forged.RealmServer.Achievements;
 
 public class AchievementManager : CriteriaHandler
 {
-	public Func<KeyValuePair<uint, CompletedAchievementData>, AchievementRecord> VisibleAchievementCheck = value =>
+    internal readonly CliDB _cliDb;
+    internal readonly CriteriaManager _criteriaManager;
+    internal readonly AchievementGlobalMgr _achievementGlobalMgr;
+
+    public AchievementManager(CliDB cliDB, CriteriaManager criteriaManager, AchievementGlobalMgr achievementGlobalMgr)
+    {
+        _cliDb = cliDB;
+        _criteriaManager = criteriaManager;
+        _achievementGlobalMgr = achievementGlobalMgr;
+    }
+
+    public AchievementRecord VisibleAchievementCheck(KeyValuePair<uint, CompletedAchievementData> value)
 	{
-		var achievement = CliDB.AchievementStorage.LookupByKey(value.Key);
+		var achievement = _cliDb.AchievementStorage.LookupByKey(value.Key);
 
 		if (achievement != null && !achievement.Flags.HasAnyFlag(AchievementFlags.Hidden))
 			return achievement;
 
 		return null;
-	};
+	}
 
 	protected Dictionary<uint, CompletedAchievementData> _completedAchievements = new();
 	protected uint _achievementPoints;
@@ -114,7 +125,7 @@ public class AchievementManager : CriteriaHandler
 
 		if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
 			// someone on this realm has already completed that achievement
-			if (Global.AchievementMgr.IsRealmCompleted(achievement))
+			if (_achievementGlobalMgr.IsRealmCompleted(achievement))
 				return false;
 
 		return true;
@@ -152,7 +163,7 @@ public class AchievementManager : CriteriaHandler
 			if (IsCompletedAchievement(achievement))
 				CompletedAchievement(achievement, referencePlayer);
 
-		var achRefList = Global.AchievementMgr.GetAchievementByReferencedId(achievement.Id);
+		var achRefList = _achievementGlobalMgr.GetAchievementByReferencedId(achievement.Id);
 
 		foreach (var refAchievement in achRefList)
 			if (IsCompletedAchievement(refAchievement))
@@ -172,7 +183,7 @@ public class AchievementManager : CriteriaHandler
 		if (entry.Flags.HasAnyFlag(AchievementFlags.Counter))
 			return false;
 
-		var tree = Global.CriteriaMgr.GetCriteriaTree(entry.CriteriaTree);
+		var tree = _criteriaManager.GetCriteriaTree(entry.CriteriaTree);
 
 		if (tree == null)
 			return false;

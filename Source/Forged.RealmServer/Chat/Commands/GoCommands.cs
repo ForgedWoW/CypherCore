@@ -21,7 +21,7 @@ class GoCommands
 	[Command("areatrigger", RBACPermissions.CommandGo)]
 	static bool HandleGoAreaTriggerCommand(CommandHandler handler, uint areaTriggerId)
 	{
-		var at = CliDB.AreaTriggerStorage.LookupByKey(areaTriggerId);
+		var at = _cliDb.AreaTriggerStorage.LookupByKey(areaTriggerId);
 
 		if (at == null)
 		{
@@ -114,7 +114,7 @@ class GoCommands
 
 			foreach (var spawnData in spawns)
 			{
-				var map = CliDB.MapStorage.LookupByKey(spawnData.MapId);
+				var map = _cliDb.MapStorage.LookupByKey(spawnData.MapId);
 				handler.SendSysMessage(CypherStrings.CommandBossMultipleSpawnEty, spawnData.SpawnId, spawnData.MapId, map.MapName[handler.SessionDbcLocale], spawnData.SpawnPoint.ToString());
 			}
 
@@ -133,7 +133,7 @@ class GoCommands
 
 		if (!player.TeleportTo(new WorldLocation(mapId, spawn.SpawnPoint)))
 		{
-			var mapName = CliDB.MapStorage.LookupByKey(mapId).MapName[handler.SessionDbcLocale];
+			var mapName = _cliDb.MapStorage.LookupByKey(mapId).MapName[handler.SessionDbcLocale];
 			handler.SendSysMessage(CypherStrings.CommandGoBossFailed, spawn.SpawnId, boss.Name, boss.Entry, mapName);
 
 			return false;
@@ -231,7 +231,7 @@ class GoCommands
 		{
 			uint count = 0;
 			var scriptName = _gameObjectManager.GetScriptName(pair.Value.ScriptId);
-			var mapName1 = CliDB.MapStorage.LookupByKey(pair.Key).MapName[handler.SessionDbcLocale];
+			var mapName1 = _cliDb.MapStorage.LookupByKey(pair.Key).MapName[handler.SessionDbcLocale];
 
 			foreach (var label in labels)
 				if (scriptName.Contains(label))
@@ -291,7 +291,7 @@ class GoCommands
 			else
 			{
 				var parentMapId = exit.target_mapId;
-				var parentMapName = CliDB.MapStorage.LookupByKey(parentMapId).MapName[handler.SessionDbcLocale];
+				var parentMapName = _cliDb.MapStorage.LookupByKey(parentMapId).MapName[handler.SessionDbcLocale];
 				handler.SendSysMessage(CypherStrings.CommandGoInstanceGateFailed, mapName, mapId, parentMapName, parentMapId);
 			}
 		}
@@ -396,7 +396,7 @@ class GoCommands
 	[Command("taxinode", RBACPermissions.CommandGo)]
 	static bool HandleGoTaxinodeCommand(CommandHandler handler, uint nodeId)
 	{
-		var node = CliDB.TaxiNodesStorage.LookupByKey(nodeId);
+		var node = _cliDb.TaxiNodesStorage.LookupByKey(nodeId);
 
 		if (node == null)
 		{
@@ -448,7 +448,7 @@ class GoCommands
 
 		var areaId = areaIdArg.HasValue ? areaIdArg.Value : player.Zone;
 
-		var areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId);
+		var areaEntry = _cliDb.AreaTableStorage.LookupByKey(areaId);
 
 		if (x < 0 || x > 100 || y < 0 || y > 100 || areaEntry == null)
 		{
@@ -458,14 +458,14 @@ class GoCommands
 		}
 
 		// update to parent zone if exist (client map show only zones without parents)
-		var zoneEntry = areaEntry.ParentAreaID != 0 ? CliDB.AreaTableStorage.LookupByKey(areaEntry.ParentAreaID) : areaEntry;
+		var zoneEntry = areaEntry.ParentAreaID != 0 ? _cliDb.AreaTableStorage.LookupByKey(areaEntry.ParentAreaID) : areaEntry;
 
 		x /= 100.0f;
 		y /= 100.0f;
 
 		var terrain = Global.TerrainMgr.LoadTerrain(zoneEntry.ContinentID);
 
-		if (!Global.DB2Mgr.Zone2MapCoordinates(areaEntry.ParentAreaID != 0 ? areaEntry.ParentAreaID : areaId, ref x, ref y))
+		if (!_db2Manager.Zone2MapCoordinates(areaEntry.ParentAreaID != 0 ? areaEntry.ParentAreaID : areaId, ref x, ref y))
 		{
 			handler.SendSysMessage(CypherStrings.InvalidZoneMap, areaId, areaEntry.AreaName[handler.SessionDbcLocale], terrain.GetId(), terrain.GetMapName());
 

@@ -16,12 +16,12 @@ public class WorldSocketManager : SocketManager<WorldSocket>
 
 	public override bool StartNetwork(string bindIp, int port, int threadCount)
 	{
-		_tcpNoDelay = ConfigMgr.GetDefaultValue("Network.TcpNodelay", true);
+		_tcpNoDelay = _configuration.GetDefaultValue("Network.TcpNodelay", true);
 
 		Log.outDebug(LogFilter.Misc, "Max allowed socket connections {0}", ushort.MaxValue);
 
 		// -1 means use default
-		_socketSendBufferSize = ConfigMgr.GetDefaultValue("Network.OutKBuff", -1);
+		_socketSendBufferSize = _configuration.GetDefaultValue("Network.OutKBuff", -1);
 
 		if (!base.StartNetwork(bindIp, port, threadCount))
 			return false;

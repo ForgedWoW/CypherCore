@@ -205,7 +205,7 @@ class CommandArgs
 					{
 						var result = TryConsume(out var tempVal, typeof(uint), handler, args);
 
-						if (!result.IsSuccessful || (val = CliDB.AchievementStorage.LookupByKey((uint)tempVal)) != null)
+						if (!result.IsSuccessful || (val = _cliDb.AchievementStorage.LookupByKey((uint)tempVal)) != null)
 							return result;
 
 						return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserAchievementNoExist, tempVal));
@@ -214,7 +214,7 @@ class CommandArgs
 					{
 						var result = TryConsume(out var tempVal, typeof(uint), handler, args);
 
-						if (!result.IsSuccessful || (val = CliDB.CurrencyTypesStorage.LookupByKey((uint)tempVal)) != null)
+						if (!result.IsSuccessful || (val = _cliDb.CurrencyTypesStorage.LookupByKey((uint)tempVal)) != null)
 							return result;
 
 						return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCurrencyNoExist, tempVal));

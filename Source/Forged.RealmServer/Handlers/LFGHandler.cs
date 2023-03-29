@@ -21,7 +21,7 @@ public class LFGHandler : IWorldSessionHandler
     private readonly WorldSession _session;
     private readonly GameTime _gameTime;
     private readonly LFGManager _lFGManager;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly GameObjectManager _objectManager;
     private readonly CharacterCache _characterCache;
 
@@ -30,7 +30,7 @@ public class LFGHandler : IWorldSessionHandler
         _session = session;
         _gameTime = gameTime;
         _lFGManager = lFGManager;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _objectManager = objectManager;
         _characterCache = characterCache;
     }
@@ -57,7 +57,7 @@ public class LFGHandler : IWorldSessionHandler
 		{
 			var dungeon = slot & 0x00FFFFFF;
 
-			if (_cliDB.LFGDungeonsStorage.ContainsKey(dungeon))
+			if (_cliDb.LFGDungeonsStorage.ContainsKey(dungeon))
 				newDungeons.Add(dungeon);
 		}
 

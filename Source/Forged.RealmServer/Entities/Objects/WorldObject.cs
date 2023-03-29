@@ -528,7 +528,7 @@ public abstract class WorldObject : IDisposable
 	{
 		_zoneId = _areaId = data.AreaId;
 
-		var area = CliDB.AreaTableStorage.LookupByKey(_areaId);
+		var area = _cliDb.AreaTableStorage.LookupByKey(_areaId);
 
 		if (area != null)
 			if (area.ParentAreaID != 0)
@@ -1565,7 +1565,7 @@ public abstract class WorldObject : IDisposable
 		if (smoothPhasing != null && smoothPhasing.IsBeingReplacedForSeer(GUID))
 			return false;
 
-		if (!obj.IsPrivateObject && !Global.ConditionMgr.IsObjectMeetingVisibilityByObjectIdConditions((uint)obj.TypeId, obj.Entry, this))
+		if (!obj.IsPrivateObject && !_conditionManager.IsObjectMeetingVisibilityByObjectIdConditions((uint)obj.TypeId, obj.Entry, this))
 			return false;
 
 		var corpseVisibility = false;
@@ -2350,7 +2350,7 @@ public abstract class WorldObject : IDisposable
 	public FactionTemplateRecord GetFactionTemplateEntry()
 	{
 		var factionId = Faction;
-		var entry = CliDB.FactionTemplateStorage.LookupByKey(factionId);
+		var entry = _cliDb.FactionTemplateStorage.LookupByKey(factionId);
 
 		if (entry == null)
 			switch (TypeId)
@@ -2476,7 +2476,7 @@ public abstract class WorldObject : IDisposable
 
 						if (!selfPlayerOwner.HasUnitFlag2(UnitFlags2.IgnoreReputation))
 						{
-							var targetFactionEntry = CliDB.FactionStorage.LookupByKey(targetFactionTemplateEntry.Faction);
+							var targetFactionEntry = _cliDb.FactionStorage.LookupByKey(targetFactionTemplateEntry.Faction);
 
 							if (targetFactionEntry != null)
 								if (targetFactionEntry.CanHaveReputation())
@@ -2526,7 +2526,7 @@ public abstract class WorldObject : IDisposable
 
 			if (target.IsUnit && !target.AsUnit.HasUnitFlag2(UnitFlags2.IgnoreReputation))
 			{
-				var factionEntry = CliDB.FactionStorage.LookupByKey(factionTemplateEntry.Faction);
+				var factionEntry = _cliDb.FactionStorage.LookupByKey(factionTemplateEntry.Faction);
 
 				if (factionEntry != null)
 					if (factionEntry.CanHaveReputation())
@@ -2576,7 +2576,7 @@ public abstract class WorldObject : IDisposable
 		if (my_faction.Faction == 0)
 			return false;
 
-		var raw_faction = CliDB.FactionStorage.LookupByKey(my_faction.Faction);
+		var raw_faction = _cliDb.FactionStorage.LookupByKey(my_faction.Faction);
 
 		if (raw_faction != null && raw_faction.ReputationIndex >= 0)
 			return false;
@@ -2591,7 +2591,7 @@ public abstract class WorldObject : IDisposable
 		if (my_faction.Faction == 0)
 			return true;
 
-		var raw_faction = CliDB.FactionStorage.LookupByKey(my_faction.Faction);
+		var raw_faction = _cliDb.FactionStorage.LookupByKey(my_faction.Faction);
 
 		if (raw_faction != null && raw_faction.ReputationIndex >= 0)
 			return false;
@@ -2903,7 +2903,7 @@ public abstract class WorldObject : IDisposable
 				if (factionTemplate != null)
 					if (player.ReputationMgr.GetForcedRankIfAny(factionTemplate) == ReputationRank.None)
 					{
-						var factionEntry = CliDB.FactionStorage.LookupByKey(factionTemplate.Faction);
+						var factionEntry = _cliDb.FactionStorage.LookupByKey(factionTemplate.Faction);
 
 						if (factionEntry != null)
 						{

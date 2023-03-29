@@ -1,22 +1,31 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
 using Framework.Constants;
 using Framework.Database;
+using System;
+using System.Collections.Generic;
 
 namespace Forged.RealmServer.Entities;
 
-public class SocialManager : Singleton<SocialManager>
+public class SocialManager
 {
-	public const int FRIEND_LIMIT_MAX = 50;
+    private readonly WorldConfig _worldConfig;
+    private readonly ObjectAccessor _objectAccessor;
+    readonly Dictionary<ObjectGuid, PlayerSocial> _socialMap = new();
+
+    public const int FRIEND_LIMIT_MAX = 50;
 	public const int IGNORE_LIMIT = 50;
-	readonly Dictionary<ObjectGuid, PlayerSocial> _socialMap = new();
 
-	SocialManager() { }
+	SocialManager(WorldConfig worldConfig, ObjectAccessor objectAccessor)
+    {
+        _worldConfig = worldConfig;
+        _objectAccessor = objectAccessor;
+    }
 
-	public static void GetFriendInfo(Player player, ObjectGuid friendGuid, FriendInfo friendInfo)
+	public void GetFriendInfo(Player player, ObjectGuid friendGuid, FriendInfo friendInfo)
 	{
 		if (!player)
 			return;

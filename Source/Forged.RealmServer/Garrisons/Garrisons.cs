@@ -41,7 +41,7 @@ public class Garrison
 		if (garrison.IsEmpty())
 			return false;
 
-		_siteLevel = CliDB.GarrSiteLevelStorage.LookupByKey(garrison.Read<uint>(0));
+		_siteLevel = _cliDb.GarrSiteLevelStorage.LookupByKey(garrison.Read<uint>(0));
 		_followerActivationsRemainingToday = garrison.Read<uint>(1);
 
 		if (_siteLevel == null)
@@ -52,7 +52,7 @@ public class Garrison
 		if (!blueprints.IsEmpty())
 			do
 			{
-				var building = CliDB.GarrBuildingStorage.LookupByKey(blueprints.Read<uint>(0));
+				var building = _cliDb.GarrBuildingStorage.LookupByKey(blueprints.Read<uint>(0));
 
 				if (building != null)
 					_knownBuildings.Add(building.Id);
@@ -71,7 +71,7 @@ public class Garrison
 				if (plot == null)
 					continue;
 
-				if (!CliDB.GarrBuildingStorage.ContainsKey(buildingId))
+				if (!_cliDb.GarrBuildingStorage.ContainsKey(buildingId))
 					continue;
 
 				plot.BuildingInfo.PacketInfo = new GarrisonBuildingInfo();
@@ -88,7 +88,7 @@ public class Garrison
 				var dbId = followers.Read<ulong>(0);
 				var followerId = followers.Read<uint>(1);
 
-				if (!CliDB.GarrFollowerStorage.ContainsKey(followerId))
+				if (!_cliDb.GarrFollowerStorage.ContainsKey(followerId))
 					continue;
 
 				_followerIds.Add(followerId);
@@ -105,7 +105,7 @@ public class Garrison
 				follower.PacketInfo.CurrentMissionID = followers.Read<uint>(8);
 				follower.PacketInfo.FollowerStatus = followers.Read<uint>(9);
 
-				if (!CliDB.GarrBuildingStorage.ContainsKey(follower.PacketInfo.CurrentBuildingID))
+				if (!_cliDb.GarrBuildingStorage.ContainsKey(follower.PacketInfo.CurrentBuildingID))
 					follower.PacketInfo.CurrentBuildingID = 0;
 
 				//if (!sGarrMissionStore.LookupEntry(follower.PacketInfo.CurrentMissionID))
@@ -117,7 +117,7 @@ public class Garrison
 				do
 				{
 					var dbId = abilities.Read<ulong>(0);
-					var ability = CliDB.GarrAbilityStorage.LookupByKey(abilities.Read<uint>(1));
+					var ability = _cliDb.GarrAbilityStorage.LookupByKey(abilities.Read<uint>(1));
 
 					if (ability == null)
 						continue;
@@ -286,7 +286,7 @@ public class Garrison
 		learnBlueprintResult.BuildingID = garrBuildingId;
 		learnBlueprintResult.Result = GarrisonError.Success;
 
-		if (!CliDB.GarrBuildingStorage.ContainsKey(garrBuildingId))
+		if (!_cliDb.GarrBuildingStorage.ContainsKey(garrBuildingId))
 			learnBlueprintResult.Result = GarrisonError.InvalidBuildingId;
 		else if (HasBlueprint(garrBuildingId))
 			learnBlueprintResult.Result = GarrisonError.BlueprintExists;
@@ -311,7 +311,7 @@ public class Garrison
 			var plot = GetPlot(garrPlotInstanceId);
 			uint oldBuildingId = 0;
 			var map = FindMap();
-			var building = CliDB.GarrBuildingStorage.LookupByKey(garrBuildingId);
+			var building = _cliDb.GarrBuildingStorage.LookupByKey(garrBuildingId);
 
 			if (map)
 				plot.DeleteGameObject(map);
@@ -320,7 +320,7 @@ public class Garrison
 			{
 				oldBuildingId = plot.BuildingInfo.PacketInfo.GarrBuildingID;
 
-				if (CliDB.GarrBuildingStorage.LookupByKey(oldBuildingId).BuildingType != building.BuildingType)
+				if (_cliDb.GarrBuildingStorage.LookupByKey(oldBuildingId).BuildingType != building.BuildingType)
 					plot.ClearBuildingInfo(GetGarrisonType(), _owner);
 			}
 
@@ -374,7 +374,7 @@ public class Garrison
 			plot.ClearBuildingInfo(GetGarrisonType(), _owner);
 			_owner.SendPacket(buildingRemoved);
 
-			var constructing = CliDB.GarrBuildingStorage.LookupByKey(buildingRemoved.GarrBuildingID);
+			var constructing = _cliDb.GarrBuildingStorage.LookupByKey(buildingRemoved.GarrBuildingID);
 			// Refund construction/upgrade cost
 			_owner.AddCurrency(constructing.CurrencyTypeID, (uint)constructing.CurrencyQty, CurrencyGainSource.GarrisonBuildingRefund);
 			_owner.ModifyMoney(constructing.GoldCost * MoneyConstants.Gold, false);
@@ -441,7 +441,7 @@ public class Garrison
 	{
 		GarrisonAddFollowerResult addFollowerResult = new();
 		addFollowerResult.GarrTypeID = GetGarrisonType();
-		var followerEntry = CliDB.GarrFollowerStorage.LookupByKey(garrFollowerId);
+		var followerEntry = _cliDb.GarrFollowerStorage.LookupByKey(garrFollowerId);
 
 		if (_followerIds.Contains(garrFollowerId) || followerEntry == null)
 		{
@@ -519,7 +519,7 @@ public class Garrison
 
 	public void SendRemoteInfo()
 	{
-		var garrisonMap = CliDB.MapStorage.LookupByKey(_siteLevel.MapID);
+		var garrisonMap = _cliDb.MapStorage.LookupByKey(_siteLevel.MapID);
 
 		if (garrisonMap == null || _owner.Location.MapId != garrisonMap.ParentMapID)
 			return;
@@ -573,13 +573,13 @@ public class Garrison
 		for (var i = 0; i < plots.Count; ++i)
 		{
 			uint garrPlotInstanceId = plots[i].GarrPlotInstanceID;
-			var plotInstance = CliDB.GarrPlotInstanceStorage.LookupByKey(garrPlotInstanceId);
+			var plotInstance = _cliDb.GarrPlotInstanceStorage.LookupByKey(garrPlotInstanceId);
 			var gameObject = Global.GarrisonMgr.GetPlotGameObject(_siteLevel.MapID, garrPlotInstanceId);
 
 			if (plotInstance == null || gameObject == null)
 				continue;
 
-			var plot = CliDB.GarrPlotStorage.LookupByKey(plotInstance.GarrPlotID);
+			var plot = _cliDb.GarrPlotStorage.LookupByKey(plotInstance.GarrPlotID);
 
 			if (plot == null)
 				continue;
@@ -605,7 +605,7 @@ public class Garrison
 
 	void Leave()
 	{
-		var map = CliDB.MapStorage.LookupByKey(_siteLevel.MapID);
+		var map = _cliDb.MapStorage.LookupByKey(_siteLevel.MapID);
 
 		if (map != null)
 		{
@@ -622,7 +622,7 @@ public class Garrison
 		unlearnBlueprintResult.BuildingID = garrBuildingId;
 		unlearnBlueprintResult.Result = GarrisonError.Success;
 
-		if (!CliDB.GarrBuildingStorage.ContainsKey(garrBuildingId))
+		if (!_cliDb.GarrBuildingStorage.ContainsKey(garrBuildingId))
 			unlearnBlueprintResult.Result = GarrisonError.InvalidBuildingId;
 		else if (HasBlueprint(garrBuildingId))
 			unlearnBlueprintResult.Result = GarrisonError.RequiresBlueprint;
@@ -639,13 +639,13 @@ public class Garrison
 
 	GarrisonError CheckBuildingPlacement(uint garrPlotInstanceId, uint garrBuildingId)
 	{
-		var plotInstance = CliDB.GarrPlotInstanceStorage.LookupByKey(garrPlotInstanceId);
+		var plotInstance = _cliDb.GarrPlotInstanceStorage.LookupByKey(garrPlotInstanceId);
 		var plot = GetPlot(garrPlotInstanceId);
 
 		if (plotInstance == null || plot == null)
 			return GarrisonError.InvalidPlotInstanceId;
 
-		var building = CliDB.GarrBuildingStorage.LookupByKey(garrBuildingId);
+		var building = _cliDb.GarrBuildingStorage.LookupByKey(garrBuildingId);
 
 		if (building == null)
 			return GarrisonError.InvalidBuildingId;
@@ -673,7 +673,7 @@ public class Garrison
 		foreach (var p in _plots)
 			if (p.Value.BuildingInfo.PacketInfo != null)
 			{
-				existingBuilding = CliDB.GarrBuildingStorage.LookupByKey(p.Value.BuildingInfo.PacketInfo.GarrBuildingID);
+				existingBuilding = _cliDb.GarrBuildingStorage.LookupByKey(p.Value.BuildingInfo.PacketInfo.GarrBuildingID);
 
 				if (existingBuilding.BuildingType == building.BuildingType)
 					if (p.Key != garrPlotInstanceId || existingBuilding.UpgradeLevel + 1 != building.UpgradeLevel) // check if its an upgrade in same plot
@@ -720,7 +720,7 @@ public class Garrison
 		{
 			if (PacketInfo != null)
 			{
-				var building = CliDB.GarrBuildingStorage.LookupByKey(PacketInfo.GarrBuildingID);
+				var building = _cliDb.GarrBuildingStorage.LookupByKey(PacketInfo.GarrBuildingID);
 
 				if (PacketInfo.TimeBuilt + building.BuildSeconds <= _gameTime.CurrentGameTime)
 					return true;
@@ -744,9 +744,9 @@ public class Garrison
 
 			if (BuildingInfo.PacketInfo != null)
 			{
-				var plotInstance = CliDB.GarrPlotInstanceStorage.LookupByKey(PacketInfo.GarrPlotInstanceID);
-				var plot = CliDB.GarrPlotStorage.LookupByKey(plotInstance.GarrPlotID);
-				var building = CliDB.GarrBuildingStorage.LookupByKey(BuildingInfo.PacketInfo.GarrBuildingID);
+				var plotInstance = _cliDb.GarrPlotInstanceStorage.LookupByKey(PacketInfo.GarrPlotInstanceID);
+				var plot = _cliDb.GarrPlotStorage.LookupByKey(plotInstance.GarrPlotID);
+				var building = _cliDb.GarrBuildingStorage.LookupByKey(BuildingInfo.PacketInfo.GarrBuildingID);
 
 				entry = faction == GarrisonFactionIndex.Horde ? plot.HordeConstructObjID : plot.AllianceConstructObjID;
 

@@ -26,7 +26,7 @@ class LookupCommands
 		uint count = 0;
 
 		// Search in AreaTable.dbc
-		foreach (var areaEntry in CliDB.AreaTableStorage.Values)
+		foreach (var areaEntry in _cliDb.AreaTableStorage.Values)
 		{
 			var locale = handler.SessionDbcLocale;
 			var name = areaEntry.AreaName[locale];
@@ -214,7 +214,7 @@ class LookupCommands
 		uint count = 0;
 
 
-		foreach (var factionEntry in CliDB.FactionStorage.Values)
+		foreach (var factionEntry in _cliDb.FactionStorage.Values)
 		{
 			var factionState = target ? target.ReputationMgr.GetState(factionEntry) : null;
 
@@ -313,7 +313,7 @@ class LookupCommands
 		uint count = 0;
 
 		// Search in ItemSet.dbc
-		foreach (var set in CliDB.ItemSetStorage.Values)
+		foreach (var set in _cliDb.ItemSetStorage.Values)
 		{
 			var locale = handler.SessionDbcLocale;
 			var name = set.Name[locale];
@@ -446,7 +446,7 @@ class LookupCommands
 		uint count = 0;
 
 		// Search in SkillLine.dbc
-		foreach (var skillInfo in CliDB.SkillLineStorage.Values)
+		foreach (var skillInfo in _cliDb.SkillLineStorage.Values)
 		{
 			var locale = handler.SessionDbcLocale;
 			var name = skillInfo.DisplayName[locale];
@@ -522,7 +522,7 @@ class LookupCommands
 		var locale = handler.SessionDbcLocale;
 
 		// Search in TaxiNodes.dbc
-		foreach (var nodeEntry in CliDB.TaxiNodesStorage.Values)
+		foreach (var nodeEntry in _cliDb.TaxiNodesStorage.Values)
 		{
 			var name = nodeEntry.Name[locale];
 
@@ -620,7 +620,7 @@ class LookupCommands
 		uint counter = 0; // Counter for figure out that we found smth.
 
 		// Search in CharTitles.dbc
-		foreach (var titleInfo in CliDB.CharTitlesStorage.Values)
+		foreach (var titleInfo in _cliDb.CharTitlesStorage.Values)
 			for (var gender = Gender.Male; gender <= Gender.Female; ++gender)
 			{
 				if (target && target.Gender != gender)
@@ -768,7 +768,7 @@ class LookupCommands
 			var maxResults = _worldConfig.GetUIntValue(WorldCfg.MaxResultsLookupCommands);
 
 			// Search in ItemSet.dbc
-			foreach (var (id, set) in CliDB.ItemSetStorage)
+			foreach (var (id, set) in _cliDb.ItemSetStorage)
 			{
 				var locale = handler.SessionDbcLocale;
 				var name = set.Name[locale];
@@ -834,7 +834,7 @@ class LookupCommands
 			uint counter = 0;
 
 			// search in Map.dbc
-			foreach (var mapInfo in CliDB.MapStorage.Values)
+			foreach (var mapInfo in _cliDb.MapStorage.Values)
 			{
 				var locale = handler.SessionDbcLocale;
 				var name = mapInfo.MapName[locale];
@@ -911,7 +911,7 @@ class LookupCommands
 		[Command("id", RBACPermissions.CommandLookupMapId, true)]
 		static bool HandleLookupMapIdCommand(CommandHandler handler, uint id)
 		{
-			var mapInfo = CliDB.MapStorage.LookupByKey(id);
+			var mapInfo = _cliDb.MapStorage.LookupByKey(id);
 
 			if (mapInfo != null)
 			{
@@ -1121,13 +1121,13 @@ class LookupCommands
 							if (handler.Session != null)
 							{
 								var maxLevel = 0;
-								var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+								var questLevels = _db2Manager.GetContentTuningData(qInfo.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 								if (questLevels.HasValue)
 									maxLevel = questLevels.Value.MaxLevel;
 
 								var scalingFactionGroup = 0;
-								var contentTuning = CliDB.ContentTuningStorage.LookupByKey(qInfo.ContentTuningId);
+								var contentTuning = _cliDb.ContentTuningStorage.LookupByKey(qInfo.ContentTuningId);
 
 								if (contentTuning != null)
 									scalingFactionGroup = contentTuning.GetScalingFactionGroup();
@@ -1196,13 +1196,13 @@ class LookupCommands
 					if (handler.Session != null)
 					{
 						var maxLevel = 0;
-						var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+						var questLevels = _db2Manager.GetContentTuningData(qInfo.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 						if (questLevels.HasValue)
 							maxLevel = questLevels.Value.MaxLevel;
 
 						var scalingFactionGroup = 0;
-						var contentTuning = CliDB.ContentTuningStorage.LookupByKey(qInfo.ContentTuningId);
+						var contentTuning = _cliDb.ContentTuningStorage.LookupByKey(qInfo.ContentTuningId);
 
 						if (contentTuning != null)
 							scalingFactionGroup = contentTuning.GetScalingFactionGroup();
@@ -1276,13 +1276,13 @@ class LookupCommands
 				if (handler.Session)
 				{
 					var maxLevel = 0;
-					var questLevels = Global.DB2Mgr.GetContentTuningData(quest.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+					var questLevels = _db2Manager.GetContentTuningData(quest.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 					if (questLevels.HasValue)
 						maxLevel = questLevels.Value.MaxLevel;
 
 					var scalingFactionGroup = 0;
-					var contentTuning = CliDB.ContentTuningStorage.LookupByKey(quest.ContentTuningId);
+					var contentTuning = _cliDb.ContentTuningStorage.LookupByKey(quest.ContentTuningId);
 
 					if (contentTuning != null)
 						scalingFactionGroup = contentTuning.GetScalingFactionGroup();
@@ -1324,7 +1324,7 @@ class LookupCommands
 			uint count = 0;
 
 			// Search in SpellName.dbc
-			foreach (var spellName in CliDB.SpellNameStorage.Values)
+			foreach (var spellName in _cliDb.SpellNameStorage.Values)
 			{
 				var spellInfo = Global.SpellMgr.GetSpellInfo(spellName.Id, Difficulty.None);
 

@@ -128,7 +128,7 @@ class SpellCommands
 			return false;
 		}
 
-		var skillLine = CliDB.SkillLineStorage.LookupByKey(skillId);
+		var skillLine = _cliDb.SkillLineStorage.LookupByKey(skillId);
 
 		if (skillLine == null)
 		{

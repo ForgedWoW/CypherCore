@@ -20,8 +20,8 @@ public class PacketLog
 
 	static PacketLog()
 	{
-		var logsDir = AppContext.BaseDirectory + ConfigMgr.GetDefaultValue("LogsDir", "");
-		var logname = ConfigMgr.GetDefaultValue("PacketLogFile", "");
+		var logsDir = AppContext.BaseDirectory + _configuration.GetDefaultValue("LogsDir", "");
+		var logname = _configuration.GetDefaultValue("PacketLogFile", "");
 
 		if (!string.IsNullOrEmpty(logname))
 		{

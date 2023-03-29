@@ -9,7 +9,7 @@ public class AuraScriptLoader : ScriptObject, IAuraScriptLoaderGetAuraScript
 {
 	public AuraScriptLoader(string name) : base(name)
 	{
-		Global.ScriptMgr.AddScript(this);
+		_scriptManager.AddScript(this);
 	}
 
 	public override bool IsDatabaseBound()

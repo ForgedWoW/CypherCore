@@ -209,7 +209,7 @@ public class Battleground : ZoneScript, IDisposable
 
 	public void SendBroadcastText(uint id, ChatMsg msgType, WorldObject target = null)
 	{
-		if (!CliDB.BroadcastTextStorage.ContainsKey(id))
+		if (!_cliDb.BroadcastTextStorage.ContainsKey(id))
 		{
 			Log.outError(LogFilter.Battleground, $"Battleground.SendBroadcastText: `broadcast_text` (ID: {id}) was not found");
 
@@ -250,7 +250,7 @@ public class Battleground : ZoneScript, IDisposable
 
 	public void RewardReputationToTeam(uint faction_id, uint Reputation, TeamFaction team)
 	{
-		var factionEntry = CliDB.FactionStorage.LookupByKey(faction_id);
+		var factionEntry = _cliDb.FactionStorage.LookupByKey(faction_id);
 
 		if (factionEntry == null)
 			return;

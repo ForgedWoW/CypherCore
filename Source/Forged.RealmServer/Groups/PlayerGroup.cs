@@ -394,7 +394,7 @@ public class PlayerGroup
 
 		player.GroupInvite = this;
 
-		Global.ScriptMgr.ForEach<IGroupOnInviteMember>(p => p.OnInviteMember(this, player.GUID));
+		_scriptManager.ForEach<IGroupOnInviteMember>(p => p.OnInviteMember(this, player.GUID));
 
 		return true;
 	}
@@ -521,7 +521,7 @@ public class PlayerGroup
 		}
 
 		SendUpdate();
-		Global.ScriptMgr.ForEach<IGroupOnAddMember>(p => p.OnAddMember(this, player.GUID));
+		_scriptManager.ForEach<IGroupOnAddMember>(p => p.OnAddMember(this, player.GUID));
 
 		if (!IsLeader(player.GUID) && !IsBGGroup && !IsBFGroup)
 		{
@@ -601,7 +601,7 @@ public class PlayerGroup
 	{
 		BroadcastGroupUpdate();
 
-		Global.ScriptMgr.ForEach<IGroupOnRemoveMember>(p => p.OnRemoveMember(this, guid, method, kicker, reason));
+		_scriptManager.ForEach<IGroupOnRemoveMember>(p => p.OnRemoveMember(this, guid, method, kicker, reason));
 
 		var player = _objectAccessor.FindConnectedPlayer(guid);
 
@@ -727,7 +727,7 @@ public class PlayerGroup
 		if (newLeader == null)
 			return;
 
-		Global.ScriptMgr.ForEach<IGroupOnChangeLeader>(p => p.OnChangeLeader(this, newLeaderGuid, _leaderGuid));
+		_scriptManager.ForEach<IGroupOnChangeLeader>(p => p.OnChangeLeader(this, newLeaderGuid, _leaderGuid));
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
@@ -764,7 +764,7 @@ public class PlayerGroup
 
 	public void Disband(bool hideDestroy = false)
 	{
-		Global.ScriptMgr.ForEach<IGroupOnDisband>(p => p.OnDisband(this));
+		_scriptManager.ForEach<IGroupOnDisband>(p => p.OnDisband(this));
 
 		Player player;
 
@@ -1233,7 +1233,7 @@ public class PlayerGroup
 		if (IsLFGGroup)
 			return GroupJoinBattlegroundResult.LfgCantUseBattleground;
 
-		var bgEntry = CliDB.BattlemasterListStorage.LookupByKey(bgOrTemplate.GetTypeID());
+		var bgEntry = _cliDb.BattlemasterListStorage.LookupByKey(bgOrTemplate.GetTypeID());
 
 		if (bgEntry == null)
 			return GroupJoinBattlegroundResult.BattlegroundJoinFailed; // shouldn't happen
@@ -1251,7 +1251,7 @@ public class PlayerGroup
 		if (!reference)
 			return GroupJoinBattlegroundResult.BattlegroundJoinFailed;
 
-		var bracketEntry = Global.DB2Mgr.GetBattlegroundBracketByLevel(bgOrTemplate.GetMapId(), reference.Level);
+		var bracketEntry = _db2Manager.GetBattlegroundBracketByLevel(bgOrTemplate.GetMapId(), reference.Level);
 
 		if (bracketEntry == null)
 			return GroupJoinBattlegroundResult.BattlegroundJoinFailed;
@@ -1284,7 +1284,7 @@ public class PlayerGroup
 			}
 
 			// not in the same Battleground level braket, don't let join
-			var memberBracketEntry = Global.DB2Mgr.GetBattlegroundBracketByLevel(bracketEntry.MapID, member.Level);
+			var memberBracketEntry = _db2Manager.GetBattlegroundBracketByLevel(bracketEntry.MapID, member.Level);
 
 			if (memberBracketEntry != bracketEntry)
 				return GroupJoinBattlegroundResult.JoinRangeIndex;
@@ -1417,12 +1417,12 @@ public class PlayerGroup
 		if (!mapEntry.IsRaid())
 			return _dungeonDifficulty;
 
-		var defaultDifficulty = Global.DB2Mgr.GetDefaultMapDifficulty(mapEntry.Id);
+		var defaultDifficulty = _db2Manager.GetDefaultMapDifficulty(mapEntry.Id);
 
 		if (defaultDifficulty == null)
 			return _legacyRaidDifficulty;
 
-		var difficulty = CliDB.DifficultyStorage.LookupByKey(defaultDifficulty.DifficultyID);
+		var difficulty = _cliDb.DifficultyStorage.LookupByKey(defaultDifficulty.DifficultyID);
 
 		if (difficulty == null || difficulty.Flags.HasAnyFlag(DifficultyFlags.Legacy))
 			return _legacyRaidDifficulty;
@@ -1871,7 +1871,7 @@ public class PlayerGroup
 
 	void _homebindIfInstance(Player player)
 	{
-		if (player && !player.IsGameMaster && CliDB.MapStorage.LookupByKey(player.Location.MapId).IsDungeon())
+		if (player && !player.IsGameMaster && _cliDb.MapStorage.LookupByKey(player.Location.MapId).IsDungeon())
 			player.InstanceValid = false;
 	}
 

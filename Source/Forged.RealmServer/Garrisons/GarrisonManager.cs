@@ -1,20 +1,28 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.RealmServer.DataStorage;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Globals;
+using Forged.RealmServer.World;
+using Framework.Constants;
+using Framework.Database;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Framework.Constants;
-using Framework.Database;
-using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Entities.Objects;
 
 namespace Forged.RealmServer.Garrisons;
 
-public class GarrisonManager : Singleton<GarrisonManager>
+public class GarrisonManager
 {
-	// Counters, Traits
+    private readonly CliDB _cliDb;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly WorldManager _worldManager;
+    private readonly GameObjectManager _gameObjectManager;
+
+    // Counters, Traits
 	readonly uint[,] AbilitiesForQuality =
 	{
 		{
@@ -48,14 +56,22 @@ public class GarrisonManager : Singleton<GarrisonManager>
 	readonly List<GarrAbilityRecord> _garrisonFollowerRandomTraits = new();
 
 	ulong _followerDbIdGenerator = 1;
-	GarrisonManager() { }
+
+	public GarrisonManager(CliDB cliDB, WorldDatabase worldDatabase, CharacterDatabase characterDatabase, WorldManager worldManager, GameObjectManager gameObjectManager)
+    {
+        _cliDb = cliDB;
+        _worldDatabase = worldDatabase;
+        _characterDatabase = characterDatabase;
+        _worldManager = worldManager;
+        _gameObjectManager = gameObjectManager;
+    }
 
 	public void Initialize()
 	{
-		foreach (var siteLevelPlotInst in CliDB.GarrSiteLevelPlotInstStorage.Values)
+		foreach (var siteLevelPlotInst in _cliDb.GarrSiteLevelPlotInstStorage.Values)
 			_garrisonPlotInstBySiteLevel.Add(siteLevelPlotInst.GarrSiteLevelID, siteLevelPlotInst);
 
-		foreach (var gameObject in CliDB.GameObjectsStorage.Values)
+		foreach (var gameObject in _cliDb.GameObjectsStorage.Values)
 			if (gameObject.TypeID == GameObjectTypes.GarrisonPlot)
 			{
 				if (!_garrisonPlots.ContainsKey(gameObject.OwnerID))
@@ -64,21 +80,21 @@ public class GarrisonManager : Singleton<GarrisonManager>
 				_garrisonPlots[gameObject.OwnerID][(uint)gameObject.PropValue[0]] = gameObject;
 			}
 
-		foreach (var plotBuilding in CliDB.GarrPlotBuildingStorage.Values)
+		foreach (var plotBuilding in _cliDb.GarrPlotBuildingStorage.Values)
 			_garrisonBuildingsByPlot.Add(plotBuilding.GarrPlotID, plotBuilding.GarrBuildingID);
 
-		foreach (var buildingPlotInst in CliDB.GarrBuildingPlotInstStorage.Values)
+		foreach (var buildingPlotInst in _cliDb.GarrBuildingPlotInstStorage.Values)
 			_garrisonBuildingPlotInstances[MathFunctions.MakePair64(buildingPlotInst.GarrBuildingID, buildingPlotInst.GarrSiteLevelPlotInstID)] = buildingPlotInst.Id;
 
-		foreach (var building in CliDB.GarrBuildingStorage.Values)
+		foreach (var building in _cliDb.GarrBuildingStorage.Values)
 			_garrisonBuildingsByType.Add((byte)building.BuildingType, building.Id);
 
 		for (var i = 0; i < 2; ++i)
 			_garrisonFollowerAbilities[i] = new Dictionary<uint, GarrAbilities>();
 
-		foreach (var followerAbility in CliDB.GarrFollowerXAbilityStorage.Values)
+		foreach (var followerAbility in _cliDb.GarrFollowerXAbilityStorage.Values)
 		{
-			var ability = CliDB.GarrAbilityStorage.LookupByKey(followerAbility.GarrAbilityID);
+			var ability = _cliDb.GarrAbilityStorage.LookupByKey(followerAbility.GarrAbilityID);
 
 			if (ability != null)
 			{
@@ -110,7 +126,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 	public GarrSiteLevelRecord GetGarrSiteLevelEntry(uint garrSiteId, uint level)
 	{
-		foreach (var siteLevel in CliDB.GarrSiteLevelStorage.Values)
+		foreach (var siteLevel in _cliDb.GarrSiteLevelStorage.Values)
 			if (siteLevel.GarrSiteID == garrSiteId && siteLevel.GarrLevel == level)
 				return siteLevel;
 
@@ -158,7 +174,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 		if (!list.Empty())
 			foreach (var buildingId in list)
-				if (CliDB.GarrBuildingStorage.LookupByKey(buildingId).UpgradeLevel == currentLevel - 1)
+				if (_cliDb.GarrBuildingStorage.LookupByKey(buildingId).UpgradeLevel == currentLevel - 1)
 					return buildingId;
 
 		return 0;
@@ -346,7 +362,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 				return abilities;
 		}
 
-		if (!CliDB.GarrClassSpecStorage.ContainsKey(classSpecId))
+		if (!_cliDb.GarrClassSpecStorage.ContainsKey(classSpecId))
 			return abilities;
 
 		var garrAbility = _garrisonFollowerClassSpecAbilities.LookupByKey(classSpecId);
@@ -368,7 +384,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 	void LoadPlotFinalizeGOInfo()
 	{
 		//                                                                0                  1       2       3       4       5               6
-		var result = DB.World.Query("SELECT garrPlotInstanceId, hordeGameObjectId, hordeX, hordeY, hordeZ, hordeO, hordeAnimKitId, " +
+		var result = _worldDatabase.Query("SELECT garrPlotInstanceId, hordeGameObjectId, hordeX, hordeY, hordeZ, hordeO, hordeAnimKitId, " +
 									//                      7          8          9         10         11                 12
 									"allianceGameObjectId, allianceX, allianceY, allianceZ, allianceO, allianceAnimKitId FROM garrison_plot_finalize_info");
 
@@ -389,7 +405,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 			var hordeAnimKitId = result.Read<ushort>(6);
 			var allianceAnimKitId = result.Read<ushort>(12);
 
-			if (!CliDB.GarrPlotInstanceStorage.ContainsKey(garrPlotInstanceId))
+			if (!_cliDb.GarrPlotInstanceStorage.ContainsKey(garrPlotInstanceId))
 			{
 				Log.Logger.Error("Non-existing GarrPlotInstance.db2 entry {0} was referenced in `garrison_plot_finalize_info`.", garrPlotInstanceId);
 
@@ -442,7 +458,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 				continue;
 			}
 
-			if (hordeAnimKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(hordeAnimKitId))
+			if (hordeAnimKitId != 0 && !_cliDb.AnimKitStorage.ContainsKey(hordeAnimKitId))
 			{
 				Log.Logger.Error(
 							"Non-existing AnimKit.dbc entry {0} was referenced in `garrison_plot_finalize_info`.`hordeAnimKitId` for garrPlotInstanceId {1}.",
@@ -452,7 +468,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 				continue;
 			}
 
-			if (allianceAnimKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(allianceAnimKitId))
+			if (allianceAnimKitId != 0 && !_cliDb.AnimKitStorage.ContainsKey(allianceAnimKitId))
 			{
 				Log.Logger.Error(
 							"Non-existing AnimKit.dbc entry {0} was referenced in `garrison_plot_finalize_info`.`allianceAnimKitId` for garrPlotInstanceId {1}.",
@@ -479,7 +495,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 	void LoadFollowerClassSpecAbilities()
 	{
-		var result = DB.World.Query("SELECT classSpecId, abilityId FROM garrison_follower_class_spec_abilities");
+		var result = _worldDatabase.Query("SELECT classSpecId, abilityId FROM garrison_follower_class_spec_abilities");
 
 		if (result.IsEmpty())
 		{
@@ -496,14 +512,14 @@ public class GarrisonManager : Singleton<GarrisonManager>
 			var classSpecId = result.Read<uint>(0);
 			var abilityId = result.Read<uint>(1);
 
-			if (!CliDB.GarrClassSpecStorage.ContainsKey(classSpecId))
+			if (!_cliDb.GarrClassSpecStorage.ContainsKey(classSpecId))
 			{
 				Log.Logger.Error("Non-existing GarrClassSpec.db2 entry {0} was referenced in `garrison_follower_class_spec_abilities` by row ({1}, {2}).", classSpecId, classSpecId, abilityId);
 
 				continue;
 			}
 
-			var ability = CliDB.GarrAbilityStorage.LookupByKey(abilityId);
+			var ability = _cliDb.GarrAbilityStorage.LookupByKey(abilityId);
 
 			if (ability == null)
 			{

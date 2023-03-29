@@ -19,7 +19,7 @@ public sealed class GuildManager
 	readonly Dictionary<ulong, Guild> GuildStore = new();
 	readonly List<GuildReward> guildRewards = new();
     private readonly ClassFactory _classFactory;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly CharacterDatabase _characterDatabase;
     private readonly WorldDatabase _worldDatabase;
     private readonly WorldManager _worldManager;
@@ -29,7 +29,7 @@ public sealed class GuildManager
 	GuildManager(ClassFactory classFactory)
     {
         _classFactory = classFactory;
-        _cliDB = _classFactory.Resolve<CliDB>();
+        _cliDb = _classFactory.Resolve<CliDB>();
         _characterDatabase = _classFactory.Resolve<CharacterDatabase>();
         _worldDatabase = _classFactory.Resolve<WorldDatabase>();
         _worldManager = _classFactory.Resolve<WorldManager>();
@@ -515,7 +515,7 @@ public sealed class GuildManager
 				{
 					var requiredAchievementId = reqAchievementResult.Read<uint>(0);
 
-					if (!_cliDB.AchievementStorage.ContainsKey(requiredAchievementId))
+					if (!_cliDb.AchievementStorage.ContainsKey(requiredAchievementId))
 					{
 						Log.Logger.Error("Guild rewards constains not existing achievement entry {0}", requiredAchievementId);
 

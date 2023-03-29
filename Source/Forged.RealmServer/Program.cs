@@ -1,9 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections;
-using System.IO;
 using Autofac;
 using Forged.RealmServer.Accounts;
 using Forged.RealmServer.Achievements;
@@ -30,6 +27,9 @@ using Framework.Constants;
 using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections;
+using System.IO;
 
 namespace Forged.RealmServer;
 

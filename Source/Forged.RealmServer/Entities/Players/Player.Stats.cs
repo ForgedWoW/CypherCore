@@ -224,7 +224,7 @@ public partial class Player
 
 		MathFunctions.AddPct(ref versaDmgMod, GetRatingBonusValue(CombatRating.VersatilityDamageDone) + (float)GetTotalAuraModifier(AuraType.ModVersatility));
 
-		var shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey(ShapeshiftForm);
+		var shapeshift = _cliDb.SpellShapeshiftFormStorage.LookupByKey(ShapeshiftForm);
 
 		if (shapeshift != null && shapeshift.CombatRoundTime != 0)
 		{
@@ -328,7 +328,7 @@ public partial class Player
 		float val2;
 		float level = Level;
 
-		var entry = CliDB.ChrClassesStorage.LookupByKey(Class);
+		var entry = _cliDb.ChrClassesStorage.LookupByKey(Class);
 		var unitMod = ranged ? UnitMods.AttackPowerRanged : UnitMods.AttackPower;
 
 		if (!HasAuraType(AuraType.OverrideAttackPowerBySpPct))
@@ -338,7 +338,7 @@ public partial class Player
 				var strengthValue = Math.Max((GetStat(Stats.Strength)) * entry.AttackPowerPerStrength, 0.0f);
 				var agilityValue = Math.Max((GetStat(Stats.Agility)) * entry.AttackPowerPerAgility, 0.0f);
 
-				var form = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)ShapeshiftForm);
+				var form = _cliDb.SpellShapeshiftFormStorage.LookupByKey((uint)ShapeshiftForm);
 
 				// Directly taken from client, SHAPESHIFT_FLAG_AP_FROM_STRENGTH ?
 				if (form != null && Convert.ToBoolean((uint)form.Flags & 0x20))
@@ -605,7 +605,7 @@ public partial class Player
 		value += GetRatingBonusValue(CombatRating.Mastery);
 		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Mastery), (float)value);
 
-		var chrSpec = CliDB.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
+		var chrSpec = _cliDb.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
 
 		if (chrSpec == null)
 			return;
@@ -819,7 +819,7 @@ public partial class Player
 
 	public override uint GetPowerIndex(PowerType powerType)
 	{
-		return Global.DB2Mgr.GetPowerIndexByClass(powerType, Class);
+		return _db2Manager.GetPowerIndexByClass(powerType, Class);
 	}
 
 	public override void UpdateMaxPower(PowerType power)
@@ -906,7 +906,7 @@ public partial class Player
 	{
 		var effectiveCorruption = GetRatingBonusValue(CombatRating.Corruption) - GetRatingBonusValue(CombatRating.CorruptionResistance);
 
-		foreach (var corruptionEffect in CliDB.CorruptionEffectsStorage.Values)
+		foreach (var corruptionEffect in _cliDb.CorruptionEffectsStorage.Values)
 		{
 			if (((CorruptionEffectsFlag)corruptionEffect.Flags).HasAnyFlag(CorruptionEffectsFlag.Disabled))
 				continue;
@@ -918,7 +918,7 @@ public partial class Player
 				continue;
 			}
 
-			var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(corruptionEffect.PlayerConditionID);
+			var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(corruptionEffect.PlayerConditionID);
 
 			if (playerCondition != null)
 				if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
@@ -1057,12 +1057,12 @@ public partial class Player
 	Stats GetPrimaryStat()
 	{
 		byte primaryStatPriority;
-		var specialization = CliDB.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
+		var specialization = _cliDb.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
 
 		if (specialization != null)
 			primaryStatPriority = (byte)specialization.PrimaryStatPriority;
 		else
-			primaryStatPriority = CliDB.ChrClassesStorage.LookupByKey(Class).PrimaryStatPriority;
+			primaryStatPriority = _cliDb.ChrClassesStorage.LookupByKey(Class).PrimaryStatPriority;
 
 
 		if (primaryStatPriority >= 4)
@@ -1078,7 +1078,7 @@ public partial class Player
 	{
 		// Taken from PaperDollFrame.lua - 6.0.3.19085
 		var ratio = 10.0f;
-		var hpBase = CliDB.HpPerStaGameTable.GetRow(Level);
+		var hpBase = _cliDb.HpPerStaGameTable.GetRow(Level);
 
 		if (hpBase != null)
 			ratio = hpBase.Health;

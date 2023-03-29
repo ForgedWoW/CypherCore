@@ -21,7 +21,7 @@ class SceneCommands
 			return false;
 		}
 
-		if (!CliDB.SceneScriptPackageStorage.HasRecord(sceneScriptPackageId))
+		if (!_cliDb.SceneScriptPackageStorage.HasRecord(sceneScriptPackageId))
 			return false;
 
 		target.SceneMgr.CancelSceneByPackageId(sceneScriptPackageId);
@@ -75,7 +75,7 @@ class SceneCommands
 			return false;
 		}
 
-		if (!CliDB.SceneScriptPackageStorage.HasRecord(sceneScriptPackageId))
+		if (!_cliDb.SceneScriptPackageStorage.HasRecord(sceneScriptPackageId))
 			return false;
 
 		target.SceneMgr.PlaySceneByPackageId(sceneScriptPackageId, flags.GetValueOrDefault(0));

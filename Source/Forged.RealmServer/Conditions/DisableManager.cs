@@ -20,7 +20,7 @@ public class DisableManager
 {
     private readonly WorldDatabase _worldDatabase;
     private readonly IConfiguration _configuration;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly SpellManager _spellManager;
     private readonly DB2Manager _db2Manager;
     private readonly CriteriaManager _criteriaManager;
@@ -32,7 +32,7 @@ public class DisableManager
     {
         _worldDatabase = worldDatabase;
         _configuration = configuration;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _spellManager = spellManager;
         _db2Manager = db2Manager;
         _criteriaManager = criteriaManager;
@@ -122,7 +122,7 @@ public class DisableManager
 				case DisableType.Map:
 				case DisableType.LFGMap:
 				{
-					var mapEntry = _cliDB.MapStorage.LookupByKey(entry);
+					var mapEntry = _cliDb.MapStorage.LookupByKey(entry);
 
 					if (mapEntry == null)
 					{
@@ -172,7 +172,7 @@ public class DisableManager
 					break;
 				}
 				case DisableType.Battleground:
-					if (!_cliDB.BattlemasterListStorage.ContainsKey(entry))
+					if (!_cliDb.BattlemasterListStorage.ContainsKey(entry))
 					{
 						Log.Logger.Error("Battlegroundentry {0} from `disables` doesn't exist in dbc, skipped.", entry);
 
@@ -209,7 +209,7 @@ public class DisableManager
 					break;
 				case DisableType.VMAP:
 				{
-					var mapEntry = _cliDB.MapStorage.LookupByKey(entry);
+					var mapEntry = _cliDb.MapStorage.LookupByKey(entry);
 
 					if (mapEntry == null)
 					{
@@ -259,7 +259,7 @@ public class DisableManager
 				}
 				case DisableType.MMAP:
 				{
-					var mapEntry = _cliDB.MapStorage.LookupByKey(entry);
+					var mapEntry = _cliDb.MapStorage.LookupByKey(entry);
 
 					if (mapEntry == null)
 					{
@@ -417,7 +417,7 @@ public class DisableManager
 
 				if (player != null)
 				{
-					var mapEntry = _cliDB.MapStorage.LookupByKey(entry);
+					var mapEntry = _cliDb.MapStorage.LookupByKey(entry);
 
 					if (mapEntry.IsDungeon())
 					{

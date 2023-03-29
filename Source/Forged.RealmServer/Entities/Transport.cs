@@ -51,7 +51,7 @@ public class Transport : GameObject, ITransport
 				var player = passenger.AsPlayer;
 
 				if (player)
-					Global.ScriptMgr.RunScript<ITransportOnAddPassenger>(p => p.OnAddPassenger(this, player), ScriptId);
+					_scriptManager.RunScript<ITransportOnAddPassenger>(p => p.OnAddPassenger(this, player), ScriptId);
 			}
 		}
 	}
@@ -70,7 +70,7 @@ public class Transport : GameObject, ITransport
 
 				if (plr != null)
 				{
-					Global.ScriptMgr.RunScript<ITransportOnRemovePassenger>(p => p.OnRemovePassenger(this, plr), ScriptId);
+					_scriptManager.RunScript<ITransportOnRemovePassenger>(p => p.OnRemovePassenger(this, plr), ScriptId);
 					plr.SetFallInformation(0, plr.Location.Z);
 				}
 			}
@@ -164,7 +164,7 @@ public class Transport : GameObject, ITransport
 		SetGoState(goinfo.MoTransport.allowstopping == 0 ? GameObjectState.Ready : GameObjectState.Active);
 		GoType = GameObjectTypes.MapObjTransport;
 		SetGoAnimProgress(255);
-		SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.SpawnTrackingStateAnimID), Global.DB2Mgr.GetEmptyAnimStateID());
+		SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.SpawnTrackingStateAnimID), _db2Manager.GetEmptyAnimStateID());
 		SetName(goinfo.name);
 		SetLocalRotation(0.0f, 0.0f, 0.0f, 1.0f);
 		SetParentRotation(Quaternion.Identity);
@@ -204,7 +204,7 @@ public class Transport : GameObject, ITransport
 		else if (!AIM_Initialize())
 			Log.outError(LogFilter.Transport, "Could not initialize GameObjectAI for Transport");
 
-		Global.ScriptMgr.RunScript<ITransportOnUpdate>(p => p.OnUpdate(this, diff), ScriptId);
+		_scriptManager.RunScript<ITransportOnUpdate>(p => p.OnUpdate(this, diff), ScriptId);
 
 		_positionChangeTimer.Update(diff);
 
@@ -358,7 +358,7 @@ public class Transport : GameObject, ITransport
 			_staticPassengers.Add(creature);
 		}
 
-		Global.ScriptMgr.RunScript<ITransportOnAddCreaturePassenger>(p => p.OnAddCreaturePassenger(this, creature), ScriptId);
+		_scriptManager.RunScript<ITransportOnAddCreaturePassenger>(p => p.OnAddCreaturePassenger(this, creature), ScriptId);
 
 		return creature;
 	}
@@ -497,7 +497,7 @@ public class Transport : GameObject, ITransport
 
 	public void UpdatePosition(float x, float y, float z, float o)
 	{
-		Global.ScriptMgr.RunScript<ITransportOnRelocate>(p => p.OnRelocate(this, Location.MapId, x, y, z), ScriptId);
+		_scriptManager.RunScript<ITransportOnRelocate>(p => p.OnRelocate(this, Location.MapId, x, y, z), ScriptId);
 
 		var newActive = Map.IsGridLoaded(x, y);
 		Cell oldCell = new(Location.X, Location.Y);

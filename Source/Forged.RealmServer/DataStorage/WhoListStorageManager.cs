@@ -1,19 +1,23 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
 using Forged.RealmServer.Entities;
+using System.Collections.Generic;
 
 namespace Forged.RealmServer.DataStorage;
 
-public class WhoListStorageManager : Singleton<WhoListStorageManager>
+public class WhoListStorageManager
 {
-	readonly List<WhoListPlayerInfo> _whoListStorage;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly GuildManager _guildManager;
+    readonly List<WhoListPlayerInfo> _whoListStorage;
 
-	WhoListStorageManager()
-	{
-		_whoListStorage = new List<WhoListPlayerInfo>();
-	}
+	public WhoListStorageManager(ObjectAccessor objectAccessor, GuildManager guildManager)
+    {
+        _objectAccessor = objectAccessor;
+        _guildManager = guildManager;
+        _whoListStorage = new List<WhoListPlayerInfo>();
+    }
 
 	public void Update()
 	{

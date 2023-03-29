@@ -688,14 +688,14 @@ class MiscCommands
 		obj.GetZoneAndAreaId(out var zoneId, out var areaId);
 		var mapId = obj.Location.MapId;
 
-		var mapEntry = CliDB.MapStorage.LookupByKey(mapId);
-		var zoneEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
-		var areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId);
+		var mapEntry = _cliDb.MapStorage.LookupByKey(mapId);
+		var zoneEntry = _cliDb.AreaTableStorage.LookupByKey(zoneId);
+		var areaEntry = _cliDb.AreaTableStorage.LookupByKey(areaId);
 
 		var zoneX = obj.Location.X;
 		var zoneY = obj.Location.Y;
 
-		Global.DB2Mgr.Map2ZoneCoordinates((int)zoneId, ref zoneX, ref zoneY);
+		_db2Manager.Map2ZoneCoordinates((int)zoneId, ref zoneX, ref zoneY);
 
 		var map = obj.Map;
 		var groundZ = obj.GetMapHeight(obj.Location.X, obj.Location.Y, MapConst.MaxHeight);
@@ -814,7 +814,7 @@ class MiscCommands
 			return false;
 		}
 
-		var area = CliDB.AreaTableStorage.LookupByKey(areaId);
+		var area = _cliDb.AreaTableStorage.LookupByKey(areaId);
 
 		if (area == null)
 		{
@@ -929,7 +929,7 @@ class MiscCommands
 
 		var zoneId = player.Zone;
 
-		var areaEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
+		var areaEntry = _cliDb.AreaTableStorage.LookupByKey(zoneId);
 
 		if (areaEntry == null || areaEntry.ParentAreaID != 0)
 		{
@@ -1578,8 +1578,8 @@ class MiscCommands
 		// Output XI. LANG_PINFO_CHR_RACE
 		handler.SendSysMessage(CypherStrings.PinfoChrRace,
 								(gender == 0 ? handler.GetCypherString(CypherStrings.CharacterGenderMale) : handler.GetCypherString(CypherStrings.CharacterGenderFemale)),
-								Global.DB2Mgr.GetChrRaceName(raceid, locale),
-								Global.DB2Mgr.GetClassName(classid, locale));
+								_db2Manager.GetChrRaceName(raceid, locale),
+								_db2Manager.GetClassName(classid, locale));
 
 		// Output XII. LANG_PINFO_CHR_ALIVE
 		handler.SendSysMessage(CypherStrings.PinfoChrAlive, alive);
@@ -1595,14 +1595,14 @@ class MiscCommands
 		handler.SendSysMessage(CypherStrings.PinfoChrMoney, gold, silv, copp);
 
 		// Position data
-		var map = CliDB.MapStorage.LookupByKey(mapId);
-		var area = CliDB.AreaTableStorage.LookupByKey(areaId);
+		var map = _cliDb.MapStorage.LookupByKey(mapId);
+		var area = _cliDb.AreaTableStorage.LookupByKey(areaId);
 
 		if (area != null)
 		{
 			zoneName = area.AreaName[locale];
 
-			var zone = CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
+			var zone = _cliDb.AreaTableStorage.LookupByKey(area.ParentAreaID);
 
 			if (zone != null)
 			{
@@ -1657,7 +1657,7 @@ class MiscCommands
 	[CommandNonGroup("playall", RBACPermissions.CommandPlayall)]
 	static bool HandlePlayAllCommand(CommandHandler handler, uint soundId, uint? broadcastTextId)
 	{
-		if (!CliDB.SoundKitStorage.ContainsKey(soundId))
+		if (!_cliDb.SoundKitStorage.ContainsKey(soundId))
 		{
 			handler.SendSysMessage(CypherStrings.SoundNotExist, soundId);
 
@@ -1877,7 +1877,7 @@ class MiscCommands
 			return false;
 		}
 
-		var area = CliDB.AreaTableStorage.LookupByKey(areaId);
+		var area = _cliDb.AreaTableStorage.LookupByKey(areaId);
 
 		if (area == null)
 		{

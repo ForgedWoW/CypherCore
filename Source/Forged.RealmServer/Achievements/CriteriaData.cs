@@ -336,7 +336,7 @@ public class CriteriaData
 
 				return true;
 			case CriteriaDataType.Holiday:
-				if (!CliDB.HolidaysStorage.ContainsKey(Holiday.Id))
+				if (!_cliDb.HolidaysStorage.ContainsKey(Holiday.Id))
 				{
 					Log.Logger.Error(
 								"Table `criteria_data`(Entry: {0} Type: {1}) for data type CRITERIA_DATA_TYPE_HOLIDAY ({2}) has unknown holiday in value1 ({3}), ignored.",
@@ -384,7 +384,7 @@ public class CriteriaData
 
 				return true;
 			case CriteriaDataType.MapId:
-				if (!CliDB.MapStorage.ContainsKey(MapId.Id))
+				if (!_cliDb.MapStorage.ContainsKey(MapId.Id))
 				{
 					Log.Logger.Error(
 								"Table `criteria_data` (Entry: {0} Type: {1}) for data type CRITERIA_DATA_TYPE_MAP_ID ({2}) contains an unknown map entry in value1 ({3}), ignored.",
@@ -435,7 +435,7 @@ public class CriteriaData
 
 				return true;
 			case CriteriaDataType.SKnownTitle:
-				if (!CliDB.CharTitlesStorage.ContainsKey(KnownTitle.Id))
+				if (!_cliDb.CharTitlesStorage.ContainsKey(KnownTitle.Id))
 				{
 					Log.Logger.Error(
 								"Table `criteria_data` (Entry: {0} Type: {1}) for data type CRITERIA_DATA_TYPE_S_KNOWN_TITLE ({2}) contains an unknown title_id in value1 ({3}), ignore.",
@@ -547,7 +547,7 @@ public class CriteriaData
 				if (target)
 					unitTarget = target.AsUnit;
 
-				return Global.ScriptMgr.RunScriptRet<IAchievementCriteriaOnCheck>(p => p.OnCheck(source.AsPlayer, unitTarget.AsUnit), ScriptId);
+				return _scriptManager.RunScriptRet<IAchievementCriteriaOnCheck>(p => p.OnCheck(source.AsPlayer, unitTarget.AsUnit), ScriptId);
 			}
 			case CriteriaDataType.MapPlayerCount:
 				return source.Map.GetPlayersCountExceptGMs() <= MapPlayers.MaxCount;
@@ -613,7 +613,7 @@ public class CriteriaData
 			}
 			case CriteriaDataType.SEquippedItem:
 			{
-				var entry = Global.CriteriaMgr.GetCriteria(criteriaId);
+				var entry = _criteriaManager.GetCriteria(criteriaId);
 
 				var itemId = entry.Entry.Type == CriteriaType.EquipItemInSlot ? miscValue2 : miscValue1;
 				var itemTemplate = _gameObjectManager.GetItemTemplate(itemId);
@@ -627,7 +627,7 @@ public class CriteriaData
 				return source.Location.MapId == MapId.Id;
 			case CriteriaDataType.SKnownTitle:
 			{
-				var titleInfo = CliDB.CharTitlesStorage.LookupByKey(KnownTitle.Id);
+				var titleInfo = _cliDb.CharTitlesStorage.LookupByKey(KnownTitle.Id);
 
 				if (titleInfo != null)
 					return source && source.HasTitle(titleInfo.MaskID);

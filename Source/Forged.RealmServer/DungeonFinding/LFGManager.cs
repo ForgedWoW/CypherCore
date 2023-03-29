@@ -38,7 +38,7 @@ public class LFGManager
 	readonly Dictionary<ObjectGuid, LFGGroupData> GroupsStore = new();     //< Group data
     private readonly IConfiguration _configuration;
     private readonly WorldConfig _worldConfig;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly GameObjectManager _gameObjectManager;
     private readonly ObjectAccessor _objectAccessor;
     private readonly DB2Manager _dB2Manager;
@@ -61,7 +61,7 @@ public class LFGManager
     {
         _configuration = configuration;
         _worldConfig = worldConfig;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _gameObjectManager = gameObjectManager;
         _objectAccessor = objectAccessor;
         _dB2Manager = dB2Manager;
@@ -191,7 +191,7 @@ public class LFGManager
 		LfgDungeonStore.Clear();
 
 		// Initialize Dungeon map with data from dbcs
-		foreach (var dungeon in _cliDB.LFGDungeonsStorage.Values)
+		foreach (var dungeon in _cliDb.LFGDungeonsStorage.Values)
 		{
 			if (_dB2Manager.GetMapDifficultyData((uint)dungeon.MapID, dungeon.DifficultyID) == null)
 				continue;

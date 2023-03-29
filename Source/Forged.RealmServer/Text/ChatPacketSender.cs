@@ -50,7 +50,7 @@ public class ChatPacketSender : IDoWork<Player>
 		if (TranslatedPacket == null)
 		{
 			TranslatedPacket = new ChatPkt();
-			TranslatedPacket.Initialize(_type, _language, _sender, _receiver, Global.LanguageMgr.Translate(_text, (uint)_language, player.Session.SessionDbcLocale), _achievementId, "", _locale);
+			TranslatedPacket.Initialize(_type, _language, _sender, _receiver, _languageManager.Translate(_text, (uint)_language, player.Session.SessionDbcLocale), _achievementId, "", _locale);
 			TranslatedPacket.Write();
 		}
 

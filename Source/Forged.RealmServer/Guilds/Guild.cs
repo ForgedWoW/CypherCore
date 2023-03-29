@@ -28,7 +28,7 @@ public class Guild
         _criteriaManager = _classFactory.Resolve<CriteriaManager>();
         _gameTime = _classFactory.Resolve<GameTime>();
         _characterDatabase = _classFactory.Resolve<CharacterDatabase>();
-        _cliDB = _classFactory.Resolve<CliDB>();
+        _cliDb = _classFactory.Resolve<CliDB>();
         _scriptManager = _classFactory.Resolve<ScriptManager>();
         _guildManager = _classFactory.Resolve<GuildManager>();
         _worldManager = _classFactory.Resolve<WorldManager>();
@@ -40,8 +40,15 @@ public class Guild
 
 		_eventLog = new(_worldConfig);
         _newsLog = new(_worldConfig);
-        _emblemInfo = new(_cliDB, _characterDatabase);
-        _achievementSys = new GuildAchievementMgr(this);
+        _emblemInfo = new(_cliDb, _characterDatabase);
+        _achievementSys = new GuildAchievementMgr(this,
+                                                    _cliDb,
+                                                    _criteriaManager,
+                                                    _classFactory.Resolve<AchievementGlobalMgr>(),
+                                                    _characterDatabase,
+                                                    _gameTime,
+                                                    _worldManager,
+                                                    _scriptManager);
 
 		for (var i = 0; i < _bankEventLog.Length; ++i)
 			_bankEventLog[i] = new LogHolder<BankEventLogEntry>(_worldConfig);
@@ -325,7 +332,7 @@ public class Guild
 
 			foreach (var achievementId in achievementIds)
 			{
-				var achievement = _cliDB.AchievementStorage.LookupByKey(achievementId);
+				var achievement = _cliDb.AchievementStorage.LookupByKey(achievementId);
 
 				if (achievement != null)
 				{
@@ -1221,7 +1228,7 @@ public class Guild
 			player.SendPacket(renameFlag);
 		}
 
-		foreach (var entry in _cliDB.GuildPerkSpellsStorage.Values)
+		foreach (var entry in _cliDb.GuildPerkSpellsStorage.Values)
 			player.LearnSpell(entry.SpellID, true);
 
 		GetAchievementMgr().SendAllData(player);
@@ -1307,7 +1314,7 @@ public class Guild
 		var lowguid = field.Read<ulong>(1);
 		var playerGuid = ObjectGuid.Create(HighGuid.Player, lowguid);
 
-		Member member = new(_id, playerGuid, (GuildRankId)field.Read<byte>(2), _gameTime, _characterDatabase, _objectAccessor, _cliDB);
+		Member member = new(_id, playerGuid, (GuildRankId)field.Read<byte>(2), _gameTime, _characterDatabase, _objectAccessor, _cliDb);
 		var isNew = _members.TryAdd(playerGuid, member);
 
 		if (!isNew)
@@ -1664,7 +1671,7 @@ public class Guild
 		if (!rankId.HasValue)
 			rankId = _GetLowestRankId();
 
-		Member member = new(_id, guid, rankId.Value, _gameTime, _characterDatabase, _objectAccessor, _cliDB);
+		Member member = new(_id, guid, rankId.Value, _gameTime, _characterDatabase, _objectAccessor, _cliDb);
 		var isNew = _members.TryAdd(guid, member);
 
 		if (!isNew)
@@ -1783,7 +1790,7 @@ public class Guild
 			player.SetGuildRank(0);
 			player.GuildLevel = 0;
 
-			foreach (var entry in _cliDB.GuildPerkSpellsStorage.Values)
+			foreach (var entry in _cliDb.GuildPerkSpellsStorage.Values)
 				player.RemoveSpell(entry.SpellID, false, false);
 		}
 		else
@@ -2850,7 +2857,7 @@ public class Guild
 	readonly GuildAchievementMgr _achievementSys;
     private readonly GameTime _gameTime;
     private readonly CharacterDatabase _characterDatabase;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly ScriptManager _scriptManager;
     private readonly GuildManager _guildManager;
     private readonly WorldManager _worldManager;
@@ -2874,7 +2881,7 @@ public class Guild
             _gameTime = gameTime;
             _characterDatabase = characterDatabase;
             _objectAccessor = objectAccessor;
-            _cliDB = cliDB;
+            _cliDb = cliDB;
             _guildId = guildId;
 			_guid = guid;
 			_zoneId = 0;
@@ -3015,14 +3022,14 @@ public class Guild
 				return false;
 			}
 
-			if (!_cliDB.ChrRacesStorage.ContainsKey((uint)_race))
+			if (!_cliDb.ChrRacesStorage.ContainsKey((uint)_race))
 			{
 				Log.Logger.Error($"{_guid} has a broken data in field `characters`.`race`, deleting him from guild!");
 
 				return false;
 			}
 
-			if (!_cliDB.ChrClassesStorage.ContainsKey((uint)_class))
+			if (!_cliDb.ChrClassesStorage.ContainsKey((uint)_class))
 			{
 				Log.Logger.Error($"{_guid} has a broken data in field `characters`.`class`, deleting him from guild!");
 
@@ -3274,7 +3281,7 @@ public class Guild
         private readonly GameTime _gameTime;
         private readonly CharacterDatabase _characterDatabase;
         private readonly ObjectAccessor _objectAccessor;
-        private readonly CliDB _cliDB;
+        private readonly CliDB _cliDb;
         string _publicNote = "";
 		string _officerNote = "";
 
@@ -4099,7 +4106,7 @@ public class Guild
 		uint _borderStyle;
 		uint _borderColor;
 		uint _backgroundColor;
-        private readonly CliDB _cliDB;
+        private readonly CliDB _cliDb;
         private readonly CharacterDatabase _characterDatabase;
 
         public EmblemInfo(CliDB cliDB, CharacterDatabase characterDatabase)
@@ -4110,7 +4117,7 @@ public class Guild
 			_borderColor = 0;
 			_backgroundColor = 0;
 
-            _cliDB = cliDB;
+            _cliDb = cliDB;
             _characterDatabase = characterDatabase;
         }
 
@@ -4125,9 +4132,9 @@ public class Guild
 
 		public bool ValidateEmblemColors()
 		{
-			return _cliDB.GuildColorBackgroundStorage.ContainsKey(_backgroundColor) &&
-					_cliDB.GuildColorBorderStorage.ContainsKey(_borderColor) &&
-					_cliDB.GuildColorEmblemStorage.ContainsKey(_color);
+			return _cliDb.GuildColorBackgroundStorage.ContainsKey(_backgroundColor) &&
+					_cliDb.GuildColorBorderStorage.ContainsKey(_borderColor) &&
+					_cliDb.GuildColorEmblemStorage.ContainsKey(_color);
 		}
 
 		public bool LoadFromDB(SQLFields field)

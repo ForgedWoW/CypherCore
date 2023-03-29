@@ -30,8 +30,8 @@ public class BroadcastTextBuilder : MessageBuilder
 
 	public override ChatPacketSender Invoke(Locale locale = Locale.enUS)
 	{
-		var bct = CliDB.BroadcastTextStorage.LookupByKey(_textId);
+		var bct = _cliDb.BroadcastTextStorage.LookupByKey(_textId);
 
-		return new ChatPacketSender(_msgType, bct != null ? (Language)bct.LanguageID : Language.Universal, _source, _target, bct != null ? Global.DB2Mgr.GetBroadcastTextValue(bct, locale, _gender) : "", _achievementId, locale);
+		return new ChatPacketSender(_msgType, bct != null ? (Language)bct.LanguageID : Language.Universal, _source, _target, bct != null ? _db2Manager.GetBroadcastTextValue(bct, locale, _gender) : "", _achievementId, locale);
 	}
 }

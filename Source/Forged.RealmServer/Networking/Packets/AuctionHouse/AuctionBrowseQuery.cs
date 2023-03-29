@@ -34,7 +34,7 @@ class AuctionBrowseQuery : ClientPacket
 		var knownPetSize = _worldPacket.ReadUInt32();
 		MaxPetLevel = _worldPacket.ReadInt8();
 
-		var sizeLimit = CliDB.BattlePetSpeciesStorage.GetNumRows() / 8 + 1;
+		var sizeLimit = _cliDb.BattlePetSpeciesStorage.GetNumRows() / 8 + 1;
 
 		if (knownPetSize >= sizeLimit)
 			throw new System.Exception($"Attempted to read more array elements from packet {knownPetSize} than allowed {sizeLimit}");

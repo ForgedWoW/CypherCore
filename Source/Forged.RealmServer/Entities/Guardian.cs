@@ -125,7 +125,7 @@ public class Guardian : Minion
 			var stats = _gameObjectManager.GetCreatureBaseStats(petlevel, cinfo.UnitClass);
 			ApplyLevelScaling();
 
-			SetCreateHealth((uint)(Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, petlevel, cinfo.GetHealthScalingExpansion(), UnitData.ContentTuningID, (PlayerClass)cinfo.UnitClass) * cinfo.ModHealth * cinfo.ModHealthExtra * GetHealthMod(cinfo.Rank)));
+			SetCreateHealth((uint)(_db2Manager.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, petlevel, cinfo.GetHealthScalingExpansion(), UnitData.ContentTuningID, (PlayerClass)cinfo.UnitClass) * cinfo.ModHealth * cinfo.ModHealthExtra * GetHealthMod(cinfo.Rank)));
 			SetCreateMana(stats.GenerateMana(cinfo));
 
 			SetCreateStat(Stats.Strength, 22);

@@ -22,14 +22,14 @@ public class AreaTriggerDataStorage
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _gameObjectManager;
     private readonly WorldDatabase _worldDatabase;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
 
     AreaTriggerDataStorage(IConfiguration configuration, GameObjectManager gameObjectManager, WorldDatabase worldDatabase, CliDB cliDB)
     {
         _configuration = configuration;
         _gameObjectManager = gameObjectManager;
         _worldDatabase = worldDatabase;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
     }
 
     public void LoadAreaTriggerTemplates()
@@ -171,7 +171,7 @@ public class AreaTriggerDataStorage
 
 				uint ValidateAndSetCurve(uint value)
 				{
-					if (value != 0 && !_cliDB.CurveStorage.ContainsKey(value))
+					if (value != 0 && !_cliDb.CurveStorage.ContainsKey(value))
 					{
 						Log.Logger.Error($"Table `areatrigger_create_properties` has listed areatrigger (AreaTriggerCreatePropertiesId: {createProperties.Id}, Id: {areatriggerId}) with invalid Curve ({value}), set to 0!");
 

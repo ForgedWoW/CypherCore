@@ -263,16 +263,16 @@ public class Item : WorldObject
 		{
 			InitArtifactPowers(itemProto.ArtifactID, 0);
 
-			foreach (var artifactAppearance in CliDB.ArtifactAppearanceStorage.Values)
+			foreach (var artifactAppearance in _cliDb.ArtifactAppearanceStorage.Values)
 			{
-				var artifactAppearanceSet = CliDB.ArtifactAppearanceSetStorage.LookupByKey(artifactAppearance.ArtifactAppearanceSetID);
+				var artifactAppearanceSet = _cliDb.ArtifactAppearanceSetStorage.LookupByKey(artifactAppearance.ArtifactAppearanceSetID);
 
 				if (artifactAppearanceSet != null)
 				{
 					if (itemProto.ArtifactID != artifactAppearanceSet.ArtifactID)
 						continue;
 
-					var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(artifactAppearance.UnlockPlayerConditionID);
+					var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(artifactAppearance.UnlockPlayerConditionID);
 
 					if (playerCondition != null)
 						if (!owner || !ConditionManager.IsPlayerMeetingCondition(owner, playerCondition))
@@ -294,7 +294,7 @@ public class Item : WorldObject
 	public override string GetName(Locale locale = Locale.enUS)
 	{
 		var itemTemplate = Template;
-		var suffix = CliDB.ItemNameDescriptionStorage.LookupByKey(BonusData.Suffix);
+		var suffix = _cliDb.ItemNameDescriptionStorage.LookupByKey(BonusData.Suffix);
 
 		if (suffix != null)
 			return $"{itemTemplate.GetName(locale)} {suffix.Description[locale]}";
@@ -314,7 +314,7 @@ public class Item : WorldObject
 		if (duration <= diff)
 		{
 			var itemTemplate = Template;
-			Global.ScriptMgr.RunScriptRet<IItemOnExpire>(p => p.OnExpire(owner, itemTemplate), itemTemplate.ScriptId);
+			_scriptManager.RunScriptRet<IItemOnExpire>(p => p.OnExpire(owner, itemTemplate), itemTemplate.ScriptId);
 
 			owner.DestroyItem(BagSlot, Slot, true);
 
@@ -355,7 +355,7 @@ public class Item : WorldObject
 
 				for (EnchantmentSlot slot = 0; slot < EnchantmentSlot.Max; ++slot)
 				{
-					var enchantment = CliDB.SpellItemEnchantmentStorage.LookupByKey(GetEnchantmentId(slot));
+					var enchantment = _cliDb.SpellItemEnchantmentStorage.LookupByKey(GetEnchantmentId(slot));
 
 					if (enchantment != null && !enchantment.GetFlags().HasFlag(SpellItemEnchantmentFlags.DoNotSaveToDB))
 						ss.Append($"{GetEnchantmentId(slot)} {GetEnchantmentDuration(slot)} {GetEnchantmentCharges(slot)} ");
@@ -750,7 +750,7 @@ public class Item : WorldObject
 		SetModifier(ItemModifier.ArtifactAppearanceId, artifactAppearanceId);
 		SetModifier(ItemModifier.ArtifactTier, artifactTier);
 
-		var artifactAppearance = CliDB.ArtifactAppearanceStorage.LookupByKey(artifactAppearanceId);
+		var artifactAppearance = _cliDb.ArtifactAppearanceStorage.LookupByKey(artifactAppearanceId);
 
 		if (artifactAppearance != null)
 			SetAppearanceModId(artifactAppearance.ItemAppearanceModifierID);
@@ -762,11 +762,11 @@ public class Item : WorldObject
 			power.CurrentRankWithBonus += power.PurchasedRank;
 			totalPurchasedRanks += power.PurchasedRank;
 
-			var artifactPower = CliDB.ArtifactPowerStorage.LookupByKey(power.ArtifactPowerId);
+			var artifactPower = _cliDb.ArtifactPowerStorage.LookupByKey(power.ArtifactPowerId);
 
 			for (var e = EnchantmentSlot.Sock1; e <= EnchantmentSlot.Sock3; ++e)
 			{
-				var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(GetEnchantmentId(e));
+				var enchant = _cliDb.SpellItemEnchantmentStorage.LookupByKey(GetEnchantmentId(e));
 
 				if (enchant != null)
 					for (uint i = 0; i < ItemConst.MaxItemEnchantmentEffects; ++i)
@@ -785,11 +785,11 @@ public class Item : WorldObject
 							case ItemEnchantmentType.ArtifactPowerBonusRankPicker:
 								if (BonusData.GemRelicType[e - EnchantmentSlot.Sock1] != -1)
 								{
-									var artifactPowerPicker = CliDB.ArtifactPowerPickerStorage.LookupByKey(enchant.EffectArg[i]);
+									var artifactPowerPicker = _cliDb.ArtifactPowerPickerStorage.LookupByKey(enchant.EffectArg[i]);
 
 									if (artifactPowerPicker != null)
 									{
-										var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(artifactPowerPicker.PlayerConditionID);
+										var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(artifactPowerPicker.PlayerConditionID);
 
 										if (playerCondition == null || (owner != null && ConditionManager.IsPlayerMeetingCondition(owner, playerCondition)))
 											if (artifactPower.Label == BonusData.GemRelicType[e - EnchantmentSlot.Sock1])
@@ -808,7 +808,7 @@ public class Item : WorldObject
 
 		foreach (var power in powers)
 		{
-			var scaledArtifactPowerEntry = CliDB.ArtifactPowerStorage.LookupByKey(power.ArtifactPowerId);
+			var scaledArtifactPowerEntry = _cliDb.ArtifactPowerStorage.LookupByKey(power.ArtifactPowerId);
 
 			if (!scaledArtifactPowerEntry.Flags.HasAnyFlag(ArtifactPowerFlag.ScalesWithNumPowers))
 				continue;
@@ -829,7 +829,7 @@ public class Item : WorldObject
 		if (artifactId == 0)
 			return;
 
-		foreach (var artifactUnlock in CliDB.ArtifactUnlockStorage.Values)
+		foreach (var artifactUnlock in _cliDb.ArtifactUnlockStorage.Values)
 			if (artifactUnlock.ArtifactID == artifactId)
 				if (owner.MeetPlayerCondition(artifactUnlock.PlayerConditionID))
 					AddBonuses(artifactUnlock.ItemBonusListID);
@@ -1011,13 +1011,13 @@ public class Item : WorldObject
 
 		var itemTemplate = Template;
 
-		var durabilityCost = CliDB.DurabilityCostsStorage.LookupByKey(GetItemLevel(OwnerUnit));
+		var durabilityCost = _cliDb.DurabilityCostsStorage.LookupByKey(GetItemLevel(OwnerUnit));
 
 		if (durabilityCost == null)
 			return 0;
 
 		var durabilityQualityEntryId = ((uint)Quality + 1) * 2;
-		var durabilityQualityEntry = CliDB.DurabilityQualityStorage.LookupByKey(durabilityQualityEntryId);
+		var durabilityQualityEntry = _cliDb.DurabilityQualityStorage.LookupByKey(durabilityQualityEntryId);
 
 		if (durabilityQualityEntry == null)
 			return 0;
@@ -1098,12 +1098,12 @@ public class Item : WorldObject
 
 		if (slot < EnchantmentSlot.MaxInspected)
 		{
-			var oldEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(GetEnchantmentId(slot));
+			var oldEnchant = _cliDb.SpellItemEnchantmentStorage.LookupByKey(GetEnchantmentId(slot));
 
 			if (oldEnchant != null && !oldEnchant.GetFlags().HasFlag(SpellItemEnchantmentFlags.DoNotLog))
 				owner.Session.SendEnchantmentLog(OwnerGUID, ObjectGuid.Empty, GUID, Entry, oldEnchant.Id, (uint)slot);
 
-			var newEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(id);
+			var newEnchant = _cliDb.SpellItemEnchantmentStorage.LookupByKey(id);
 
 			if (newEnchant != null && !newEnchant.GetFlags().HasFlag(SpellItemEnchantmentFlags.DoNotLog))
 				owner.Session.SendEnchantmentLog(OwnerGUID, caster, GUID, Entry, id, (uint)slot);
@@ -1168,11 +1168,11 @@ public class Item : WorldObject
 
 		if (gemTemplate != null)
 		{
-			var gemProperties = CliDB.GemPropertiesStorage.LookupByKey(gemTemplate.GemProperties);
+			var gemProperties = _cliDb.GemPropertiesStorage.LookupByKey(gemTemplate.GemProperties);
 
 			if (gemProperties != null)
 			{
-				var gemEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(gemProperties.EnchantId);
+				var gemEnchant = _cliDb.SpellItemEnchantmentStorage.LookupByKey(gemProperties.EnchantId);
 
 				if (gemEnchant != null)
 				{
@@ -1185,7 +1185,7 @@ public class Item : WorldObject
 
 					if (gemBonus.PlayerLevelToItemLevelCurveId != 0)
 					{
-						var scaledIlvl = (uint)Global.DB2Mgr.GetCurveValueAt(gemBonus.PlayerLevelToItemLevelCurveId, gemScalingLevel);
+						var scaledIlvl = (uint)_db2Manager.GetCurveValueAt(gemBonus.PlayerLevelToItemLevelCurveId, gemScalingLevel);
 
 						if (scaledIlvl != 0)
 							gemBaseItemLevel = scaledIlvl;
@@ -1198,7 +1198,7 @@ public class Item : WorldObject
 						{
 							case ItemEnchantmentType.BonusListID:
 							{
-								var bonusesEffect = Global.DB2Mgr.GetItemBonusList(gemEnchant.EffectArg[i]);
+								var bonusesEffect = _db2Manager.GetItemBonusList(gemEnchant.EffectArg[i]);
 
 								if (bonusesEffect != null)
 									foreach (var itemBonus in bonusesEffect)
@@ -1210,11 +1210,11 @@ public class Item : WorldObject
 							}
 							case ItemEnchantmentType.BonusListCurve:
 							{
-								var artifactrBonusListId = Global.DB2Mgr.GetItemBonusListForItemLevelDelta((short)Global.DB2Mgr.GetCurveValueAt((uint)Curves.ArtifactRelicItemLevelBonus, gemBaseItemLevel + gemBonus.ItemLevelBonus));
+								var artifactrBonusListId = _db2Manager.GetItemBonusListForItemLevelDelta((short)_db2Manager.GetCurveValueAt((uint)Curves.ArtifactRelicItemLevelBonus, gemBaseItemLevel + gemBonus.ItemLevelBonus));
 
 								if (artifactrBonusListId != 0)
 								{
-									var bonusesEffect = Global.DB2Mgr.GetItemBonusList(artifactrBonusListId);
+									var bonusesEffect = _db2Manager.GetItemBonusList(artifactrBonusListId);
 
 									if (bonusesEffect != null)
 										foreach (var itemBonus in bonusesEffect)
@@ -1256,7 +1256,7 @@ public class Item : WorldObject
 
 			if (gemProto != null)
 			{
-				var gemProperty = CliDB.GemPropertiesStorage.LookupByKey(gemProto.GemProperties);
+				var gemProperty = _cliDb.GemPropertiesStorage.LookupByKey(gemProto.GemProperties);
 
 				if (gemProperty != null)
 					GemColor = gemProperty.Type;
@@ -1652,7 +1652,7 @@ public class Item : WorldObject
 
 		if (standardPrice)
 		{
-			var classEntry = Global.DB2Mgr.GetItemClassByOldEnum(proto.Class);
+			var classEntry = _db2Manager.GetItemClassByOldEnum(proto.Class);
 
 			if (classEntry != null)
 			{
@@ -1700,7 +1700,7 @@ public class Item : WorldObject
 			return 1;
 
 		var itemLevel = itemTemplate.BaseItemLevel;
-		var azeriteLevelInfo = CliDB.AzeriteLevelInfoStorage.LookupByKey(azeriteLevel);
+		var azeriteLevelInfo = _cliDb.AzeriteLevelInfoStorage.LookupByKey(azeriteLevel);
 
 		if (azeriteLevelInfo != null)
 			itemLevel = azeriteLevelInfo.ItemLevel;
@@ -1713,13 +1713,13 @@ public class Item : WorldObject
 			}
 			else
 			{
-				var levels = Global.DB2Mgr.GetContentTuningData(bonusData.ContentTuningId, 0, true);
+				var levels = _db2Manager.GetContentTuningData(bonusData.ContentTuningId, 0, true);
 
 				if (levels.HasValue)
 					level = (uint)Math.Min(Math.Max((ushort)level, levels.Value.MinLevel), levels.Value.MaxLevel);
 			}
 
-			itemLevel = (uint)Global.DB2Mgr.GetCurveValueAt(bonusData.PlayerLevelToItemLevelCurveId, level);
+			itemLevel = (uint)_db2Manager.GetCurveValueAt(bonusData.PlayerLevelToItemLevelCurveId, level);
 		}
 
 		itemLevel += (uint)bonusData.ItemLevelBonus;
@@ -1730,7 +1730,7 @@ public class Item : WorldObject
 		var itemLevelBeforeUpgrades = itemLevel;
 
 		if (pvpBonus)
-			itemLevel += Global.DB2Mgr.GetPvpItemLevelBonus(itemTemplate.Id);
+			itemLevel += _db2Manager.GetPvpItemLevelBonus(itemTemplate.Id);
 
 		if (itemTemplate.InventoryType != InventoryType.NonEquip)
 		{
@@ -1761,7 +1761,7 @@ public class Item : WorldObject
 		if (randomPropPoints != 0)
 		{
 			var statValue = BonusData.StatPercentEditor[index] * randomPropPoints * 0.0001f;
-			var gtCost = CliDB.ItemSocketCostPerLevelGameTable.GetRow(itemLevel);
+			var gtCost = _cliDb.ItemSocketCostPerLevelGameTable.GetRow(itemLevel);
 
 			if (gtCost != null)
 				statValue -= BonusData.ItemStatSocketCostMultiplier[index] * gtCost.SocketCost;
@@ -1788,14 +1788,14 @@ public class Item : WorldObject
 		if (itemTemplate.GetArea(0) != 0 || itemTemplate.GetArea(1) != 0 || itemTemplate.Map != 0 || itemTemplate.MaxStackSize > 1)
 			return null;
 
-		if (GetSellPrice(itemTemplate, quality, itemLevel) == 0 && !Global.DB2Mgr.HasItemCurrencyCost(itemTemplate.Id))
+		if (GetSellPrice(itemTemplate, quality, itemLevel) == 0 && !_db2Manager.HasItemCurrencyCost(itemTemplate.Id))
 			return null;
 
 		var itemClass = (byte)itemTemplate.Class;
 		var itemSubClass = itemTemplate.SubClass;
 		var expansion = itemTemplate.RequiredExpansion;
 
-		foreach (var disenchant in CliDB.ItemDisenchantLootStorage.Values)
+		foreach (var disenchant in _cliDb.ItemDisenchantLootStorage.Values)
 		{
 			if (disenchant.Class != itemClass)
 				continue;
@@ -1825,22 +1825,22 @@ public class Item : WorldObject
 		if (itemModifiedAppearanceId == 0)
 			itemModifiedAppearanceId = GetModifier(ItemModifier.TransmogAppearanceAllSpecs);
 
-		var transmog = CliDB.ItemModifiedAppearanceStorage.LookupByKey(itemModifiedAppearanceId);
+		var transmog = _cliDb.ItemModifiedAppearanceStorage.LookupByKey(itemModifiedAppearanceId);
 
 		if (transmog != null)
 		{
-			var itemAppearance = CliDB.ItemAppearanceStorage.LookupByKey(transmog.ItemAppearanceID);
+			var itemAppearance = _cliDb.ItemAppearanceStorage.LookupByKey(transmog.ItemAppearanceID);
 
 			if (itemAppearance != null)
 				return itemAppearance.ItemDisplayInfoID;
 		}
 
-		return Global.DB2Mgr.GetItemDisplayId(Entry, AppearanceModId);
+		return _db2Manager.GetItemDisplayId(Entry, AppearanceModId);
 	}
 
 	public ItemModifiedAppearanceRecord GetItemModifiedAppearance()
 	{
-		return Global.DB2Mgr.GetItemModifiedAppearance(Entry, BonusData.AppearanceModID);
+		return _db2Manager.GetItemModifiedAppearance(Entry, BonusData.AppearanceModID);
 	}
 
 	public uint GetModifier(ItemModifier modifier)
@@ -1890,7 +1890,7 @@ public class Item : WorldObject
 		if (itemModifiedAppearanceId == 0)
 			itemModifiedAppearanceId = GetModifier(ItemModifier.TransmogAppearanceAllSpecs);
 
-		var transmog = CliDB.ItemModifiedAppearanceStorage.LookupByKey(itemModifiedAppearanceId);
+		var transmog = _cliDb.ItemModifiedAppearanceStorage.LookupByKey(itemModifiedAppearanceId);
 
 		if (transmog != null)
 			return transmog.ItemID;
@@ -1905,7 +1905,7 @@ public class Item : WorldObject
 		if (itemModifiedAppearanceId == 0)
 			itemModifiedAppearanceId = GetModifier(ItemModifier.TransmogAppearanceAllSpecs);
 
-		var transmog = CliDB.ItemModifiedAppearanceStorage.LookupByKey(itemModifiedAppearanceId);
+		var transmog = _cliDb.ItemModifiedAppearanceStorage.LookupByKey(itemModifiedAppearanceId);
 
 		if (transmog != null)
 			return (ushort)transmog.ItemAppearanceModifierID;
@@ -1938,7 +1938,7 @@ public class Item : WorldObject
 
 	public ushort GetVisibleItemVisual(Player owner)
 	{
-		var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(GetVisibleEnchantmentId(owner));
+		var enchant = _cliDb.SpellItemEnchantmentStorage.LookupByKey(GetVisibleEnchantmentId(owner));
 
 		if (enchant != null)
 			return enchant.ItemVisual;
@@ -1958,7 +1958,7 @@ public class Item : WorldObject
 		if (bonusListIDs.Contains(bonusListID))
 			return;
 
-		var bonuses = Global.DB2Mgr.GetItemBonusList(bonusListID);
+		var bonuses = _db2Manager.GetItemBonusList(bonusListID);
 
 		if (bonuses != null)
 		{
@@ -2002,7 +2002,7 @@ public class Item : WorldObject
 
 	public bool IsArtifactDisabled()
 	{
-		var artifact = CliDB.ArtifactStorage.LookupByKey(Template.ArtifactID);
+		var artifact = _cliDb.ArtifactStorage.LookupByKey(Template.ArtifactID);
 
 		if (artifact != null)
 			return artifact.ArtifactCategoryID != 2; // fishing artifact
@@ -2034,7 +2034,7 @@ public class Item : WorldObject
 
 	public void InitArtifactPowers(byte artifactId, byte artifactTier)
 	{
-		foreach (var artifactPower in Global.DB2Mgr.GetArtifactPowers(artifactId))
+		foreach (var artifactPower in _db2Manager.GetArtifactPowers(artifactId))
 		{
 			if (artifactPower.Tier != artifactTier)
 				continue;
@@ -2060,7 +2060,7 @@ public class Item : WorldObject
 		do
 		{
 			ulong xpCost = 0;
-			var cost = CliDB.ArtifactLevelXPGameTable.GetRow(purchased + extraUnlocked + 1);
+			var cost = _cliDb.ArtifactLevelXPGameTable.GetRow(purchased + extraUnlocked + 1);
 
 			if (cost != null)
 				xpCost = (ulong)(currentArtifactTier == PlayerConst.MaxArtifactTier ? cost.XP2 : cost.XP);
@@ -2111,7 +2111,7 @@ public class Item : WorldObject
 			if (sourceItem != null && sourceItem.GetModifier(ItemModifier.ArtifactKnowledgeLevel) != 0)
 				artifactKnowledgeLevel = sourceItem.GetModifier(ItemModifier.ArtifactKnowledgeLevel);
 
-			var artifactKnowledge = CliDB.ArtifactKnowledgeMultiplierGameTable.GetRow(artifactKnowledgeLevel);
+			var artifactKnowledge = _cliDb.ArtifactKnowledgeMultiplierGameTable.GetRow(artifactKnowledgeLevel);
 
 			if (artifactKnowledge != null)
 				amount = (ulong)(amount * artifactKnowledge.Multiplier);
@@ -2163,7 +2163,7 @@ public class Item : WorldObject
 
 		if (BonusData.PlayerLevelToItemLevelCurveId != 0)
 		{
-			var levels = Global.DB2Mgr.GetContentTuningData(BonusData.ContentTuningId, 0, true);
+			var levels = _db2Manager.GetContentTuningData(BonusData.ContentTuningId, 0, true);
 
 			if (levels.HasValue)
 				level = (uint)Math.Min(Math.Max((short)level, levels.Value.MinLevel), levels.Value.MaxLevel);
@@ -2177,7 +2177,7 @@ public class Item : WorldObject
 		var fixedLevel = (int)GetModifier(ItemModifier.TimewalkerLevel);
 
 		if (BonusData.RequiredLevelCurve != 0)
-			return (int)Global.DB2Mgr.GetCurveValueAt(BonusData.RequiredLevelCurve, fixedLevel);
+			return (int)_db2Manager.GetCurveValueAt(BonusData.RequiredLevelCurve, fixedLevel);
 
 		if (BonusData.RequiredLevelOverride != 0)
 			return BonusData.RequiredLevelOverride;
@@ -2198,10 +2198,10 @@ public class Item : WorldObject
 		if (proto.InventoryType == InventoryType.Bag)
 			return new Bag();
 
-		if (Global.DB2Mgr.IsAzeriteItem(proto.Id))
+		if (_db2Manager.IsAzeriteItem(proto.Id))
 			return new AzeriteItem();
 
-		if (Global.DB2Mgr.GetAzeriteEmpoweredItem(proto.Id) != null)
+		if (_db2Manager.GetAzeriteEmpoweredItem(proto.Id) != null)
 			return new AzeriteEmpoweredItem();
 
 		return new Item();
@@ -2212,7 +2212,7 @@ public class Item : WorldObject
 		var proto = item.Template;
 		var setid = proto.ItemSet;
 
-		var set = CliDB.ItemSetStorage.LookupByKey(setid);
+		var set = _cliDb.ItemSetStorage.LookupByKey(setid);
 
 		if (set == null)
 		{
@@ -2228,12 +2228,12 @@ public class Item : WorldObject
 			return;
 
 		// Check player level for heirlooms
-		if (Global.DB2Mgr.GetHeirloomByItemId(item.Entry) != null)
+		if (_db2Manager.GetHeirloomByItemId(item.Entry) != null)
 			if (item.BonusData.PlayerLevelToItemLevelCurveId != 0)
 			{
-				var maxLevel = (uint)Global.DB2Mgr.GetCurveXAxisRange(item.BonusData.PlayerLevelToItemLevelCurveId).Item2;
+				var maxLevel = (uint)_db2Manager.GetCurveXAxisRange(item.BonusData.PlayerLevelToItemLevelCurveId).Item2;
 
-				var contentTuning = Global.DB2Mgr.GetContentTuningData(item.BonusData.ContentTuningId, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask, true);
+				var contentTuning = _db2Manager.GetContentTuningData(item.BonusData.ContentTuningId, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask, true);
 
 				if (contentTuning.HasValue)
 					maxLevel = Math.Min(maxLevel, (uint)contentTuning.Value.MaxLevel);
@@ -2271,7 +2271,7 @@ public class Item : WorldObject
 
 		eff.EquippedItems.Add(item);
 
-		var itemSetSpells = Global.DB2Mgr.GetItemSetSpells(setid);
+		var itemSetSpells = _db2Manager.GetItemSetSpells(setid);
 
 		foreach (var itemSetSpell in itemSetSpells)
 		{
@@ -2303,7 +2303,7 @@ public class Item : WorldObject
 	{
 		var setid = item.Template.ItemSet;
 
-		var set = CliDB.ItemSetStorage.LookupByKey(setid);
+		var set = _cliDb.ItemSetStorage.LookupByKey(setid);
 
 		if (set == null)
 		{
@@ -2329,7 +2329,7 @@ public class Item : WorldObject
 
 		eff.EquippedItems.Remove(item);
 
-		var itemSetSpells = Global.DB2Mgr.GetItemSetSpells(setid);
+		var itemSetSpells = _db2Manager.GetItemSetSpells(setid);
 
 		foreach (var itemSetSpell in itemSetSpells)
 		{
@@ -2660,7 +2660,7 @@ public class Item : WorldObject
 
 			if (enchant_id != 0)
 			{
-				var enchantEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
+				var enchantEntry = _cliDb.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
 
 				if (enchantEntry != null)
 					if (enchantEntry.RequiredSkillID != 0 && player.GetSkillValue((SkillType)enchantEntry.RequiredSkillID) < enchantEntry.RequiredSkillRank)
@@ -2682,7 +2682,7 @@ public class Item : WorldObject
 
 			if (enchant_id != 0)
 			{
-				var enchantEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
+				var enchantEntry = _cliDb.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
 
 				if (enchantEntry != null)
 					if (enchantEntry.MinLevel > level)
@@ -2702,7 +2702,7 @@ public class Item : WorldObject
 
 			if (enchant_id != 0)
 			{
-				var enchantEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
+				var enchantEntry = _cliDb.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
 
 				if (enchantEntry != null)
 					if (enchantEntry.GetFlags().HasFlag(SpellItemEnchantmentFlags.Soulbound))
@@ -2831,12 +2831,12 @@ public class Item : WorldObject
 		if (proto.HasFlag(ItemFlags2.OverrideGoldCost))
 			return proto.BuyPrice;
 
-		var qualityPrice = CliDB.ImportPriceQualityStorage.LookupByKey(quality + 1);
+		var qualityPrice = _cliDb.ImportPriceQualityStorage.LookupByKey(quality + 1);
 
 		if (qualityPrice == null)
 			return 0;
 
-		var basePrice = CliDB.ItemPriceBaseStorage.LookupByKey(proto.BaseItemLevel);
+		var basePrice = _cliDb.ItemPriceBaseStorage.LookupByKey(proto.BaseItemLevel);
 
 		if (basePrice == null)
 			return 0;
@@ -2886,7 +2886,7 @@ public class Item : WorldObject
 			case InventoryType.Cloak:
 			case InventoryType.Holdable:
 			{
-				var armorPrice = CliDB.ImportPriceArmorStorage.LookupByKey(inventoryType);
+				var armorPrice = _cliDb.ImportPriceArmorStorage.LookupByKey(inventoryType);
 
 				if (armorPrice == null)
 					return 0;
@@ -2920,7 +2920,7 @@ public class Item : WorldObject
 			}
 			case InventoryType.Shield:
 			{
-				var shieldPrice = CliDB.ImportPriceShieldStorage.LookupByKey(2); // it only has two rows, it's unclear which is the one used
+				var shieldPrice = _cliDb.ImportPriceShieldStorage.LookupByKey(2); // it only has two rows, it's unclear which is the one used
 
 				if (shieldPrice == null)
 					return 0;
@@ -2957,7 +2957,7 @@ public class Item : WorldObject
 
 		if (weapType != -1)
 		{
-			var weaponPrice = CliDB.ImportPriceWeaponStorage.LookupByKey(weapType + 1);
+			var weaponPrice = _cliDb.ImportPriceWeaponStorage.LookupByKey(weapType + 1);
 
 			if (weaponPrice == null)
 				return 0;
@@ -2985,7 +2985,7 @@ public class Item : WorldObject
 
 	void ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint enchantId, bool apply, Player owner)
 	{
-		var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantId);
+		var enchant = _cliDb.SpellItemEnchantmentStorage.LookupByKey(enchantId);
 
 		if (enchant != null)
 			for (uint i = 0; i < ItemConst.MaxItemEnchantmentEffects; ++i)
@@ -2997,7 +2997,7 @@ public class Item : WorldObject
 						{
 							var artifactPower = ItemData.ArtifactPowers[artifactPowerIndex];
 
-							if (CliDB.ArtifactPowerStorage.LookupByKey(artifactPower.ArtifactPowerId).Label == enchant.EffectArg[i])
+							if (_cliDb.ArtifactPowerStorage.LookupByKey(artifactPower.ArtifactPowerId).Label == enchant.EffectArg[i])
 							{
 								var newRank = artifactPower.CurrentRankWithBonus;
 
@@ -3011,7 +3011,7 @@ public class Item : WorldObject
 
 								if (IsEquipped)
 								{
-									var artifactPowerRank = Global.DB2Mgr.GetArtifactPowerRank(artifactPower.ArtifactPowerId, (byte)(newRank != 0 ? newRank - 1 : 0));
+									var artifactPowerRank = _db2Manager.GetArtifactPowerRank(artifactPower.ArtifactPowerId, (byte)(newRank != 0 ? newRank - 1 : 0));
 
 									if (artifactPowerRank != null)
 										owner.ApplyArtifactPowerRank(this, artifactPowerRank, newRank != 0);
@@ -3039,7 +3039,7 @@ public class Item : WorldObject
 
 							if (IsEquipped)
 							{
-								var artifactPowerRank = Global.DB2Mgr.GetArtifactPowerRank(ItemData.ArtifactPowers[artifactPowerIndex].ArtifactPowerId, (byte)(newRank != 0 ? newRank - 1 : 0));
+								var artifactPowerRank = _db2Manager.GetArtifactPowerRank(ItemData.ArtifactPowers[artifactPowerIndex].ArtifactPowerId, (byte)(newRank != 0 ? newRank - 1 : 0));
 
 								if (artifactPowerRank != null)
 									owner.ApplyArtifactPowerRank(this, artifactPowerRank, newRank != 0);
@@ -3051,18 +3051,18 @@ public class Item : WorldObject
 					case ItemEnchantmentType.ArtifactPowerBonusRankPicker:
 						if (slot >= EnchantmentSlot.Sock1 && slot <= EnchantmentSlot.Sock3 && BonusData.GemRelicType[slot - EnchantmentSlot.Sock1] != -1)
 						{
-							var artifactPowerPicker = CliDB.ArtifactPowerPickerStorage.LookupByKey(enchant.EffectArg[i]);
+							var artifactPowerPicker = _cliDb.ArtifactPowerPickerStorage.LookupByKey(enchant.EffectArg[i]);
 
 							if (artifactPowerPicker != null)
 							{
-								var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(artifactPowerPicker.PlayerConditionID);
+								var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(artifactPowerPicker.PlayerConditionID);
 
 								if (playerCondition == null || ConditionManager.IsPlayerMeetingCondition(owner, playerCondition))
 									for (var artifactPowerIndex = 0; artifactPowerIndex < ItemData.ArtifactPowers.Size(); ++artifactPowerIndex)
 									{
 										var artifactPower = ItemData.ArtifactPowers[artifactPowerIndex];
 
-										if (CliDB.ArtifactPowerStorage.LookupByKey(artifactPower.ArtifactPowerId).Label == BonusData.GemRelicType[slot - EnchantmentSlot.Sock1])
+										if (_cliDb.ArtifactPowerStorage.LookupByKey(artifactPower.ArtifactPowerId).Label == BonusData.GemRelicType[slot - EnchantmentSlot.Sock1])
 										{
 											var newRank = artifactPower.CurrentRankWithBonus;
 
@@ -3076,7 +3076,7 @@ public class Item : WorldObject
 
 											if (IsEquipped)
 											{
-												var artifactPowerRank = Global.DB2Mgr.GetArtifactPowerRank(artifactPower.ArtifactPowerId, (byte)(newRank != 0 ? newRank - 1 : 0));
+												var artifactPowerRank = _db2Manager.GetArtifactPowerRank(artifactPower.ArtifactPowerId, (byte)(newRank != 0 ? newRank - 1 : 0));
 
 												if (artifactPowerRank != null)
 													owner.ApplyArtifactPowerRank(this, artifactPowerRank, newRank != 0);

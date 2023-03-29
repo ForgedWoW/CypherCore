@@ -217,7 +217,7 @@ public class Scenario : CriteriaHandler
 
 	public override List<Criteria> GetCriteriaByType(CriteriaType type, uint asset)
 	{
-		return Global.CriteriaMgr.GetScenarioCriteriaByTypeAndScenario(type, _data.Entry.Id);
+		return _criteriaManager.GetScenarioCriteriaByTypeAndScenario(type, _data.Entry.Id);
 	}
 
 	public virtual void Update(uint diff) { }
@@ -272,7 +272,7 @@ public class Scenario : CriteriaHandler
 
 	bool IsCompletedStep(ScenarioStepRecord step)
 	{
-		var tree = Global.CriteriaMgr.GetCriteriaTree(step.CriteriaTreeId);
+		var tree = _criteriaManager.GetCriteriaTree(step.CriteriaTreeId);
 
 		if (tree == null)
 			return false;
@@ -339,7 +339,7 @@ public class Scenario : CriteriaHandler
 			if (!scenarioStep.IsBonusObjective())
 				continue;
 
-			if (Global.CriteriaMgr.GetCriteriaTree(scenarioStep.CriteriaTreeId) != null)
+			if (_criteriaManager.GetCriteriaTree(scenarioStep.CriteriaTreeId) != null)
 			{
 				BonusObjectiveData bonusObjectiveData;
 				bonusObjectiveData.BonusObjectiveID = (int)scenarioStep.Id;

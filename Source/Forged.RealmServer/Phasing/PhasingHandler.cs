@@ -33,7 +33,7 @@ public class PhasingHandler
 
 	public static PhaseFlags GetPhaseFlags(uint phaseId)
 	{
-		var phase = CliDB.PhaseStorage.LookupByKey(phaseId);
+		var phase = _cliDb.PhaseStorage.LookupByKey(phaseId);
 
 		if (phase != null)
 		{
@@ -92,7 +92,7 @@ public class PhasingHandler
 
 	public static void AddPhaseGroup(WorldObject obj, uint phaseGroupId, bool updateVisibility)
 	{
-		var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup(phaseGroupId);
+		var phasesInGroup = _db2Manager.GetPhasesForGroup(phaseGroupId);
 
 		if (phasesInGroup.Empty())
 			return;
@@ -103,7 +103,7 @@ public class PhasingHandler
 
 	public static void RemovePhaseGroup(WorldObject obj, uint phaseGroupId, bool updateVisibility)
 	{
-		var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup(phaseGroupId);
+		var phasesInGroup = _db2Manager.GetPhasesForGroup(phaseGroupId);
 
 		if (phasesInGroup.Empty())
 			return;
@@ -147,7 +147,7 @@ public class PhasingHandler
 		obj.SuppressedPhaseShift.VisibleMapIds.Clear();
 
 		foreach (var (mapId, visibleMapInfo) in _gameObjectManager.GetTerrainSwaps().KeyValueList)
-			if (Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.TerrainSwap, visibleMapInfo.Id, srcInfo))
+			if (_conditionManager.IsObjectMeetingNotGroupedConditions(ConditionSourceType.TerrainSwap, visibleMapInfo.Id, srcInfo))
 			{
 				if (mapId == obj.Location.MapId)
 					phaseShift.AddVisibleMapId(visibleMapInfo.Id, visibleMapInfo);
@@ -175,7 +175,7 @@ public class PhasingHandler
 		obj.SuppressedPhaseShift.ClearPhases();
 
 		var areaId = obj.Area;
-		var areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId);
+		var areaEntry = _cliDb.AreaTableStorage.LookupByKey(areaId);
 
 		while (areaEntry != null)
 		{
@@ -189,13 +189,13 @@ public class PhasingHandler
 
 					var phaseId = phaseArea.PhaseInfo.Id;
 
-					if (Global.ConditionMgr.IsObjectMeetToConditions(srcInfo, phaseArea.Conditions))
+					if (_conditionManager.IsObjectMeetToConditions(srcInfo, phaseArea.Conditions))
 						phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), phaseArea.Conditions);
 					else
 						suppressedPhaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), phaseArea.Conditions);
 				}
 
-			areaEntry = CliDB.AreaTableStorage.LookupByKey(areaEntry.ParentAreaID);
+			areaEntry = _cliDb.AreaTableStorage.LookupByKey(areaEntry.ParentAreaID);
 		}
 
 		var changed = phaseShift.Phases != oldPhases;
@@ -211,7 +211,7 @@ public class PhasingHandler
 
 			foreach (var aurEff in unit.GetAuraEffectsByType(AuraType.PhaseGroup))
 			{
-				var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup((uint)aurEff.MiscValueB);
+				var phasesInGroup = _db2Manager.GetPhasesForGroup((uint)aurEff.MiscValueB);
 
 				foreach (var phaseId in phasesInGroup)
 					changed = phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), null) || changed;
@@ -247,7 +247,7 @@ public class PhasingHandler
 		var changed = false;
 
 		foreach (var pair in phaseShift.Phases.ToList())
-			if (pair.Value.AreaConditions != null && !Global.ConditionMgr.IsObjectMeetToConditions(srcInfo, pair.Value.AreaConditions))
+			if (pair.Value.AreaConditions != null && !_conditionManager.IsObjectMeetToConditions(srcInfo, pair.Value.AreaConditions))
 			{
 				newSuppressions.AddPhase(pair.Key, pair.Value.Flags, pair.Value.AreaConditions, pair.Value.References);
 				phaseShift.ModifyPhasesReferences(pair.Key, pair.Value, -pair.Value.References);
@@ -255,7 +255,7 @@ public class PhasingHandler
 			}
 
 		foreach (var pair in suppressedPhaseShift.Phases.ToList())
-			if (Global.ConditionMgr.IsObjectMeetToConditions(srcInfo, pair.Value.AreaConditions))
+			if (_conditionManager.IsObjectMeetToConditions(srcInfo, pair.Value.AreaConditions))
 			{
 				changed = phaseShift.AddPhase(pair.Key, pair.Value.Flags, pair.Value.AreaConditions, pair.Value.References) || changed;
 				suppressedPhaseShift.ModifyPhasesReferences(pair.Key, pair.Value, -pair.Value.References);
@@ -263,7 +263,7 @@ public class PhasingHandler
 			}
 
 		foreach (var pair in phaseShift.VisibleMapIds.ToList())
-			if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.TerrainSwap, pair.Key, srcInfo))
+			if (!_conditionManager.IsObjectMeetingNotGroupedConditions(ConditionSourceType.TerrainSwap, pair.Key, srcInfo))
 			{
 				newSuppressions.AddVisibleMapId(pair.Key, pair.Value.VisibleMapInfo, pair.Value.References);
 
@@ -274,7 +274,7 @@ public class PhasingHandler
 			}
 
 		foreach (var pair in suppressedPhaseShift.VisibleMapIds.ToList())
-			if (Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.TerrainSwap, pair.Key, srcInfo))
+			if (_conditionManager.IsObjectMeetingNotGroupedConditions(ConditionSourceType.TerrainSwap, pair.Key, srcInfo))
 			{
 				changed = phaseShift.AddVisibleMapId(pair.Key, pair.Value.VisibleMapInfo, pair.Value.References) || changed;
 
@@ -299,7 +299,7 @@ public class PhasingHandler
 
 			foreach (var aurEff in unit.GetAuraEffectsByType(AuraType.PhaseGroup))
 			{
-				var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup((uint)aurEff.MiscValueB);
+				var phasesInGroup = _db2Manager.GetPhasesForGroup((uint)aurEff.MiscValueB);
 
 				if (!phasesInGroup.Empty())
 					foreach (var phaseId in phasesInGroup)
@@ -398,7 +398,7 @@ public class PhasingHandler
 		}
 		else
 		{
-			var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup(phaseGroupId);
+			var phasesInGroup = _db2Manager.GetPhasesForGroup(phaseGroupId);
 
 			foreach (var phaseInGroup in phasesInGroup)
 				phaseShift.AddPhase(phaseInGroup, GetPhaseFlags(phaseInGroup), null);
@@ -548,7 +548,7 @@ public class PhasingHandler
 
 	public static bool IsPersonalPhase(uint phaseId)
 	{
-		var phase = CliDB.PhaseStorage.LookupByKey(phaseId);
+		var phase = _cliDb.PhaseStorage.LookupByKey(phaseId);
 
 		if (phase != null)
 			return phase.Flags.HasFlag(PhaseEntryFlags.Personal);

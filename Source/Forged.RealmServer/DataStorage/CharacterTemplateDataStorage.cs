@@ -11,12 +11,12 @@ namespace Forged.RealmServer.DataStorage;
 public class CharacterTemplateDataStorage
 {
 	readonly Dictionary<uint, CharacterTemplate> _characterTemplateStore = new();
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly WorldDatabase _worldDatabase;
 
     CharacterTemplateDataStorage(CliDB cliDB, WorldDatabase worldDatabase)
     {
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _worldDatabase = worldDatabase;
 
 		LoadCharacterTemplates();
@@ -45,7 +45,7 @@ public class CharacterTemplateDataStorage
 					continue;
 				}
 
-				if (!_cliDB.ChrClassesStorage.ContainsKey(classID))
+				if (!_cliDb.ChrClassesStorage.ContainsKey(classID))
 				{
 					Log.Logger.Error("Class {0} defined for character template {1} in `character_template_class` does not exists, skipped.", classID, templateId);
 

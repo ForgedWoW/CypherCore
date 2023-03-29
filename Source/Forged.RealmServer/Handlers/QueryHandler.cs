@@ -20,7 +20,7 @@ public class QueryHandler : IWorldSessionHandler
     private readonly WorldSession _session;
     private readonly GameObjectManager _objectManager;
     private readonly ObjectAccessor _objectAccessor;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly WorldManager _worldManager;
 
     public QueryHandler(WorldSession session, GameObjectManager objectManager, ObjectAccessor objectAccessor,
@@ -29,7 +29,7 @@ public class QueryHandler : IWorldSessionHandler
         _session = session;
         _objectManager = objectManager;
         _objectAccessor = objectAccessor;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _worldManager = worldManager;
     }
 

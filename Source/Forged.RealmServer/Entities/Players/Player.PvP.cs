@@ -419,7 +419,7 @@ public partial class Player
 		if (gameobject)
 		{
 			var playerFaction = GetFactionTemplateEntry();
-			var faction = CliDB.FactionTemplateStorage.LookupByKey(gameobject.Faction);
+			var faction = _cliDb.FactionTemplateStorage.LookupByKey(gameobject.Faction);
 
 			if (playerFaction != null && faction != null && !playerFaction.IsFriendlyTo(faction))
 				return false;
@@ -712,7 +712,7 @@ public partial class Player
 
 	void RewardPlayerWithRewardPack(uint rewardPackId)
 	{
-		RewardPlayerWithRewardPack(CliDB.RewardPackStorage.LookupByKey(rewardPackId));
+		RewardPlayerWithRewardPack(_cliDb.RewardPackStorage.LookupByKey(rewardPackId));
 	}
 
 	void RewardPlayerWithRewardPack(RewardPackRecord rewardPackEntry)
@@ -720,19 +720,19 @@ public partial class Player
 		if (rewardPackEntry == null)
 			return;
 
-		var charTitlesEntry = CliDB.CharTitlesStorage.LookupByKey(rewardPackEntry.CharTitleID);
+		var charTitlesEntry = _cliDb.CharTitlesStorage.LookupByKey(rewardPackEntry.CharTitleID);
 
 		if (charTitlesEntry != null)
 			SetTitle(charTitlesEntry);
 
 		ModifyMoney(rewardPackEntry.Money);
 
-		var rewardCurrencyTypes = Global.DB2Mgr.GetRewardPackCurrencyTypesByRewardID(rewardPackEntry.Id);
+		var rewardCurrencyTypes = _db2Manager.GetRewardPackCurrencyTypesByRewardID(rewardPackEntry.Id);
 
 		foreach (var currency in rewardCurrencyTypes)
 			AddCurrency(currency.CurrencyTypeID, (uint)currency.Quantity /* TODO: CurrencyGainSource */);
 
-		var rewardPackXItems = Global.DB2Mgr.GetRewardPackItemsByRewardID(rewardPackEntry.Id);
+		var rewardPackXItems = _db2Manager.GetRewardPackItemsByRewardID(rewardPackEntry.Id);
 
 		foreach (var rewardPackXItem in rewardPackXItems)
 			AddItem(rewardPackXItem.ItemID, rewardPackXItem.ItemQuantity);
@@ -794,7 +794,7 @@ public partial class Player
 		if (InBattleground)
 			return true;
 
-		var area = CliDB.AreaTableStorage.LookupByKey(areaId);
+		var area = _cliDb.AreaTableStorage.LookupByKey(areaId);
 
 		if (area != null)
 			do
@@ -808,7 +808,7 @@ public partial class Player
 				if (Global.BattleFieldMgr.IsWorldPvpArea(area.Id))
 					return true;
 
-				area = CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
+				area = _cliDb.AreaTableStorage.LookupByKey(area.ParentAreaID);
 			} while (area != null);
 
 		return false;

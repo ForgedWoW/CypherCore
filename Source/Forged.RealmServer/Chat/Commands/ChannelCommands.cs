@@ -19,7 +19,7 @@ class ChannelCommands
 		{
 			uint channelId = 0;
 
-			foreach (var channelEntry in CliDB.ChatChannelsStorage.Values)
+			foreach (var channelEntry in _cliDb.ChatChannelsStorage.Values)
 				if (channelEntry.Name[handler.SessionDbcLocale].Equals(channelName, StringComparison.OrdinalIgnoreCase))
 				{
 					channelId = channelEntry.Id;
@@ -29,7 +29,7 @@ class ChannelCommands
 
 			AreaTableRecord zoneEntry = null;
 
-			foreach (var entry in CliDB.AreaTableStorage.Values)
+			foreach (var entry in _cliDb.AreaTableStorage.Values)
 				if (entry.AreaName[handler.SessionDbcLocale].Equals(channelName, StringComparison.OrdinalIgnoreCase))
 				{
 					zoneEntry = entry;
