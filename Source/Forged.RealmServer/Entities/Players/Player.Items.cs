@@ -862,7 +862,7 @@ public partial class Player
 
 			if (childItemEntry != null)
 			{
-				var childTemplate = Global.ObjectMgr.GetItemTemplate(childItemEntry.ChildItemID);
+				var childTemplate = _gameObjectManager.GetItemTemplate(childItemEntry.ChildItemID);
 
 				if (childTemplate != null)
 				{
@@ -1281,7 +1281,7 @@ public partial class Player
 				case InventoryResult.ItemMaxLimitCategorySocketedExceededIs:
 				case InventoryResult.ItemMaxLimitCategoryEquippedExceededIs:
 				{
-					var proto = item1 ? item1.Template : Global.ObjectMgr.GetItemTemplate(itemId);
+					var proto = item1 ? item1.Template : _gameObjectManager.GetItemTemplate(itemId);
 					failure.LimitCategory = (int)(proto != null ? proto.ItemLimitCategory : 0u);
 
 					break;
@@ -2625,7 +2625,7 @@ public partial class Player
 			Log.outDebug(LogFilter.Player, "STORAGE: AddItemToBuyBackSlot item = {0}, slot = {1}", pItem.Entry, slot);
 
 			_items[slot] = pItem;
-			var time = _gameTime.GetGameTime;
+			var time = _gameTime.CurrentGameTime;
 			var etime = (uint)(time - _logintime + (30 * 3600));
 			var eslot = slot - InventorySlots.BuyBackStart;
 
@@ -2834,7 +2834,7 @@ public partial class Player
 		if (!IsAlive)
 			return false;
 
-		var pProto = Global.ObjectMgr.GetItemTemplate(item);
+		var pProto = _gameObjectManager.GetItemTemplate(item);
 
 		if (pProto == null)
 		{
@@ -4415,7 +4415,7 @@ public partial class Player
 		// check unique-equipped on gems
 		foreach (var gemData in pItem.ItemData.Gems)
 		{
-			var pGem = Global.ObjectMgr.GetItemTemplate(gemData.ItemId);
+			var pGem = _gameObjectManager.GetItemTemplate(gemData.ItemId);
 
 			if (pGem == null)
 				continue;
@@ -4638,7 +4638,7 @@ public partial class Player
 	{
 		uint tempcount = 0;
 
-		var pProto = Global.ObjectMgr.GetItemTemplate(item);
+		var pProto = _gameObjectManager.GetItemTemplate(item);
 		var includeGems = pProto?.GemProperties != 0;
 
 		return !ForEachItem(ItemSearchLocation.Equipment,
@@ -5125,7 +5125,7 @@ public partial class Player
 
 				var sendItemsBatch = new Action<int, int>((batchNumber, batchSize) =>
 				{
-					MailDraft draft = new(Global.ObjectMgr.GetCypherString(CypherStrings.NotEquippedItem), "There were problems with equipping item(s).");
+					MailDraft draft = new(_gameObjectManager.GetCypherString(CypherStrings.NotEquippedItem), "There were problems with equipping item(s).");
 
 					for (var j = 0; j < batchSize; ++j)
 						draft.AddItem(unstorableItems[batchNumber * SharedConst.MaxMailItems + j]);
@@ -5226,7 +5226,7 @@ public partial class Player
 
 			--loot.unlootedCount;
 
-			if (Global.ObjectMgr.GetItemTemplate(item.itemid) != null)
+			if (_gameObjectManager.GetItemTemplate(item.itemid) != null)
 				if (newitem.Quality > ItemQuality.Epic || (newitem.Quality == ItemQuality.Epic && newitem.GetItemLevel(this) >= GuildConst.MinNewsItemLevel))
 				{
 					var guild = Guild;
@@ -5401,7 +5401,7 @@ public partial class Player
 			}
 		}
 
-		var setGuid = (newEqSet.Guid != 0) ? newEqSet.Guid : Global.ObjectMgr.GenerateEquipmentSetGuid();
+		var setGuid = (newEqSet.Guid != 0) ? newEqSet.Guid : _gameObjectManager.GenerateEquipmentSetGuid();
 
 		if (!_equipmentSets.ContainsKey(setGuid))
 			_equipmentSets[setGuid] = new EquipmentSetInfo();
@@ -5775,7 +5775,7 @@ public partial class Player
 		no_space_count = 0;
 		Log.outDebug(LogFilter.Player, "STORAGE: CanStoreItem bag = {0}, slot = {1}, item = {2}, count = {3}", bag, slot, entry, count);
 
-		var pProto = Global.ObjectMgr.GetItemTemplate(entry);
+		var pProto = _gameObjectManager.GetItemTemplate(entry);
 
 		if (pProto == null)
 		{
@@ -6338,7 +6338,7 @@ public partial class Player
 
 	InventoryResult CanTakeMoreSimilarItems(uint entry, uint count, Item pItem, ref uint no_space_count, ref uint offendingItemId)
 	{
-		var pProto = Global.ObjectMgr.GetItemTemplate(entry);
+		var pProto = _gameObjectManager.GetItemTemplate(entry);
 
 		if (pProto == null)
 		{

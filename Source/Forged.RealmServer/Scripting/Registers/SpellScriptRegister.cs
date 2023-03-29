@@ -14,6 +14,6 @@ public class SpellScriptRegister : IScriptRegister
 	{
 		if (attribute is SpellScriptAttribute spellScript && spellScript.SpellIds != null)
 			foreach (var id in spellScript.SpellIds)
-				Global.ObjectMgr.RegisterSpellScript(id, scriptName, spellScript.AllRanks);
+				_gameObjectManager.RegisterSpellScript(id, scriptName, spellScript.AllRanks);
 	}
 }

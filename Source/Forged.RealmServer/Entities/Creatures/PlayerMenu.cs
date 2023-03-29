@@ -39,12 +39,12 @@ public class PlayerMenu
 		packet.GossipGUID = objectGUID;
 		packet.GossipID = _gossipMenu.GetMenuId();
 
-		var addon = Global.ObjectMgr.GetGossipMenuAddon(packet.GossipID);
+		var addon = _gameObjectManager.GetGossipMenuAddon(packet.GossipID);
 
 		if (addon != null)
 			packet.FriendshipFactionID = addon.FriendshipFactionId;
 
-		var text = Global.ObjectMgr.GetNpcText(titleTextId);
+		var text = _gameObjectManager.GetNpcText(titleTextId);
 
 		if (text != null)
 			packet.TextID = (int)text.Data.SelectRandomElementByWeight(data => data.Probability).BroadcastTextID;
@@ -71,7 +71,7 @@ public class PlayerMenu
 		{
 			var item = _questMenu.GetItem(i);
 			var questID = item.QuestId;
-			var quest = Global.ObjectMgr.GetQuestTemplate(questID);
+			var quest = _gameObjectManager.GetQuestTemplate(questID);
 
 			if (quest != null)
 			{
@@ -88,7 +88,7 @@ public class PlayerMenu
 
 				if (locale != Locale.enUS)
 				{
-					var localeData = Global.ObjectMgr.GetQuestLocale(quest.Id);
+					var localeData = _gameObjectManager.GetQuestLocale(quest.Id);
 
 					if (localeData != null)
 						GameObjectManager.GetLocaleString(localeData.LogTitle, locale, ref gossipText.QuestTitle);
@@ -110,7 +110,7 @@ public class PlayerMenu
 
 	public void SendPointOfInterest(uint id)
 	{
-		var pointOfInterest = Global.ObjectMgr.GetPointOfInterest(id);
+		var pointOfInterest = _gameObjectManager.GetPointOfInterest(id);
 
 		if (pointOfInterest == null)
 		{
@@ -127,7 +127,7 @@ public class PlayerMenu
 
 		if (locale != Locale.enUS)
 		{
-			var localeData = Global.ObjectMgr.GetPointOfInterestLocale(id);
+			var localeData = _gameObjectManager.GetPointOfInterestLocale(id);
 
 			if (localeData != null)
 				GameObjectManager.GetLocaleString(localeData.Name, locale, ref packet.Name);
@@ -150,7 +150,7 @@ public class PlayerMenu
 		QuestGiverQuestListMessage questList = new();
 		questList.QuestGiverGUID = guid;
 
-		var questGreeting = Global.ObjectMgr.GetQuestGreeting(questgiver.TypeId, questgiver.Entry);
+		var questGreeting = _gameObjectManager.GetQuestGreeting(questgiver.TypeId, questgiver.Entry);
 
 		if (questGreeting != null)
 		{
@@ -160,7 +160,7 @@ public class PlayerMenu
 
 			if (localeConstant != Locale.enUS)
 			{
-				var questGreetingLocale = Global.ObjectMgr.GetQuestGreetingLocale(questgiver.TypeId, questgiver.Entry);
+				var questGreetingLocale = _gameObjectManager.GetQuestGreetingLocale(questgiver.TypeId, questgiver.Entry);
 
 				if (questGreetingLocale != null)
 					GameObjectManager.GetLocaleString(questGreetingLocale.Greeting, localeConstant, ref questList.Greeting);
@@ -172,7 +172,7 @@ public class PlayerMenu
 			var questMenuItem = _questMenu.GetItem(i);
 
 			var questID = questMenuItem.QuestId;
-			var quest = Global.ObjectMgr.GetQuestTemplate(questID);
+			var quest = _gameObjectManager.GetQuestTemplate(questID);
 
 			if (quest != null)
 			{
@@ -187,7 +187,7 @@ public class PlayerMenu
 
 				if (localeConstant != Locale.enUS)
 				{
-					var localeData = Global.ObjectMgr.GetQuestLocale(quest.Id);
+					var localeData = _gameObjectManager.GetQuestLocale(quest.Id);
 
 					if (localeData != null)
 						GameObjectManager.GetLocaleString(localeData.LogTitle, localeConstant, ref text.QuestTitle);
@@ -234,7 +234,7 @@ public class PlayerMenu
 
 		if (locale != Locale.enUS)
 		{
-			var localeData = Global.ObjectMgr.GetQuestLocale(quest.Id);
+			var localeData = _gameObjectManager.GetQuestLocale(quest.Id);
 
 			if (localeData != null)
 			{
@@ -338,7 +338,7 @@ public class PlayerMenu
 
 		if (locale != Locale.enUS)
 		{
-			var localeData = Global.ObjectMgr.GetQuestLocale(quest.Id);
+			var localeData = _gameObjectManager.GetQuestLocale(quest.Id);
 
 			if (localeData != null)
 			{
@@ -349,7 +349,7 @@ public class PlayerMenu
 				GameObjectManager.GetLocaleString(localeData.PortraitTurnInName, locale, ref packet.PortraitTurnInName);
 			}
 
-			var questOfferRewardLocale = Global.ObjectMgr.GetQuestOfferRewardLocale(quest.Id);
+			var questOfferRewardLocale = _gameObjectManager.GetQuestOfferRewardLocale(quest.Id);
 
 			if (questOfferRewardLocale != null)
 				GameObjectManager.GetLocaleString(questOfferRewardLocale.RewardText, locale, ref packet.RewardText);
@@ -421,12 +421,12 @@ public class PlayerMenu
 
 		if (locale != Locale.enUS)
 		{
-			var localeData = Global.ObjectMgr.GetQuestLocale(quest.Id);
+			var localeData = _gameObjectManager.GetQuestLocale(quest.Id);
 
 			if (localeData != null)
 				GameObjectManager.GetLocaleString(localeData.LogTitle, locale, ref packet.QuestTitle);
 
-			var questRequestItemsLocale = Global.ObjectMgr.GetQuestRequestItemsLocale(quest.Id);
+			var questRequestItemsLocale = _gameObjectManager.GetQuestRequestItemsLocale(quest.Id);
 
 			if (questRequestItemsLocale != null)
 				GameObjectManager.GetLocaleString(questRequestItemsLocale.CompletionText, locale, ref packet.CompletionText);

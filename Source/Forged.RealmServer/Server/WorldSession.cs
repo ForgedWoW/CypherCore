@@ -34,6 +34,10 @@ using Forged.RealmServer.DataStorage;
 using static Forged.RealmServer.Networking.Packets.ConnectTo;
 using Forged.RealmServer.DungeonFinding;
 using Forged.RealmServer.Cache;
+using System.Linq;
+using Forged.RealmServer.World;
+using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Forged.RealmServer.Scripting;
 
 namespace Forged.RealmServer;
 
@@ -75,6 +79,11 @@ public class WorldSession : IDisposable
     private readonly CharacterTemplateDataStorage _characterTemplateDataStorage;
     private readonly LFGManager _lFGManager;
     private readonly CharacterCache _characterCache;
+    private readonly GuildManager _guildManager;
+    private readonly ScriptManager _scriptManager;
+    private readonly SocialManager _socialManager;
+    private readonly CliDB _cliDB;
+    private readonly PacketManager _packetManager;
     private readonly ActionBlock<WorldPacket> _recvQueue;
 
 	readonly ConcurrentQueue<WorldPacket> _threadUnsafe = new();
@@ -227,11 +236,7 @@ public class WorldSession : IDisposable
 	public bool FilterAddonMessages { get; set; } = false;
 
     public WorldSession(uint id, string name, uint battlenetAccountId, WorldSocket sock, AccountTypes sec, Expansion expansion, 
-		long mute_time, string os, Locale locale, uint recruiter, bool isARecruiter, GameTime gameTime, WorldConfig worldConfig,
-		IConfiguration configuration, LoginDatabase loginDatabase, CharacterDatabase characterDatabase, RealmManager realmManager,
-		WorldManager worldManager, ObjectAccessor objectAccessor, GameObjectManager gameObjectManager, AccountManager accountManager,
-		DB2Manager dB2Manager, CharacterTemplateDataStorage characterTemplateDataStorage, LFGManager lFGManager,
-		CharacterCache characterCache)
+		long mute_time, string os, Locale locale, uint recruiter, bool isARecruiter, ClassFactory classFactory)
 	{
 		MuteTime = mute_time;
 		_antiDos = new DosProtection(this);
@@ -240,20 +245,25 @@ public class WorldSession : IDisposable
 		_accountId = id;
 		_accountName = name;
 		_battlenetAccountId = battlenetAccountId;
-        _gameTime = gameTime;
-        _worldConfig = worldConfig;
-        _configuration = configuration;
-        _loginDatabase = loginDatabase;
-        _characterDatabase = characterDatabase;
-        _realmManager = realmManager;
-        _worldManager = worldManager;
-        _objectAccessor = objectAccessor;
-        _gameObjectManager = gameObjectManager;
-        _accountManager = accountManager;
-        _dB2Manager = dB2Manager;
-        _characterTemplateDataStorage = characterTemplateDataStorage;
-        _lFGManager = lFGManager;
-        _characterCache = characterCache;
+        _configuration = classFactory.Resolve<IConfiguration>();
+        _worldConfig = classFactory.Resolve<WorldConfig>();
+        _loginDatabase = classFactory.Resolve<LoginDatabase>();
+        _characterDatabase = classFactory.Resolve<CharacterDatabase>();
+        _gameTime = classFactory.Resolve<GameTime>();
+        _realmManager = classFactory.Resolve<RealmManager>();
+        _worldManager = classFactory.Resolve<WorldManager>();
+        _packetManager = classFactory.Resolve<PacketManager>();
+        _objectAccessor = classFactory.Resolve<ObjectAccessor>();
+        _gameObjectManager = classFactory.Resolve<GameObjectManager>();
+        _accountManager = classFactory.Resolve<AccountManager>();
+        _dB2Manager = classFactory.Resolve<DB2Manager>();
+        _characterTemplateDataStorage = classFactory.Resolve<CharacterTemplateDataStorage>();
+        _lFGManager = classFactory.Resolve<LFGManager>();
+        _characterCache = classFactory.Resolve<CharacterCache>();
+        _guildManager = classFactory.Resolve<GuildManager>();
+        _scriptManager = classFactory.Resolve<ScriptManager>();
+        _socialManager = classFactory.Resolve<SocialManager>();
+        _cliDB = classFactory.Resolve<CliDB>();
 
         _configuredExpansion = _configuration.GetDefaultValue<int>("Player.OverrideExpansion", -1) == -1 ? Expansion.LevelCurrent : (Expansion)_configuration.GetDefaultValue<int>("Player.OverrideExpansion", -1);
 		_accountExpansion = Expansion.LevelCurrent == _configuredExpansion ? expansion : _configuredExpansion;
@@ -395,7 +405,7 @@ public class WorldSession : IDisposable
 
 		var conIdx = packet.GetConnection();
 
-		if (conIdx != ConnectionType.Instance && PacketManager.IsInstanceOnlyOpcode(packet.GetOpcode()))
+		if (conIdx != ConnectionType.Instance && _packetManager.IsInstanceOnlyOpcode(packet.GetOpcode()))
 		{
 			Log.Logger.Error("Prevented sending of instance only opcode {0} with connection type {1} to {2}", packet.GetOpcode(), packet.GetConnection(), GetPlayerInfo());
 
@@ -705,7 +715,7 @@ public class WorldSession : IDisposable
 
 	void ProcessQueue(WorldPacket packet)
 	{
-		var handler = PacketManager.GetHandler((ClientOpcodes)packet.GetOpcode());
+		var handler = _packetManager.GetHandler((ClientOpcodes)packet.GetOpcode());
 
 		if (handler != null)
 		{
@@ -752,7 +762,7 @@ public class WorldSession : IDisposable
 		{
 			try
 			{
-				var handler = PacketManager.GetHandler((ClientOpcodes)packet.GetOpcode());
+				var handler = _packetManager.GetHandler((ClientOpcodes)packet.GetOpcode());
 
 				switch (handler.sessionStatus)
 				{
@@ -931,7 +941,7 @@ public class WorldSession : IDisposable
 		_warden.HandleData(packet.Data);
 	}
 
-	void SetLogoutStartTime(long requestTime)
+	internal void SetLogoutStartTime(long requestTime)
 	{
 		_logoutTime = requestTime;
 	}
@@ -1037,7 +1047,7 @@ public class WorldSession : IDisposable
 		{
 			Log.Logger.Warning("The computed movement time using clockDelta is erronous. Using fallback instead");
 
-			return _gameTime.CurrentGameTimeMS;
+			return _gameTime.GameTimeMS;
 		}
 		else
 		{
@@ -1718,5 +1728,336 @@ public class WorldSession : IDisposable
     {
         Log.Logger.Debug("SMSG_LFG_TELEPORT_DENIED {0} reason: {1}", GetPlayerInfo(), err);
         SendPacket(new LfgTeleportDenied(err));
+    }
+
+    public void HandleContinuePlayerLogin()
+    {
+        if (PlayerLoading.IsEmpty || Player)
+        {
+            KickPlayer("WorldSession::HandleContinuePlayerLogin incorrect player state when logging in");
+
+            return;
+        }
+
+        LoginQueryHolder holder = new(AccountId, PlayerLoading, _characterDatabase, _worldConfig);
+        holder.Initialize();
+
+        SendPacket(new ResumeComms(ConnectionType.Instance));
+
+        AddQueryHolderCallback(_characterDatabase.DelayQueryHolder(holder)).AfterComplete(holder => HandlePlayerLogin((LoginQueryHolder)holder));
+    }
+
+    // Send to map server. a LOT of this method is map server only.
+    public void HandlePlayerLogin(LoginQueryHolder holder)
+    {
+        var playerGuid = holder.GetGuid();
+
+        Player pCurrChar = new(this);
+
+        if (!pCurrChar.LoadFromDB(playerGuid, holder))
+        {
+            Player = null;
+            KickPlayer("WorldSession::HandlePlayerLogin Player::LoadFromDB failed");
+            PlayerLoading.Clear();
+
+            return;
+        }
+
+        pCurrChar.SetVirtualPlayerRealm(_worldManager.VirtualRealmAddress);
+
+        SendAccountDataTimes(ObjectGuid.Empty, AccountDataTypes.GlobalCacheMask);
+        SendTutorialsData();
+
+        pCurrChar.MotionMaster.Initialize();
+        pCurrChar.SendDungeonDifficulty();
+
+        LoginVerifyWorld loginVerifyWorld = new();
+        loginVerifyWorld.MapID = (int)pCurrChar.Location.MapId;
+        loginVerifyWorld.Pos = pCurrChar.Location;
+        SendPacket(loginVerifyWorld);
+
+        // load player specific part before send times
+        LoadAccountData(holder.GetResult(PlayerLoginQueryLoad.AccountData), AccountDataTypes.PerCharacterCacheMask);
+
+        SendAccountDataTimes(playerGuid, AccountDataTypes.AllAccountDataCacheMask);
+
+        SendFeatureSystemStatus();
+
+        MOTD motd = new();
+        motd.Text = _worldManager.Motd;
+        SendPacket(motd);
+
+        SendSetTimeZoneInformation();
+
+        // Send PVPSeason
+        {
+            SeasonInfo seasonInfo = new();
+            seasonInfo.PreviousArenaSeason = (_worldConfig.GetIntValue(WorldCfg.ArenaSeasonId) - (_worldConfig.GetBoolValue(WorldCfg.ArenaSeasonInProgress) ? 1 : 0));
+
+            if (_worldConfig.GetBoolValue(WorldCfg.ArenaSeasonInProgress))
+                seasonInfo.CurrentArenaSeason = _worldConfig.GetIntValue(WorldCfg.ArenaSeasonId);
+
+            SendPacket(seasonInfo);
+        }
+
+        var resultGuild = holder.GetResult(PlayerLoginQueryLoad.Guild);
+
+        if (!resultGuild.IsEmpty())
+        {
+            pCurrChar.SetInGuild(resultGuild.Read<uint>(0));
+            pCurrChar.SetGuildRank(resultGuild.Read<byte>(1));
+            var guild = _guildManager.GetGuildById(pCurrChar.GuildId);
+
+            if (guild)
+                pCurrChar.GuildLevel = guild.GetLevel();
+        }
+        else if (pCurrChar.GuildId != 0)
+        {
+            pCurrChar.SetInGuild(0);
+            pCurrChar.SetGuildRank(0);
+            pCurrChar.GuildLevel = 0;
+        }
+
+        // Send stable contents to display icons on Call Pet spells
+        //if (pCurrChar.HasSpell(SharedConst.CallPetSpellId))
+        //          SendStablePet(ObjectGuid.Empty);
+
+        pCurrChar.Session.BattlePetMgr.SendJournalLockStatus();
+
+        pCurrChar.SendInitialPacketsBeforeAddToMap();
+
+        //Show cinematic at the first time that player login
+        if (pCurrChar.Cinematic == 0)
+        {
+            pCurrChar.Cinematic = 1;
+            var playerInfo = _gameObjectManager.GetPlayerInfo(pCurrChar.Race, pCurrChar.Class);
+
+            if (playerInfo != null)
+                switch (pCurrChar.CreateMode)
+                {
+                    case PlayerCreateMode.Normal:
+                        if (playerInfo.IntroMovieId.HasValue)
+                            pCurrChar.SendMovieStart(playerInfo.IntroMovieId.Value);
+                        else if (playerInfo.IntroSceneId.HasValue)
+                            pCurrChar.SceneMgr.PlayScene(playerInfo.IntroSceneId.Value);
+                        else if (_cliDB.ChrClassesStorage.TryGetValue((uint)pCurrChar.Class, out var chrClassesRecord) && chrClassesRecord.CinematicSequenceID != 0)
+                            pCurrChar.SendCinematicStart(chrClassesRecord.CinematicSequenceID);
+                        else if (_cliDB.ChrRacesStorage.TryGetValue((uint)pCurrChar.Race, out var chrRacesRecord) && chrRacesRecord.CinematicSequenceID != 0)
+                            pCurrChar.SendCinematicStart(chrRacesRecord.CinematicSequenceID);
+
+                        break;
+                    case PlayerCreateMode.NPE:
+                        if (playerInfo.IntroSceneIdNpe.HasValue)
+                            pCurrChar.SceneMgr.PlayScene(playerInfo.IntroSceneIdNpe.Value);
+
+                        break;
+                    default:
+                        break;
+                }
+        }
+
+        if (!pCurrChar.Map.AddPlayerToMap(pCurrChar))
+        {
+            var at = _gameObjectManager.GetGoBackTrigger(pCurrChar.Location.MapId);
+
+            if (at != null)
+                pCurrChar.TeleportTo(at.target_mapId, at.target_X, at.target_Y, at.target_Z, pCurrChar.Location.Orientation);
+            else
+                pCurrChar.TeleportTo(pCurrChar.Homebind);
+        }
+
+        _objectAccessor.AddObject(pCurrChar);
+
+        if (pCurrChar.GuildId != 0)
+        {
+            var guild = _guildManager.GetGuildById(pCurrChar.GuildId);
+
+            if (guild)
+            {
+                guild.SendLoginInfo(this);
+            }
+            else
+            {
+                // remove wrong guild data
+                Log.Logger.Error(
+                            "Player {0} ({1}) marked as member of not existing guild (id: {2}), removing guild membership for player.",
+                            pCurrChar.GetName(),
+                            pCurrChar.GUID.ToString(),
+                            pCurrChar.GuildId);
+
+                pCurrChar.SetInGuild(0);
+            }
+        }
+
+        pCurrChar.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Login);
+
+        pCurrChar.SendInitialPacketsAfterAddToMap();
+
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHAR_ONLINE);
+        stmt.AddValue(0, pCurrChar.GUID.Counter);
+        _characterDatabase.Execute(stmt);
+
+        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_ONLINE);
+        stmt.AddValue(0, AccountId);
+        _loginDatabase.Execute(stmt);
+
+        pCurrChar.SetInGameTime(_gameTime.GameTimeMS);
+
+        // announce group about member online (must be after add to player list to receive announce to self)
+        var group = pCurrChar.Group;
+
+        if (group)
+        {
+            group.SendUpdate();
+
+            if (group.LeaderGUID == pCurrChar.GUID)
+                group.StopLeaderOfflineTimer();
+        }
+
+        // friend status
+        _socialManager.SendFriendStatus(pCurrChar, FriendsResult.Online, pCurrChar.GUID, true);
+
+        // Place character in world (and load zone) before some object loading
+        pCurrChar.LoadCorpse(holder.GetResult(PlayerLoginQueryLoad.CorpseLocation));
+
+        // Send to map server. a lot of this method has to be cleaned a split between map and realm
+        // setting Ghost+speed if dead
+        //      if (pCurrChar.DeathState == DeathState.Dead)
+        //{
+        //	// not blizz like, we must correctly save and load player instead...
+        //	if (pCurrChar.Race == Race.NightElf && !pCurrChar.HasAura(20584))
+        //		pCurrChar.CastSpell(pCurrChar, 20584, new CastSpellExtraArgs(true)); // auras SPELL_AURA_INCREASE_SPEED(+speed in wisp form), SPELL_AURA_INCREASE_SWIM_SPEED(+swim speed in wisp form), SPELL_AURA_TRANSFORM (to wisp form)
+
+        //	if (!pCurrChar.HasAura(8326))
+        //		pCurrChar.CastSpell(pCurrChar, 8326, new CastSpellExtraArgs(true)); // auras SPELL_AURA_GHOST, SPELL_AURA_INCREASE_SPEED(why?), SPELL_AURA_INCREASE_SWIM_SPEED(why?)
+
+        //	pCurrChar.SetWaterWalking(true);
+        //}
+
+        pCurrChar.ContinueTaxiFlight();
+
+        // reset for all pets before pet loading
+        if (pCurrChar.HasAtLoginFlag(AtLoginFlags.ResetPetTalents))
+        {
+            // Delete all of the player's pet spells
+            var stmtSpells = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_PET_SPELLS_BY_OWNER);
+            stmtSpells.AddValue(0, pCurrChar.GUID.Counter);
+            _characterDatabase.Execute(stmtSpells);
+
+            // Then reset all of the player's pet specualizations
+            var stmtSpec = _characterDatabase.GetPreparedStatement(CharStatements.UPD_PET_SPECS_BY_OWNER);
+            stmtSpec.AddValue(0, pCurrChar.GUID.Counter);
+            _characterDatabase.Execute(stmtSpec);
+        }
+
+        // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
+        pCurrChar.ResummonPetTemporaryUnSummonedIfAny();
+
+        // Set FFA PvP for non GM in non-rest mode
+        if (_worldManager.IsFFAPvPRealm && !pCurrChar.IsGameMaster && !pCurrChar.HasPlayerFlag(PlayerFlags.Resting))
+            pCurrChar.SetPvpFlag(UnitPVPStateFlags.FFAPvp);
+
+        if (pCurrChar.HasPlayerFlag(PlayerFlags.ContestedPVP))
+            pCurrChar.SetContestedPvP();
+
+        // Apply at_login requests
+        if (pCurrChar.HasAtLoginFlag(AtLoginFlags.ResetSpells))
+        {
+            pCurrChar.ResetSpells();
+            SendNotification(CypherStrings.ResetSpells);
+        }
+
+        if (pCurrChar.HasAtLoginFlag(AtLoginFlags.ResetTalents))
+        {
+            pCurrChar.ResetTalents(true);
+            pCurrChar.ResetTalentSpecialization();
+            pCurrChar.SendTalentsInfoData(); // original talents send already in to SendInitialPacketsBeforeAddToMap, resend reset state
+            SendNotification(CypherStrings.ResetTalents);
+        }
+
+        if (pCurrChar.HasAtLoginFlag(AtLoginFlags.FirstLogin))
+        {
+            pCurrChar.RemoveAtLoginFlag(AtLoginFlags.FirstLogin);
+        }
+
+        // show time before shutdown if shutdown planned.
+        if (_worldManager.IsShuttingDown)
+            _worldManager.ShutdownMsg(true, pCurrChar);
+
+        if (_worldConfig.GetBoolValue(WorldCfg.AllTaxiPaths))
+            pCurrChar.SetTaxiCheater(true);
+
+        if (pCurrChar.IsGameMaster)
+            SendNotification(CypherStrings.GmOn);
+
+        var IP_str = RemoteAddress;
+        Log.Logger.Debug($"Account: {AccountId} (IP: {RemoteAddress}) Login Character: [{pCurrChar.GetName()}] ({pCurrChar.GUID}) Level: {pCurrChar.Level}, XP: {Player.XP}/{Player.XPForNextLevel} ({Player.XPForNextLevel - Player.XP} left)");
+
+        if (!pCurrChar.IsStandState && !pCurrChar.HasUnitState(UnitState.Stunned))
+            pCurrChar.SetStandState(UnitStandStateType.Stand);
+
+        pCurrChar.UpdateAverageItemLevelTotal();
+        pCurrChar.UpdateAverageItemLevelEquipped();
+
+        PlayerLoading.Clear();
+
+        // Handle Login-Achievements (should be handled after loading)
+        Player.UpdateCriteria(CriteriaType.Login, 1);
+
+        _scriptManager.ForEach<IPlayerOnLogin>(p => p.OnLogin(pCurrChar));
+    }
+
+    public void SendFeatureSystemStatus()
+    {
+        FeatureSystemStatus features = new();
+
+        // START OF DUMMY VALUES
+        features.ComplaintStatus = (byte)ComplaintStatus.EnabledWithAutoIgnore;
+        features.TwitterPostThrottleLimit = 60;
+        features.TwitterPostThrottleCooldown = 20;
+        features.CfgRealmID = 2;
+        features.CfgRealmRecID = 0;
+        features.TokenPollTimeSeconds = 300;
+        features.VoiceEnabled = false;
+        features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
+
+        EuropaTicketConfig europaTicketSystemStatus = new();
+        europaTicketSystemStatus.ThrottleState.MaxTries = 10;
+        europaTicketSystemStatus.ThrottleState.PerMilliseconds = 60000;
+        europaTicketSystemStatus.ThrottleState.TryCount = 1;
+        europaTicketSystemStatus.ThrottleState.LastResetTimeBeforeNow = 111111;
+        features.TutorialsEnabled = true;
+        features.NPETutorialsEnabled = true;
+        // END OF DUMMY VALUES
+
+        europaTicketSystemStatus.TicketsEnabled = _worldConfig.GetBoolValue(WorldCfg.SupportTicketsEnabled);
+        europaTicketSystemStatus.BugsEnabled = _worldConfig.GetBoolValue(WorldCfg.SupportBugsEnabled);
+        europaTicketSystemStatus.ComplaintsEnabled = _worldConfig.GetBoolValue(WorldCfg.SupportComplaintsEnabled);
+        europaTicketSystemStatus.SuggestionsEnabled = _worldConfig.GetBoolValue(WorldCfg.SupportSuggestionsEnabled);
+
+        features.EuropaTicketSystemStatus = europaTicketSystemStatus;
+
+        features.CharUndeleteEnabled = _worldConfig.GetBoolValue(WorldCfg.FeatureSystemCharacterUndeleteEnabled);
+        features.BpayStoreEnabled = _worldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled);
+        features.WarModeFeatureEnabled = _worldConfig.GetBoolValue(WorldCfg.FeatureSystemWarModeEnabled);
+        features.IsMuted = !CanSpeak;
+
+
+        features.TextToSpeechFeatureEnabled = false;
+
+        SendPacket(features);
+    }
+
+    public void AbortLogin(LoginFailureReason reason)
+    {
+        if (PlayerLoading.IsEmpty || Player)
+        {
+            KickPlayer("WorldSession::AbortLogin incorrect player state when logging in");
+
+            return;
+        }
+
+        PlayerLoading.Clear();
+        SendPacket(new CharacterLoginFailed(reason));
     }
 }

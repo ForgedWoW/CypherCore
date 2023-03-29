@@ -833,7 +833,7 @@ public class CollectionMgr
 		if (!CliDB.ItemSearchNameStorage.ContainsKey(itemModifiedAppearance.ItemID))
 			return false;
 
-		var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemModifiedAppearance.ItemID);
+		var itemTemplate = _gameObjectManager.GetItemTemplate(itemModifiedAppearance.ItemID);
 
 		if (itemTemplate == null)
 			return false;

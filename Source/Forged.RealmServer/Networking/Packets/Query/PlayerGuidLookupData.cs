@@ -25,7 +25,7 @@ public class PlayerGuidLookupData
 
 	public bool Initialize(ObjectGuid guid, Player player = null)
 	{
-		var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(guid);
+		var characterInfo = _characterCache.GetCharacterCacheByGuid(guid);
 
 		if (characterInfo == null)
 			return false;
@@ -47,7 +47,7 @@ public class PlayerGuidLookupData
 		}
 		else
 		{
-			var accountId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(guid);
+			var accountId = _characterCache.GetCharacterAccountIdByGuid(guid);
 			var bnetAccountId = Global.BNetAccountMgr.GetIdByGameAccount(accountId);
 
 			AccountID = ObjectGuid.Create(HighGuid.WowAccount, accountId);

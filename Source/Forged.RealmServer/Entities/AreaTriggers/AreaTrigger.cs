@@ -113,7 +113,7 @@ public class AreaTrigger : WorldObject
 
 	private float Progress => TimeSinceCreated < TimeToTargetScale ? (float)TimeSinceCreated / TimeToTargetScale : 1.0f;
 
-	private Unit Target => Global.ObjAccessor.GetUnit(this, _targetGuid);
+	private Unit Target => _objectAccessor.GetUnit(this, _targetGuid);
 
 	private float MaxSearchRadius => _maxSearchRadius;
 
@@ -284,7 +284,7 @@ public class AreaTrigger : WorldObject
 
 	public Unit GetCaster()
 	{
-		return Global.ObjAccessor.GetUnit(this, CasterGuid);
+		return _objectAccessor.GetUnit(this, CasterGuid);
 	}
 
 	public void UpdateShape()
@@ -815,7 +815,7 @@ public class AreaTrigger : WorldObject
 
 		foreach (var exitUnitGuid in exitUnits)
 		{
-			var leavingUnit = Global.ObjAccessor.GetUnit(this, exitUnitGuid);
+			var leavingUnit = _objectAccessor.GetUnit(this, exitUnitGuid);
 
 			if (leavingUnit)
 			{
@@ -967,7 +967,7 @@ public class AreaTrigger : WorldObject
 
 							break;
 						case AreaTriggerActionTypes.Teleport:
-							var safeLoc = Global.ObjectMgr.GetWorldSafeLoc(action.Param);
+							var safeLoc = _gameObjectManager.GetWorldSafeLoc(action.Param);
 
 							if (safeLoc != null && caster.TryGetAsPlayer(out var player))
 								player.TeleportTo(safeLoc.Loc);
@@ -1038,7 +1038,7 @@ public class AreaTrigger : WorldObject
 
 		if (_orbitInfo.PathTarget.HasValue)
 		{
-			var center = Global.ObjAccessor.GetWorldObject(this, _orbitInfo.PathTarget.Value);
+			var center = _objectAccessor.GetWorldObject(this, _orbitInfo.PathTarget.Value);
 
 			if (center)
 				return center.Location;

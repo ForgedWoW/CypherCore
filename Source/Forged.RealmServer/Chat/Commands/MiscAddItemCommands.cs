@@ -102,7 +102,7 @@ class MiscAddItemCommands
 		if (!playerTarget)
 			playerTarget = player;
 
-		var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemId);
+		var itemTemplate = _gameObjectManager.GetItemTemplate(itemId);
 
 		if (itemTemplate == null)
 		{
@@ -214,10 +214,10 @@ class MiscAddItemCommands
 		if (!playerTarget)
 			playerTarget = player;
 
-		Log.Logger.Debug(Global.ObjectMgr.GetCypherString(CypherStrings.Additemset), itemSetId);
+		Log.Logger.Debug(_gameObjectManager.GetCypherString(CypherStrings.Additemset), itemSetId);
 
 		var found = false;
-		var its = Global.ObjectMgr.GetItemTemplates();
+		var its = _gameObjectManager.GetItemTemplates();
 
 		foreach (var template in its)
 		{
@@ -359,7 +359,7 @@ class MiscAddItemCommands
 				if (uint.TryParse(token, out var bonusListId))
 					bonusListIDs.Add(bonusListId);
 
-		var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemId);
+		var itemTemplate = _gameObjectManager.GetItemTemplate(itemId);
 
 		if (itemTemplate == null)
 		{

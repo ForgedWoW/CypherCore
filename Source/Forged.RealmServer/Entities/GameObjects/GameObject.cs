@@ -97,7 +97,7 @@ namespace Forged.RealmServer.Entities
 		{
 			get
 			{
-				var got = Global.ObjectMgr.GetGameObjectTemplate(Entry);
+				var got = _gameObjectManager.GetGameObjectTemplate(Entry);
 
 				if (got != null)
 					return got.AIName;
@@ -112,7 +112,7 @@ namespace Forged.RealmServer.Entities
 			{
 				if (_spawnId != 0)
 				{
-					var goOverride = Global.ObjectMgr.GetGameObjectOverride(_spawnId);
+					var goOverride = _gameObjectManager.GetGameObjectOverride(_spawnId);
 
 					if (goOverride != null)
 						return goOverride;
@@ -253,7 +253,7 @@ namespace Forged.RealmServer.Entities
 		{
 			get
 			{
-				var now = _gameTime.GetGameTime;
+				var now = _gameTime.CurrentGameTime;
 
 				if (_respawnTime > now)
 					return _respawnTime;
@@ -315,7 +315,7 @@ namespace Forged.RealmServer.Entities
 			set
 			{
 				SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.ArtKit), value);
-				var data = Global.ObjectMgr.GetGameObjectData(_spawnId);
+				var data = _gameObjectManager.GetGameObjectData(_spawnId);
 
 				if (data != null)
 					data.ArtKit = value;
@@ -461,7 +461,7 @@ namespace Forged.RealmServer.Entities
 
 		public static GameObject CreateGameObject(uint entry, Map map, Position pos, Quaternion rotation, uint animProgress, GameObjectState goState, uint artKit = 0)
 		{
-			var goInfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+			var goInfo = _gameObjectManager.GetGameObjectTemplate(entry);
 
 			if (goInfo == null)
 				return null;
@@ -515,7 +515,7 @@ namespace Forged.RealmServer.Entities
 					if (playerState.ValidUntil > _gameTime.GetSystemTime)
 						continue;
 
-					var seer = Global.ObjAccessor.GetPlayer(this, guid);
+					var seer = _objectAccessor.GetPlayer(this, guid);
 					var needsStateUpdate = playerState.State != GoState;
 					var despawned = playerState.Despawned;
 
@@ -556,10 +556,10 @@ namespace Forged.RealmServer.Entities
 							var owner = OwnerUnit;
 
 							if (goInfo.Trap.charges == 2)
-								_cooldownTime = _gameTime.GetGameTimeMS + 10 * Time.InMilliseconds; // Hardcoded tooltip value
+								_cooldownTime = _gameTime.CurrentGameTimeMS + 10 * Time.InMilliseconds; // Hardcoded tooltip value
 							else if (owner)
 								if (owner.IsInCombat)
-									_cooldownTime = _gameTime.GetGameTimeMS + goInfo.Trap.startDelay * Time.InMilliseconds;
+									_cooldownTime = _gameTime.CurrentGameTimeMS + goInfo.Trap.startDelay * Time.InMilliseconds;
 
 							_lootState = LootState.Ready;
 
@@ -568,7 +568,7 @@ namespace Forged.RealmServer.Entities
 						case GameObjectTypes.FishingNode:
 						{
 							// fishing code (bobber ready)
-							if (_gameTime.GetGameTime > _respawnTime - 5)
+							if (_gameTime.CurrentGameTime > _respawnTime - 5)
 							{
 								// splash bobber (bobber ready now)
 								var caster = OwnerUnit;
@@ -582,7 +582,7 @@ namespace Forged.RealmServer.Entities
 							return;
 						}
 						case GameObjectTypes.Chest:
-							if (_restockTime > _gameTime.GetGameTime)
+							if (_restockTime > _gameTime.CurrentGameTime)
 								return;
 
 							// If there is no restock timer, or if the restock timer passed, the chest becomes ready to loot
@@ -605,7 +605,7 @@ namespace Forged.RealmServer.Entities
 					if (_respawnCompatibilityMode)
 						if (_respawnTime > 0) // timer on
 						{
-							var now = _gameTime.GetGameTime;
+							var now = _gameTime.CurrentGameTime;
 
 							if (_respawnTime <= now) // timer expired
 							{
@@ -614,7 +614,7 @@ namespace Forged.RealmServer.Entities
 
 								if (linkedRespawntime != 0) // Can't respawn, the master is dead
 								{
-									var targetGuid = Global.ObjectMgr.GetLinkedRespawnGuid(dbtableHighGuid);
+									var targetGuid = _gameObjectManager.GetLinkedRespawnGuid(dbtableHighGuid);
 
 									if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
 										SetRespawnTime(Time.Week);
@@ -696,7 +696,7 @@ namespace Forged.RealmServer.Entities
 
 						if (goInfo.type == GameObjectTypes.Trap)
 						{
-							if (_gameTime.GetGameTimeMS < _cooldownTime)
+							if (_gameTime.CurrentGameTimeMS < _cooldownTime)
 								break;
 
 							// Type 2 (bomb) does not need to be triggered by a unit and despawns after casting its spell.
@@ -822,12 +822,12 @@ namespace Forged.RealmServer.Entities
 					{
 						case GameObjectTypes.Door:
 						case GameObjectTypes.Button:
-							if (_cooldownTime != 0 && _gameTime.GetGameTimeMS >= _cooldownTime)
+							if (_cooldownTime != 0 && _gameTime.CurrentGameTimeMS >= _cooldownTime)
 								ResetDoorOrButton();
 
 							break;
 						case GameObjectTypes.Goober:
-							if (_gameTime.GetGameTimeMS >= _cooldownTime)
+							if (_gameTime.CurrentGameTimeMS >= _cooldownTime)
 							{
 								RemoveFlag(GameObjectFlags.InUse);
 
@@ -843,7 +843,7 @@ namespace Forged.RealmServer.Entities
 								loot.Update();
 
 							// Non-consumable chest was partially looted and restock time passed, restock all loot now
-							if (Template.Chest.consumable == 0 && Template.Chest.chestRestockTime != 0 && _gameTime.GetGameTime >= _restockTime)
+							if (Template.Chest.consumable == 0 && Template.Chest.chestRestockTime != 0 && _gameTime.CurrentGameTime >= _restockTime)
 							{
 								_restockTime = 0;
 								_lootState = LootState.Ready;
@@ -855,7 +855,7 @@ namespace Forged.RealmServer.Entities
 						case GameObjectTypes.Trap:
 						{
 							var goInfo = Template;
-							var target = Global.ObjAccessor.GetUnit(this, _lootStateUnitGuid);
+							var target = _objectAccessor.GetUnit(this, _lootStateUnitGuid);
 
 							if (goInfo.Trap.charges == 2 && goInfo.Trap.spell != 0)
 							{
@@ -873,7 +873,7 @@ namespace Forged.RealmServer.Entities
 									CastSpell(target, goInfo.Trap.spell, args);
 
 								// Template value or 4 seconds
-								_cooldownTime = (_gameTime.GetGameTimeMS + (goInfo.Trap.cooldown != 0 ? goInfo.Trap.cooldown : 4u)) * Time.InMilliseconds;
+								_cooldownTime = (_gameTime.CurrentGameTimeMS + (goInfo.Trap.cooldown != 0 ? goInfo.Trap.cooldown : 4u)) * Time.InMilliseconds;
 
 								if (goInfo.Trap.charges == 1)
 									SetLootState(LootState.JustDeactivated);
@@ -921,7 +921,7 @@ namespace Forged.RealmServer.Entities
 							foreach (var id in _uniqueUsers)
 							{
 								// m_unique_users can contain only player GUIDs
-								var owner = Global.ObjAccessor.GetPlayer(this, id);
+								var owner = _objectAccessor.GetPlayer(this, id);
 
 								if (owner != null)
 									owner.CastSpell(owner, spellId, false);
@@ -952,7 +952,7 @@ namespace Forged.RealmServer.Entities
 						if (GoType == GameObjectTypes.Chest && Template.Chest.chestRestockTime > 0)
 						{
 							// Start restock timer when the chest is fully looted
-							_restockTime = _gameTime.GetGameTime + Template.Chest.chestRestockTime;
+							_restockTime = _gameTime.CurrentGameTime + Template.Chest.chestRestockTime;
 							SetLootState(LootState.NotReady);
 							UpdateDynamicFlagsForNearbyPlayers();
 						}
@@ -1007,7 +1007,7 @@ namespace Forged.RealmServer.Entities
 					if (scalingMode != 0)
 						Map.ApplyDynamicModeRespawnScaling(this, _spawnId, ref respawnDelay, scalingMode);
 
-					_respawnTime = _gameTime.GetGameTime + respawnDelay;
+					_respawnTime = _gameTime.CurrentGameTime + respawnDelay;
 
 					// if option not set then object will be saved at grid unload
 					// Otherwise just save respawn time to map object memory
@@ -1148,7 +1148,7 @@ namespace Forged.RealmServer.Entities
 		{
 			// this should only be used when the gameobject has already been loaded
 			// preferably after adding to map, because mapid may not be valid otherwise
-			var data = Global.ObjectMgr.GetGameObjectData(_spawnId);
+			var data = _gameObjectManager.GetGameObjectData(_spawnId);
 
 			if (data == null)
 			{
@@ -1175,10 +1175,10 @@ namespace Forged.RealmServer.Entities
 				return;
 
 			if (_spawnId == 0)
-				_spawnId = Global.ObjectMgr.GenerateGameObjectSpawnId();
+				_spawnId = _gameObjectManager.GenerateGameObjectSpawnId();
 
 			// update in loaded data (changing data only in this place)
-			var data = Global.ObjectMgr.NewOrExistGameObjectData(_spawnId);
+			var data = _gameObjectManager.NewOrExistGameObjectData(_spawnId);
 
 			if (data.SpawnId == 0)
 				data.SpawnId = _spawnId;
@@ -1194,7 +1194,7 @@ namespace Forged.RealmServer.Entities
 			data.ArtKit = (byte)GoArtKit;
 
 			if (data.SpawnGroupData == null)
-				data.SpawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
+				data.SpawnGroupData = _gameObjectManager.GetDefaultSpawnGroup();
 
 			data.PhaseId = DBPhase > 0 ? (uint)DBPhase : data.PhaseId;
 			data.PhaseGroup = DBPhase < 0 ? (uint)-DBPhase : data.PhaseGroup;
@@ -1228,7 +1228,7 @@ namespace Forged.RealmServer.Entities
 
 		public override bool LoadFromDB(ulong spawnId, Map map, bool addToMap, bool unused = true)
 		{
-			var data = Global.ObjectMgr.GetGameObjectData(spawnId);
+			var data = _gameObjectManager.GetGameObjectData(spawnId);
 
 			if (data == null)
 			{
@@ -1268,7 +1268,7 @@ namespace Forged.RealmServer.Entities
 					_respawnTime = Map.GetGORespawnTime(_spawnId);
 
 					// ready to respawn
-					if (_respawnTime != 0 && _respawnTime <= _gameTime.GetGameTime)
+					if (_respawnTime != 0 && _respawnTime <= _gameTime.CurrentGameTime)
 					{
 						_respawnTime = 0;
 						Map.RemoveRespawnTime(SpawnObjectType.GameObject, _spawnId);
@@ -1298,7 +1298,7 @@ namespace Forged.RealmServer.Entities
 
 		public static bool DeleteFromDB(ulong spawnId)
 		{
-			var data = Global.ObjectMgr.GetGameObjectData(spawnId);
+			var data = _gameObjectManager.GetGameObjectData(spawnId);
 
 			if (data == null)
 				return false;
@@ -1321,7 +1321,7 @@ namespace Forged.RealmServer.Entities
 												});
 
 			// delete data from memory
-			Global.ObjectMgr.DeleteGameObjectData(spawnId);
+			_gameObjectManager.DeleteGameObjectData(spawnId);
 
 			trans = new SQLTransaction();
 
@@ -1365,17 +1365,17 @@ namespace Forged.RealmServer.Entities
 
 		public override bool HasQuest(uint questId)
 		{
-			return Global.ObjectMgr.GetGOQuestRelations(Entry).HasQuest(questId);
+			return _gameObjectManager.GetGOQuestRelations(Entry).HasQuest(questId);
 		}
 
 		public override bool HasInvolvedQuest(uint questId)
 		{
-			return Global.ObjectMgr.GetGOQuestInvolvedRelations(Entry).HasQuest(questId);
+			return _gameObjectManager.GetGOQuestInvolvedRelations(Entry).HasQuest(questId);
 		}
 
 		public void SaveRespawnTime(uint forceDelay = 0)
 		{
-			if (_goData != null && (forceDelay != 0 || _respawnTime > _gameTime.GetGameTime) && _spawnedByDefault)
+			if (_goData != null && (forceDelay != 0 || _respawnTime > _gameTime.CurrentGameTime) && _spawnedByDefault)
 			{
 				if (_respawnCompatibilityMode)
 				{
@@ -1388,7 +1388,7 @@ namespace Forged.RealmServer.Entities
 					return;
 				}
 
-				var thisRespawnTime = forceDelay != 0 ? _gameTime.GetGameTime + forceDelay : _respawnTime;
+				var thisRespawnTime = forceDelay != 0 ? _gameTime.CurrentGameTime + forceDelay : _respawnTime;
 				Map.SaveRespawnTime(SpawnObjectType.GameObject, _spawnId, Entry, thisRespawnTime, GridDefines.ComputeGridCoord(Location.X, Location.Y).GetId());
 			}
 		}
@@ -1459,7 +1459,7 @@ namespace Forged.RealmServer.Entities
 		{
 			if (_spawnedByDefault && _respawnTime > 0)
 			{
-				_respawnTime = _gameTime.GetGameTime;
+				_respawnTime = _gameTime.CurrentGameTime;
 				Map.Respawn(SpawnObjectType.GameObject, _spawnId);
 			}
 		}
@@ -1469,7 +1469,7 @@ namespace Forged.RealmServer.Entities
 			if (target.HasQuestForGO((int)Entry))
 				return true;
 
-			if (!Global.ObjectMgr.IsGameObjectForQuests(Entry))
+			if (!_gameObjectManager.IsGameObjectForQuests(Entry))
 				return false;
 
 			switch (GoType)
@@ -1523,7 +1523,7 @@ namespace Forged.RealmServer.Entities
 
 		public void TriggeringLinkedGameObject(uint trapEntry, Unit target)
 		{
-			var trapInfo = Global.ObjectMgr.GetGameObjectTemplate(trapEntry);
+			var trapInfo = _gameObjectManager.GetGameObjectTemplate(trapEntry);
 
 			if (trapInfo == null || trapInfo.type != GameObjectTypes.Trap)
 				return;
@@ -1562,7 +1562,7 @@ namespace Forged.RealmServer.Entities
 			SwitchDoorOrButton(true, alternative);
 			SetLootState(LootState.Activated, user);
 
-			_cooldownTime = time_to_restore != 0 ? _gameTime.GetGameTimeMS + time_to_restore : 0;
+			_cooldownTime = time_to_restore != 0 ? _gameTime.CurrentGameTimeMS + time_to_restore : 0;
 		}
 
 		public void ActivateObject(GameObjectActions action, int param, WorldObject spellCaster = null, uint spellId = 0, int effectIndex = -1)
@@ -1743,7 +1743,7 @@ namespace Forged.RealmServer.Entities
 			}
 			else if (lowguid != 0)
 			{
-				data = Global.ObjectMgr.GetGameObjectData(lowguid);
+				data = _gameObjectManager.GetGameObjectData(lowguid);
 			}
 
 			if (data != null)
@@ -1778,10 +1778,10 @@ namespace Forged.RealmServer.Entities
 
 			if (cooldown != 0)
 			{
-				if (_cooldownTime > _gameTime.GetGameTime)
+				if (_cooldownTime > _gameTime.CurrentGameTime)
 					return;
 
-				_cooldownTime = _gameTime.GetGameTimeMS + cooldown * Time.InMilliseconds;
+				_cooldownTime = _gameTime.CurrentGameTimeMS + cooldown * Time.InMilliseconds;
 			}
 
 			switch (GoType)
@@ -1860,7 +1860,7 @@ namespace Forged.RealmServer.Entities
 
 								foreach (var tapperGuid in TapList)
 								{
-									var tapper = Global.ObjAccessor.GetPlayer(this, tapperGuid);
+									var tapper = _objectAccessor.GetPlayer(this, tapperGuid);
 
 									if (tapper != null)
 										tappers.Add(tapper);
@@ -1933,7 +1933,7 @@ namespace Forged.RealmServer.Entities
 					if (goInfo.Trap.spell != 0)
 						CastSpell(user, goInfo.Trap.spell);
 
-					_cooldownTime = _gameTime.GetGameTimeMS + (goInfo.Trap.cooldown != 0 ? goInfo.Trap.cooldown : 4) * Time.InMilliseconds; // template or 4 seconds
+					_cooldownTime = _gameTime.CurrentGameTimeMS + (goInfo.Trap.cooldown != 0 ? goInfo.Trap.cooldown : 4) * Time.InMilliseconds; // template or 4 seconds
 
 					if (goInfo.Trap.charges == 1) // Deactivate after trigger
 						SetLootState(LootState.JustDeactivated);
@@ -1977,7 +1977,7 @@ namespace Forged.RealmServer.Entities
 
 						if (!sittingUnit.IsEmpty)
 						{
-							var chairUser = Global.ObjAccessor.GetUnit(this, sittingUnit);
+							var chairUser = _objectAccessor.GetUnit(this, sittingUnit);
 
 							if (chairUser != null)
 							{
@@ -2062,7 +2062,7 @@ namespace Forged.RealmServer.Entities
 						}
 
 						// possible quest objective for active quests
-						if (info.Goober.questID != 0 && Global.ObjectMgr.GetQuestTemplate(info.Goober.questID) != null)
+						if (info.Goober.questID != 0 && _gameObjectManager.GetQuestTemplate(info.Goober.questID) != null)
 							//Quest require to be active for GO using
 							if (player.GetQuestStatus(info.Goober.questID) != QuestStatus.Incomplete)
 								break;
@@ -2105,7 +2105,7 @@ namespace Forged.RealmServer.Entities
 						else
 							SetGoState(GameObjectState.Active);
 
-						_cooldownTime = _gameTime.GetGameTimeMS + info.GetAutoCloseTime();
+						_cooldownTime = _gameTime.CurrentGameTimeMS + info.GetAutoCloseTime();
 					}
 
 					// cast this spell later if provided
@@ -2160,10 +2160,10 @@ namespace Forged.RealmServer.Entities
 
 							GetZoneAndAreaId(out var zone, out var subzone);
 
-							var zone_skill = Global.ObjectMgr.GetFishingBaseSkillLevel(subzone);
+							var zone_skill = _gameObjectManager.GetFishingBaseSkillLevel(subzone);
 
 							if (zone_skill == 0)
-								zone_skill = Global.ObjectMgr.GetFishingBaseSkillLevel(zone);
+								zone_skill = _gameObjectManager.GetFishingBaseSkillLevel(zone);
 
 							//provide error, no fishable zone or area should be 0
 							if (zone_skill == 0)
@@ -2310,7 +2310,7 @@ namespace Forged.RealmServer.Entities
 							for (uint i = 0; i < info.Ritual.casterTargetSpellTargets; i++)
 							{
 								// m_unique_users can contain only player GUIDs
-								var target = Global.ObjAccessor.GetPlayer(this, _uniqueUsers.SelectRandom());
+								var target = _objectAccessor.GetPlayer(this, _uniqueUsers.SelectRandom());
 
 								if (target != null)
 									spellCaster.CastSpell(target, info.Ritual.casterTargetSpell, true);
@@ -2375,7 +2375,7 @@ namespace Forged.RealmServer.Entities
 
 					var player = user.AsPlayer;
 
-					var targetPlayer = Global.ObjAccessor.FindPlayer(player.Target);
+					var targetPlayer = _objectAccessor.FindPlayer(player.Target);
 
 					// accept only use by player from same raid as caster, except caster itself
 					if (targetPlayer == null || targetPlayer == player || !targetPlayer.IsInSameRaidWith(player))
@@ -2783,7 +2783,7 @@ namespace Forged.RealmServer.Entities
 		{
 			if (locale != Locale.enUS)
 			{
-				var cl = Global.ObjectMgr.GetGameObjectLocale(Entry);
+				var cl = _gameObjectManager.GetGameObjectLocale(Entry);
 
 				if (cl != null)
 					if (cl.Name.Length > (int)locale && !cl.Name[(int)locale].IsEmpty())
@@ -3108,7 +3108,7 @@ namespace Forged.RealmServer.Entities
 
 			// Start restock timer if the chest is partially looted or not looted at all
 			if (GoType == GameObjectTypes.Chest && state == LootState.Activated && Template.Chest.chestRestockTime > 0 && _restockTime == 0)
-				_restockTime = _gameTime.GetGameTime + Template.Chest.chestRestockTime;
+				_restockTime = _gameTime.CurrentGameTime + Template.Chest.chestRestockTime;
 
 			// only set collision for doors on SetGoState
 			if (GoType == GameObjectTypes.Door)
@@ -3614,7 +3614,7 @@ namespace Forged.RealmServer.Entities
 
 		public void SetRespawnTime(int respawn)
 		{
-			_respawnTime = respawn > 0 ? _gameTime.GetGameTime + respawn : 0;
+			_respawnTime = respawn > 0 ? _gameTime.CurrentGameTime + respawn : 0;
 			_respawnDelayTime = (uint)(respawn > 0 ? respawn : 0);
 
 			if (respawn != 0 && !_spawnedByDefault)
@@ -3760,7 +3760,7 @@ namespace Forged.RealmServer.Entities
 			if (ownerGUID.IsEmpty)
 				return;
 
-			var owner = Global.ObjAccessor.GetUnit(this, ownerGUID);
+			var owner = _objectAccessor.GetUnit(this, ownerGUID);
 
 			if (owner)
 			{
@@ -3810,7 +3810,7 @@ namespace Forged.RealmServer.Entities
 					return false;
 			}
 
-			var goInfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+			var goInfo = _gameObjectManager.GetGameObjectTemplate(entry);
 
 			if (goInfo == null)
 			{
@@ -3841,7 +3841,7 @@ namespace Forged.RealmServer.Entities
 			Create(guid);
 
 			GoInfoProtected = goInfo;
-			GoTemplateAddonProtected = Global.ObjectMgr.GetGameObjectTemplateAddon(entry);
+			GoTemplateAddonProtected = _gameObjectManager.GetGameObjectTemplateAddon(entry);
 
 			if (goInfo.type >= GameObjectTypes.Max)
 			{
@@ -3851,7 +3851,7 @@ namespace Forged.RealmServer.Entities
 			}
 
 			SetLocalRotation(rotation.X, rotation.Y, rotation.Z, rotation.W);
-			var gameObjectAddon = Global.ObjectMgr.GetGameObjectAddon(SpawnId);
+			var gameObjectAddon = _gameObjectManager.GetGameObjectAddon(SpawnId);
 
 			// For most of gameobjects is (0, 0, 0, 1) quaternion, there are only some transports with not standard rotation
 			var parentRotation = Quaternion.Identity;

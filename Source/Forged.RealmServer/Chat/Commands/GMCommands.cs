@@ -77,7 +77,7 @@ class GMCommands
 		var first = true;
 		var footer = false;
 
-		foreach (var player in Global.ObjAccessor.GetPlayers())
+		foreach (var player in _objectAccessor.GetPlayers())
 		{
 			var playerSec = player.Session.Security;
 
@@ -188,7 +188,7 @@ class GMCommands
 
 		if (!visibleArg.HasValue)
 		{
-			handler.SendSysMessage(CypherStrings.YouAre, _player.IsGMVisible ? Global.ObjectMgr.GetCypherString(CypherStrings.Visible) : Global.ObjectMgr.GetCypherString(CypherStrings.Invisible));
+			handler.SendSysMessage(CypherStrings.YouAre, _player.IsGMVisible ? _gameObjectManager.GetCypherString(CypherStrings.Visible) : _gameObjectManager.GetCypherString(CypherStrings.Invisible));
 
 			return true;
 		}

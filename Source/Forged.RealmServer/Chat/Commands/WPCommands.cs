@@ -992,7 +992,7 @@ class WPCommands
 			return true;
 		}
 
-		var addon = Global.ObjectMgr.GetCreatureAddon(guidLow);
+		var addon = _gameObjectManager.GetCreatureAddon(guidLow);
 
 		if (addon == null || addon.PathId == 0)
 		{

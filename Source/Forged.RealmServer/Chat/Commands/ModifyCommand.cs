@@ -308,7 +308,7 @@ class ModifyCommand
 		{
 			var newmoney = (long)targetMoney + moneyToAdd;
 
-			Log.Logger.Debug(Global.ObjectMgr.GetCypherString(CypherStrings.CurrentMoney), targetMoney, moneyToAdd, newmoney);
+			Log.Logger.Debug(_gameObjectManager.GetCypherString(CypherStrings.CurrentMoney), targetMoney, moneyToAdd, newmoney);
 
 			if (newmoney <= 0)
 			{
@@ -349,7 +349,7 @@ class ModifyCommand
 			target.ModifyMoney(moneyToAdd);
 		}
 
-		Log.Logger.Debug(Global.ObjectMgr.GetCypherString(CypherStrings.NewMoney), targetMoney, moneyToAdd, target.Money);
+		Log.Logger.Debug(_gameObjectManager.GetCypherString(CypherStrings.NewMoney), targetMoney, moneyToAdd, target.Money);
 
 		return true;
 	}
@@ -635,7 +635,7 @@ class ModifyCommand
 			return false;
 		}
 
-		var info = Global.ObjectMgr.GetPlayerInfo(target.Race, target.Class);
+		var info = _gameObjectManager.GetPlayerInfo(target.Race, target.Class);
 
 		if (info == null)
 			return false;
@@ -675,7 +675,7 @@ class ModifyCommand
 		target.InitDisplayIds();
 
 		target.RestoreDisplayId(false);
-		Global.CharacterCacheStorage.UpdateCharacterGender(target.GUID, (byte)gender);
+		_characterCache.UpdateCharacterGender(target.GUID, (byte)gender);
 
 		// Generate random customizations
 		List<ChrCustomizationChoice> customizations = new();

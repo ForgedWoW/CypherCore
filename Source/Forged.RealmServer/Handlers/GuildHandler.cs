@@ -7,16 +7,20 @@ using Forged.RealmServer.Guilds;
 using Forged.RealmServer.Networking;
 using Forged.RealmServer.Networking.Packets;
 using Game.Common.Handlers;
+using Forged.RealmServer.Globals;
+using static Forged.RealmServer.Guilds.Guild;
 
 namespace Forged.RealmServer;
 
 public class GuildHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
+    private readonly GuildManager _guildManager;
 
-    public GuildHandler(WorldSession session)
+    public GuildHandler(WorldSession session, GuildManager guildManager)
     {
         _session = session;
+        _guildManager = guildManager;
     }
 
     [WorldPacketHandler(ClientOpcodes.GuildInviteByName)]
@@ -25,7 +29,7 @@ public class GuildHandler : IWorldSessionHandler
 		if (!GameObjectManager.NormalizePlayerName(ref packet.Name))
 			return;
 
-		var guild = _session._session.Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
 			guild.HandleInviteMember(_session, packet.Name);
@@ -45,7 +49,7 @@ public class GuildHandler : IWorldSessionHandler
 	{
 		if (_session.Player.GuildId == 0)
 		{
-			var guild = Global.GuildMgr.GetGuildById(_session.Player.GuildIdInvited);
+			var guild = _guildManager.GetGuildById(_session.Player.GuildIdInvited);
 
 			if (guild)
 				guild.HandleAcceptMember(_session);
@@ -59,7 +63,7 @@ public class GuildHandler : IWorldSessionHandler
 			return;
 
 		_session.Player.GuildIdInvited = 0;
-		Player.SetInGuild(0);
+        _session.Player.SetInGuild(0);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildPromoteMember)]
@@ -83,7 +87,7 @@ public class GuildHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.GuildAssignMemberRank)]
 	void HandleGuildAssignRank(GuildAssignMemberRank packet)
 	{
-		var setterGuid = Player.GUID;
+		var setterGuid = _session.Player.GUID;
 
 		var guild = _session.Player.Guild;
 
@@ -190,7 +194,7 @@ public class GuildHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SaveGuildEmblem)]
 	void HandleSaveGuildEmblem(SaveGuildEmblem packet)
 	{
-        _session.Player.Guild.EmblemInfo emblemInfo = new();
+        EmblemInfo emblemInfo = new();
 		emblemInfo.ReadPacket(packet);
 
 		if (_session.Player.GetNPCIfCanInteractWith(packet.Vendor, NPCFlags.TabardDesigner, NPCFlags2.None))

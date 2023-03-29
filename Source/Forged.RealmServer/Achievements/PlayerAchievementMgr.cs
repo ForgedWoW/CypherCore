@@ -102,7 +102,7 @@ public class PlayerAchievementMgr : AchievementManager
 
 		if (!criteriaResult.IsEmpty())
 		{
-			var now = _gameTime.GetGameTime;
+			var now = _gameTime.CurrentGameTime;
 
 			do
 			{
@@ -344,7 +344,7 @@ public class PlayerAchievementMgr : AchievementManager
 		Log.Logger.Debug("PlayerAchievementMgr.CompletedAchievement({0}). {1}", achievement.Id, GetOwnerInfo());
 
 		CompletedAchievementData ca = new();
-		ca.Date = _gameTime.GetGameTime;
+		ca.Date = _gameTime.CurrentGameTime;
 		ca.Changed = true;
 		_completedAchievements[achievement.Id] = ca;
 
@@ -505,7 +505,7 @@ public class PlayerAchievementMgr : AchievementManager
 
 		if (!achievement.Flags.HasAnyFlag(AchievementFlags.TrackingFlag))
 		{
-			var guild = Global.GuildMgr.GetGuildById(_owner.GuildId);
+			var guild = _guildManager.GetGuildById(_owner.GuildId);
 
 			if (guild)
 			{
@@ -538,7 +538,7 @@ public class PlayerAchievementMgr : AchievementManager
 		achievementEarned.Earner = _owner.GUID;
 		achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = _worldManager.VirtualRealmAddress;
 		achievementEarned.AchievementID = achievement.Id;
-		achievementEarned.Time = _gameTime.GetGameTime;
+		achievementEarned.Time = _gameTime.CurrentGameTime;
 
 		if (!achievement.Flags.HasAnyFlag(AchievementFlags.TrackingFlag))
 			_owner.SendMessageToSetInRange(achievementEarned, _worldConfig.GetFloatValue(WorldCfg.ListenRangeSay), true);

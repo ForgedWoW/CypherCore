@@ -2182,7 +2182,7 @@ public partial class Unit
 		// @todo: implement debug info
 
 		ContentTuningParams contentTuningParams = new();
-		var caster = Global.ObjAccessor.GetUnit(this, aura.CasterGuid);
+		var caster = _objectAccessor.GetUnit(this, aura.CasterGuid);
 
 		if (caster && contentTuningParams.GenerateDataForUnits(caster, this))
 			spellLogEffect.ContentTuning = contentTuningParams;
@@ -2429,7 +2429,7 @@ public partial class Unit
 
 			// Remember time after last aura from group removed
 			if (diminish.Stack == 0)
-				diminish.HitTime = _gameTime.GetGameTimeMS;
+				diminish.HitTime = _gameTime.CurrentGameTimeMS;
 		}
 	}
 
@@ -2594,7 +2594,7 @@ public partial class Unit
 		var spellClickEntry = VehicleKit1 != null ? VehicleKit1.GetCreatureEntry() : Entry;
 		var flags = VehicleKit1 ? TriggerCastFlags.IgnoreCasterMountedOrOnVehicle : TriggerCastFlags.None;
 
-		var clickBounds = Global.ObjectMgr.GetSpellClickInfoMapBounds(spellClickEntry);
+		var clickBounds = _gameObjectManager.GetSpellClickInfoMapBounds(spellClickEntry);
 
 		foreach (var clickInfo in clickBounds)
 		{

@@ -7,6 +7,7 @@ using Forged.RealmServer.Networking.Packets;
 using Framework.Util;
 using Game.Common.Handlers;
 using Forged.RealmServer.DataStorage;
+using Forged.RealmServer.Globals;
 
 namespace Forged.RealmServer.Handlers;
 

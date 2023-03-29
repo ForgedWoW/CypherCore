@@ -37,7 +37,7 @@ public class ArenaTeam
 	public bool Create(ObjectGuid captainGuid, byte _type, string arenaTeamName, uint backgroundColor, byte emblemStyle, uint emblemColor, byte borderStyle, uint borderColor)
 	{
 		// Check if captain exists
-		if (Global.CharacterCacheStorage.GetCharacterCacheByGuid(captainGuid) == null)
+		if (_characterCache.GetCharacterCacheByGuid(captainGuid) == null)
 			return false;
 
 		// Check if arena team name is already taken
@@ -91,14 +91,14 @@ public class ArenaTeam
 
 		// Get player name and class either from db or character cache
 		CharacterCacheEntry characterInfo;
-		var player = Global.ObjAccessor.FindPlayer(playerGuid);
+		var player = _objectAccessor.FindPlayer(playerGuid);
 
 		if (player)
 		{
 			playerClass = player.Class;
 			playerName = player.GetName();
 		}
-		else if ((characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(playerGuid)) != null)
+		else if ((characterInfo = _characterCache.GetCharacterCacheByGuid(playerGuid)) != null)
 		{
 			playerName = characterInfo.Name;
 			playerClass = characterInfo.ClassId;
@@ -109,7 +109,7 @@ public class ArenaTeam
 		}
 
 		// Check if player is already in a similar arena team
-		if ((player && player.GetArenaTeamId(GetSlot()) != 0) || Global.CharacterCacheStorage.GetCharacterArenaTeamIdByGuid(playerGuid, GetArenaType()) != 0)
+		if ((player && player.GetArenaTeamId(GetSlot()) != 0) || _characterCache.GetCharacterArenaTeamIdByGuid(playerGuid, GetArenaType()) != 0)
 		{
 			Log.outDebug(LogFilter.Arena, "Arena: {0} {1} already has an arena team of type {2}", playerGuid.ToString(), playerName, GetArenaType());
 
@@ -154,7 +154,7 @@ public class ArenaTeam
 		newMember.MatchMakerRating = (ushort)matchMakerRating;
 
 		Members.Add(newMember);
-		Global.CharacterCacheStorage.UpdateCharacterArenaTeamId(playerGuid, GetSlot(), GetId());
+		_characterCache.UpdateCharacterArenaTeamId(playerGuid, GetSlot(), GetId());
 
 		// Save player's arena team membership to db
 		stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_ARENA_TEAM_MEMBER);
@@ -244,7 +244,7 @@ public class ArenaTeam
 
 			// Put the player in the team
 			Members.Add(newMember);
-			Global.CharacterCacheStorage.UpdateCharacterArenaTeamId(newMember.Guid, GetSlot(), GetId());
+			_characterCache.UpdateCharacterArenaTeamId(newMember.Guid, GetSlot(), GetId());
 		} while (result.NextRow());
 
 		if (Empty() || !captainPresentInTeam)
@@ -260,7 +260,7 @@ public class ArenaTeam
 
 	public bool SetName(string name)
 	{
-		if (TeamName == name || string.IsNullOrEmpty(name) || name.Length > 24 || Global.ObjectMgr.IsReservedName(name) || !GameObjectManager.IsValidCharterName(name))
+		if (TeamName == name || string.IsNullOrEmpty(name) || name.Length > 24 || _gameObjectManager.IsReservedName(name) || !GameObjectManager.IsValidCharterName(name))
 			return false;
 
 		TeamName = name;
@@ -275,7 +275,7 @@ public class ArenaTeam
 	public void SetCaptain(ObjectGuid guid)
 	{
 		// Disable remove/promote buttons
-		var oldCaptain = Global.ObjAccessor.FindPlayer(GetCaptain());
+		var oldCaptain = _objectAccessor.FindPlayer(GetCaptain());
 
 		if (oldCaptain)
 			oldCaptain.SetArenaTeamInfoField(GetSlot(), ArenaTeamInfoType.Member, 1);
@@ -290,7 +290,7 @@ public class ArenaTeam
 		_characterDatabase.Execute(stmt);
 
 		// Enable remove/promote buttons
-		var newCaptain = Global.ObjAccessor.FindPlayer(guid);
+		var newCaptain = _objectAccessor.FindPlayer(guid);
 
 		if (newCaptain)
 		{
@@ -316,13 +316,13 @@ public class ArenaTeam
 			if (member.Guid == guid)
 			{
 				Members.Remove(member);
-				Global.CharacterCacheStorage.UpdateCharacterArenaTeamId(guid, GetSlot(), 0);
+				_characterCache.UpdateCharacterArenaTeamId(guid, GetSlot(), 0);
 
 				break;
 			}
 
 		// Remove arena team info from player data
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 		{
@@ -417,7 +417,7 @@ public class ArenaTeam
 		// Updates arena team stats for every member of the team (not only the ones who participated!)
 		foreach (var member in Members)
 		{
-			var player = Global.ObjAccessor.FindPlayer(member.Guid);
+			var player = _objectAccessor.FindPlayer(member.Guid);
 
 			if (player)
 				SendStats(player.Session);
@@ -476,7 +476,7 @@ public class ArenaTeam
 		foreach (var member in Members)
 		{
 			// Skip if player is not online
-			if (!Global.ObjAccessor.FindPlayer(member.Guid))
+			if (!_objectAccessor.FindPlayer(member.Guid))
 				continue;
 
 			// Skip if player is not a member of group
@@ -510,7 +510,7 @@ public class ArenaTeam
 			// Check if rating related achivements are met
 			foreach (var member in Members)
 			{
-				var player = Global.ObjAccessor.FindPlayer(member.Guid);
+				var player = _objectAccessor.FindPlayer(member.Guid);
 
 				if (player)
 					player.UpdateCriteria(CriteriaType.EarnTeamArenaRating, stats.Rating, type);
@@ -704,7 +704,7 @@ public class ArenaTeam
 	{
 		foreach (var member in Members)
 		{
-			var player = Global.ObjAccessor.FindPlayer(member.Guid);
+			var player = _objectAccessor.FindPlayer(member.Guid);
 
 			if (player)
 				if (player.Map.IsBattleArena)
@@ -781,7 +781,7 @@ public class ArenaTeam
 	{
 		foreach (var member in Members)
 		{
-			var player = Global.ObjAccessor.FindPlayer(member.Guid);
+			var player = _objectAccessor.FindPlayer(member.Guid);
 
 			if (player)
 				player.SendPacket(packet);

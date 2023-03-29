@@ -306,7 +306,7 @@ public class Garrison
 		{
 			placeBuildingResult.BuildingInfo.GarrPlotInstanceID = garrPlotInstanceId;
 			placeBuildingResult.BuildingInfo.GarrBuildingID = garrBuildingId;
-			placeBuildingResult.BuildingInfo.TimeBuilt = _gameTime.GetGameTime;
+			placeBuildingResult.BuildingInfo.TimeBuilt = _gameTime.CurrentGameTime;
 
 			var plot = GetPlot(garrPlotInstanceId);
 			uint oldBuildingId = 0;
@@ -389,7 +389,7 @@ public class Garrison
 				placeBuildingResult.Result = GarrisonError.Success;
 				placeBuildingResult.BuildingInfo.GarrPlotInstanceID = garrPlotInstanceId;
 				placeBuildingResult.BuildingInfo.GarrBuildingID = restored;
-				placeBuildingResult.BuildingInfo.TimeBuilt = _gameTime.GetGameTime;
+				placeBuildingResult.BuildingInfo.TimeBuilt = _gameTime.CurrentGameTime;
 				placeBuildingResult.BuildingInfo.Active = true;
 
 				plot.SetBuildingInfo(placeBuildingResult.BuildingInfo, _owner);
@@ -722,7 +722,7 @@ public class Garrison
 			{
 				var building = CliDB.GarrBuildingStorage.LookupByKey(PacketInfo.GarrBuildingID);
 
-				if (PacketInfo.TimeBuilt + building.BuildSeconds <= _gameTime.GetGameTime)
+				if (PacketInfo.TimeBuilt + building.BuildSeconds <= _gameTime.CurrentGameTime)
 					return true;
 			}
 
@@ -754,7 +754,7 @@ public class Garrison
 					entry = faction == GarrisonFactionIndex.Horde ? building.HordeGameObjectID : building.AllianceGameObjectID;
 			}
 
-			if (Global.ObjectMgr.GetGameObjectTemplate(entry) == null)
+			if (_gameObjectManager.GetGameObjectTemplate(entry) == null)
 			{
 				Log.Logger.Error("Garrison attempted to spawn gameobject whose template doesn't exist ({0})", entry);
 
@@ -794,7 +794,7 @@ public class Garrison
 			}
 
 			if (go.GoType == GameObjectTypes.GarrisonBuilding && go.Template.GarrisonBuilding.SpawnMap != 0)
-				foreach (var cellGuids in Global.ObjectMgr.GetMapObjectGuids((uint)go.Template.GarrisonBuilding.SpawnMap, map.DifficultyID))
+				foreach (var cellGuids in _gameObjectManager.GetMapObjectGuids((uint)go.Template.GarrisonBuilding.SpawnMap, map.DifficultyID))
 				{
 					foreach (var spawnId in cellGuids.Value.creatures)
 					{

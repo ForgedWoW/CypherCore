@@ -108,7 +108,7 @@ public class DynamicObject : WorldObject
 
 		SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.SpellID), spell.Id);
 		SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.Radius), radius);
-		SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.CastTime), _gameTime.GetGameTimeMS);
+		SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.CastTime), _gameTime.CurrentGameTimeMS);
 
 		if (IsWorldObject())
 			SetActive(true); //must before add to map to be put in world container
@@ -291,7 +291,7 @@ public class DynamicObject : WorldObject
 
 	void BindToCaster()
 	{
-		_caster = Global.ObjAccessor.GetUnit(this, GetCasterGUID());
+		_caster = _objectAccessor.GetUnit(this, GetCasterGUID());
 		_caster._RegisterDynObject(this);
 	}
 

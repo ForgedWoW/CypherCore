@@ -121,7 +121,7 @@ public class CreatureTemplate
 	{
 		foreach (var model in Models)
 		{
-			var modelInfo = Global.ObjectMgr.GetCreatureModelInfo(model.CreatureDisplayId);
+			var modelInfo = _gameObjectManager.GetCreatureModelInfo(model.CreatureDisplayId);
 
 			if (modelInfo != null && modelInfo.IsTrigger)
 				return model;
@@ -134,7 +134,7 @@ public class CreatureTemplate
 	{
 		foreach (var model in Models)
 		{
-			var modelInfo = Global.ObjectMgr.GetCreatureModelInfo(model.CreatureDisplayId);
+			var modelInfo = _gameObjectManager.GetCreatureModelInfo(model.CreatureDisplayId);
 
 			if (modelInfo != null && !modelInfo.IsTrigger)
 				return model;
@@ -259,7 +259,7 @@ public class CreatureTemplate
 		stats.TitleAlt = TitleAlt;
 		stats.CursorName = IconName;
 
-		var items = Global.ObjectMgr.GetCreatureQuestItemList(Entry);
+		var items = _gameObjectManager.GetCreatureQuestItemList(Entry);
 
 		if (items != null)
 			stats.QuestItems.AddRange(items);

@@ -20,7 +20,7 @@ class ListCommands
 	[Command("creature", RBACPermissions.CommandListCreature, true)]
 	static bool HandleListCreatureCommand(CommandHandler handler, uint creatureId, uint? countArg)
 	{
-		var cInfo = Global.ObjectMgr.GetCreatureTemplate(creatureId);
+		var cInfo = _gameObjectManager.GetCreatureTemplate(creatureId);
 
 		if (cInfo == null)
 		{
@@ -331,7 +331,7 @@ class ListCommands
 										var item_entry = result3.Read<uint>(0);
 										var item_count = result3.Read<uint>(1);
 
-										var itemTemplate = Global.ObjectMgr.GetItemTemplate(item_entry);
+										var itemTemplate = _gameObjectManager.GetItemTemplate(item_entry);
 
 										if (itemTemplate == null)
 											continue;
@@ -368,7 +368,7 @@ class ListCommands
 	[Command("object", RBACPermissions.CommandListObject, true)]
 	static bool HandleListObjectCommand(CommandHandler handler, uint gameObjectId, uint? countArg)
 	{
-		var gInfo = Global.ObjectMgr.GetGameObjectTemplate(gameObjectId);
+		var gInfo = _gameObjectManager.GetGameObjectTemplate(gameObjectId);
 
 		if (gInfo == null)
 		{
@@ -455,7 +455,7 @@ class ListCommands
 		var map = player.Map;
 
 		var locale = handler.Session.SessionDbcLocale;
-		var stringOverdue = Global.ObjectMgr.GetCypherString(CypherStrings.ListRespawnsOverdue, locale);
+		var stringOverdue = _gameObjectManager.GetCypherString(CypherStrings.ListRespawnsOverdue, locale);
 
 		var zoneId = player.Zone;
 		var zoneName = GetZoneName(zoneId, locale);
@@ -473,7 +473,7 @@ class ListCommands
 
 			foreach (var ri in respawns)
 			{
-				var data = Global.ObjectMgr.GetSpawnMetadata(ri.ObjectType, ri.SpawnId);
+				var data = _gameObjectManager.GetSpawnMetadata(ri.ObjectType, ri.SpawnId);
 
 				if (data == null)
 					continue;
@@ -500,7 +500,7 @@ class ListCommands
 				var gridY = ri.GridId / MapConst.MaxGrids;
 				var gridX = ri.GridId % MapConst.MaxGrids;
 
-				var respawnTime = ri.RespawnTime > _gameTime.GetGameTime ? Time.secsToTimeString((ulong)(ri.RespawnTime - _gameTime.GetGameTime), TimeFormat.ShortText) : stringOverdue;
+				var respawnTime = ri.RespawnTime > _gameTime.CurrentGameTime ? Time.secsToTimeString((ulong)(ri.RespawnTime - _gameTime.CurrentGameTime), TimeFormat.ShortText) : stringOverdue;
 				handler.SendSysMessage($"{ri.SpawnId} | {ri.Entry} | [{gridX:2},{gridY:2}] | {GetZoneName(respawnZoneId, locale)} ({respawnZoneId}) | {respawnTime}{(map.IsSpawnGroupActive(data.SpawnGroupData.GroupId) ? "" : " (inactive)")}");
 			}
 		}
@@ -542,14 +542,14 @@ class ListCommands
 		var showAll = map.IsBattlegroundOrArena || map.IsDungeon;
 		handler.SendSysMessage($"Listing all spawn points in map {mapId} ({map.MapName}){(showAll ? "" : " within 5000yd")}:");
 
-		foreach (var pair in Global.ObjectMgr.GetAllCreatureData())
+		foreach (var pair in _gameObjectManager.GetAllCreatureData())
 		{
 			SpawnData data = pair.Value;
 
 			if (data.MapId != mapId)
 				continue;
 
-			var cTemp = Global.ObjectMgr.GetCreatureTemplate(data.Id);
+			var cTemp = _gameObjectManager.GetCreatureTemplate(data.Id);
 
 			if (cTemp == null)
 				continue;
@@ -558,14 +558,14 @@ class ListCommands
 				handler.SendSysMessage($"Type: {data.Type} | SpawnId: {data.SpawnId} | Entry: {data.Id} ({cTemp.Name}) | X: {data.SpawnPoint.X:3} | Y: {data.SpawnPoint.Y:3} | Z: {data.SpawnPoint.Z:3}");
 		}
 
-		foreach (var pair in Global.ObjectMgr.GetAllGameObjectData())
+		foreach (var pair in _gameObjectManager.GetAllGameObjectData())
 		{
 			SpawnData data = pair.Value;
 
 			if (data.MapId != mapId)
 				continue;
 
-			var goTemp = Global.ObjectMgr.GetGameObjectTemplate(data.Id);
+			var goTemp = _gameObjectManager.GetGameObjectTemplate(data.Id);
 
 			if (goTemp == null)
 				continue;

@@ -333,7 +333,7 @@ public partial class Unit : WorldObject
 		get => base.ObjectScale;
 		set
 		{
-			var minfo = Global.ObjectMgr.GetCreatureModelInfo(DisplayId);
+			var minfo = _gameObjectManager.GetCreatureModelInfo(DisplayId);
 
 			if (minfo != null)
 			{
@@ -624,7 +624,7 @@ public partial class Unit : WorldObject
 				var (targetGuid, count) = _extraAttacksTargets.FirstOrDefault();
 				_extraAttacksTargets.Remove(targetGuid);
 
-				var victim = Global.ObjAccessor.GetUnit(this, targetGuid);
+				var victim = _objectAccessor.GetUnit(this, targetGuid);
 
 				if (victim != null)
 					HandleProcExtraAttackFor(victim, count);
@@ -2094,7 +2094,7 @@ public partial class Unit : WorldObject
 			if (player.Group)
 				player.SetGroupUpdateFlag(GroupUpdateFlags.Level);
 
-			Global.CharacterCacheStorage.UpdateCharacterLevel(AsPlayer.GUID, (byte)lvl);
+			_characterCache.UpdateCharacterLevel(AsPlayer.GUID, (byte)lvl);
 		}
 	}
 
@@ -2148,7 +2148,7 @@ public partial class Unit : WorldObject
 		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.DisplayID), modelId);
 		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.DisplayScale), displayScale);
 		// Set Gender by modelId
-		var minfo = Global.ObjectMgr.GetCreatureModelInfo(modelId);
+		var minfo = _gameObjectManager.GetCreatureModelInfo(modelId);
 
 		if (minfo != null)
 			Gender = (Gender)minfo.Gender;
@@ -2176,7 +2176,7 @@ public partial class Unit : WorldObject
 						}
 						else
 						{
-							var ci = Global.ObjectMgr.GetCreatureTemplate((uint)eff.MiscValue);
+							var ci = _gameObjectManager.GetCreatureTemplate((uint)eff.MiscValue);
 
 							if (ci != null)
 								if (!IsDisallowedMountForm(eff.Id, ShapeShiftForm.None, GameObjectManager.ChooseDisplayId(ci).CreatureDisplayId))
@@ -2246,7 +2246,7 @@ public partial class Unit : WorldObject
 			return;
 
 		// Update owner dependent fields
-		var player = Global.ObjAccessor.GetPlayer(this, owner);
+		var player = _objectAccessor.GetPlayer(this, owner);
 
 		if (player == null || !player.HaveAtClient(this)) // if player cannot see this unit yet, he will receive needed data with create object
 			return;
@@ -3100,7 +3100,7 @@ public partial class Unit : WorldObject
 			{
 				// Part of Evade mechanics. DoT's and Thorns / Retribution Aura do not contribute to this
 				if (damagetype != DamageEffectType.DOT && damageTaken > 0 && !victim.OwnerGUID.IsPlayer && (spellProto == null || !spellProto.HasAura(AuraType.DamageShield)))
-					victim.AsCreature.LastDamagedTime = _gameTime.GetGameTime + SharedConst.MaxAggroResetTime;
+					victim.AsCreature.LastDamagedTime = _gameTime.CurrentGameTime + SharedConst.MaxAggroResetTime;
 
 				if (attacker != null && (spellProto == null || !spellProto.HasAttribute(SpellAttr4.NoHarmfulThreat)))
 					victim.GetThreatManager().AddThreat(attacker, damageTaken, spellProto);
@@ -4407,7 +4407,7 @@ public partial class Unit : WorldObject
 
 			if (aura.SpellInfo.IsChanneled &&
 				aura.CasterGuid != GUID &&
-				!Global.ObjAccessor.GetWorldObject(this, aura.CasterGuid))
+				!_objectAccessor.GetWorldObject(this, aura.CasterGuid))
 				toRemove.Add(aura);
 		}
 
@@ -4604,7 +4604,7 @@ public partial class Unit : WorldObject
 
 		if (!guid.IsEmpty)
 		{
-			var master = Global.ObjAccessor.GetUnit(this, guid);
+			var master = _objectAccessor.GetUnit(this, guid);
 
 			if (master != null)
 				return master.GetControllingPlayer();

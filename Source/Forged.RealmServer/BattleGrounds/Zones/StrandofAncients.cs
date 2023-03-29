@@ -121,7 +121,7 @@ public class BgStrandOfAncients : Battleground
 		if (Status == SAStatus.Warmup)
 		{
 			EndRoundTimer = SATimers.RoundLength;
-			UpdateWorldState(SAWorldStateIds.Timer, (int)(_gameTime.GetGameTime + EndRoundTimer));
+			UpdateWorldState(SAWorldStateIds.Timer, (int)(_gameTime.CurrentGameTime + EndRoundTimer));
 
 			if (TotalTime >= SATimers.WarmupLength)
 			{
@@ -149,7 +149,7 @@ public class BgStrandOfAncients : Battleground
 			else
 				EndRoundTimer = SATimers.RoundLength;
 
-			UpdateWorldState(SAWorldStateIds.Timer, (int)(_gameTime.GetGameTime + EndRoundTimer));
+			UpdateWorldState(SAWorldStateIds.Timer, (int)(_gameTime.CurrentGameTime + EndRoundTimer));
 
 			if (TotalTime >= 60000)
 			{
@@ -168,7 +168,7 @@ public class BgStrandOfAncients : Battleground
 
 				foreach (var pair in GetPlayers())
 				{
-					var p = Global.ObjAccessor.FindPlayer(pair.Key);
+					var p = _objectAccessor.FindPlayer(pair.Key);
 
 					if (p)
 						p.RemoveAura(BattlegroundConst.SpellPreparation);
@@ -393,7 +393,7 @@ public class BgStrandOfAncients : Battleground
 		else
 			safeloc = SAMiscConst.GYEntries[SAGraveyards.DefenderLastGy];
 
-		var closest = Global.ObjectMgr.GetWorldSafeLoc(safeloc);
+		var closest = _gameObjectManager.GetWorldSafeLoc(safeloc);
 		var nearest = player.Location.GetExactDistSq(closest.Loc);
 
 		for (byte i = SAGraveyards.RightCapturableGy; i < SAGraveyards.Max; i++)
@@ -401,7 +401,7 @@ public class BgStrandOfAncients : Battleground
 			if (GraveyardStatus[i] != teamId)
 				continue;
 
-			var ret = Global.ObjectMgr.GetWorldSafeLoc(SAMiscConst.GYEntries[i]);
+			var ret = _gameObjectManager.GetWorldSafeLoc(SAMiscConst.GYEntries[i]);
 			var dist = player.Location.GetExactDistSq(ret.Loc);
 
 			if (dist < nearest)
@@ -499,7 +499,7 @@ public class BgStrandOfAncients : Battleground
 	{
 		foreach (var pair in GetPlayers())
 		{
-			var player = Global.ObjAccessor.FindPlayer(pair.Key);
+			var player = _objectAccessor.FindPlayer(pair.Key);
 
 			if (player)
 				SendTransportsRemove(player);
@@ -613,7 +613,7 @@ public class BgStrandOfAncients : Battleground
 		//Graveyards
 		for (byte i = 0; i < SAGraveyards.Max; i++)
 		{
-			var sg = Global.ObjectMgr.GetWorldSafeLoc(SAMiscConst.GYEntries[i]);
+			var sg = _gameObjectManager.GetWorldSafeLoc(SAMiscConst.GYEntries[i]);
 
 			if (sg == null)
 			{
@@ -710,7 +710,7 @@ public class BgStrandOfAncients : Battleground
 		for (var i = SAObjectTypes.BoatOne; i <= SAObjectTypes.BoatTwo; i++)
 			foreach (var pair in GetPlayers())
 			{
-				var player = Global.ObjAccessor.FindPlayer(pair.Key);
+				var player = _objectAccessor.FindPlayer(pair.Key);
 
 				if (player)
 					SendTransportInit(player);
@@ -735,7 +735,7 @@ public class BgStrandOfAncients : Battleground
 		for (var i = SAObjectTypes.BoatOne; i <= SAObjectTypes.BoatTwo; i++)
 			foreach (var pair in GetPlayers())
 			{
-				var p = Global.ObjAccessor.FindPlayer(pair.Key);
+				var p = _objectAccessor.FindPlayer(pair.Key);
 
 				if (p)
 				{
@@ -754,7 +754,7 @@ public class BgStrandOfAncients : Battleground
 	{
 		foreach (var pair in GetPlayers())
 		{
-			var player = Global.ObjAccessor.FindPlayer(pair.Key);
+			var player = _objectAccessor.FindPlayer(pair.Key);
 
 			if (player)
 			{
@@ -905,7 +905,7 @@ public class BgStrandOfAncients : Battleground
 		DelCreature(SACreatureTypes.Max + i);
 		var teamId = GetTeamIndexByTeamId(GetPlayerTeam(source.GUID));
 		GraveyardStatus[i] = teamId;
-		var sg = Global.ObjectMgr.GetWorldSafeLoc(SAMiscConst.GYEntries[i]);
+		var sg = _gameObjectManager.GetWorldSafeLoc(SAMiscConst.GYEntries[i]);
 
 		if (sg == null)
 		{
@@ -1054,7 +1054,7 @@ public class BgStrandOfAncients : Battleground
 					// Achievement Storm the Beach (1310)
 					foreach (var pair in GetPlayers())
 					{
-						var player = Global.ObjAccessor.FindPlayer(pair.Key);
+						var player = _objectAccessor.FindPlayer(pair.Key);
 
 						if (player)
 							if (GetTeamIndexByTeamId(GetPlayerTeam(player.GUID)) == Attackers)
@@ -1089,7 +1089,7 @@ public class BgStrandOfAncients : Battleground
 					// Achievement Storm the Beach (1310)
 					foreach (var pair in GetPlayers())
 					{
-						var player = Global.ObjAccessor.FindPlayer(pair.Key);
+						var player = _objectAccessor.FindPlayer(pair.Key);
 
 						if (player)
 							if (GetTeamIndexByTeamId(GetPlayerTeam(player.GUID)) == Attackers && RoundScores[1].winner == Attackers)
@@ -1126,11 +1126,11 @@ public class BgStrandOfAncients : Battleground
 						// Demolisher is not in list
 						if (!DemoliserRespawnList.ContainsKey(i))
 						{
-							DemoliserRespawnList[i] = _gameTime.GetGameTimeMS + 30000;
+							DemoliserRespawnList[i] = _gameTime.CurrentGameTimeMS + 30000;
 						}
 						else
 						{
-							if (DemoliserRespawnList[i] < _gameTime.GetGameTimeMS)
+							if (DemoliserRespawnList[i] < _gameTime.CurrentGameTimeMS)
 							{
 								Demolisher.Location.Relocate(SAMiscConst.NpcSpawnlocs[i]);
 								Demolisher.Respawn();

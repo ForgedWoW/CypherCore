@@ -470,12 +470,12 @@ public class Condition
 			{
 				if (player)
 				{
-					var questObj = Global.ObjectMgr.GetQuestObjective(ConditionValue1);
+					var questObj = _gameObjectManager.GetQuestObjective(ConditionValue1);
 
 					if (questObj == null)
 						break;
 
-					var quest = Global.ObjectMgr.GetQuestTemplate(questObj.QuestID);
+					var quest = _gameObjectManager.GetQuestTemplate(questObj.QuestID);
 
 					if (quest == null)
 						break;

@@ -15,7 +15,7 @@ public class GameObjectScriptRegister : IScriptRegister
 		if (attribute is GameObjectScriptAttribute gameObjectScript && gameObjectScript.GameObjectIds != null)
 			foreach (var id in gameObjectScript.GameObjectIds)
 			{
-				var gameObject = Global.ObjectMgr.GetGameObjectTemplate(id);
+				var gameObject = _gameObjectManager.GetGameObjectTemplate(id);
 
 				if (gameObject == null)
 				{
@@ -25,7 +25,7 @@ public class GameObjectScriptRegister : IScriptRegister
 				}
 
 				if (gameObject.ScriptId == 0) // dont override database
-					gameObject.ScriptId = Global.ObjectMgr.GetScriptId(scriptName);
+					gameObject.ScriptId = _gameObjectManager.GetScriptId(scriptName);
 			}
 	}
 }

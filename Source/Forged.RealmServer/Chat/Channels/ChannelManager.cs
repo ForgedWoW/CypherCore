@@ -105,7 +105,29 @@ public class ChannelManager
 		Log.Logger.Information($"Loaded {count} custom chat channels in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
-	public FactionChannel ForTeam(TeamFaction team)
+    public Channel GetChannelForPlayerByNamePart(string namePart, Player playerSearcher)
+    {
+        foreach (var channel in playerSearcher.JoinedChannels)
+        {
+            var chanName = channel.GetName(playerSearcher.Session.SessionDbcLocale);
+
+            if (chanName.ToLower().Equals(namePart.ToLower()))
+                return channel;
+        }
+
+        return null;
+    }
+
+    public Channel GetChannelForPlayerByGuid(ObjectGuid channelGuid, Player playerSearcher)
+    {
+        foreach (var channel in playerSearcher.JoinedChannels)
+            if (channel.GetGUID() == channelGuid)
+                return channel;
+
+        return null;
+    }
+
+    public FactionChannel ForTeam(TeamFaction team)
 	{
 		if (_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionChannel))
 			return AllianceChannel; // cross-faction

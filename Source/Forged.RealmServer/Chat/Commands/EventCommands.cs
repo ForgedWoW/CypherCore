@@ -31,14 +31,14 @@ class EventCommands
 
 		var activeEvents = _gameEventManager.GetActiveEventList();
 		var active = activeEvents.Contains(eventId);
-		var activeStr = active ? Global.ObjectMgr.GetCypherString(CypherStrings.Active) : "";
+		var activeStr = active ? _gameObjectManager.GetCypherString(CypherStrings.Active) : "";
 
 		var startTimeStr = Time.UnixTimeToDateTime(eventData.start).ToLongDateString();
 		var endTimeStr = Time.UnixTimeToDateTime(eventData.end).ToLongDateString();
 
 		var delay = _gameEventManager.NextCheck(eventId);
-		var nextTime = _gameTime.GetGameTime + delay;
-		var nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Time.UnixTimeToDateTime(_gameTime.GetGameTime + delay).ToShortTimeString() : "-";
+		var nextTime = _gameTime.CurrentGameTime + delay;
+		var nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Time.UnixTimeToDateTime(_gameTime.CurrentGameTime + delay).ToShortTimeString() : "-";
 
 		var occurenceStr = Time.secsToTimeString(eventData.occurence * Time.Minute);
 		var lengthStr = Time.secsToTimeString(eventData.length * Time.Minute);
@@ -64,7 +64,7 @@ class EventCommands
 		var events = _gameEventManager.GetEventMap();
 		var activeEvents = _gameEventManager.GetActiveEventList();
 
-		var active = Global.ObjectMgr.GetCypherString(CypherStrings.Active);
+		var active = _gameObjectManager.GetCypherString(CypherStrings.Active);
 
 		foreach (var eventId in activeEvents)
 		{

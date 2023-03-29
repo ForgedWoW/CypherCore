@@ -26,7 +26,7 @@ public class SocialManager : Singleton<SocialManager>
 		friendInfo.Level = 0;
 		friendInfo.Class = 0;
 
-		var target = Global.ObjAccessor.FindPlayer(friendGuid);
+		var target = _objectAccessor.FindPlayer(friendGuid);
 
 		if (!target)
 			return;
@@ -126,7 +126,7 @@ public class SocialManager : Singleton<SocialManager>
 
 			if (info != null && info.Flags.HasAnyFlag(SocialFlag.Friend))
 			{
-				var target = Global.ObjAccessor.FindPlayer(pair.Key);
+				var target = _objectAccessor.FindPlayer(pair.Key);
 
 				if (!target || !target.IsInWorld)
 					continue;

@@ -182,7 +182,7 @@ class RingofValorArena : Arena
 
 				foreach (var guid in GetPlayers().Keys)
 				{
-					var player = Global.ObjAccessor.FindPlayer(guid);
+					var player = _objectAccessor.FindPlayer(guid);
 
 					if (player)
 						go.SendUpdateToPlayer(player);

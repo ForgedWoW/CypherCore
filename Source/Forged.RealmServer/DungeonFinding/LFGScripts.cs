@@ -227,7 +227,7 @@ class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOnRemoveMem
 		_lFGManager.SetGroup(guid, ObjectGuid.Empty);
 		var players = _lFGManager.RemovePlayerFromGroup(gguid, guid);
 
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 		{
@@ -250,7 +250,7 @@ class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOnRemoveMem
 
 		if (isLFG && state != LfgState.FinishedDungeon) // Need more players to finish the dungeon
 		{
-			var leader = Global.ObjAccessor.FindPlayer(_lFGManager.GetLeader(gguid));
+			var leader = _objectAccessor.FindPlayer(_lFGManager.GetLeader(gguid));
 
 			if (leader)
 				leader.Session.SendLfgOfferContinue(_lFGManager.GetDungeon(gguid, false));

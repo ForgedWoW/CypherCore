@@ -331,7 +331,7 @@ class BgEyeofStorm : Battleground
 			return false;
 		}
 
-		var sg = Global.ObjectMgr.GetWorldSafeLoc(EotSGaveyardIds.MainAlliance);
+		var sg = _gameObjectManager.GetWorldSafeLoc(EotSGaveyardIds.MainAlliance);
 
 		if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SpiritMainAlliance, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, TeamIds.Alliance))
 		{
@@ -340,7 +340,7 @@ class BgEyeofStorm : Battleground
 			return false;
 		}
 
-		sg = Global.ObjectMgr.GetWorldSafeLoc(EotSGaveyardIds.MainHorde);
+		sg = _gameObjectManager.GetWorldSafeLoc(EotSGaveyardIds.MainHorde);
 
 		if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SpiritMainHorde, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.193953f, TeamIds.Horde))
 		{
@@ -498,7 +498,7 @@ class BgEyeofStorm : Battleground
 			default: return null;
 		}
 
-		var entry = Global.ObjectMgr.GetWorldSafeLoc(g_id);
+		var entry = _gameObjectManager.GetWorldSafeLoc(g_id);
 		var nearestEntry = entry;
 
 		if (entry == null)
@@ -518,7 +518,7 @@ class BgEyeofStorm : Battleground
 		for (byte i = 0; i < EotSPoints.PointsMax; ++i)
 			if (m_PointOwnedByTeam[i] == team && m_PointState[i] == EotSPointState.UnderControl)
 			{
-				entry = Global.ObjectMgr.GetWorldSafeLoc(EotSMisc.m_CapturingPointTypes[i].GraveYardId);
+				entry = _gameObjectManager.GetWorldSafeLoc(EotSMisc.m_CapturingPointTypes[i].GraveYardId);
 
 				if (entry == null)
 				{
@@ -541,7 +541,7 @@ class BgEyeofStorm : Battleground
 
 	public override WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
 	{
-		return Global.ObjectMgr.GetWorldSafeLoc(team == TeamFaction.Alliance ? EotSMisc.ExploitTeleportLocationAlliance : EotSMisc.ExploitTeleportLocationHorde);
+		return _gameObjectManager.GetWorldSafeLoc(team == TeamFaction.Alliance ? EotSMisc.ExploitTeleportLocationAlliance : EotSMisc.ExploitTeleportLocationHorde);
 	}
 
 	public override TeamFaction GetPrematureWinner()
@@ -609,7 +609,7 @@ class BgEyeofStorm : Battleground
 
 				while (j < m_PlayersNearPoint[EotSPoints.PointsMax].Count)
 				{
-					var player = Global.ObjAccessor.FindPlayer(m_PlayersNearPoint[EotSPoints.PointsMax][j]);
+					var player = _objectAccessor.FindPlayer(m_PlayersNearPoint[EotSPoints.PointsMax][j]);
 
 					if (!player)
 					{
@@ -658,7 +658,7 @@ class BgEyeofStorm : Battleground
 
 				while (j < m_PlayersNearPoint[i].Count)
 				{
-					var player = Global.ObjAccessor.FindPlayer(m_PlayersNearPoint[i][j]);
+					var player = _objectAccessor.FindPlayer(m_PlayersNearPoint[i][j]);
 
 					if (!player)
 					{
@@ -719,7 +719,7 @@ class BgEyeofStorm : Battleground
 
 				for (byte i = 0; i < m_PlayersNearPoint[point].Count; ++i)
 				{
-					var player = Global.ObjAccessor.FindPlayer(m_PlayersNearPoint[point][i]);
+					var player = _objectAccessor.FindPlayer(m_PlayersNearPoint[point][i]);
 
 					if (player)
 					{
@@ -928,7 +928,7 @@ class BgEyeofStorm : Battleground
 		if (!BgCreatures[Point].IsEmpty)
 			DelCreature(Point);
 
-		var sg = Global.ObjectMgr.GetWorldSafeLoc(EotSMisc.m_CapturingPointTypes[Point].GraveYardId);
+		var sg = _gameObjectManager.GetWorldSafeLoc(EotSMisc.m_CapturingPointTypes[Point].GraveYardId);
 
 		if (sg == null || !AddSpiritGuide(Point, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, GetTeamIndexByTeamId(Team)))
 			Log.outError(LogFilter.Battleground,

@@ -37,7 +37,7 @@ class DisableCommands
 				}
 				case DisableType.Quest:
 				{
-					if (Global.ObjectMgr.GetQuestTemplate(entry) == null)
+					if (_gameObjectManager.GetQuestTemplate(entry) == null)
 					{
 						handler.SendSysMessage(CypherStrings.CommandNoquestfound, entry);
 

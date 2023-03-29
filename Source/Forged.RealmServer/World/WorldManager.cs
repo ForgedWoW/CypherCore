@@ -12,10 +12,7 @@ using Forged.RealmServer.Chat;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.DungeonFinding;
 using Forged.RealmServer.Entities;
-using Forged.RealmServer.Globals;
 using Forged.RealmServer.Groups;
-using Forged.RealmServer.Guilds;
-using Forged.RealmServer.Maps;
 using Forged.RealmServer.Networking;
 using Forged.RealmServer.Networking.Packets;
 using Forged.RealmServer.Scripting;
@@ -40,6 +37,7 @@ public class WorldManager
     private readonly CharacterDatabase _characterDatabase;
     private readonly SupportManager _supportManager;
     private readonly CliDB _cliDB;
+    private ClassFactory _classFactory;
     private AccountManager _accountManager;
     private CharacterCache _characterCache;
     private ObjectAccessor _objectAccessor;
@@ -47,7 +45,6 @@ public class WorldManager
     private CalendarManager _calendarManager;
     private GuildManager _guildManager;
     private WorldStateManager _worldStateManager;
-    private GameEventManager _eventManager;
     private WhoListStorageManager _whoListStorageManager;
     private ChannelManager _channelManager;
     private LFGManager _lFGManager;
@@ -295,24 +292,21 @@ public class WorldManager
         LoadDBAllowedSecurityLevel();
     }
 
-    public void Initialize(AccountManager accountManager, CharacterCache characterCache, ObjectAccessor objectAccessor,
-                           QuestPoolManager questPoolManager, CalendarManager calendarManager, GuildManager guildManager,
-                           WorldStateManager worldStateManager, GameEventManager eventManager, WhoListStorageManager whoListStorageManager,
-                           ChannelManager channelManager, LFGManager lFGManager, GroupManager groupManager, GameEventManager gameEventManager)
+    public void Initialize(ClassFactory classFactory)
     {
-        _accountManager = accountManager;
-        _characterCache = characterCache;
-        _objectAccessor = objectAccessor;
-        _questPoolManager = questPoolManager;
-        _calendarManager = calendarManager;
-        _guildManager = guildManager;
-        _worldStateManager = worldStateManager;
-        _eventManager = eventManager;
-        _whoListStorageManager = whoListStorageManager;
-        _channelManager = channelManager;
-        _lFGManager = lFGManager;
-        _groupManager = groupManager;
-        _gameEventManager = gameEventManager;
+        _classFactory = classFactory;
+        _accountManager = _classFactory.Resolve<AccountManager>();
+        _characterCache = _classFactory.Resolve<CharacterCache>();
+        _objectAccessor = _classFactory.Resolve<ObjectAccessor>();
+        _questPoolManager = _classFactory.Resolve<QuestPoolManager>();
+        _calendarManager = _classFactory.Resolve<CalendarManager>();
+        _guildManager = _classFactory.Resolve<GuildManager>();
+        _worldStateManager = _classFactory.Resolve<WorldStateManager>();
+        _whoListStorageManager = _classFactory.Resolve<WhoListStorageManager>();
+        _channelManager = _classFactory.Resolve<ChannelManager>();
+        _lFGManager = _classFactory.Resolve<LFGManager>();
+        _groupManager = _classFactory.Resolve<GroupManager>();
+        _gameEventManager = _classFactory.Resolve<GameEventManager>();
 
         // not send custom type REALM_FFA_PVP to realm list
         var serverType = IsFFAPvPRealm ? RealmType.PVP : (RealmType)_configuration.GetDefaultValue("GameType", 0);
@@ -804,7 +798,7 @@ public class WorldManager
     public void ForceGameEventUpdate()
     {
         _timers[WorldTimers.Events].Reset(); // to give time for Update() to be processed
-        var nextGameEvent = _eventManager.Update();
+        var nextGameEvent = _gameEventManager.Update();
         _timers[WorldTimers.Events].Interval = nextGameEvent;
         _timers[WorldTimers.Events].Reset();
     }
@@ -1543,7 +1537,7 @@ public class WorldManager
 
         linkInfo.Item1.SetWorldSession(session);
         session.AddInstanceConnection(linkInfo.Item1);
-        session.HandleContinuePlayerLogin(); // this is in character handler. need to figure out how to access
+        session.HandleContinuePlayerLogin();
     }
 
     private bool HasRecentlyDisconnected(WorldSession session)

@@ -98,7 +98,7 @@ class NPCCommands
 		var nativeid = target.NativeDisplayId;
 		var entry = target.Entry;
 
-		var curRespawnDelay = target.RespawnCompatibilityMode ? target.RespawnTimeEx - _gameTime.GetGameTime : target.Map.GetCreatureRespawnTime(target.SpawnId) - _gameTime.GetGameTime;
+		var curRespawnDelay = target.RespawnCompatibilityMode ? target.RespawnTimeEx - _gameTime.CurrentGameTime : target.Map.GetCreatureRespawnTime(target.SpawnId) - _gameTime.CurrentGameTime;
 
 		if (curRespawnDelay < 0)
 			curRespawnDelay = 0;
@@ -143,7 +143,7 @@ class NPCCommands
 		handler.SendSysMessage(CypherStrings.NpcinfoLoot, cInfo.LootId, cInfo.PickPocketId, cInfo.SkinLootId);
 		handler.SendSysMessage(CypherStrings.NpcinfoDungeonId, target.InstanceId);
 
-		var data = Global.ObjectMgr.GetCreatureData(target.SpawnId);
+		var data = _gameObjectManager.GetCreatureData(target.SpawnId);
 
 		if (data != null)
 			handler.SendSysMessage(CypherStrings.NpcinfoPhases, data.PhaseId, data.PhaseGroup);
@@ -196,7 +196,7 @@ class NPCCommands
 		var lowguid = spawnId.HasValue ? spawnId.Value : creature.SpawnId;
 
 		// Attempting creature load from DB data
-		var data = Global.ObjectMgr.GetCreatureData(lowguid);
+		var data = _gameObjectManager.GetCreatureData(lowguid);
 
 		if (data == null)
 		{
@@ -212,9 +212,9 @@ class NPCCommands
 			return false;
 		}
 
-		Global.ObjectMgr.RemoveCreatureFromGrid(data);
+		_gameObjectManager.RemoveCreatureFromGrid(data);
 		data.SpawnPoint.Relocate(player.Location);
-		Global.ObjectMgr.AddCreatureToGrid(data);
+		_gameObjectManager.AddCreatureToGrid(data);
 
 		// update position in DB
 		var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_POSITION);
@@ -264,7 +264,7 @@ class NPCCommands
 				var z = result.Read<float>(4);
 				var mapId = result.Read<ushort>(5);
 
-				var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(entry);
+				var creatureTemplate = _gameObjectManager.GetCreatureTemplate(entry);
 
 				if (creatureTemplate == null)
 					continue;
@@ -538,7 +538,7 @@ class NPCCommands
 		}
 
 		// check online security
-		var receiver = Global.ObjAccessor.FindPlayerByName(recv);
+		var receiver = _objectAccessor.FindPlayerByName(recv);
 
 		if (handler.HasLowerSecurity(receiver, ObjectGuid.Empty))
 			return false;
@@ -575,7 +575,7 @@ class NPCCommands
 	{
 		var name = "Unknown item";
 
-		var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemId);
+		var itemTemplate = _gameObjectManager.GetItemTemplate(itemId);
 
 		if (itemTemplate != null)
 			name = itemTemplate.GetName(handler.SessionDbcLocale);
@@ -597,7 +597,7 @@ class NPCCommands
 
 			var list = map[key];
 
-			var player = Global.ObjAccessor.FindConnectedPlayer(key);
+			var player = _objectAccessor.FindConnectedPlayer(key);
 			handler.SendSysMessage(CypherStrings.CommandNpcShowlootSublabel, player ? player.GetName() : $"Offline player (GUID {key})", list.Count);
 
 			foreach (var it in list)
@@ -616,7 +616,7 @@ class NPCCommands
 		[Command("", RBACPermissions.CommandNpcAdd)]
 		static bool HandleNpcAddCommand(CommandHandler handler, uint id)
 		{
-			if (Global.ObjectMgr.GetCreatureTemplate(id) == null)
+			if (_gameObjectManager.GetCreatureTemplate(id) == null)
 				return false;
 
 			var chr = handler.Session.Player;
@@ -626,10 +626,10 @@ class NPCCommands
 
 			if (trans)
 			{
-				var guid = Global.ObjectMgr.GenerateCreatureSpawnId();
-				var data = Global.ObjectMgr.NewOrExistCreatureData(guid);
+				var guid = _gameObjectManager.GenerateCreatureSpawnId();
+				var data = _gameObjectManager.NewOrExistCreatureData(guid);
 				data.SpawnId = guid;
-				data.SpawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
+				data.SpawnGroupData = _gameObjectManager.GetDefaultSpawnGroup();
 				data.Id = id;
 				data.SpawnPoint.Relocate(chr.TransOffsetX, chr.TransOffsetY, chr.TransOffsetZ, chr.TransOffsetO);
 				data.SpawnGroupData = new SpawnGroupTemplateData();
@@ -644,7 +644,7 @@ class NPCCommands
 													map.DifficultyID
 												});
 
-					Global.ObjectMgr.AddCreatureToGrid(data);
+					_gameObjectManager.AddCreatureToGrid(data);
 				}
 
 				return true;
@@ -673,7 +673,7 @@ class NPCCommands
 			if (!creature)
 				return false;
 
-			Global.ObjectMgr.AddCreatureToGrid(Global.ObjectMgr.GetCreatureData(db_guid));
+			_gameObjectManager.AddCreatureToGrid(_gameObjectManager.GetCreatureData(db_guid));
 
 			return true;
 		}
@@ -719,12 +719,12 @@ class NPCCommands
 							vItem.BonusListIDs.Add(id);
 			}
 
-			if (!Global.ObjectMgr.IsVendorItemValid(vendor_entry, vItem, handler.Session.Player))
+			if (!_gameObjectManager.IsVendorItemValid(vendor_entry, vItem, handler.Session.Player))
 				return false;
 
-			Global.ObjectMgr.AddVendorItem(vendor_entry, vItem);
+			_gameObjectManager.AddVendorItem(vendor_entry, vItem);
 
-			var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemId);
+			var itemTemplate = _gameObjectManager.GetItemTemplate(itemId);
 
 			handler.SendSysMessage(CypherStrings.ItemAddedToList, itemId, itemTemplate.GetName(), maxcount, incrtime, extendedcost);
 
@@ -735,7 +735,7 @@ class NPCCommands
 		static bool HandleNpcAddMoveCommand(CommandHandler handler, ulong lowGuid)
 		{
 			// attempt check creature existence by DB data
-			var data = Global.ObjectMgr.GetCreatureData(lowGuid);
+			var data = _gameObjectManager.GetCreatureData(lowGuid);
 
 			if (data == null)
 			{
@@ -815,7 +815,7 @@ class NPCCommands
 					return false;
 			}
 
-			if (Global.ObjectMgr.GetCreatureTemplate(id) == null)
+			if (_gameObjectManager.GetCreatureTemplate(id) == null)
 				return false;
 
 			var chr = handler.Session.Player;
@@ -888,14 +888,14 @@ class NPCCommands
 			if (itemId == 0)
 				return false;
 
-			if (!Global.ObjectMgr.RemoveVendorItem(vendor.Entry, itemId, ItemVendorType.Item))
+			if (!_gameObjectManager.RemoveVendorItem(vendor.Entry, itemId, ItemVendorType.Item))
 			{
 				handler.SendSysMessage(CypherStrings.ItemNotInList, itemId);
 
 				return false;
 			}
 
-			var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemId);
+			var itemTemplate = _gameObjectManager.GetItemTemplate(itemId);
 			handler.SendSysMessage(CypherStrings.ItemDeletedFromList, itemId, itemTemplate.GetName());
 
 			return true;
@@ -1144,7 +1144,7 @@ class NPCCommands
 				return false;
 			}
 
-			if (!Global.ObjectMgr.SetCreatureLinkedRespawn(creature.SpawnId, linkguid))
+			if (!_gameObjectManager.SetCreatureLinkedRespawn(creature.SpawnId, linkguid))
 			{
 				handler.SendSysMessage("Selected creature can't link with guid '{0}'", linkguid);
 
@@ -1217,7 +1217,7 @@ class NPCCommands
 				// attempt check creature existence by DB data
 				if (creature == null)
 				{
-					var data = Global.ObjectMgr.GetCreatureData(lowguid);
+					var data = _gameObjectManager.GetCreatureData(lowguid);
 
 					if (data == null)
 					{

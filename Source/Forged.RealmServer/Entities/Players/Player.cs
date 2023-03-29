@@ -70,7 +70,7 @@ public partial class Player : Unit
 
 	public byte CUFProfilesCount => (byte)_cufProfiles.Count(p => p != null);
 
-	public bool HasSummonPending => _summonExpire >= _gameTime.GetGameTime;
+	public bool HasSummonPending => _summonExpire >= _gameTime.CurrentGameTime;
 
 	//GM
 	public bool IsDeveloper => HasPlayerFlag(PlayerFlags.Developer);
@@ -170,7 +170,7 @@ public partial class Player : Unit
 		{
 			var guildId = GuildId;
 
-			return guildId != 0 ? Global.GuildMgr.GetGuildById(guildId) : null;
+			return guildId != 0 ? _guildManager.GetGuildById(guildId) : null;
 		}
 	}
 
@@ -180,7 +180,7 @@ public partial class Player : Unit
 		set => _guildIdInvited = value;
 	}
 
-	public string GuildName => GuildId != 0 ? Global.GuildMgr.GetGuildById(GuildId).GetName() : "";
+	public string GuildName => GuildId != 0 ? _guildManager.GetGuildById(GuildId).GetName() : "";
 
 	public bool CanParry => _canParry;
 
@@ -289,7 +289,7 @@ public partial class Player : Unit
 			ObjectGuid guid = ActivePlayerData.FarsightObject;
 
 			if (!guid.IsEmpty)
-				return Global.ObjAccessor.GetObjectByTypeMask(this, guid, TypeMask.Seer);
+				return _objectAccessor.GetObjectByTypeMask(this, guid, TypeMask.Seer);
 
 			return null;
 		}
@@ -382,7 +382,7 @@ public partial class Player : Unit
 			var selectionGUID = Target;
 
 			if (!selectionGUID.IsEmpty)
-				return Global.ObjAccessor.GetUnit(this, selectionGUID);
+				return _objectAccessor.GetUnit(this, selectionGUID);
 
 			return null;
 		}
@@ -395,7 +395,7 @@ public partial class Player : Unit
 			var selectionGUID = Target;
 
 			if (!selectionGUID.IsEmpty)
-				return Global.ObjAccessor.GetPlayer(this, selectionGUID);
+				return _objectAccessor.GetPlayer(this, selectionGUID);
 
 			return null;
 		}
@@ -457,7 +457,7 @@ public partial class Player : Unit
 		for (byte i = 0; i < (int)MirrorTimerType.Max; i++)
 			_mirrorTimer[i] = -1;
 
-		_logintime = _gameTime.GetGameTime;
+		_logintime = _gameTime.CurrentGameTime;
 		_lastTick = _logintime;
 
 		_dungeonDifficulty = Difficulty.Normal;
@@ -482,7 +482,7 @@ public partial class Player : Unit
 		}
 
 		// Honor System
-		_lastHonorUpdateTime = _gameTime.GetGameTime;
+		_lastHonorUpdateTime = _gameTime.CurrentGameTime;
 
 		UnitMovedByMe = this;
 		PlayerMovingMe = this;
@@ -555,7 +555,7 @@ public partial class Player : Unit
 
 		SetName(createInfo.Name);
 
-		var info = Global.ObjectMgr.GetPlayerInfo(createInfo.RaceId, createInfo.ClassId);
+		var info = _gameObjectManager.GetPlayerInfo(createInfo.RaceId, createInfo.ClassId);
 
 		if (info == null)
 		{
@@ -594,7 +594,7 @@ public partial class Player : Unit
 
 		var position = createInfo.UseNPE && info.CreatePositionNpe.HasValue ? info.CreatePositionNpe.Value : info.CreatePosition;
 
-		_createTime = _gameTime.GetGameTime;
+		_createTime = _gameTime.CurrentGameTime;
 		_createMode = createInfo.UseNPE && info.CreatePositionNpe.HasValue ? PlayerCreateMode.NPE : PlayerCreateMode.Normal;
 
 		Location.Relocate(position.Loc);
@@ -666,7 +666,7 @@ public partial class Player : Unit
 		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Coinage), (ulong)_worldConfig.GetIntValue(WorldCfg.StartPlayerMoney));
 
 		// Played time
-		_lastTick = _gameTime.GetGameTime;
+		_lastTick = _gameTime.CurrentGameTime;
 		_playedTimeTotal = 0;
 		_playedTimeLevel = 0;
 
@@ -758,7 +758,7 @@ public partial class Player : Unit
 			return;
 
 		// undelivered mail
-		if (_nextMailDelivereTime != 0 && _nextMailDelivereTime <= _gameTime.GetGameTime)
+		if (_nextMailDelivereTime != 0 && _nextMailDelivereTime <= _gameTime.CurrentGameTime)
 		{
 			SendNewMail();
 			++UnReadMails;
@@ -772,7 +772,7 @@ public partial class Player : Unit
 
 		if (_cinematicMgr.CinematicCamera != null && _cinematicMgr.ActiveCinematic != null && Time.GetMSTimeDiffToNow(_cinematicMgr.LastCinematicCheck) > 500)
 		{
-			_cinematicMgr.LastCinematicCheck = _gameTime.GetGameTimeMS;
+			_cinematicMgr.LastCinematicCheck = _gameTime.CurrentGameTimeMS;
 			_cinematicMgr.UpdateCinematicLocation(diff);
 		}
 
@@ -781,7 +781,7 @@ public partial class Player : Unit
 		base.Update(diff);
 		SetCanDelayTeleport(false);
 
-		var now = _gameTime.GetGameTime;
+		var now = _gameTime.CurrentGameTime;
 
 		UpdatePvPFlag(now);
 
@@ -1912,7 +1912,7 @@ public partial class Player : Unit
 			return 0;
 
 		// Multiply result with the faction specific rate
-		var repData = Global.ObjectMgr.GetRepRewardRate((uint)faction);
+		var repData = _gameObjectManager.GetRepRewardRate((uint)faction);
 
 		if (repData != null)
 		{
@@ -1972,7 +1972,7 @@ public partial class Player : Unit
 		if (victim.AsCreature.IsReputationGainDisabled)
 			return;
 
-		var Rep = Global.ObjectMgr.GetReputationOnKilEntry(victim.AsCreature.Template.Entry);
+		var Rep = _gameObjectManager.GetReputationOnKilEntry(victim.AsCreature.Template.Entry);
 
 		if (Rep == null)
 			return;
@@ -1993,7 +1993,7 @@ public partial class Player : Unit
 					var dungeonLevels = Global.DB2Mgr.GetContentTuningData(dungeon.ContentTuningID, PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 					if (dungeonLevels.HasValue)
-						if (dungeonLevels.Value.TargetLevelMax == Global.ObjectMgr.GetMaxLevelForExpansion(Expansion.WrathOfTheLichKing))
+						if (dungeonLevels.Value.TargetLevelMax == _gameObjectManager.GetMaxLevelForExpansion(Expansion.WrathOfTheLichKing))
 							ChampioningFaction = GetChampioningFaction();
 				}
 			}
@@ -2514,7 +2514,7 @@ public partial class Player : Unit
 		if (HasAura(23445))
 			return;
 
-		_summonExpire = _gameTime.GetGameTime + PlayerConst.MaxPlayerSummonDelay;
+		_summonExpire = _gameTime.CurrentGameTime + PlayerConst.MaxPlayerSummonDelay;
 		_summonLocation = new WorldLocation(summoner.Location);
 		_summonInstanceId = summoner.InstanceId;
 
@@ -2589,7 +2589,7 @@ public partial class Player : Unit
 		}
 
 		// expire and auto declined
-		if (_summonExpire < _gameTime.GetGameTime)
+		if (_summonExpire < _gameTime.CurrentGameTime)
 		{
 			broadcastSummonResponse(false);
 
@@ -2733,7 +2733,7 @@ public partial class Player : Unit
 
 		menu.GetGossipMenu().SetMenuId(menuId);
 
-		var menuItemBounds = Global.ObjectMgr.GetGossipMenuItemsMapBounds(menuId);
+		var menuItemBounds = _gameObjectManager.GetGossipMenuItemsMapBounds(menuId);
 
 		if (source.IsTypeId(TypeId.Unit))
 		{
@@ -2922,7 +2922,7 @@ public partial class Player : Unit
 
 				break;
 			case GossipOptionNpc.Trainer:
-				Session.SendTrainerList(source.AsCreature, Global.ObjectMgr.GetCreatureTrainerForGossipOption(source.Entry, menuId, item.OrderIndex));
+				Session.SendTrainerList(source.AsCreature, _gameObjectManager.GetCreatureTrainerForGossipOption(source.Entry, menuId, item.OrderIndex));
 
 				break;
 			case GossipOptionNpc.SpiritHealer:
@@ -3031,7 +3031,7 @@ public partial class Player : Unit
 		{
 			if (item.GossipNpcOptionId.HasValue)
 			{
-				var addon = Global.ObjectMgr.GetGossipMenuAddon(menuId);
+				var addon = _gameObjectManager.GetGossipMenuAddon(menuId);
 
 				GossipOptionNPCInteraction npcInteraction = new();
 				npcInteraction.GossipGUID = source.GUID;
@@ -3080,7 +3080,7 @@ public partial class Player : Unit
 		if (menuId == 0)
 			return textId;
 
-		var menuBounds = Global.ObjectMgr.GetGossipMenusMapBounds(menuId);
+		var menuBounds = _gameObjectManager.GetGossipMenusMapBounds(menuId);
 
 		foreach (var menu in menuBounds)
 			if (Global.ConditionMgr.IsObjectMeetToConditions(this, source, menu.Conditions))
@@ -3192,7 +3192,7 @@ public partial class Player : Unit
 	{
 		// calculate next delivery time (min. from non-delivered mails
 		// and recalculate unReadMail
-		var cTime = _gameTime.GetGameTime;
+		var cTime = _gameTime.CurrentGameTime;
 		_nextMailDelivereTime = 0;
 		UnReadMails = 0;
 
@@ -3210,7 +3210,7 @@ public partial class Player : Unit
 
 	public void AddNewMailDeliverTime(long deliver_time)
 	{
-		if (deliver_time <= _gameTime.GetGameTime) // ready now
+		if (deliver_time <= _gameTime.CurrentGameTime) // ready now
 		{
 			++UnReadMails;
 			SendNewMail();
@@ -3905,7 +3905,7 @@ public partial class Player : Unit
 			if (bf != null)
 				ClosestGrave = bf.GetClosestGraveYard(this);
 			else
-				ClosestGrave = Global.ObjectMgr.GetClosestGraveYard(Location, Team, this);
+				ClosestGrave = _gameObjectManager.GetClosestGraveYard(Location, Team, this);
 		}
 
 		// stop countdown until repop
@@ -3945,7 +3945,7 @@ public partial class Player : Unit
 			return 0;
 		}
 
-		var now = _gameTime.GetGameTime;
+		var now = _gameTime.CurrentGameTime;
 		// 0..2 full period
 		// should be ceil(x)-1 but not floor(x)
 		var count = (ulong)((now < _deathExpireTime - 1) ? (_deathExpireTime - 1 - now) / PlayerConst.DeathExpireStep : 0);
@@ -4001,7 +4001,7 @@ public partial class Player : Unit
 		}
 
 		var map = Map;
-		var petNumber = Global.ObjectMgr.GeneratePetNumber();
+		var petNumber = _gameObjectManager.GeneratePetNumber();
 
 		if (!pet.Create(map.GenerateLowGuid(HighGuid.Pet), map, entry, petNumber))
 		{
@@ -4030,7 +4030,7 @@ public partial class Player : Unit
 		pet.SetPetNextLevelExperience(1000);
 		pet.SetFullHealth();
 		pet.SetFullPower(PowerType.Mana);
-		pet.SetPetNameTimestamp((uint)_gameTime.GetGameTime);
+		pet.SetPetNameTimestamp((uint)_gameTime.CurrentGameTime);
 
 		map.AddToMap(pet.AsCreature);
 
@@ -4181,13 +4181,13 @@ public partial class Player : Unit
 
 	public void SendPlayerChoice(ObjectGuid sender, int choiceId)
 	{
-		var playerChoice = Global.ObjectMgr.GetPlayerChoice(choiceId);
+		var playerChoice = _gameObjectManager.GetPlayerChoice(choiceId);
 
 		if (playerChoice == null)
 			return;
 
 		var locale = Session.SessionDbLocaleIndex;
-		var playerChoiceLocale = locale != Locale.enUS ? Global.ObjectMgr.GetPlayerChoiceLocale(choiceId) : null;
+		var playerChoiceLocale = locale != Locale.enUS ? _gameObjectManager.GetPlayerChoiceLocale(choiceId) : null;
 
 		PlayerTalkClass.GetInteractionData().Reset();
 		PlayerTalkClass.GetInteractionData().SourceGuid = sender;
@@ -4526,7 +4526,7 @@ public partial class Player : Unit
 			RemovePlayerFlag(PlayerFlags.GuildLevelEnabled);
 		}
 
-		Global.CharacterCacheStorage.UpdateCharacterGuildId(GUID, guildId);
+		_characterCache.UpdateCharacterGuildId(GUID, guildId);
 	}
 
 	public void SetGuildRank(byte rankId)
@@ -4551,9 +4551,9 @@ public partial class Player : Unit
 		if (guild != null)
 			guild.UpdateMemberData(this, GuildMemberData.Level, level);
 
-		var info = Global.ObjectMgr.GetPlayerLevelInfo(Race, Class, level);
+		var info = _gameObjectManager.GetPlayerLevelInfo(Race, Class, level);
 
-		Global.ObjectMgr.GetPlayerClassLevelInfo(Class, level, out var basemana);
+		_gameObjectManager.GetPlayerClassLevelInfo(Class, level, out var basemana);
 
 		LevelUpInfo packet = new();
 		packet.Level = level;
@@ -4576,7 +4576,7 @@ public partial class Player : Unit
 
 		SendPacket(packet);
 
-		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), Global.ObjectMgr.GetXPForLevel(level));
+		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), _gameObjectManager.GetXPForLevel(level));
 
 		//update level, max level of skills
 		_playedTimeLevel = 0; // Level Played Time reset
@@ -4623,7 +4623,7 @@ public partial class Player : Unit
 		if (pet)
 			pet.SynchronizeLevelWithOwner();
 
-		var mailReward = Global.ObjectMgr.GetMailLevelReward(level, (uint)SharedConst.GetMaskForRace(Race));
+		var mailReward = _gameObjectManager.GetMailLevelReward(level, (uint)SharedConst.GetMaskForRace(Race));
 
 		if (mailReward != null)
 		{
@@ -4850,8 +4850,8 @@ public partial class Player : Unit
 		var TimeSpeed = 0.01666667f;
 		LoginSetTimeSpeed loginSetTimeSpeed = new();
 		loginSetTimeSpeed.NewSpeed = TimeSpeed;
-		loginSetTimeSpeed.GameTime = (uint)_gameTime.GetGameTime;
-		loginSetTimeSpeed.ServerTime = (uint)_gameTime.GetGameTime;
+		loginSetTimeSpeed.GameTime = (uint)_gameTime.CurrentGameTime;
+		loginSetTimeSpeed.ServerTime = (uint)_gameTime.CurrentGameTime;
 		loginSetTimeSpeed.GameTimeHolidayOffset = 0;   // @todo
 		loginSetTimeSpeed.ServerTimeHolidayOffset = 0; // @todo
 		SendPacket(loginSetTimeSpeed);
@@ -4988,7 +4988,7 @@ public partial class Player : Unit
 
 		if (!GetPlayerSharingQuest().IsEmpty)
 		{
-			var quest = Global.ObjectMgr.GetQuestTemplate(GetSharedQuestID());
+			var quest = _gameObjectManager.GetQuestTemplate(GetSharedQuestID());
 
 			if (quest != null)
 				PlayerTalkClass.SendQuestGiverQuestDetails(quest, GUID, true, false);
@@ -5021,11 +5021,11 @@ public partial class Player : Unit
 		if (reapplyMods) //reapply stats values only on .reset stats (level) command
 			_RemoveAllStatBonuses();
 
-		Global.ObjectMgr.GetPlayerClassLevelInfo(Class, Level, out var basemana);
+		_gameObjectManager.GetPlayerClassLevelInfo(Class, Level, out var basemana);
 
-		var info = Global.ObjectMgr.GetPlayerLevelInfo(Race, Class, Level);
+		var info = _gameObjectManager.GetPlayerLevelInfo(Race, Class, Level);
 
-		var exp_max_lvl = (int)Global.ObjectMgr.GetMaxLevelForExpansion(Session.Expansion);
+		var exp_max_lvl = (int)_gameObjectManager.GetMaxLevelForExpansion(Session.Expansion);
 		var conf_max_lvl = _worldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
 
 		if (exp_max_lvl == SharedConst.DefaultMaxLevel || exp_max_lvl >= conf_max_lvl)
@@ -5033,7 +5033,7 @@ public partial class Player : Unit
 		else
 			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MaxLevel), exp_max_lvl);
 
-		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), Global.ObjectMgr.GetXPForLevel(Level));
+		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), _gameObjectManager.GetXPForLevel(Level));
 
 		if (ActivePlayerData.XP >= ActivePlayerData.NextLevelXP)
 			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.XP), ActivePlayerData.NextLevelXP - 1);
@@ -5641,7 +5641,7 @@ public partial class Player : Unit
 		for (var i = 1; i < nodes.Count; ++i)
 		{
 			lastnode = nodes[i];
-			Global.ObjectMgr.GetTaxiPath(prevnode, lastnode, out var path, out var cost);
+			_gameObjectManager.GetTaxiPath(prevnode, lastnode, out var path, out var cost);
 
 			if (path == 0)
 			{
@@ -5674,7 +5674,7 @@ public partial class Player : Unit
 		if (node.Flags.HasAnyFlag(TaxiNodeFlags.UseFavoriteMount) && preferredMountDisplay != 0)
 			mount_display_id = preferredMountDisplay;
 		else
-			mount_display_id = Global.ObjectMgr.GetTaxiMountDisplayId(sourcenode, Team, npc == null || (sourcenode == 315 && Class == PlayerClass.Deathknight));
+			mount_display_id = _gameObjectManager.GetTaxiMountDisplayId(sourcenode, Team, npc == null || (sourcenode == 315 && Class == PlayerClass.Deathknight));
 
 		// in spell case allow 0 model
 		if ((mount_display_id == 0 && spellid == 0) || sourcepath == 0)
@@ -5771,7 +5771,7 @@ public partial class Player : Unit
 
 		Log.outDebug(LogFilter.Unit, "WORLD: Restart character {0} taxi flight", GUID.ToString());
 
-		var mountDisplayId = Global.ObjectMgr.GetTaxiMountDisplayId(sourceNode, Team, true);
+		var mountDisplayId = _gameObjectManager.GetTaxiMountDisplayId(sourceNode, Team, true);
 
 		if (mountDisplayId == 0)
 			return;
@@ -6197,7 +6197,7 @@ public partial class Player : Unit
 			offItem.DeleteFromInventoryDB(trans); // deletes item from character's inventory
 			offItem.SaveToDB(trans);              // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
-			var subject = Global.ObjectMgr.GetCypherString(CypherStrings.NotEquippedItem);
+			var subject = _gameObjectManager.GetCypherString(CypherStrings.NotEquippedItem);
 			new MailDraft(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, this, new MailSender(this, MailStationery.Gm), MailCheckMask.Copied);
 
 			_characterDatabase.CommitTransaction(trans);
@@ -6793,7 +6793,7 @@ public partial class Player : Unit
 
 				break;
 			case ActionButtonType.Item:
-				if (Global.ObjectMgr.GetItemTemplate((uint)action) == null)
+				if (_gameObjectManager.GetItemTemplate((uint)action) == null)
 				{
 					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Item action {action} not added into button {button} for player {GetName()} ({GUID}): item not exist");
 
@@ -7638,7 +7638,7 @@ public partial class Player : Unit
 			(!pvp && !_worldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPve)))
 			return;
 
-		var now = _gameTime.GetGameTime;
+		var now = _gameTime.CurrentGameTime;
 
 		if (now < _deathExpireTime)
 		{
@@ -7684,7 +7684,7 @@ public partial class Player : Unit
 			}
 
 			var expected_time = corpse.GetGhostTime() + PlayerConst.copseReclaimDelay[count];
-			var now = _gameTime.GetGameTime;
+			var now = _gameTime.CurrentGameTime;
 
 			if (now >= expected_time)
 				return -1;
@@ -8337,7 +8337,7 @@ public partial class Player : Unit
 
 					if (diff < -5)
 					{
-						XP = (uint)(Global.ObjectMgr.GetBaseXP(Level + 5) * _worldConfig.GetFloatValue(WorldCfg.RateXpExplore));
+						XP = (uint)(_gameObjectManager.GetBaseXP(Level + 5) * _worldConfig.GetFloatValue(WorldCfg.RateXpExplore));
 					}
 					else if (diff > 5)
 					{
@@ -8346,16 +8346,16 @@ public partial class Player : Unit
 						if (exploration_percent < 0)
 							exploration_percent = 0;
 
-						XP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * exploration_percent / 100 * _worldConfig.GetFloatValue(WorldCfg.RateXpExplore));
+						XP = (uint)(_gameObjectManager.GetBaseXP(areaLevel) * exploration_percent / 100 * _worldConfig.GetFloatValue(WorldCfg.RateXpExplore));
 					}
 					else
 					{
-						XP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * _worldConfig.GetFloatValue(WorldCfg.RateXpExplore));
+						XP = (uint)(_gameObjectManager.GetBaseXP(areaLevel) * _worldConfig.GetFloatValue(WorldCfg.RateXpExplore));
 					}
 
 					if (_worldConfig.GetIntValue(WorldCfg.MinDiscoveredScaledXpRatio) != 0)
 					{
-						var minScaledXP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * _worldConfig.GetFloatValue(WorldCfg.RateXpExplore)) * _worldConfig.GetUIntValue(WorldCfg.MinDiscoveredScaledXpRatio) / 100;
+						var minScaledXP = (uint)(_gameObjectManager.GetBaseXP(areaLevel) * _worldConfig.GetFloatValue(WorldCfg.RateXpExplore)) * _worldConfig.GetUIntValue(WorldCfg.MinDiscoveredScaledXpRatio) / 100;
 						XP = Math.Max(minScaledXP, XP);
 					}
 
@@ -8380,7 +8380,7 @@ public partial class Player : Unit
 
 	public void SendSysMessage(uint str, params object[] args)
 	{
-		var input = Global.ObjectMgr.GetCypherString(str);
+		var input = _gameObjectManager.GetCypherString(str);
 		var pattern = @"%(\d+(\.\d+)?)?(d|f|s|u)";
 
 		var count = 0;
@@ -8488,7 +8488,7 @@ public partial class Player : Unit
 		if (!isAddonMessage)               // if not addon data
 			language = Language.Universal; // whispers should always be readable
 
-		//Player rPlayer = Global.ObjAccessor.FindPlayer(receiver);
+		//Player rPlayer = _objectAccessor.FindPlayer(receiver);
 
 		Global.ScriptMgr.OnPlayerChat(this, ChatMsg.Whisper, language, text, target);
 

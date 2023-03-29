@@ -32,7 +32,7 @@ public class TempSummon : Creature
 
 	public WorldObject GetSummoner()
 	{
-		return !_summonerGuid.IsEmpty ? Global.ObjAccessor.GetWorldObject(this, _summonerGuid) : null;
+		return !_summonerGuid.IsEmpty ? _objectAccessor.GetWorldObject(this, _summonerGuid) : null;
 	}
 
 	public void SetSummonerGUID(ObjectGuid summonerGUID)
@@ -223,7 +223,7 @@ public class TempSummon : Creature
 
 		if (owner != null && owner.IsPlayer)
 		{
-			var summonedData = Global.ObjectMgr.GetCreatureSummonedData(Entry);
+			var summonedData = _gameObjectManager.GetCreatureSummonedData(Entry);
 
 			if (summonedData != null)
 			{
@@ -231,7 +231,7 @@ public class TempSummon : Creature
 
 				if (summonedData.CreatureIdVisibleToSummoner.HasValue)
 				{
-					var creatureTemplateVisibleToSummoner = Global.ObjectMgr.GetCreatureTemplate(summonedData.CreatureIdVisibleToSummoner.Value);
+					var creatureTemplateVisibleToSummoner = _gameObjectManager.GetCreatureTemplate(summonedData.CreatureIdVisibleToSummoner.Value);
 					_displayIdVisibleToSummoner = GameObjectManager.ChooseDisplayId(creatureTemplateVisibleToSummoner, null).CreatureDisplayId;
 				}
 			}
@@ -302,7 +302,7 @@ public class TempSummon : Creature
 
 			if (infoForSeer != null && infoForSeer.ReplaceObject.HasValue && smoothPhasing.IsReplacing(infoForSeer.ReplaceObject.Value))
 			{
-				var original = Global.ObjAccessor.GetWorldObject(this, infoForSeer.ReplaceObject.Value);
+				var original = _objectAccessor.GetWorldObject(this, infoForSeer.ReplaceObject.Value);
 
 				if (original != null)
 					objectsToUpdate.Add(original);
@@ -326,7 +326,7 @@ public class TempSummon : Creature
 			var infoForSeer = smoothPhasing.GetInfoForSeer(DemonCreatorGUID);
 
 			if (infoForSeer != null && infoForSeer.ReplaceObject.HasValue && smoothPhasing.IsReplacing(infoForSeer.ReplaceObject.Value))
-				original = Global.ObjAccessor.GetWorldObject(this, infoForSeer.ReplaceObject.Value);
+				original = _objectAccessor.GetWorldObject(this, infoForSeer.ReplaceObject.Value);
 
 			if (original != null)
 			{

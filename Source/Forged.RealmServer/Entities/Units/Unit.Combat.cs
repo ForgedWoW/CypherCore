@@ -827,7 +827,7 @@ public partial class Unit
 		{
 			foreach (var tapperGuid in creature.TapList)
 			{
-				var tapper = Global.ObjAccessor.GetPlayer(creature, tapperGuid);
+				var tapper = _objectAccessor.GetPlayer(creature, tapperGuid);
 
 				if (tapper != null)
 					tappers.Add(tapper);
@@ -902,7 +902,7 @@ public partial class Unit
 					else if (!tappers.Empty())
 					{
 						var group = !groups.Empty() ? groups.First() : null;
-						var looter = group ? Global.ObjAccessor.GetPlayer(creature, group.LooterGuid) : tappers[0];
+						var looter = group ? _objectAccessor.GetPlayer(creature, group.LooterGuid) : tappers[0];
 
 						Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
 

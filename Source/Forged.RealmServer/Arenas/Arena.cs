@@ -197,7 +197,7 @@ public class Arena : Battleground
 					if (_worldConfig.GetBoolValue(WorldCfg.ArenaLogExtendedInfo))
 						foreach (var score in PlayerScores)
 						{
-							var player = Global.ObjAccessor.FindPlayer(score.Key);
+							var player = _objectAccessor.FindPlayer(score.Key);
 
 							if (player)
 								Log.outDebug(LogFilter.Arena,
@@ -268,7 +268,7 @@ public class Arena : Battleground
 
 							if (guildId != 0)
 							{
-								var guild = Global.GuildMgr.GetGuildById(guildId);
+								var guild = _guildManager.GetGuildById(guildId);
 
 								if (guild)
 									guild.UpdateCriteria(CriteriaType.WinAnyRankedArena, Math.Max(winnerArenaTeam.GetRating(), 1), 0, 0, null, player);

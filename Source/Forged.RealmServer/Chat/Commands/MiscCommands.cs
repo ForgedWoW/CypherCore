@@ -180,7 +180,7 @@ class MiscCommands
 
 		if (!args.Empty())
 		{
-			target = Global.ObjAccessor.FindPlayerByName(args.NextString());
+			target = _objectAccessor.FindPlayerByName(args.NextString());
 
 			if (!target)
 			{
@@ -469,7 +469,7 @@ class MiscCommands
 			{
 				case HighGuid.Player:
 				{
-					obj = Global.ObjAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, guidLow));
+					obj = _objectAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, guidLow));
 
 					if (!obj)
 						handler.SendSysMessage(CypherStrings.PlayerNotFound);
@@ -556,7 +556,7 @@ class MiscCommands
 					// find the player
 					var name = arg1;
 					GameObjectManager.NormalizePlayerName(ref name);
-					player = Global.ObjAccessor.FindPlayerByName(name);
+					player = _objectAccessor.FindPlayerByName(name);
 
 					// Check if we have duration set
 					if (!arg2.IsEmpty() && arg2.IsNumber())
@@ -638,7 +638,7 @@ class MiscCommands
 			{
 				case HighGuid.Player:
 				{
-					obj = Global.ObjAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, guidLow));
+					obj = _objectAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, guidLow));
 
 					if (!obj)
 						handler.SendSysMessage(CypherStrings.PlayerNotFound);
@@ -916,7 +916,7 @@ class MiscCommands
 		else
 			return false;
 
-		var graveyard = Global.ObjectMgr.GetWorldSafeLoc(graveyardId);
+		var graveyard = _gameObjectManager.GetWorldSafeLoc(graveyardId);
 
 		if (graveyard == null)
 		{
@@ -938,7 +938,7 @@ class MiscCommands
 			return false;
 		}
 
-		if (Global.ObjectMgr.AddGraveYardLink(graveyardId, zoneId, team))
+		if (_gameObjectManager.AddGraveYardLink(graveyardId, zoneId, team))
 			handler.SendSysMessage(CypherStrings.CommandGraveyardlinked, graveyardId, zoneId);
 		else
 			handler.SendSysMessage(CypherStrings.CommandGraveyardalrlinked, graveyardId, zoneId);
@@ -970,7 +970,7 @@ class MiscCommands
 			var remaintime = result.Read<int>(1);
 			// Save the frozen player to update remaining time in case of future .listfreeze uses
 			// before the frozen state expires
-			var frozen = Global.ObjAccessor.FindPlayerByName(player);
+			var frozen = _objectAccessor.FindPlayerByName(player);
 
 			if (frozen)
 				frozen.SaveToDB();
@@ -1114,7 +1114,7 @@ class MiscCommands
 		}
 
 		var target = player.GetConnectedPlayer();
-		var accountId = target != null ? target.Session.AccountId : Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(player.GetGUID());
+		var accountId = target != null ? target.Session.AccountId : _characterCache.GetCharacterAccountIdByGuid(player.GetGUID());
 
 		// find only player from same account if any
 		if (!target)
@@ -1141,7 +1141,7 @@ class MiscCommands
 		if (target)
 		{
 			// Target is online, mute will be in effect right away.
-			var mutedUntil = _gameTime.GetGameTime + muteTime * Time.Minute;
+			var mutedUntil = _gameTime.CurrentGameTime + muteTime * Time.Minute;
 			target.Session.MuteTime = mutedUntil;
 			stmt.AddValue(0, mutedUntil);
 		}
@@ -1238,13 +1238,13 @@ class MiscCommands
 		var player = handler.Session.Player;
 		var zoneId = player.Zone;
 
-		var graveyard = Global.ObjectMgr.GetClosestGraveYard(player.Location, team, null);
+		var graveyard = _gameObjectManager.GetClosestGraveYard(player.Location, team, null);
 
 		if (graveyard != null)
 		{
 			var graveyardId = graveyard.Id;
 
-			var data = Global.ObjectMgr.FindGraveYardData(graveyardId, zoneId);
+			var data = _gameObjectManager.FindGraveYardData(graveyardId, zoneId);
 
 			if (data == null)
 			{
@@ -1296,9 +1296,9 @@ class MiscCommands
 		var parseGUID = ObjectGuid.Create(HighGuid.Player, args.NextUInt64());
 
 		// ... and make sure we get a target, somehow.
-		if (Global.CharacterCacheStorage.GetCharacterNameByGuid(parseGUID, out var targetName))
+		if (_characterCache.GetCharacterNameByGuid(parseGUID, out var targetName))
 		{
-			target = Global.ObjAccessor.FindPlayer(parseGUID);
+			target = _objectAccessor.FindPlayer(parseGUID);
 			targetGuid = parseGUID;
 		}
 		// if not, then return false. Which shouldn't happen, now should it ?
@@ -1517,7 +1517,7 @@ class MiscCommands
 		{
 			xp = result4.Read<uint>(0);         // Used for "current xp" output and "%u XP Left" calculation
 			var gguid = result4.Read<ulong>(1); // We check if have a guild for the person, so we might not require to query it at all
-			xptotal = Global.ObjectMgr.GetXPForLevel(level);
+			xptotal = _gameObjectManager.GetXPForLevel(level);
 
 			if (gguid != 0)
 			{
@@ -1548,11 +1548,11 @@ class MiscCommands
 
 		// Output III. LANG_PINFO_BANNED if ban exists and is applied
 		if (banTime >= 0)
-			handler.SendSysMessage(CypherStrings.PinfoBanned, banType, banReason, banTime > 0 ? Time.secsToTimeString((ulong)(banTime - _gameTime.GetGameTime), TimeFormat.ShortText) : handler.GetCypherString(CypherStrings.Permanently), bannedBy);
+			handler.SendSysMessage(CypherStrings.PinfoBanned, banType, banReason, banTime > 0 ? Time.secsToTimeString((ulong)(banTime - _gameTime.CurrentGameTime), TimeFormat.ShortText) : handler.GetCypherString(CypherStrings.Permanently), bannedBy);
 
 		// Output IV. LANG_PINFO_MUTED if mute is applied
 		if (muteTime > 0)
-			handler.SendSysMessage(CypherStrings.PinfoMuted, muteReason, Time.secsToTimeString((ulong)(muteTime - _gameTime.GetGameTime), TimeFormat.ShortText), muteBy);
+			handler.SendSysMessage(CypherStrings.PinfoMuted, muteReason, Time.secsToTimeString((ulong)(muteTime - _gameTime.CurrentGameTime), TimeFormat.ShortText), muteBy);
 
 		// Output V. LANG_PINFO_ACC_ACCOUNT
 		handler.SendSysMessage(CypherStrings.PinfoAccAccount, userName, accId, security);
@@ -1830,7 +1830,7 @@ class MiscCommands
 	[CommandNonGroup("saveall", RBACPermissions.CommandSaveall, true)]
 	static bool HandleSaveAllCommand(CommandHandler handler)
 	{
-		Global.ObjAccessor.SaveAllPlayers();
+		_objectAccessor.SaveAllPlayers();
 		handler.SendSysMessage(CypherStrings.PlayersSaved);
 
 		return true;
@@ -1974,7 +1974,7 @@ class MiscCommands
 				var targetGroup = target.Group;
 
 				if (targetGroup != null)
-					targetGroupLeader = Global.ObjAccessor.GetPlayer(map, targetGroup.LeaderGUID);
+					targetGroupLeader = _objectAccessor.GetPlayer(map, targetGroup.LeaderGUID);
 
 				// check if far teleport is allowed
 				if (targetGroupLeader == null || (targetGroupLeader.Location.MapId != map.Id) || (targetGroupLeader.InstanceId != map.InstanceId))
@@ -2053,7 +2053,7 @@ class MiscCommands
 		{
 			name = targetNameArg;
 			GameObjectManager.NormalizePlayerName(ref name);
-			player = Global.ObjAccessor.FindPlayerByName(name);
+			player = _objectAccessor.FindPlayerByName(name);
 		}
 		else // If no name was entered - use target
 		{
@@ -2077,7 +2077,7 @@ class MiscCommands
 			if (!targetNameArg.IsEmpty())
 			{
 				// Check for offline players
-				var guid = Global.CharacterCacheStorage.GetCharacterGuidByName(name);
+				var guid = _characterCache.GetCharacterGuidByName(name);
 
 				if (guid.IsEmpty)
 				{
@@ -2113,7 +2113,7 @@ class MiscCommands
 		if (!handler.ExtractPlayerTarget(args, out var target, out var targetGuid, out var targetName))
 			return false;
 
-		var accountId = target ? target.Session.AccountId : Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(targetGuid);
+		var accountId = target ? target.Session.AccountId : _characterCache.GetCharacterAccountIdByGuid(targetGuid);
 
 		// find only player from same account if any
 		if (!target)

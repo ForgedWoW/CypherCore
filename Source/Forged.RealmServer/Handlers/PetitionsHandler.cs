@@ -18,6 +18,7 @@ namespace Forged.RealmServer;
 public class PetitionsHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
+    private readonly ClassFactory _classFactory;
     private readonly WorldConfig _worldConfig;
     private readonly PetitionManager _petitionManager;
     private readonly GuildManager _guildManager;
@@ -26,18 +27,17 @@ public class PetitionsHandler : IWorldSessionHandler
     private readonly CharacterDatabase _characterDatabase;
     private readonly CharacterCache _characterCache;
 
-    public PetitionsHandler(WorldSession session, WorldConfig worldConfig, PetitionManager petitionManager,
-		GuildManager guildManager, GameObjectManager gameObjectManager, ObjectAccessor objectAccessor,
-		CharacterDatabase characterDatabase, CharacterCache characterCache)
+    public PetitionsHandler(WorldSession session, ClassFactory classFactory)
     {
         _session = session;
-        _worldConfig = worldConfig;
-        _petitionManager = petitionManager;
-        _guildManager = guildManager;
-        _gameObjectManager = gameObjectManager;
-        _objectAccessor = objectAccessor;
-        _characterDatabase = characterDatabase;
-        _characterCache = characterCache;
+        _classFactory = classFactory;
+        _worldConfig = _classFactory.Resolve<WorldConfig>();
+        _petitionManager = _classFactory.Resolve<PetitionManager>();
+        _guildManager = _classFactory.Resolve<GuildManager>();
+        _gameObjectManager = _classFactory.Resolve<GameObjectManager>();
+        _objectAccessor = _classFactory.Resolve<ObjectAccessor>();
+        _characterDatabase = _classFactory.Resolve<CharacterDatabase>();
+        _characterCache = _classFactory.Resolve<CharacterCache>();
     }
 
     public void SendPetitionQuery(ObjectGuid petitionGuid)
@@ -475,7 +475,7 @@ public class PetitionsHandler : IWorldSessionHandler
         _session.Player.DestroyItem(item.BagSlot, item.Slot, true);
 
 		// Create guild
-		Guild guild = new();
+		Guild guild = new(_classFactory);
 
 		if (!guild.Create(_session.Player, name))
 			return;

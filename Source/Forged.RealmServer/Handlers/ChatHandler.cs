@@ -28,9 +28,11 @@ public class ChatHandler : IWorldSessionHandler
     private readonly ObjectAccessor _objectAccessor;
     private readonly GuildManager _guildManager;
     private readonly ScriptManager _scriptManager;
+    private readonly ChannelManager _channelManager;
 
     public ChatHandler(WorldSession session, WorldConfig worldConfig, GameTime gameTime, LanguageManager languageManager,
-		GameObjectManager objectManager, ObjectAccessor objectAccessor, GuildManager guildManager, ScriptManager scriptManager)
+		GameObjectManager objectManager, ObjectAccessor objectAccessor, GuildManager guildManager, ScriptManager scriptManager,
+		ChannelManager channelManager)
     {
         _session = session;
         _worldConfig = worldConfig;
@@ -40,6 +42,7 @@ public class ChatHandler : IWorldSessionHandler
         _objectAccessor = objectAccessor;
         _guildManager = guildManager;
         _scriptManager = scriptManager;
+        _channelManager = channelManager;
     }
 
     [WorldPacketHandler(ClientOpcodes.ChatMessageGuild)]
@@ -398,7 +401,7 @@ public class ChatHandler : IWorldSessionHandler
 						return;
 					}
 
-				var chn = !channelGuid.IsEmpty ? ChannelManager.GetChannelForPlayerByGuid(channelGuid, sender) : ChannelManager.GetChannelForPlayerByNamePart(target, sender);
+				var chn = !channelGuid.IsEmpty ? _channelManager.GetChannelForPlayerByGuid(channelGuid, sender) : _channelManager.GetChannelForPlayerByNamePart(target, sender);
 
 				if (chn != null)
 				{
@@ -515,7 +518,7 @@ public class ChatHandler : IWorldSessionHandler
 				break;
 			}
 			case ChatMsg.Channel:
-				var chn = channelGuid.HasValue ? ChannelManager.GetChannelForPlayerByGuid(channelGuid.Value, sender) : ChannelManager.GetChannelForPlayerByNamePart(target, sender);
+				var chn = channelGuid.HasValue ? _channelManager.GetChannelForPlayerByGuid(channelGuid.Value, sender) : _channelManager.GetChannelForPlayerByNamePart(target, sender);
 
 				if (chn != null)
 					chn.AddonSay(sender.GUID, prefix, text, isLogged);

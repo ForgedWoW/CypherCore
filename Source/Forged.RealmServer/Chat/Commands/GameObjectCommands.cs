@@ -54,7 +54,7 @@ class GameObjectCommands
 
 			if (!ownerGuid.IsEmpty)
 			{
-				var owner = Global.ObjAccessor.GetUnit(player, ownerGuid);
+				var owner = _objectAccessor.GetUnit(player, ownerGuid);
 
 				if (!owner || !ownerGuid.IsPlayer)
 				{
@@ -121,7 +121,7 @@ class GameObjectCommands
 		if (!isGuid.IsEmpty() && isGuid.Equals("guid", StringComparison.OrdinalIgnoreCase))
 		{
 			spawnId = data;
-			spawnData = Global.ObjectMgr.GetGameObjectData(spawnId);
+			spawnData = _gameObjectManager.GetGameObjectData(spawnId);
 
 			if (spawnData == null)
 			{
@@ -138,7 +138,7 @@ class GameObjectCommands
 			entry = (uint)data;
 		}
 
-		var gameObjectInfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+		var gameObjectInfo = _gameObjectManager.GetGameObjectTemplate(entry);
 
 		if (gameObjectInfo == null)
 		{
@@ -167,10 +167,10 @@ class GameObjectCommands
 				handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, thisGO.Map.IsSpawnGroupActive(groupData.GroupId));
 			}
 
-			var goOverride = Global.ObjectMgr.GetGameObjectOverride(spawnId);
+			var goOverride = _gameObjectManager.GetGameObjectOverride(spawnId);
 
 			if (goOverride == null)
-				goOverride = Global.ObjectMgr.GetGameObjectTemplateAddon(entry);
+				goOverride = _gameObjectManager.GetGameObjectTemplateAddon(entry);
 
 			if (goOverride != null)
 				handler.SendSysMessage(CypherStrings.GoinfoAddon, goOverride.Faction, goOverride.Flags);
@@ -190,7 +190,7 @@ class GameObjectCommands
 		handler.SendSysMessage(CypherStrings.GoinfoName, name);
 		handler.SendSysMessage(CypherStrings.GoinfoSize, gameObjectInfo.size);
 
-		handler.SendSysMessage(CypherStrings.ObjectinfoAiInfo, gameObjectInfo.AIName, Global.ObjectMgr.GetScriptName(gameObjectInfo.ScriptId));
+		handler.SendSysMessage(CypherStrings.ObjectinfoAiInfo, gameObjectInfo.AIName, _gameObjectManager.GetScriptName(gameObjectInfo.ScriptId));
 		var ai = thisGO != null ? thisGO.AI : null;
 
 		if (ai != null)
@@ -240,9 +240,9 @@ class GameObjectCommands
 		obj.Location.Relocate(pos);
 
 		// update which cell has this gameobject registered for loading
-		Global.ObjectMgr.RemoveGameObjectFromGrid(obj.GameObjectData);
+		_gameObjectManager.RemoveGameObjectFromGrid(obj.GameObjectData);
 		obj.SaveToDB();
-		Global.ObjectMgr.AddGameObjectToGrid(obj.GameObjectData);
+		_gameObjectManager.AddGameObjectToGrid(obj.GameObjectData);
 
 		// Generate a completely new spawn with new guid
 		// client caches recently deleted objects and brings them back to life
@@ -289,7 +289,7 @@ class GameObjectCommands
 				var z = result.Read<float>(4);
 				var mapId = result.Read<ushort>(5);
 
-				var gameObjectInfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+				var gameObjectInfo = _gameObjectManager.GetGameObjectTemplate(entry);
 
 				if (gameObjectInfo == null)
 					continue;
@@ -447,7 +447,7 @@ class GameObjectCommands
 			return false;
 		}
 
-		var objectInfo = Global.ObjectMgr.GetGameObjectTemplate(id);
+		var objectInfo = _gameObjectManager.GetGameObjectTemplate(id);
 
 		if (objectInfo == null)
 		{
@@ -462,7 +462,7 @@ class GameObjectCommands
 
 		if (target)
 		{
-			var curRespawnDelay = (int)(target.RespawnTimeEx - _gameTime.GetGameTime);
+			var curRespawnDelay = (int)(target.RespawnTimeEx - _gameTime.CurrentGameTime);
 
 			if (curRespawnDelay < 0)
 				curRespawnDelay = 0;
@@ -522,7 +522,7 @@ class GameObjectCommands
 			if (objectId == 0)
 				return false;
 
-			var objectInfo = Global.ObjectMgr.GetGameObjectTemplate(objectId);
+			var objectInfo = _gameObjectManager.GetGameObjectTemplate(objectId);
 
 			if (objectInfo == null)
 			{
@@ -569,7 +569,7 @@ class GameObjectCommands
 				return false;
 
 			// TODO: is it really necessary to add both the real and DB table guid here ?
-			Global.ObjectMgr.AddGameObjectToGrid(Global.ObjectMgr.GetGameObjectData(spawnId));
+			_gameObjectManager.AddGameObjectToGrid(_gameObjectManager.GetGameObjectData(spawnId));
 			handler.SendSysMessage(CypherStrings.GameobjectAdd, objectId, objectInfo.name, spawnId, player.Location.X, player.Location.Y, player.Location.Z);
 
 			return true;
@@ -583,7 +583,7 @@ class GameObjectCommands
 
 			var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(player.Location.Orientation, 0.0f, 0.0f));
 
-			if (Global.ObjectMgr.GetGameObjectTemplate(objectId) == null)
+			if (_gameObjectManager.GetGameObjectTemplate(objectId) == null)
 			{
 				handler.SendSysMessage(CypherStrings.GameobjectNotExist, objectId);
 

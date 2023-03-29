@@ -47,7 +47,7 @@ public class CommandHandler
 			if (selected.IsEmpty)
 				return _session.Player;
 
-			return Global.ObjAccessor.FindConnectedPlayer(selected);
+			return _objectAccessor.FindConnectedPlayer(selected);
 		}
 	}
 
@@ -79,7 +79,7 @@ public class CommandHandler
 			if (selected.IsEmpty)
 				return NearbyGameObject;
 
-			return Global.ObjAccessor.GetUnit(_session.Player, selected);
+			return _objectAccessor.GetUnit(_session.Player, selected);
 		}
 	}
 
@@ -107,7 +107,7 @@ public class CommandHandler
 				return _session.Player;
 
 			// first try with selected target
-			var targetPlayer = Global.ObjAccessor.FindConnectedPlayer(selected);
+			var targetPlayer = _objectAccessor.FindConnectedPlayer(selected);
 
 			// if the target is not a player, then return self
 			if (!targetPlayer)
@@ -304,8 +304,8 @@ public class CommandHandler
 				return false;
 			}
 
-			player = Global.ObjAccessor.FindPlayerByName(name);
-			var guid = player == null ? Global.CharacterCacheStorage.GetCharacterGuidByName(name) : ObjectGuid.Empty;
+			player = _objectAccessor.FindPlayerByName(name);
+			var guid = player == null ? _characterCache.GetCharacterGuidByName(name) : ObjectGuid.Empty;
 
 			playerGuid = player != null ? player.GUID : guid;
 			playerName = player != null || !guid.IsEmpty ? name : "";
@@ -352,12 +352,12 @@ public class CommandHandler
 				if (!GameObjectManager.NormalizePlayerName(ref idS))
 					return 0;
 
-				var player = Global.ObjAccessor.FindPlayerByName(idS);
+				var player = _objectAccessor.FindPlayerByName(idS);
 
 				if (player)
 					return player.GUID.Counter;
 
-				var guid = Global.CharacterCacheStorage.GetCharacterGuidByName(idS);
+				var guid = _characterCache.GetCharacterGuidByName(idS);
 
 				if (guid.IsEmpty)
 					return 0;
@@ -496,7 +496,7 @@ public class CommandHandler
 		if (target != null)
 			target_session = target.Session;
 		else if (!guid.IsEmpty)
-			target_account = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(guid);
+			target_account = _characterCache.GetCharacterAccountIdByGuid(guid);
 
 		if (target_session == null && target_account == 0)
 		{
@@ -541,12 +541,12 @@ public class CommandHandler
 
 	public string GetCypherString(CypherStrings str)
 	{
-		return Global.ObjectMgr.GetCypherString(str);
+		return _gameObjectManager.GetCypherString(str);
 	}
 
 	public string GetParsedString(CypherStrings cypherString, params object[] args)
 	{
-		return string.Format(Global.ObjectMgr.GetCypherString(cypherString), args);
+		return string.Format(_gameObjectManager.GetCypherString(cypherString), args);
 	}
 
 	public void SendSysMessage(string str, params object[] args)
@@ -556,7 +556,7 @@ public class CommandHandler
 
 	public void SendSysMessage(CypherStrings cypherString, params object[] args)
 	{
-		SendSysMessage(string.Format(Global.ObjectMgr.GetCypherString(cypherString), args));
+		SendSysMessage(string.Format(_gameObjectManager.GetCypherString(cypherString), args));
 	}
 
 	public virtual void SendSysMessage(string str, bool escapeCharacters = false)
@@ -613,10 +613,10 @@ public class CommandHandler
 				return false;
 			}
 
-			player = Global.ObjAccessor.FindPlayerByName(name);
+			player = _objectAccessor.FindPlayerByName(name);
 
 			if (offline)
-				guid = Global.CharacterCacheStorage.GetCharacterGuidByName(name);
+				guid = _characterCache.GetCharacterGuidByName(name);
 		}
 
 		if (player)

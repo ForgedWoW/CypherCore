@@ -56,7 +56,7 @@ public class Petition
 				Signatures.Remove(itr);
 
 				// notify owner
-				var owner = Global.ObjAccessor.FindConnectedPlayer(OwnerGuid);
+				var owner = _objectAccessor.FindConnectedPlayer(OwnerGuid);
 
 				if (owner != null)
 					owner.Session.SendPetitionQuery(PetitionGuid);

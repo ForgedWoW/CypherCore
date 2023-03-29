@@ -71,10 +71,10 @@ public class ScriptManager : Singleton<ScriptManager>
 	public bool OnAreaTrigger(Player player, AreaTriggerRecord trigger, bool entered)
 	{
 		if (entered)
-			foreach (var script in Global.ObjectMgr.GetAreaTriggerScriptIds(trigger.Id))
+			foreach (var script in _gameObjectManager.GetAreaTriggerScriptIds(trigger.Id))
 				return RunScriptRet<IAreaTriggerOnTrigger>(a => a.OnTrigger(player, trigger), script);
 		else
-			foreach (var script in Global.ObjectMgr.GetAreaTriggerScriptIds(trigger.Id))
+			foreach (var script in _gameObjectManager.GetAreaTriggerScriptIds(trigger.Id))
 				return RunScriptRet<IAreaTriggerOnExit>(p => p.OnExit(player, trigger), script);
 
 		return false;
@@ -438,7 +438,7 @@ public class ScriptManager : Singleton<ScriptManager>
 			var z = result.Read<float>(4);
 			var waitTime = result.Read<uint>(5);
 
-			var info = Global.ObjectMgr.GetCreatureTemplate(entry);
+			var info = _gameObjectManager.GetCreatureTemplate(entry);
 
 			if (info == null)
 			{
@@ -620,7 +620,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	public List<SpellScript> CreateSpellScripts(uint spellId, Spell invoker)
 	{
 		var scriptList = new List<SpellScript>();
-		var bounds = Global.ObjectMgr.GetSpellScriptsBounds(spellId);
+		var bounds = _gameObjectManager.GetSpellScriptsBounds(spellId);
 
 		var reg = GetScriptRegistry<ISpellScriptLoaderGetSpellScript>();
 
@@ -653,7 +653,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	public List<AuraScript> CreateAuraScripts(uint spellId, Aura invoker)
 	{
 		var scriptList = new List<AuraScript>();
-		var bounds = Global.ObjectMgr.GetSpellScriptsBounds(spellId);
+		var bounds = _gameObjectManager.GetSpellScriptsBounds(spellId);
 
 		var reg = GetScriptRegistry<IAuraScriptLoaderGetAuraScript>();
 
@@ -686,7 +686,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	public Dictionary<ISpellScriptLoaderGetSpellScript, uint> CreateSpellScriptLoaders(uint spellId)
 	{
 		var scriptDic = new Dictionary<ISpellScriptLoaderGetSpellScript, uint>();
-		var bounds = Global.ObjectMgr.GetSpellScriptsBounds(spellId);
+		var bounds = _gameObjectManager.GetSpellScriptsBounds(spellId);
 
 		var reg = GetScriptRegistry<ISpellScriptLoaderGetSpellScript>();
 
@@ -709,7 +709,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	public Dictionary<IAuraScriptLoaderGetAuraScript, uint> CreateAuraScriptLoaders(uint spellId)
 	{
 		var scriptDic = new Dictionary<IAuraScriptLoaderGetAuraScript, uint>();
-		var bounds = Global.ObjectMgr.GetSpellScriptsBounds(spellId);
+		var bounds = _gameObjectManager.GetSpellScriptsBounds(spellId);
 
 		var reg = GetScriptRegistry<IAuraScriptLoaderGetAuraScript>();
 
@@ -736,7 +736,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	public List<AreaTriggerScript> CreateAreaTriggerScripts(uint areaTriggerId, AreaTrigger invoker)
 	{
 		var scriptList = new List<AreaTriggerScript>();
-		var bounds = Global.ObjectMgr.GetAreaTriggerScriptIds(areaTriggerId);
+		var bounds = _gameObjectManager.GetAreaTriggerScriptIds(areaTriggerId);
 
 		var reg = GetScriptRegistry<IAreaTriggerScriptLoaderGetTriggerScriptScript>();
 
@@ -769,7 +769,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	public Dictionary<IAreaTriggerScriptLoaderGetTriggerScriptScript, uint> CreateAreaTriggerScriptLoaders(uint areaTriggerId)
 	{
 		var scriptDic = new Dictionary<IAreaTriggerScriptLoaderGetTriggerScriptScript, uint>();
-		var bounds = Global.ObjectMgr.GetAreaTriggerScriptIds(areaTriggerId);
+		var bounds = _gameObjectManager.GetAreaTriggerScriptIds(areaTriggerId);
 
 		var reg = GetScriptRegistry<IAreaTriggerScriptLoaderGetTriggerScriptScript>();
 

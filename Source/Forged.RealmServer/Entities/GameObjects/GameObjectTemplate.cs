@@ -664,7 +664,7 @@ public class GameObjectTemplate
 
 		stats.Size = size;
 
-		var items = Global.ObjectMgr.GetGameObjectQuestItemList(entry);
+		var items = _gameObjectManager.GetGameObjectQuestItemList(entry);
 
 		foreach (var item in items)
 			stats.QuestItems.Add(item);

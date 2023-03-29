@@ -436,7 +436,7 @@ public class SupportManager : Singleton<SupportManager>
 
 	public void UpdateLastChange()
 	{
-		_lastChange = (ulong)_gameTime.GetGameTime;
+		_lastChange = (ulong)_gameTime.CurrentGameTime;
 	}
 
 	public uint GenerateBugId()
@@ -456,7 +456,7 @@ public class SupportManager : Singleton<SupportManager>
 
 	long GetAge(ulong t)
 	{
-		return (_gameTime.GetGameTime - (long)t) / Time.Day;
+		return (_gameTime.CurrentGameTime - (long)t) / Time.Day;
 	}
 
 	IEnumerable<KeyValuePair<uint, ComplaintTicket>> GetComplaintsByPlayerGuid(ObjectGuid playerGuid)

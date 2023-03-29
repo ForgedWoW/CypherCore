@@ -9905,7 +9905,7 @@ public sealed class GameObjectManager
         {
             var receiver = result.Read<ulong>(3);
 
-            if (serverUp && Global.ObjAccessor.FindConnectedPlayer(ObjectGuid.Create(HighGuid.Player, receiver)))
+            if (serverUp && _objectAccessor.FindConnectedPlayer(ObjectGuid.Create(HighGuid.Player, receiver)))
                 continue;
 
             Mail m = new()
@@ -10734,7 +10734,7 @@ public sealed class GameObjectManager
         result = DB.Characters.Query("SELECT MAX(guildId) FROM guild");
 
         if (!result.IsEmpty())
-            Global.GuildMgr.SetNextGuildId(result.Read<uint>(0) + 1);
+            _guildManager.SetNextGuildId(result.Read<uint>(0) + 1);
 
         result = DB.Characters.Query("SELECT MAX(itemId) from character_void_storage");
 

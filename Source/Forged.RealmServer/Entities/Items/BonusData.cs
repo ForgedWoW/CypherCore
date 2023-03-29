@@ -100,7 +100,7 @@ public class BonusData
 		_state.HasQualityBonus = false;
 	}
 
-	public BonusData(ItemInstance itemInstance) : this(Global.ObjectMgr.GetItemTemplate(itemInstance.ItemID))
+	public BonusData(ItemInstance itemInstance) : this(_gameObjectManager.GetItemTemplate(itemInstance.ItemID))
 	{
 		if (itemInstance.ItemBonus != null)
 			foreach (var bonusListID in itemInstance.ItemBonus.BonusListIDs)

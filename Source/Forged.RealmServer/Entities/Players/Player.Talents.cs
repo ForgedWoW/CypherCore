@@ -512,7 +512,7 @@ public partial class Player
 		}
 		else
 		{
-			var months = (ulong)(_gameTime.GetGameTime - GetTalentResetTime()) / Time.Month;
+			var months = (ulong)(_gameTime.CurrentGameTime - GetTalentResetTime()) / Time.Month;
 
 			if (months > 0)
 			{
@@ -587,7 +587,7 @@ public partial class Player
 			UpdateCriteria(CriteriaType.TotalRespecs, 1);
 
 			SetTalentResetCost(cost);
-			SetTalentResetTime(_gameTime.GetGameTime);
+			SetTalentResetTime(_gameTime.CurrentGameTime);
 		}
 
 		return true;

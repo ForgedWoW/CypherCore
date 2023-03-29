@@ -106,7 +106,7 @@ public class Guardian : Minion
 				SetStatFlatModifier(UnitMods.ResistanceStart + i, UnitModifierFlatType.Base, cinfo.Resistance[i]);
 
 		// Health, Mana or Power, Armor
-		var pInfo = Global.ObjectMgr.GetPetLevelInfo(creature_ID, petlevel);
+		var pInfo = _gameObjectManager.GetPetLevelInfo(creature_ID, petlevel);
 
 		if (pInfo != null) // exist in DB
 		{
@@ -122,7 +122,7 @@ public class Guardian : Minion
 		else // not exist in DB, use some default fake data
 		{
 			// remove elite bonuses included in DB values
-			var stats = Global.ObjectMgr.GetCreatureBaseStats(petlevel, cinfo.UnitClass);
+			var stats = _gameObjectManager.GetCreatureBaseStats(petlevel, cinfo.UnitClass);
 			ApplyLevelScaling();
 
 			SetCreateHealth((uint)(Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, petlevel, cinfo.GetHealthScalingExpansion(), UnitData.ContentTuningID, (PlayerClass)cinfo.UnitClass) * cinfo.ModHealth * cinfo.ModHealthExtra * GetHealthMod(cinfo.Rank)));
@@ -177,7 +177,7 @@ public class Guardian : Minion
 			}
 			case PetType.Hunter:
 			{
-				AsPet.SetPetNextLevelExperience((uint)(Global.ObjectMgr.GetXPForLevel(petlevel) * 0.05f));
+				AsPet.SetPetNextLevelExperience((uint)(_gameObjectManager.GetXPForLevel(petlevel) * 0.05f));
 				//these formula may not be correct; however, it is designed to be close to what it should be
 				//this makes dps 0.5 of pets level
 				SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, petlevel - (petlevel / 4));

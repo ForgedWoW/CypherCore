@@ -55,7 +55,7 @@ class SceneCommands
 			return false;
 		}
 
-		if (Global.ObjectMgr.GetSceneTemplate(sceneId) == null)
+		if (_gameObjectManager.GetSceneTemplate(sceneId) == null)
 			return false;
 
 		target.SceneMgr.PlayScene(sceneId);

@@ -232,7 +232,7 @@ public class Pet : Guardian
 
 		if (petInfo.Type == PetType.Hunter)
 		{
-			var creatureInfo = Global.ObjectMgr.GetCreatureTemplate(petInfo.CreatureId);
+			var creatureInfo = _gameObjectManager.GetCreatureTemplate(petInfo.CreatureId);
 
 			if (creatureInfo == null || !creatureInfo.IsTameable(owner.CanTameExoticPets))
 				return false;
@@ -315,7 +315,7 @@ public class Pet : Guardian
 				break;
 		}
 
-		SetPetNameTimestamp((uint)_gameTime.GetGameTime); // cast can't be helped here
+		SetPetNameTimestamp((uint)_gameTime.CurrentGameTime); // cast can't be helped here
 		SetCreatorGUID(owner.GUID);
 
 		InitStatsForLevel(petlevel);
@@ -424,7 +424,7 @@ public class Pet : Guardian
 				if (Removed)
 					return;
 
-				var timediff = (uint)(_gameTime.GetGameTime - lastSaveTime);
+				var timediff = (uint)(_gameTime.CurrentGameTime - lastSaveTime);
 				_LoadAuras(holder.GetResult(PetLoginQueryLoad.Auras), holder.GetResult(PetLoginQueryLoad.AuraEffects), timediff);
 
 				// load action bar, if data broken will fill later by default spells.
@@ -569,7 +569,7 @@ public class Pet : Guardian
 
 			stmt.AddValue(12, actionBar);
 
-			stmt.AddValue(13, _gameTime.GetGameTime);
+			stmt.AddValue(13, _gameTime.CurrentGameTime);
 			stmt.AddValue(14, UnitData.CreatedBySpell);
 			stmt.AddValue(15, (byte)PetType);
 			stmt.AddValue(16, Specialization);
@@ -598,7 +598,7 @@ public class Pet : Guardian
 		petInfo.Health = (uint)Health;
 		petInfo.Mana = (uint)GetPower(PowerType.Mana);
 		petInfo.ActionBar = GenerateActionBarData();
-		petInfo.LastSaveTime = (uint)_gameTime.GetGameTime;
+		petInfo.LastSaveTime = (uint)_gameTime.CurrentGameTime;
 		petInfo.CreatedBySpellId = UnitData.CreatedBySpell;
 		petInfo.Type = PetType;
 		petInfo.SpecializationId = Specialization;
@@ -670,7 +670,7 @@ public class Pet : Guardian
 		{
 			case DeathState.Corpse:
 			{
-				if (PetType != PetType.Hunter || CorpseRemoveTime <= _gameTime.GetGameTime)
+				if (PetType != PetType.Hunter || CorpseRemoveTime <= _gameTime.CurrentGameTime)
 				{
 					Remove(PetSaveMode.NotInSlot); //hunters' pets never get removed because of death, NEVER!
 
@@ -801,7 +801,7 @@ public class Pet : Guardian
 		if (PetType == PetType.Hunter)
 		{
 			SetPetExperience(0);
-			SetPetNextLevelExperience((uint)(Global.ObjectMgr.GetXPForLevel((uint)level) * PetXPFactor));
+			SetPetNextLevelExperience((uint)(_gameObjectManager.GetXPForLevel((uint)level) * PetXPFactor));
 		}
 
 		InitStatsForLevel((uint)level);
@@ -1167,12 +1167,12 @@ public class Pet : Guardian
 	{
 		Log.outDebug(LogFilter.Pet, "CreateBaseForTamed");
 
-		if (!Create(map.GenerateLowGuid(HighGuid.Pet), map, cinfo.Entry, Global.ObjectMgr.GeneratePetNumber()))
+		if (!Create(map.GenerateLowGuid(HighGuid.Pet), map, cinfo.Entry, _gameObjectManager.GeneratePetNumber()))
 			return false;
 
 		SetPetNameTimestamp(0);
 		SetPetExperience(0);
-		SetPetNextLevelExperience((uint)(Global.ObjectMgr.GetXPForLevel(Level + 1) * PetXPFactor));
+		SetPetNextLevelExperience((uint)(_gameObjectManager.GetXPForLevel(Level + 1) * PetXPFactor));
 		ReplaceAllNpcFlags(NPCFlags.None);
 		ReplaceAllNpcFlags2(NPCFlags2.None);
 

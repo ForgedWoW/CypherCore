@@ -1844,7 +1844,7 @@ public partial class Unit
 			var fearAuras = GetAuraEffectsByType(AuraType.ModFear);
 
 			if (!fearAuras.Empty())
-				caster = Global.ObjAccessor.GetUnit(this, fearAuras[0].CasterGuid);
+				caster = _objectAccessor.GetUnit(this, fearAuras[0].CasterGuid);
 
 			if (caster == null)
 				caster = GetAttackerForHelper();

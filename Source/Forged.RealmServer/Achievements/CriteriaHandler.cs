@@ -249,7 +249,7 @@ public class CriteriaHandler
 
 						foreach (var id in rewQuests)
 						{
-							var quest = Global.ObjectMgr.GetQuestTemplate(id);
+							var quest = _gameObjectManager.GetQuestTemplate(id);
 
 							if (quest != null && quest.QuestSortID >= 0 && quest.QuestSortID == criteria.Entry.Asset)
 								++counter;
@@ -638,7 +638,7 @@ public class CriteriaHandler
 		}
 
 		progress.Changed = true;
-		progress.Date = _gameTime.GetGameTime; // set the date to the latest update.
+		progress.Date = _gameTime.CurrentGameTime; // set the date to the latest update.
 		progress.PlayerGUID = referencePlayer ? referencePlayer.GUID : ObjectGuid.Empty;
 		_criteriaProgress[criteria.Id] = progress;
 
@@ -1131,7 +1131,7 @@ public class CriteriaHandler
 			case CriteriaType.CompleteQuestsInZone:
 				if (miscValue1 != 0)
 				{
-					var quest = Global.ObjectMgr.GetQuestTemplate((uint)miscValue1);
+					var quest = _gameObjectManager.GetQuestTemplate((uint)miscValue1);
 
 					if (quest == null || quest.QuestSortID != criteria.Entry.Asset)
 						return false;
@@ -1287,7 +1287,7 @@ public class CriteriaHandler
 				if (miscValue1 == 0 || miscValue2 != criteria.Entry.Asset)
 					return false;
 
-				var proto = Global.ObjectMgr.GetItemTemplate((uint)miscValue1);
+				var proto = _gameObjectManager.GetItemTemplate((uint)miscValue1);
 
 				if (proto == null)
 					return false;
@@ -1423,7 +1423,7 @@ public class CriteriaHandler
 			case ModifierTreeType.MinimumItemLevel: // 3
 			{
 				// miscValue1 is itemid
-				var item = Global.ObjectMgr.GetItemTemplate((uint)miscValue1);
+				var item = _gameObjectManager.GetItemTemplate((uint)miscValue1);
 
 				if (item == null || item.BaseItemLevel < reqValue)
 					return false;
@@ -1483,7 +1483,7 @@ public class CriteriaHandler
 			case ModifierTreeType.ItemQualityIsAtLeast: // 14
 			{
 				// miscValue1 is itemid
-				var item = Global.ObjectMgr.GetItemTemplate((uint)miscValue1);
+				var item = _gameObjectManager.GetItemTemplate((uint)miscValue1);
 
 				if (item == null || (uint)item.Quality < reqValue)
 					return false;
@@ -1493,7 +1493,7 @@ public class CriteriaHandler
 			case ModifierTreeType.ItemQualityIsExactly: // 15
 			{
 				// miscValue1 is itemid
-				var item = Global.ObjectMgr.GetItemTemplate((uint)miscValue1);
+				var item = _gameObjectManager.GetItemTemplate((uint)miscValue1);
 
 				if (item == null || (uint)item.Quality != reqValue)
 					return false;
@@ -2008,7 +2008,7 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.ItemClassAndSubclass: // 96
 			{
-				var item = Global.ObjectMgr.GetItemTemplate((uint)miscValue1);
+				var item = _gameObjectManager.GetItemTemplate((uint)miscValue1);
 
 				if (item == null || item.Class != (ItemClass)reqValue || item.SubClass != secondaryAsset)
 					return false;
@@ -2084,7 +2084,7 @@ public class CriteriaHandler
 				var from = Time.GetUnixTimeFromPackedTime(reqValue);
 				var to = Time.GetUnixTimeFromPackedTime((uint)secondaryAsset);
 
-				if (_gameTime.GetGameTime < from || _gameTime.GetGameTime > to)
+				if (_gameTime.CurrentGameTime < from || _gameTime.CurrentGameTime > to)
 					return false;
 
 				break;
@@ -2104,12 +2104,12 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.PlayerHasCompletedQuestObjective: // 112
 			{
-				var objective = Global.ObjectMgr.GetQuestObjective(reqValue);
+				var objective = _gameObjectManager.GetQuestObjective(reqValue);
 
 				if (objective == null)
 					return false;
 
-				var quest = Global.ObjectMgr.GetQuestTemplate(objective.QuestID);
+				var quest = _gameObjectManager.GetQuestTemplate(objective.QuestID);
 
 				if (quest == null)
 					return false;
@@ -2716,7 +2716,7 @@ public class CriteriaHandler
 			}
 			case ModifierTreeType.PlayerQuestObjectiveProgressEqual: // 158
 			{
-				var objective = Global.ObjectMgr.GetQuestObjective(reqValue);
+				var objective = _gameObjectManager.GetQuestObjective(reqValue);
 
 				if (objective == null)
 					return false;
@@ -2728,7 +2728,7 @@ public class CriteriaHandler
 			}
 			case ModifierTreeType.PlayerQuestObjectiveProgressEqualOrGreaterThan: // 159
 			{
-				var objective = Global.ObjectMgr.GetQuestObjective(reqValue);
+				var objective = _gameObjectManager.GetQuestObjective(reqValue);
 
 				if (objective == null)
 					return false;
@@ -2835,7 +2835,7 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.PlayerCanAcceptQuest: // 174
 			{
-				var quest = Global.ObjectMgr.GetQuestTemplate(reqValue);
+				var quest = _gameObjectManager.GetQuestTemplate(reqValue);
 
 				if (quest == null)
 					return false;
@@ -3052,7 +3052,7 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.QuestHasQuestInfoId: // 206
 			{
-				var quest = Global.ObjectMgr.GetQuestTemplate((uint)miscValue1);
+				var quest = _gameObjectManager.GetQuestTemplate((uint)miscValue1);
 
 				if (quest == null || quest.Id != reqValue)
 					return false;
@@ -3258,7 +3258,7 @@ public class CriteriaHandler
 			{
 				var visibleItem = referencePlayer.PlayerData.VisibleItems[EquipmentSlot.MainHand];
 				var itemSubclass = (uint)ItemSubClassWeapon.Fist;
-				var itemTemplate = Global.ObjectMgr.GetItemTemplate(visibleItem.ItemID);
+				var itemTemplate = _gameObjectManager.GetItemTemplate(visibleItem.ItemID);
 
 				if (itemTemplate != null)
 					if (itemTemplate.Class == ItemClass.Weapon)
@@ -3286,7 +3286,7 @@ public class CriteriaHandler
 			{
 				var visibleItem = referencePlayer.PlayerData.VisibleItems[EquipmentSlot.OffHand];
 				var itemSubclass = (uint)ItemSubClassWeapon.Fist;
-				var itemTemplate = Global.ObjectMgr.GetItemTemplate(visibleItem.ItemID);
+				var itemTemplate = _gameObjectManager.GetItemTemplate(visibleItem.ItemID);
 
 				if (itemTemplate != null)
 					if (itemTemplate.Class == ItemClass.Weapon)
@@ -3386,7 +3386,7 @@ public class CriteriaHandler
 
 				var canTakeQuest = questLineQuests.Any(questLineQuest =>
 				{
-					var quest = Global.ObjectMgr.GetQuestTemplate(questLineQuest.QuestID);
+					var quest = _gameObjectManager.GetQuestTemplate(questLineQuest.QuestID);
 
 					if (quest != null)
 						return referencePlayer.CanTakeQuest(quest, false);
@@ -3808,7 +3808,7 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.HasTimeEventPassed: // 289
 			{
-				var eventTimestamp = _gameTime.GetGameTime;
+				var eventTimestamp = _gameTime.CurrentGameTime;
 
 				switch (reqValue)
 				{
@@ -3836,7 +3836,7 @@ public class CriteriaHandler
 						break;
 				}
 
-				if (_gameTime.GetGameTime < eventTimestamp)
+				if (_gameTime.CurrentGameTime < eventTimestamp)
 					return false;
 
 				break;
@@ -4150,7 +4150,7 @@ public class CriteriaHandler
 				break;
 			}
 			case ModifierTreeType.PlayerDaysSinceLogout: // 344
-				if (_gameTime.GetGameTime - referencePlayer.PlayerData.LogoutTime < reqValue * Time.Day)
+				if (_gameTime.CurrentGameTime - referencePlayer.PlayerData.LogoutTime < reqValue * Time.Day)
 					return false;
 
 				break;
@@ -4161,7 +4161,7 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.PlayerCanUseItem: // 351
 			{
-				var itemTemplate = Global.ObjectMgr.GetItemTemplate(reqValue);
+				var itemTemplate = _gameObjectManager.GetItemTemplate(reqValue);
 
 				if (itemTemplate == null || referencePlayer.CanUseItem(itemTemplate) != InventoryResult.Ok)
 					return false;

@@ -49,12 +49,12 @@ public class Scenario : CriteriaHandler
 
 	public virtual void CompleteStep(ScenarioStepRecord step)
 	{
-		var quest = Global.ObjectMgr.GetQuestTemplate(step.RewardQuestID);
+		var quest = _gameObjectManager.GetQuestTemplate(step.RewardQuestID);
 
 		if (quest != null)
 			foreach (var guid in _players)
 			{
-				var player = Global.ObjAccessor.FindPlayer(guid);
+				var player = _objectAccessor.FindPlayer(guid);
 
 				if (player)
 					player.RewardQuest(quest, LootItemType.Item, 0, null, false);
@@ -184,7 +184,7 @@ public class Scenario : CriteriaHandler
 	{
 		foreach (var guid in _players)
 		{
-			var player = Global.ObjAccessor.FindPlayer(guid);
+			var player = _objectAccessor.FindPlayer(guid);
 
 			if (player)
 				player.SendPacket(data);
@@ -380,7 +380,7 @@ public class Scenario : CriteriaHandler
 	{
 		foreach (var guid in _players)
 		{
-			var player = Global.ObjAccessor.FindPlayer(guid);
+			var player = _objectAccessor.FindPlayer(guid);
 
 			if (player)
 				SendBootPlayer(player);

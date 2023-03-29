@@ -113,7 +113,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 				Log.Logger.Error($"Table `world_state` contains a world state {id} with nonempty AreaIDs ({areaIds}) but is a realm wide world state, area requirement ignored");
 			}
 
-			worldState.ScriptId = Global.ObjectMgr.GetScriptId(result.Read<string>(4));
+			worldState.ScriptId = _gameObjectManager.GetScriptId(result.Read<string>(4));
 
 			if (!worldState.MapIds.Empty())
 				foreach (var mapId in worldState.MapIds)

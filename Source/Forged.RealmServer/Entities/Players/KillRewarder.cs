@@ -97,7 +97,7 @@ public class KillRewarder
 			if (!_killers.Empty())
 			{
 				var guildId = victim.Map.GetOwnerGuildId();
-				var guild = Global.GuildMgr.GetGuildById(guildId);
+				var guild = _guildManager.GetGuildById(guildId);
 
 				if (guild != null)
 					guild.UpdateCriteria(CriteriaType.KillCreature, victim.Entry, 1, 0, victim, _killers.First());

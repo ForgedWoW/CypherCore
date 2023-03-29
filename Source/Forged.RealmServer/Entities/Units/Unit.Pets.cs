@@ -412,10 +412,10 @@ public partial class Unit
 
 							// just to enable stat window
 							if (GetCharmInfo() != null)
-								GetCharmInfo().SetPetNumber(Global.ObjectMgr.GeneratePetNumber(), true);
+								GetCharmInfo().SetPetNumber(_gameObjectManager.GeneratePetNumber(), true);
 
 							// if charmed two demons the same session, the 2nd gets the 1st one's name
-							SetPetNameTimestamp((uint)_gameTime.GetGameTime); // cast can't be helped
+							SetPetNameTimestamp((uint)_gameTime.CurrentGameTime); // cast can't be helped
 						}
 					}
 
@@ -662,7 +662,7 @@ public partial class Unit
 			var guid = MinionGUID;
 
 			if (!guid.IsEmpty)
-				unit = Global.ObjAccessor.GetUnit(this, guid);
+				unit = _objectAccessor.GetUnit(this, guid);
 		}
 
 		return unit;
@@ -775,7 +775,7 @@ public partial class Unit
 		if (!IsTypeId(TypeId.Player))
 			return null;
 
-		var creatureInfo = Global.ObjectMgr.GetCreatureTemplate(creatureEntry);
+		var creatureInfo = _gameObjectManager.GetCreatureTemplate(creatureEntry);
 
 		if (creatureInfo == null)
 			return null;
@@ -841,7 +841,7 @@ public partial class Unit
 
 		PhasingHandler.InheritPhaseShift(pet, this);
 
-		pet.GetCharmInfo().SetPetNumber(Global.ObjectMgr.GeneratePetNumber(), true);
+		pet.GetCharmInfo().SetPetNumber(_gameObjectManager.GeneratePetNumber(), true);
 		// this enables pet details window (Shift+P)
 		pet.InitPetCreateSpells();
 		pet.SetFullHealth();

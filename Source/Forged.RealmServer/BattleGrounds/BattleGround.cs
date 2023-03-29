@@ -167,7 +167,7 @@ public class Battleground : ZoneScript, IDisposable
 
 		if (!offlineRemove)
 		{
-			player = Global.ObjAccessor.FindPlayer(guid);
+			player = _objectAccessor.FindPlayer(guid);
 
 			if (!player)
 				Log.outError(LogFilter.Battleground, $"Battleground.{context}: player ({guid}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
@@ -417,7 +417,7 @@ public class Battleground : ZoneScript, IDisposable
 
 					if (guildId != 0)
 					{
-						var guild = Global.GuildMgr.GetGuildById(guildId);
+						var guild = _guildManager.GetGuildById(guildId);
 
 						if (guild)
 							guild.UpdateCriteria(CriteriaType.WinBattleground, player.Location.MapId, 0, 0, null, player);
@@ -469,7 +469,7 @@ public class Battleground : ZoneScript, IDisposable
 
 		RemovePlayerFromResurrectQueue(guid);
 
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 		{
@@ -668,7 +668,7 @@ public class Battleground : ZoneScript, IDisposable
 		if (GetElapsedTime() >= (int)BattlegroundStartTimeIntervals.Delay2m)
 		{
 			pvpMatchInitialize.Duration = (int)(GetElapsedTime() - (int)BattlegroundStartTimeIntervals.Delay2m) / Time.InMilliseconds;
-			pvpMatchInitialize.StartTime = _gameTime.GetGameTime - pvpMatchInitialize.Duration;
+			pvpMatchInitialize.StartTime = _gameTime.CurrentGameTime - pvpMatchInitialize.Duration;
 		}
 
 		pvpMatchInitialize.ArenaFaction = (byte)(player.GetBgTeam() == TeamFaction.Horde ? PvPTeamId.Horde : PvPTeamId.Alliance);
@@ -800,7 +800,7 @@ public class Battleground : ZoneScript, IDisposable
 
 		// player is correct pointer, it is checked in WorldSession.LogoutPlayer()
 		m_OfflineQueue.Add(player.GUID);
-		m_Players[guid].OfflineRemoveTime = _gameTime.GetGameTime + BattlegroundConst.MaxOfflineTime;
+		m_Players[guid].OfflineRemoveTime = _gameTime.CurrentGameTime + BattlegroundConst.MaxOfflineTime;
 
 		if (GetStatus() == BattlegroundStatus.InProgress)
 		{
@@ -917,7 +917,7 @@ public class Battleground : ZoneScript, IDisposable
 		{
 			score.Value.BuildPvPLogPlayerDataPacket(out var playerData);
 
-			var player = Global.ObjAccessor.GetPlayer(GetBgMap(), playerData.PlayerGUID);
+			var player = _objectAccessor.GetPlayer(GetBgMap(), playerData.PlayerGUID);
 
 			if (player)
 			{
@@ -955,7 +955,7 @@ public class Battleground : ZoneScript, IDisposable
 	{
 		m_ReviveQueue.Add(npc_guid, player_guid);
 
-		var player = Global.ObjAccessor.FindPlayer(player_guid);
+		var player = _objectAccessor.FindPlayer(player_guid);
 
 		if (!player)
 			return;
@@ -969,7 +969,7 @@ public class Battleground : ZoneScript, IDisposable
 																							{
 																								if (pair.Value == player_guid)
 																								{
-																									var player = Global.ObjAccessor.FindPlayer(player_guid);
+																									var player = _objectAccessor.FindPlayer(player_guid);
 
 																									if (player)
 																										player.RemoveAura(BattlegroundConst.SpellWaitingForResurrect);
@@ -992,7 +992,7 @@ public class Battleground : ZoneScript, IDisposable
 
 			foreach (var guid in ghostList)
 			{
-				var player = Global.ObjAccessor.FindPlayer(guid);
+				var player = _objectAccessor.FindPlayer(guid);
 
 				if (!player)
 					continue;
@@ -1163,7 +1163,7 @@ public class Battleground : ZoneScript, IDisposable
 		if (!map)
 			return null;
 
-		if (Global.ObjectMgr.GetCreatureTemplate(entry) == null)
+		if (_gameObjectManager.GetCreatureTemplate(entry) == null)
 		{
 			Log.outError(LogFilter.Battleground, $"Battleground.AddCreature: creature template (entry: {entry}) does not exist for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 
@@ -1397,7 +1397,7 @@ public class Battleground : ZoneScript, IDisposable
 
 			foreach (var (guid, player) in m_Players)
 			{
-				var creditedPlayer = Global.ObjAccessor.FindPlayer(guid);
+				var creditedPlayer = _objectAccessor.FindPlayer(guid);
 
 				if (!creditedPlayer || creditedPlayer == killer)
 					continue;
@@ -1464,7 +1464,7 @@ public class Battleground : ZoneScript, IDisposable
 		foreach (var pair in m_Players)
 			if (pair.Value.Team == Team)
 			{
-				var player = Global.ObjAccessor.FindPlayer(pair.Key);
+				var player = _objectAccessor.FindPlayer(pair.Key);
 
 				if (player && player.IsAlive)
 					++count;
@@ -1480,7 +1480,7 @@ public class Battleground : ZoneScript, IDisposable
 
 	public virtual WorldSafeLocsEntry GetClosestGraveYard(Player player)
 	{
-		return Global.ObjectMgr.GetClosestGraveYard(player.Location, GetPlayerTeam(player.GUID), player);
+		return _gameObjectManager.GetClosestGraveYard(player.Location, GetPlayerTeam(player.GUID), player);
 	}
 
 	public override void TriggerGameEvent(uint gameEventId, WorldObject source = null, WorldObject target = null)
@@ -1490,7 +1490,7 @@ public class Battleground : ZoneScript, IDisposable
 
 		foreach (var guid in GetPlayers().Keys)
 		{
-			var player = Global.ObjAccessor.FindPlayer(guid);
+			var player = _objectAccessor.FindPlayer(guid);
 
 			if (player)
 				GameEvents.TriggerForPlayer(gameEventId, player);
@@ -1834,7 +1834,7 @@ public class Battleground : ZoneScript, IDisposable
 
 			foreach (var guid in GetPlayers().Keys)
 			{
-				var player = Global.ObjAccessor.FindPlayer(guid);
+				var player = _objectAccessor.FindPlayer(guid);
 
 				if (player)
 				{
@@ -1868,7 +1868,7 @@ public class Battleground : ZoneScript, IDisposable
 			{
 				var playerPosition = _playerPositions[i];
 				// Update position data if we found player.
-				var player = Global.ObjAccessor.GetPlayer(GetBgMap(), playerPosition.Guid);
+				var player = _objectAccessor.GetPlayer(GetBgMap(), playerPosition.Guid);
 
 				if (player != null)
 					playerPosition.Pos = player.Location;
@@ -1889,7 +1889,7 @@ public class Battleground : ZoneScript, IDisposable
 			var bgPlayer = m_Players.LookupByKey(guid);
 
 			if (bgPlayer != null)
-				if (bgPlayer.OfflineRemoveTime <= _gameTime.GetGameTime)
+				if (bgPlayer.OfflineRemoveTime <= _gameTime.CurrentGameTime)
 				{
 					RemovePlayerAtLeave(guid, true, true); // remove player from BG
 					m_OfflineQueue.RemoveAt(0);            // remove from offline queue
@@ -1913,7 +1913,7 @@ public class Battleground : ZoneScript, IDisposable
 
 				foreach (var pair in m_ReviveQueue.KeyValueList)
 				{
-					var player = Global.ObjAccessor.FindPlayer(pair.Value);
+					var player = _objectAccessor.FindPlayer(pair.Value);
 
 					if (!player)
 						continue;
@@ -1946,7 +1946,7 @@ public class Battleground : ZoneScript, IDisposable
 		{
 			foreach (var guid in m_ResurrectQueue)
 			{
-				var player = Global.ObjAccessor.FindPlayer(guid);
+				var player = _objectAccessor.FindPlayer(guid);
 
 				if (!player)
 					continue;
@@ -2015,7 +2015,7 @@ public class Battleground : ZoneScript, IDisposable
 
 			foreach (var guid in GetPlayers().Keys)
 			{
-				var player = Global.ObjAccessor.FindPlayer(guid);
+				var player = _objectAccessor.FindPlayer(guid);
 
 				if (player)
 					player.ResetAllPowers();
@@ -2034,7 +2034,7 @@ public class Battleground : ZoneScript, IDisposable
 
 			foreach (var guid in GetPlayers().Keys)
 			{
-				var player = Global.ObjAccessor.FindPlayer(guid);
+				var player = _objectAccessor.FindPlayer(guid);
 
 				if (player)
 					player.SendPacket(timer);
@@ -2105,7 +2105,7 @@ public class Battleground : ZoneScript, IDisposable
 				//todo add arena sound PlaySoundToAll(SOUND_ARENA_START);
 				foreach (var guid in GetPlayers().Keys)
 				{
-					var player = Global.ObjAccessor.FindPlayer(guid);
+					var player = _objectAccessor.FindPlayer(guid);
 
 					if (player)
 					{
@@ -2140,7 +2140,7 @@ public class Battleground : ZoneScript, IDisposable
 
 				foreach (var guid in GetPlayers().Keys)
 				{
-					var player = Global.ObjAccessor.FindPlayer(guid);
+					var player = _objectAccessor.FindPlayer(guid);
 
 					if (player)
 					{

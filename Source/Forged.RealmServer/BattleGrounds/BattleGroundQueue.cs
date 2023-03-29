@@ -73,7 +73,7 @@ public class BattlegroundQueue
 		GroupQueueInfo ginfo = new();
 		ginfo.ArenaTeamId = arenateamid;
 		ginfo.IsInvitedToBGInstanceGUID = 0;
-		ginfo.JoinTime = _gameTime.GetGameTimeMS;
+		ginfo.JoinTime = _gameTime.CurrentGameTimeMS;
 		ginfo.RemoveInviteTime = 0;
 		ginfo.Team = team;
 		ginfo.ArenaTeamRating = ArenaRating;
@@ -94,7 +94,7 @@ public class BattlegroundQueue
 
 		Log.outDebug(LogFilter.Battleground, "Adding Group to BattlegroundQueue bgTypeId : {0}, bracket_id : {1}, index : {2}", m_queueId.BattlemasterListId, bracketId, index);
 
-		var lastOnlineTime = _gameTime.GetGameTimeMS;
+		var lastOnlineTime = _gameTime.CurrentGameTimeMS;
 
 		//announce world (this don't need mutex)
 		if (m_queueId.Rated && _worldConfig.GetBoolValue(WorldCfg.ArenaQueueAnnouncerEnable))
@@ -223,7 +223,7 @@ public class BattlegroundQueue
 		if (playerQueueInfo == null)
 		{
 			var playerName = "Unknown";
-			var player = Global.ObjAccessor.FindPlayer(guid);
+			var player = _objectAccessor.FindPlayer(guid);
 
 			if (player)
 				playerName = player.GetName();
@@ -305,7 +305,7 @@ public class BattlegroundQueue
 			if (at != null)
 			{
 				Log.outDebug(LogFilter.Battleground, "UPDATING memberLost's personal arena rating for {0} by opponents rating: {1}", guid.ToString(), group.OpponentsTeamRating);
-				var player = Global.ObjAccessor.FindPlayer(guid);
+				var player = _objectAccessor.FindPlayer(guid);
 
 				if (player)
 					at.MemberLost(player, group.OpponentsMatchmakerRating);
@@ -331,7 +331,7 @@ public class BattlegroundQueue
 		{
 			// remove next player, this is recursive
 			// first send removal information
-			var plr2 = Global.ObjAccessor.FindConnectedPlayer(group.Players.FirstOrDefault().Key);
+			var plr2 = _objectAccessor.FindConnectedPlayer(group.Players.FirstOrDefault().Key);
 
 			if (plr2)
 			{
@@ -550,7 +550,7 @@ public class BattlegroundQueue
 			// (after what time the ratings aren't taken into account when making teams) then
 			// the discard time is current_time - time_to_discard, teams that joined after that, will have their ratings taken into account
 			// else leave the discard time on 0, this way all ratings will be discarded
-			var discardTime = (int)(_gameTime.GetGameTimeMS - Global.BattlegroundMgr.GetRatingDiscardTimer());
+			var discardTime = (int)(_gameTime.CurrentGameTimeMS - Global.BattlegroundMgr.GetRatingDiscardTimer());
 
 			// we need to find 2 teams which will play next game
 			var queueArray = new GroupQueueInfo[SharedConst.PvpTeamsCount];
@@ -633,7 +633,7 @@ public class BattlegroundQueue
 
 	void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo ginfo, BattlegroundBracketId bracket_id)
 	{
-		var timeInQueue = Time.GetMSTimeDiff(ginfo.JoinTime, _gameTime.GetGameTimeMS);
+		var timeInQueue = Time.GetMSTimeDiff(ginfo.JoinTime, _gameTime.CurrentGameTimeMS);
 		uint team_index = TeamIds.Alliance; //default set to TeamIndex.Alliance - or non rated arenas!
 
 		if (m_queueId.TeamSize == 0)
@@ -684,13 +684,13 @@ public class BattlegroundQueue
 			if (bg.IsArena() && bg.IsRated())
 				bg.SetArenaTeamIdForTeam(ginfo.Team, ginfo.ArenaTeamId);
 
-			ginfo.RemoveInviteTime = _gameTime.GetGameTimeMS + BattlegroundConst.InviteAcceptWaitTime;
+			ginfo.RemoveInviteTime = _gameTime.CurrentGameTimeMS + BattlegroundConst.InviteAcceptWaitTime;
 
 			// loop through the players
 			foreach (var guid in ginfo.Players.Keys)
 			{
 				// get the player
-				var player = Global.ObjAccessor.FindPlayer(guid);
+				var player = _objectAccessor.FindPlayer(guid);
 
 				// if offline, skip him, this should not happen - player is removed from queue when he logs out
 				if (!player)
@@ -895,7 +895,7 @@ public class BattlegroundQueue
 		// this could be 2 cycles but i'm checking only first team in queue - it can cause problem -
 		// if first is invited to BG and seconds timer expired, but we can ignore it, because players have only 80 seconds to click to enter bg
 		// and when they click or after 80 seconds the queue info is removed from queue
-		var time_before = (uint)(_gameTime.GetGameTimeMS - _worldConfig.GetIntValue(WorldCfg.BattlegroundPremadeGroupWaitForMatch));
+		var time_before = (uint)(_gameTime.CurrentGameTimeMS - _worldConfig.GetIntValue(WorldCfg.BattlegroundPremadeGroupWaitForMatch));
 
 		for (uint i = 0; i < SharedConst.PvpTeamsCount; i++)
 			if (!m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance + i].Empty())
@@ -1244,7 +1244,7 @@ class BGQueueInviteEvent : BasicEvent
 
 	public override bool Execute(ulong etime, uint pTime)
 	{
-		var player = Global.ObjAccessor.FindPlayer(m_PlayerGuid);
+		var player = _objectAccessor.FindPlayer(m_PlayerGuid);
 
 		// player logged off (we should do nothing, he is correctly removed from queue in another procedure)
 		if (!player)
@@ -1300,7 +1300,7 @@ class BGQueueRemoveEvent : BasicEvent
 
 	public override bool Execute(ulong etime, uint pTime)
 	{
-		var player = Global.ObjAccessor.FindPlayer(m_PlayerGuid);
+		var player = _objectAccessor.FindPlayer(m_PlayerGuid);
 
 		if (!player)
 			// player logged off (we should do nothing, he is correctly removed from queue in another procedure)

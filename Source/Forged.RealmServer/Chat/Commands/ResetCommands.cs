@@ -254,7 +254,7 @@ class ResetCommands
 		stmt.AddValue(0, (ushort)atLogin);
 		_characterDatabase.Execute(stmt);
 
-		var plist = Global.ObjAccessor.GetPlayers();
+		var plist = _objectAccessor.GetPlayers();
 
 		foreach (var player in plist)
 			player.SetAtLoginFlag(atLogin);

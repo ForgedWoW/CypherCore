@@ -93,7 +93,7 @@ public class Channel
 			if (!channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Global))
 			{
 				if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.CityOnly))
-					channelName = string.Format(channelEntry.Name[locale].ConvertFormatSyntax(), Global.ObjectMgr.GetCypherString(CypherStrings.ChannelCity, locale));
+					channelName = string.Format(channelEntry.Name[locale].ConvertFormatSyntax(), _gameObjectManager.GetCypherString(CypherStrings.ChannelCity, locale));
 				else
 					channelName = string.Format(channelEntry.Name[locale].ConvertFormatSyntax(), zoneEntry.AreaName[locale]);
 			}
@@ -114,7 +114,7 @@ public class Channel
 
 	public void UpdateChannelInDB()
 	{
-		var now = _gameTime.GetGameTime;
+		var now = _gameTime.CurrentGameTime;
 
 		if (_isDirty)
 		{
@@ -320,7 +320,7 @@ public class Channel
 			return;
 		}
 
-		var bad = Global.ObjAccessor.FindPlayerByName(badname);
+		var bad = _objectAccessor.FindPlayerByName(badname);
 		var victim = bad ? bad.GUID : ObjectGuid.Empty;
 
 		if (victim.IsEmpty || !IsBanned(victim))
@@ -403,7 +403,7 @@ public class Channel
 			return;
 		}
 
-		var newp = Global.ObjAccessor.FindPlayerByName(newname);
+		var newp = _objectAccessor.FindPlayerByName(newname);
 		var victim = newp ? newp.GUID : ObjectGuid.Empty;
 
 		if (newp == null ||
@@ -463,7 +463,7 @@ public class Channel
 
 		foreach (var pair in _playersStore)
 		{
-			var member = Global.ObjAccessor.FindConnectedPlayer(pair.Key);
+			var member = _objectAccessor.FindConnectedPlayer(pair.Key);
 
 			// PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
 			// MODERATOR, GAME MASTER, ADMINISTRATOR can see all
@@ -542,7 +542,7 @@ public class Channel
 			return;
 		}
 
-		var player = Global.ObjAccessor.FindConnectedPlayer(guid);
+		var player = _objectAccessor.FindConnectedPlayer(guid);
 		SendToAll(new ChannelSayBuilder(this, lang, what, guid, _channelGuid), !playerInfo.IsModerator() ? guid : ObjectGuid.Empty, !playerInfo.IsModerator() && player ? player.Session.AccountGUID : ObjectGuid.Empty);
 	}
 
@@ -571,7 +571,7 @@ public class Channel
 			return;
 		}
 
-		var player = Global.ObjAccessor.FindConnectedPlayer(guid);
+		var player = _objectAccessor.FindConnectedPlayer(guid);
 
 		SendToAllWithAddon(new ChannelWhisperBuilder(this, isLogged ? Language.AddonLogged : Language.Addon, what, prefix, guid),
 							prefix,
@@ -591,7 +591,7 @@ public class Channel
 			return;
 		}
 
-		var newp = Global.ObjAccessor.FindPlayerByName(newname);
+		var newp = _objectAccessor.FindPlayerByName(newname);
 
 		if (!newp || !newp.IsGMVisible)
 		{
@@ -800,7 +800,7 @@ public class Channel
 			return;
 		}
 
-		var bad = Global.ObjAccessor.FindPlayerByName(badname);
+		var bad = _objectAccessor.FindPlayerByName(badname);
 		var victim = bad ? bad.GUID : ObjectGuid.Empty;
 
 		if (bad == null || victim.IsEmpty || !IsOn(victim))
@@ -873,7 +873,7 @@ public class Channel
 		if (guid == _ownerGuid && p2n == player.GetName() && mod)
 			return;
 
-		var newp = Global.ObjAccessor.FindPlayerByName(p2n);
+		var newp = _objectAccessor.FindPlayerByName(p2n);
 		var victim = newp ? newp.GUID : ObjectGuid.Empty;
 
 		if (newp == null ||
@@ -965,7 +965,7 @@ public class Channel
 
 		foreach (var pair in _playersStore)
 		{
-			var player = Global.ObjAccessor.FindConnectedPlayer(pair.Key);
+			var player = _objectAccessor.FindConnectedPlayer(pair.Key);
 
 			if (player)
 				if (guid.IsEmpty || !player.Social.HasIgnore(guid, accountGuid))
@@ -980,7 +980,7 @@ public class Channel
 		foreach (var pair in _playersStore)
 			if (pair.Key != who)
 			{
-				var player = Global.ObjAccessor.FindConnectedPlayer(pair.Key);
+				var player = _objectAccessor.FindConnectedPlayer(pair.Key);
 
 				if (player)
 					localizer.Invoke(player);
@@ -991,7 +991,7 @@ public class Channel
 	{
 		LocalizedDo localizer = new(builder);
 
-		var player = Global.ObjAccessor.FindConnectedPlayer(who);
+		var player = _objectAccessor.FindConnectedPlayer(who);
 
 		if (player)
 			localizer.Invoke(player);
@@ -1003,7 +1003,7 @@ public class Channel
 
 		foreach (var pair in _playersStore)
 		{
-			var player = Global.ObjAccessor.FindConnectedPlayer(pair.Key);
+			var player = _objectAccessor.FindConnectedPlayer(pair.Key);
 
 			if (player)
 				if (player.Session.IsAddonRegistered(addonPrefix) && (guid.IsEmpty || !player.Social.HasIgnore(guid, accountGuid)))

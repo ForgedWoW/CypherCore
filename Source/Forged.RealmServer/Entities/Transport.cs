@@ -123,7 +123,7 @@ public class Transport : GameObject, ITransport
 
 		Create(ObjectGuid.Create(HighGuid.Transport, guidlow));
 
-		var goinfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+		var goinfo = _gameObjectManager.GetGameObjectTemplate(entry);
 
 		if (goinfo == null)
 		{
@@ -133,7 +133,7 @@ public class Transport : GameObject, ITransport
 		}
 
 		GoInfoProtected = goinfo;
-		GoTemplateAddonProtected = Global.ObjectMgr.GetGameObjectTemplateAddon(entry);
+		GoTemplateAddonProtected = _gameObjectManager.GetGameObjectTemplateAddon(entry);
 
 		var tInfo = Global.TransportMgr.GetTransportTemplate(entry);
 
@@ -211,7 +211,7 @@ public class Transport : GameObject, ITransport
 		var cycleId = _pathProgress / GetTransportPeriod();
 
 		if (Template.MoTransport.allowstopping == 0)
-			_pathProgress = _gameTime.GetGameTimeMS;
+			_pathProgress = _gameTime.CurrentGameTimeMS;
 		else if (!_requestStopTimestamp.HasValue || _requestStopTimestamp > _pathProgress + diff)
 			_pathProgress += diff;
 		else
@@ -633,7 +633,7 @@ public class Transport : GameObject, ITransport
 	void LoadStaticPassengers()
 	{
 		var mapId = (uint)Template.MoTransport.SpawnMap;
-		var cells = Global.ObjectMgr.GetMapObjectGuids(mapId, Map.DifficultyID);
+		var cells = _gameObjectManager.GetMapObjectGuids(mapId, Map.DifficultyID);
 
 		if (cells == null)
 			return;
@@ -642,11 +642,11 @@ public class Transport : GameObject, ITransport
 		{
 			// Creatures on transport
 			foreach (var npc in cell.Value.creatures)
-				CreateNPCPassenger(npc, Global.ObjectMgr.GetCreatureData(npc));
+				CreateNPCPassenger(npc, _gameObjectManager.GetCreatureData(npc));
 
 			// GameObjects on transport
 			foreach (var go in cell.Value.gameobjects)
-				CreateGOPassenger(go, Global.ObjectMgr.GetGameObjectData(go));
+				CreateGOPassenger(go, _gameObjectManager.GetGameObjectData(go));
 		}
 	}
 

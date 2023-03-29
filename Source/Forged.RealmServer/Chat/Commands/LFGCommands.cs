@@ -73,7 +73,7 @@ class LFGCommands
 
 		foreach (var slot in groupTarget.MemberSlots)
 		{
-			var p = Global.ObjAccessor.FindPlayer(slot.Guid);
+			var p = _objectAccessor.FindPlayer(slot.Guid);
 
 			if (p)
 				PrintPlayerInfo(handler, p);

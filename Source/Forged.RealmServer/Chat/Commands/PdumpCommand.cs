@@ -118,7 +118,7 @@ class PdumpCommand
                     return false;
                 }
 
-                if (Global.ObjectMgr.GetPlayerAccountIdByGUID(guid))
+                if (_gameObjectManager.GetPlayerAccountIdByGUID(guid))
                 {
                     handler.SendSysMessage(LANG_CHARACTER_GUID_IN_USE, guid);
 

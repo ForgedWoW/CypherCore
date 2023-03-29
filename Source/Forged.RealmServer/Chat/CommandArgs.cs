@@ -226,7 +226,7 @@ class CommandArgs
 						if (!result.IsSuccessful)
 							result = TryConsume(out tempVal, typeof(string), handler, args);
 
-						if (!result.IsSuccessful || (val = Global.ObjectMgr.GetGameTele(tempVal)) != null)
+						if (!result.IsSuccessful || (val = _gameObjectManager.GetGameTele(tempVal)) != null)
 							return result;
 
 						if (tempVal is uint)
@@ -238,7 +238,7 @@ class CommandArgs
 					{
 						var result = TryConsume(out var tempVal, typeof(uint), handler, args);
 
-						if (!result.IsSuccessful || (val = Global.ObjectMgr.GetItemTemplate(tempVal)) != null)
+						if (!result.IsSuccessful || (val = _gameObjectManager.GetItemTemplate(tempVal)) != null)
 							return result;
 
 						return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserItemNoExist, tempVal));
@@ -256,7 +256,7 @@ class CommandArgs
 					{
 						var result = TryConsume(out var tempVal, typeof(uint), handler, args);
 
-						if (!result.IsSuccessful || (val = Global.ObjectMgr.GetQuestTemplate(tempVal)) != null)
+						if (!result.IsSuccessful || (val = _gameObjectManager.GetQuestTemplate(tempVal)) != null)
 							return result;
 
 						return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserQuestNoExist, tempVal));

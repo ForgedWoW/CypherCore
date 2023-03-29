@@ -31,7 +31,7 @@ class ChannelWhisperBuilder : MessageBuilder
 		var localeIdx = _worldManager.GetAvailableDbcLocale(locale);
 
 		PacketSenderOwning<ChatPkt> packet = new();
-		var player = Global.ObjAccessor.FindConnectedPlayer(_guid);
+		var player = _objectAccessor.FindConnectedPlayer(_guid);
 
 		if (player)
 		{

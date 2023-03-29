@@ -26,7 +26,7 @@ public class GossipMenu
 			if (_menuId != 0)
 			{
 				// set baseline orderIndex as higher than whatever exists in db
-				var bounds = Global.ObjectMgr.GetGossipMenuItemsMapBounds(_menuId);
+				var bounds = _gameObjectManager.GetGossipMenuItemsMapBounds(_menuId);
 				var itr = bounds.MaxBy(a => a.OrderIndex);
 
 				if (itr != null)
@@ -79,7 +79,7 @@ public class GossipMenu
 	public void AddMenuItem(uint menuId, uint menuItemId, uint sender, uint action)
 	{
 		// Find items for given menu id.
-		var bounds = Global.ObjectMgr.GetGossipMenuItemsMapBounds(menuId);
+		var bounds = _gameObjectManager.GetGossipMenuItemsMapBounds(menuId);
 
 		// Return if there are none.
 		if (bounds.Empty())
@@ -113,7 +113,7 @@ public class GossipMenu
 			/// Find localizations from database.
 			if (GetLocale() != Locale.enUS)
 			{
-				var gossipMenuLocale = Global.ObjectMgr.GetGossipMenuItemsLocale(menuItem.MenuId, menuItem.OrderIndex);
+				var gossipMenuLocale = _gameObjectManager.GetGossipMenuItemsLocale(menuItem.MenuId, menuItem.OrderIndex);
 
 				if (gossipMenuLocale != null)
 					GameObjectManager.GetLocaleString(gossipMenuLocale.OptionText, GetLocale(), ref strOptionText);
@@ -132,7 +132,7 @@ public class GossipMenu
 			// Find localizations from database.
 			if (GetLocale() != Locale.enUS)
 			{
-				var gossipMenuLocale = Global.ObjectMgr.GetGossipMenuItemsLocale(menuItem.MenuId, menuItem.OrderIndex);
+				var gossipMenuLocale = _gameObjectManager.GetGossipMenuItemsLocale(menuItem.MenuId, menuItem.OrderIndex);
 
 				if (gossipMenuLocale != null)
 					GameObjectManager.GetLocaleString(gossipMenuLocale.BoxText, GetLocale(), ref strBoxText);

@@ -519,7 +519,7 @@ class DebugCommands
 		else
 			groupID = (uint)optArg;
 
-		if (groupID != 0 && Global.ObjectMgr.GetSpawnGroupData(groupID) == null)
+		if (groupID != 0 && _gameObjectManager.GetSpawnGroupData(groupID) == null)
 		{
 			handler.SendSysMessage($"There is no spawn group with ID {groupID}.");
 
@@ -567,7 +567,7 @@ class DebugCommands
 
 		if (groupID != 0 && !store.ContainsKey(groupID))
 		{
-			handler.SendSysMessage($"{mapName}'s instance script does not manage group '{Global.ObjectMgr.GetSpawnGroupData(groupID).Name}'.");
+			handler.SendSysMessage($"{mapName}'s instance script does not manage group '{_gameObjectManager.GetSpawnGroupData(groupID).Name}'.");
 
 			return false;
 		}
@@ -577,7 +577,7 @@ class DebugCommands
 
 		foreach (var key in store.Keys)
 		{
-			var groupData = Global.ObjectMgr.GetSpawnGroupData(key);
+			var groupData = _gameObjectManager.GetSpawnGroupData(key);
 
 			if (groupData == null)
 				continue;
@@ -707,7 +707,7 @@ class DebugCommands
 
 		foreach (var tapperGuid in target.TapList)
 		{
-			var tapper = Global.ObjAccessor.GetPlayer(target, tapperGuid);
+			var tapper = _objectAccessor.GetPlayer(target, tapperGuid);
 			handler.SendSysMessage($"* {(tapper != null ? tapper.GetName() : "offline")}");
 		}
 
@@ -793,7 +793,7 @@ class DebugCommands
 				if (bf != null)
 					nearestLoc = bf.GetClosestGraveYard(player);
 				else
-					nearestLoc = Global.ObjectMgr.GetClosestGraveYard(player.Location, player.Team, player);
+					nearestLoc = _gameObjectManager.GetClosestGraveYard(player.Location, player.Team, player);
 			}
 		}
 		else
@@ -803,7 +803,7 @@ class DebugCommands
 			var z = player.Location.Z;
 			var distNearest = float.MaxValue;
 
-			foreach (var pair in Global.ObjectMgr.GetWorldSafeLocs())
+			foreach (var pair in _gameObjectManager.GetWorldSafeLocs())
 			{
 				var worldSafe = pair.Value;
 
@@ -935,7 +935,7 @@ class DebugCommands
 		else
 			return false;
 
-		var now = _gameTime.GetGameTime;
+		var now = _gameTime.CurrentGameTime;
 
 		if (daily)
 		{
@@ -1030,7 +1030,7 @@ class DebugCommands
 		if (id == 0)
 			return handler.Player.SummonCreature(entry, pos);
 
-		var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(entry);
+		var creatureTemplate = _gameObjectManager.GetCreatureTemplate(entry);
 
 		if (creatureTemplate == null)
 			return false;
@@ -1182,7 +1182,7 @@ class DebugCommands
 
 				foreach (var pair in redirectInfo)
 				{
-					var unit = Global.ObjAccessor.GetUnit(target, pair.Item1);
+					var unit = _objectAccessor.GetUnit(target, pair.Item1);
 					handler.SendSysMessage($" |-- {pair.Item2:D2} to {(unit != null ? unit.GetName() : pair.Item1)}");
 				}
 			}
@@ -1207,7 +1207,7 @@ class DebugCommands
 
 					foreach (var innerPair in outerPair.Value) // (guid, pct)
 					{
-						var unit = Global.ObjAccessor.GetUnit(target, innerPair.Key);
+						var unit = _objectAccessor.GetUnit(target, innerPair.Key);
 						handler.SendSysMessage($"   |-- {innerPair.Value} to {(unit != null ? unit.GetName() : innerPair.Key)}");
 					}
 				}

@@ -43,7 +43,7 @@ public class Corpse : WorldObject
 
 		CorpseData = new CorpseData();
 
-		_time = _gameTime.GetGameTime;
+		_time = _gameTime.CurrentGameTime;
 	}
 
 	public override void AddToWorld()
@@ -238,7 +238,7 @@ public class Corpse : WorldObject
 	public bool IsExpired(long t)
 	{
 		// Deleted character
-		if (!Global.CharacterCacheStorage.HasCharacterCacheEntry(OwnerGUID))
+		if (!_characterCache.HasCharacterCacheEntry(OwnerGUID))
 			return true;
 
 		if (_type == CorpseType.Bones)
@@ -378,7 +378,7 @@ public class Corpse : WorldObject
 
 	public void ResetGhostTime()
 	{
-		_time = _gameTime.GetGameTime;
+		_time = _gameTime.CurrentGameTime;
 	}
 
 	public CorpseType GetCorpseType()
