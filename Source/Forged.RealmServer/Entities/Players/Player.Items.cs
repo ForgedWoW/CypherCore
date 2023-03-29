@@ -49,7 +49,7 @@ public partial class Player
 			return;
 		}
 
-		var iece = CliDB.ItemExtendedCostStorage.LookupByKey(item.PaidExtendedCost);
+		var iece = _cliDb.ItemExtendedCostStorage.LookupByKey(item.PaidExtendedCost);
 
 		if (iece == null)
 		{
@@ -157,7 +157,7 @@ public partial class Player
 			return;
 		}
 
-		var iece = CliDB.ItemExtendedCostStorage.LookupByKey(item.PaidExtendedCost);
+		var iece = _cliDb.ItemExtendedCostStorage.LookupByKey(item.PaidExtendedCost);
 
 		if (iece == null)
 		{
@@ -858,7 +858,7 @@ public partial class Player
 			if (addToCollection)
 				Session.CollectionMgr.OnItemAdded(item);
 
-			var childItemEntry = Global.DB2Mgr.GetItemChildEquipment(itemId);
+			var childItemEntry = _db2Manager.GetItemChildEquipment(itemId);
 
 			if (childItemEntry != null)
 			{
@@ -992,7 +992,7 @@ public partial class Player
 				if (HasSpell((uint)proto.Effects[1].SpellID))
 					return InventoryResult.InternalBagError;
 
-		var artifact = CliDB.ArtifactStorage.LookupByKey(proto.ArtifactID);
+		var artifact = _cliDb.ArtifactStorage.LookupByKey(proto.ArtifactID);
 
 		if (artifact != null)
 			if (artifact.ChrSpecializationID != GetPrimarySpecialization())
@@ -1133,7 +1133,7 @@ public partial class Player
 
 	public void EquipChildItem(byte parentBag, byte parentSlot, Item parentItem)
 	{
-		var itemChildEquipment = Global.DB2Mgr.GetItemChildEquipment(parentItem.Entry);
+		var itemChildEquipment = _db2Manager.GetItemChildEquipment(parentItem.Entry);
 
 		if (itemChildEquipment != null)
 		{
@@ -1224,7 +1224,7 @@ public partial class Player
 
 	public void AutoUnequipChildItem(Item parentItem)
 	{
-		if (Global.DB2Mgr.GetItemChildEquipment(parentItem.Entry) != null)
+		if (_db2Manager.GetItemChildEquipment(parentItem.Entry) != null)
 		{
 			var childItem = GetChildItemByGuid(parentItem.ChildItem);
 
@@ -1361,7 +1361,7 @@ public partial class Player
 							// clear main hand only enchantments
 							for (EnchantmentSlot enchantSlot = 0; enchantSlot < EnchantmentSlot.Max; ++enchantSlot)
 							{
-								var enchantment = CliDB.SpellItemEnchantmentStorage.LookupByKey(pItem.GetEnchantmentId(enchantSlot));
+								var enchantment = _cliDb.SpellItemEnchantmentStorage.LookupByKey(pItem.GetEnchantmentId(enchantSlot));
 
 								if (enchantment != null && enchantment.GetFlags().HasFlag(SpellItemEnchantmentFlags.MainhandOnly))
 									pItem.ClearEnchantment(enchantSlot);
@@ -2193,7 +2193,7 @@ public partial class Player
 				if (enchant_id == 0) //if no enchant go to next enchant(slot)
 					continue;
 
-				var enchantEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
+				var enchantEntry = _cliDb.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
 
 				if (enchantEntry == null)
 					continue;
@@ -2484,11 +2484,11 @@ public partial class Player
 	{
 		var limit = limitEntry.Quantity;
 
-		var limitConditions = Global.DB2Mgr.GetItemLimitCategoryConditions(limitEntry.Id);
+		var limitConditions = _db2Manager.GetItemLimitCategoryConditions(limitEntry.Id);
 
 		foreach (var limitCondition in limitConditions)
 		{
-			var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(limitCondition.PlayerConditionID);
+			var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(limitCondition.PlayerConditionID);
 
 			if (playerCondition == null || ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
 				limit += (byte)limitCondition.AddQuantity;
@@ -2577,7 +2577,7 @@ public partial class Player
 
 		if (proto.Class == ItemClass.Armor && proto.InventoryType != InventoryType.Cloak)
 		{
-			var classesEntry = CliDB.ChrClassesStorage.LookupByKey(Class);
+			var classesEntry = _cliDb.ChrClassesStorage.LookupByKey(Class);
 
 			if ((classesEntry.ArmorTypeMask & 1 << (int)proto.SubClass) == 0)
 				return InventoryResult.ClientLockedOut;
@@ -2654,7 +2654,7 @@ public partial class Player
 		if (!IsAlive)
 			return false;
 
-		var proto = CliDB.CurrencyTypesStorage.LookupByKey(currency);
+		var proto = _cliDb.CurrencyTypesStorage.LookupByKey(currency);
 
 		if (proto == null)
 		{
@@ -2711,7 +2711,7 @@ public partial class Player
 
 		if (crItem.ExtendedCost != 0)
 		{
-			iece = CliDB.ItemExtendedCostStorage.LookupByKey(crItem.ExtendedCost);
+			iece = _cliDb.ItemExtendedCostStorage.LookupByKey(crItem.ExtendedCost);
 
 			if (iece == null)
 			{
@@ -2733,7 +2733,7 @@ public partial class Player
 				if (iece.CurrencyID[i] == 0)
 					continue;
 
-				var entry = CliDB.CurrencyTypesStorage.LookupByKey(iece.CurrencyID[i]);
+				var entry = _cliDb.CurrencyTypesStorage.LookupByKey(iece.CurrencyID[i]);
 
 				if (entry == null)
 				{
@@ -2863,7 +2863,7 @@ public partial class Player
 			return false;
 		}
 
-		if (!Global.ConditionMgr.IsObjectMeetingVendorItemConditions(creature.Entry, item, this, creature))
+		if (!_conditionManager.IsObjectMeetingVendorItemConditions(creature.Entry, item, this, creature))
 		{
 			Log.outDebug(LogFilter.Condition, "BuyItemFromVendor: conditions not met for creature entry {0} item {1}", creature.Entry, item);
 			SendBuyError(BuyResult.CantFindItem, creature, item);
@@ -2897,7 +2897,7 @@ public partial class Player
 			return false;
 		}
 
-		var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(crItem.PlayerConditionId);
+		var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(crItem.PlayerConditionId);
 
 		if (playerCondition != null)
 			if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
@@ -2934,7 +2934,7 @@ public partial class Player
 			}
 
 			var stacks = count / pProto.BuyCount;
-			var iece = CliDB.ItemExtendedCostStorage.LookupByKey(crItem.ExtendedCost);
+			var iece = _cliDb.ItemExtendedCostStorage.LookupByKey(crItem.ExtendedCost);
 
 			if (iece == null)
 			{
@@ -2956,7 +2956,7 @@ public partial class Player
 				if (iece.CurrencyID[i] == 0)
 					continue;
 
-				var entry = CliDB.CurrencyTypesStorage.LookupByKey(iece.CurrencyID[i]);
+				var entry = _cliDb.CurrencyTypesStorage.LookupByKey(iece.CurrencyID[i]);
 
 				if (entry == null)
 				{
@@ -3179,7 +3179,7 @@ public partial class Player
 	public bool HasItemTotemCategory(uint TotemCategory)
 	{
 		foreach (var providedTotemCategory in GetAuraEffectsByType(AuraType.ProvideTotemCategory))
-			if (Global.DB2Mgr.IsTotemCategoryCompatibleWith((uint)providedTotemCategory.MiscValueB, TotemCategory))
+			if (_db2Manager.IsTotemCategoryCompatibleWith((uint)providedTotemCategory.MiscValueB, TotemCategory))
 				return true;
 
 		var inventoryEnd = InventorySlots.ItemStart + GetInventorySlotCount();
@@ -3188,7 +3188,7 @@ public partial class Player
 		{
 			var item = GetUseableItemByPos(InventorySlots.Bag0, i);
 
-			if (item && Global.DB2Mgr.IsTotemCategoryCompatibleWith(item.Template.TotemCategory, TotemCategory))
+			if (item && _db2Manager.IsTotemCategoryCompatibleWith(item.Template.TotemCategory, TotemCategory))
 				return true;
 		}
 
@@ -3201,7 +3201,7 @@ public partial class Player
 				{
 					var item = GetUseableItemByPos(i, j);
 
-					if (item && Global.DB2Mgr.IsTotemCategoryCompatibleWith(item.Template.TotemCategory, TotemCategory))
+					if (item && _db2Manager.IsTotemCategoryCompatibleWith(item.Template.TotemCategory, TotemCategory))
 						return true;
 				}
 		}
@@ -3210,7 +3210,7 @@ public partial class Player
 		{
 			var item = GetUseableItemByPos(InventorySlots.Bag0, i);
 
-			if (item && Global.DB2Mgr.IsTotemCategoryCompatibleWith(item.Template.TotemCategory, TotemCategory))
+			if (item && _db2Manager.IsTotemCategoryCompatibleWith(item.Template.TotemCategory, TotemCategory))
 				return true;
 		}
 
@@ -3264,10 +3264,10 @@ public partial class Player
 
 		var itemLevel = item.GetItemLevel(this);
 		var combatRatingMultiplier = 1.0f;
-		var ratingMult = CliDB.CombatRatingsMultByILvlGameTable.GetRow(itemLevel);
+		var ratingMult = _cliDb.CombatRatingsMultByILvlGameTable.GetRow(itemLevel);
 
 		if (ratingMult != null)
-			combatRatingMultiplier = CliDB.GetIlvlStatMultiplier(ratingMult, proto.InventoryType);
+			combatRatingMultiplier = _cliDb.GetIlvlStatMultiplier(ratingMult, proto.InventoryType);
 
 		for (byte i = 0; i < ItemConst.MaxStats; ++i)
 		{
@@ -3311,10 +3311,10 @@ public partial class Player
 				//ApplyStatBuffMod(Stats.Spirit, MathFunctions.CalculatePct(val, GetModifierValue(UnitMods.StatSpirit, UnitModifierType.BasePCTExcludeCreate)), apply);
 				//break;
 				case ItemModType.Stamina: //modify stamina
-					var staminaMult = CliDB.StaminaMultByILvlGameTable.GetRow(itemLevel);
+					var staminaMult = _cliDb.StaminaMultByILvlGameTable.GetRow(itemLevel);
 
 					if (staminaMult != null)
-						val = (int)(val * CliDB.GetIlvlStatMultiplier(staminaMult, proto.InventoryType));
+						val = (int)(val * _cliDb.GetIlvlStatMultiplier(staminaMult, proto.InventoryType));
 
 					HandleStatFlatModifier(UnitMods.StatStamina, UnitModifierFlatType.Base, (float)val, apply);
 					UpdateStatBuffMod(Stats.Stamina);
@@ -3610,7 +3610,7 @@ public partial class Player
 				_ApplyItemMods(_items[i], i, apply);
 
 				// Update item sets for heirlooms
-				if (Global.DB2Mgr.GetHeirloomByItemId(_items[i].Entry) != null && _items[i].Template.ItemSet != 0)
+				if (_db2Manager.GetHeirloomByItemId(_items[i].Entry) != null && _items[i].Template.ItemSet != 0)
 				{
 					if (apply)
 						Item.AddItemsSetItem(this, _items[i]);
@@ -4192,9 +4192,9 @@ public partial class Player
 
 				// check allowed level (extend range to upper values if MaxLevel more or equal max player level, this let GM set high level with 1...max range items)
 				if (pItem.Quality == ItemQuality.Heirloom)
-					requiredLevels = Global.DB2Mgr.GetContentTuningData(pItem.ScalingContentTuningId, 0, true);
+					requiredLevels = _db2Manager.GetContentTuningData(pItem.ScalingContentTuningId, 0, true);
 
-				if (requiredLevels.HasValue && requiredLevels.Value.MaxLevel < SharedConst.DefaultMaxLevel && requiredLevels.Value.MaxLevel < Level && Global.DB2Mgr.GetHeirloomByItemId(pProto.Id) == null)
+				if (requiredLevels.HasValue && requiredLevels.Value.MaxLevel < SharedConst.DefaultMaxLevel && requiredLevels.Value.MaxLevel < Level && _db2Manager.GetHeirloomByItemId(pProto.Id) == null)
 					return InventoryResult.NotEquippable;
 
 				var eslot = FindEquipSlot(pItem, slot, swap);
@@ -4360,7 +4360,7 @@ public partial class Player
 		if (!childItem)
 			return InventoryResult.Ok;
 
-		var childEquipement = Global.DB2Mgr.GetItemChildEquipment(parentItem.Entry);
+		var childEquipement = _db2Manager.GetItemChildEquipment(parentItem.Entry);
 
 		if (childEquipement == null)
 			return InventoryResult.Ok;
@@ -4443,7 +4443,7 @@ public partial class Player
 		// check unique-equipped limit
 		if (itemProto.ItemLimitCategory != 0)
 		{
-			var limitEntry = CliDB.ItemLimitCategoryStorage.LookupByKey(itemProto.ItemLimitCategory);
+			var limitEntry = _cliDb.ItemLimitCategoryStorage.LookupByKey(itemProto.ItemLimitCategory);
 
 			if (limitEntry == null)
 				return InventoryResult.NotEquippable;
@@ -4582,7 +4582,7 @@ public partial class Player
 
 		if (type == AzeriteItemMilestoneType.BonusStamina)
 		{
-			var azeritePower = CliDB.AzeritePowerStorage.LookupByKey(azeriteItemMilestonePower.AzeritePowerID);
+			var azeritePower = _cliDb.AzeritePowerStorage.LookupByKey(azeriteItemMilestonePower.AzeritePowerID);
 
 			if (azeritePower != null)
 			{
@@ -4598,7 +4598,7 @@ public partial class Player
 	{
 		for (uint currentRank = 1; currentRank <= rank; ++currentRank)
 		{
-			var azeriteEssencePower = Global.DB2Mgr.GetAzeriteEssencePower(azeriteEssenceId, currentRank);
+			var azeriteEssencePower = _db2Manager.GetAzeriteEssencePower(azeriteEssenceId, currentRank);
 
 			if (azeriteEssencePower != null)
 			{
@@ -4625,7 +4625,7 @@ public partial class Player
 	{
 		if (apply)
 		{
-			if (azeritePower.SpecSetID == 0 || Global.DB2Mgr.IsSpecSetMember(azeritePower.SpecSetID, GetPrimarySpecialization()))
+			if (azeritePower.SpecSetID == 0 || _db2Manager.IsSpecSetMember(azeritePower.SpecSetID, GetPrimarySpecialization()))
 				CastSpell(this, azeritePower.SpellID, item);
 		}
 		else
@@ -4711,7 +4711,7 @@ public partial class Player
 
 			ApplyItemObtainSpells(pItem, false);
 			ApplyItemLootedSpell(pItem, false);
-			Global.ScriptMgr.RunScriptRet<IItemOnRemove>(tmpscript => tmpscript.OnRemove(this, pItem), pItem.ScriptId);
+			_scriptManager.RunScriptRet<IItemOnRemove>(tmpscript => tmpscript.OnRemove(this, pItem), pItem.ScriptId);
 
 			Bag pBag;
 			var pProto = pItem.Template;
@@ -6275,7 +6275,7 @@ public partial class Player
 	{
 		Log.outDebug(LogFilter.Player, "STORAGE: Creating initial item, itemId = {0}, count = {1}", itemId, amount);
 
-		var bonusListIDs = Global.DB2Mgr.GetDefaultItemBonusTree(itemId, context);
+		var bonusListIDs = _db2Manager.GetDefaultItemBonusTree(itemId, context);
 
 		InventoryResult msg;
 
@@ -6369,7 +6369,7 @@ public partial class Player
 		// check unique-equipped limit
 		if (pProto.ItemLimitCategory != 0)
 		{
-			var limitEntry = CliDB.ItemLimitCategoryStorage.LookupByKey(pProto.ItemLimitCategory);
+			var limitEntry = _cliDb.ItemLimitCategoryStorage.LookupByKey(pProto.ItemLimitCategory);
 
 			if (limitEntry == null)
 			{
@@ -6476,7 +6476,7 @@ public partial class Player
 
 		if (crItem.ExtendedCost != 0) // case for new honor system
 		{
-			var iece = CliDB.ItemExtendedCostStorage.LookupByKey(crItem.ExtendedCost);
+			var iece = _cliDb.ItemExtendedCostStorage.LookupByKey(crItem.ExtendedCost);
 
 			for (var i = 0; i < ItemConst.MaxItemExtCostItems; ++i)
 				if (iece.ItemID[i] != 0)
@@ -7295,10 +7295,10 @@ public partial class Player
 			if (rank == 0)
 				continue;
 
-			if (CliDB.ArtifactPowerStorage[artifactPower.ArtifactPowerId].Flags.HasAnyFlag(ArtifactPowerFlag.ScalesWithNumPowers))
+			if (_cliDb.ArtifactPowerStorage[artifactPower.ArtifactPowerId].Flags.HasAnyFlag(ArtifactPowerFlag.ScalesWithNumPowers))
 				rank = 1;
 
-			var artifactPowerRank = Global.DB2Mgr.GetArtifactPowerRank(artifactPower.ArtifactPowerId, (byte)(rank - 1));
+			var artifactPowerRank = _db2Manager.GetArtifactPowerRank(artifactPower.ArtifactPowerId, (byte)(rank - 1));
 
 			if (artifactPowerRank == null)
 				continue;
@@ -7306,7 +7306,7 @@ public partial class Player
 			ApplyArtifactPowerRank(item, artifactPowerRank, apply);
 		}
 
-		var artifactAppearance = CliDB.ArtifactAppearanceStorage.LookupByKey(item.GetModifier(ItemModifier.ArtifactAppearanceId));
+		var artifactAppearance = _cliDb.ArtifactAppearanceStorage.LookupByKey(item.GetModifier(ItemModifier.ArtifactAppearanceId));
 
 		if (artifactAppearance != null)
 			if (artifactAppearance.OverrideShapeshiftDisplayID != 0 && ShapeshiftForm == (ShapeShiftForm)artifactAppearance.OverrideShapeshiftFormID)
@@ -7321,7 +7321,7 @@ public partial class Player
 		{
 			// milestone powers
 			foreach (var azeriteItemMilestonePowerId in azeriteItem.AzeriteItemData.UnlockedEssenceMilestones)
-				ApplyAzeriteItemMilestonePower(azeriteItem, CliDB.AzeriteItemMilestonePowerStorage.LookupByKey(azeriteItemMilestonePowerId), apply);
+				ApplyAzeriteItemMilestonePower(azeriteItem, _cliDb.AzeriteItemMilestonePowerStorage.LookupByKey(azeriteItemMilestonePowerId), apply);
 
 			// essences
 			var selectedEssences = azeriteItem.GetSelectedAzeriteEssences();
@@ -7332,7 +7332,7 @@ public partial class Player
 						ApplyAzeriteEssence(azeriteItem,
 											selectedEssences.AzeriteEssenceID[slot],
 											azeriteItem.GetEssenceRank(selectedEssences.AzeriteEssenceID[slot]),
-											(AzeriteItemMilestoneType)Global.DB2Mgr.GetAzeriteItemMilestonePower(slot).Type == AzeriteItemMilestoneType.MajorEssence,
+											(AzeriteItemMilestoneType)_db2Manager.GetAzeriteItemMilestonePower(slot).Type == AzeriteItemMilestoneType.MajorEssence,
 											apply);
 		}
 		else
@@ -7343,7 +7343,7 @@ public partial class Player
 				if (!apply || GetItemByEntry(PlayerConst.ItemIdHeartOfAzeroth, ItemSearchLocation.Equipment))
 					for (var i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
 					{
-						var azeritePower = CliDB.AzeritePowerStorage.LookupByKey(azeriteEmpoweredItem.GetSelectedAzeritePower(i));
+						var azeritePower = _cliDb.AzeritePowerStorage.LookupByKey(azeriteEmpoweredItem.GetSelectedAzeritePower(i));
 
 						if (azeritePower != null)
 							ApplyAzeritePower(azeriteEmpoweredItem, azeritePower, apply);

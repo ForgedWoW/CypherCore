@@ -77,7 +77,7 @@ public class WorldLocation : Position
 
 	public virtual string GetDebugInfo()
 	{
-		var mapEntry = CliDB.MapStorage.LookupByKey(MapId);
+		var mapEntry = _cliDb.MapStorage.LookupByKey(MapId);
 
 		return $"MapID: {MapId} Map name: '{(mapEntry != null ? mapEntry.MapName[_worldManager.DefaultDbcLocale] : "<not found>")}' {base.ToString()}";
 	}

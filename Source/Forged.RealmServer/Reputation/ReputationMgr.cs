@@ -1,17 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.RealmServer.DataStorage;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Globals;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting;
+using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Framework.Constants;
+using Framework.Database;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Framework.Constants;
-using Framework.Database;
-using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Scripting.Interfaces.IPlayer;
-using Forged.RealmServer.Entities.Players;
-using Forged.RealmServer.Networking.Packets.Character;
-using Forged.RealmServer.Networking.Packets.Reputation;
 
 namespace Forged.RealmServer;
 
@@ -44,7 +45,13 @@ public class ReputationMgr
 
 
 	readonly Player _player;
-	readonly SortedDictionary<uint, FactionState> _factions = new();
+    private readonly CliDB _cliDb;
+    private readonly ScriptManager _scriptManager;
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly DB2Manager _db2Manager;
+    private readonly WorldConfig _worldConfig;
+    private readonly CharacterDatabase _characterDatabase;
+    readonly SortedDictionary<uint, FactionState> _factions = new();
 	readonly Dictionary<uint, ReputationRank> _forcedReactions = new();
 	byte _visibleFactionCount;
 	byte _honoredFactionCount;
@@ -62,10 +69,23 @@ public class ReputationMgr
 
 	public SortedDictionary<uint, FactionState> StateList => _factions;
 
-	public ReputationMgr(Player owner)
+	public ReputationMgr(Player owner,
+                            CliDB cliDB,
+                            ScriptManager scriptManager,
+                            GameObjectManager gameObjectManager,
+                            DB2Manager db2Manager,
+                            WorldConfig worldConfig,
+                            CharacterDatabase characterDatabase)
 	{
 		_player = owner;
-		_visibleFactionCount = 0;
+        _cliDb = cliDB;
+        _scriptManager = scriptManager;
+        _gameObjectManager = gameObjectManager;
+        _db2Manager = db2Manager;
+        _worldConfig = worldConfig;
+        _characterDatabase = characterDatabase;
+
+        _visibleFactionCount = 0;
 		_honoredFactionCount = 0;
 		_reveredFactionCount = 0;
 		_exaltedFactionCount = 0;
@@ -79,7 +99,7 @@ public class ReputationMgr
 
 	public bool IsAtWar(uint factionId)
 	{
-		var factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
+		var factionEntry = _cliDb.FactionStorage.LookupByKey(factionId);
 
 		if (factionEntry == null)
 			return false;
@@ -102,7 +122,7 @@ public class ReputationMgr
 
 	public int GetReputation(uint faction_id)
 	{
-		var factionEntry = CliDB.FactionStorage.LookupByKey(faction_id);
+		var factionEntry = _cliDb.FactionStorage.LookupByKey(faction_id);
 
 		if (factionEntry == null)
 		{
@@ -152,7 +172,7 @@ public class ReputationMgr
 
 	public int GetParagonLevel(uint paragonFactionId)
 	{
-		return GetParagonLevel(CliDB.FactionStorage.LookupByKey(paragonFactionId));
+		return GetParagonLevel(_cliDb.FactionStorage.LookupByKey(paragonFactionId));
 	}
 
 	public void ApplyForceReaction(uint faction_id, ReputationRank rank, bool apply)
@@ -224,7 +244,7 @@ public class ReputationMgr
 
 	public void SendVisible(FactionState faction, bool visible = true)
 	{
-		if (_player.Session.IsPlayerLoading)
+		if (_player.Session.PlayerLoading.IsEmpty)
 			return;
 
 		//make faction visible / not visible in reputation list at client
@@ -250,7 +270,7 @@ public class ReputationMgr
 
 	public bool SetReputation(FactionRecord factionEntry, int standing, bool incremental, bool spillOverOnly, bool noSpillover)
 	{
-		Global.ScriptMgr.ForEach<IPlayerOnReputationChange>(p => p.OnReputationChange(_player, factionEntry.Id, standing, incremental));
+		_scriptManager.ForEach<IPlayerOnReputationChange>(p => p.OnReputationChange(_player, factionEntry.Id, standing, incremental));
 		var res = false;
 
 		if (!noSpillover)
@@ -266,30 +286,30 @@ public class ReputationMgr
 						{
 							// bonuses are already given, so just modify standing by rate
 							var spilloverRep = (int)(standing * repTemplate.FactionRate[i]);
-							SetOneFactionReputation(CliDB.FactionStorage.LookupByKey(repTemplate.Faction[i]), spilloverRep, incremental);
+							SetOneFactionReputation(_cliDb.FactionStorage.LookupByKey(repTemplate.Faction[i]), spilloverRep, incremental);
 						}
 			}
 			else
 			{
 				float spillOverRepOut = standing;
 				// check for sub-factions that receive spillover
-				var flist = Global.DB2Mgr.GetFactionTeamList(factionEntry.Id);
+				var flist = _db2Manager.GetFactionTeamList(factionEntry.Id);
 
 				// if has no sub-factions, check for factions with same parent
 				if (flist == null && factionEntry.ParentFactionID != 0 && factionEntry.ParentFactionMod[1] != 0.0f)
 				{
 					spillOverRepOut *= factionEntry.ParentFactionMod[1];
-					var parent = CliDB.FactionStorage.LookupByKey(factionEntry.ParentFactionID);
+					var parent = _cliDb.FactionStorage.LookupByKey(factionEntry.ParentFactionID);
 
 					if (parent != null)
 					{
-						var parentState = _factions.LookupByKey(parent.ReputationIndex);
+						var parentState = _factions.LookupByKey((uint)parent.ReputationIndex);
 
 						// some team factions have own reputation standing, in this case do not spill to other sub-factions
 						if (parentState != null && parentState.Flags.HasFlag(ReputationFlags.HeaderShowsBar))
 							SetOneFactionReputation(parent, (int)spillOverRepOut, incremental);
 						else // spill to "sister" factions
-							flist = Global.DB2Mgr.GetFactionTeamList(factionEntry.ParentFactionID);
+							flist = _db2Manager.GetFactionTeamList(factionEntry.ParentFactionID);
 					}
 				}
 
@@ -297,7 +317,7 @@ public class ReputationMgr
 					// Spillover to affiliated factions
 					foreach (var id in flist)
 					{
-						var factionEntryCalc = CliDB.FactionStorage.LookupByKey(id);
+						var factionEntryCalc = _cliDb.FactionStorage.LookupByKey(id);
 
 						if (factionEntryCalc != null)
 						{
@@ -314,7 +334,7 @@ public class ReputationMgr
 		}
 
 		// spillover done, update faction itself
-		var faction = _factions.LookupByKey(factionEntry.ReputationIndex);
+		var faction = _factions.LookupByKey((uint)factionEntry.ReputationIndex);
 
 		if (faction != null)
 		{
@@ -322,8 +342,8 @@ public class ReputationMgr
 
 			if (incremental && standing > 0 && CanGainParagonReputationForFaction(factionEntry))
 			{
-				primaryFactionToModify = CliDB.FactionStorage.LookupByKey(factionEntry.ParagonFactionID);
-				faction = _factions.LookupByKey(primaryFactionToModify.ReputationIndex);
+				primaryFactionToModify = _cliDb.FactionStorage.LookupByKey(factionEntry.ParagonFactionID);
+				faction = _factions.LookupByKey((uint)primaryFactionToModify.ReputationIndex);
 			}
 
 			if (faction != null)
@@ -400,7 +420,7 @@ public class ReputationMgr
 			}
 			else
 			{
-				var currency = CliDB.CurrencyTypesStorage.LookupByKey(factionEntry.RenownCurrencyID);
+				var currency = _cliDb.CurrencyTypesStorage.LookupByKey(factionEntry.RenownCurrencyID);
 
 				if (currency != null)
 				{
@@ -433,7 +453,7 @@ public class ReputationMgr
 
 			SetVisible(factionState);
 
-			var paragonReputation = Global.DB2Mgr.GetParagonReputation(factionEntry.Id);
+			var paragonReputation = _db2Manager.GetParagonReputation(factionEntry.Id);
 
 			if (paragonReputation != null)
 			{
@@ -466,7 +486,7 @@ public class ReputationMgr
 		if (factionTemplateEntry.Faction == 0)
 			return;
 
-		var factionEntry = CliDB.FactionStorage.LookupByKey(factionTemplateEntry.Faction);
+		var factionEntry = _cliDb.FactionStorage.LookupByKey(factionTemplateEntry.Faction);
 
 		if (factionEntry.Id != 0)
 			// Never show factions of the opposing team
@@ -519,7 +539,7 @@ public class ReputationMgr
 		if (!result.IsEmpty())
 			do
 			{
-				var factionEntry = CliDB.FactionStorage.LookupByKey(result.Read<uint>(0));
+				var factionEntry = _cliDb.FactionStorage.LookupByKey(result.Read<uint>(0));
 
 				if (factionEntry != null && factionEntry.CanHaveReputation())
 				{
@@ -643,7 +663,7 @@ public class ReputationMgr
 	{
 		var rank = ReputationRank.Min;
 
-		var friendshipReactions = Global.DB2Mgr.GetFriendshipRepReactions(factionEntry.FriendshipRepID);
+		var friendshipReactions = _db2Manager.GetFriendshipRepReactions(factionEntry.FriendshipRepID);
 
 		if (!friendshipReactions.Empty())
 			rank = ReputationToRankHelper(friendshipReactions, standing, (FriendshipRepReactionRecord frr) => { return frr.ReactionThreshold; });
@@ -655,7 +675,7 @@ public class ReputationMgr
 
 	int GetMinReputation(FactionRecord factionEntry)
 	{
-		var friendshipReactions = Global.DB2Mgr.GetFriendshipRepReactions(factionEntry.FriendshipRepID);
+		var friendshipReactions = _db2Manager.GetFriendshipRepReactions(factionEntry.FriendshipRepID);
 
 		if (!friendshipReactions.Empty())
 			return friendshipReactions[0].ReactionThreshold;
@@ -665,7 +685,7 @@ public class ReputationMgr
 
 	int GetMaxReputation(FactionRecord factionEntry)
 	{
-		var paragonReputation = Global.DB2Mgr.GetParagonReputation(factionEntry.Id);
+		var paragonReputation = _db2Manager.GetParagonReputation(factionEntry.Id);
 
 		if (paragonReputation != null)
 		{
@@ -692,7 +712,7 @@ public class ReputationMgr
 			// We calculate the total reputation necessary to raise the renown to the maximum
 			return GetRenownMaxLevel(factionEntry) * GetRenownLevelThreshold(factionEntry);
 
-		var friendshipReactions = Global.DB2Mgr.GetFriendshipRepReactions(factionEntry.FriendshipRepID);
+		var friendshipReactions = _db2Manager.GetFriendshipRepReactions(factionEntry.FriendshipRepID);
 
 		if (!friendshipReactions.Empty())
 			return friendshipReactions.LastOrDefault().ReactionThreshold;
@@ -714,7 +734,7 @@ public class ReputationMgr
 
 	bool IsParagonReputation(FactionRecord factionEntry)
 	{
-		if (Global.DB2Mgr.GetParagonReputation(factionEntry.Id) != null)
+		if (_db2Manager.GetParagonReputation(factionEntry.Id) != null)
 			return true;
 
 		return false;
@@ -725,7 +745,7 @@ public class ReputationMgr
 		if (paragonFactionEntry == null)
 			return 0;
 
-		var paragonReputation = Global.DB2Mgr.GetParagonReputation(paragonFactionEntry.Id);
+		var paragonReputation = _db2Manager.GetParagonReputation(paragonFactionEntry.Id);
 
 		if (paragonReputation != null)
 			return GetReputation(paragonFactionEntry) / paragonReputation.LevelThreshold;
@@ -751,7 +771,7 @@ public class ReputationMgr
 		if (renownFactionEntry == null)
 			return 0;
 
-		var currency = CliDB.CurrencyTypesStorage.LookupByKey(renownFactionEntry.RenownCurrencyID);
+		var currency = _cliDb.CurrencyTypesStorage.LookupByKey((uint)renownFactionEntry.RenownCurrencyID);
 
 		if (currency != null)
 			return (int)_player.GetCurrencyQuantity(currency.Id);
@@ -777,7 +797,7 @@ public class ReputationMgr
 		if (renownFactionEntry == null)
 			return 0;
 
-		var currency = CliDB.CurrencyTypesStorage.LookupByKey(renownFactionEntry.RenownCurrencyID);
+		var currency = _cliDb.CurrencyTypesStorage.LookupByKey((uint)renownFactionEntry.RenownCurrencyID);
 
 		if (currency != null)
 			return (int)_player.GetCurrencyMaxQuantity(currency);
@@ -794,7 +814,7 @@ public class ReputationMgr
 		if (dataIndex > 0)
 			flags = (ReputationFlags)factionEntry.ReputationFlags[dataIndex];
 
-		if (Global.DB2Mgr.GetParagonReputation(factionEntry.Id) != null)
+		if (_db2Manager.GetParagonReputation(factionEntry.Id) != null)
 			flags |= ReputationFlags.ShowPropagated;
 
 		return flags;
@@ -809,7 +829,7 @@ public class ReputationMgr
 		_exaltedFactionCount = 0;
 		_sendFactionIncreased = false;
 
-		foreach (var factionEntry in CliDB.FactionStorage.Values)
+		foreach (var factionEntry in _cliDb.FactionStorage.Values)
 			if (factionEntry.CanHaveReputation())
 			{
 				FactionState newFaction = new();
@@ -840,7 +860,7 @@ public class ReputationMgr
 		if (faction.Flags.HasFlag(ReputationFlags.Header) && !faction.Flags.HasFlag(ReputationFlags.HeaderShowsBar))
 			return;
 
-		if (Global.DB2Mgr.GetParagonReputation(faction.Id) != null)
+		if (_db2Manager.GetParagonReputation(faction.Id) != null)
 			return;
 
 		// already set
@@ -859,7 +879,7 @@ public class ReputationMgr
 	void SetAtWar(FactionState faction, bool atWar)
 	{
 		// Do not allow to declare war to our own faction. But allow for rival factions (eg Aldor vs Scryer).
-		if (atWar && faction.Flags.HasFlag(ReputationFlags.Peaceful) && GetRank(CliDB.FactionStorage.LookupByKey(faction.Id)) > ReputationRank.Hated)
+		if (atWar && faction.Flags.HasFlag(ReputationFlags.Peaceful) && GetRank(_cliDb.FactionStorage.LookupByKey(faction.Id)) > ReputationRank.Hated)
 			return;
 
 		// already set
@@ -933,13 +953,13 @@ public class ReputationMgr
 
 	bool CanGainParagonReputationForFaction(FactionRecord factionEntry)
 	{
-		if (!CliDB.FactionStorage.ContainsKey(factionEntry.ParagonFactionID))
+		if (!_cliDb.FactionStorage.ContainsKey(factionEntry.ParagonFactionID))
 			return false;
 
 		if (GetRank(factionEntry) != ReputationRank.Exalted && !HasMaximumRenownReputation(factionEntry))
 			return false;
 
-		var paragonReputation = Global.DB2Mgr.GetParagonReputation(factionEntry.ParagonFactionID);
+		var paragonReputation = _db2Manager.GetParagonReputation(factionEntry.ParagonFactionID);
 
 		if (paragonReputation == null)
 			return false;

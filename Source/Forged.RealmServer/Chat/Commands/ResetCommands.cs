@@ -49,7 +49,7 @@ class ResetCommands
 
 	static bool HandleResetStatsOrLevelHelper(Player player)
 	{
-		var classEntry = CliDB.ChrClassesStorage.LookupByKey(player.Class);
+		var classEntry = _cliDb.ChrClassesStorage.LookupByKey(player.Class);
 
 		if (classEntry == null)
 		{
@@ -116,7 +116,7 @@ class ResetCommands
 		if (pet)
 			pet.SynchronizeLevelWithOwner();
 
-		Global.ScriptMgr.ForEach<IPlayerOnLevelChanged>(target.Class, p => p.OnLevelChanged(target, oldLevel));
+		_scriptManager.ForEach<IPlayerOnLevelChanged>(target.Class, p => p.OnLevelChanged(target, oldLevel));
 
 		return true;
 	}

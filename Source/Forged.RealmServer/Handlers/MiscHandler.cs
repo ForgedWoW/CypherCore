@@ -17,7 +17,7 @@ namespace Forged.RealmServer;
 public class MiscHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly CollectionMgr _collectionMgr;
     private readonly GuildManager _guildManager;
     private readonly GameTime _gameTime;
@@ -26,7 +26,7 @@ public class MiscHandler : IWorldSessionHandler
 		GuildManager guildManager, GameTime gameTime)
     {
         _session = session;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _collectionMgr = collectionMgr;
         _guildManager = guildManager;
         _gameTime = gameTime;
@@ -236,7 +236,7 @@ public class MiscHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SetDungeonDifficulty)]
 	void HandleSetDungeonDifficulty(SetDungeonDifficulty setDungeonDifficulty)
 	{
-		var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(setDungeonDifficulty.DifficultyID);
+		var difficultyEntry = _cliDb.DifficultyStorage.LookupByKey(setDungeonDifficulty.DifficultyID);
 
 		if (difficultyEntry == null)
 		{
@@ -311,7 +311,7 @@ public class MiscHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SetRaidDifficulty)]
 	void HandleSetRaidDifficulty(SetRaidDifficulty setRaidDifficulty)
 	{
-		var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey((uint)setRaidDifficulty.DifficultyID);
+		var difficultyEntry = _cliDb.DifficultyStorage.LookupByKey((uint)setRaidDifficulty.DifficultyID);
 
 		if (difficultyEntry == null)
 		{

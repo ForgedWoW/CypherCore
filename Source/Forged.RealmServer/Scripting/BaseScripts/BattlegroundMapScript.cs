@@ -13,6 +13,6 @@ public class BattlegroundMapScript : MapScript<BattlegroundMap>
 			GetEntry().IsBattleground())
 			Log.Logger.Error("BattlegroundMapScript for map {0} is invalid.", mapId);
 
-		Global.ScriptMgr.AddScript(this);
+		_scriptManager.AddScript(this);
 	}
 }

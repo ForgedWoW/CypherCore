@@ -206,7 +206,7 @@ public class Corpse : WorldObject
 		ReplaceAllFlags((CorpseFlags)field.Read<byte>(10));
 		ReplaceAllCorpseDynamicFlags((CorpseDynFlags)field.Read<byte>(11));
 		SetOwnerGUID(ObjectGuid.Create(HighGuid.Player, field.Read<ulong>(15)));
-		SetFactionTemplate(CliDB.ChrRacesStorage.LookupByKey(CorpseData.RaceID).FactionID);
+		SetFactionTemplate(_cliDb.ChrRacesStorage.LookupByKey(CorpseData.RaceID).FactionID);
 
 		_time = field.Read<uint>(12);
 

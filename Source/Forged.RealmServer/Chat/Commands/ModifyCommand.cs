@@ -145,7 +145,7 @@ class ModifyCommand
 		if (!uint.TryParse(args.NextString(), out var dyflag))
 			dyflag = target.ObjectData.DynamicFlags;
 
-		if (!CliDB.FactionTemplateStorage.ContainsKey(factionid))
+		if (!_cliDb.FactionTemplateStorage.ContainsKey(factionid))
 		{
 			handler.SendSysMessage(CypherStrings.WrongFaction, factionid);
 
@@ -254,7 +254,7 @@ class ModifyCommand
 		if (!uint.TryParse(args.NextString(), out var mount))
 			return false;
 
-		if (!CliDB.CreatureDisplayInfoStorage.HasRecord(mount))
+		if (!_cliDb.CreatureDisplayInfoStorage.HasRecord(mount))
 		{
 			handler.SendSysMessage(CypherStrings.NoMount);
 
@@ -433,7 +433,7 @@ class ModifyCommand
 		if (factionId == 0 || !int.TryParse(rankTxt, out var amount))
 			return false;
 
-		var factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
+		var factionEntry = _cliDb.FactionStorage.LookupByKey(factionId);
 
 		if (factionEntry == null)
 		{
@@ -515,7 +515,7 @@ class ModifyCommand
 		var phaseId = args.NextUInt32();
 		var visibleMapId = args.NextUInt32();
 
-		if (phaseId != 0 && !CliDB.PhaseStorage.ContainsKey(phaseId))
+		if (phaseId != 0 && !_cliDb.PhaseStorage.ContainsKey(phaseId))
 		{
 			handler.SendSysMessage(CypherStrings.PhaseNotfound);
 
@@ -526,7 +526,7 @@ class ModifyCommand
 
 		if (visibleMapId != 0)
 		{
-			var visibleMap = CliDB.MapStorage.LookupByKey(visibleMapId);
+			var visibleMap = _cliDb.MapStorage.LookupByKey(visibleMapId);
 
 			if (visibleMap == null || visibleMap.ParentMapID != target.Location.MapId)
 			{
@@ -575,7 +575,7 @@ class ModifyCommand
 		if (powerTypeToken.IsEmpty())
 			return false;
 
-		var powerType = Global.DB2Mgr.GetPowerTypeByName(powerTypeToken);
+		var powerType = _db2Manager.GetPowerTypeByName(powerTypeToken);
 
 		if (powerType == null)
 		{
@@ -680,22 +680,22 @@ class ModifyCommand
 		// Generate random customizations
 		List<ChrCustomizationChoice> customizations = new();
 
-		var options = Global.DB2Mgr.GetCustomiztionOptions(target.Race, gender);
+		var options = _db2Manager.GetCustomiztionOptions(target.Race, gender);
 		var worldSession = target.Session;
 
 		foreach (var option in options)
 		{
-			var optionReq = CliDB.ChrCustomizationReqStorage.LookupByKey(option.ChrCustomizationReqID);
+			var optionReq = _cliDb.ChrCustomizationReqStorage.LookupByKey(option.ChrCustomizationReqID);
 
 			if (optionReq != null && !worldSession.MeetsChrCustomizationReq(optionReq, target.Class, false, customizations))
 				continue;
 
 			// Loop over the options until the first one fits
-			var choicesForOption = Global.DB2Mgr.GetCustomiztionChoices(option.Id);
+			var choicesForOption = _db2Manager.GetCustomiztionChoices(option.Id);
 
 			foreach (var choiceForOption in choicesForOption)
 			{
-				var choiceReq = CliDB.ChrCustomizationReqStorage.LookupByKey(choiceForOption.ChrCustomizationReqID);
+				var choiceReq = _cliDb.ChrCustomizationReqStorage.LookupByKey(choiceForOption.ChrCustomizationReqID);
 
 				if (choiceReq != null && !worldSession.MeetsChrCustomizationReq(choiceReq, target.Class, false, customizations))
 					continue;
@@ -737,7 +737,7 @@ class ModifyCommand
 
 		var currencyId = args.NextUInt32();
 
-		if (!CliDB.CurrencyTypesStorage.ContainsKey(currencyId))
+		if (!_cliDb.CurrencyTypesStorage.ContainsKey(currencyId))
 			return false;
 
 		var amount = args.NextUInt32();

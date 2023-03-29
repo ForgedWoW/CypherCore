@@ -740,7 +740,7 @@ public partial class Unit
 		if (TryGetAsPlayer(out var player))
 		{
 			var newVal = val;
-			Global.ScriptMgr.ForEach<IPlayerOnModifyPower>(player.Class, p => p.OnModifyPower(player, powerType, oldPower, ref val, isRegen));
+			_scriptManager.ForEach<IPlayerOnModifyPower>(player.Class, p => p.OnModifyPower(player, powerType, oldPower, ref val, isRegen));
 			val = newVal;
 		}
 
@@ -768,7 +768,7 @@ public partial class Unit
 		}*/
 
 		if (IsPlayer)
-			Global.ScriptMgr.ForEach<IPlayerOnAfterModifyPower>(player.Class, p => p.OnAfterModifyPower(player, powerType, oldPower, val, isRegen));
+			_scriptManager.ForEach<IPlayerOnAfterModifyPower>(player.Class, p => p.OnAfterModifyPower(player, powerType, oldPower, val, isRegen));
 	}
 
 	public void SetFullPower(PowerType powerType)
@@ -801,7 +801,7 @@ public partial class Unit
 		if (powerType == PowerType.Mana)
 			return (int)GetCreateMana();
 
-		var powerTypeEntry = Global.DB2Mgr.GetPowerTypeEntry(powerType);
+		var powerTypeEntry = _db2Manager.GetPowerTypeEntry(powerType);
 
 		if (powerTypeEntry != null)
 			return powerTypeEntry.MaxBasePower;

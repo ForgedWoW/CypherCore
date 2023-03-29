@@ -1,19 +1,22 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
-using System.Linq;
-using Framework.Constants;
-using Framework.Database;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.Entities;
-using Forged.RealmServer.Entities.Objects;
+using Framework.Constants;
+using Framework.Database;
+using Serilog;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Forged.RealmServer.SupportSystem;
 
-public class SupportManager : Singleton<SupportManager>
+public class SupportManager
 {
-	readonly Dictionary<uint, BugTicket> _bugTicketList = new();
+    private readonly WorldConfig _worldConfig;
+    private readonly GameTime _gameTime;
+    private readonly CharacterDatabase _characterDatabase;
+    readonly Dictionary<uint, BugTicket> _bugTicketList = new();
 	readonly Dictionary<uint, ComplaintTicket> _complaintTicketList = new();
 	readonly Dictionary<uint, SuggestionTicket> _suggestionTicketList = new();
 
@@ -29,7 +32,13 @@ public class SupportManager : Singleton<SupportManager>
 	uint _openComplaintTicketCount;
 	uint _openSuggestionTicketCount;
 	ulong _lastChange;
-	SupportManager() { }
+
+	public SupportManager(WorldConfig worldConfig, GameTime gameTime, CharacterDatabase characterDatabase)
+    {
+        _worldConfig = worldConfig;
+        _gameTime = gameTime;
+        _characterDatabase = characterDatabase;
+    }
 
 	public void Initialize()
 	{
@@ -134,7 +143,7 @@ public class SupportManager : Singleton<SupportManager>
 
 		do
 		{
-			ComplaintTicket complaint = new();
+			ComplaintTicket complaint = new(_gameTime, _characterDatabase, this);
 			complaint.LoadFromDB(result.GetFields());
 
 			if (!complaint.IsClosed)

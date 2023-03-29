@@ -1103,7 +1103,7 @@ namespace Forged.RealmServer.Entities
 			var areaId = Area;
 			AreaTableRecord areaEntry;
 
-			while ((areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId)) != null)
+			while ((areaEntry = _cliDb.AreaTableStorage.LookupByKey(areaId)) != null)
 			{
 				fishLoot.FillLoot(areaId, LootStorage.Fishing, lootOwner, true, true);
 
@@ -1128,7 +1128,7 @@ namespace Forged.RealmServer.Entities
 			var areaId = Area;
 			AreaTableRecord areaEntry;
 
-			while ((areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId)) != null)
+			while ((areaEntry = _cliDb.AreaTableStorage.LookupByKey(areaId)) != null)
 			{
 				fishLoot.FillLoot(areaId, LootStorage.Fishing, lootOwner, true, true, LootModes.JunkFish);
 
@@ -1201,11 +1201,11 @@ namespace Forged.RealmServer.Entities
 
 			// Update in DB
 			byte index = 0;
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_GAMEOBJECT);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_GAMEOBJECT);
 			stmt.AddValue(0, _spawnId);
-			DB.World.Execute(stmt);
+			_worldDatabase.Execute(stmt);
 
-			stmt = DB.World.GetPreparedStatement(WorldStatements.INS_GAMEOBJECT);
+			stmt = _worldDatabase.GetPreparedStatement(WorldStatements.INS_GAMEOBJECT);
 			stmt.AddValue(index++, _spawnId);
 			stmt.AddValue(index++, Entry);
 			stmt.AddValue(index++, mapid);
@@ -1223,7 +1223,7 @@ namespace Forged.RealmServer.Entities
 			stmt.AddValue(index++, _respawnDelayTime);
 			stmt.AddValue(index++, GoAnimProgress);
 			stmt.AddValue(index++, (byte)GoState);
-			DB.World.Execute(stmt);
+			_worldDatabase.Execute(stmt);
 		}
 
 		public override bool LoadFromDB(ulong spawnId, Map map, bool addToMap, bool unused = true)
@@ -1326,39 +1326,39 @@ namespace Forged.RealmServer.Entities
 			trans = new SQLTransaction();
 
 			// ... and the database
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_GAMEOBJECT);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_GAMEOBJECT);
 			stmt.AddValue(0, spawnId);
 			trans.Append(stmt);
 
-			stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_EVENT_GAMEOBJECT);
+			stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_EVENT_GAMEOBJECT);
 			stmt.AddValue(0, spawnId);
 			trans.Append(stmt);
 
-			stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN);
+			stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN);
 			stmt.AddValue(0, spawnId);
 			stmt.AddValue(1, (uint)CreatureLinkedRespawnType.GOToGO);
 			trans.Append(stmt);
 
-			stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN);
+			stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN);
 			stmt.AddValue(0, spawnId);
 			stmt.AddValue(1, (uint)CreatureLinkedRespawnType.GOToCreature);
 			trans.Append(stmt);
 
-			stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN_MASTER);
+			stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN_MASTER);
 			stmt.AddValue(0, spawnId);
 			stmt.AddValue(1, (uint)CreatureLinkedRespawnType.GOToGO);
 			trans.Append(stmt);
 
-			stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN_MASTER);
+			stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN_MASTER);
 			stmt.AddValue(0, spawnId);
 			stmt.AddValue(1, (uint)CreatureLinkedRespawnType.CreatureToGO);
 			trans.Append(stmt);
 
-			stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_GAMEOBJECT_ADDON);
+			stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_GAMEOBJECT_ADDON);
 			stmt.AddValue(0, spawnId);
 			trans.Append(stmt);
 
-			DB.World.CommitTransaction(trans);
+			_worldDatabase.CommitTransaction(trans);
 
 			return true;
 		}
@@ -2382,13 +2382,13 @@ namespace Forged.RealmServer.Entities
 						return;
 
 					//required lvl checks!
-					var userLevels = Global.DB2Mgr.GetContentTuningData(info.ContentTuningId, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+					var userLevels = _db2Manager.GetContentTuningData(info.ContentTuningId, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 					if (userLevels.HasValue)
 						if (player.Level < userLevels.Value.MaxLevel)
 							return;
 
-					var targetLevels = Global.DB2Mgr.GetContentTuningData(info.ContentTuningId, targetPlayer.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+					var targetLevels = _db2Manager.GetContentTuningData(info.ContentTuningId, targetPlayer.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 					if (targetLevels.HasValue)
 						if (targetPlayer.Level < targetLevels.Value.MaxLevel)
@@ -2555,7 +2555,7 @@ namespace Forged.RealmServer.Entities
 						return;
 
 					var player = user.AsPlayer;
-					var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(info.ItemForge.conditionID1);
+					var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(info.ItemForge.conditionID1);
 
 					if (playerCondition != null)
 						if (!ConditionManager.IsPlayerMeetingCondition(player, playerCondition))
@@ -2669,7 +2669,7 @@ namespace Forged.RealmServer.Entities
 
 						if (info.GatheringNode.xpDifficulty != 0 && info.GatheringNode.xpDifficulty < 10)
 						{
-							var questXp = CliDB.QuestXPStorage.LookupByKey(player.Level);
+							var questXp = _cliDb.QuestXPStorage.LookupByKey(player.Level);
 
 							if (questXp != null)
 							{
@@ -2754,7 +2754,7 @@ namespace Forged.RealmServer.Entities
 
 		public bool IsInRange(float x, float y, float z, float radius)
 		{
-			var info = CliDB.GameObjectDisplayInfoStorage.LookupByKey(GoInfoProtected.displayId);
+			var info = _cliDb.GameObjectDisplayInfoStorage.LookupByKey(GoInfoProtected.displayId);
 
 			if (info == null)
 				return IsWithinDist3d(x, y, z, radius);
@@ -2866,7 +2866,7 @@ namespace Forged.RealmServer.Entities
 				if (GoType == GameObjectTypes.SpellFocus)
 					return maxRange * maxRange >= Location.GetExactDistSq(player.Location);
 
-				if (CliDB.GameObjectDisplayInfoStorage.ContainsKey(Template.displayId))
+				if (_cliDb.GameObjectDisplayInfoStorage.ContainsKey(Template.displayId))
 					return IsAtInteractDistance(player.Location, maxRange);
 			}
 
@@ -2888,7 +2888,7 @@ namespace Forged.RealmServer.Entities
 			if (lockId == 0)
 				return null;
 
-			var lockEntry = CliDB.LockStorage.LookupByKey(lockId);
+			var lockEntry = _cliDb.LockStorage.LookupByKey(lockId);
 
 			if (lockEntry == null)
 				return null;
@@ -3009,7 +3009,7 @@ namespace Forged.RealmServer.Entities
 					SetFlag(GameObjectFlags.Damaged);
 
 					var modelId = GoInfoProtected.displayId;
-					var modelData = CliDB.DestructibleModelDataStorage.LookupByKey(GoInfoProtected.DestructibleBuilding.DestructibleModelRec);
+					var modelData = _cliDb.DestructibleModelDataStorage.LookupByKey(GoInfoProtected.DestructibleBuilding.DestructibleModelRec);
 
 					if (modelData != null)
 						if (modelData.State1Wmo != 0)
@@ -3052,7 +3052,7 @@ namespace Forged.RealmServer.Entities
 					SetFlag(GameObjectFlags.Destroyed);
 
 					var modelId = GoInfoProtected.displayId;
-					var modelData = CliDB.DestructibleModelDataStorage.LookupByKey(GoInfoProtected.DestructibleBuilding.DestructibleModelRec);
+					var modelData = _cliDb.DestructibleModelDataStorage.LookupByKey(GoInfoProtected.DestructibleBuilding.DestructibleModelRec);
 
 					if (modelData != null)
 						if (modelData.State2Wmo != 0)
@@ -3078,7 +3078,7 @@ namespace Forged.RealmServer.Entities
 					RemoveFlag(GameObjectFlags.Damaged | GameObjectFlags.Destroyed);
 
 					var modelId = GoInfoProtected.displayId;
-					var modelData = CliDB.DestructibleModelDataStorage.LookupByKey(GoInfoProtected.DestructibleBuilding.DestructibleModelRec);
+					var modelData = _cliDb.DestructibleModelDataStorage.LookupByKey(GoInfoProtected.DestructibleBuilding.DestructibleModelRec);
 
 					if (modelData != null)
 						if (modelData.State3Wmo != 0)
@@ -3205,7 +3205,7 @@ namespace Forged.RealmServer.Entities
 			switch (GoType)
 			{
 				case GameObjectTypes.DestructibleBuilding:
-					var modelData = CliDB.DestructibleModelDataStorage.LookupByKey(GoInfoProtected.DestructibleBuilding.DestructibleModelRec);
+					var modelData = _cliDb.DestructibleModelDataStorage.LookupByKey(GoInfoProtected.DestructibleBuilding.DestructibleModelRec);
 
 					if (modelData != null)
 						switch (DestructibleState)
@@ -3446,7 +3446,7 @@ namespace Forged.RealmServer.Entities
 			if (_animKitId == animKitId)
 				return;
 
-			if (animKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(animKitId))
+			if (animKitId != 0 && !_cliDb.AnimKitStorage.ContainsKey(animKitId))
 				return;
 
 			if (!oneshot)
@@ -3591,7 +3591,7 @@ namespace Forged.RealmServer.Entities
 			if (GoInfoProtected.GetConditionID1() == 0)
 				return true;
 
-			var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(GoInfoProtected.GetConditionID1());
+			var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(GoInfoProtected.GetConditionID1());
 
 			if (playerCondition != null)
 				if (!ConditionManager.IsPlayerMeetingCondition(user, playerCondition))
@@ -3713,7 +3713,7 @@ namespace Forged.RealmServer.Entities
 
 				if (player != null)
 				{
-					var userLevels = Global.DB2Mgr.GetContentTuningData(Template.ContentTuningId, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+					var userLevels = _db2Manager.GetContentTuningData(Template.ContentTuningId, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 					if (userLevels.HasValue)
 						return (byte)Math.Clamp(player.Level, userLevels.Value.MinLevel, userLevels.Value.MaxLevel);
@@ -3898,7 +3898,7 @@ namespace Forged.RealmServer.Entities
 			SetGoState(goState);
 			GoArtKit = artKit;
 
-			SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.SpawnTrackingStateAnimID), Global.DB2Mgr.GetEmptyAnimStateID());
+			SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.SpawnTrackingStateAnimID), _db2Manager.GetEmptyAnimStateID());
 
 			switch (goInfo.type)
 			{
@@ -4052,7 +4052,7 @@ namespace Forged.RealmServer.Entities
 
 		bool IsAtInteractDistance(Position pos, float radius)
 		{
-			var displayInfo = CliDB.GameObjectDisplayInfoStorage.LookupByKey(Template.displayId);
+			var displayInfo = _cliDb.GameObjectDisplayInfoStorage.LookupByKey(Template.displayId);
 
 			if (displayInfo != null)
 			{

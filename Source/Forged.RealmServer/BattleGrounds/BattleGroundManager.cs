@@ -29,7 +29,7 @@ public class BattlegroundManager
 	readonly LimitedThreadTaskManager _threadTaskManager;
     private readonly IConfiguration _configuration;
     private readonly WorldConfig _worldConfig;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly DisableManager _disableManager;
     private readonly GameObjectManager _gameObjectManager;
     private readonly WorldManager _worldManager;
@@ -46,7 +46,7 @@ public class BattlegroundManager
 	{
         _configuration = configuration;
         _worldConfig = worldConfig;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _disableManager = disableManager;
         _gameObjectManager = gameObjectManager;
         _worldManager = worldManager;
@@ -137,7 +137,7 @@ public class BattlegroundManager
 				continue;
 
 			// can be overwrite by values from DB
-			var bl = _cliDB.BattlemasterListStorage.LookupByKey((uint)bgTypeId);
+			var bl = _cliDb.BattlemasterListStorage.LookupByKey((uint)bgTypeId);
 
 			if (bl == null)
 			{
@@ -216,7 +216,7 @@ public class BattlegroundManager
 
 	public bool IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId)
 	{
-		var battlemasterList = _cliDB.BattlemasterListStorage.LookupByKey(bgQueueTypeId.BattlemasterListId);
+		var battlemasterList = _cliDb.BattlemasterListStorage.LookupByKey(bgQueueTypeId.BattlemasterListId);
 
 		if (battlemasterList == null)
 			return false;
@@ -331,7 +331,7 @@ public class BattlegroundManager
 
 			var bgTypeId = result.Read<uint>(1);
 
-			if (!_cliDB.BattlemasterListStorage.ContainsKey(bgTypeId))
+			if (!_cliDb.BattlemasterListStorage.ContainsKey(bgTypeId))
 			{
 				Log.Logger.Error("Table `battlemaster_entry` contain entry {0} for not existed Battleground type {1}, ignored.", entry, bgTypeId);
 

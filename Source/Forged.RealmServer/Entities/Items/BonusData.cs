@@ -76,7 +76,7 @@ public class BonusData
 		RequiredLevelOverride = 0;
 		AzeriteTierUnlockSetId = 0;
 
-		var azeriteEmpoweredItem = Global.DB2Mgr.GetAzeriteEmpoweredItem(proto.Id);
+		var azeriteEmpoweredItem = _db2Manager.GetAzeriteEmpoweredItem(proto.Id);
 
 		if (azeriteEmpoweredItem != null)
 			AzeriteTierUnlockSetId = azeriteEmpoweredItem.AzeriteTierUnlockSetID;
@@ -109,7 +109,7 @@ public class BonusData
 
 	public void AddBonusList(uint bonusListId)
 	{
-		var bonuses = Global.DB2Mgr.GetItemBonusList(bonusListId);
+		var bonuses = _db2Manager.GetItemBonusList(bonusListId);
 
 		if (bonuses != null)
 			foreach (var bonus in bonuses)
@@ -229,7 +229,7 @@ public class BonusData
 
 				break;
 			case ItemBonusType.ItemEffectId:
-				var itemEffect = CliDB.ItemEffectStorage.LookupByKey(values[0]);
+				var itemEffect = _cliDb.ItemEffectStorage.LookupByKey(values[0]);
 
 				if (itemEffect != null)
 					Effects[EffectCount++] = itemEffect;

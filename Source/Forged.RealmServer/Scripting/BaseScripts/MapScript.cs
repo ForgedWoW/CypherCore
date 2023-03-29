@@ -13,7 +13,7 @@ public class MapScript<T> : ScriptObject where T : Map
 
 	public MapScript(string name, uint mapId) : base(name)
 	{
-		_mapEntry = CliDB.MapStorage.LookupByKey(mapId);
+		_mapEntry = _cliDb.MapStorage.LookupByKey(mapId);
 
 		if (_mapEntry == null)
 			Log.Logger.Error("Invalid MapScript for {0}; no such map ID.", mapId);

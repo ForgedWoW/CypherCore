@@ -19,7 +19,7 @@ public class ChannelManager
     private readonly WorldConfig _worldConfig;
     private readonly CharacterDatabase _characterDatabase;
     private readonly WorldManager _worldManager;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
 
     public FactionChannel AllianceChannel { get; }
     public FactionChannel HordeChannel { get; }
@@ -29,10 +29,10 @@ public class ChannelManager
         _worldConfig = worldConfig;
         _characterDatabase = characterDatabase;
         _worldManager = worldManager;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
 
-        AllianceChannel = new FactionChannel(TeamFaction.Alliance, _worldConfig, _characterDatabase, _worldManager, _cliDB);
-        HordeChannel = new FactionChannel(TeamFaction.Horde, _worldConfig, _characterDatabase, _worldManager, _cliDB);
+        AllianceChannel = new FactionChannel(TeamFaction.Alliance, _worldConfig, _characterDatabase, _worldManager, _cliDb);
+        HordeChannel = new FactionChannel(TeamFaction.Horde, _worldConfig, _characterDatabase, _worldManager, _cliDb);
     }
 
 	public void LoadFromDB()

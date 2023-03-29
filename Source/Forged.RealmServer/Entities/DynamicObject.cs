@@ -162,7 +162,7 @@ public class DynamicObject : WorldObject
 		if (expired)
 			Remove();
 		else
-			Global.ScriptMgr.ForEach<IDynamicObjectOnUpdate>(p => p.OnUpdate(this, diff));
+			_scriptManager.ForEach<IDynamicObjectOnUpdate>(p => p.OnUpdate(this, diff));
 	}
 
 	public void Remove()

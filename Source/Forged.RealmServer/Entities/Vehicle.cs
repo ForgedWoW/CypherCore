@@ -44,7 +44,7 @@ public class Vehicle : ITransport
 
 			if (seatId != 0)
 			{
-				var veSeat = CliDB.VehicleSeatStorage.LookupByKey(seatId);
+				var veSeat = _cliDb.VehicleSeatStorage.LookupByKey(seatId);
 
 				if (veSeat != null)
 				{
@@ -113,7 +113,7 @@ public class Vehicle : ITransport
 			_me.AsCreature.AI.PassengerBoarded(unit, seat.Key, false);
 
 		if (GetBase().IsTypeId(TypeId.Unit))
-			Global.ScriptMgr.RunScript<IVehicleOnRemovePassenger>(p => p.OnRemovePassenger(this, unit), GetBase().AsCreature.GetScriptId());
+			_scriptManager.RunScript<IVehicleOnRemovePassenger>(p => p.OnRemovePassenger(this, unit), GetBase().AsCreature.GetScriptId());
 
 		unit.Vehicle1 = null;
 
@@ -163,7 +163,7 @@ public class Vehicle : ITransport
 		_status = Status.Installed;
 
 		if (GetBase().IsTypeId(TypeId.Unit))
-			Global.ScriptMgr.RunScript<IVehicleOnInstall>(p => p.OnInstall(this), GetBase().AsCreature.GetScriptId());
+			_scriptManager.RunScript<IVehicleOnInstall>(p => p.OnInstall(this), GetBase().AsCreature.GetScriptId());
 	}
 
 	public void InstallAllAccessories(bool evading)
@@ -200,7 +200,7 @@ public class Vehicle : ITransport
 		RemoveAllPassengers();
 
 		if (GetBase().IsTypeId(TypeId.Unit))
-			Global.ScriptMgr.RunScript<IVehicleOnUninstall>(p => p.OnUninstall(this), GetBase().AsCreature.GetScriptId());
+			_scriptManager.RunScript<IVehicleOnUninstall>(p => p.OnUninstall(this), GetBase().AsCreature.GetScriptId());
 	}
 
 	public void Reset(bool evading = false)
@@ -215,7 +215,7 @@ public class Vehicle : ITransport
 		if (GetBase().IsAlive)
 			InstallAllAccessories(evading);
 
-		Global.ScriptMgr.RunScript<IVehicleOnReset>(p => p.OnReset(this), GetBase().AsCreature.GetScriptId());
+		_scriptManager.RunScript<IVehicleOnReset>(p => p.OnReset(this), GetBase().AsCreature.GetScriptId());
 	}
 
 	public void RemoveAllPassengers()

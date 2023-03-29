@@ -1898,7 +1898,7 @@ public partial class Unit
 			gain = (uint)victim.ModifyHealth(addhealth);
 
 		// Hook for OnHeal Event
-		Global.ScriptMgr.ForEach<IUnitOnHeal>(p => p.OnHeal(healInfo, ref gain));
+		_scriptManager.ForEach<IUnitOnHeal>(p => p.OnHeal(healInfo, ref gain));
 
 		var unit = healer;
 
@@ -2082,7 +2082,7 @@ public partial class Unit
 		}
 
 		// Script Hook For CalculateSpellDamageTaken -- Allow scripts to change the Damage post class mitigation calculations
-		Global.ScriptMgr.ForEach<IUnitModifySpellDamageTaken>(p => p.ModifySpellDamageTaken(damageInfo.Target, damageInfo.Attacker, ref damage, spellInfo));
+		_scriptManager.ForEach<IUnitModifySpellDamageTaken>(p => p.ModifySpellDamageTaken(damageInfo.Target, damageInfo.Attacker, ref damage, spellInfo));
 
 		// Calculate absorb resist
 		if (damage < 0)
@@ -2603,7 +2603,7 @@ public partial class Unit
 				continue;
 
 			//! Check database conditions
-			if (!Global.ConditionMgr.IsObjectMeetingSpellClickConditions(spellClickEntry, clickInfo.spellId, clicker, this))
+			if (!_conditionManager.IsObjectMeetingSpellClickConditions(spellClickEntry, clickInfo.spellId, clicker, this))
 				continue;
 
 			var caster = Convert.ToBoolean(clickInfo.castFlags & (byte)SpellClickCastFlags.CasterClicker) ? clicker : this;
@@ -3630,7 +3630,7 @@ public partial class Unit
 		var player = AsPlayer;
 
 		if (player != null)
-			if (Global.ConditionMgr.IsSpellUsedInSpellClickConditions(aurApp.Base.Id))
+			if (_conditionManager.IsSpellUsedInSpellClickConditions(aurApp.Base.Id))
 				player.UpdateVisibleGameobjectsOrSpellClicks();
 	}
 
@@ -3844,7 +3844,7 @@ public partial class Unit
 		var player = AsPlayer;
 
 		if (player != null)
-			if (Global.ConditionMgr.IsSpellUsedInSpellClickConditions(aurApp.Base.Id))
+			if (_conditionManager.IsSpellUsedInSpellClickConditions(aurApp.Base.Id))
 				player.UpdateVisibleGameobjectsOrSpellClicks();
 	}
 

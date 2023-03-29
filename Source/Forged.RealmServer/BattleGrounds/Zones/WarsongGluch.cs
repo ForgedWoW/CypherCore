@@ -902,7 +902,7 @@ class BgWarsongGluch : Battleground
 		var flagCarrier = _objectAccessor.GetPlayer(GetBgMap(), GetFlagPickerGUID(team));
 		var areaTrigger = team == TeamIds.Alliance ? 3647 : 3646u;
 
-		if (flagCarrier != null && flagCarrier.IsInAreaTriggerRadius(CliDB.AreaTriggerStorage.LookupByKey(areaTrigger)))
+		if (flagCarrier != null && flagCarrier.IsInAreaTriggerRadius(_cliDb.AreaTriggerStorage.LookupByKey(areaTrigger)))
 			EventPlayerCapturedFlag(flagCarrier);
 	}
 

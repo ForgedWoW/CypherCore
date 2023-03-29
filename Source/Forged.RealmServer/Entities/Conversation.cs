@@ -222,13 +222,13 @@ public class Conversation : WorldObject
 		foreach (var actor in conversationTemplate.Actors)
 			new ConversationActorFillVisitor(this, creator, map, actor).Invoke(actor);
 
-		Global.ScriptMgr.RunScript<IConversationOnConversationCreate>(script => script.OnConversationCreate(this, creator), GetScriptId());
+		_scriptManager.RunScript<IConversationOnConversationCreate>(script => script.OnConversationCreate(this, creator), GetScriptId());
 
 		List<ConversationLine> lines = new();
 
 		foreach (var line in conversationTemplate.Lines)
 		{
-			if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.ConversationLine, line.Id, creator))
+			if (!_conditionManager.IsObjectMeetingNotGroupedConditions(ConditionSourceType.ConversationLine, line.Id, creator))
 				continue;
 
 			ConversationLine lineField = new();
@@ -237,7 +237,7 @@ public class Conversation : WorldObject
 			lineField.ActorIndex = line.ActorIdx;
 			lineField.Flags = line.Flags;
 
-			var convoLine = CliDB.ConversationLineStorage.LookupByKey(line.Id); // never null for conversationTemplate->Lines
+			var convoLine = _cliDb.ConversationLineStorage.LookupByKey(line.Id); // never null for conversationTemplate->Lines
 
 			for (var locale = Locale.enUS; locale < Locale.Total; locale = locale + 1)
 			{
@@ -249,7 +249,7 @@ public class Conversation : WorldObject
 				if (locale == Locale.enUS)
 					lineField.StartTime = (uint)_lastLineEndTimes[(int)locale].TotalMilliseconds;
 
-				var broadcastTextDuration = Global.DB2Mgr.GetBroadcastTextDuration((int)convoLine.BroadcastTextID, locale);
+				var broadcastTextDuration = _db2Manager.GetBroadcastTextDuration((int)convoLine.BroadcastTextID, locale);
 
 				if (broadcastTextDuration != 0)
 					_lastLineEndTimes[(int)locale] += TimeSpan.FromMilliseconds(broadcastTextDuration);
@@ -267,7 +267,7 @@ public class Conversation : WorldObject
 		// conversations are despawned 5-20s after LastLineEndTime
 		_duration += TimeSpan.FromSeconds(10);
 
-		Global.ScriptMgr.RunScript<IConversationOnConversationCreate>(script => script.OnConversationCreate(this, creator), GetScriptId());
+		_scriptManager.RunScript<IConversationOnConversationCreate>(script => script.OnConversationCreate(this, creator), GetScriptId());
 	}
 
 	bool Start()

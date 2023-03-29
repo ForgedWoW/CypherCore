@@ -16,14 +16,14 @@ public class ConversationDataStorage
 	readonly Dictionary<uint, ConversationTemplate> _conversationTemplateStorage = new();
 	readonly Dictionary<uint, ConversationLineTemplate> _conversationLineTemplateStorage = new();
     private readonly IConfiguration _configuration;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly WorldDatabase _worldDatabase;
     private readonly GameObjectManager _gameObjectManager;
 
     ConversationDataStorage(IConfiguration configuration, CliDB cliDB, WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
     {
         _configuration = configuration;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _worldDatabase = worldDatabase;
         _gameObjectManager = gameObjectManager;
 
@@ -47,7 +47,7 @@ public class ConversationDataStorage
 			{
 				var id = lineTemplates.Read<uint>(0);
 
-				if (!_cliDB.ConversationLineStorage.ContainsKey(id))
+				if (!_cliDb.ConversationLineStorage.ContainsKey(id))
 				{
 					Log.Logger.Error("Table `conversation_line_template` has template for non existing ConversationLine (ID: {0}), skipped", id);
 
@@ -100,7 +100,7 @@ public class ConversationDataStorage
 				else
 					actor.TalkingHeadTemplate = new ConversationActorTalkingHeadTemplate();
 
-				var valid = data.Invoke(actor, _configuration, _cliDB, _gameObjectManager, _worldDatabase);
+				var valid = data.Invoke(actor, _configuration, _cliDb, _gameObjectManager, _worldDatabase);
 
 				if (!valid)
 					continue;
@@ -122,7 +122,7 @@ public class ConversationDataStorage
 		// Validate FirstLineId
 		Dictionary<uint, uint> prevConversationLineIds = new();
 
-		foreach (var conversationLine in _cliDB.ConversationLineStorage.Values)
+		foreach (var conversationLine in _cliDb.ConversationLineStorage.Values)
 			if (conversationLine.NextConversationLineID != 0)
 				prevConversationLineIds[conversationLine.NextConversationLineID] = conversationLine.Id;
 
@@ -160,7 +160,7 @@ public class ConversationDataStorage
 					conversationTemplate.FirstLineId = correctedFirstLineId;
 				}
 
-				var currentConversationLine = _cliDB.ConversationLineStorage.LookupByKey(conversationTemplate.FirstLineId);
+				var currentConversationLine = _cliDb.ConversationLineStorage.LookupByKey(conversationTemplate.FirstLineId);
 
 				if (currentConversationLine == null)
 					Log.Logger.Error("Table `conversation_template` references an invalid line (ID: {0}) for Conversation {1}, skipped", conversationTemplate.FirstLineId, conversationTemplate.Id);
@@ -177,7 +177,7 @@ public class ConversationDataStorage
 					if (currentConversationLine.NextConversationLineID == 0)
 						break;
 
-					currentConversationLine = _cliDB.ConversationLineStorage.LookupByKey(currentConversationLine.NextConversationLineID);
+					currentConversationLine = _cliDb.ConversationLineStorage.LookupByKey(currentConversationLine.NextConversationLineID);
 				}
 
 				_conversationTemplateStorage[conversationTemplate.Id] = conversationTemplate;

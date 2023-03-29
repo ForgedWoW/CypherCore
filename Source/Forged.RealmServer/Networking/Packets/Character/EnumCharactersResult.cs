@@ -164,7 +164,7 @@ public class EnumCharactersResult : ServerPacket
 			ListPosition = fields.Read<byte>(19);
 			LastPlayedTime = fields.Read<long>(20);
 
-			var spec = Global.DB2Mgr.GetChrSpecializationByIndex(ClassId, fields.Read<byte>(21));
+			var spec = _db2Manager.GetChrSpecializationByIndex(ClassId, fields.Read<byte>(21));
 
 			if (spec != null)
 				SpecID = (short)spec.Id;

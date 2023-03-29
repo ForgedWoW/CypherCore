@@ -13,8 +13,10 @@ using Forged.RealmServer.Achievements;
 using Forged.RealmServer.AI;
 using Forged.RealmServer.BattlePets;
 using Forged.RealmServer.Chat;
+using Forged.RealmServer.Conditions;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Garrisons;
+using Forged.RealmServer.Globals;
 using Forged.RealmServer.Guilds;
 using Forged.RealmServer.Mails;
 using Forged.RealmServer.Maps;
@@ -22,9 +24,11 @@ using Forged.RealmServer.Maps.Grids;
 using Forged.RealmServer.Misc;
 using Forged.RealmServer.Networking;
 using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Quest;
 using Forged.RealmServer.Scripting;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
 using Forged.RealmServer.Spells;
+using Serilog;
 
 namespace Forged.RealmServer.Entities;
 
@@ -194,7 +198,7 @@ public partial class Player : Unit
 	{
 		get
 		{
-			if (ConfigMgr.GetDefaultValue("character.MaxLevelDeterminedByConfig", false))
+			if (_configuration.GetDefaultValue("character.MaxLevelDeterminedByConfig", false))
 				return Level >= _worldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
 
 			return Level >= ActivePlayerData.MaxLevel;
@@ -344,7 +348,7 @@ public partial class Player : Unit
 	{
 		get
 		{
-			var areaEntry = CliDB.AreaTableStorage.LookupByKey(Area);
+			var areaEntry = _cliDb.AreaTableStorage.LookupByKey(Area);
 
 			if (areaEntry != null)
 				return IsFriendlyArea(areaEntry);
@@ -569,7 +573,7 @@ public partial class Player : Unit
 			return false;
 		}
 
-		var cEntry = CliDB.ChrClassesStorage.LookupByKey(createInfo.ClassId);
+		var cEntry = _cliDb.ChrClassesStorage.LookupByKey(createInfo.ClassId);
 
 		if (cEntry == null)
 		{
@@ -737,7 +741,7 @@ public partial class Player : Unit
 		}
 		// all item positions resolved
 
-		var defaultSpec = Global.DB2Mgr.GetDefaultChrSpecializationForClass(Class);
+		var defaultSpec = _db2Manager.GetDefaultChrSpecializationForClass(Class);
 
 		if (defaultSpec != null)
 		{
@@ -931,7 +935,7 @@ public partial class Player : Unit
 				// On zone update tick check if we are still in an inn if we are supposed to be in one
 				if (_restMgr.HasRestFlag(RestFlag.Tavern))
 				{
-					var atEntry = CliDB.AreaTriggerStorage.LookupByKey(_restMgr.GetInnTriggerId());
+					var atEntry = _cliDb.AreaTriggerStorage.LookupByKey(_restMgr.GetInnTriggerId());
 
 					if (atEntry == null || !IsInAreaTriggerRadius(atEntry))
 						_restMgr.RemoveRestFlag(RestFlag.Tavern);
@@ -973,7 +977,7 @@ public partial class Player : Unit
 			if (diff >= _nextSave)
 			{
 				// m_nextSave reset in SaveToDB call
-				Global.ScriptMgr.ForEach<IPlayerOnSave>(p => p.OnSave(this));
+				_scriptManager.ForEach<IPlayerOnSave>(p => p.OnSave(this));
 				SaveToDB();
 				Log.outDebug(LogFilter.Player, "Player '{0}' (GUID: {1}) saved", GetName(), GUID.ToString());
 			}
@@ -1512,7 +1516,7 @@ public partial class Player : Unit
 			if (spellInfo.HasAttribute(SpellAttr5.NotAvailableWhileCharmed))
 				continue;
 
-			if (!Global.ConditionMgr.IsObjectMeetingVehicleSpellConditions(vehicle.Entry, spellId, this, vehicle))
+			if (!_conditionManager.IsObjectMeetingVehicleSpellConditions(vehicle.Entry, spellId, this, vehicle))
 			{
 				Log.outDebug(LogFilter.Condition, "VehicleSpellInitialize: conditions not met for Vehicle entry {0} spell {1}", vehicle.AsCreature.Entry, spellId);
 
@@ -1538,7 +1542,7 @@ public partial class Player : Unit
 		if (amount == 0)
 			return;
 
-		var currency = CliDB.CurrencyTypesStorage.LookupByKey(id);
+		var currency = _cliDb.CurrencyTypesStorage.LookupByKey(id);
 
 		// Check faction
 		if ((currency.IsAlliance() && Team != TeamFaction.Alliance) ||
@@ -1548,7 +1552,7 @@ public partial class Player : Unit
 		// Check award condition
 		if (currency.AwardConditionID != 0)
 		{
-			var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(currency.AwardConditionID);
+			var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(currency.AwardConditionID);
 
 			if (playerCondition != null && !ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
 				return;
@@ -1570,7 +1574,7 @@ public partial class Player : Unit
 		var scaler = currency.GetScaler();
 
 		// Currency that is immediately converted into reputation with that faction instead
-		var factionEntry = CliDB.FactionStorage.LookupByKey(currency.FactionID);
+		var factionEntry = _cliDb.FactionStorage.LookupByKey(currency.FactionID);
 
 		if (factionEntry != null)
 		{
@@ -1685,7 +1689,7 @@ public partial class Player : Unit
 		if (amount == 0)
 			return;
 
-		var currency = CliDB.CurrencyTypesStorage.LookupByKey(id);
+		var currency = _cliDb.CurrencyTypesStorage.LookupByKey(id);
 
 		// Check faction
 		if ((currency.IsAlliance() && Team != TeamFaction.Alliance) ||
@@ -1858,11 +1862,11 @@ public partial class Player : Unit
 	public int CalculateReputationGain(ReputationSource source, uint creatureOrQuestLevel, int rep, int faction, bool noQuestBonus = false)
 	{
 		var noBonuses = false;
-		var factionEntry = CliDB.FactionStorage.LookupByKey(faction);
+		var factionEntry = _cliDb.FactionStorage.LookupByKey(faction);
 
 		if (factionEntry != null)
 		{
-			var friendshipReputation = CliDB.FriendshipReputationStorage.LookupByKey(factionEntry.FriendshipRepID);
+			var friendshipReputation = _cliDb.FriendshipReputationStorage.LookupByKey(factionEntry.FriendshipRepID);
 
 			if (friendshipReputation != null)
 				if (friendshipReputation.Flags.HasAnyFlag(FriendshipReputationFlags.NoRepGainModifiers))
@@ -1986,11 +1990,11 @@ public partial class Player : Unit
 
 			if (map.IsNonRaidDungeon)
 			{
-				var dungeon = Global.DB2Mgr.GetLfgDungeon(map.Id, map.DifficultyID);
+				var dungeon = _db2Manager.GetLfgDungeon(map.Id, map.DifficultyID);
 
 				if (dungeon != null)
 				{
-					var dungeonLevels = Global.DB2Mgr.GetContentTuningData(dungeon.ContentTuningID, PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+					var dungeonLevels = _db2Manager.GetContentTuningData(dungeon.ContentTuningID, PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 					if (dungeonLevels.HasValue)
 						if (dungeonLevels.Value.TargetLevelMax == _gameObjectManager.GetMaxLevelForExpansion(Expansion.WrathOfTheLichKing))
@@ -2006,7 +2010,7 @@ public partial class Player : Unit
 			var donerep1 = CalculateReputationGain(ReputationSource.Kill, victim.GetLevelForTarget(this), Rep.RepValue1, (int)(ChampioningFaction != 0 ? ChampioningFaction : Rep.RepFaction1));
 			donerep1 = (int)(donerep1 * rate);
 
-			var factionEntry1 = CliDB.FactionStorage.LookupByKey(ChampioningFaction != 0 ? ChampioningFaction : Rep.RepFaction1);
+			var factionEntry1 = _cliDb.FactionStorage.LookupByKey(ChampioningFaction != 0 ? ChampioningFaction : Rep.RepFaction1);
 			var current_reputation_rank1 = ReputationMgr.GetRank(factionEntry1);
 
 			if (factionEntry1 != null)
@@ -2018,7 +2022,7 @@ public partial class Player : Unit
 			var donerep2 = CalculateReputationGain(ReputationSource.Kill, victim.GetLevelForTarget(this), Rep.RepValue2, (int)(ChampioningFaction != 0 ? ChampioningFaction : Rep.RepFaction2));
 			donerep2 = (int)(donerep2 * rate);
 
-			var factionEntry2 = CliDB.FactionStorage.LookupByKey(ChampioningFaction != 0 ? ChampioningFaction : Rep.RepFaction2);
+			var factionEntry2 = _cliDb.FactionStorage.LookupByKey(ChampioningFaction != 0 ? ChampioningFaction : Rep.RepFaction2);
 			var current_reputation_rank2 = ReputationMgr.GetRank(factionEntry2);
 
 			if (factionEntry2 != null)
@@ -2066,7 +2070,7 @@ public partial class Player : Unit
 		// preparing unsummon pet if lost (we must get pet before teleportation or will not find it later)
 		var pet = CurrentPet;
 
-		var mEntry = CliDB.MapStorage.LookupByKey(mapid);
+		var mEntry = _cliDb.MapStorage.LookupByKey(mapid);
 
 		// don't let enter Battlegrounds without assigned Battlegroundid (for example through areatrigger)...
 		// don't let gm level > 1 either
@@ -2318,7 +2322,7 @@ public partial class Player : Unit
 	{
 		var startLevel = _worldConfig.GetUIntValue(WorldCfg.StartPlayerLevel);
 
-		if (CliDB.ChrRacesStorage.LookupByKey(race).GetFlags().HasAnyFlag(ChrRacesFlag.IsAlliedRace))
+		if (_cliDb.ChrRacesStorage.LookupByKey(race).GetFlags().HasAnyFlag(ChrRacesFlag.IsAlliedRace))
 			startLevel = _worldConfig.GetUIntValue(WorldCfg.StartAlliedRaceLevel);
 
 		if (playerClass == PlayerClass.Deathknight)
@@ -2748,7 +2752,7 @@ public partial class Player : Unit
 
 		foreach (var gossipMenuItem in menuItemBounds)
 		{
-			if (!Global.ConditionMgr.IsObjectMeetToConditions(this, source, gossipMenuItem.Conditions))
+			if (!_conditionManager.IsObjectMeetToConditions(this, source, gossipMenuItem.Conditions))
 				continue;
 
 			var canTalk = true;
@@ -3083,7 +3087,7 @@ public partial class Player : Unit
 		var menuBounds = _gameObjectManager.GetGossipMenusMapBounds(menuId);
 
 		foreach (var menu in menuBounds)
-			if (Global.ConditionMgr.IsObjectMeetToConditions(this, source, menu.Conditions))
+			if (_conditionManager.IsObjectMeetToConditions(this, source, menu.Conditions))
 				textId = menu.TextId;
 
 		return textId;
@@ -3302,7 +3306,7 @@ public partial class Player : Unit
 		if (HasAuraType(AuraType.RemoveBarberShopCost))
 			return 0;
 
-		var bsc = CliDB.BarberShopCostBaseGameTable.GetRow(Level);
+		var bsc = _cliDb.BarberShopCostBaseGameTable.GetRow(Level);
 
 		if (bsc == null) // shouldn't happen
 			return 0;
@@ -3315,7 +3319,7 @@ public partial class Player : Unit
 
 			if (currentCustomizationIndex == -1 || PlayerData.Customizations[currentCustomizationIndex].ChrCustomizationChoiceID != newChoice.ChrCustomizationChoiceID)
 			{
-				var customizationOption = CliDB.ChrCustomizationOptionStorage.LookupByKey(newChoice.ChrCustomizationOptionID);
+				var customizationOption = _cliDb.ChrCustomizationOptionStorage.LookupByKey(newChoice.ChrCustomizationOptionID);
 
 				if (customizationOption != null)
 					cost += (long)(bsc.Cost * customizationOption.BarberShopCostModifier);
@@ -3332,11 +3336,11 @@ public partial class Player : Unit
 
 	public static byte GetFactionGroupForRace(Race race)
 	{
-		var rEntry = CliDB.ChrRacesStorage.LookupByKey((uint)race);
+		var rEntry = _cliDb.ChrRacesStorage.LookupByKey((uint)race);
 
 		if (rEntry != null)
 		{
-			var faction = CliDB.FactionTemplateStorage.LookupByKey(rEntry.FactionID);
+			var faction = _cliDb.FactionTemplateStorage.LookupByKey(rEntry.FactionID);
 
 			if (faction != null)
 				return faction.FactionGroup;
@@ -3349,7 +3353,7 @@ public partial class Player : Unit
 	{
 		_team = TeamForRace(race);
 
-		var rEntry = CliDB.ChrRacesStorage.LookupByKey(race);
+		var rEntry = _cliDb.ChrRacesStorage.LookupByKey(race);
 		Faction = rEntry != null ? (uint)rEntry.FactionID : 0;
 	}
 
@@ -3707,7 +3711,7 @@ public partial class Player : Unit
 		StopMirrorTimers(); //disable timers(bars)
 
 		// OnPlayerRepop hook
-		Global.ScriptMgr.ForEach<IPlayerOnPlayerRepop>(p => p.OnPlayerRepop(this));
+		_scriptManager.ForEach<IPlayerOnPlayerRepop>(p => p.OnPlayerRepop(this));
 	}
 
 	public void StopMirrorTimers()
@@ -3796,7 +3800,7 @@ public partial class Player : Unit
 		//for each level they are above 10.
 		//Characters level 20 and up suffer from ten minutes of sickness.
 		var startLevel = _worldConfig.GetIntValue(WorldCfg.DeathSicknessLevel);
-		var raceEntry = CliDB.ChrRacesStorage.LookupByKey(Race);
+		var raceEntry = _cliDb.ChrRacesStorage.LookupByKey(Race);
 
 		if (Level >= startLevel)
 		{
@@ -3828,7 +3832,7 @@ public partial class Player : Unit
 
 		ReplaceAllDynamicFlags(UnitDynFlags.None);
 
-		if (!CliDB.MapStorage.LookupByKey(Location.MapId).Instanceable() && !HasAuraType(AuraType.PreventResurrection))
+		if (!_cliDb.MapStorage.LookupByKey(Location.MapId).Instanceable() && !HasAuraType(AuraType.PreventResurrection))
 			SetPlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
 		else
 			RemovePlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
@@ -3878,7 +3882,7 @@ public partial class Player : Unit
 		// note: this can be called also when the player is alive
 		// for example from WorldSession.HandleMovementOpcodes
 
-		var zone = CliDB.AreaTableStorage.LookupByKey(Area);
+		var zone = _cliDb.AreaTableStorage.LookupByKey(Area);
 
 		var shouldResurrect = false;
 
@@ -4325,7 +4329,7 @@ public partial class Player : Unit
 
 	public bool MeetPlayerCondition(uint conditionId)
 	{
-		var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(conditionId);
+		var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(conditionId);
 
 		if (playerCondition != null)
 			if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
@@ -4364,12 +4368,12 @@ public partial class Player : Unit
 
 	public bool CanEnableWarModeInArea()
 	{
-		var zone = CliDB.AreaTableStorage.LookupByKey(Zone);
+		var zone = _cliDb.AreaTableStorage.LookupByKey(Zone);
 
 		if (zone == null || !IsFriendlyArea(zone))
 			return false;
 
-		var area = CliDB.AreaTableStorage.LookupByKey(Area);
+		var area = _cliDb.AreaTableStorage.LookupByKey(Area);
 
 		if (area == null)
 			area = zone;
@@ -4379,7 +4383,7 @@ public partial class Player : Unit
 			if ((area.Flags[1] & (uint)AreaFlags2.CanEnableWarMode) != 0)
 				return true;
 
-			area = CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
+			area = _cliDb.AreaTableStorage.LookupByKey(area.ParentAreaID);
 		} while (area != null);
 
 		return false;
@@ -4425,7 +4429,7 @@ public partial class Player : Unit
 
 	public static uint TeamIdForRace(Race race)
 	{
-		var rEntry = CliDB.ChrRacesStorage.LookupByKey((byte)race);
+		var rEntry = _cliDb.ChrRacesStorage.LookupByKey((byte)race);
 
 		if (rEntry != null)
 			return (uint)rEntry.Alliance;
@@ -4453,7 +4457,7 @@ public partial class Player : Unit
 		if (amount == 0)
 			return true;
 
-		Global.ScriptMgr.ForEach<IPlayerOnMoneyChanged>(p => p.OnMoneyChanged(this, amount));
+		_scriptManager.ForEach<IPlayerOnMoneyChanged>(p => p.OnMoneyChanged(this, amount));
 
 		if (amount < 0)
 		{
@@ -4571,8 +4575,8 @@ public partial class Player : Unit
 		for (var i = Stats.Strength; i < Stats.Max; ++i)
 			packet.StatDelta[(int)i] = info.Stats[(int)i] - (int)GetCreateStat(i);
 
-		packet.NumNewTalents = (int)(Global.DB2Mgr.GetNumTalentsAtLevel(level, Class) - Global.DB2Mgr.GetNumTalentsAtLevel(oldLevel, Class));
-		packet.NumNewPvpTalentSlots = Global.DB2Mgr.GetPvpTalentNumSlotsAtLevel(level, Class) - Global.DB2Mgr.GetPvpTalentNumSlotsAtLevel(oldLevel, Class);
+		packet.NumNewTalents = (int)(_db2Manager.GetNumTalentsAtLevel(level, Class) - _db2Manager.GetNumTalentsAtLevel(oldLevel, Class));
+		packet.NumNewPvpTalentSlots = _db2Manager.GetPvpTalentNumSlotsAtLevel(level, Class) - _db2Manager.GetPvpTalentNumSlotsAtLevel(oldLevel, Class);
 
 		SendPacket(packet);
 
@@ -4638,7 +4642,7 @@ public partial class Player : Unit
 
 		PushQuests();
 
-		Global.ScriptMgr.ForEach<IPlayerOnLevelChanged>(Class, p => p.OnLevelChanged(this, oldLevel));
+		_scriptManager.ForEach<IPlayerOnLevelChanged>(Class, p => p.OnLevelChanged(this, oldLevel));
 	}
 
 	public void ToggleAFK()
@@ -4663,7 +4667,7 @@ public partial class Player : Unit
 
 	public void InitDisplayIds()
 	{
-		var model = Global.DB2Mgr.GetChrModel(Race, NativeGender);
+		var model = _db2Manager.GetChrModel(Race, NativeGender);
 
 		if (model == null)
 		{
@@ -4674,7 +4678,7 @@ public partial class Player : Unit
 
 		SetDisplayId(model.DisplayID);
 		SetNativeDisplayId(model.DisplayID);
-		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.StateAnimID), Global.DB2Mgr.GetEmptyAnimStateID());
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.StateAnimID), _db2Manager.GetEmptyAnimStateID());
 	}
 
 	//Creature
@@ -4821,7 +4825,7 @@ public partial class Player : Unit
 
 		foreach (var glyphId in GetGlyphs(GetActiveTalentGroup()))
 		{
-			var bindableSpells = Global.DB2Mgr.GetGlyphBindableSpells(glyphId);
+			var bindableSpells = _db2Manager.GetGlyphBindableSpells(glyphId);
 
 			foreach (var bindableSpell in bindableSpells)
 				if (HasSpell(bindableSpell) && !_overrideSpells.ContainsKey(bindableSpell))
@@ -4971,7 +4975,7 @@ public partial class Player : Unit
 		if (Map.IsRaid)
 		{
 			var mapDifficulty = Map.DifficultyID;
-			var difficulty = CliDB.DifficultyStorage.LookupByKey(mapDifficulty);
+			var difficulty = _cliDb.DifficultyStorage.LookupByKey(mapDifficulty);
 			SendRaidDifficulty((difficulty.Flags & DifficultyFlags.Legacy) != 0, (int)mapDifficulty);
 		}
 		else if (Map.IsNonRaidDungeon)
@@ -5216,7 +5220,7 @@ public partial class Player : Unit
 	{
 		var form = ShapeshiftForm;
 
-		var ssEntry = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)form);
+		var ssEntry = _cliDb.SpellShapeshiftFormStorage.LookupByKey((uint)form);
 
 		if (ssEntry != null && ssEntry.CombatRoundTime != 0)
 		{
@@ -5241,19 +5245,19 @@ public partial class Player : Unit
 
 	public ReputationRank GetReputationRank(uint faction)
 	{
-		var factionEntry = CliDB.FactionStorage.LookupByKey(faction);
+		var factionEntry = _cliDb.FactionStorage.LookupByKey(faction);
 
 		return ReputationMgr.GetRank(factionEntry);
 	}
 
 	public void SetReputation(uint factionentry, int value)
 	{
-		ReputationMgr.SetReputation(CliDB.FactionStorage.LookupByKey(factionentry), value);
+		ReputationMgr.SetReputation(_cliDb.FactionStorage.LookupByKey(factionentry), value);
 	}
 
 	public int GetReputation(uint factionentry)
 	{
-		return ReputationMgr.GetReputation(CliDB.FactionStorage.LookupByKey(factionentry));
+		return ReputationMgr.GetReputation(_cliDb.FactionStorage.LookupByKey(factionentry));
 	}
 
 	public void ClearWhisperWhiteList()
@@ -5288,7 +5292,7 @@ public partial class Player : Unit
 		packet.CinematicID = CinematicSequenceId;
 		SendPacket(packet);
 
-		var sequence = CliDB.CinematicSequencesStorage.LookupByKey(CinematicSequenceId);
+		var sequence = _cliDb.CinematicSequencesStorage.LookupByKey(CinematicSequenceId);
 
 		if (sequence != null)
 			_cinematicMgr.BeginCinematic(sequence);
@@ -5348,7 +5352,7 @@ public partial class Player : Unit
 
 		var level = Level;
 
-		Global.ScriptMgr.ForEach<IPlayerOnGiveXP>(p => p.OnGiveXP(this, ref xp, victim));
+		_scriptManager.ForEach<IPlayerOnGiveXP>(p => p.OnGiveXP(this, ref xp, victim));
 
 		// XP to money conversion processed in Player.RewardQuest
 		if (IsMaxLevel)
@@ -5455,7 +5459,7 @@ public partial class Player : Unit
 			if (skipEnchantSlot == (int)slot)
 				continue;
 
-			var enchantmentEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(item.GetEnchantmentId(slot));
+			var enchantmentEntry = _cliDb.SpellItemEnchantmentStorage.LookupByKey(item.GetEnchantmentId(slot));
 
 			if (enchantmentEntry == null)
 				continue;
@@ -5603,7 +5607,7 @@ public partial class Player : Unit
 		var sourcenode = nodes[0];
 
 		// starting node too far away (cheat?)
-		var node = CliDB.TaxiNodesStorage.LookupByKey(sourcenode);
+		var node = _cliDb.TaxiNodesStorage.LookupByKey(sourcenode);
 
 		if (node == null)
 		{
@@ -5712,7 +5716,7 @@ public partial class Player : Unit
 
 		if (_worldConfig.GetBoolValue(WorldCfg.InstantTaxi))
 		{
-			var lastPathNode = CliDB.TaxiNodesStorage.LookupByKey(nodes[^1]);
+			var lastPathNode = _cliDb.TaxiNodesStorage.LookupByKey(nodes[^1]);
 			Taxi.ClearTaxiDestinations();
 			ModifyMoney(-totalcost);
 			UpdateCriteria(CriteriaType.MoneySpentOnTaxis, totalcost);
@@ -5733,7 +5737,7 @@ public partial class Player : Unit
 
 	public bool ActivateTaxiPathTo(uint taxi_path_id, uint spellid = 0)
 	{
-		var entry = CliDB.TaxiPathStorage.LookupByKey(taxi_path_id);
+		var entry = _cliDb.TaxiPathStorage.LookupByKey(taxi_path_id);
 
 		if (entry == null)
 			return false;
@@ -5781,7 +5785,7 @@ public partial class Player : Unit
 		// search appropriate start path node
 		uint startNode = 0;
 
-		var nodeList = CliDB.TaxiPathNodesByPath[path];
+		var nodeList = _cliDb.TaxiPathNodesByPath[path];
 
 		float distPrev;
 		var distNext = Location.GetExactDistSq(nodeList[0].Loc.X, nodeList[0].Loc.Y, nodeList[0].Loc.Z);
@@ -5958,7 +5962,7 @@ public partial class Player : Unit
 				continue;
 
 			// skip wrong class and race skill saved in SkillRaceClassInfo.dbc
-			if (Global.DB2Mgr.GetSkillRaceClassInfo(_spell_idx.SkillLine, Race, Class) == null)
+			if (_db2Manager.GetSkillRaceClassInfo(_spell_idx.SkillLine, Race, Class) == null)
 				continue;
 
 			return true;
@@ -6683,13 +6687,13 @@ public partial class Player : Unit
 	private void ApplyCustomConfigs()
 	{
 		// Adds the extra bag slots for having an authenticator.
-		if (ConfigMgr.GetDefaultValue("player.enableExtaBagSlots", false) && !HasPlayerLocalFlag(PlayerLocalFlags.AccountSecured))
+		if (_configuration.GetDefaultValue("player.enableExtaBagSlots", false) && !HasPlayerLocalFlag(PlayerLocalFlags.AccountSecured))
 			SetPlayerLocalFlag(PlayerLocalFlags.AccountSecured);
 
-		if (ConfigMgr.GetDefaultValue("player.addHearthstoneToCollection", false))
+		if (_configuration.GetDefaultValue("player.addHearthstoneToCollection", false))
 			Session.CollectionMgr.AddToy(193588, true, true);
 
-        if (ConfigMgr.TryGetIfNotDefaultValue("AutoJoinChatChannel", "", out var chatChannel))
+        if (_configuration.TryGetIfNotDefaultValue("AutoJoinChatChannel", "", out var chatChannel))
         {
             var channelMgr = ChannelManager.ForTeam(Team);
 
@@ -6751,7 +6755,7 @@ public partial class Player : Unit
 
 	uint GetCurrencyWeeklyCap(uint id)
 	{
-		var currency = CliDB.CurrencyTypesStorage.LookupByKey(id);
+		var currency = _cliDb.CurrencyTypesStorage.LookupByKey(id);
 
 		if (currency == null)
 			return 0;
@@ -6813,7 +6817,7 @@ public partial class Player : Unit
 				break;
 			}
 			case ActionButtonType.Mount:
-				var mount = CliDB.MountStorage.LookupByKey(action);
+				var mount = _cliDb.MountStorage.LookupByKey(action);
 
 				if (mount == null)
 				{
@@ -6869,7 +6873,7 @@ public partial class Player : Unit
 			if (quest.RewardFactionId[i] == 0)
 				continue;
 
-			var factionEntry = CliDB.FactionStorage.LookupByKey(quest.RewardFactionId[i]);
+			var factionEntry = _cliDb.FactionStorage.LookupByKey(quest.RewardFactionId[i]);
 
 			if (factionEntry == null)
 				continue;
@@ -6885,7 +6889,7 @@ public partial class Player : Unit
 			else
 			{
 				var row = (uint)((quest.RewardFactionValue[i] < 0) ? 1 : 0) + 1;
-				var questFactionRewEntry = CliDB.QuestFactionRewardStorage.LookupByKey(row);
+				var questFactionRewEntry = _cliDb.QuestFactionRewardStorage.LookupByKey(row);
 
 				if (questFactionRewEntry != null)
 				{
@@ -6931,7 +6935,7 @@ public partial class Player : Unit
 		if (Session.PlayerLoading && !IsBeingTeleportedFar)
 			return; // The client handles it automatically after loading, but not after teleporting
 
-		var current_zone = CliDB.AreaTableStorage.LookupByKey(newZone);
+		var current_zone = _cliDb.AreaTableStorage.LookupByKey(newZone);
 
 		if (current_zone == null)
 			return;
@@ -6941,7 +6945,7 @@ public partial class Player : Unit
 		if (cMgr == null)
 			return;
 
-		foreach (var channelEntry in CliDB.ChatChannelsStorage.Values)
+		foreach (var channelEntry in _cliDb.ChatChannelsStorage.Values)
 		{
 			if (!channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Initial))
 				continue;
@@ -7171,7 +7175,7 @@ public partial class Player : Unit
 		var curValue = GetPower(power);
 
 		// TODO: updating haste should update UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER for certain power types
-		var powerType = Global.DB2Mgr.GetPowerTypeEntry(power);
+		var powerType = _db2Manager.GetPowerTypeEntry(power);
 
 		if (powerType == null)
 			return;
@@ -7600,14 +7604,14 @@ public partial class Player : Unit
 		corpse.SetCustomizations(PlayerData.Customizations);
 		corpse.ReplaceAllFlags(flags);
 		corpse.SetDisplayId(NativeDisplayId);
-		corpse.SetFactionTemplate(CliDB.ChrRacesStorage.LookupByKey(Race).FactionID);
+		corpse.SetFactionTemplate(_cliDb.ChrRacesStorage.LookupByKey(Race).FactionID);
 
 		for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; i++)
 			if (_items[i] != null)
 			{
 				var itemDisplayId = _items[i].GetDisplayId(this);
 				uint itemInventoryType;
-				var itemEntry = CliDB.ItemStorage.LookupByKey(_items[i].GetVisibleEntry(this));
+				var itemEntry = _cliDb.ItemStorage.LookupByKey(_items[i].GetVisibleEntry(this));
 
 				if (itemEntry != null)
 					itemInventoryType = (uint)itemEntry.inventoryType;
@@ -8183,7 +8187,7 @@ public partial class Player : Unit
 
 		foreach (var (id, currency) in _currencyStorage)
 		{
-			var currencyRecord = CliDB.CurrencyTypesStorage.LookupByKey(id);
+			var currencyRecord = _cliDb.CurrencyTypesStorage.LookupByKey(id);
 
 			if (currencyRecord == null)
 				continue;
@@ -8196,7 +8200,7 @@ public partial class Player : Unit
 			// Check award condition
 			if (currencyRecord.AwardConditionID != 0)
 			{
-				var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(currencyRecord.AwardConditionID);
+				var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(currencyRecord.AwardConditionID);
 
 				if (playerCondition != null && !ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
 					continue;
@@ -8280,7 +8284,7 @@ public partial class Player : Unit
 		if (areaId == 0)
 			return;
 
-		var areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId);
+		var areaEntry = _cliDb.AreaTableStorage.LookupByKey(areaId);
 
 		if (areaEntry == null)
 		{
@@ -8321,7 +8325,7 @@ public partial class Player : Unit
 
 			UpdateCriteria(CriteriaType.RevealWorldMapOverlay, Area);
 
-			var areaLevels = Global.DB2Mgr.GetContentTuningData(areaEntry.ContentTuningID, PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+			var areaLevels = _db2Manager.GetContentTuningData(areaEntry.ContentTuningID, PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 			if (areaLevels.HasValue)
 			{
@@ -8418,7 +8422,7 @@ public partial class Player : Unit
 
 	public override void Say(string text, Language language, WorldObject obj = null)
 	{
-		Global.ScriptMgr.OnPlayerChat(this, ChatMsg.Say, language, text);
+		_scriptManager.OnPlayerChat(this, ChatMsg.Say, language, text);
 
 		SendChatMessageToSetInRange(ChatMsg.Say, language, text, _worldConfig.GetFloatValue(WorldCfg.ListenRangeSay));
 	}
@@ -8443,7 +8447,7 @@ public partial class Player : Unit
 
 	public override void Yell(string text, Language language, WorldObject obj = null)
 	{
-		Global.ScriptMgr.OnPlayerChat(this, ChatMsg.Yell, language, text);
+		_scriptManager.OnPlayerChat(this, ChatMsg.Yell, language, text);
 
 		ChatPkt data = new();
 		data.Initialize(ChatMsg.Yell, language, this, this, text);
@@ -8457,7 +8461,7 @@ public partial class Player : Unit
 
 	public override void TextEmote(string text, WorldObject obj = null, bool something = false)
 	{
-		Global.ScriptMgr.OnPlayerChat(this, ChatMsg.Emote, Language.Universal, text);
+		_scriptManager.OnPlayerChat(this, ChatMsg.Emote, Language.Universal, text);
 
 		ChatPkt data = new();
 		data.Initialize(ChatMsg.Emote, Language.Universal, this, this, text);
@@ -8471,7 +8475,7 @@ public partial class Player : Unit
 
 	public void WhisperAddon(string text, string prefix, bool isLogged, Player receiver)
 	{
-		Global.ScriptMgr.OnPlayerChat(this, ChatMsg.Whisper, isLogged ? Language.AddonLogged : Language.Addon, text, receiver);
+		_scriptManager.OnPlayerChat(this, ChatMsg.Whisper, isLogged ? Language.AddonLogged : Language.Addon, text, receiver);
 
 		if (!receiver.Session.IsAddonRegistered(prefix))
 			return;
@@ -8490,7 +8494,7 @@ public partial class Player : Unit
 
 		//Player rPlayer = _objectAccessor.FindPlayer(receiver);
 
-		Global.ScriptMgr.OnPlayerChat(this, ChatMsg.Whisper, language, text, target);
+		_scriptManager.OnPlayerChat(this, ChatMsg.Whisper, language, text, target);
 
 		ChatPkt data = new();
 		data.Initialize(ChatMsg.Whisper, language, this, this, text);
@@ -8521,7 +8525,7 @@ public partial class Player : Unit
 		if (!target)
 			return;
 
-		var bct = CliDB.BroadcastTextStorage.LookupByKey(textId);
+		var bct = _cliDb.BroadcastTextStorage.LookupByKey(textId);
 
 		if (bct == null)
 		{
@@ -8532,7 +8536,7 @@ public partial class Player : Unit
 
 		var locale = target.Session.SessionDbLocaleIndex;
 		ChatPkt packet = new();
-		packet.Initialize(ChatMsg.Whisper, Language.Universal, this, target, Global.DB2Mgr.GetBroadcastTextValue(bct, locale, Gender));
+		packet.Initialize(ChatMsg.Whisper, Language.Universal, this, target, _db2Manager.GetBroadcastTextValue(bct, locale, Gender));
 		target.SendPacket(packet);
 	}
 
@@ -8541,7 +8545,7 @@ public partial class Player : Unit
 		if (IsGameMaster)
 			return true;
 
-		foreach (var languageDesc in Global.LanguageMgr.GetLanguageDescById(language))
+		foreach (var languageDesc in _languageManager.GetLanguageDescById(language))
 			if (languageDesc.SkillId != 0 && HasSkill((SkillType)languageDesc.SkillId))
 				return true;
 

@@ -1,32 +1,52 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using Framework.Constants;
-using Framework.Database;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Forged.RealmServer.Mails;
-using Forged.RealmServer.Maps;
-using Forged.RealmServer.Scripting.Interfaces.IAchievement;
-using Forged.RealmServer.Entities.Items;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Players;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Achievements;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting;
+using Forged.RealmServer.Scripting.Interfaces.IAchievement;
+using Forged.RealmServer.World;
+using Framework.Constants;
+using Framework.Database;
+using Serilog;
+using System;
+using System.Collections.Generic;
 
 namespace Forged.RealmServer.Achievements;
 
 public class PlayerAchievementMgr : AchievementManager
 {
 	readonly Player _owner;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly GameTime _gameTime;
+    private readonly WorldConfig _worldConfig;
+    private readonly WorldManager _worldManager;
+    private readonly GuildManager _guildManager;
+    private readonly ScriptManager _scriptManager;
 
-	public PlayerAchievementMgr(Player owner)
-	{
-		_owner = owner;
-	}
+    public PlayerAchievementMgr(Player owner,
+                                    CliDB cliDB,
+                                    CriteriaManager criteriaManager,
+                                    AchievementGlobalMgr achievementGlobalMgr,
+                                    CharacterDatabase characterDatabase,
+                                    GameTime gameTime,
+                                    WorldConfig worldConfig,
+                                    WorldManager worldManager,
+                                    GuildManager guildManager,
+                                    ScriptManager scriptManager)
+	                            : base(cliDB, criteriaManager, achievementGlobalMgr)
+    {
+        _owner = owner;
+        _characterDatabase = characterDatabase;
+        _gameTime = gameTime;
+        _worldConfig = worldConfig;
+        _worldManager = worldManager;
+        _guildManager = guildManager;
+        _scriptManager = scriptManager;
+    }
 
 	public override void Reset()
 	{
@@ -47,7 +67,7 @@ public class PlayerAchievementMgr : AchievementManager
 		CheckAllAchievementCriteria(_owner);
 	}
 
-	public static void DeleteFromDB(ObjectGuid guid)
+	public void DeleteFromDB(ObjectGuid guid)
 	{
 		SQLTransaction trans = new();
 
@@ -70,7 +90,7 @@ public class PlayerAchievementMgr : AchievementManager
 				var achievementid = achievementResult.Read<uint>(0);
 
 				// must not happen: cleanup at server startup in sAchievementMgr.LoadCompletedAchievements()
-				var achievement = CliDB.AchievementStorage.LookupByKey(achievementid);
+				var achievement = _cliDb.AchievementStorage.LookupByKey(achievementid);
 
 				if (achievement == null)
 					continue;
@@ -82,7 +102,7 @@ public class PlayerAchievementMgr : AchievementManager
 				_achievementPoints += achievement.Points;
 
 				// title achievement rewards are retroactive
-				var reward = Global.AchievementMgr.GetAchievementReward(achievement);
+				var reward = _achievementGlobalMgr.GetAchievementReward(achievement);
 
 				if (reward != null)
 				{
@@ -90,7 +110,7 @@ public class PlayerAchievementMgr : AchievementManager
 
 					if (titleId != 0)
 					{
-						var titleEntry = CliDB.CharTitlesStorage.LookupByKey(titleId);
+						var titleEntry = _cliDb.CharTitlesStorage.LookupByKey(titleId);
 
 						if (titleEntry != null)
 							_owner.SetTitle(titleEntry);
@@ -110,7 +130,7 @@ public class PlayerAchievementMgr : AchievementManager
 				var counter = criteriaResult.Read<ulong>(1);
 				var date = criteriaResult.Read<long>(2);
 
-				var criteria = Global.CriteriaMgr.GetCriteria(id);
+				var criteria = _criteriaManager.GetCriteria(id);
 
 				if (criteria == null)
 				{
@@ -193,12 +213,12 @@ public class PlayerAchievementMgr : AchievementManager
 		if (_owner.IsGameMaster || _owner.Session.HasPermission(RBACPermissions.CannotEarnAchievements))
 			return;
 
-		var achievementCriteriaList = Global.CriteriaMgr.GetCriteriaByFailEvent(failEvent, (int)failAsset);
+		var achievementCriteriaList = _criteriaManager.GetCriteriaByFailEvent(failEvent, (int)failAsset);
 
 		if (!achievementCriteriaList.Empty())
 			foreach (var achievementCriteria in achievementCriteriaList)
 			{
-				var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(achievementCriteria.Id);
+				var trees = _criteriaManager.GetCriteriaTreesByCriteria(achievementCriteria.Id);
 				var allComplete = true;
 
 				foreach (var tree in trees)
@@ -244,7 +264,7 @@ public class PlayerAchievementMgr : AchievementManager
 
 		foreach (var pair in _criteriaProgress)
 		{
-			var criteria = Global.CriteriaMgr.GetCriteria(pair.Key);
+			var criteria = _criteriaManager.GetCriteria(pair.Key);
 
 			CriteriaProgressPkt progress = new();
 			progress.Id = pair.Key;
@@ -338,7 +358,7 @@ public class PlayerAchievementMgr : AchievementManager
 				guild.AddGuildNews(GuildNews.PlayerAchievement, referencePlayer.GUID, (uint)(achievement.Flags & AchievementFlags.ShowInGuildHeader), achievement.Id);
 		}
 
-		if (!_owner.Session.IsPlayerLoading)
+		if (_owner.Session.PlayerLoading.IsEmpty)
 			SendAchievementEarned(achievement);
 
 		Log.Logger.Debug("PlayerAchievementMgr.CompletedAchievement({0}). {1}", achievement.Id, GetOwnerInfo());
@@ -349,7 +369,7 @@ public class PlayerAchievementMgr : AchievementManager
 		_completedAchievements[achievement.Id] = ca;
 
 		if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
-			Global.AchievementMgr.SetRealmCompleted(achievement);
+			_achievementGlobalMgr.SetRealmCompleted(achievement);
 
 		if (!achievement.Flags.HasAnyFlag(AchievementFlags.TrackingFlag))
 			_achievementPoints += achievement.Points;
@@ -357,9 +377,9 @@ public class PlayerAchievementMgr : AchievementManager
 		UpdateCriteria(CriteriaType.EarnAchievement, achievement.Id, 0, 0, null, referencePlayer);
 		UpdateCriteria(CriteriaType.EarnAchievementPoints, achievement.Points, 0, 0, null, referencePlayer);
 
-		Global.ScriptMgr.RunScript<IAchievementOnCompleted>(p => p.OnCompleted(referencePlayer, achievement), Global.AchievementMgr.GetAchievementScriptId(achievement.Id));
+		_scriptManager.RunScript<IAchievementOnCompleted>(p => p.OnCompleted(referencePlayer, achievement), _achievementGlobalMgr.GetAchievementScriptId(achievement.Id));
 		// reward items and titles if any
-		var reward = Global.AchievementMgr.GetAchievementReward(achievement);
+		var reward = _achievementGlobalMgr.GetAchievementReward(achievement);
 
 		// no rewards
 		if (reward == null)
@@ -374,60 +394,19 @@ public class PlayerAchievementMgr : AchievementManager
 
 		if (titleId != 0)
 		{
-			var titleEntry = CliDB.CharTitlesStorage.LookupByKey(titleId);
+			var titleEntry = _cliDb.CharTitlesStorage.LookupByKey(titleId);
 
 			if (titleEntry != null)
 				_owner.SetTitle(titleEntry);
 		}
 
-		// mail
-		if (reward.SenderCreatureId != 0)
-		{
-			MailDraft draft = new(reward.MailTemplateId);
+        // mail
+        // Send to map server
+    }
 
-			if (reward.MailTemplateId == 0)
-			{
-				// subject and text
-				var subject = reward.Subject;
-				var text = reward.Body;
-
-				var localeConstant = _owner.Session.SessionDbLocaleIndex;
-
-				if (localeConstant != Locale.enUS)
-				{
-					var loc = Global.AchievementMgr.GetAchievementRewardLocale(achievement);
-
-					if (loc != null)
-					{
-						GameObjectManager.GetLocaleString(loc.Subject, localeConstant, ref subject);
-						GameObjectManager.GetLocaleString(loc.Body, localeConstant, ref text);
-					}
-				}
-
-				draft = new MailDraft(subject, text);
-			}
-
-			SQLTransaction trans = new();
-
-			var item = reward.ItemId != 0 ? Item.CreateItem(reward.ItemId, 1, ItemContext.None, _owner) : null;
-
-			if (item)
-			{
-				// save new item before send
-				item.SaveToDB(trans); // save for prevent lost at next mail load, if send fail then item will deleted
-
-				// item
-				draft.AddItem(item);
-			}
-
-			draft.SendMailTo(trans, _owner, new MailSender(MailMessageType.Creature, reward.SenderCreatureId));
-			_characterDatabase.CommitTransaction(trans);
-		}
-	}
-
-	public bool ModifierTreeSatisfied(uint modifierTreeId)
+    public bool ModifierTreeSatisfied(uint modifierTreeId)
 	{
-		var modifierTree = Global.CriteriaMgr.GetModifierTree(modifierTreeId);
+		var modifierTree = _criteriaManager.GetModifierTree(modifierTreeId);
 
 		if (modifierTree != null)
 			return ModifierTreeSatisfied(modifierTree, 0, 0, null, _owner);
@@ -487,7 +466,7 @@ public class PlayerAchievementMgr : AchievementManager
 
 	public override List<Criteria> GetCriteriaByType(CriteriaType type, uint asset)
 	{
-		return Global.CriteriaMgr.GetPlayerCriteriaByType(type, asset);
+		return _criteriaManager.GetPlayerCriteriaByType(type, asset);
 	}
 
 	public override string GetOwnerInfo()
@@ -508,13 +487,11 @@ public class PlayerAchievementMgr : AchievementManager
 			var guild = _guildManager.GetGuildById(_owner.GuildId);
 
 			if (guild)
-			{
-				BroadcastTextBuilder say_builder = new(_owner, ChatMsg.GuildAchievement, (uint)BroadcastTextIds.AchivementEarned, _owner.NativeGender, _owner, achievement.Id);
-				var say_do = new LocalizedDo(say_builder);
-				guild.BroadcastWorker(say_do, _owner);
-			}
+            {
+                // Send to map server
+            }
 
-			if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
+            if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
 			{
 				// broadcast realm first reached
 				BroadcastAchievement serverFirstAchievement = new();
@@ -523,17 +500,11 @@ public class PlayerAchievementMgr : AchievementManager
 				serverFirstAchievement.AchievementID = achievement.Id;
 				_worldManager.SendGlobalMessage(serverFirstAchievement);
 			}
-			// if player is in world he can tell his friends about new achievement
-			else if (_owner.IsInWorld)
-			{
-				BroadcastTextBuilder _builder = new(_owner, ChatMsg.Achievement, (uint)BroadcastTextIds.AchivementEarned, _owner.NativeGender, _owner, achievement.Id);
-				var _localizer = new LocalizedDo(_builder);
-				var _worker = new PlayerDistWorker(_owner, _worldConfig.GetFloatValue(WorldCfg.ListenRangeSay), _localizer, GridType.World);
-				Cell.VisitGrid(_owner, _worker, _worldConfig.GetFloatValue(WorldCfg.ListenRangeSay));
-			}
-		}
+            // if player is in world he can tell his friends about new achievement
+            // Send to map server
+        }
 
-		AchievementEarned achievementEarned = new();
+        AchievementEarned achievementEarned = new();
 		achievementEarned.Sender = _owner.GUID;
 		achievementEarned.Earner = _owner.GUID;
 		achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = _worldManager.VirtualRealmAddress;

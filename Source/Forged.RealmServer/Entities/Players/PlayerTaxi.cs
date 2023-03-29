@@ -22,16 +22,16 @@ public class PlayerTaxi
 	{
 		lock (TaxiLock)
 		{
-			Taximask = new byte[((CliDB.TaxiNodesStorage.GetNumRows() - 1) / 8) + 1];
+			Taximask = new byte[((_cliDb.TaxiNodesStorage.GetNumRows() - 1) / 8) + 1];
 
 			// class specific initial known nodes
 			if (chrClass == PlayerClass.Deathknight)
 			{
-				var factionMask = Player.TeamForRace(race) == TeamFaction.Horde ? CliDB.HordeTaxiNodesMask : CliDB.AllianceTaxiNodesMask;
+				var factionMask = Player.TeamForRace(race) == TeamFaction.Horde ? _cliDb.HordeTaxiNodesMask : _cliDb.AllianceTaxiNodesMask;
 				Taximask = new byte[factionMask.Length];
 
 				for (var i = 0; i < factionMask.Length; ++i)
-					Taximask[i] |= (byte)(CliDB.OldContinentsNodesMask[i] & factionMask[i]);
+					Taximask[i] |= (byte)(_cliDb.OldContinentsNodesMask[i] & factionMask[i]);
 			}
 
 			// race specific initial known nodes: capital and taxi hub masks
@@ -105,7 +105,7 @@ public class PlayerTaxi
 	{
 		lock (TaxiLock)
 		{
-			Taximask = new byte[((CliDB.TaxiNodesStorage.GetNumRows() - 1) / 8) + 1];
+			Taximask = new byte[((_cliDb.TaxiNodesStorage.GetNumRows() - 1) / 8) + 1];
 
 			var split = new StringArray(data, ' ');
 
@@ -114,19 +114,19 @@ public class PlayerTaxi
 			for (var i = 0; index < Taximask.Length && i != split.Length; ++i, ++index)
 				// load and set bits only for existing taxi nodes
 				if (uint.TryParse(split[i], out var id))
-					Taximask[index] = (byte)(CliDB.TaxiNodesMask[index] & id);
+					Taximask[index] = (byte)(_cliDb.TaxiNodesMask[index] & id);
 		}
 	}
 
 	public void AppendTaximaskTo(ShowTaxiNodes data, bool all)
 	{
-		data.CanLandNodes = new byte[CliDB.TaxiNodesMask.Length];
-		data.CanUseNodes = new byte[CliDB.TaxiNodesMask.Length];
+		data.CanLandNodes = new byte[_cliDb.TaxiNodesMask.Length];
+		data.CanUseNodes = new byte[_cliDb.TaxiNodesMask.Length];
 
 		if (all)
 		{
-			Buffer.BlockCopy(CliDB.TaxiNodesMask, 0, data.CanLandNodes, 0, data.CanLandNodes.Length); // all existed nodes
-			Buffer.BlockCopy(CliDB.TaxiNodesMask, 0, data.CanUseNodes, 0, data.CanUseNodes.Length);
+			Buffer.BlockCopy(_cliDb.TaxiNodesMask, 0, data.CanLandNodes, 0, data.CanLandNodes.Length); // all existed nodes
+			Buffer.BlockCopy(_cliDb.TaxiNodesMask, 0, data.CanUseNodes, 0, data.CanUseNodes.Length);
 		}
 		else
 		{
@@ -220,7 +220,7 @@ public class PlayerTaxi
 
 	public FactionTemplateRecord GetFlightMasterFactionTemplate()
 	{
-		return CliDB.FactionTemplateStorage.LookupByKey(_flightMasterFactionId);
+		return _cliDb.FactionTemplateStorage.LookupByKey(_flightMasterFactionId);
 	}
 
 	public void SetFlightMasterFactionTemplateId(uint factionTemplateId)

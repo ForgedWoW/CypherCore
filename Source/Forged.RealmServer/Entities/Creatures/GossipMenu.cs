@@ -98,13 +98,13 @@ public class GossipMenu
 	{
 		// Store texts for localization.
 		string strOptionText, strBoxText;
-		var optionBroadcastText = CliDB.BroadcastTextStorage.LookupByKey(menuItem.OptionBroadcastTextId);
-		var boxBroadcastText = CliDB.BroadcastTextStorage.LookupByKey(menuItem.BoxBroadcastTextId);
+		var optionBroadcastText = _cliDb.BroadcastTextStorage.LookupByKey(menuItem.OptionBroadcastTextId);
+		var boxBroadcastText = _cliDb.BroadcastTextStorage.LookupByKey(menuItem.BoxBroadcastTextId);
 
 		// OptionText
 		if (optionBroadcastText != null)
 		{
-			strOptionText = Global.DB2Mgr.GetBroadcastTextValue(optionBroadcastText, GetLocale());
+			strOptionText = _db2Manager.GetBroadcastTextValue(optionBroadcastText, GetLocale());
 		}
 		else
 		{
@@ -123,7 +123,7 @@ public class GossipMenu
 		// BoxText
 		if (boxBroadcastText != null)
 		{
-			strBoxText = Global.DB2Mgr.GetBroadcastTextValue(boxBroadcastText, GetLocale());
+			strBoxText = _db2Manager.GetBroadcastTextValue(boxBroadcastText, GetLocale());
 		}
 		else
 		{

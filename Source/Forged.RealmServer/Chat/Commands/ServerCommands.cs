@@ -100,7 +100,7 @@ class ServerCommands
 
 					break;
 				case "reset":
-					_worldManager.PlayerAmountLimit = ConfigMgr.GetDefaultValue<uint>("PlayerLimit", 100);
+					_worldManager.PlayerAmountLimit = _configuration.GetDefaultValue<uint>("PlayerLimit", 100);
 					_worldManager.LoadDBAllowedSecurityLevel();
 
 					break;

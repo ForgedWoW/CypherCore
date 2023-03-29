@@ -125,7 +125,7 @@ class LearnCommands
 
 			var target = player.GetConnectedPlayer();
 
-			foreach (var (_, skillInfo) in CliDB.SkillLineStorage)
+			foreach (var (_, skillInfo) in _cliDb.SkillLineStorage)
 				if ((skillInfo.CategoryID == SkillCategory.Profession || skillInfo.CategoryID == SkillCategory.Secondary) && skillInfo.CanLink != 0) // only prof. with recipes have
 					HandleLearnSkillRecipesHelper(target, skillInfo.Id);
 
@@ -156,7 +156,7 @@ class LearnCommands
 		[Command("languages", CypherStrings.CommandLearnAllLanguagesHelp, RBACPermissions.CommandLearnAllLang)]
 		static bool HandleLearnAllLangCommand(CommandHandler handler)
 		{
-			Global.LanguageMgr.ForEachLanguage((_, languageDesc) =>
+			_languageManager.ForEachLanguage((_, languageDesc) =>
 			{
 				if (languageDesc.SpellId != 0)
 					handler.Session.Player.LearnSpell(languageDesc.SpellId, false);
@@ -190,7 +190,7 @@ class LearnCommands
 			var name = "";
 			uint skillId = 0;
 
-			foreach (var (_, skillInfo) in CliDB.SkillLineStorage)
+			foreach (var (_, skillInfo) in _cliDb.SkillLineStorage)
 			{
 				if ((skillInfo.CategoryID != SkillCategory.Profession &&
 					skillInfo.CategoryID != SkillCategory.Secondary) ||
@@ -245,7 +245,7 @@ class LearnCommands
 			var player = handler.Session.Player;
 			var playerClass = (uint)player.Class;
 
-			foreach (var (_, talentInfo) in CliDB.TalentStorage)
+			foreach (var (_, talentInfo) in _cliDb.TalentStorage)
 			{
 				if (playerClass != talentInfo.ClassID)
 					continue;
@@ -280,7 +280,7 @@ class LearnCommands
 		{
 			var classmask = player.ClassMask;
 
-			var skillLineAbilities = Global.DB2Mgr.GetSkillLineAbilitiesBySkill(skillId);
+			var skillLineAbilities = _db2Manager.GetSkillLineAbilitiesBySkill(skillId);
 
 			if (skillLineAbilities == null)
 				return;
@@ -327,14 +327,14 @@ class LearnCommands
 		[Command("trainer", CypherStrings.CommandLearnMyTrainerHelp, RBACPermissions.CommandLearnAllMySpells)]
 		static bool HandleLearnMySpellsCommand(CommandHandler handler)
 		{
-			var classEntry = CliDB.ChrClassesStorage.LookupByKey(handler.Player.Class);
+			var classEntry = _cliDb.ChrClassesStorage.LookupByKey(handler.Player.Class);
 
 			if (classEntry == null)
 				return true;
 
 			uint family = classEntry.SpellClassSet;
 
-			foreach (var (_, entry) in CliDB.SkillLineAbilityStorage)
+			foreach (var (_, entry) in _cliDb.SkillLineAbilityStorage)
 			{
 				var spellInfo = Global.SpellMgr.GetSpellInfo(entry.Spell, Difficulty.None);
 

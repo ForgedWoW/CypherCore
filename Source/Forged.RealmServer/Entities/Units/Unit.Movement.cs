@@ -761,7 +761,7 @@ public partial class Unit
 		if (mountType == 0)
 			return null;
 
-		var capabilities = Global.DB2Mgr.GetMountCapabilities(mountType);
+		var capabilities = _db2Manager.GetMountCapabilities(mountType);
 
 		if (capabilities == null)
 			return null;
@@ -782,7 +782,7 @@ public partial class Unit
 		}
 		else
 		{
-			var areaTable = CliDB.AreaTableStorage.LookupByKey(areaId);
+			var areaTable = _cliDb.AreaTableStorage.LookupByKey(areaId);
 
 			if (areaTable != null)
 				mountFlags = (AreaMountFlags)areaTable.MountFlags;
@@ -794,7 +794,7 @@ public partial class Unit
 
 		foreach (var mountTypeXCapability in capabilities)
 		{
-			var mountCapability = CliDB.MountCapabilityStorage.LookupByKey(mountTypeXCapability.MountCapabilityID);
+			var mountCapability = _cliDb.MountCapabilityStorage.LookupByKey(mountTypeXCapability.MountCapabilityID);
 
 			if (mountCapability == null)
 				continue;
@@ -847,7 +847,7 @@ public partial class Unit
 				Map.Entry.ParentMapID != mountCapability.ReqMapID)
 				continue;
 
-			if (mountCapability.ReqAreaID != 0 && !Global.DB2Mgr.IsInArea(areaId, mountCapability.ReqAreaID))
+			if (mountCapability.ReqAreaID != 0 && !_db2Manager.IsInArea(areaId, mountCapability.ReqAreaID))
 				continue;
 
 			if (mountCapability.ReqSpellAuraID != 0 && !HasAura(mountCapability.ReqSpellAuraID))
@@ -860,7 +860,7 @@ public partial class Unit
 
 			if (thisPlayer != null)
 			{
-				var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(mountCapability.PlayerConditionID);
+				var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(mountCapability.PlayerConditionID);
 
 				if (playerCondition != null)
 					if (!ConditionManager.IsPlayerMeetingCondition(thisPlayer, playerCondition))
@@ -887,7 +887,7 @@ public partial class Unit
 			}
 			else
 			{
-				var capability = CliDB.MountCapabilityStorage.LookupByKey(aurEff.Amount);
+				var capability = _cliDb.MountCapabilityStorage.LookupByKey(aurEff.Amount);
 
 				if (capability != null) // aura may get removed by interrupt flag, reapply
 					if (!HasAura(capability.ModSpellAuraID))
@@ -918,7 +918,7 @@ public partial class Unit
 		LiquidTypeRecord curLiquid = null;
 
 		if (IsInWater && newLiquidData != null)
-			curLiquid = CliDB.LiquidTypeStorage.LookupByKey(newLiquidData.entry);
+			curLiquid = _cliDb.LiquidTypeStorage.LookupByKey(newLiquidData.entry);
 
 		if (curLiquid != LastLiquid)
 		{
@@ -1473,7 +1473,7 @@ public partial class Unit
 
 	public bool CreateVehicleKit(uint id, uint creatureEntry, bool loading = false)
 	{
-		var vehInfo = CliDB.VehicleStorage.LookupByKey(id);
+		var vehInfo = _cliDb.VehicleStorage.LookupByKey(id);
 
 		if (vehInfo == null)
 			return false;

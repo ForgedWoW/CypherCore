@@ -196,7 +196,7 @@ class GameObjectCommands
 		if (ai != null)
 			handler.SendSysMessage(CypherStrings.ObjectinfoAiType, nameof(ai));
 
-		var modelInfo = CliDB.GameObjectDisplayInfoStorage.LookupByKey(displayId);
+		var modelInfo = _cliDb.GameObjectDisplayInfoStorage.LookupByKey(displayId);
 
 		if (modelInfo != null)
 			handler.SendSysMessage(CypherStrings.GoinfoModel, modelInfo.GeoBoxMax.X, modelInfo.GeoBoxMax.Y, modelInfo.GeoBoxMax.Z, modelInfo.GeoBoxMin.X, modelInfo.GeoBoxMin.Y, modelInfo.GeoBoxMin.Z);
@@ -268,7 +268,7 @@ class GameObjectCommands
 
 		var player = handler.Player;
 
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_GAMEOBJECT_NEAREST);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_GAMEOBJECT_NEAREST);
 		stmt.AddValue(0, player.Location.X);
 		stmt.AddValue(1, player.Location.Y);
 		stmt.AddValue(2, player.Location.Z);
@@ -277,7 +277,7 @@ class GameObjectCommands
 		stmt.AddValue(5, player.Location.Y);
 		stmt.AddValue(6, player.Location.Z);
 		stmt.AddValue(7, distance * distance);
-		var result = DB.World.Query(stmt);
+		var result = _worldDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 			do
@@ -362,14 +362,14 @@ class GameObjectCommands
 		if (objectIdStr.IsEmpty())
 		{
 			if (uint.TryParse(objectIdStr, out var objectId))
-				result = DB.World.Query("SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE map = '{3}' AND id = '{4}' ORDER BY order_ ASC LIMIT 1",
+				result = _worldDatabase.Query("SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE map = '{3}' AND id = '{4}' ORDER BY order_ ASC LIMIT 1",
 										player.Location.X,
 										player.Location.Y,
 										player.Location.Z,
 										player.Location.MapId,
 										objectId);
 			else
-				result = DB.World.Query("SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - {0}, 2) + POW(position_y - {1}, 2) + POW(position_z - {2}, 2)) AS order_ " +
+				result = _worldDatabase.Query("SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - {0}, 2) + POW(position_y - {1}, 2) + POW(position_z - {2}, 2)) AS order_ " +
 										"FROM gameobject LEFT JOIN gameobject_template ON gameobject_template.entry = gameobject.id WHERE map = {3} AND name LIKE CONCAT('%%', '{4}', '%%') ORDER BY order_ ASC LIMIT 1",
 										player.Location.X,
 										player.Location.Y,
@@ -399,7 +399,7 @@ class GameObjectCommands
 			else
 				eventFilter.Append(')');
 
-			result = DB.World.Query("SELECT gameobject.guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, " +
+			result = _worldDatabase.Query("SELECT gameobject.guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, " +
 									"(POW(position_x - {0}, 2) + POW(position_y - {1}, 2) + POW(position_z - {2}, 2)) AS order_ FROM gameobject " +
 									"LEFT OUTER JOIN game_event_gameobject on gameobject.guid = game_event_gameobject.guid WHERE map = '{3}' {4} ORDER BY order_ ASC LIMIT 10",
 									handler.Session.Player.Location.X,
@@ -531,7 +531,7 @@ class GameObjectCommands
 				return false;
 			}
 
-			if (objectInfo.displayId != 0 && !CliDB.GameObjectDisplayInfoStorage.ContainsKey(objectInfo.displayId))
+			if (objectInfo.displayId != 0 && !_cliDb.GameObjectDisplayInfoStorage.ContainsKey(objectInfo.displayId))
 			{
 				// report to DB errors log as in loading case
 				Log.Logger.Error("Gameobject (Entry {0} GoType: {1}) have invalid displayId ({2}), not spawned.", objectId, objectInfo.type, objectInfo.displayId);

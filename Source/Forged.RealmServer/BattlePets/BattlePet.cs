@@ -41,7 +41,7 @@ public class BattlePet
 		}
 
 		// modify stats by quality
-		foreach (var battlePetBreedQuality in CliDB.BattlePetBreedQualityStorage.Values)
+		foreach (var battlePetBreedQuality in _cliDb.BattlePetBreedQualityStorage.Values)
 			if (battlePetBreedQuality.QualityEnum == PacketInfo.Quality)
 			{
 				health *= battlePetBreedQuality.StateMultiplier;

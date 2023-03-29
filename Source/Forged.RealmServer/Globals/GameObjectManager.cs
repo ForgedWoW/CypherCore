@@ -100,7 +100,7 @@ public sealed class GameObjectManager
         0.66f, // ITEM_SUBCLASS_WEAPON_FISHING_POLE
     };
 
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly WorldDatabase _worldDatabase;
     private readonly IConfiguration _configuration;
 
@@ -245,7 +245,7 @@ public sealed class GameObjectManager
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration)
     {
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _worldDatabase = worldDatabase;
         _configuration = configuration;
 
@@ -340,7 +340,7 @@ public sealed class GameObjectManager
             if (name[i] == name[i - 1] && name[i] == name[i - 2])
                 return ResponseCodes.CharNameThreeConsecutive;
 
-        return Global.DB2Mgr.ValidateName(name, locale);
+        return _db2Manager.ValidateName(name, locale);
     }
 
     public static PetNameInvalidReason CheckPetName(string name)
@@ -439,7 +439,7 @@ public sealed class GameObjectManager
                 var expansion = result.Read<byte>(1);
                 var achievementId = result.Read<uint>(2);
 
-                var raceEntry = _cliDB.ChrRacesStorage.LookupByKey(raceID);
+                var raceEntry = _cliDb.ChrRacesStorage.LookupByKey(raceID);
 
                 if (raceEntry == null)
                 {
@@ -455,7 +455,7 @@ public sealed class GameObjectManager
                     continue;
                 }
 
-                if (achievementId != 0 && !_cliDB.AchievementStorage.ContainsKey(achievementId))
+                if (achievementId != 0 && !_cliDb.AchievementStorage.ContainsKey(achievementId))
                 {
                     Log.Logger.Error($"Race {raceID} defined in `race_unlock_requirement` has incorrect achievement {achievementId}, skipped.");
 
@@ -500,7 +500,7 @@ public sealed class GameObjectManager
                 var activeExpansionLevel = result.Read<byte>(2);
                 var accountExpansionLevel = result.Read<byte>(3);
 
-                var classEntry = _cliDB.ChrClassesStorage.LookupByKey(classID);
+                var classEntry = _cliDb.ChrClassesStorage.LookupByKey(classID);
 
                 if (classEntry == null)
                 {
@@ -509,7 +509,7 @@ public sealed class GameObjectManager
                     continue;
                 }
 
-                var raceEntry = _cliDB.ChrRacesStorage.LookupByKey(raceID);
+                var raceEntry = _cliDb.ChrRacesStorage.LookupByKey(raceID);
 
                 if (raceEntry == null)
                 {
@@ -754,7 +754,7 @@ public sealed class GameObjectManager
 
         Dictionary<int, uint> optionToNpcOption = new();
 
-        foreach (var (_, npcOption) in _cliDB.GossipNPCOptionStorage)
+        foreach (var (_, npcOption) in _cliDb.GossipNPCOptionStorage)
             optionToNpcOption[npcOption.GossipOptionID] = npcOption.Id;
 
         do
@@ -794,7 +794,7 @@ public sealed class GameObjectManager
             }
 
             if (gMenuItem.OptionBroadcastTextId != 0)
-                if (!_cliDB.BroadcastTextStorage.ContainsKey(gMenuItem.OptionBroadcastTextId))
+                if (!_cliDb.BroadcastTextStorage.ContainsKey(gMenuItem.OptionBroadcastTextId))
                 {
                     if (_configuration.GetDefaultValue("load.autoclean", false))
                         _worldDatabase.Execute($"UPDATE gossip_menu_option SET OptionBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
@@ -804,7 +804,7 @@ public sealed class GameObjectManager
                     gMenuItem.OptionBroadcastTextId = 0;
                 }
 
-            if (gMenuItem.Language != 0 && !_cliDB.LanguagesStorage.ContainsKey(gMenuItem.Language))
+            if (gMenuItem.Language != 0 && !_cliDb.LanguagesStorage.ContainsKey(gMenuItem.Language))
             {
                 if (_configuration.GetDefaultValue("load.autoclean", false))
                     _worldDatabase.Execute($"UPDATE gossip_menu_option SET OptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
@@ -848,7 +848,7 @@ public sealed class GameObjectManager
 
             if (gMenuItem.GossipNpcOptionId.HasValue)
             {
-                if (!_cliDB.GossipNPCOptionStorage.ContainsKey(gMenuItem.GossipNpcOptionId.Value))
+                if (!_cliDb.GossipNPCOptionStorage.ContainsKey(gMenuItem.GossipNpcOptionId.Value))
                 {
                     if (_configuration.GetDefaultValue("load.autoclean", false))
                         _worldDatabase.Execute($"UPDATE gossip_menu_option SET GossipNpcOptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
@@ -867,7 +867,7 @@ public sealed class GameObjectManager
             }
 
             if (gMenuItem.BoxBroadcastTextId != 0)
-                if (!_cliDB.BroadcastTextStorage.ContainsKey(gMenuItem.BoxBroadcastTextId))
+                if (!_cliDb.BroadcastTextStorage.ContainsKey(gMenuItem.BoxBroadcastTextId))
                 {
                     if (_configuration.GetDefaultValue("load.autoclean", false))
                         _worldDatabase.Execute($"UPDATE gossip_menu_option SET BoxBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
@@ -919,11 +919,11 @@ public sealed class GameObjectManager
                 FriendshipFactionId = result.Read<int>(1)
             };
 
-            var faction = _cliDB.FactionStorage.LookupByKey(addon.FriendshipFactionId);
+            var faction = _cliDb.FactionStorage.LookupByKey(addon.FriendshipFactionId);
 
             if (faction != null)
             {
-                if (!_cliDB.FriendshipReputationStorage.ContainsKey(faction.FriendshipRepID))
+                if (!_cliDb.FriendshipReputationStorage.ContainsKey(faction.FriendshipRepID))
                 {
                     Log.Logger.Error($"Table gossip_menu_addon: ID {menuID} is using FriendshipFactionID {addon.FriendshipFactionId} referencing non-existing FriendshipRepID {faction.FriendshipRepID}");
                     addon.FriendshipFactionId = 0;
@@ -1043,7 +1043,7 @@ public sealed class GameObjectManager
                 continue;
             }
 
-            var areaEntry = _cliDB.AreaTableStorage.LookupByKey(zoneId);
+            var areaEntry = _cliDb.AreaTableStorage.LookupByKey(zoneId);
 
             if (areaEntry == null)
             {
@@ -1136,7 +1136,7 @@ public sealed class GameObjectManager
         //   if mapId != graveyard.mapId (ghost in instance) and search any graveyard associated
         //     then check faction
         var range = GraveYardStorage.LookupByKey(zoneId);
-        var mapEntry = _cliDB.MapStorage.LookupByKey(MapId);
+        var mapEntry = _cliDb.MapStorage.LookupByKey(MapId);
 
         ConditionSourceInfo conditionSource = new(conditionObject);
 
@@ -1180,7 +1180,7 @@ public sealed class GameObjectManager
 
             if (conditionObject)
             {
-                if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.Graveyard, data.SafeLocId, conditionSource))
+                if (!_conditionManager.IsObjectMeetingNotGroupedConditions(ConditionSourceType.Graveyard, data.SafeLocId, conditionSource))
                     continue;
 
                 if (entry.Loc.MapId == mapEntry.ParentMapID && !conditionObject.PhaseShift.HasVisibleMapId(entry.Loc.MapId))
@@ -1370,7 +1370,7 @@ public sealed class GameObjectManager
             var id = result.Read<uint>(0);
             var scriptName = result.Read<string>(1);
 
-            var atEntry = _cliDB.AreaTriggerStorage.LookupByKey(id);
+            var atEntry = _cliDb.AreaTriggerStorage.LookupByKey(id);
 
             if (atEntry == null)
             {
@@ -1385,7 +1385,7 @@ public sealed class GameObjectManager
 
         _areaTriggerScriptStorage.RemoveIfMatching((script) =>
         {
-            var areaTriggerScriptLoaders = Global.ScriptMgr.CreateAreaTriggerScriptLoaders(script.Key);
+            var areaTriggerScriptLoaders = _scriptManager.CreateAreaTriggerScriptLoaders(script.Key);
 
             foreach (var pair in areaTriggerScriptLoaders)
             {
@@ -1462,7 +1462,7 @@ public sealed class GameObjectManager
         }
 
         // Load all possible script entries from spells
-        foreach (var spellNameEntry in _cliDB.SpellNameStorage.Values)
+        foreach (var spellNameEntry in _cliDb.SpellNameStorage.Values)
         {
             var spell = Global.SpellMgr.GetSpellInfo(spellNameEntry.Id, Difficulty.None);
 
@@ -1473,7 +1473,7 @@ public sealed class GameObjectManager
                             evt_scripts.Add((uint)spellEffectInfo.MiscValue);
         }
 
-        foreach (var path_idx in _cliDB.TaxiPathNodesByPath)
+        foreach (var path_idx in _cliDb.TaxiPathNodesByPath)
             for (uint node_idx = 0; node_idx < path_idx.Value.Length; ++node_idx)
             {
                 var node = path_idx.Value[node_idx];
@@ -1621,7 +1621,7 @@ public sealed class GameObjectManager
         {
             var spellEntry = Global.SpellMgr.GetSpellInfo(script.Key, Difficulty.None);
 
-            var SpellScriptLoaders = Global.ScriptMgr.CreateSpellScriptLoaders(script.Key);
+            var SpellScriptLoaders = _scriptManager.CreateSpellScriptLoaders(script.Key);
 
             foreach (var pair in SpellScriptLoaders)
             {
@@ -1647,7 +1647,7 @@ public sealed class GameObjectManager
                     return true;
             }
 
-            var AuraScriptLoaders = Global.ScriptMgr.CreateAuraScriptLoaders(script.Key);
+            var AuraScriptLoaders = _scriptManager.CreateAuraScriptLoaders(script.Key);
 
             foreach (var pair in AuraScriptLoaders)
             {
@@ -1983,7 +1983,7 @@ public sealed class GameObjectManager
             }
 
             if (creatureAddon.Mount != 0)
-                if (_cliDB.CreatureDisplayInfoStorage.LookupByKey(creatureAddon.Mount) == null)
+                if (_cliDb.CreatureDisplayInfoStorage.LookupByKey(creatureAddon.Mount) == null)
                 {
                     Log.Logger.Debug($"Creature (Entry: {entry}) has invalid displayInfoId ({creatureAddon.Mount}) for mount defined in `creature_template_addon`");
                     creatureAddon.Mount = 0;
@@ -2009,25 +2009,25 @@ public sealed class GameObjectManager
 
             // PvPFlags don't need any checking for the time being since they cover the entire range of a byte
 
-            if (!_cliDB.EmotesStorage.ContainsKey(creatureAddon.Emote))
+            if (!_cliDb.EmotesStorage.ContainsKey(creatureAddon.Emote))
             {
                 Log.Logger.Debug($"Creature (Entry: {entry}) has invalid emote ({creatureAddon.Emote}) defined in `creatureaddon`.");
                 creatureAddon.Emote = 0;
             }
 
-            if (creatureAddon.AiAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(creatureAddon.AiAnimKit))
+            if (creatureAddon.AiAnimKit != 0 && !_cliDb.AnimKitStorage.ContainsKey(creatureAddon.AiAnimKit))
             {
                 Log.Logger.Debug($"Creature (Entry: {entry}) has invalid aiAnimKit ({creatureAddon.AiAnimKit}) defined in `creature_template_addon`.");
                 creatureAddon.AiAnimKit = 0;
             }
 
-            if (creatureAddon.MovementAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(creatureAddon.MovementAnimKit))
+            if (creatureAddon.MovementAnimKit != 0 && !_cliDb.AnimKitStorage.ContainsKey(creatureAddon.MovementAnimKit))
             {
                 Log.Logger.Debug($"Creature (Entry: {entry}) has invalid movementAnimKit ({creatureAddon.MovementAnimKit}) defined in `creature_template_addon`.");
                 creatureAddon.MovementAnimKit = 0;
             }
 
-            if (creatureAddon.MeleeAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(creatureAddon.MeleeAnimKit))
+            if (creatureAddon.MeleeAnimKit != 0 && !_cliDb.AnimKitStorage.ContainsKey(creatureAddon.MeleeAnimKit))
             {
                 Log.Logger.Debug($"Creature (Entry: {entry}) has invalid meleeAnimKit ({creatureAddon.MeleeAnimKit}) defined in `creature_template_addon`.");
                 creatureAddon.MeleeAnimKit = 0;
@@ -2138,7 +2138,7 @@ public sealed class GameObjectManager
             }
 
             if (creatureAddon.Mount != 0)
-                if (!_cliDB.CreatureDisplayInfoStorage.ContainsKey(creatureAddon.Mount))
+                if (!_cliDb.CreatureDisplayInfoStorage.ContainsKey(creatureAddon.Mount))
                 {
                     Log.Logger.Error($"Creature (GUID: {guid}) has invalid displayInfoId ({creatureAddon.Mount}) for mount defined in `creatureaddon`");
                     creatureAddon.Mount = 0;
@@ -2164,26 +2164,26 @@ public sealed class GameObjectManager
 
             // PvPFlags don't need any checking for the time being since they cover the entire range of a byte
 
-            if (!_cliDB.EmotesStorage.ContainsKey(creatureAddon.Emote))
+            if (!_cliDb.EmotesStorage.ContainsKey(creatureAddon.Emote))
             {
                 Log.Logger.Error($"Creature (GUID: {guid}) has invalid emote ({creatureAddon.Emote}) defined in `creatureaddon`.");
                 creatureAddon.Emote = 0;
             }
 
 
-            if (creatureAddon.AiAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(creatureAddon.AiAnimKit))
+            if (creatureAddon.AiAnimKit != 0 && !_cliDb.AnimKitStorage.ContainsKey(creatureAddon.AiAnimKit))
             {
                 Log.Logger.Error($"Creature (Guid: {guid}) has invalid aiAnimKit ({creatureAddon.AiAnimKit}) defined in `creature_addon`.");
                 creatureAddon.AiAnimKit = 0;
             }
 
-            if (creatureAddon.MovementAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(creatureAddon.MovementAnimKit))
+            if (creatureAddon.MovementAnimKit != 0 && !_cliDb.AnimKitStorage.ContainsKey(creatureAddon.MovementAnimKit))
             {
                 Log.Logger.Error($"Creature (Guid: {guid}) has invalid movementAnimKit ({creatureAddon.MovementAnimKit}) defined in `creature_addon`.");
                 creatureAddon.MovementAnimKit = 0;
             }
 
-            if (creatureAddon.MeleeAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(creatureAddon.MeleeAnimKit))
+            if (creatureAddon.MeleeAnimKit != 0 && !_cliDb.AnimKitStorage.ContainsKey(creatureAddon.MeleeAnimKit))
             {
                 Log.Logger.Error($"Creature (Guid: {guid}) has invalid meleeAnimKit ({creatureAddon.MeleeAnimKit}) defined in `creature_addon`.");
                 creatureAddon.MeleeAnimKit = 0;
@@ -2234,7 +2234,7 @@ public sealed class GameObjectManager
                 continue;
             }
 
-            if (!_cliDB.ItemStorage.ContainsKey(item))
+            if (!_cliDb.ItemStorage.ContainsKey(item))
             {
                 Log.Logger.Error("Table `creature_questitem` has nonexistent item (ID: {0}) in creature (entry: {1}, idx: {2}), skipped", item, entry, idx);
 
@@ -2295,7 +2295,7 @@ public sealed class GameObjectManager
                 if (equipmentInfo.Items[i].ItemId == 0)
                     continue;
 
-                var dbcItem = _cliDB.ItemStorage.LookupByKey(equipmentInfo.Items[i].ItemId);
+                var dbcItem = _cliDb.ItemStorage.LookupByKey(equipmentInfo.Items[i].ItemId);
 
                 if (dbcItem == null)
                 {
@@ -2309,7 +2309,7 @@ public sealed class GameObjectManager
                     continue;
                 }
 
-                if (Global.DB2Mgr.GetItemModifiedAppearance(equipmentInfo.Items[i].ItemId, equipmentInfo.Items[i].AppearanceModId) == null)
+                if (_db2Manager.GetItemModifiedAppearance(equipmentInfo.Items[i].ItemId, equipmentInfo.Items[i].AppearanceModId) == null)
                 {
                     Log.Logger.Error("Unknown item appearance for (ID: {0}, AppearanceModID: {1}) pair in creature_equip_template.ItemID{2} creature_equip_template.AppearanceModID{3} " +
                                      "for CreatureID: {4} and ID: {5}, forced to default.",
@@ -2320,7 +2320,7 @@ public sealed class GameObjectManager
                                      entry,
                                      id);
 
-                    var defaultAppearance = Global.DB2Mgr.GetDefaultItemModifiedAppearance(equipmentInfo.Items[i].ItemId);
+                    var defaultAppearance = _db2Manager.GetDefaultItemModifiedAppearance(equipmentInfo.Items[i].ItemId);
 
                     if (defaultAppearance != null)
                         equipmentInfo.Items[i].AppearanceModId = (ushort)defaultAppearance.ItemAppearanceModifierID;
@@ -2488,7 +2488,7 @@ public sealed class GameObjectManager
         {
             var displayId = result.Read<uint>(0);
 
-            var creatureDisplay = _cliDB.CreatureDisplayInfoStorage.LookupByKey(displayId);
+            var creatureDisplay = _cliDb.CreatureDisplayInfoStorage.LookupByKey(displayId);
 
             if (creatureDisplay == null)
             {
@@ -2509,7 +2509,7 @@ public sealed class GameObjectManager
             if (modelInfo.Gender == (sbyte)Gender.Unknown)
                 modelInfo.Gender = (sbyte)Gender.Male;
 
-            if (modelInfo.DisplayIdOtherGender != 0 && !_cliDB.CreatureDisplayInfoStorage.ContainsKey(modelInfo.DisplayIdOtherGender))
+            if (modelInfo.DisplayIdOtherGender != 0 && !_cliDb.CreatureDisplayInfoStorage.ContainsKey(modelInfo.DisplayIdOtherGender))
             {
                 Log.Logger.Debug("Table `creature_model_info` has a non-existent DisplayID_Other_Gender (ID: {0}) being used by DisplayID (ID: {1}).", modelInfo.DisplayIdOtherGender, displayId);
                 modelInfo.DisplayIdOtherGender = 0;
@@ -2518,7 +2518,7 @@ public sealed class GameObjectManager
             if (modelInfo.CombatReach < 0.1f)
                 modelInfo.CombatReach = SharedConst.DefaultPlayerCombatReach;
 
-            var modelData = _cliDB.CreatureModelDataStorage.LookupByKey(creatureDisplay.ModelID);
+            var modelData = _cliDb.CreatureModelDataStorage.LookupByKey(creatureDisplay.ModelID);
 
             if (modelData != null)
                 for (uint i = 0; i < 5; ++i)
@@ -2831,7 +2831,7 @@ public sealed class GameObjectManager
             cInfo.MaxGold = cInfo.MinGold;
         }
 
-        if (!_cliDB.FactionTemplateStorage.ContainsKey(cInfo.Faction))
+        if (!_cliDb.FactionTemplateStorage.ContainsKey(cInfo.Faction))
         {
             Log.Logger.Verbose("Creature (Entry: {0}) has non-existing faction template ({1}). This can lead to crashes, set to faction 35", cInfo.Entry, cInfo.Faction);
             cInfo.Faction = 35;
@@ -2878,13 +2878,13 @@ public sealed class GameObjectManager
             cInfo.SpeedRun = 1.14286f;
         }
 
-        if (cInfo.CreatureType != 0 && !_cliDB.CreatureTypeStorage.ContainsKey((uint)cInfo.CreatureType))
+        if (cInfo.CreatureType != 0 && !_cliDb.CreatureTypeStorage.ContainsKey((uint)cInfo.CreatureType))
         {
             Log.Logger.Verbose("Creature (Entry: {0}) has invalid creature type ({1}) in `type`.", cInfo.Entry, cInfo.CreatureType);
             cInfo.CreatureType = CreatureType.Humanoid;
         }
 
-        if (cInfo.Family != 0 && !_cliDB.CreatureFamilyStorage.ContainsKey(cInfo.Family))
+        if (cInfo.Family != 0 && !_cliDb.CreatureFamilyStorage.ContainsKey(cInfo.Family))
         {
             Log.Logger.Verbose("Creature (Entry: {0}) has invalid creature family ({1}) in `family`.", cInfo.Entry, cInfo.Family);
             cInfo.Family = CreatureFamily.None;
@@ -2899,7 +2899,7 @@ public sealed class GameObjectManager
         }
 
         if (cInfo.VehicleId != 0)
-            if (!_cliDB.VehicleStorage.ContainsKey(cInfo.VehicleId))
+            if (!_cliDb.VehicleStorage.ContainsKey(cInfo.VehicleId))
             {
                 Log.Logger.Verbose("Creature (Entry: {0}) has a non-existing VehicleId ({1}). This *WILL* cause the client to freeze!", cInfo.Entry, cInfo.VehicleId);
                 cInfo.VehicleId = 0;
@@ -3047,7 +3047,7 @@ public sealed class GameObjectManager
                         break;
                     }
 
-                    var map = _cliDB.MapStorage.LookupByKey(master.MapId);
+                    var map = _cliDb.MapStorage.LookupByKey(master.MapId);
 
                     if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
                     {
@@ -3109,7 +3109,7 @@ public sealed class GameObjectManager
                         break;
                     }
 
-                    var map = _cliDB.MapStorage.LookupByKey(master.MapId);
+                    var map = _cliDb.MapStorage.LookupByKey(master.MapId);
 
                     if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
                     {
@@ -3167,7 +3167,7 @@ public sealed class GameObjectManager
                         break;
                     }
 
-                    var map = _cliDB.MapStorage.LookupByKey(master.MapId);
+                    var map = _cliDb.MapStorage.LookupByKey(master.MapId);
 
                     if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
                     {
@@ -3229,7 +3229,7 @@ public sealed class GameObjectManager
                         break;
                     }
 
-                    var map = _cliDB.MapStorage.LookupByKey(master.MapId);
+                    var map = _cliDb.MapStorage.LookupByKey(master.MapId);
 
                     if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
                     {
@@ -3307,7 +3307,7 @@ public sealed class GameObjectManager
 
             for (var i = 0; i < SharedConst.MaxNpcTextOptions; i++)
                 if (npcText.Data[i].BroadcastTextID != 0)
-                    if (!_cliDB.BroadcastTextStorage.ContainsKey(npcText.Data[i].BroadcastTextID))
+                    if (!_cliDb.BroadcastTextStorage.ContainsKey(npcText.Data[i].BroadcastTextID))
                     {
                         Log.Logger.Debug("NPCText (Id: {0}) has a non-existing BroadcastText (ID: {1}, Index: {2})", textID, npcText.Data[i].BroadcastTextID, i);
                         npcText.Data[i].Probability = 0.0f;
@@ -3369,7 +3369,7 @@ public sealed class GameObjectManager
                     continue;
                 }
 
-                if (spell.ReqSkillLine != 0 && !_cliDB.SkillLineStorage.ContainsKey(spell.ReqSkillLine))
+                if (spell.ReqSkillLine != 0 && !_cliDb.SkillLineStorage.ContainsKey(spell.ReqSkillLine))
                 {
                     Log.Logger.Error($"Table `trainer_spell` references non-existing skill (ReqSkillLine: {spell.ReqSkillLine}) for TrainerId {trainerId} and SpellId {spell.SpellId}, ignoring");
 
@@ -3585,7 +3585,7 @@ public sealed class GameObjectManager
         // Build single time for check spawnmask
         Dictionary<uint, List<Difficulty>> spawnMasks = new();
 
-        foreach (var mapDifficultyPair in Global.DB2Mgr.GetMapDifficulties())
+        foreach (var mapDifficultyPair in _db2Manager.GetMapDifficulties())
         {
             foreach (var difficultyPair in mapDifficultyPair.Value)
             {
@@ -3654,7 +3654,7 @@ public sealed class GameObjectManager
             data.StringId = result.Read<string>(28);
             data.SpawnGroupData = _spawnGroupDataStorage[IsTransportMap(data.MapId) ? 1 : 0u]; // transport spawns default to compatibility group
 
-            var mapEntry = _cliDB.MapStorage.LookupByKey(data.MapId);
+            var mapEntry = _cliDb.MapStorage.LookupByKey(data.MapId);
 
             if (mapEntry == null)
             {
@@ -3742,14 +3742,14 @@ public sealed class GameObjectManager
             }
 
             if (data.PhaseId != 0)
-                if (!_cliDB.PhaseStorage.ContainsKey(data.PhaseId))
+                if (!_cliDb.PhaseStorage.ContainsKey(data.PhaseId))
                 {
                     Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `phaseid` {2} does not exist, set to 0", guid, data.Id, data.PhaseId);
                     data.PhaseId = 0;
                 }
 
             if (data.PhaseGroup != 0)
-                if (Global.DB2Mgr.GetPhasesForGroup(data.PhaseGroup).Empty())
+                if (_db2Manager.GetPhasesForGroup(data.PhaseGroup).Empty())
                 {
                     Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `phasegroup` {2} does not exist, set to 0", guid, data.Id, data.PhaseGroup);
                     data.PhaseGroup = 0;
@@ -3757,7 +3757,7 @@ public sealed class GameObjectManager
 
             if (data.terrainSwapMap != -1)
             {
-                var terrainSwapEntry = _cliDB.MapStorage.LookupByKey(data.terrainSwapMap);
+                var terrainSwapEntry = _cliDb.MapStorage.LookupByKey(data.terrainSwapMap);
 
                 if (terrainSwapEntry == null)
                 {
@@ -3934,7 +3934,7 @@ public sealed class GameObjectManager
             return false;
         }
 
-        var map = _cliDB.MapStorage.LookupByKey(master.MapId);
+        var map = _cliDb.MapStorage.LookupByKey(master.MapId);
 
         if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
         {
@@ -4050,7 +4050,7 @@ public sealed class GameObjectManager
     {
         var time = Time.MSTime;
 
-        foreach (var db2go in _cliDB.GameObjectsStorage.Values)
+        foreach (var db2go in _cliDb.GameObjectsStorage.Values)
         {
             GameObjectTemplate go = new()
             {
@@ -4158,7 +4158,7 @@ public sealed class GameObjectManager
                         break;
                     case GameObjectTypes.SpellFocus: //8
                         if (got.SpellFocus.spellFocusType != 0)
-                            if (!_cliDB.SpellFocusObjectStorage.ContainsKey(got.SpellFocus.spellFocusType))
+                            if (!_cliDb.SpellFocusObjectStorage.ContainsKey(got.SpellFocus.spellFocusType))
                                 Log.Logger.Error("GameObject (Entry: {0} GoType: {1}) have data0={2} but SpellFocus (Id: {3}) not exist.",
                                                  entry,
                                                  got.type,
@@ -4198,7 +4198,7 @@ public sealed class GameObjectManager
                     case GameObjectTypes.MapObjTransport: //15
                     {
                         if (got.MoTransport.taxiPathID != 0)
-                            if (got.MoTransport.taxiPathID >= _cliDB.TaxiPathNodesByPath.Count || _cliDB.TaxiPathNodesByPath[got.MoTransport.taxiPathID].Empty())
+                            if (got.MoTransport.taxiPathID >= _cliDb.TaxiPathNodesByPath.Count || _cliDb.TaxiPathNodesByPath[got.MoTransport.taxiPathID].Empty())
                                 Log.Logger.Error("GameObject (Entry: {0} GoType: {1}) have data0={2} but TaxiPath (Id: {3}) not exist.",
                                                  entry,
                                                  got.type,
@@ -4239,7 +4239,7 @@ public sealed class GameObjectManager
                     case GameObjectTypes.BarberChair: //32
                         CheckAndFixGOChairHeightId(got, ref got.BarberChair.chairheight, 0);
 
-                        if (got.BarberChair.SitAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(got.BarberChair.SitAnimKit))
+                        if (got.BarberChair.SitAnimKit != 0 && !_cliDb.AnimKitStorage.ContainsKey(got.BarberChair.SitAnimKit))
                         {
                             Log.Logger.Error("GameObject (Entry: {0} GoType: {1}) have data2 = {2} but AnimKit.dbc (Id: {3}) not exist, set to 0.",
                                              entry,
@@ -4326,7 +4326,7 @@ public sealed class GameObjectManager
                 if (artKitID == 0)
                     continue;
 
-                if (!_cliDB.GameObjectArtKitStorage.ContainsKey(artKitID))
+                if (!_cliDb.GameObjectArtKitStorage.ContainsKey(artKitID))
                 {
                     Log.Logger.Error($"GameObject (Entry: {entry}) has invalid `artkit{i}` ({artKitID}) defined, set to zero instead.");
 
@@ -4337,7 +4337,7 @@ public sealed class GameObjectManager
             }
 
             // checks
-            if (gameObjectAddon.Faction != 0 && !_cliDB.FactionTemplateStorage.ContainsKey(gameObjectAddon.Faction))
+            if (gameObjectAddon.Faction != 0 && !_cliDb.FactionTemplateStorage.ContainsKey(gameObjectAddon.Faction))
                 Log.Logger.Error($"GameObject (Entry: {entry}) has invalid faction ({gameObjectAddon.Faction}) defined in `gameobject_template_addon`.");
 
             if (gameObjectAddon.Maxgold > 0)
@@ -4352,13 +4352,13 @@ public sealed class GameObjectManager
                         break;
                 }
 
-            if (gameObjectAddon.WorldEffectId != 0 && !_cliDB.WorldEffectStorage.ContainsKey(gameObjectAddon.WorldEffectId))
+            if (gameObjectAddon.WorldEffectId != 0 && !_cliDbEffectStorage.ContainsKey(gameObjectAddon.WorldEffectId))
             {
                 Log.Logger.Error($"GameObject (Entry: {entry}) has invalid WorldEffectID ({gameObjectAddon.WorldEffectId}) defined in `gameobject_template_addon`, set to 0.");
                 gameObjectAddon.WorldEffectId = 0;
             }
 
-            if (gameObjectAddon.AiAnimKitId != 0 && !_cliDB.AnimKitStorage.ContainsKey(gameObjectAddon.AiAnimKitId))
+            if (gameObjectAddon.AiAnimKitId != 0 && !_cliDb.AnimKitStorage.ContainsKey(gameObjectAddon.AiAnimKitId))
             {
                 Log.Logger.Error($"GameObject (Entry: {entry}) has invalid AIAnimKitID ({gameObjectAddon.AiAnimKitId}) defined in `gameobject_template_addon`, set to 0.");
                 gameObjectAddon.AiAnimKitId = 0;
@@ -4410,7 +4410,7 @@ public sealed class GameObjectManager
 
             _gameObjectOverrideStorage[spawnId] = gameObjectOverride;
 
-            if (gameObjectOverride.Faction != 0 && !_cliDB.FactionTemplateStorage.ContainsKey(gameObjectOverride.Faction))
+            if (gameObjectOverride.Faction != 0 && !_cliDb.FactionTemplateStorage.ContainsKey(gameObjectOverride.Faction))
                 Log.Logger.Error($"GameObject (SpawnId: {spawnId}) has invalid faction ({gameObjectOverride.Faction}) defined in `gameobject_overrides`.");
 
             ++count;
@@ -4444,7 +4444,7 @@ public sealed class GameObjectManager
         // build single time for check spawnmask
         Dictionary<uint, List<Difficulty>> spawnMasks = new();
 
-        foreach (var mapDifficultyPair in Global.DB2Mgr.GetMapDifficulties())
+        foreach (var mapDifficultyPair in _db2Manager.GetMapDifficulties())
         {
             foreach (var difficultyPair in mapDifficultyPair.Value)
             {
@@ -4483,7 +4483,7 @@ public sealed class GameObjectManager
                         break;
                 }
 
-            if (gInfo.displayId != 0 && !_cliDB.GameObjectDisplayInfoStorage.ContainsKey(gInfo.displayId))
+            if (gInfo.displayId != 0 && !_cliDb.GameObjectDisplayInfoStorage.ContainsKey(gInfo.displayId))
             {
                 Log.Logger.Error("Gameobject (GUID: {0} Entry {1} GoType: {2}) has an invalid displayId ({3}), not loaded.", guid, entry, gInfo.type, gInfo.displayId);
 
@@ -4505,7 +4505,7 @@ public sealed class GameObjectManager
             data.spawntimesecs = result.Read<int>(11);
             data.SpawnGroupData = IsTransportMap(data.MapId) ? GetLegacySpawnGroup() : GetDefaultSpawnGroup(); // transport spawns default to compatibility group
 
-            var mapEntry = _cliDB.MapStorage.LookupByKey(data.MapId);
+            var mapEntry = _cliDb.MapStorage.LookupByKey(data.MapId);
 
             if (mapEntry == null)
             {
@@ -4570,14 +4570,14 @@ public sealed class GameObjectManager
             }
 
             if (data.PhaseId != 0)
-                if (!_cliDB.PhaseStorage.ContainsKey(data.PhaseId))
+                if (!_cliDb.PhaseStorage.ContainsKey(data.PhaseId))
                 {
                     Log.Logger.Error("Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `phaseid` {2} does not exist, set to 0", guid, data.Id, data.PhaseId);
                     data.PhaseId = 0;
                 }
 
             if (data.PhaseGroup != 0)
-                if (Global.DB2Mgr.GetPhasesForGroup(data.PhaseGroup).Empty())
+                if (_db2Manager.GetPhasesForGroup(data.PhaseGroup).Empty())
                 {
                     Log.Logger.Error("Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `phaseGroup` {2} does not exist, set to 0", guid, data.Id, data.PhaseGroup);
                     data.PhaseGroup = 0;
@@ -4587,7 +4587,7 @@ public sealed class GameObjectManager
 
             if (data.terrainSwapMap != -1)
             {
-                var terrainSwapEntry = _cliDB.MapStorage.LookupByKey(data.terrainSwapMap);
+                var terrainSwapEntry = _cliDb.MapStorage.LookupByKey(data.terrainSwapMap);
 
                 if (terrainSwapEntry == null)
                 {
@@ -4729,13 +4729,13 @@ public sealed class GameObjectManager
                 gameObjectAddon.ParentRotation = Quaternion.Identity;
             }
 
-            if (gameObjectAddon.WorldEffectID != 0 && !_cliDB.WorldEffectStorage.ContainsKey(gameObjectAddon.WorldEffectID))
+            if (gameObjectAddon.WorldEffectID != 0 && !_cliDbEffectStorage.ContainsKey(gameObjectAddon.WorldEffectID))
             {
                 Log.Logger.Error($"GameObject (GUID: {guid}) has invalid WorldEffectID ({gameObjectAddon.WorldEffectID}) in `gameobject_addon`, set to 0.");
                 gameObjectAddon.WorldEffectID = 0;
             }
 
-            if (gameObjectAddon.AIAnimKitID != 0 && !_cliDB.AnimKitStorage.ContainsKey(gameObjectAddon.AIAnimKitID))
+            if (gameObjectAddon.AIAnimKitID != 0 && !_cliDb.AnimKitStorage.ContainsKey(gameObjectAddon.AIAnimKitID))
             {
                 Log.Logger.Error($"GameObject (GUID: {guid}) has invalid AIAnimKitID ({gameObjectAddon.AIAnimKitID}) in `gameobject_addon`, set to 0.");
                 gameObjectAddon.AIAnimKitID = 0;
@@ -4777,7 +4777,7 @@ public sealed class GameObjectManager
                 continue;
             }
 
-            if (!_cliDB.ItemStorage.ContainsKey(item))
+            if (!_cliDb.ItemStorage.ContainsKey(item))
             {
                 Log.Logger.Error("Table `gameobject_questitem` has nonexistent item (ID: {0}) in gameobject (entry: {1}, idx: {2}), skipped", item, entry, idx);
 
@@ -4939,9 +4939,9 @@ public sealed class GameObjectManager
         var oldMSTime = Time.MSTime;
         uint sparseCount = 0;
 
-        foreach (var sparse in _cliDB.ItemSparseStorage.Values)
+        foreach (var sparse in _cliDb.ItemSparseStorage.Values)
         {
-            var db2Data = _cliDB.ItemStorage.LookupByKey(sparse.Id);
+            var db2Data = _cliDb.ItemStorage.LookupByKey(sparse.Id);
 
             if (db2Data == null)
                 continue;
@@ -4951,13 +4951,13 @@ public sealed class GameObjectManager
                 MaxDurability = FillMaxDurability(db2Data.ClassID, db2Data.SubclassID, sparse.inventoryType, (ItemQuality)sparse.OverallQualityID, sparse.ItemLevel)
             };
 
-            var itemSpecOverrides = Global.DB2Mgr.GetItemSpecOverrides(sparse.Id);
+            var itemSpecOverrides = _db2Manager.GetItemSpecOverrides(sparse.Id);
 
             if (itemSpecOverrides != null)
             {
                 foreach (var itemSpecOverride in itemSpecOverrides)
                 {
-                    var specialization = _cliDB.ChrSpecializationStorage.LookupByKey(itemSpecOverride.SpecID);
+                    var specialization = _cliDb.ChrSpecializationStorage.LookupByKey(itemSpecOverride.SpecID);
 
                     if (specialization != null)
                     {
@@ -4973,7 +4973,7 @@ public sealed class GameObjectManager
             {
                 ItemSpecStats itemSpecStats = new(db2Data, sparse);
 
-                foreach (var itemSpec in _cliDB.ItemSpecStorage.Values)
+                foreach (var itemSpec in _cliDb.ItemSpecStorage.Values)
                 {
                     if (itemSpecStats.ItemType != itemSpec.ItemType)
                         continue;
@@ -4993,7 +4993,7 @@ public sealed class GameObjectManager
                     if (!hasPrimary || !hasSecondary)
                         continue;
 
-                    var specialization = _cliDB.ChrSpecializationStorage.LookupByKey(itemSpec.SpecializationID);
+                    var specialization = _cliDb.ChrSpecializationStorage.LookupByKey(itemSpec.SpecializationID);
 
                     if (specialization != null)
                         if (Convert.ToBoolean((1 << (specialization.ClassID - 1)) & sparse.AllowableClass))
@@ -5021,13 +5021,13 @@ public sealed class GameObjectManager
         }
 
         // Load item effects (spells)
-        foreach (var effectEntry in _cliDB.ItemXItemEffectStorage.Values)
+        foreach (var effectEntry in _cliDb.ItemXItemEffectStorage.Values)
         {
             var item = _itemTemplateStorage.LookupByKey(effectEntry.ItemID);
 
             if (item != null)
             {
-                var effect = _cliDB.ItemEffectStorage.LookupByKey(effectEntry.ItemEffectID);
+                var effect = _cliDb.ItemEffectStorage.LookupByKey(effectEntry.ItemEffectID);
 
                 if (effect != null)
                     item.Effects.Add(effect);
@@ -5200,7 +5200,7 @@ public sealed class GameObjectManager
         }
 
         if ((vItem.Type == ItemVendorType.Item && GetItemTemplate(vItem.Item) == null) ||
-            (vItem.Type == ItemVendorType.Currency && _cliDB.CurrencyTypesStorage.LookupByKey(vItem.Item) == null))
+            (vItem.Type == ItemVendorType.Currency && _cliDb.CurrencyTypesStorage.LookupByKey(vItem.Item) == null))
         {
             if (player != null)
                 player.SendSysMessage(CypherStrings.ItemNotFound, vItem.Item, vItem.Type);
@@ -5210,14 +5210,14 @@ public sealed class GameObjectManager
             return false;
         }
 
-        if (vItem.PlayerConditionId != 0 && !_cliDB.PlayerConditionStorage.ContainsKey(vItem.PlayerConditionId))
+        if (vItem.PlayerConditionId != 0 && !_cliDb.PlayerConditionStorage.ContainsKey(vItem.PlayerConditionId))
         {
             Log.Logger.Error("Table `(game_event_)npc_vendor` has Item (Entry: {0}) with invalid PlayerConditionId ({1}) for vendor ({2}), ignore", vItem.Item, vItem.PlayerConditionId, vendorentry);
 
             return false;
         }
 
-        if (vItem.ExtendedCost != 0 && !_cliDB.ItemExtendedCostStorage.ContainsKey(vItem.ExtendedCost))
+        if (vItem.ExtendedCost != 0 && !_cliDb.ItemExtendedCostStorage.ContainsKey(vItem.ExtendedCost))
         {
             if (player != null)
                 player.SendSysMessage(CypherStrings.ExtendedCostNotExist, vItem.ExtendedCost);
@@ -5249,7 +5249,7 @@ public sealed class GameObjectManager
             }
 
             foreach (var bonusList in vItem.BonusListIDs)
-                if (Global.DB2Mgr.GetItemBonusList(bonusList) == null)
+                if (_db2Manager.GetItemBonusList(bonusList) == null)
                 {
                     Log.Logger.Error("Table `(game_event_)npc_vendor` have Item (Entry: {0}) with invalid bonus {1} for vendor ({2}), ignore", vItem.Item, bonusList, vendorentry);
 
@@ -5441,7 +5441,7 @@ public sealed class GameObjectManager
                 PortLocId = portLoc.Id
             };
 
-            var atEntry = _cliDB.AreaTriggerStorage.LookupByKey(Trigger_ID);
+            var atEntry = _cliDb.AreaTriggerStorage.LookupByKey(Trigger_ID);
 
             if (atEntry == null)
             {
@@ -5478,7 +5478,7 @@ public sealed class GameObjectManager
         {
             var mapid = result.Read<uint>(0);
 
-            if (!_cliDB.MapStorage.ContainsKey(mapid))
+            if (!_cliDb.MapStorage.ContainsKey(mapid))
             {
                 Log.Logger.Error("Map {0} referenced in `access_requirement` does not exist, skipped.", mapid);
 
@@ -5487,7 +5487,7 @@ public sealed class GameObjectManager
 
             var difficulty = result.Read<uint>(1);
 
-            if (Global.DB2Mgr.GetMapDifficultyData(mapid, (Difficulty)difficulty) == null)
+            if (_db2Manager.GetMapDifficultyData(mapid, (Difficulty)difficulty) == null)
             {
                 Log.Logger.Error("Map {0} referenced in `access_requirement` does not have difficulty {1}, skipped", mapid, difficulty);
 
@@ -5545,7 +5545,7 @@ public sealed class GameObjectManager
                 }
 
             if (ar.Achievement != 0)
-                if (!_cliDB.AchievementStorage.ContainsKey(ar.Achievement))
+                if (!_cliDb.AchievementStorage.ContainsKey(ar.Achievement))
                 {
                     Log.Logger.Error("Required Achievement {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.Achievement, mapid, difficulty);
                     ar.Achievement = 0;
@@ -5581,7 +5581,7 @@ public sealed class GameObjectManager
             var creditType = (EncounterCreditType)result.Read<byte>(1);
             var creditEntry = result.Read<uint>(2);
             var lastEncounterDungeon = result.Read<uint>(3);
-            var dungeonEncounter = _cliDB.DungeonEncounterStorage.LookupByKey(entry);
+            var dungeonEncounter = _cliDb.DungeonEncounterStorage.LookupByKey(entry);
 
             if (dungeonEncounter == null)
             {
@@ -5674,8 +5674,8 @@ public sealed class GameObjectManager
 
             if (dungeonEncounter.DifficultyID == 0)
             {
-                foreach (var difficulty in _cliDB.DifficultyStorage.Values)
-                    if (Global.DB2Mgr.GetMapDifficultyData((uint)dungeonEncounter.MapID, (Difficulty)difficulty.Id) != null)
+                foreach (var difficulty in _cliDb.DifficultyStorage.Values)
+                    if (_db2Manager.GetMapDifficultyData((uint)dungeonEncounter.MapID, (Difficulty)difficulty.Id) != null)
                         _dungeonEncounterStorage.Add(MathFunctions.MakePair64((uint)dungeonEncounter.MapID, difficulty.Id), new DungeonEncounter(dungeonEncounter, creditType, creditEntry, lastEncounterDungeon));
             }
             else
@@ -6138,14 +6138,14 @@ public sealed class GameObjectManager
                 var positionZ = result.Read<float>(5);
                 var orientation = result.Read<float>(6);
 
-                if (!_cliDB.ChrRacesStorage.ContainsKey(currentrace))
+                if (!_cliDb.ChrRacesStorage.ContainsKey(currentrace))
                 {
                     Log.Logger.Error($"Wrong race {currentrace} in `playercreateinfo` table, ignoring.");
 
                     continue;
                 }
 
-                if (!_cliDB.ChrClassesStorage.ContainsKey(currentclass))
+                if (!_cliDb.ChrClassesStorage.ContainsKey(currentclass))
                 {
                     Log.Logger.Error($"Wrong class {currentclass} in `playercreateinfo` table, ignoring.");
 
@@ -6160,21 +6160,21 @@ public sealed class GameObjectManager
                     continue;
                 }
 
-                if (_cliDB.MapStorage.LookupByKey(mapId).Instanceable())
+                if (_cliDb.MapStorage.LookupByKey(mapId).Instanceable())
                 {
                     Log.Logger.Error($"Home position in instanceable map for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
 
                     continue;
                 }
 
-                if (Global.DB2Mgr.GetChrModel((Race)currentrace, Gender.Male) == null)
+                if (_db2Manager.GetChrModel((Race)currentrace, Gender.Male) == null)
                 {
                     Log.Logger.Error($"Missing male model for race {currentrace}, ignoring.");
 
                     continue;
                 }
 
-                if (Global.DB2Mgr.GetChrModel((Race)currentrace, Gender.Female) == null)
+                if (_db2Manager.GetChrModel((Race)currentrace, Gender.Female) == null)
                 {
                     Log.Logger.Error($"Missing female model for race {currentrace}, ignoring.");
 
@@ -6196,7 +6196,7 @@ public sealed class GameObjectManager
 
                     info.CreatePositionNpe = createPosition;
 
-                    if (!_cliDB.MapStorage.ContainsKey(info.CreatePositionNpe.Value.Loc.MapId))
+                    if (!_cliDb.MapStorage.ContainsKey(info.CreatePositionNpe.Value.Loc.MapId))
                     {
                         Log.Logger.Error($"Invalid NPE map id {info.CreatePositionNpe.Value.Loc.MapId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
                         info.CreatePositionNpe = null;
@@ -6213,7 +6213,7 @@ public sealed class GameObjectManager
                 {
                     var introMovieId = result.Read<uint>(13);
 
-                    if (_cliDB.MovieStorage.ContainsKey(introMovieId))
+                    if (_cliDb.MovieStorage.ContainsKey(introMovieId))
                         info.IntroMovieId = introMovieId;
                     else
                         Log.Logger.Debug($"Invalid intro movie id {introMovieId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
@@ -6254,7 +6254,7 @@ public sealed class GameObjectManager
         {
             MultiMap<uint, ItemTemplate> itemsByCharacterLoadout = new();
 
-            foreach (var characterLoadoutItem in _cliDB.CharacterLoadoutItemStorage.Values)
+            foreach (var characterLoadoutItem in _cliDb.CharacterLoadoutItemStorage.Values)
             {
                 var itemTemplate = GetItemTemplate(characterLoadoutItem.ItemID);
 
@@ -6262,7 +6262,7 @@ public sealed class GameObjectManager
                     itemsByCharacterLoadout.Add(characterLoadoutItem.CharacterLoadoutID, itemTemplate);
             }
 
-            foreach (var characterLoadout in _cliDB.CharacterLoadoutStorage.Values)
+            foreach (var characterLoadout in _cliDb.CharacterLoadoutStorage.Values)
             {
                 if (!characterLoadout.IsForNewCharacter())
                     continue;
@@ -6394,7 +6394,7 @@ public sealed class GameObjectManager
         {
             var oldMSTime = Time.MSTime;
 
-            foreach (var rcInfo in _cliDB.SkillRaceClassInfoStorage.Values)
+            foreach (var rcInfo in _cliDb.SkillRaceClassInfoStorage.Values)
                 if (rcInfo.Availability == 1)
                     for (var raceIndex = Race.Human; raceIndex < Race.Max; ++raceIndex)
                         if (rcInfo.RaceMask == -1 || Convert.ToBoolean(SharedConst.GetMaskForRace(raceIndex) & rcInfo.RaceMask))
@@ -6650,13 +6650,13 @@ public sealed class GameObjectManager
             for (Race race = 0; race < Race.Max; ++race)
             {
                 // skip non existed races
-                if (!_cliDB.ChrRacesStorage.ContainsKey(race))
+                if (!_cliDb.ChrRacesStorage.ContainsKey(race))
                     continue;
 
                 for (PlayerClass _class = 0; _class < PlayerClass.Max; ++_class)
                 {
                     // skip non existed classes
-                    if (_cliDB.ChrClassesStorage.LookupByKey(_class) == null)
+                    if (_cliDb.ChrClassesStorage.LookupByKey(_class) == null)
                         continue;
 
                     if (!_playerInfo.TryGetValue(race, _class, out var playerInfo))
@@ -6709,14 +6709,14 @@ public sealed class GameObjectManager
         Log.Logger.Information("Loading Player Create XP Data...");
 
         {
-            _playerXPperLevel = new uint[_cliDB.XpGameTable.GetTableRowCount() + 1];
+            _playerXPperLevel = new uint[_cliDb.XpGameTable.GetTableRowCount() + 1];
 
             //                                          0      1
             var result = _worldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
 
             // load the DBC's levels at first...
-            for (uint level = 1; level < _cliDB.XpGameTable.GetTableRowCount(); ++level)
-                _playerXPperLevel[level] = (uint)_cliDB.XpGameTable.GetRow(level).Total;
+            for (uint level = 1; level < _cliDb.XpGameTable.GetTableRowCount(); ++level)
+                _playerXPperLevel[level] = (uint)_cliDb.XpGameTable.GetRow(level).Total;
 
             uint count = 0;
 
@@ -6785,7 +6785,7 @@ public sealed class GameObjectManager
         if (level > _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
             level = (byte)_configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
-        var mp = _cliDB.BaseMPGameTable.GetRow(level);
+        var mp = _cliDb.BaseMPGameTable.GetRow(level);
 
         if (mp == null)
         {
@@ -6794,7 +6794,7 @@ public sealed class GameObjectManager
             return;
         }
 
-        baseMana = (uint)_cliDB.GetGameTableColumnForClass(mp, _class);
+        baseMana = (uint)_cliDb.GetGameTableColumnForClass(mp, _class);
     }
 
     public PlayerLevelInfo GetPlayerLevelInfo(Race race, PlayerClass _class, uint level)
@@ -6978,7 +6978,7 @@ public sealed class GameObjectManager
             if (cinfo == null)
                 return "";
 
-            var petname = Global.DB2Mgr.GetCreatureFamilyPetName(cinfo.Family, _worldManager.DefaultDbcLocale);
+            var petname = _db2Manager.GetCreatureFamilyPetName(cinfo.Family, _worldManager.DefaultDbcLocale);
 
             if (!string.IsNullOrEmpty(petname))
                 return petname;
@@ -7021,9 +7021,9 @@ public sealed class GameObjectManager
             var alliance = result.Read<uint>(0);
             var horde = result.Read<uint>(1);
 
-            if (!_cliDB.AchievementStorage.ContainsKey(alliance))
+            if (!_cliDb.AchievementStorage.ContainsKey(alliance))
                 Log.Logger.Error("Achievement {0} (alliance_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", alliance);
-            else if (!_cliDB.AchievementStorage.ContainsKey(horde))
+            else if (!_cliDb.AchievementStorage.ContainsKey(horde))
                 Log.Logger.Error("Achievement {0} (horde_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", horde);
             else
                 FactionChangeAchievements[alliance] = horde;
@@ -7110,9 +7110,9 @@ public sealed class GameObjectManager
             var alliance = result.Read<uint>(0);
             var horde = result.Read<uint>(1);
 
-            if (!_cliDB.FactionStorage.ContainsKey(alliance))
+            if (!_cliDb.FactionStorage.ContainsKey(alliance))
                 Log.Logger.Error("Reputation {0} (alliance_id) referenced in `player_factionchange_reputations` does not exist, pair skipped!", alliance);
-            else if (!_cliDB.FactionStorage.ContainsKey(horde))
+            else if (!_cliDb.FactionStorage.ContainsKey(horde))
                 Log.Logger.Error("Reputation {0} (horde_id) referenced in `player_factionchange_reputations` does not exist, pair skipped!", horde);
             else
                 FactionChangeReputation[alliance] = horde;
@@ -7176,9 +7176,9 @@ public sealed class GameObjectManager
             var alliance = result.Read<uint>(0);
             var horde = result.Read<uint>(1);
 
-            if (!_cliDB.CharTitlesStorage.ContainsKey(alliance))
+            if (!_cliDb.CharTitlesStorage.ContainsKey(alliance))
                 Log.Logger.Error("Title {0} (alliance_id) referenced in `player_factionchange_title` does not exist, pair skipped!", alliance);
-            else if (!_cliDB.CharTitlesStorage.ContainsKey(horde))
+            else if (!_cliDb.CharTitlesStorage.ContainsKey(horde))
                 Log.Logger.Error("Title {0} (horde_id) referenced in `player_factionchange_title` does not exist, pair skipped!", horde);
             else
                 FactionChangeTitles[alliance] = horde;
@@ -7514,12 +7514,12 @@ public sealed class GameObjectManager
                     // no changes, quest ignore this data
                 }
 
-            if (qinfo.ContentTuningId != 0 && !_cliDB.ContentTuningStorage.ContainsKey(qinfo.ContentTuningId))
+            if (qinfo.ContentTuningId != 0 && !_cliDb.ContentTuningStorage.ContainsKey(qinfo.ContentTuningId))
                 Log.Logger.Error($"Quest {qinfo.Id} has `ContentTuningID` = {qinfo.ContentTuningId} but content tuning with this id does not exist.");
 
             // client quest log visual (area case)
             if (qinfo.QuestSortID > 0)
-                if (!_cliDB.AreaTableStorage.ContainsKey(qinfo.QuestSortID))
+                if (!_cliDb.AreaTableStorage.ContainsKey(qinfo.QuestSortID))
                     Log.Logger.Error("Quest {0} has `ZoneOrSort` = {1} (zone case) but zone with this id does not exist.",
                                      qinfo.Id,
                                      qinfo.QuestSortID);
@@ -7528,7 +7528,7 @@ public sealed class GameObjectManager
             // client quest log visual (sort case)
             if (qinfo.QuestSortID < 0)
             {
-                var qSort = _cliDB.QuestSortStorage.LookupByKey((uint)-qinfo.QuestSortID);
+                var qSort = _cliDb.QuestSortStorage.LookupByKey((uint)-qinfo.QuestSortID);
 
                 if (qSort == null)
                     Log.Logger.Error("Quest {0} has `ZoneOrSort` = {1} (sort case) but quest sort with this id does not exist.",
@@ -7566,7 +7566,7 @@ public sealed class GameObjectManager
 
             // RequiredSkillId, can be 0
             if (qinfo.RequiredSkillId != 0)
-                if (!_cliDB.SkillLineStorage.ContainsKey(qinfo.RequiredSkillId))
+                if (!_cliDb.SkillLineStorage.ContainsKey(qinfo.RequiredSkillId))
                     Log.Logger.Error("Quest {0} has `RequiredSkillId` = {1} but this skill does not exist",
                                      qinfo.Id,
                                      qinfo.RequiredSkillId);
@@ -7580,14 +7580,14 @@ public sealed class GameObjectManager
             // no changes, quest can't be done for this requirement
             // else Skill quests can have 0 skill level, this is ok
 
-            if (qinfo.RequiredMinRepFaction != 0 && !_cliDB.FactionStorage.ContainsKey(qinfo.RequiredMinRepFaction))
+            if (qinfo.RequiredMinRepFaction != 0 && !_cliDb.FactionStorage.ContainsKey(qinfo.RequiredMinRepFaction))
                 Log.Logger.Error("Quest {0} has `RequiredMinRepFaction` = {1} but faction template {2} does not exist, quest can't be done.",
                                  qinfo.Id,
                                  qinfo.RequiredMinRepFaction,
                                  qinfo.RequiredMinRepFaction);
 
             // no changes, quest can't be done for this requirement
-            if (qinfo.RequiredMaxRepFaction != 0 && !_cliDB.FactionStorage.ContainsKey(qinfo.RequiredMaxRepFaction))
+            if (qinfo.RequiredMaxRepFaction != 0 && !_cliDb.FactionStorage.ContainsKey(qinfo.RequiredMaxRepFaction))
                 Log.Logger.Error("Quest {0} has `RequiredMaxRepFaction` = {1} but faction template {2} does not exist, quest can't be done.",
                                  qinfo.Id,
                                  qinfo.RequiredMaxRepFaction,
@@ -7620,7 +7620,7 @@ public sealed class GameObjectManager
                                  qinfo.RequiredMaxRepValue);
 
             // warning
-            if (qinfo.RewardTitleId != 0 && !_cliDB.CharTitlesStorage.ContainsKey(qinfo.RewardTitleId))
+            if (qinfo.RewardTitleId != 0 && !_cliDb.CharTitlesStorage.ContainsKey(qinfo.RewardTitleId))
             {
                 Log.Logger.Error("Quest {0} has `RewardTitleId` = {1} but CharTitle Id {1} does not exist, quest can't be rewarded with title.",
                                  qinfo.Id,
@@ -7745,7 +7745,7 @@ public sealed class GameObjectManager
                     case QuestObjectiveType.MinReputation:
                     case QuestObjectiveType.MaxReputation:
                     case QuestObjectiveType.IncreaseReputation:
-                        if (!_cliDB.FactionStorage.ContainsKey((uint)obj.ObjectID))
+                        if (!_cliDb.FactionStorage.ContainsKey((uint)obj.ObjectID))
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
@@ -7763,7 +7763,7 @@ public sealed class GameObjectManager
                     case QuestObjectiveType.Currency:
                     case QuestObjectiveType.HaveCurrency:
                     case QuestObjectiveType.ObtainCurrency:
-                        if (!_cliDB.CurrencyTypesStorage.ContainsKey((uint)obj.ObjectID))
+                        if (!_cliDb.CurrencyTypesStorage.ContainsKey((uint)obj.ObjectID))
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
@@ -7793,7 +7793,7 @@ public sealed class GameObjectManager
 
                         break;
                     case QuestObjectiveType.DefeatBattlePet:
-                        if (!_cliDB.BattlePetSpeciesStorage.ContainsKey((uint)obj.ObjectID))
+                        if (!_cliDb.BattlePetSpeciesStorage.ContainsKey((uint)obj.ObjectID))
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
@@ -7801,7 +7801,7 @@ public sealed class GameObjectManager
 
                         break;
                     case QuestObjectiveType.CriteriaTree:
-                        if (!_cliDB.CriteriaTreeStorage.ContainsKey((uint)obj.ObjectID))
+                        if (!_cliDb.CriteriaTreeStorage.ContainsKey((uint)obj.ObjectID))
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
@@ -7809,7 +7809,7 @@ public sealed class GameObjectManager
 
                         break;
                     case QuestObjectiveType.AreaTrigger:
-                        if (!_cliDB.AreaTriggerStorage.ContainsKey((uint)obj.ObjectID) && obj.ObjectID != -1)
+                        if (!_cliDb.AreaTriggerStorage.ContainsKey((uint)obj.ObjectID) && obj.ObjectID != -1)
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
@@ -7883,7 +7883,7 @@ public sealed class GameObjectManager
 
                             break;
                         case LootItemType.Currency:
-                            if (!_cliDB.CurrencyTypesStorage.HasRecord(id))
+                            if (!_cliDb.CurrencyTypesStorage.HasRecord(id))
                             {
                                 Log.Logger.Error($"Quest {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but currency with id {id} does not exist, quest will not reward this currency.");
                                 qinfo.RewardChoiceItemId[j] = 0; // no changes, quest will not reward this
@@ -7949,7 +7949,7 @@ public sealed class GameObjectManager
                     if (Math.Abs(qinfo.RewardFactionValue[j]) > 9)
                         Log.Logger.Error("Quest {0} has RewardFactionValueId{1} = {2}. That is outside the range of valid values (-9 to 9).", qinfo.Id, j + 1, qinfo.RewardFactionValue[j]);
 
-                    if (!_cliDB.FactionStorage.ContainsKey(qinfo.RewardFactionId[j]))
+                    if (!_cliDb.FactionStorage.ContainsKey(qinfo.RewardFactionId[j]))
                     {
                         Log.Logger.Error("Quest {0} has `RewardFactionId{1}` = {2} but raw faction (faction.dbc) {3} does not exist, quest will not reward reputation for this faction.",
                                          qinfo.Id,
@@ -7998,7 +7998,7 @@ public sealed class GameObjectManager
 
             if (qinfo.RewardMailTemplateId != 0)
             {
-                if (!_cliDB.MailTemplateStorage.ContainsKey(qinfo.RewardMailTemplateId))
+                if (!_cliDb.MailTemplateStorage.ContainsKey(qinfo.RewardMailTemplateId))
                 {
                     Log.Logger.Error("Quest {0} has `RewardMailTemplateId` = {1} but mail template {2} does not exist, quest will not have a mail reward.",
                                      qinfo.Id,
@@ -8051,7 +8051,7 @@ public sealed class GameObjectManager
                                          j + 1);
 
                     // no changes, quest can't be done for this requirement
-                    if (!_cliDB.CurrencyTypesStorage.ContainsKey(qinfo.RewardCurrencyId[j]))
+                    if (!_cliDb.CurrencyTypesStorage.ContainsKey(qinfo.RewardCurrencyId[j]))
                     {
                         Log.Logger.Error("Quest {0} has `RewardCurrencyId{1}` = {2} but currency with entry {3} does not exist, quest can't be done.",
                                          qinfo.Id,
@@ -8074,7 +8074,7 @@ public sealed class GameObjectManager
                 }
 
             if (qinfo.SoundAccept != 0)
-                if (!_cliDB.SoundKitStorage.ContainsKey(qinfo.SoundAccept))
+                if (!_cliDb.SoundKitStorage.ContainsKey(qinfo.SoundAccept))
                 {
                     Log.Logger.Error("Quest {0} has `SoundAccept` = {1} but sound {2} does not exist, set to 0.",
                                      qinfo.Id,
@@ -8085,7 +8085,7 @@ public sealed class GameObjectManager
                 }
 
             if (qinfo.SoundTurnIn != 0)
-                if (!_cliDB.SoundKitStorage.ContainsKey(qinfo.SoundTurnIn))
+                if (!_cliDb.SoundKitStorage.ContainsKey(qinfo.SoundTurnIn))
                 {
                     Log.Logger.Error("Quest {0} has `SoundTurnIn` = {1} but sound {2} does not exist, set to 0.",
                                      qinfo.Id,
@@ -8097,7 +8097,7 @@ public sealed class GameObjectManager
 
             if (qinfo.RewardSkillId > 0)
             {
-                if (!_cliDB.SkillLineStorage.ContainsKey(qinfo.RewardSkillId))
+                if (!_cliDb.SkillLineStorage.ContainsKey(qinfo.RewardSkillId))
                     Log.Logger.Error("Quest {0} has `RewardSkillId` = {1} but this skill does not exist",
                                      qinfo.Id,
                                      qinfo.RewardSkillId);
@@ -8201,7 +8201,7 @@ public sealed class GameObjectManager
         }
 
         // check QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT for spell with SPELL_EFFECT_QUEST_COMPLETE
-        foreach (var spellNameEntry in _cliDB.SpellNameStorage.Values)
+        foreach (var spellNameEntry in _cliDb.SpellNameStorage.Values)
         {
             var spellInfo = Global.SpellMgr.GetSpellInfo(spellNameEntry.Id, Difficulty.None);
 
@@ -8234,7 +8234,7 @@ public sealed class GameObjectManager
         }
 
         // Make all paragon reward quests repeatable
-        foreach (var paragonReputation in _cliDB.ParagonReputationStorage.Values)
+        foreach (var paragonReputation in _cliDb.ParagonReputationStorage.Values)
         {
             var quest = GetQuestTemplate((uint)paragonReputation.QuestID);
 
@@ -8450,7 +8450,7 @@ public sealed class GameObjectManager
             var trigger_ID = result.Read<uint>(0);
             var quest_ID = result.Read<uint>(1);
 
-            var atEntry = _cliDB.AreaTriggerStorage.LookupByKey(trigger_ID);
+            var atEntry = _cliDb.AreaTriggerStorage.LookupByKey(trigger_ID);
 
             if (atEntry == null)
             {
@@ -8662,10 +8662,10 @@ public sealed class GameObjectManager
     //Spells /Skills / Phases
     public void LoadPhases()
     {
-        foreach (var phase in _cliDB.PhaseStorage.Values)
+        foreach (var phase in _cliDb.PhaseStorage.Values)
             _phaseInfoById.Add(phase.Id, new PhaseInfoStruct(phase.Id));
 
-        foreach (var map in _cliDB.MapStorage.Values)
+        foreach (var map in _cliDb.MapStorage.Values)
             if (map.ParentMapID != -1)
                 _terrainSwapInfoById.Add(map.Id, new TerrainSwapInfo(map.Id));
 
@@ -8779,7 +8779,7 @@ public sealed class GameObjectManager
             var entry = result.Read<uint>(0);
             var skill = result.Read<int>(1);
 
-            var fArea = _cliDB.AreaTableStorage.LookupByKey(entry);
+            var fArea = _cliDb.AreaTableStorage.LookupByKey(entry);
 
             if (fArea == null)
             {
@@ -9294,7 +9294,7 @@ public sealed class GameObjectManager
                 SpellRate = result.Read<float>(7)
             };
 
-            var factionEntry = _cliDB.FactionStorage.LookupByKey(factionId);
+            var factionEntry = _cliDb.FactionStorage.LookupByKey(factionId);
 
             if (factionEntry == null)
             {
@@ -9408,7 +9408,7 @@ public sealed class GameObjectManager
 
             if (repOnKill.RepFaction1 != 0)
             {
-                var factionEntry1 = _cliDB.FactionStorage.LookupByKey(repOnKill.RepFaction1);
+                var factionEntry1 = _cliDb.FactionStorage.LookupByKey(repOnKill.RepFaction1);
 
                 if (factionEntry1 == null)
                 {
@@ -9420,7 +9420,7 @@ public sealed class GameObjectManager
 
             if (repOnKill.RepFaction2 != 0)
             {
-                var factionEntry2 = _cliDB.FactionStorage.LookupByKey(repOnKill.RepFaction2);
+                var factionEntry2 = _cliDb.FactionStorage.LookupByKey(repOnKill.RepFaction2);
 
                 if (factionEntry2 == null)
                 {
@@ -9489,7 +9489,7 @@ public sealed class GameObjectManager
                 }
             };
 
-            var factionEntry = _cliDB.FactionStorage.LookupByKey(factionId);
+            var factionEntry = _cliDb.FactionStorage.LookupByKey(factionId);
 
             if (factionEntry == null)
             {
@@ -9510,7 +9510,7 @@ public sealed class GameObjectManager
             for (var i = 0; i < 5; ++i)
                 if (repTemplate.Faction[i] != 0)
                 {
-                    var factionSpillover = _cliDB.FactionStorage.LookupByKey(repTemplate.Faction[i]);
+                    var factionSpillover = _cliDb.FactionStorage.LookupByKey(repTemplate.Faction[i]);
 
                     if (factionSpillover.Id == 0)
                     {
@@ -9573,7 +9573,7 @@ public sealed class GameObjectManager
 
             var Trigger_ID = result.Read<uint>(0);
 
-            var atEntry = _cliDB.AreaTriggerStorage.LookupByKey(Trigger_ID);
+            var atEntry = _cliDb.AreaTriggerStorage.LookupByKey(Trigger_ID);
 
             if (atEntry == null)
             {
@@ -9627,7 +9627,7 @@ public sealed class GameObjectManager
                 continue;
             }
 
-            if (!_cliDB.MailTemplateStorage.ContainsKey(mailTemplateId))
+            if (!_cliDb.MailTemplateStorage.ContainsKey(mailTemplateId))
             {
                 Log.Logger.Error("Table `mail_level_reward` have invalid mailTemplateId ({0}) for level {1} that invalid not include any player races, ignoring.", mailTemplateId, level);
 
@@ -9720,7 +9720,7 @@ public sealed class GameObjectManager
 
                     break;
                 case SummonerType.Map:
-                    if (!_cliDB.MapStorage.ContainsKey(summonerId))
+                    if (!_cliDb.MapStorage.ContainsKey(summonerId))
                     {
                         Log.Logger.Error("Table `creature_summon_groups` has summoner with non existing entry {0} for map summoner type, skipped.", summonerId);
 
@@ -10146,19 +10146,19 @@ public sealed class GameObjectManager
                     Xp = rewards.Read<uint>(9)
                 };
 
-                if (reward.TitleId != 0 && !_cliDB.CharTitlesStorage.ContainsKey(reward.TitleId))
+                if (reward.TitleId != 0 && !_cliDb.CharTitlesStorage.ContainsKey(reward.TitleId))
                 {
                     Log.Logger.Error($"Table `playerchoice_response_reward` references non-existing Title {reward.TitleId} for ChoiceId {choiceId}, ResponseId: {responseId}, set to 0");
                     reward.TitleId = 0;
                 }
 
-                if (reward.PackageId != 0 && Global.DB2Mgr.GetQuestPackageItems((uint)reward.PackageId) == null)
+                if (reward.PackageId != 0 && _db2Manager.GetQuestPackageItems((uint)reward.PackageId) == null)
                 {
                     Log.Logger.Error($"Table `playerchoice_response_reward` references non-existing QuestPackage {reward.TitleId} for ChoiceId {choiceId}, ResponseId: {responseId}, set to 0");
                     reward.PackageId = 0;
                 }
 
-                if (reward.SkillLineId != 0 && !_cliDB.SkillLineStorage.ContainsKey(reward.SkillLineId))
+                if (reward.SkillLineId != 0 && !_cliDb.SkillLineStorage.ContainsKey(reward.SkillLineId))
                 {
                     Log.Logger.Error($"Table `playerchoice_response_reward` references non-existing SkillLine {reward.TitleId} for ChoiceId {choiceId}, ResponseId: {responseId}, set to 0");
                     reward.SkillLineId = 0;
@@ -10255,7 +10255,7 @@ public sealed class GameObjectManager
                     continue;
                 }
 
-                if (!_cliDB.CurrencyTypesStorage.ContainsKey(currencyId))
+                if (!_cliDb.CurrencyTypesStorage.ContainsKey(currencyId))
                 {
                     Log.Logger.Error($"Table `playerchoice_response_reward_currency` references non-existing currency {currencyId} for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
 
@@ -10301,7 +10301,7 @@ public sealed class GameObjectManager
                     continue;
                 }
 
-                if (!_cliDB.FactionStorage.ContainsKey(factionId))
+                if (!_cliDb.FactionStorage.ContainsKey(factionId))
                 {
                     Log.Logger.Error($"Table `playerchoice_response_reward_faction` references non-existing faction {factionId} for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
 
@@ -10588,7 +10588,7 @@ public sealed class GameObjectManager
 
             if (!result.IsNull(4))
             {
-                if (_cliDB.SpellVisualStorage.ContainsKey(result.Read<uint>(4)))
+                if (_cliDb.SpellVisualStorage.ContainsKey(result.Read<uint>(4)))
                     spellVisualId = result.Read<uint>(4);
                 else
                     Log.Logger.Error($"Table `jump_charge_params` references non-existing SpellVisual: {result.Read<uint>(4)} for id {id}, ignored.");
@@ -10596,7 +10596,7 @@ public sealed class GameObjectManager
 
             if (!result.IsNull(5))
             {
-                if (_cliDB.CurveStorage.ContainsKey(result.Read<uint>(5)))
+                if (_cliDb.CurveStorage.ContainsKey(result.Read<uint>(5)))
                     progressCurveId = result.Read<uint>(5);
                 else
                     Log.Logger.Error($"Table `jump_charge_params` references non-existing progress Curve: {result.Read<uint>(5)} for id {id}, ignored.");
@@ -10604,7 +10604,7 @@ public sealed class GameObjectManager
 
             if (!result.IsNull(6))
             {
-                if (_cliDB.CurveStorage.ContainsKey(result.Read<uint>(6)))
+                if (_cliDb.CurveStorage.ContainsKey(result.Read<uint>(6)))
                     parabolicCurveId = result.Read<uint>(6);
                 else
                     Log.Logger.Error($"Table `jump_charge_params` references non-existing parabolic Curve: {result.Read<uint>(6)} for id {id}, ignored.");
@@ -10897,7 +10897,7 @@ public sealed class GameObjectManager
 
         var requireFlag = (team == TeamFaction.Alliance) ? TaxiNodeFlags.Alliance : TaxiNodeFlags.Horde;
 
-        foreach (var node in _cliDB.TaxiNodesStorage.Values)
+        foreach (var node in _cliDb.TaxiNodesStorage.Values)
         {
             var i = node.Id;
 
@@ -10908,7 +10908,7 @@ public sealed class GameObjectManager
             var submask = (byte)(1 << (int)((i - 1) % 8));
 
             // skip not taxi network nodes
-            if ((_cliDB.TaxiNodesMask[field] & submask) == 0)
+            if ((_cliDb.TaxiNodesMask[field] & submask) == 0)
                 continue;
 
             var dist2 = (node.Pos.X - x) * (node.Pos.X - x) + (node.Pos.Y - y) * (node.Pos.Y - y) + (node.Pos.Z - z) * (node.Pos.Z - z);
@@ -10934,7 +10934,7 @@ public sealed class GameObjectManager
 
     public void GetTaxiPath(uint source, uint destination, out uint path, out uint cost)
     {
-        var pathSet = _cliDB.TaxiPathSetBySource.LookupByKey(source);
+        var pathSet = _cliDb.TaxiPathSetBySource.LookupByKey(source);
 
         if (pathSet == null)
         {
@@ -10964,7 +10964,7 @@ public sealed class GameObjectManager
         CreatureTemplate mount_info = null;
 
         // select mount creature id
-        var node = _cliDB.TaxiNodesStorage.LookupByKey(id);
+        var node = _cliDb.TaxiNodesStorage.LookupByKey(id);
 
         if (node != null)
         {
@@ -11022,7 +11022,7 @@ public sealed class GameObjectManager
     public AreaTriggerStruct GetGoBackTrigger(uint Map)
     {
         uint? parentId = null;
-        var mapEntry = _cliDB.MapStorage.LookupByKey(Map);
+        var mapEntry = _cliDb.MapStorage.LookupByKey(Map);
 
         if (mapEntry == null || mapEntry.CorpseMapID < 0)
             return null;
@@ -11040,7 +11040,7 @@ public sealed class GameObjectManager
         foreach (var pair in _areaTriggerStorage)
             if (pair.Value.TargetMapId == entrance_map)
             {
-                var atEntry = _cliDB.AreaTriggerStorage.LookupByKey(pair.Key);
+                var atEntry = _cliDb.AreaTriggerStorage.LookupByKey(pair.Key);
 
                 if (atEntry != null && atEntry.ContinentID == Map)
                     return pair.Value;
@@ -11054,7 +11054,7 @@ public sealed class GameObjectManager
         foreach (var pair in _areaTriggerStorage)
             if (pair.Value.TargetMapId == Map)
             {
-                var atEntry = _cliDB.AreaTriggerStorage.LookupByKey(pair.Key);
+                var atEntry = _cliDb.AreaTriggerStorage.LookupByKey(pair.Key);
 
                 if (atEntry != null)
                     return pair.Value;
@@ -11255,7 +11255,7 @@ public sealed class GameObjectManager
             var exitO = result.Read<float>(5);
             var exitParam = result.Read<byte>(6);
 
-            if (!_cliDB.VehicleSeatStorage.ContainsKey(seatID))
+            if (!_cliDb.VehicleSeatStorage.ContainsKey(seatID))
             {
                 Log.Logger.Error($"Table `vehicle_seat_addon`: SeatID: {seatID} does not exist in VehicleSeat.dbc. Skipping entry.");
 
@@ -11544,7 +11544,7 @@ public sealed class GameObjectManager
                         continue;
                     }
 
-                    if (!_cliDB.BroadcastTextStorage.ContainsKey((uint)tmp.Talk.TextID))
+                    if (!_cliDb.BroadcastTextStorage.ContainsKey((uint)tmp.Talk.TextID))
                     {
                         if (_configuration.GetDefaultValue("load.autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
@@ -11562,7 +11562,7 @@ public sealed class GameObjectManager
 
                 case ScriptCommands.Emote:
                 {
-                    if (!_cliDB.EmotesStorage.ContainsKey(tmp.Emote.EmoteID))
+                    if (!_cliDb.EmotesStorage.ContainsKey(tmp.Emote.EmoteID))
                     {
                         if (_configuration.GetDefaultValue("load.autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
@@ -11580,7 +11580,7 @@ public sealed class GameObjectManager
 
                 case ScriptCommands.TeleportTo:
                 {
-                    if (!_cliDB.MapStorage.ContainsKey(tmp.TeleportTo.MapID))
+                    if (!_cliDb.MapStorage.ContainsKey(tmp.TeleportTo.MapID))
                     {
                         if (_configuration.GetDefaultValue("load.autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
@@ -11960,7 +11960,7 @@ public sealed class GameObjectManager
                 }
                 case ScriptCommands.PlayAnimkit:
                 {
-                    if (!_cliDB.AnimKitStorage.ContainsKey(tmp.PlayAnimKit.AnimKitID))
+                    if (!_cliDb.AnimKitStorage.ContainsKey(tmp.PlayAnimKit.AnimKitID))
                     {
                         if (_configuration.GetDefaultValue("load.autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
@@ -12131,7 +12131,7 @@ public sealed class GameObjectManager
                 continue;
             }
 
-            var displayEntry = _cliDB.CreatureDisplayInfoStorage.LookupByKey(creatureDisplayId);
+            var displayEntry = _cliDb.CreatureDisplayInfoStorage.LookupByKey(creatureDisplayId);
 
             if (displayEntry == null)
             {
@@ -12200,7 +12200,7 @@ public sealed class GameObjectManager
             {
                 summonedData.GroundMountDisplayId = result.Read<uint>(2);
 
-                if (!_cliDB.CreatureDisplayInfoStorage.ContainsKey(summonedData.GroundMountDisplayId.Value))
+                if (!_cliDb.CreatureDisplayInfoStorage.ContainsKey(summonedData.GroundMountDisplayId.Value))
                 {
                     Log.Logger.Debug($"Table `creature_summoned_data` references non-existing display id {summonedData.GroundMountDisplayId.Value} in GroundMountDisplayID for creature {creatureId}, set to 0");
                     summonedData.CreatureIdVisibleToSummoner = null;
@@ -12211,7 +12211,7 @@ public sealed class GameObjectManager
             {
                 summonedData.FlyingMountDisplayId = result.Read<uint>(3);
 
-                if (!_cliDB.CreatureDisplayInfoStorage.ContainsKey(summonedData.FlyingMountDisplayId.Value))
+                if (!_cliDb.CreatureDisplayInfoStorage.ContainsKey(summonedData.FlyingMountDisplayId.Value))
                 {
                     Log.Logger.Debug($"Table `creature_summoned_data` references non-existing display id {summonedData.FlyingMountDisplayId.Value} in FlyingMountDisplayID for creature {creatureId}, set to 0");
                     summonedData.GroundMountDisplayId = null;
@@ -12373,7 +12373,7 @@ public sealed class GameObjectManager
 
     private void CheckGOLockId(GameObjectTemplate goInfo, uint dataN, uint N)
     {
-        if (_cliDB.LockStorage.ContainsKey(dataN))
+        if (_cliDb.LockStorage.ContainsKey(dataN))
             return;
 
         Log.Logger.Debug("Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but lock (Id: {4}) not found.", goInfo.entry, goInfo.type, N, goInfo.Door.open, goInfo.Door.open);
@@ -12443,7 +12443,7 @@ public sealed class GameObjectManager
         {
             var difficultyId = (Difficulty)Enum.Parse(typeof(Difficulty), token);
 
-            if (difficultyId != 0 && !_cliDB.DifficultyStorage.ContainsKey(difficultyId))
+            if (difficultyId != 0 && !_cliDb.DifficultyStorage.ContainsKey(difficultyId))
             {
                 Log.Logger.Error($"Table `{table}` has {table} (GUID: {spawnId}) with non invalid difficulty id {difficultyId}, skipped.");
 
@@ -12666,14 +12666,14 @@ public sealed class GameObjectManager
             var mapId = result.Read<uint>(0);
             var uiMapPhaseId = result.Read<uint>(1);
 
-            if (!_cliDB.MapStorage.ContainsKey(mapId))
+            if (!_cliDb.MapStorage.ContainsKey(mapId))
             {
                 Log.Logger.Error("TerrainSwapMap {0} defined in `terrain_worldmap` does not exist, skipped.", mapId);
 
                 continue;
             }
 
-            if (!Global.DB2Mgr.IsUiMapPhase((int)uiMapPhaseId))
+            if (!_db2Manager.IsUiMapPhase((int)uiMapPhaseId))
             {
                 Log.Logger.Error($"Phase {uiMapPhaseId} defined in `terrain_worldmap` is not a valid terrain swap phase, skipped.");
 
@@ -12712,7 +12712,7 @@ public sealed class GameObjectManager
         {
             var mapId = result.Read<uint>(0);
 
-            if (!_cliDB.MapStorage.ContainsKey(mapId))
+            if (!_cliDb.MapStorage.ContainsKey(mapId))
             {
                 Log.Logger.Error("Map {0} defined in `terrain_swap_defaults` does not exist, skipped.", mapId);
 
@@ -12721,7 +12721,7 @@ public sealed class GameObjectManager
 
             var terrainSwap = result.Read<uint>(1);
 
-            if (!_cliDB.MapStorage.ContainsKey(terrainSwap))
+            if (!_cliDb.MapStorage.ContainsKey(terrainSwap))
             {
                 Log.Logger.Error("TerrainSwapMap {0} defined in `terrain_swap_defaults` does not exist, skipped.", terrainSwap);
 
@@ -12767,14 +12767,14 @@ public sealed class GameObjectManager
             var area = result.Read<uint>(0);
             var phaseId = result.Read<uint>(1);
 
-            if (!_cliDB.AreaTableStorage.ContainsKey(area))
+            if (!_cliDb.AreaTableStorage.ContainsKey(area))
             {
                 Log.Logger.Error($"Area {area} defined in `phase_area` does not exist, skipped.");
 
                 continue;
             }
 
-            if (!_cliDB.PhaseStorage.ContainsKey(phaseId))
+            if (!_cliDb.PhaseStorage.ContainsKey(phaseId))
             {
                 Log.Logger.Error($"Phase {phaseId} defined in `phase_area` does not exist, skipped.");
 
@@ -12794,7 +12794,7 @@ public sealed class GameObjectManager
 
             do
             {
-                var area = _cliDB.AreaTableStorage.LookupByKey(parentAreaId);
+                var area = _cliDb.AreaTableStorage.LookupByKey(parentAreaId);
 
                 if (area == null)
                     break;

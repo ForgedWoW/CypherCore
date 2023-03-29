@@ -28,7 +28,7 @@ class ReloadCommand
 	static bool HandleReloadAchievementRewardCommand(CommandHandler handler)
 	{
 		Log.Logger.Information("Re-Loading Achievement Reward Data...");
-		Global.AchievementMgr.LoadRewards();
+		_achievementManager.LoadRewards();
 		handler.SendGlobalGMSysMessage("DB table `achievement_reward` reloaded.");
 
 		return true;
@@ -119,7 +119,7 @@ class ReloadCommand
 	static bool HandleReloadConditions(CommandHandler handler)
 	{
 		Log.Logger.Information("Re-Loading Conditions...");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 		handler.SendGlobalGMSysMessage("Conditions reloaded.");
 
 		return true;
@@ -163,7 +163,7 @@ class ReloadCommand
 		LootManager.LoadLootTemplates_Creature();
 		LootStorage.Creature.CheckLootRefs();
 		handler.SendGlobalGMSysMessage("DB table `creature_loot_template` reloaded.");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 
 		return true;
 	}
@@ -228,10 +228,10 @@ class ReloadCommand
 
 		while ((entry = args.NextUInt32()) != 0)
 		{
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEMPLATE);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEMPLATE);
 			stmt.AddValue(0, entry);
 			stmt.AddValue(1, 0);
-			var result = DB.World.Query(stmt);
+			var result = _worldDatabase.Query(stmt);
 
 			if (result.IsEmpty())
 			{
@@ -285,7 +285,7 @@ class ReloadCommand
 	static bool HandleReloadCriteriaDataCommand(CommandHandler handler)
 	{
 		Log.Logger.Information("Re-Loading Additional Criteria Data...");
-		Global.CriteriaMgr.LoadCriteriaData();
+		_criteriaManager.LoadCriteriaData();
 		handler.SendGlobalGMSysMessage("DB table `criteria_data` reloaded.");
 
 		return true;
@@ -310,7 +310,7 @@ class ReloadCommand
 		LootManager.LoadLootTemplates_Disenchant();
 		LootStorage.Disenchant.CheckLootRefs();
 		handler.SendGlobalGMSysMessage("DB table `disenchant_loot_template` reloaded.");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 
 		return true;
 	}
@@ -343,7 +343,7 @@ class ReloadCommand
 		LootManager.LoadLootTemplates_Fishing();
 		LootStorage.Fishing.CheckLootRefs();
 		handler.SendGlobalGMSysMessage("DB table `fishing_loot_template` reloaded.");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 
 		return true;
 	}
@@ -379,7 +379,7 @@ class ReloadCommand
 		LootManager.LoadLootTemplates_Gameobject();
 		LootStorage.Gameobject.CheckLootRefs();
 		handler.SendGlobalGMSysMessage("DB table `gameobject_loot_template` reloaded.");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 
 		return true;
 	}
@@ -410,7 +410,7 @@ class ReloadCommand
 		Log.Logger.Information("Re-Loading `gossip_menu` Table!");
 		_gameObjectManager.LoadGossipMenu();
 		handler.SendGlobalGMSysMessage("DB table `gossip_menu` reloaded.");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 
 		return true;
 	}
@@ -421,7 +421,7 @@ class ReloadCommand
 		Log.Logger.Information("Re-Loading `gossip_menu_option` Table!");
 		_gameObjectManager.LoadGossipMenuItems();
 		handler.SendGlobalGMSysMessage("DB table `gossip_menu_option` reloaded.");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 
 		return true;
 	}
@@ -443,7 +443,7 @@ class ReloadCommand
 		LootManager.LoadLootTemplates_Item();
 		LootStorage.Items.CheckLootRefs();
 		handler.SendGlobalGMSysMessage("DB table `item_loot_template` reloaded.");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 
 		return true;
 	}
@@ -462,7 +462,7 @@ class ReloadCommand
 	static bool HandleReloadAchievementRewardLocaleCommand(CommandHandler handler)
 	{
 		Log.Logger.Information("Re-Loading Achievement Reward Data Locale...");
-		Global.AchievementMgr.LoadRewardLocales();
+		_achievementManager.LoadRewardLocales();
 		handler.SendGlobalGMSysMessage("DB table `achievement_reward_locale` reloaded.");
 
 		return true;
@@ -545,7 +545,7 @@ class ReloadCommand
 		LootManager.LoadLootTemplates_Mail();
 		LootStorage.Mail.CheckLootRefs();
 		handler.SendGlobalGMSysMessage("DB table `mail_loot_template` reloaded.");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 
 		return true;
 	}
@@ -557,7 +557,7 @@ class ReloadCommand
 		LootManager.LoadLootTemplates_Milling();
 		LootStorage.Milling.CheckLootRefs();
 		handler.SendGlobalGMSysMessage("DB table `milling_loot_template` reloaded.");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 
 		return true;
 	}
@@ -599,7 +599,7 @@ class ReloadCommand
 		LootManager.LoadLootTemplates_Pickpocketing();
 		LootStorage.Pickpocketing.CheckLootRefs();
 		handler.SendGlobalGMSysMessage("DB table `pickpocketing_loot_template` reloaded.");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 
 		return true;
 	}
@@ -621,7 +621,7 @@ class ReloadCommand
 		LootManager.LoadLootTemplates_Prospecting();
 		LootStorage.Prospecting.CheckLootRefs();
 		handler.SendGlobalGMSysMessage("DB table `prospecting_loot_template` reloaded.");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 
 		return true;
 	}
@@ -698,7 +698,7 @@ class ReloadCommand
 		Log.Logger.Information("Re-Loading Loot Tables... (`reference_loot_template`)");
 		LootManager.LoadLootTemplates_Reference();
 		handler.SendGlobalGMSysMessage("DB table `reference_loot_template` reloaded.");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 
 		return true;
 	}
@@ -790,7 +790,7 @@ class ReloadCommand
 		LootManager.LoadLootTemplates_Skinning();
 		LootStorage.Skinning.CheckLootRefs();
 		handler.SendGlobalGMSysMessage("DB table `skinning_loot_template` reloaded.");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 
 		return true;
 	}
@@ -862,7 +862,7 @@ class ReloadCommand
 		LootManager.LoadLootTemplates_Spell();
 		LootStorage.Spell.CheckLootRefs();
 		handler.SendGlobalGMSysMessage("DB table `spell_loot_template` reloaded.");
-		Global.ConditionMgr.LoadConditions(true);
+		_conditionManager.LoadConditions(true);
 
 		return true;
 	}
@@ -923,7 +923,7 @@ class ReloadCommand
 	{
 		Log.Logger.Information("Reloading spell_script_names table...");
 		_gameObjectManager.LoadSpellScriptNames();
-		//Global.ScriptMgr.NotifyScriptIDUpdate();
+		//_scriptManager.NotifyScriptIDUpdate();
 		_gameObjectManager.ValidateSpellScripts();
 		handler.SendGlobalGMSysMessage("Spell scripts reloaded.");
 
@@ -1137,7 +1137,7 @@ class ReloadCommand
 			Log.Logger.Information("Re-Loading Loot Tables...");
 			LootManager.LoadLootTables();
 			handler.SendGlobalGMSysMessage("DB tables `*_loot_template` reloaded.");
-			Global.ConditionMgr.LoadConditions(true);
+			_conditionManager.LoadConditions(true);
 
 			return true;
 		}

@@ -28,7 +28,7 @@ namespace Forged.RealmServer;
 public class CharacterHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly CollectionMgr _collectionMgr;
     private readonly IConfiguration _configuration;
     private readonly WorldConfig _worldConfig;
@@ -53,7 +53,7 @@ public class CharacterHandler : IWorldSessionHandler
 		ArenaTeamManager arenaTeamManager, SocialManager socialManager, CalendarManager calendarManager, ConditionManager conditionManager)
     {
         _session = session;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _collectionMgr = collectionMgr;
         _configuration = configuration;
         _worldConfig = worldConfig;
@@ -145,7 +145,7 @@ public class CharacterHandler : IWorldSessionHandler
 			if (customizationOptionData == null)
 				return false;
 
-			var req = _cliDB.ChrCustomizationReqStorage.LookupByKey((uint)customizationOptionData.ChrCustomizationReqID);
+			var req = _cliDb.ChrCustomizationReqStorage.LookupByKey((uint)customizationOptionData.ChrCustomizationReqID);
 
 			if (req != null)
 				if (!MeetsChrCustomizationReq(req, playerClass, false, customizations))
@@ -162,7 +162,7 @@ public class CharacterHandler : IWorldSessionHandler
 			if (customizationChoiceData == null)
 				return false;
 
-			var reqEntry = _cliDB.ChrCustomizationReqStorage.LookupByKey(customizationChoiceData.ChrCustomizationReqID);
+			var reqEntry = _cliDb.ChrCustomizationReqStorage.LookupByKey(customizationChoiceData.ChrCustomizationReqID);
 
 			if (reqEntry != null)
 				if (!MeetsChrCustomizationReq(reqEntry, playerClass, true, customizations))
@@ -351,7 +351,7 @@ public class CharacterHandler : IWorldSessionHandler
 			}
 		}
 
-		var classEntry = _cliDB.ChrClassesStorage.LookupByKey((uint)charCreate.CreateInfo.ClassId);
+		var classEntry = _cliDb.ChrClassesStorage.LookupByKey((uint)charCreate.CreateInfo.ClassId);
 
 		if (classEntry == null)
 		{
@@ -361,7 +361,7 @@ public class CharacterHandler : IWorldSessionHandler
 			return;
 		}
 
-		var raceEntry = _cliDB.ChrRacesStorage.LookupByKey((uint)charCreate.CreateInfo.RaceId);
+		var raceEntry = _cliDb.ChrRacesStorage.LookupByKey((uint)charCreate.CreateInfo.RaceId);
 
 		if (raceEntry == null)
 		{
@@ -1372,7 +1372,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 					if (saveEquipmentSet.Set.Appearances[i] != 0)
 					{
-						if (!_cliDB.ItemModifiedAppearanceStorage.ContainsKey(saveEquipmentSet.Set.Appearances[i]))
+						if (!_cliDb.ItemModifiedAppearanceStorage.ContainsKey(saveEquipmentSet.Set.Appearances[i]))
 							return;
 
 						(var hasAppearance, _) = _collectionMgr.HasItemAppearance((uint)saveEquipmentSet.Set.Appearances[i]);
@@ -1403,7 +1403,7 @@ public class CharacterHandler : IWorldSessionHandler
 		{
 			var validateIllusion = new Func<uint, bool>(enchantId =>
 			{
-				var illusion = _cliDB.SpellItemEnchantmentStorage.LookupByKey(enchantId);
+				var illusion = _cliDb.SpellItemEnchantmentStorage.LookupByKey(enchantId);
 
 				if (illusion == null)
 					return false;
@@ -1411,7 +1411,7 @@ public class CharacterHandler : IWorldSessionHandler
 				if (illusion.ItemVisual == 0 || !illusion.GetFlags().HasFlag(SpellItemEnchantmentFlags.AllowTransmog))
 					return false;
 
-				var condition = _cliDB.PlayerConditionStorage.LookupByKey(illusion.TransmogUseConditionID);
+				var condition = _cliDb.PlayerConditionStorage.LookupByKey(illusion.TransmogUseConditionID);
 
 				if (condition != null)
 					if (!_conditionManager.IsPlayerMeetingCondition(_session.Player, condition))
@@ -1784,7 +1784,7 @@ public class CharacterHandler : IWorldSessionHandler
 					var taximaskstream = "";
 
 
-					var factionMask = newTeamId == TeamIds.Horde ? _cliDB.HordeTaxiNodesMask : _cliDB.AllianceTaxiNodesMask;
+					var factionMask = newTeamId == TeamIds.Horde ? _cliDb.HordeTaxiNodesMask : _cliDb.AllianceTaxiNodesMask;
 
 					for (var i = 0; i < factionMask.Length; ++i)
 					{
@@ -1969,13 +1969,13 @@ public class CharacterHandler : IWorldSessionHandler
 					if (!result.IsEmpty())
 					{
 						var oldDBRep = result.Read<int>(0);
-						var factionEntry = _cliDB.FactionStorage.LookupByKey(oldReputation);
+						var factionEntry = _cliDb.FactionStorage.LookupByKey(oldReputation);
 
 						// old base reputation
 						var oldBaseRep = ReputationMgr.GetBaseReputationOf(factionEntry, oldRace, playerClass);
 
 						// new base reputation
-						var newBaseRep = ReputationMgr.GetBaseReputationOf(_cliDB.FactionStorage.LookupByKey(newReputation), factionChangeInfo.RaceID, playerClass);
+						var newBaseRep = ReputationMgr.GetBaseReputationOf(_cliDb.FactionStorage.LookupByKey(newReputation), factionChangeInfo.RaceID, playerClass);
 
 						// final reputation shouldnt change
 						var FinalRep = oldDBRep + oldBaseRep;
@@ -2011,8 +2011,8 @@ public class CharacterHandler : IWorldSessionHandler
 						var title_alliance = it.Key;
 						var title_horde = it.Value;
 
-						var atitleInfo = _cliDB.CharTitlesStorage.LookupByKey(title_alliance);
-						var htitleInfo = _cliDB.CharTitlesStorage.LookupByKey(title_horde);
+						var atitleInfo = _cliDb.CharTitlesStorage.LookupByKey(title_alliance);
+						var htitleInfo = _cliDb.CharTitlesStorage.LookupByKey(title_horde);
 
 						// new team
 						if (newTeamId == TeamIds.Alliance)
@@ -2085,11 +2085,11 @@ public class CharacterHandler : IWorldSessionHandler
 		if (_session.Player.ActivePlayerData.XP != 0)
 			return;
 
-		var classEntry = _cliDB.ChrClassesStorage.LookupByKey((uint)_session.Player.Class);
+		var classEntry = _cliDb.ChrClassesStorage.LookupByKey((uint)_session.Player.Class);
 
 		if (classEntry != null)
 		{
-			var raceEntry = _cliDB.ChrRacesStorage.LookupByKey((uint)_session.Player.Race);
+			var raceEntry = _cliDb.ChrRacesStorage.LookupByKey((uint)_session.Player.Race);
 
 			if (classEntry.CinematicSequenceID != 0)
 				_session.Player.SendCinematicStart(classEntry.CinematicSequenceID);

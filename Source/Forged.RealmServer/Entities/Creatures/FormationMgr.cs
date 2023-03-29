@@ -66,7 +66,7 @@ public class FormationMgr
 		var oldMSTime = Time.MSTime;
 
 		//Get group data
-		var result = DB.World.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI, point_1, point_2 FROM creature_formations ORDER BY leaderGUID");
+		var result = _worldDatabase.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI, point_1, point_2 FROM creature_formations ORDER BY leaderGUID");
 
 		if (result.IsEmpty())
 		{
@@ -103,8 +103,8 @@ public class FormationMgr
 			{
 				if (_gameObjectManager.GetCreatureData(member.LeaderSpawnId) == null)
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM creature_formations WHERE leaderGUID = {member.LeaderSpawnId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"DELETE FROM creature_formations WHERE leaderGUID = {member.LeaderSpawnId}");
 					else
 						Log.outError(LogFilter.Sql, $"creature_formations table leader guid {member.LeaderSpawnId} incorrect (not exist)");
 
@@ -113,8 +113,8 @@ public class FormationMgr
 
 				if (_gameObjectManager.GetCreatureData(memberSpawnId) == null)
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM creature_formations WHERE memberGUID = {memberSpawnId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"DELETE FROM creature_formations WHERE memberGUID = {memberSpawnId}");
 					else
 						Log.outError(LogFilter.Sql, $"creature_formations table member guid {memberSpawnId} incorrect (not exist)");
 

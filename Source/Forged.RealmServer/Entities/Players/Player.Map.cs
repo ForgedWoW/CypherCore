@@ -44,12 +44,12 @@ public partial class Player
 		if (!mapEntry.IsRaid())
 			return _dungeonDifficulty;
 
-		var defaultDifficulty = Global.DB2Mgr.GetDefaultMapDifficulty(mapEntry.Id);
+		var defaultDifficulty = _db2Manager.GetDefaultMapDifficulty(mapEntry.Id);
 
 		if (defaultDifficulty == null)
 			return _legacyRaidDifficulty;
 
-		var difficulty = CliDB.DifficultyStorage.LookupByKey(defaultDifficulty.DifficultyID);
+		var difficulty = _cliDb.DifficultyStorage.LookupByKey(defaultDifficulty.DifficultyID);
 
 		if (difficulty == null || difficulty.Flags.HasAnyFlag(DifficultyFlags.Legacy))
 			return _legacyRaidDifficulty;
@@ -59,7 +59,7 @@ public partial class Player
 
 	public static Difficulty CheckLoadedDungeonDifficultyId(Difficulty difficulty)
 	{
-		var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(difficulty);
+		var difficultyEntry = _cliDb.DifficultyStorage.LookupByKey(difficulty);
 
 		if (difficultyEntry == null)
 			return Difficulty.Normal;
@@ -75,7 +75,7 @@ public partial class Player
 
 	public static Difficulty CheckLoadedRaidDifficultyId(Difficulty difficulty)
 	{
-		var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(difficulty);
+		var difficultyEntry = _cliDb.DifficultyStorage.LookupByKey(difficulty);
 
 		if (difficultyEntry == null)
 			return Difficulty.NormalRaid;
@@ -91,7 +91,7 @@ public partial class Player
 
 	public static Difficulty CheckLoadedLegacyRaidDifficultyId(Difficulty difficulty)
 	{
-		var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(difficulty);
+		var difficultyEntry = _cliDb.DifficultyStorage.LookupByKey(difficulty);
 
 		if (difficultyEntry == null)
 			return Difficulty.Raid10N;
@@ -146,7 +146,7 @@ public partial class Player
 		// zone changed, so area changed as well, update it
 		UpdateArea(newArea);
 
-		var zone = CliDB.AreaTableStorage.LookupByKey(newZone);
+		var zone = _cliDb.AreaTableStorage.LookupByKey(newZone);
 
 		if (zone == null)
 			return;
@@ -188,7 +188,7 @@ public partial class Player
 		UpdateZoneDependentAuras(newZone);
 
 		// call enter script hooks after everyting else has processed
-		Global.ScriptMgr.ForEach<IPlayerOnUpdateZone>(p => p.OnUpdateZone(this, newZone, newArea));
+		_scriptManager.ForEach<IPlayerOnUpdateZone>(p => p.OnUpdateZone(this, newZone, newArea));
 
 		if (oldZone != newZone)
 		{
@@ -316,17 +316,17 @@ public partial class Player
 			uint missingQuest = 0;
 			uint missingAchievement = 0;
 
-			var mapEntry = CliDB.MapStorage.LookupByKey(targetMap);
+			var mapEntry = _cliDb.MapStorage.LookupByKey(targetMap);
 
 			if (mapEntry == null)
 				return false;
 
 			var targetDifficulty = GetDifficultyId(mapEntry);
-			var mapDiff = Global.DB2Mgr.GetDownscaledMapDifficultyData(targetMap, ref targetDifficulty);
+			var mapDiff = _db2Manager.GetDownscaledMapDifficultyData(targetMap, ref targetDifficulty);
 
 			if (!_worldConfig.GetBoolValue(WorldCfg.InstanceIgnoreLevel))
 			{
-				var mapDifficultyConditions = Global.DB2Mgr.GetMapDifficultyConditions(mapDiff.Id);
+				var mapDifficultyConditions = _db2Manager.GetMapDifficultyConditions(mapDiff.Id);
 
 				foreach (var pair in mapDifficultyConditions)
 					if (!ConditionManager.IsPlayerMeetingCondition(this, pair.Item2))
@@ -546,7 +546,7 @@ public partial class Player
 
 	public bool IsLockedToDungeonEncounter(uint dungeonEncounterId)
 	{
-		var dungeonEncounter = CliDB.DungeonEncounterStorage.LookupByKey(dungeonEncounterId);
+		var dungeonEncounter = _cliDb.DungeonEncounterStorage.LookupByKey(dungeonEncounterId);
 
 		if (dungeonEncounter == null)
 			return false;
@@ -609,7 +609,7 @@ public partial class Player
 		// so apply them accordingly
 		_areaUpdateId = newArea;
 
-		var area = CliDB.AreaTableStorage.LookupByKey(newArea);
+		var area = _cliDb.AreaTableStorage.LookupByKey(newArea);
 		var oldFfaPvPArea = PvpInfo.IsInFfaPvPArea;
 		PvpInfo.IsInFfaPvPArea = area != null && area.HasFlag(AreaFlags.Arena);
 		UpdatePvPState(true);

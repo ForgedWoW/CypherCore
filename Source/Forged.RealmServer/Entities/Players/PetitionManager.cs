@@ -1,18 +1,23 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
-using System.Linq;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Forged.RealmServer.Entities;
 
-public class PetitionManager : Singleton<PetitionManager>
+public class PetitionManager
 {
-	readonly Dictionary<ObjectGuid, Petition> _petitionStorage = new();
+    private readonly CharacterDatabase _characterDatabase;
+    readonly Dictionary<ObjectGuid, Petition> _petitionStorage = new();
 
-	PetitionManager() { }
+	public PetitionManager(CharacterDatabase characterDatabase)
+    {
+        _characterDatabase = characterDatabase;
+    }
 
 	public void LoadPetitions()
 	{
@@ -23,7 +28,7 @@ public class PetitionManager : Singleton<PetitionManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 petitions.");
+			Log.Logger.Information("Loaded 0 petitions.");
 
 			return;
 		}
@@ -36,7 +41,7 @@ public class PetitionManager : Singleton<PetitionManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} petitions in: {Time.GetMSTimeDiffToNow(oldMsTime)} ms.");
+		Log.Logger.Information($"Loaded {count} petitions in: {Time.GetMSTimeDiffToNow(oldMsTime)} ms.");
 	}
 
 	public void LoadSignatures()
@@ -47,7 +52,7 @@ public class PetitionManager : Singleton<PetitionManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 Petition signs!");
+			Log.Logger.Information("Loaded 0 Petition signs!");
 
 			return;
 		}
@@ -65,7 +70,7 @@ public class PetitionManager : Singleton<PetitionManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} Petition signs in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+		Log.Logger.Information($"Loaded {count} Petition signs in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
 
 	public void AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, string name, bool isLoading)

@@ -17,7 +17,7 @@ public class Formulas
 	public static float HKHonorAtLevelF(uint level, float multiplier = 1.0f)
 	{
 		var honor = multiplier * level * 1.55f;
-		Global.ScriptMgr.ForEach<IFormulaOnHonorCalculation>(p => p.OnHonorCalculation(honor, level, multiplier));
+		_scriptManager.ForEach<IFormulaOnHonorCalculation>(p => p.OnHonorCalculation(honor, level, multiplier));
 
 		return honor;
 	}
@@ -50,7 +50,7 @@ public class Formulas
 			level = pl_level - 10;
 		}
 
-		Global.ScriptMgr.ForEach<IFormulaOnGrayLevelCalculation>(p => p.OnGrayLevelCalculation(level, pl_level));
+		_scriptManager.ForEach<IFormulaOnGrayLevelCalculation>(p => p.OnGrayLevelCalculation(level, pl_level));
 
 		return level;
 	}
@@ -70,7 +70,7 @@ public class Formulas
 		else
 			color = XPColorChar.Gray;
 
-		Global.ScriptMgr.ForEach<IFormulaOnColorCodeCaclculation>(p => p.OnColorCodeCalculation(color, pl_level, mob_level));
+		_scriptManager.ForEach<IFormulaOnColorCodeCaclculation>(p => p.OnColorCodeCalculation(color, pl_level, mob_level));
 
 		return color;
 	}
@@ -104,7 +104,7 @@ public class Formulas
 		else
 			diff = 17;
 
-		Global.ScriptMgr.ForEach<IFormulaOnZeroDifference>(p => p.OnZeroDifferenceCalculation(diff, pl_level));
+		_scriptManager.ForEach<IFormulaOnZeroDifference>(p => p.OnZeroDifferenceCalculation(diff, pl_level));
 
 		return diff;
 	}
@@ -113,8 +113,8 @@ public class Formulas
 	{
 		uint baseGain;
 
-		var xpPlayer = CliDB.XpGameTable.GetRow(pl_level);
-		var xpMob = CliDB.XpGameTable.GetRow(mob_level);
+		var xpPlayer = _cliDb.XpGameTable.GetRow(pl_level);
+		var xpMob = _cliDb.XpGameTable.GetRow(mob_level);
 
 		if (mob_level >= pl_level)
 		{
@@ -147,7 +147,7 @@ public class Formulas
 			baseGain = Math.Max(baseGainMin, baseGain);
 		}
 
-		Global.ScriptMgr.ForEach<IFormulaOnBaseGainCalculation>(p => p.OnBaseGainCalculation(baseGain, pl_level, mob_level));
+		_scriptManager.ForEach<IFormulaOnBaseGainCalculation>(p => p.OnBaseGainCalculation(baseGain, pl_level, mob_level));
 
 		return baseGain;
 	}
@@ -166,7 +166,7 @@ public class Formulas
 			if (gain != 0 && creature)
 			{
 				// Players get only 10% xp for killing creatures of lower expansion levels than himself
-				if (ConfigMgr.GetDefaultValue("player.lowerExpInLowerExpansions", true) && (creature.Template.GetHealthScalingExpansion() < (int)GetExpansionForLevel(player.Level)))
+				if (_configuration.GetDefaultValue("player.lowerExpInLowerExpansions", true) && (creature.Template.GetHealthScalingExpansion() < (int)GetExpansionForLevel(player.Level)))
 					gain = (uint)Math.Round(gain / 10.0f);
 
 				if (creature.IsElite)
@@ -189,7 +189,7 @@ public class Formulas
 			gain = (uint)(gain * xpMod);
 		}
 
-		Global.ScriptMgr.ForEach<IFormulaOnGainCalculation>(p => p.OnGainCalculation(gain, player, u));
+		_scriptManager.ForEach<IFormulaOnGainCalculation>(p => p.OnGainCalculation(gain, player, u));
 
 		return gain;
 	}
@@ -226,7 +226,7 @@ public class Formulas
 					break;
 			}
 
-		Global.ScriptMgr.ForEach<IFormulaOnGroupRateCaclulation>(p => p.OnGroupRateCalculation(rate, count, isRaid));
+		_scriptManager.ForEach<IFormulaOnGroupRateCaclulation>(p => p.OnGroupRateCalculation(rate, count, isRaid));
 
 		return rate;
 	}

@@ -81,7 +81,7 @@ class InstanceCommands
 									entries.Map.Id,
 									entries.Map.MapName[_worldManager.DefaultDbcLocale],
 									entries.MapDifficulty.DifficultyID,
-									CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
+									_cliDb.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
 									instanceLock.GetInstanceId(),
 									handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
 									handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),
@@ -172,7 +172,7 @@ class InstanceCommands
 		if (mapArg is uint)
 			mapId = (uint)mapArg;
 
-		if (difficultyArg.HasValue && CliDB.DifficultyStorage.ContainsKey(difficultyArg.Value))
+		if (difficultyArg.HasValue && _cliDb.DifficultyStorage.ContainsKey(difficultyArg.Value))
 			difficulty = (Difficulty)difficultyArg;
 
 		List<InstanceLock> locksReset = new();
@@ -191,7 +191,7 @@ class InstanceCommands
 									entries.Map.Id,
 									entries.Map.MapName[_worldManager.DefaultDbcLocale],
 									entries.MapDifficulty.DifficultyID,
-									CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
+									_cliDb.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
 									instanceLock.GetInstanceId(),
 									handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
 									handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),
@@ -209,7 +209,7 @@ class InstanceCommands
 									entries.Map.Id,
 									entries.Map.MapName[_worldManager.DefaultDbcLocale],
 									entries.MapDifficulty.DifficultyID,
-									CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
+									_cliDb.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
 									instanceLock.GetInstanceId(),
 									handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
 									handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),

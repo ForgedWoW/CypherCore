@@ -1,29 +1,46 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using Framework.Configuration;
+using Forged.RealmServer.Chat;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Globals;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.World;
 using Framework.Constants;
 using Framework.Database;
-using Forged.RealmServer.Chat;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
+using Serilog;
+using System;
+using System.Collections.Generic;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Maps;
-using Forged.RealmServer.Entities.Creatures;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Players;
-using Forged.RealmServer.Entities.Units;
-using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Misc;
 
 namespace Forged.RealmServer;
 
-public sealed class CreatureTextManager : Singleton<CreatureTextManager>
+public sealed class CreatureTextManager
 {
-	readonly Dictionary<uint, MultiMap<byte, CreatureTextEntry>> _textMap = new();
+    private readonly IConfiguration _configuration;
+    private readonly WorldConfig _worldConfig;
+    private readonly CliDB _cliDb;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly WorldManager _worldManager;
+    private readonly LanguageManager _languageManager;
+    private readonly DB2Manager _db2Manager;
+    readonly Dictionary<uint, MultiMap<byte, CreatureTextEntry>> _textMap = new();
 	readonly Dictionary<CreatureTextId, CreatureTextLocale> _localeTextMap = new();
-	CreatureTextManager() { }
+
+	public CreatureTextManager(IConfiguration configuration, WorldConfig worldConfig, CliDB cliDB,
+        WorldDatabase worldDatabase, WorldManager worldManager, LanguageManager languageManager, DB2Manager db2Manager)
+    {
+        _configuration = configuration;
+        _worldConfig = worldConfig;
+        _cliDb = cliDB;
+        _worldDatabase = worldDatabase;
+        _worldManager = worldManager;
+        _languageManager = languageManager;
+        _db2Manager = db2Manager;
+    }
 
 	public void LoadCreatureTexts()
 	{
@@ -32,8 +49,8 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 		_textMap.Clear(); // for reload case
 		//all currently used temp texts are NOT reset
 
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEXT);
-		var result = DB.World.Query(stmt);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEXT);
+		var result = _worldDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{
@@ -64,10 +81,10 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 			temp.TextRange = (CreatureTextRange)result.Read<byte>(12);
 
 			if (temp.sound != 0)
-				if (!CliDB.SoundKitStorage.ContainsKey(temp.sound))
+				if (!_cliDb.SoundKitStorage.ContainsKey(temp.sound))
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE creature_text SET Sound = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"UPDATE creature_text SET Sound = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
 					else
 						Log.Logger.Error($"GossipManager: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Sound {temp.sound} but sound does not exist.");
 
@@ -76,18 +93,18 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 
 			if (temp.SoundPlayType >= SoundKitPlayType.Max)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"UPDATE creature_text SET SoundPlayType = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"UPDATE creature_text SET SoundPlayType = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
 				else
 					Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_text` has PlayType {temp.SoundPlayType} but does not exist.");
 
 				temp.SoundPlayType = SoundKitPlayType.Normal;
 			}
 
-			if (temp.lang != Language.Universal && !Global.LanguageMgr.IsLanguageExist(temp.lang))
+			if (temp.lang != Language.Universal && !_languageManager.IsLanguageExist(temp.lang))
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"UPDATE creature_text SET Language = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"UPDATE creature_text SET Language = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
 				else
 					Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` using Language {temp.lang} but Language does not exist.");
 
@@ -96,8 +113,8 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 
 			if (temp.type >= ChatMsg.Max)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"UPDATE creature_text SET Type = {ChatMsg.Say} WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"UPDATE creature_text SET Type = {ChatMsg.Say} WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
 				else
 					Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Type {temp.type} but this Chat Type does not exist.");
 
@@ -105,10 +122,10 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 			}
 
 			if (temp.emote != 0)
-				if (!CliDB.EmotesStorage.ContainsKey((uint)temp.emote))
+				if (!_cliDb.EmotesStorage.ContainsKey((uint)temp.emote))
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE creature_text SET Emote = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"UPDATE creature_text SET Emote = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
 					else
 						Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Emote {temp.emote} but emote does not exist.");
 
@@ -116,10 +133,10 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 				}
 
 			if (temp.BroadcastTextId != 0)
-				if (!CliDB.BroadcastTextStorage.ContainsKey(temp.BroadcastTextId))
+				if (!_cliDb.BroadcastTextStorage.ContainsKey(temp.BroadcastTextId))
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE creature_text SET BroadcastTextId = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"UPDATE creature_text SET BroadcastTextId = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
 					else
 						Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId}, Id {temp.id} in table `creature_texts` has non-existing or incompatible BroadcastTextId {temp.BroadcastTextId}.");
 
@@ -128,8 +145,8 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 
 			if (temp.TextRange > CreatureTextRange.Personal)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"UPDATE creature_text SET TextRange = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"UPDATE creature_text SET TextRange = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
 				else
 					Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId}, Id {temp.id} in table `creature_text` has incorrect TextRange {temp.TextRange}.");
 
@@ -155,7 +172,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 
 		_localeTextMap.Clear(); // for reload case
 
-		var result = DB.World.Query("SELECT CreatureId, GroupId, ID, Locale, Text FROM creature_text_locale");
+		var result = _worldDatabase.Query("SELECT CreatureId, GroupId, ID, Locale, Text FROM creature_text_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -234,7 +251,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 		}
 		else
 		{
-			var bct = CliDB.BroadcastTextStorage.LookupByKey(textEntry.BroadcastTextId);
+			var bct = _cliDb.BroadcastTextStorage.LookupByKey(textEntry.BroadcastTextId);
 
 			if (bct != null)
 			{
@@ -373,10 +390,10 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 			locale = Locale.enUS;
 
 		string baseText;
-		var bct = CliDB.BroadcastTextStorage.LookupByKey(creatureTextEntry.BroadcastTextId);
+		var bct = _cliDb.BroadcastTextStorage.LookupByKey(creatureTextEntry.BroadcastTextId);
 
 		if (bct != null)
-			baseText = Global.DB2Mgr.GetBroadcastTextValue(bct, locale, gender);
+			baseText = _db2Manager.GetBroadcastTextValue(bct, locale, gender);
 		else
 			baseText = creatureTextEntry.text;
 
@@ -419,73 +436,11 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 				break;
 		}
 
-		switch (range)
-		{
-			case CreatureTextRange.Area:
-			{
-				var areaId = source.Area;
-				var players = source.Map.Players;
+        // Send to map server
+		// proximity chat messages
+    }
 
-				foreach (var pl in players)
-					if (pl.Area == areaId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
-						localizer.Invoke(pl);
-
-				return;
-			}
-			case CreatureTextRange.Zone:
-			{
-				var zoneId = source.Zone;
-				var players = source.Map.Players;
-
-				foreach (var pl in players)
-					if (pl.Zone == zoneId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
-						localizer.Invoke(pl);
-
-				return;
-			}
-			case CreatureTextRange.Map:
-			{
-				var players = source.Map.Players;
-
-				foreach (var pl in players)
-					if ((team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
-						localizer.Invoke(pl);
-
-				return;
-			}
-			case CreatureTextRange.World:
-			{
-				var smap = _worldManager.AllSessions;
-
-				foreach (var session in smap)
-				{
-					var player = session.Player;
-
-					if (player != null)
-						if ((team == 0 || player.Team == team) && (!gmOnly || player.IsGameMaster))
-							localizer.Invoke(player);
-				}
-
-				return;
-			}
-			case CreatureTextRange.Personal:
-				if (whisperTarget == null || !whisperTarget.IsPlayer)
-					return;
-
-				localizer.Invoke(whisperTarget.AsPlayer);
-
-				return;
-			case CreatureTextRange.Normal:
-			default:
-				break;
-		}
-
-		var dist = GetRangeForChatType(msgType);
-		var worker = new PlayerDistWorker(source, dist, localizer, GridType.World);
-		Cell.VisitGrid(source, worker, dist);
-	}
-
-	void SendNonChatPacket(WorldObject source, ServerPacket data, ChatMsg msgType, WorldObject whisperTarget, CreatureTextRange range, TeamFaction team, bool gmOnly)
+    void SendNonChatPacket(WorldObject source, ServerPacket data, ChatMsg msgType, WorldObject whisperTarget, CreatureTextRange range, TeamFaction team, bool gmOnly)
 	{
 		var dist = GetRangeForChatType(msgType);
 

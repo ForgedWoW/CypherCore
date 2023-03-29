@@ -312,13 +312,13 @@ public class ChatCommandNode
 		var areaName = "Unknown";
 		var zoneName = "Unknown";
 
-		var area = CliDB.AreaTableStorage.LookupByKey(areaId);
+		var area = _cliDb.AreaTableStorage.LookupByKey(areaId);
 
 		if (area != null)
 		{
 			var locale = session.SessionDbcLocale;
 			areaName = area.AreaName[locale];
-			var zone = CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
+			var zone = _cliDb.AreaTableStorage.LookupByKey(area.ParentAreaID);
 
 			if (zone != null)
 				zoneName = zone.AreaName[locale];

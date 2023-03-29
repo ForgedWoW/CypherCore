@@ -127,7 +127,7 @@ public class BattlePayDataStoreMgr
 		Log.Logger.Information("Loading Battlepay display info addons ...");
 		ProductAddons.Clear();
 
-		var result = DB.World.Query("SELECT DisplayInfoEntry, DisableListing, DisableBuy, NameColorIndex, ScriptName, Comment FROM battlepay_addon");
+		var result = _worldDatabase.Query("SELECT DisplayInfoEntry, DisableListing, DisableBuy, NameColorIndex, ScriptName, Comment FROM battlepay_addon");
 
 		if (result == null)
 			return;
@@ -154,7 +154,7 @@ public class BattlePayDataStoreMgr
 		Log.Logger.Information("Loading Battlepay product groups ...");
 		ProductGroups.Clear();
 
-		var result = DB.World.Query("SELECT Entry, GroupId, IconFileDataID, DisplayType, Ordering, Unk, Name, Description FROM battlepay_group");
+		var result = _worldDatabase.Query("SELECT Entry, GroupId, IconFileDataID, DisplayType, Ordering, Unk, Name, Description FROM battlepay_group");
 
 		if (result == null)
 			return;
@@ -185,7 +185,7 @@ public class BattlePayDataStoreMgr
 		ProductInfos.Clear();
 
 		// Product Info
-		var result = DB.World.Query("SELECT Entry, ProductId, NormalPriceFixedPoint, CurrentPriceFixedPoint, ProductIds, Unk1, Unk2, UnkInts, Unk3, ChoiceType FROM battlepay_productinfo");
+		var result = _worldDatabase.Query("SELECT Entry, ProductId, NormalPriceFixedPoint, CurrentPriceFixedPoint, ProductIds, Unk1, Unk2, UnkInts, Unk3, ChoiceType FROM battlepay_productinfo");
 
 		if (result == null)
 			return;
@@ -217,7 +217,7 @@ public class BattlePayDataStoreMgr
 		} while (result.NextRow());
 
 		// Product
-		result = DB.World.Query("SELECT Entry, ProductId, Type, Flags, Unk1, DisplayId, ItemId, Unk4, Unk5, Unk6, Unk7, Unk8, Unk9, UnkString, UnkBit, UnkBits, Name FROM battlepay_product");
+		result = _worldDatabase.Query("SELECT Entry, ProductId, Type, Flags, Unk1, DisplayId, ItemId, Unk4, Unk5, Unk6, Unk7, Unk8, Unk9, UnkString, UnkBit, UnkBits, Name FROM battlepay_product");
 
 		if (result == null)
 			return;
@@ -249,7 +249,7 @@ public class BattlePayDataStoreMgr
 		} while (result.NextRow());
 
 		// Product Items
-		result = DB.World.Query("SELECT ID, UnkByte, ItemID, Quantity, UnkInt1, UnkInt2, IsPet, PetResult, Display FROM battlepay_item");
+		result = _worldDatabase.Query("SELECT ID, UnkByte, ItemID, Quantity, UnkInt1, UnkInt2, IsPet, PetResult, Display FROM battlepay_item");
 
 		if (result == null)
 			return;
@@ -290,7 +290,7 @@ public class BattlePayDataStoreMgr
 		Log.Logger.Information("Loading Battlepay shop entries ...");
 		ShopEntries.Clear();
 
-		var result = DB.World.Query("SELECT Entry, EntryID, GroupID, ProductID, Ordering, VasServiceType, StoreDeliveryType FROM battlepay_shop");
+		var result = _worldDatabase.Query("SELECT Entry, EntryID, GroupID, ProductID, Ordering, VasServiceType, StoreDeliveryType FROM battlepay_shop");
 
 		if (result == null)
 			return;
@@ -318,7 +318,7 @@ public class BattlePayDataStoreMgr
 		Log.Logger.Information("Loading Battlepay display info ...");
 		DisplayInfos.Clear();
 
-		var result = DB.World.Query("SELECT Entry, CreatureDisplayID, VisualID, Name1, Name2, Name3, Name4, Name5, Name6, Name7, Flags, Unk1, Unk2, Unk3, UnkInt1, UnkInt2, UnkInt3 FROM battlepay_displayinfo");
+		var result = _worldDatabase.Query("SELECT Entry, CreatureDisplayID, VisualID, Name1, Name2, Name3, Name4, Name5, Name6, Name7, Flags, Unk1, Unk2, Unk3, UnkInt1, UnkInt2, UnkInt3 FROM battlepay_displayinfo");
 
 		if (result == null)
 			return;
@@ -348,7 +348,7 @@ public class BattlePayDataStoreMgr
 			DisplayInfos.Add(fields.Read<uint>(0), displayInfo);
 		} while (result.NextRow());
 
-		result = DB.World.Query("SELECT Entry, DisplayId, VisualId, Unk, Name, DisplayInfoEntry FROM battlepay_visual");
+		result = _worldDatabase.Query("SELECT Entry, DisplayId, VisualId, Unk, Name, DisplayInfoEntry FROM battlepay_visual");
 
 		if (result == null)
 			return;

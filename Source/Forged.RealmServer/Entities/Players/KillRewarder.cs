@@ -275,12 +275,12 @@ public class KillRewarder
 			// (Battlegroundrewards only XP, that's why).
 			if (!_isBattleground || _xp != 0)
 			{
-				var isDungeon = !_isPvP && CliDB.MapStorage.LookupByKey(killer.Location.MapId).IsDungeon();
+				var isDungeon = !_isPvP && _cliDb.MapStorage.LookupByKey(killer.Location.MapId).IsDungeon();
 
 				if (!_isBattleground)
 				{
 					// 3.1.2. Alter group rate if group is in raid (not for Battlegrounds).
-					var isRaid = !_isPvP && CliDB.MapStorage.LookupByKey(killer.Location.MapId).IsRaid() && group.IsRaidGroup;
+					var isRaid = !_isPvP && _cliDb.MapStorage.LookupByKey(killer.Location.MapId).IsRaid() && group.IsRaidGroup;
 					_groupRate = Formulas.XPInGroupRate(_count, isRaid);
 				}
 

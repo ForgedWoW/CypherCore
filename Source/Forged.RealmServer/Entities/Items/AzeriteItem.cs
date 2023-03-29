@@ -108,7 +108,7 @@ public class AzeriteItem : Item
 	{
 		var needSave = false;
 
-		if (!CliDB.AzeriteLevelInfoStorage.ContainsKey(azeriteData.Level))
+		if (!_cliDb.AzeriteLevelInfoStorage.ContainsKey(azeriteData.Level))
 		{
 			azeriteData.Xp = 0;
 			azeriteData.Level = 1;
@@ -290,7 +290,7 @@ public class AzeriteItem : Item
 
 	public bool CanUseEssences()
 	{
-		var condition = CliDB.PlayerConditionStorage.LookupByKey(PlayerConst.PlayerConditionIdUnlockedAzeriteEssences);
+		var condition = _cliDb.PlayerConditionStorage.LookupByKey(PlayerConst.PlayerConditionIdUnlockedAzeriteEssences);
 
 		if (condition != null)
 			return ConditionManager.IsPlayerMeetingCondition(OwnerUnit, condition);
@@ -300,7 +300,7 @@ public class AzeriteItem : Item
 
 	public bool HasUnlockedEssenceSlot(byte slot)
 	{
-		var milestone = Global.DB2Mgr.GetAzeriteItemMilestonePower(slot);
+		var milestone = _db2Manager.GetAzeriteItemMilestonePower(slot);
 
 		return AzeriteItemData.UnlockedEssenceMilestones.FindIndex(milestone.Id) != -1;
 	}
@@ -336,7 +336,7 @@ public class AzeriteItem : Item
 			return;
 		}
 
-		if (Global.DB2Mgr.GetAzeriteEssencePower(azeriteEssenceId, rank) == null)
+		if (_db2Manager.GetAzeriteEssencePower(azeriteEssenceId, rank) == null)
 			return;
 
 		if (index < 0)
@@ -480,8 +480,8 @@ public class AzeriteItem : Item
 
 	ulong CalcTotalXPToNextLevel(uint level, uint knowledgeLevel)
 	{
-		var levelInfo = CliDB.AzeriteLevelInfoStorage.LookupByKey(level);
-		var totalXp = levelInfo.BaseExperienceToNextLevel * (ulong)CliDB.AzeriteKnowledgeMultiplierStorage.LookupByKey(knowledgeLevel).Multiplier;
+		var levelInfo = _cliDb.AzeriteLevelInfoStorage.LookupByKey(level);
+		var totalXp = levelInfo.BaseExperienceToNextLevel * (ulong)_cliDb.AzeriteKnowledgeMultiplierStorage.LookupByKey(knowledgeLevel).Multiplier;
 
 		return Math.Max(totalXp, levelInfo.MinimumExperienceToNextLevel);
 	}
@@ -529,7 +529,7 @@ public class AzeriteItem : Item
 	{
 		var hasPreviousMilestone = true;
 
-		foreach (var milestone in Global.DB2Mgr.GetAzeriteItemMilestonePowers())
+		foreach (var milestone in _db2Manager.GetAzeriteItemMilestonePowers())
 		{
 			if (!hasPreviousMilestone)
 				break;

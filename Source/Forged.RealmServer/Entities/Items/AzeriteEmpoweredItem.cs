@@ -107,7 +107,7 @@ public class AzeriteEmpoweredItem : Item
 
 	public uint GetRequiredAzeriteLevelForTier(uint tier)
 	{
-		return Global.DB2Mgr.GetRequiredAzeriteLevelForAzeritePowerTier(BonusData.AzeriteTierUnlockSetId, GetContext(), tier);
+		return _db2Manager.GetRequiredAzeriteLevelForAzeritePowerTier(BonusData.AzeriteTierUnlockSetId, GetContext(), tier);
 	}
 
 	public int GetTierForAzeritePower(PlayerClass playerClass, int azeritePowerId)
@@ -125,7 +125,7 @@ public class AzeriteEmpoweredItem : Item
 		SetUpdateFieldValue(ref Values.ModifyValue(_azeriteEmpoweredItemData).ModifyValue(_azeriteEmpoweredItemData.Selections, tier), azeritePowerId);
 
 		// Not added to UF::ItemData::BonusListIDs, client fakes it on its own too
-		BonusData.AddBonusList(CliDB.AzeritePowerStorage.LookupByKey(azeritePowerId).ItemBonusListID);
+		BonusData.AddBonusList(_cliDb.AzeritePowerStorage.LookupByKey(azeritePowerId).ItemBonusListID);
 	}
 
 	public long GetRespecCost()
@@ -133,7 +133,7 @@ public class AzeriteEmpoweredItem : Item
 		var owner = OwnerUnit;
 
 		if (owner != null)
-			return (long)(MoneyConstants.Gold * Global.DB2Mgr.GetCurveValueAt((uint)Curves.AzeriteEmpoweredItemRespecCost, (float)owner.NumRespecs));
+			return (long)(MoneyConstants.Gold * _db2Manager.GetCurveValueAt((uint)Curves.AzeriteEmpoweredItemRespecCost, (float)owner.NumRespecs));
 
 		return (long)PlayerConst.MaxMoneyAmount + 1;
 	}
@@ -237,7 +237,7 @@ public class AzeriteEmpoweredItem : Item
 
 	void InitAzeritePowerData()
 	{
-		_azeritePowers = Global.DB2Mgr.GetAzeritePowers(Entry);
+		_azeritePowers = _db2Manager.GetAzeritePowers(Entry);
 
 		if (_azeritePowers != null)
 			_maxTier = _azeritePowers.Aggregate((a1, a2) => a1.Tier < a2.Tier ? a2 : a1).Tier;

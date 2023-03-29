@@ -37,7 +37,7 @@ public partial class Player
 			{
 				_corpseLocation = new WorldLocation(result.Read<ushort>(0), result.Read<float>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4));
 
-				if (!CliDB.MapStorage.LookupByKey(_corpseLocation.MapId).Instanceable())
+				if (!_cliDb.MapStorage.LookupByKey(_corpseLocation.MapId).Instanceable())
 					SetPlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
 				else
 					RemovePlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
@@ -70,7 +70,7 @@ public partial class Player
 				m.stationery = (MailStationery)mailsResult.Read<byte>(11);
 				m.mailTemplateId = mailsResult.Read<ushort>(12);
 
-				if (m.mailTemplateId != 0 && !CliDB.MailTemplateStorage.ContainsKey(m.mailTemplateId))
+				if (m.mailTemplateId != 0 && !_cliDb.MailTemplateStorage.ContainsKey(m.mailTemplateId))
 				{
 					Log.outError(LogFilter.Player, $"Player:_LoadMail - Mail ({m.messageID}) have not existed MailTemplateId ({m.mailTemplateId}), remove at load");
 					m.mailTemplateId = 0;
@@ -435,7 +435,7 @@ public partial class Player
 
 		Map map = null;
 		var player_at_bg = false;
-		var mapEntry = CliDB.MapStorage.LookupByKey(mapId);
+		var mapEntry = _cliDb.MapStorage.LookupByKey(mapId);
 
 		if (mapEntry == null || !Location.IsPositionValid)
 		{
@@ -575,7 +575,7 @@ public partial class Player
 				var node_id = Taxi.GetTaxiSource();
 
 				if (node_id != 0)
-					nodeEntry = CliDB.TaxiNodesStorage.LookupByKey(node_id);
+					nodeEntry = _cliDb.TaxiNodesStorage.LookupByKey(node_id);
 
 				if (nodeEntry == null) // don't know taxi start node, to homebind
 				{
@@ -597,7 +597,7 @@ public partial class Player
 			if (nodeid != 0)
 			{
 				// save source node as recall coord to prevent recall and fall from sky
-				var nodeEntry = CliDB.TaxiNodesStorage.LookupByKey(nodeid);
+				var nodeEntry = _cliDb.TaxiNodesStorage.LookupByKey(nodeid);
 
 				if (nodeEntry != null && nodeEntry.ContinentID == Location.MapId)
 				{
@@ -615,7 +615,7 @@ public partial class Player
 		}
 
 		// Map could be changed before
-		mapEntry = CliDB.MapStorage.LookupByKey(mapId);
+		mapEntry = _cliDb.MapStorage.LookupByKey(mapId);
 
 		// client without expansion support
 		if (mapEntry != null)
@@ -754,12 +754,12 @@ public partial class Player
 		SetNumRespecs(numRespecs);
 		SetPrimarySpecialization(primarySpecialization);
 		SetActiveTalentGroup(activeTalentGroup);
-		var primarySpec = CliDB.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
+		var primarySpec = _cliDb.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
 
 		if (primarySpec == null || primarySpec.ClassID != (byte)Class || GetActiveTalentGroup() >= PlayerConst.MaxSpecializations)
 			ResetTalentSpecialization();
 
-		var chrSpec = CliDB.ChrSpecializationStorage.LookupByKey(lootSpecId);
+		var chrSpec = _cliDb.ChrSpecializationStorage.LookupByKey(lootSpecId);
 
 		if (chrSpec != null)
 			if (chrSpec.ClassID == (uint)Class)
@@ -867,7 +867,7 @@ public partial class Player
 		var loadedPowers = 0;
 
 		for (PowerType i = 0; i < PowerType.Max; ++i)
-			if (Global.DB2Mgr.GetPowerIndexByClass(i, Class) != (int)PowerType.Max)
+			if (_db2Manager.GetPowerIndexByClass(i, Class) != (int)PowerType.Max)
 			{
 				var savedPower = powers[loadedPowers];
 				var maxPower = UnitData.MaxPower[loadedPowers];
@@ -1015,7 +1015,7 @@ public partial class Player
 
 		PushQuests();
 
-		foreach (var transmogIllusion in CliDB.TransmogIllusionStorage.Values)
+		foreach (var transmogIllusion in _cliDb.TransmogIllusionStorage.Values)
 		{
 			if (!transmogIllusion.GetFlags().HasFlag(TransmogIllusionFlags.PlayerConditionGrantsOnLogin))
 				continue;
@@ -1023,7 +1023,7 @@ public partial class Player
 			if (Session.CollectionMgr.HasTransmogIllusion(transmogIllusion.Id))
 				continue;
 
-			var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(transmogIllusion.UnlockConditionID);
+			var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(transmogIllusion.UnlockConditionID);
 
 			if (playerCondition != null)
 				if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
@@ -1065,7 +1065,7 @@ public partial class Player
 		Log.outDebug(LogFilter.Player, $"Player::SaveToDB: The value of player {GetName()} at save: ");
 
 		if (!create)
-			Global.ScriptMgr.ForEach<IPlayerOnSave>(p => p.OnSave(this));
+			_scriptManager.ForEach<IPlayerOnSave>(p => p.OnSave(this));
 
 		PreparedStatement stmt;
 		byte index = 0;
@@ -1195,14 +1195,14 @@ public partial class Player
 				if (item != null)
 				{
 					ss.Append($"{(uint)item.Template.InventoryType} {item.GetDisplayId(this)} ");
-					var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(item.GetVisibleEnchantmentId(this));
+					var enchant = _cliDb.SpellItemEnchantmentStorage.LookupByKey(item.GetVisibleEnchantmentId(this));
 
 					if (enchant != null)
 						ss.Append(enchant.ItemVisual);
 					else
 						ss.Append('0');
 
-					ss.Append($" {(uint)CliDB.ItemStorage.LookupByKey(item.GetVisibleEntry(this)).SubclassID} {(uint)item.GetVisibleSecondaryModifiedAppearanceId(this)} ");
+					ss.Append($" {(uint)_cliDb.ItemStorage.LookupByKey(item.GetVisibleEntry(this)).SubclassID} {(uint)item.GetVisibleSecondaryModifiedAppearanceId(this)} ");
 				}
 				else
 				{
@@ -1356,14 +1356,14 @@ public partial class Player
 				if (item != null)
 				{
 					ss.Append($"{(uint)item.Template.InventoryType} {item.GetDisplayId(this)} ");
-					var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(item.GetVisibleEnchantmentId(this));
+					var enchant = _cliDb.SpellItemEnchantmentStorage.LookupByKey(item.GetVisibleEnchantmentId(this));
 
 					if (enchant != null)
 						ss.Append(enchant.ItemVisual);
 					else
 						ss.Append('0');
 
-					ss.Append($" {(uint)CliDB.ItemStorage.LookupByKey(item.GetVisibleEntry(this)).SubclassID} {(uint)item.GetVisibleSecondaryModifiedAppearanceId(this)} ");
+					ss.Append($" {(uint)_cliDb.ItemStorage.LookupByKey(item.GetVisibleEntry(this)).SubclassID} {(uint)item.GetVisibleSecondaryModifiedAppearanceId(this)} ");
 				}
 				else
 				{
@@ -1502,7 +1502,7 @@ public partial class Player
 			var posy = result.Read<float>(2);
 			var posz = result.Read<float>(3);
 
-			if (!CliDB.MapStorage.ContainsKey(map))
+			if (!_cliDb.MapStorage.ContainsKey(map))
 				return 0;
 
 			zone = Global.TerrainMgr.GetZoneId(PhasingHandler.EmptyPhaseShift, map, posx, posy, posz);
@@ -2493,7 +2493,7 @@ public partial class Player
 				var max = result.Read<ushort>(2);
 				var professionSlot = result.Read<sbyte>(3);
 
-				var rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(skill, race, Class);
+				var rcEntry = _db2Manager.GetSkillRaceClassInfo(skill, race, Class);
 
 				if (rcEntry == null)
 				{
@@ -2528,7 +2528,7 @@ public partial class Player
 				var skillStatusData = _skillStatus[skill];
 				ushort step = 0;
 
-				var skillLine = CliDB.SkillLineStorage.LookupByKey(rcEntry.SkillID);
+				var skillLine = _cliDb.SkillLineStorage.LookupByKey(rcEntry.SkillID);
 
 				if (skillLine != null)
 				{
@@ -2564,7 +2564,7 @@ public partial class Player
 		foreach (var skill in loadedSkillValues)
 		{
 			LearnSkillRewardedSpells(skill.Key, skill.Value, race);
-			var childSkillLines = Global.DB2Mgr.GetSkillLinesForParentSkill(skill.Key);
+			var childSkillLines = _db2Manager.GetSkillLinesForParentSkill(skill.Key);
 
 			if (childSkillLines != null)
 				foreach (var childItr in childSkillLines)
@@ -2663,7 +2663,7 @@ public partial class Player
 					continue;
 				}
 
-				if (difficulty != Difficulty.None && !CliDB.DifficultyStorage.ContainsKey(difficulty))
+				if (difficulty != Difficulty.None && !_cliDb.DifficultyStorage.ContainsKey(difficulty))
 				{
 					Log.outError(LogFilter.Player, $"Player._LoadAuras: Player '{GetName()}' ({GUID}) has an invalid aura difficulty {difficulty} (SpellID: {key.SpellId}), ignoring.");
 
@@ -2736,7 +2736,7 @@ public partial class Player
 			_homebind.WorldRelocate(result.Read<uint>(0), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), result.Read<float>(5));
 			_homebindAreaId = result.Read<uint>(1);
 
-			var map = CliDB.MapStorage.LookupByKey(_homebind.MapId);
+			var map = _cliDb.MapStorage.LookupByKey(_homebind.MapId);
 
 			// accept saved data only for valid position (and non instanceable), and accessable
 			if (GridDefines.IsValidMapCoord(_homebind) &&
@@ -2809,7 +2809,7 @@ public partial class Player
 		{
 			var currencyID = result.Read<ushort>(0);
 
-			var currency = CliDB.CurrencyTypesStorage.LookupByKey(currencyID);
+			var currency = _cliDb.CurrencyTypesStorage.LookupByKey(currencyID);
 
 			if (currency == null)
 				continue;
@@ -3005,7 +3005,7 @@ public partial class Player
 					// set rewarded title if any
 					if (quest.RewardTitleId != 0)
 					{
-						var titleEntry = CliDB.CharTitlesStorage.LookupByKey(quest.RewardTitleId);
+						var titleEntry = _cliDb.CharTitlesStorage.LookupByKey(quest.RewardTitleId);
 
 						if (titleEntry != null)
 							SetTitle(titleEntry);
@@ -3015,7 +3015,7 @@ public partial class Player
 					// instead add them separately from load daily/weekly/monthly/seasonal
 					if (!quest.IsDailyOrWeekly && !quest.IsMonthly && !quest.IsSeasonal)
 					{
-						var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(quest_id);
+						var questBit = _db2Manager.GetQuestUniqueBitFlag(quest_id);
 
 						if (questBit != 0)
 							SetQuestCompletedBit(questBit, true);
@@ -3027,7 +3027,7 @@ public partial class Player
 					for (uint i = 0; i < quest.RewItemsCount; ++i)
 						Session.CollectionMgr.AddItemAppearance(quest.RewardItemId[i]);
 
-					var questPackageItems = Global.DB2Mgr.GetQuestPackageItems(quest.PackageID);
+					var questPackageItems = _db2Manager.GetQuestPackageItems(quest.PackageID);
 
 					if (questPackageItems != null)
 						foreach (var questPackageItem in questPackageItems)
@@ -3074,7 +3074,7 @@ public partial class Player
 					continue;
 
 				AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.DailyQuestsCompleted), quest_id);
-				var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(quest_id);
+				var questBit = _db2Manager.GetQuestUniqueBitFlag(quest_id);
 
 				if (questBit != 0)
 					SetQuestCompletedBit(questBit, true);
@@ -3099,7 +3099,7 @@ public partial class Player
 					continue;
 
 				_weeklyquests.Add(quest_id);
-				var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(quest_id);
+				var questBit = _db2Manager.GetQuestUniqueBitFlag(quest_id);
 
 				if (questBit != 0)
 					SetQuestCompletedBit(questBit, true);
@@ -3130,7 +3130,7 @@ public partial class Player
 
 				_seasonalquests[event_id][quest_id] = completedTime;
 
-				var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(quest_id);
+				var questBit = _db2Manager.GetQuestUniqueBitFlag(quest_id);
 
 				if (questBit != 0)
 					SetQuestCompletedBit(questBit, true);
@@ -3159,7 +3159,7 @@ public partial class Player
 					continue;
 
 				_monthlyquests.Add(quest_id);
-				var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(quest_id);
+				var questBit = _db2Manager.GetQuestUniqueBitFlag(quest_id);
 
 				if (questBit != 0)
 					SetQuestCompletedBit(questBit, true);
@@ -3175,7 +3175,7 @@ public partial class Player
 		if (!result.IsEmpty())
 			do
 			{
-				var talent = CliDB.TalentStorage.LookupByKey(result.Read<uint>(0));
+				var talent = _cliDb.TalentStorage.LookupByKey(result.Read<uint>(0));
 
 				if (talent != null)
 					AddTalent(talent, result.Read<byte>(1), false);
@@ -3190,7 +3190,7 @@ public partial class Player
 			{
 				for (byte slot = 0; slot < PlayerConst.MaxPvpTalentSlots; ++slot)
 				{
-					var talent = CliDB.PvpTalentStorage.LookupByKey(result.Read<uint>(slot));
+					var talent = _cliDb.PvpTalentStorage.LookupByKey(result.Read<uint>(slot));
 
 					if (talent != null)
 						AddPvpTalent(talent, result.Read<byte>(4), slot);
@@ -3281,7 +3281,7 @@ public partial class Player
 
 		for (uint i = 0; i < PlayerConst.MaxSpecializations - 1 /*initial spec doesnt get a config*/; ++i)
 		{
-			var spec = Global.DB2Mgr.GetChrSpecializationByIndex(Class, i);
+			var spec = _db2Manager.GetChrSpecializationByIndex(Class, i);
 
 			if (spec != null)
 			{
@@ -3336,12 +3336,12 @@ public partial class Player
 		{
 			var spec = result.Read<byte>(0);
 
-			if (spec >= PlayerConst.MaxSpecializations || Global.DB2Mgr.GetChrSpecializationByIndex(Class, spec) == null)
+			if (spec >= PlayerConst.MaxSpecializations || _db2Manager.GetChrSpecializationByIndex(Class, spec) == null)
 				continue;
 
 			var glyphId = result.Read<ushort>(1);
 
-			if (!CliDB.GlyphPropertiesStorage.ContainsKey(glyphId))
+			if (!_cliDb.GlyphPropertiesStorage.ContainsKey(glyphId))
 				continue;
 
 			GetGlyphs(spec).Add(glyphId);
@@ -3351,7 +3351,7 @@ public partial class Player
 	void _LoadGlyphAuras()
 	{
 		foreach (var glyphId in GetGlyphs(GetActiveTalentGroup()))
-			CastSpell(this, CliDB.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID, true);
+			CastSpell(this, _cliDb.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID, true);
 	}
 
 	void _LoadVoidStorage(SQLResult result)
@@ -4110,7 +4110,7 @@ public partial class Player
 
 		foreach (var (id, currency) in _currencyStorage)
 		{
-			var entry = CliDB.CurrencyTypesStorage.LookupByKey(id);
+			var entry = _cliDb.CurrencyTypesStorage.LookupByKey(id);
 
 			if (entry == null) // should never happen
 				continue;

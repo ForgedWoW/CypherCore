@@ -1,31 +1,54 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Framework.Collections;
-using Framework.Constants;
-using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Guilds;
-using Forged.RealmServer.Scripting.Interfaces.IAchievement;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Players;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Achievements;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting.Interfaces.IAchievement;
+using Framework.Collections;
+using Framework.Constants;
+using Framework.Database;
+using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Forged.RealmServer.Scripting;
+using Forged.RealmServer.World;
 
 namespace Forged.RealmServer.Achievements;
 
 public class GuildAchievementMgr : AchievementManager
 {
 	readonly Guild _owner;
+    private readonly CliDB _cliDb;
+    private readonly CriteriaManager _criteriaManager;
+    private readonly AchievementGlobalMgr _achievementGlobalMgr;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly GameTime _gameTime;
+    private readonly WorldManager _worldManager;
+    private readonly ScriptManager _scriptManager;
 
-	public GuildAchievementMgr(Guild owner)
-	{
-		_owner = owner;
-	}
+    public GuildAchievementMgr(Guild owner,
+                                CliDB cliDB,
+                                CriteriaManager criteriaManager,
+                                AchievementGlobalMgr achievementGlobalMgr,
+                                CharacterDatabase characterDatabase, 
+                                GameTime gameTime, 
+                                WorldManager worldManager, 
+                                ScriptManager scriptManager)
+                                : base(cliDB, criteriaManager, achievementGlobalMgr)
+    {
+        _owner = owner;
+        _cliDb = cliDB;
+        _criteriaManager = criteriaManager;
+        _achievementGlobalMgr = achievementGlobalMgr;
+        _characterDatabase = characterDatabase;
+        _gameTime = gameTime;
+        _worldManager = worldManager;
+        _scriptManager = scriptManager;
+    }
 
 	public override void Reset()
 	{
@@ -47,7 +70,7 @@ public class GuildAchievementMgr : AchievementManager
 		DeleteFromDB(guid);
 	}
 
-	public static void DeleteFromDB(ObjectGuid guid)
+	public void DeleteFromDB(ObjectGuid guid)
 	{
 		SQLTransaction trans = new();
 
@@ -70,7 +93,7 @@ public class GuildAchievementMgr : AchievementManager
 				var achievementid = achievementResult.Read<uint>(0);
 
 				// must not happen: cleanup at server startup in sAchievementMgr.LoadCompletedAchievements()
-				var achievement = CliDB.AchievementStorage.LookupByKey(achievementid);
+				var achievement = _cliDb.AchievementStorage.LookupByKey(achievementid);
 
 				if (achievement == null)
 					continue;
@@ -102,7 +125,7 @@ public class GuildAchievementMgr : AchievementManager
 				var date = criteriaResult.Read<long>(2);
 				var guidLow = criteriaResult.Read<ulong>(3);
 
-				var criteria = Global.CriteriaMgr.GetCriteria(id);
+				var criteria = _criteriaManager.GetCriteria(id);
 
 				if (criteria == null)
 				{
@@ -202,11 +225,11 @@ public class GuildAchievementMgr : AchievementManager
 	public void SendAchievementInfo(Player receiver, uint achievementId = 0)
 	{
 		GuildCriteriaUpdate guildCriteriaUpdate = new();
-		var achievement = CliDB.AchievementStorage.LookupByKey(achievementId);
+		var achievement = _cliDb.AchievementStorage.LookupByKey(achievementId);
 
 		if (achievement != null)
 		{
-			var tree = Global.CriteriaMgr.GetCriteriaTree(achievement.CriteriaTree);
+			var tree = _criteriaManager.GetCriteriaTree(achievement.CriteriaTree);
 
 			if (tree != null)
 				CriteriaManager.WalkCriteriaTree(tree,
@@ -320,7 +343,7 @@ public class GuildAchievementMgr : AchievementManager
 		_completedAchievements[achievement.Id] = ca;
 
 		if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
-			Global.AchievementMgr.SetRealmCompleted(achievement);
+            _achievementGlobalMgr.SetRealmCompleted(achievement);
 
 		if (!achievement.Flags.HasAnyFlag(AchievementFlags.TrackingFlag))
 			_achievementPoints += achievement.Points;
@@ -328,7 +351,7 @@ public class GuildAchievementMgr : AchievementManager
 		UpdateCriteria(CriteriaType.EarnAchievement, achievement.Id, 0, 0, null, referencePlayer);
 		UpdateCriteria(CriteriaType.EarnAchievementPoints, achievement.Points, 0, 0, null, referencePlayer);
 
-		Global.ScriptMgr.RunScript<IAchievementOnCompleted>(p => p.OnCompleted(referencePlayer, achievement), Global.AchievementMgr.GetAchievementScriptId(achievement.Id));
+		_scriptManager.RunScript<IAchievementOnCompleted>(p => p.OnCompleted(referencePlayer, achievement), _achievementGlobalMgr.GetAchievementScriptId(achievement.Id));
 	}
 
 	public override void SendCriteriaUpdate(Criteria entry, CriteriaProgress progress, TimeSpan timeElapsed, bool timedCompleted)
@@ -364,7 +387,7 @@ public class GuildAchievementMgr : AchievementManager
 
 	public override List<Criteria> GetCriteriaByType(CriteriaType type, uint asset)
 	{
-		return Global.CriteriaMgr.GetGuildCriteriaByType(type);
+		return _criteriaManager.GetGuildCriteriaByType(type);
 	}
 
 	public override string GetOwnerInfo()

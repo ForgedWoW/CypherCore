@@ -36,7 +36,7 @@ class CharacterCommands
 		var knownStr = handler.GetCypherString(CypherStrings.Known);
 
 		// Search in CharTitles.dbc
-		foreach (var titleInfo in CliDB.CharTitlesStorage.Values)
+		foreach (var titleInfo in _cliDb.CharTitlesStorage.Values)
 			if (target.HasTitle(titleInfo))
 			{
 				var name = (target.NativeGender == Gender.Male ? titleInfo.Name : titleInfo.Name1)[loc];
@@ -408,7 +408,7 @@ class CharacterCommands
 		foreach (var pair in targetFSL)
 		{
 			var faction = pair.Value;
-			var factionEntry = CliDB.FactionStorage.LookupByKey(faction.Id);
+			var factionEntry = _cliDb.FactionStorage.LookupByKey(faction.Id);
 			var factionName = factionEntry != null ? factionEntry.Name[loc] : "#Not found#";
 			var rank = target.ReputationMgr.GetRank(factionEntry);
 			var rankName = handler.GetCypherString(ReputationMgr.ReputationRankStrIndex[(int)rank]);

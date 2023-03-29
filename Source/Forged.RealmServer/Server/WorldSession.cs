@@ -1,43 +1,43 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Bgs.Protocol.GameUtilities.V1;
+using Forged.RealmServer.Accounts;
+using Forged.RealmServer.Battlepay;
+using Forged.RealmServer.BattlePets;
+using Forged.RealmServer.Cache;
+using Forged.RealmServer.Chat;
+using Forged.RealmServer.DataStorage;
+using Forged.RealmServer.DungeonFinding;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Globals;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting;
+using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Forged.RealmServer.Services;
+using Forged.RealmServer.World;
+using Framework.Collections;
+using Framework.Constants;
+using Framework.Database;
+using Framework.Realm;
+using Framework.Serialization;
+using Framework.Util;
+using Framework.Web;
+using Google.Protobuf;
+using Microsoft.Extensions.Configuration;
+using Serilog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using Framework.Collections;
-using Framework.Constants;
-using Framework.Database;
-using Framework.Realm;
-using Forged.RealmServer.Accounts;
-using Forged.RealmServer.BattlePets;
-using Forged.RealmServer.Chat;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Battlepay;
-using Forged.RealmServer.Networking;
-using Serilog;
-using Microsoft.Extensions.Configuration;
-using Framework.Util;
-using Forged.RealmServer.Networking.Packets;
-using Bgs.Protocol.GameUtilities.V1;
-using Framework.Serialization;
-using Framework.Web;
-using Google.Protobuf;
-using Forged.RealmServer.Services;
-using Forged.RealmServer.Globals;
-using Forged.RealmServer.DataStorage;
 using static Forged.RealmServer.Networking.Packets.ConnectTo;
-using Forged.RealmServer.DungeonFinding;
-using Forged.RealmServer.Cache;
-using System.Linq;
-using Forged.RealmServer.World;
-using Forged.RealmServer.Scripting.Interfaces.IPlayer;
-using Forged.RealmServer.Scripting;
 
 namespace Forged.RealmServer;
 
@@ -82,7 +82,7 @@ public class WorldSession : IDisposable
     private readonly GuildManager _guildManager;
     private readonly ScriptManager _scriptManager;
     private readonly SocialManager _socialManager;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly PacketManager _packetManager;
     private readonly ActionBlock<WorldPacket> _recvQueue;
 
@@ -263,7 +263,7 @@ public class WorldSession : IDisposable
         _guildManager = classFactory.Resolve<GuildManager>();
         _scriptManager = classFactory.Resolve<ScriptManager>();
         _socialManager = classFactory.Resolve<SocialManager>();
-        _cliDB = classFactory.Resolve<CliDB>();
+        _cliDb = classFactory.Resolve<CliDB>();
 
         _configuredExpansion = _configuration.GetDefaultValue<int>("Player.OverrideExpansion", -1) == -1 ? Expansion.LevelCurrent : (Expansion)_configuration.GetDefaultValue<int>("Player.OverrideExpansion", -1);
 		_accountExpansion = Expansion.LevelCurrent == _configuredExpansion ? expansion : _configuredExpansion;
@@ -1840,9 +1840,9 @@ public class WorldSession : IDisposable
                             pCurrChar.SendMovieStart(playerInfo.IntroMovieId.Value);
                         else if (playerInfo.IntroSceneId.HasValue)
                             pCurrChar.SceneMgr.PlayScene(playerInfo.IntroSceneId.Value);
-                        else if (_cliDB.ChrClassesStorage.TryGetValue((uint)pCurrChar.Class, out var chrClassesRecord) && chrClassesRecord.CinematicSequenceID != 0)
+                        else if (_cliDb.ChrClassesStorage.TryGetValue((uint)pCurrChar.Class, out var chrClassesRecord) && chrClassesRecord.CinematicSequenceID != 0)
                             pCurrChar.SendCinematicStart(chrClassesRecord.CinematicSequenceID);
-                        else if (_cliDB.ChrRacesStorage.TryGetValue((uint)pCurrChar.Race, out var chrRacesRecord) && chrRacesRecord.CinematicSequenceID != 0)
+                        else if (_cliDb.ChrRacesStorage.TryGetValue((uint)pCurrChar.Race, out var chrRacesRecord) && chrRacesRecord.CinematicSequenceID != 0)
                             pCurrChar.SendCinematicStart(chrRacesRecord.CinematicSequenceID);
 
                         break;

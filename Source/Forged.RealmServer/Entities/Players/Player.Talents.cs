@@ -23,7 +23,7 @@ public partial class Player
 		if (level < PlayerConst.MinSpecializationLevel)
 			ResetTalentSpecialization();
 
-		var talentTiers = Global.DB2Mgr.GetNumTalentsAtLevel(level, Class);
+		var talentTiers = _db2Manager.GetNumTalentsAtLevel(level, Class);
 
 		if (level < 10)
 		{
@@ -35,7 +35,7 @@ public partial class Player
 			if (!Session.HasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed))
 				for (var t = talentTiers; t < PlayerConst.MaxTalentTiers; ++t)
 					for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
-						foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, t, c))
+						foreach (var talent in _db2Manager.GetTalentsByPosition(Class, t, c))
 							RemoveTalent(talent);
 		}
 
@@ -44,9 +44,9 @@ public partial class Player
 		if (!Session.HasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed))
 			for (byte spec = 0; spec < PlayerConst.MaxSpecializations; ++spec)
 			{
-				for (var slot = Global.DB2Mgr.GetPvpTalentNumSlotsAtLevel(level, Class); slot < PlayerConst.MaxPvpTalentSlots; ++slot)
+				for (var slot = _db2Manager.GetPvpTalentNumSlotsAtLevel(level, Class); slot < PlayerConst.MaxPvpTalentSlots; ++slot)
 				{
-					var pvpTalent = CliDB.PvpTalentStorage.LookupByKey(GetPvpTalentMap(spec)[slot]);
+					var pvpTalent = _cliDb.PvpTalentStorage.LookupByKey(GetPvpTalentMap(spec)[slot]);
 
 					if (pvpTalent != null)
 						RemovePvpTalent(pvpTalent, spec);
@@ -129,7 +129,7 @@ public partial class Player
 		if (GetPrimarySpecialization() == 0)
 			return TalentLearnResult.FailedNoPrimaryTreeSelected;
 
-		var talentInfo = CliDB.TalentStorage.LookupByKey(talentId);
+		var talentInfo = _cliDb.TalentStorage.LookupByKey(talentId);
 
 		if (talentInfo == null)
 			return TalentLearnResult.FailedUnknown;
@@ -155,7 +155,7 @@ public partial class Player
 		// We need to make sure that if player is in one of these defined specs he will not learn the other choice
 		TalentRecord bestSlotMatch = null;
 
-		foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, talentInfo.TierID, talentInfo.ColumnIndex))
+		foreach (var talent in _db2Manager.GetTalentsByPosition(Class, talentInfo.TierID, talentInfo.ColumnIndex))
 			if (talent.SpecID == 0)
 			{
 				bestSlotMatch = talent;
@@ -173,7 +173,7 @@ public partial class Player
 
 		// Check if player doesn't have any talent in current tier
 		for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
-			foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, talentInfo.TierID, c))
+			foreach (var talent in _db2Manager.GetTalentsByPosition(Class, talentInfo.TierID, c))
 			{
 				if (talent.SpecID != 0 && talent.SpecID != GetPrimarySpecialization())
 					continue;
@@ -224,15 +224,15 @@ public partial class Player
 		for (uint t = 0; t < PlayerConst.MaxTalentTiers; ++t)
 		{
 			for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
-				if (Global.DB2Mgr.GetTalentsByPosition(class_, t, c).Count > 1)
-					foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(class_, t, c))
+				if (_db2Manager.GetTalentsByPosition(class_, t, c).Count > 1)
+					foreach (var talent in _db2Manager.GetTalentsByPosition(class_, t, c))
 						RemoveTalent(talent);
 		}
 
 		ResetPvpTalents();
 		RemoveSpecializationSpells();
 
-		var defaultSpec = Global.DB2Mgr.GetDefaultChrSpecializationForClass(Class);
+		var defaultSpec = _db2Manager.GetDefaultChrSpecializationForClass(Class);
 		SetPrimarySpecialization(defaultSpec.Id);
 		SetActiveTalentGroup(defaultSpec.OrderIndex);
 
@@ -265,7 +265,7 @@ public partial class Player
 
 	public uint GetDefaultSpecId()
 	{
-		return Global.DB2Mgr.GetDefaultChrSpecializationForClass(Class).Id;
+		return _db2Manager.GetDefaultChrSpecializationForClass(Class).Id;
 	}
 
 	public void ActivateTalentGroup(ChrSpecializationRecord spec)
@@ -303,7 +303,7 @@ public partial class Player
 		// Let client clear his current Actions
 		SendActionButtons(2);
 
-		foreach (var talentInfo in CliDB.TalentStorage.Values)
+		foreach (var talentInfo in _cliDb.TalentStorage.Values)
 		{
 			// unlearn only talents for character class
 			// some spell learned by one class as normal spells or know at creation but another class learn it as talent,
@@ -330,7 +330,7 @@ public partial class Player
 				RemoveOverrideSpell(talentInfo.OverridesSpellID, talentInfo.SpellID);
 		}
 
-		foreach (var talentInfo in CliDB.PvpTalentStorage.Values)
+		foreach (var talentInfo in _cliDb.PvpTalentStorage.Values)
 		{
 			var spellInfo = Global.SpellMgr.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
 
@@ -354,7 +354,7 @@ public partial class Player
 		RemoveSpecializationSpells();
 
 		foreach (var glyphId in GetGlyphs(GetActiveTalentGroup()))
-			RemoveAura(CliDB.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID);
+			RemoveAura(_cliDb.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID);
 
 		SetActiveTalentGroup(spec.OrderIndex);
 		SetPrimarySpecialization(spec.Id);
@@ -365,7 +365,7 @@ public partial class Player
 		else
 			SetActiveCombatTraitConfigID(0);
 
-		foreach (var talentInfo in CliDB.TalentStorage.Values)
+		foreach (var talentInfo in _cliDb.TalentStorage.Values)
 		{
 			// learn only talents for character class
 			if (talentInfo.ClassID != (int)Class)
@@ -385,7 +385,7 @@ public partial class Player
 
 		for (byte slot = 0; slot < PlayerConst.MaxPvpTalentSlots; ++slot)
 		{
-			var talentInfo = CliDB.PvpTalentStorage.LookupByKey(GetPvpTalentMap(GetActiveTalentGroup())[slot]);
+			var talentInfo = _cliDb.PvpTalentStorage.LookupByKey(GetPvpTalentMap(GetActiveTalentGroup())[slot]);
 
 			if (talentInfo == null)
 				continue;
@@ -432,13 +432,13 @@ public partial class Player
 		}
 
 		foreach (var glyphId in GetGlyphs(spec.OrderIndex))
-			CastSpell(this, CliDB.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID, true);
+			CastSpell(this, _cliDb.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID, true);
 
 		ActiveGlyphs activeGlyphs = new();
 
 		foreach (var glyphId in GetGlyphs(spec.OrderIndex))
 		{
-			var bindableSpells = Global.DB2Mgr.GetGlyphBindableSpells(glyphId);
+			var bindableSpells = _db2Manager.GetGlyphBindableSpells(glyphId);
 
 			foreach (var bindableSpell in bindableSpells)
 				if (HasSpell(bindableSpell) && !_overrideSpells.ContainsKey(bindableSpell))
@@ -538,7 +538,7 @@ public partial class Player
 
 	public bool ResetTalents(bool noCost = false)
 	{
-		Global.ScriptMgr.ForEach<IPlayerOnTalentsReset>(p => p.OnTalentsReset(this, noCost));
+		_scriptManager.ForEach<IPlayerOnTalentsReset>(p => p.OnTalentsReset(this, noCost));
 
 		// not need after this call
 		if (HasAtLoginFlag(AtLoginFlags.ResetTalents))
@@ -560,7 +560,7 @@ public partial class Player
 
 		RemovePet(null, PetSaveMode.NotInSlot, true);
 
-		foreach (var talentInfo in CliDB.TalentStorage.Values)
+		foreach (var talentInfo in _cliDb.TalentStorage.Values)
 		{
 			// unlearn only talents for character class
 			// some spell learned by one class as normal spells or know at creation but another class learn it as talent,
@@ -600,7 +600,7 @@ public partial class Player
 
 		for (byte i = 0; i < PlayerConst.MaxSpecializations; ++i)
 		{
-			var spec = Global.DB2Mgr.GetChrSpecializationByIndex(Class, i);
+			var spec = _db2Manager.GetChrSpecializationByIndex(Class, i);
 
 			if (spec == null)
 				continue;
@@ -616,7 +616,7 @@ public partial class Player
 				if (pair.Value == PlayerSpellState.Removed)
 					continue;
 
-				var talentInfo = CliDB.TalentStorage.LookupByKey(pair.Key);
+				var talentInfo = _cliDb.TalentStorage.LookupByKey(pair.Key);
 
 				if (talentInfo == null)
 				{
@@ -642,7 +642,7 @@ public partial class Player
 				if (pvpTalents[slot] == 0)
 					continue;
 
-				var talentInfo = CliDB.PvpTalentStorage.LookupByKey(pvpTalents[slot]);
+				var talentInfo = _cliDb.PvpTalentStorage.LookupByKey(pvpTalents[slot]);
 
 				if (talentInfo == null)
 				{
@@ -696,7 +696,7 @@ public partial class Player
 		if (IsDead)
 			return TalentLearnResult.FailedCantDoThatRightNow;
 
-		var talentInfo = CliDB.PvpTalentStorage.LookupByKey(talentID);
+		var talentInfo = _cliDb.PvpTalentStorage.LookupByKey(talentID);
 
 		if (talentInfo == null)
 			return TalentLearnResult.FailedUnknown;
@@ -707,10 +707,10 @@ public partial class Player
 		if (talentInfo.LevelRequired > Level)
 			return TalentLearnResult.FailedUnknown;
 
-		if (Global.DB2Mgr.GetRequiredLevelForPvpTalentSlot(slot, Class) > Level)
+		if (_db2Manager.GetRequiredLevelForPvpTalentSlot(slot, Class) > Level)
 			return TalentLearnResult.FailedUnknown;
 
-		var talentCategory = CliDB.PvpTalentCategoryStorage.LookupByKey(talentInfo.PvpTalentCategoryID);
+		var talentCategory = _cliDb.PvpTalentCategoryStorage.LookupByKey(talentInfo.PvpTalentCategoryID);
 
 		if (talentCategory != null)
 			if (!Convert.ToBoolean(talentCategory.TalentSlotMask & (1 << slot)))
@@ -720,13 +720,13 @@ public partial class Player
 		if (HasPvpTalent(talentID, GetActiveTalentGroup()))
 			return TalentLearnResult.FailedUnknown;
 
-		var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(talentInfo.PlayerConditionID);
+		var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(talentInfo.PlayerConditionID);
 
 		if (playerCondition != null)
 			if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
 				return TalentLearnResult.FailedCantDoThatRightNow;
 
-		var talent = CliDB.PvpTalentStorage.LookupByKey(GetPvpTalentMap(GetActiveTalentGroup())[slot]);
+		var talent = _cliDb.PvpTalentStorage.LookupByKey(GetPvpTalentMap(GetActiveTalentGroup())[slot]);
 
 		if (talent != null)
 		{
@@ -755,7 +755,7 @@ public partial class Player
 
 		foreach (var pvpTalentId in pvpTalents)
 		{
-			var pvpTalentInfo = CliDB.PvpTalentStorage.LookupByKey(pvpTalentId);
+			var pvpTalentInfo = _cliDb.PvpTalentStorage.LookupByKey(pvpTalentId);
 
 			if (pvpTalentInfo != null)
 			{
@@ -1052,7 +1052,7 @@ public partial class Player
 		for (byte spec = 0; spec < PlayerConst.MaxSpecializations; ++spec)
 			foreach (var talentId in GetPvpTalentMap(spec))
 			{
-				var talentInfo = CliDB.PvpTalentStorage.LookupByKey(talentId);
+				var talentInfo = _cliDb.PvpTalentStorage.LookupByKey(talentId);
 
 				if (talentInfo != null)
 					RemovePvpTalent(talentInfo, spec);
@@ -1230,7 +1230,7 @@ public partial class Player
 
 			foreach (var (traitCurrencyId, amount) in currencies)
 			{
-				var traitCurrency = CliDB.TraitCurrencyStorage.LookupByKey(traitCurrencyId);
+				var traitCurrency = _cliDb.TraitCurrencyStorage.LookupByKey(traitCurrencyId);
 
 				if (traitCurrency == null)
 					continue;
@@ -1267,12 +1267,12 @@ public partial class Player
 
 	void ApplyTraitEntry(int traitNodeEntryId, int rank, int grantedRanks, bool apply)
 	{
-		var traitNodeEntry = CliDB.TraitNodeEntryStorage.LookupByKey(traitNodeEntryId);
+		var traitNodeEntry = _cliDb.TraitNodeEntryStorage.LookupByKey(traitNodeEntryId);
 
 		if (traitNodeEntry == null)
 			return;
 
-		var traitDefinition = CliDB.TraitDefinitionStorage.LookupByKey(traitNodeEntry.TraitDefinitionID);
+		var traitDefinition = _cliDb.TraitDefinitionStorage.LookupByKey(traitNodeEntry.TraitDefinitionID);
 
 		if (traitDefinition == null)
 			return;

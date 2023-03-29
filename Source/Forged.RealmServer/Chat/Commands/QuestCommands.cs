@@ -124,8 +124,8 @@ class QuestCommands
 			player.RemoveActiveQuest(quest.Id, false);
 			player.RemoveRewardedQuest(quest.Id);
 
-			Global.ScriptMgr.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(player, quest.Id));
-			Global.ScriptMgr.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(player, quest, oldStatus, QuestStatus.None), quest.ScriptId);
+			_scriptManager.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(player, quest.Id));
+			_scriptManager.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(player, quest, oldStatus, QuestStatus.None), quest.ScriptId);
 
 			handler.SendSysMessage(CypherStrings.CommandQuestRemoved);
 
@@ -205,7 +205,7 @@ class QuestCommands
 
 				if (curRep < obj.Amount)
 				{
-					var factionEntry = CliDB.FactionStorage.LookupByKey(obj.ObjectID);
+					var factionEntry = _cliDb.FactionStorage.LookupByKey(obj.ObjectID);
 
 					if (factionEntry != null)
 						player.ReputationMgr.SetReputation(factionEntry, obj.Amount);
@@ -219,7 +219,7 @@ class QuestCommands
 
 				if (curRep > obj.Amount)
 				{
-					var factionEntry = CliDB.FactionStorage.LookupByKey(obj.ObjectID);
+					var factionEntry = _cliDb.FactionStorage.LookupByKey(obj.ObjectID);
 
 					if (factionEntry != null)
 						player.ReputationMgr.SetReputation(factionEntry, obj.Amount);

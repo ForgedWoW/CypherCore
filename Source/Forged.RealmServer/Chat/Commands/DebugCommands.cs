@@ -642,7 +642,7 @@ class DebugCommands
 
 		handler.Player.DestroyItem(item.BagSlot, item.Slot, true);
 		var itemTemplate = item.Template;
-		Global.ScriptMgr.RunScriptRet<IItemOnExpire>(p => p.OnExpire(handler.Player, itemTemplate), itemTemplate.ScriptId);
+		_scriptManager.RunScriptRet<IItemOnExpire>(p => p.OnExpire(handler.Player, itemTemplate), itemTemplate.ScriptId);
 
 		return true;
 	}
@@ -961,7 +961,7 @@ class DebugCommands
 	[Command("raidreset", RBACPermissions.CommandDebug)]
 	static bool HandleDebugRaidResetCommand(CommandHandler handler, uint mapId, uint difficulty)
 	{
-		var mEntry = CliDB.MapStorage.LookupByKey(mapId);
+		var mEntry = _cliDb.MapStorage.LookupByKey(mapId);
 
 		if (mEntry == null)
 		{
@@ -977,14 +977,14 @@ class DebugCommands
 			return true;
 		}
 
-		if (difficulty != 0 && CliDB.DifficultyStorage.HasRecord(difficulty))
+		if (difficulty != 0 && _cliDb.DifficultyStorage.HasRecord(difficulty))
 		{
 			handler.SendSysMessage($"Invalid difficulty {difficulty}.");
 
 			return false;
 		}
 
-		if (difficulty != 0 && Global.DB2Mgr.GetMapDifficultyData(mEntry.Id, (Difficulty)difficulty) == null)
+		if (difficulty != 0 && _db2Manager.GetMapDifficultyData(mEntry.Id, (Difficulty)difficulty) == null)
 		{
 			handler.SendSysMessage($"Difficulty {(Difficulty)difficulty} is not valid for '{mEntry.MapName[handler.SessionDbcLocale]}'.");
 
@@ -1035,7 +1035,7 @@ class DebugCommands
 		if (creatureTemplate == null)
 			return false;
 
-		var vehicleRecord = CliDB.VehicleStorage.LookupByKey(id);
+		var vehicleRecord = _cliDb.VehicleStorage.LookupByKey(id);
 
 		if (vehicleRecord == null)
 			return false;
@@ -1300,7 +1300,7 @@ class DebugCommands
 			return false;
 		}
 
-		var wsExpressionEntry = CliDB.WorldStateExpressionStorage.LookupByKey(expressionId);
+		var wsExpressionEntry = _cliDb.StateExpressionStorage.LookupByKey(expressionId);
 
 		if (wsExpressionEntry == null)
 			return false;
@@ -1340,7 +1340,7 @@ class DebugCommands
 		[Command("cinematic", RBACPermissions.CommandDebug)]
 		static bool HandleDebugPlayCinematicCommand(CommandHandler handler, uint cinematicId)
 		{
-			var cineSeq = CliDB.CinematicSequencesStorage.LookupByKey(cinematicId);
+			var cineSeq = _cliDb.CinematicSequencesStorage.LookupByKey(cinematicId);
 
 			if (cineSeq == null)
 			{
@@ -1374,7 +1374,7 @@ class DebugCommands
 		[Command("movie", RBACPermissions.CommandDebug)]
 		static bool HandleDebugPlayMovieCommand(CommandHandler handler, uint movieId)
 		{
-			if (!CliDB.MovieStorage.ContainsKey(movieId))
+			if (!_cliDb.MovieStorage.ContainsKey(movieId))
 			{
 				handler.SendSysMessage(CypherStrings.MovieNotExist, movieId);
 
@@ -1389,7 +1389,7 @@ class DebugCommands
 		[Command("music", RBACPermissions.CommandDebug)]
 		static bool HandleDebugPlayMusicCommand(CommandHandler handler, uint musicId)
 		{
-			if (!CliDB.SoundKitStorage.ContainsKey(musicId))
+			if (!_cliDb.SoundKitStorage.ContainsKey(musicId))
 			{
 				handler.SendSysMessage(CypherStrings.SoundNotExist, musicId);
 
@@ -1408,7 +1408,7 @@ class DebugCommands
 		[Command("sound", RBACPermissions.CommandDebug)]
 		static bool HandleDebugPlaySoundCommand(CommandHandler handler, uint soundId, uint broadcastTextId)
 		{
-			if (!CliDB.SoundKitStorage.ContainsKey(soundId))
+			if (!_cliDb.SoundKitStorage.ContainsKey(soundId))
 			{
 				handler.SendSysMessage(CypherStrings.SoundNotExist, soundId);
 

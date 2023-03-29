@@ -1,21 +1,21 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.DungeonFinding;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Globals;
+using Forged.RealmServer.World;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.World;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Forged.RealmServer.Conditions;
 
@@ -24,7 +24,7 @@ public sealed class ConditionManager
     private readonly GameObjectManager _objectManager;
     private readonly WorldDatabase _worldDatabase;
     private readonly LFGManager _lfgManager;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly DB2Manager _db2Manager;
     private readonly LanguageManager _languageManager;
     private readonly IConfiguration _configuration;
@@ -32,7 +32,6 @@ public sealed class ConditionManager
     private readonly ConversationDataStorage _conversationDataStorage;
     private readonly GameEventManager _gameEventManager;
     private readonly WorldManager _worldManager;
-    private readonly WorldStateManager _worldStateManager;
     private readonly ObjectAccessor _objectAccessor;
 
     public string[] StaticSourceTypeData =
@@ -58,14 +57,14 @@ public sealed class ConditionManager
 
     public ConditionManager(GameObjectManager objectManager, WorldDatabase worldDatabase, 
                             LFGManager lfgManager, CliDB cliDB, DB2Manager db2Manager, LanguageManager languageManager, 
-                            IConfiguration configuration, AreaTriggerDataStorage areaTriggerDataStorage, ConversationDataStorage conversationDataStorage,
-                            GameEventManager gameEventManager, WorldManager worldManager, WorldStateManager worldStateManager,
-                            ObjectAccessor objectAccessor)
+                            IConfiguration configuration, AreaTriggerDataStorage areaTriggerDataStorage,
+                            ConversationDataStorage conversationDataStorage, GameEventManager gameEventManager, 
+                            WorldManager worldManager, ObjectAccessor objectAccessor)
     {
         _objectManager = objectManager;
         _worldDatabase = worldDatabase;
         _lfgManager = lfgManager;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _db2Manager = db2Manager;
         _languageManager = languageManager;
         _configuration = configuration;
@@ -73,7 +72,6 @@ public sealed class ConditionManager
         _conversationDataStorage = conversationDataStorage;
         _gameEventManager = gameEventManager;
         _worldManager = worldManager;
-        _worldStateManager = worldStateManager;
         _objectAccessor = objectAccessor;
 
 		LoadConditions();
@@ -808,7 +806,7 @@ public sealed class ConditionManager
 
 		if (condition.ChrSpecializationIndex >= 0 || condition.ChrSpecializationRole >= 0)
 		{
-			var spec = _cliDB.ChrSpecializationStorage.LookupByKey(player.GetPrimarySpecialization());
+			var spec = _cliDb.ChrSpecializationStorage.LookupByKey(player.GetPrimarySpecialization());
 
 			if (spec != null)
 			{
@@ -868,7 +866,7 @@ public sealed class ConditionManager
 					if ((uint)forcedRank > condition.MaxReputation)
 						return false;
 				}
-				else if (_cliDB.FactionStorage.HasRecord(condition.MaxReputation) && (uint)player.GetReputationRank(condition.MaxFactionID) > condition.MaxReputation)
+				else if (_cliDb.FactionStorage.HasRecord(condition.MaxReputation) && (uint)player.GetReputationRank(condition.MaxFactionID) > condition.MaxReputation)
 				{
 					return false;
 				}
@@ -881,7 +879,7 @@ public sealed class ConditionManager
 					results[i] = true;
 
 				for (var i = 0; i < condition.MinFactionID.Length; ++i)
-					if (_cliDB.FactionStorage.HasRecord(condition.MinFactionID[i]))
+					if (_cliDb.FactionStorage.HasRecord(condition.MinFactionID[i]))
 					{
 						var forcedRank = player.ReputationMgr.GetForcedRankIfAny(condition.MinFactionID[i]);
 
@@ -895,7 +893,7 @@ public sealed class ConditionManager
 
 				if (forcedRank1 != 0)
 					results[3] = (uint)forcedRank1 <= condition.MaxReputation;
-				else if (_cliDB.FactionStorage.HasRecord(condition.MaxReputation))
+				else if (_cliDb.FactionStorage.HasRecord(condition.MaxReputation))
 					results[3] = (uint)player.GetReputationRank(condition.MaxFactionID) <= condition.MaxReputation;
 
 				if (!PlayerConditionLogic(condition.ReputationLogic, results))
@@ -1068,7 +1066,7 @@ public sealed class ConditionManager
 		if (condition.Explored[0] != 0 || condition.Explored[1] != 0)
 			foreach (var explortedArea in condition.Explored)
             {
-                var area = _cliDB.AreaTableStorage.LookupByKey(explortedArea);
+                var area = _cliDb.AreaTableStorage.LookupByKey(explortedArea);
 
                 if (area == null)
                     continue;
@@ -1108,7 +1106,7 @@ public sealed class ConditionManager
 
 		if (condition.WorldStateExpressionID != 0)
 		{
-			var worldStateExpression = _cliDB.WorldStateExpressionStorage.LookupByKey(condition.WorldStateExpressionID);
+			var worldStateExpression = _cliDb.StateExpressionStorage.LookupByKey(condition.WorldStateExpressionID);
 
 			if (worldStateExpression == null)
 				return false;
@@ -2001,7 +1999,7 @@ public sealed class ConditionManager
 				break;
 			}
 			case ConditionSourceType.TerrainSwap:
-				if (!_cliDB.MapStorage.ContainsKey((uint)cond.SourceEntry))
+				if (!_cliDb.MapStorage.ContainsKey((uint)cond.SourceEntry))
 				{
 					Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in Map.db2, ignoring.", cond.ToString());
 
@@ -2010,7 +2008,7 @@ public sealed class ConditionManager
 
 				break;
 			case ConditionSourceType.Phase:
-				if (cond.SourceEntry != 0 && !_cliDB.AreaTableStorage.ContainsKey(cond.SourceEntry))
+				if (cond.SourceEntry != 0 && !_cliDb.AreaTableStorage.ContainsKey(cond.SourceEntry))
 				{
 					Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in AreaTable.db2, ignoring.", cond.ToString());
 
@@ -2057,7 +2055,7 @@ public sealed class ConditionManager
 
 				break;
 			case ConditionSourceType.AreatriggerClientTriggered:
-				if (!_cliDB.AreaTriggerStorage.ContainsKey(cond.SourceEntry))
+				if (!_cliDb.AreaTriggerStorage.ContainsKey(cond.SourceEntry))
 				{
 					Log.Logger.Debug($"{cond} SourceEntry in `condition` table, does not exists in AreaTrigger.db2, ignoring.");
 
@@ -2198,7 +2196,7 @@ public sealed class ConditionManager
 			}
 			case ConditionTypes.Zoneid:
 			{
-				var areaEntry = _cliDB.AreaTableStorage.LookupByKey(cond.ConditionValue1);
+				var areaEntry = _cliDb.AreaTableStorage.LookupByKey(cond.ConditionValue1);
 
 				if (areaEntry == null)
 				{
@@ -2218,7 +2216,7 @@ public sealed class ConditionManager
 			}
 			case ConditionTypes.ReputationRank:
 			{
-				if (!_cliDB.FactionStorage.ContainsKey(cond.ConditionValue1))
+				if (!_cliDb.FactionStorage.ContainsKey(cond.ConditionValue1))
 				{
 					Log.Logger.Debug("{0} has non existing faction ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -2240,7 +2238,7 @@ public sealed class ConditionManager
 			}
 			case ConditionTypes.Skill:
 			{
-				var pSkill = _cliDB.SkillLineStorage.LookupByKey(cond.ConditionValue1);
+				var pSkill = _cliDb.SkillLineStorage.LookupByKey(cond.ConditionValue1);
 
 				if (pSkill == null)
 				{
@@ -2304,7 +2302,7 @@ public sealed class ConditionManager
 			}
 			case ConditionTypes.Achievement:
 			{
-				var achievement = _cliDB.AchievementStorage.LookupByKey(cond.ConditionValue1);
+				var achievement = _cliDb.AchievementStorage.LookupByKey(cond.ConditionValue1);
 
 				if (achievement == null)
 				{
@@ -2350,7 +2348,7 @@ public sealed class ConditionManager
 			}
 			case ConditionTypes.Mapid:
 			{
-				var me = _cliDB.MapStorage.LookupByKey(cond.ConditionValue1);
+				var me = _cliDb.MapStorage.LookupByKey(cond.ConditionValue1);
 
 				if (me == null)
 				{
@@ -2625,7 +2623,7 @@ public sealed class ConditionManager
 			}
 			case ConditionTypes.PhaseId:
 			{
-				if (!_cliDB.PhaseStorage.ContainsKey(cond.ConditionValue1))
+				if (!_cliDb.PhaseStorage.ContainsKey(cond.ConditionValue1))
 				{
 					Log.Logger.Debug("{0} has nonexistent phaseid in value1 ({1}), skipped", cond.ToString(true), cond.ConditionValue1);
 
@@ -2636,7 +2634,7 @@ public sealed class ConditionManager
 			}
 			case ConditionTypes.Title:
 			{
-				var titleEntry = _cliDB.CharTitlesStorage.LookupByKey(cond.ConditionValue1);
+				var titleEntry = _cliDb.CharTitlesStorage.LookupByKey(cond.ConditionValue1);
 
 				if (titleEntry == null)
 				{
@@ -2677,7 +2675,7 @@ public sealed class ConditionManager
 			}
 			case ConditionTypes.RealmAchievement:
 			{
-				var achievement = _cliDB.AchievementStorage.LookupByKey(cond.ConditionValue1);
+				var achievement = _cliDb.AchievementStorage.LookupByKey(cond.ConditionValue1);
 
 				if (achievement == null)
 				{
@@ -2758,7 +2756,7 @@ public sealed class ConditionManager
 			case ConditionTypes.Gamemaster:
 				break;
 			case ConditionTypes.DifficultyId:
-				if (!_cliDB.DifficultyStorage.ContainsKey(cond.ConditionValue1))
+				if (!_cliDb.DifficultyStorage.ContainsKey(cond.ConditionValue1))
 				{
 					Log.Logger.Debug($"{cond.ToString(true)} has non existing difficulty in value1 ({cond.ConditionValue1}), skipped.");
 
@@ -2767,7 +2765,7 @@ public sealed class ConditionManager
 
 				break;
 			case ConditionTypes.BattlePetCount:
-				if (!_cliDB.BattlePetSpeciesStorage.ContainsKey(cond.ConditionValue1))
+				if (!_cliDb.BattlePetSpeciesStorage.ContainsKey(cond.ConditionValue1))
 				{
 					Log.Logger.Debug($"{cond.ToString(true)} has non existing BattlePet SpeciesId in value1 ({cond.ConditionValue1}), skipped.");
 
@@ -2791,7 +2789,7 @@ public sealed class ConditionManager
 				break;
 			case ConditionTypes.ScenarioStep:
 			{
-				if (!_cliDB.ScenarioStepStorage.ContainsKey(cond.ConditionValue1))
+				if (!_cliDb.ScenarioStepStorage.ContainsKey(cond.ConditionValue1))
 				{
 					Log.Logger.Debug($"{cond.ToString(true)} has non existing ScenarioStep in value1 ({cond.ConditionValue1}), skipped.");
 
@@ -2802,7 +2800,7 @@ public sealed class ConditionManager
 			}
 			case ConditionTypes.SceneInProgress:
 			{
-				if (!_cliDB.SceneScriptPackageStorage.ContainsKey(cond.ConditionValue1))
+				if (!_cliDb.SceneScriptPackageStorage.ContainsKey(cond.ConditionValue1))
 				{
 					Log.Logger.Debug($"{cond.ToString(true)} has non existing SceneScriptPackageId in value1 ({cond.ConditionValue1}), skipped.");
 
@@ -2813,7 +2811,7 @@ public sealed class ConditionManager
 			}
 			case ConditionTypes.PlayerCondition:
 			{
-				if (!_cliDB.PlayerConditionStorage.ContainsKey(cond.ConditionValue1))
+				if (!_cliDb.PlayerConditionStorage.ContainsKey(cond.ConditionValue1))
 				{
 					Log.Logger.Debug($"{cond.ToString(true)} has non existing PlayerConditionId in value1 ({cond.ConditionValue1}), skipped.");
 
@@ -3180,13 +3178,13 @@ public sealed class ConditionManager
 			case UnitConditionVariable.IsEnemy:
 				return (otherUnit && unit.GetReactionTo(otherUnit) <= ReputationRank.Hostile) ? 1 : 0;
 			case UnitConditionVariable.IsSpecMelee:
-				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Melee)) ? 1 : 0;
+				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDb.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Melee)) ? 1 : 0;
 			case UnitConditionVariable.IsSpecTank:
-				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 0) ? 1 : 0;
+				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDb.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 0) ? 1 : 0;
 			case UnitConditionVariable.IsSpecRanged:
-				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Ranged)) ? 1 : 0;
+				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDb.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Ranged)) ? 1 : 0;
 			case UnitConditionVariable.IsSpecHealer:
-				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 1) ? 1 : 0;
+				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDb.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 1) ? 1 : 0;
 			case UnitConditionVariable.IsPlayerControlledNPC:
 				return unit.IsCreature && unit.HasUnitFlag(UnitFlags.PlayerControlled) ? 1 : 0;
 			case UnitConditionVariable.IsDying:
@@ -3290,7 +3288,7 @@ public sealed class ConditionManager
 
 				return currentHour <= 12 ? (currentHour != 0 ? currentHour : 12) : currentHour - 12;
 			case WorldStateExpressionFunctions.OldDifficultyId:
-				var difficulty = _cliDB.DifficultyStorage.LookupByKey((uint)player.Map.DifficultyID);
+				var difficulty = _cliDb.DifficultyStorage.LookupByKey((uint)player.Map.DifficultyID);
 
 				if (difficulty != null)
 					return difficulty.OldEnumValue;
@@ -3303,7 +3301,7 @@ public sealed class ConditionManager
 			case WorldStateExpressionFunctions.WeekNumber:
 				var now = _gameTime.CurrentGameTime;
 				uint raidOrigin = 1135695600;
-				var region = _cliDB.CfgRegionsStorage.LookupByKey(_worldManager.RealmId.Region);
+				var region = _cliDb.CfgRegionsStorage.LookupByKey(_worldManager.RealmId.Region);
 
 				if (region != null)
 					raidOrigin = region.Raidorigin;
@@ -3314,7 +3312,7 @@ public sealed class ConditionManager
 			case WorldStateExpressionFunctions.WarModeActive:
 				return player.HasPlayerFlag(PlayerFlags.WarModeActive) ? 1 : 0;
 			case WorldStateExpressionFunctions.WorldStateExpression:
-				var worldStateExpression = _cliDB.WorldStateExpressionStorage.LookupByKey((uint)arg1);
+				var worldStateExpression = _cliDb.StateExpressionStorage.LookupByKey((uint)arg1);
 
 				if (worldStateExpression != null)
 					return IsPlayerMeetingExpression(player, worldStateExpression) ? 1 : 0;

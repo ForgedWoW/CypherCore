@@ -670,7 +670,7 @@ public partial class Unit
 				if (TryGetAI(out var aI))
 					aI.OnMeleeAttack(damageInfo, attType, extra);
 
-				Global.ScriptMgr.ForEach<IUnitOnMeleeAttack>(s => s.OnMeleeAttack(damageInfo, attType, extra));
+				_scriptManager.ForEach<IUnitOnMeleeAttack>(s => s.OnMeleeAttack(damageInfo, attType, extra));
 
 				SendAttackStateUpdate(damageInfo);
 
@@ -1135,14 +1135,14 @@ public partial class Unit
 
 				if (killedPlr != null)
 				{
-					Global.ScriptMgr.ForEach<IPlayerOnPVPKill>(p => p.OnPVPKill(killerPlr, killedPlr));
+					_scriptManager.ForEach<IPlayerOnPVPKill>(p => p.OnPVPKill(killerPlr, killedPlr));
 				}
 				else
 				{
 					var killedCre = victim.AsCreature;
 
 					if (killedCre != null)
-						Global.ScriptMgr.ForEach<IPlayerOnCreatureKill>(p => p.OnCreatureKill(killerPlr, killedCre));
+						_scriptManager.ForEach<IPlayerOnCreatureKill>(p => p.OnCreatureKill(killerPlr, killedCre));
 				}
 			}
 			else
@@ -1154,7 +1154,7 @@ public partial class Unit
 					var killed = victim.AsPlayer;
 
 					if (killed != null)
-						Global.ScriptMgr.ForEach<IPlayerOnPlayerKilledByCreature>(p => p.OnPlayerKilledByCreature(killerCre, killed));
+						_scriptManager.ForEach<IPlayerOnPlayerKilledByCreature>(p => p.OnPlayerKilledByCreature(killerCre, killed));
 				}
 			}
 		}
@@ -1478,7 +1478,7 @@ public partial class Unit
 		var a = damageInfo.Attacker;
 		ScaleDamage(a, t, ref damage);
 
-		Global.ScriptMgr.ForEach<IUnitModifyMeleeDamage>(p => p.ModifyMeleeDamage(t, a, ref damage));
+		_scriptManager.ForEach<IUnitModifyMeleeDamage>(p => p.ModifyMeleeDamage(t, a, ref damage));
 
 		// Calculate armor reduction
 		if (IsDamageReducedByArmor((SpellSchoolMask)damageInfo.DamageSchoolMask))

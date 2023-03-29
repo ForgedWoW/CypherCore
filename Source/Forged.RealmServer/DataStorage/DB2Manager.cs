@@ -109,7 +109,7 @@ public class DB2Manager
     readonly Dictionary<Tuple<short, sbyte, int>, WMOAreaTableRecord> _wmoAreaTableLookup = new();
     List<AzeriteItemMilestonePowerRecord> _azeriteItemMilestonePowers = new();
     internal Dictionary<uint, IDB2Storage> Storage => _storage;
-    private CliDB _cliDB;
+    private CliDB _cliDb;
 
     public DB2Manager(HotfixDatabase hotfixDatabase, GameObjectManager objectManager)
     {
@@ -136,33 +136,33 @@ public class DB2Manager
 
     public void LoadStores(CliDB cliDB)
     {
-        _cliDB = cliDB;
+        _cliDb = cliDB;
 
-        foreach (var areaGroupMember in _cliDB.AreaGroupMemberStorage.Values)
+        foreach (var areaGroupMember in _cliDb.AreaGroupMemberStorage.Values)
             _areaGroupMembers.Add(areaGroupMember.AreaGroupID, areaGroupMember.AreaID);
 
-        foreach (var arPoi in _cliDB.AreaPOIStorage.Values)
+        foreach (var arPoi in _cliDb.AreaPOIStorage.Values)
             _areaPOIRecords.Add((uint)arPoi.AreaID, arPoi);
 
-        foreach (var artifactPower in _cliDB.ArtifactPowerStorage.Values)
+        foreach (var artifactPower in _cliDb.ArtifactPowerStorage.Values)
             _artifactPowers.Add(artifactPower.ArtifactID, artifactPower);
 
-        foreach (var artifactPowerLink in _cliDB.ArtifactPowerLinkStorage.Values)
+        foreach (var artifactPowerLink in _cliDb.ArtifactPowerLinkStorage.Values)
         {
             _artifactPowerLinks.Add(artifactPowerLink.PowerA, artifactPowerLink.PowerB);
             _artifactPowerLinks.Add(artifactPowerLink.PowerB, artifactPowerLink.PowerA);
         }
 
-        foreach (var artifactPowerRank in _cliDB.ArtifactPowerRankStorage.Values)
+        foreach (var artifactPowerRank in _cliDb.ArtifactPowerRankStorage.Values)
             _artifactPowerRanks[Tuple.Create(artifactPowerRank.ArtifactPowerID, artifactPowerRank.RankIndex)] = artifactPowerRank;
 
-        foreach (var azeriteEmpoweredItem in _cliDB.AzeriteEmpoweredItemStorage.Values)
+        foreach (var azeriteEmpoweredItem in _cliDb.AzeriteEmpoweredItemStorage.Values)
             _azeriteEmpoweredItems[azeriteEmpoweredItem.ItemID] = azeriteEmpoweredItem;
 
-        foreach (var azeriteEssencePower in _cliDB.AzeriteEssencePowerStorage.Values)
+        foreach (var azeriteEssencePower in _cliDb.AzeriteEssencePowerStorage.Values)
             _azeriteEssencePowersByIdAndRank[((uint)azeriteEssencePower.AzeriteEssenceID, azeriteEssencePower.Tier)] = azeriteEssencePower;
 
-        foreach (var azeriteItemMilestonePower in _cliDB.AzeriteItemMilestonePowerStorage.Values)
+        foreach (var azeriteItemMilestonePower in _cliDb.AzeriteItemMilestonePowerStorage.Values)
             _azeriteItemMilestonePowers.Add(azeriteItemMilestonePower);
 
         _azeriteItemMilestonePowers = _azeriteItemMilestonePowers.OrderBy(p => p.RequiredLevel).ToList();
@@ -181,11 +181,11 @@ public class DB2Manager
             }
         }
 
-        foreach (var azeritePowerSetMember in _cliDB.AzeritePowerSetMemberStorage.Values)
-            if (_cliDB.AzeritePowerStorage.ContainsKey(azeritePowerSetMember.AzeritePowerID))
+        foreach (var azeritePowerSetMember in _cliDb.AzeritePowerSetMemberStorage.Values)
+            if (_cliDb.AzeritePowerStorage.ContainsKey(azeritePowerSetMember.AzeritePowerID))
                 _azeritePowers.Add(azeritePowerSetMember.AzeritePowerSetID, azeritePowerSetMember);
 
-        foreach (var azeriteTierUnlock in _cliDB.AzeriteTierUnlockStorage.Values)
+        foreach (var azeriteTierUnlock in _cliDb.AzeriteTierUnlockStorage.Values)
         {
             var key = (azeriteTierUnlock.AzeriteTierUnlockSetID, (ItemContext)azeriteTierUnlock.ItemCreationContext);
 
@@ -197,10 +197,10 @@ public class DB2Manager
 
         MultiMap<uint, AzeriteUnlockMappingRecord> azeriteUnlockMappings = new();
 
-        foreach (var azeriteUnlockMapping in _cliDB.AzeriteUnlockMappingStorage.Values)
+        foreach (var azeriteUnlockMapping in _cliDb.AzeriteUnlockMappingStorage.Values)
             azeriteUnlockMappings.Add(azeriteUnlockMapping.AzeriteUnlockMappingSetID, azeriteUnlockMapping);
 
-        foreach (var battlemaster in _cliDB.BattlemasterListStorage.Values)
+        foreach (var battlemaster in _cliDb.BattlemasterListStorage.Values)
         {
             if (battlemaster.MaxLevel < battlemaster.MinLevel)
             {
@@ -217,18 +217,18 @@ public class DB2Manager
             }
         }
 
-        foreach (var broadcastTextDuration in _cliDB.BroadcastTextDurationStorage.Values)
+        foreach (var broadcastTextDuration in _cliDb.BroadcastTextDurationStorage.Values)
             _broadcastTextDurations[(broadcastTextDuration.BroadcastTextID, (CascLocaleBit)broadcastTextDuration.Locale)] = broadcastTextDuration.Duration;
 
 
-        foreach (var uiDisplay in _cliDB.ChrClassUIDisplayStorage.Values)
+        foreach (var uiDisplay in _cliDb.ChrClassUIDisplayStorage.Values)
         {
             _uiDisplayByClass[uiDisplay.ChrClassesID] = uiDisplay;
         }
 
         var powers = new List<ChrClassesXPowerTypesRecord>();
 
-        foreach (var chrClasses in _cliDB.ChrClassesXPowerTypesStorage.Values)
+        foreach (var chrClasses in _cliDb.ChrClassesXPowerTypesStorage.Values)
             powers.Add(chrClasses);
 
         powers.Sort(new ChrClassesXPowerTypesRecordComparer());
@@ -244,25 +244,25 @@ public class DB2Manager
             _powersByClass[power.ClassID][power.PowerType] = index;
         }
 
-        foreach (var customizationChoice in _cliDB.ChrCustomizationChoiceStorage.Values)
+        foreach (var customizationChoice in _cliDb.ChrCustomizationChoiceStorage.Values)
             _chrCustomizationChoicesByOption.Add(customizationChoice.ChrCustomizationOptionID, customizationChoice);
 
         MultiMap<uint, Tuple<uint, byte>> shapeshiftFormByModel = new();
         Dictionary<uint, ChrCustomizationDisplayInfoRecord> displayInfoByCustomizationChoice = new();
 
         // build shapeshift form model lookup
-        foreach (var customizationElement in _cliDB.ChrCustomizationElementStorage.Values)
+        foreach (var customizationElement in _cliDb.ChrCustomizationElementStorage.Values)
         {
-            var customizationDisplayInfo = _cliDB.ChrCustomizationDisplayInfoStorage.LookupByKey((uint)customizationElement.ChrCustomizationDisplayInfoID);
+            var customizationDisplayInfo = _cliDb.ChrCustomizationDisplayInfoStorage.LookupByKey((uint)customizationElement.ChrCustomizationDisplayInfoID);
 
             if (customizationDisplayInfo != null)
             {
-                var customizationChoice = _cliDB.ChrCustomizationChoiceStorage.LookupByKey(customizationElement.ChrCustomizationChoiceID);
+                var customizationChoice = _cliDb.ChrCustomizationChoiceStorage.LookupByKey(customizationElement.ChrCustomizationChoiceID);
 
                 if (customizationChoice != null)
                 {
                     displayInfoByCustomizationChoice[customizationElement.ChrCustomizationChoiceID] = customizationDisplayInfo;
-                    var customizationOption = _cliDB.ChrCustomizationOptionStorage.LookupByKey(customizationChoice.ChrCustomizationOptionID);
+                    var customizationOption = _cliDb.ChrCustomizationOptionStorage.LookupByKey(customizationChoice.ChrCustomizationOptionID);
 
                     if (customizationOption != null)
                         shapeshiftFormByModel.Add(customizationOption.ChrModelID, Tuple.Create(customizationOption.Id, (byte)customizationDisplayInfo.ShapeshiftFormID));
@@ -272,12 +272,12 @@ public class DB2Manager
 
         MultiMap<uint, ChrCustomizationOptionRecord> customizationOptionsByModel = new();
 
-        foreach (var customizationOption in _cliDB.ChrCustomizationOptionStorage.Values)
+        foreach (var customizationOption in _cliDb.ChrCustomizationOptionStorage.Values)
             customizationOptionsByModel.Add(customizationOption.ChrModelID, customizationOption);
 
-        foreach (var reqChoice in _cliDB.ChrCustomizationReqChoiceStorage.Values)
+        foreach (var reqChoice in _cliDb.ChrCustomizationReqChoiceStorage.Values)
         {
-            var customizationChoice = _cliDB.ChrCustomizationChoiceStorage.LookupByKey(reqChoice.ChrCustomizationChoiceID);
+            var customizationChoice = _cliDb.ChrCustomizationChoiceStorage.LookupByKey(reqChoice.ChrCustomizationChoiceID);
 
             if (customizationChoice != null)
             {
@@ -290,13 +290,13 @@ public class DB2Manager
 
         Dictionary<uint, uint> parentRaces = new();
 
-        foreach (var chrRace in _cliDB.ChrRacesStorage.Values)
+        foreach (var chrRace in _cliDb.ChrRacesStorage.Values)
             if (chrRace.UnalteredVisualRaceID != 0)
                 parentRaces[(uint)chrRace.UnalteredVisualRaceID] = chrRace.Id;
 
-        foreach (var raceModel in _cliDB.ChrRaceXChrModelStorage.Values)
+        foreach (var raceModel in _cliDb.ChrRaceXChrModelStorage.Values)
         {
-            var model = _cliDB.ChrModelStorage.LookupByKey((uint)raceModel.ChrModelID);
+            var model = _cliDb.ChrModelStorage.LookupByKey((uint)raceModel.ChrModelID);
 
             if (model != null)
             {
@@ -330,7 +330,7 @@ public class DB2Manager
             }
         }
 
-        foreach (var chrSpec in _cliDB.ChrSpecializationStorage.Values)
+        foreach (var chrSpec in _cliDb.ChrSpecializationStorage.Values)
         {
             //ASSERT(chrSpec.ClassID < MAX_CLASSES);
             //ASSERT(chrSpec.OrderIndex < MAX_SPECIALIZATIONS);
@@ -347,37 +347,37 @@ public class DB2Manager
             _chrSpecializationsByIndex[storageIndex][chrSpec.OrderIndex] = chrSpec;
         }
 
-        foreach (var contentTuningXExpectedStat in _cliDB.ContentTuningXExpectedStorage.Values)
-            if (_cliDB.ExpectedStatModStorage.ContainsKey(contentTuningXExpectedStat.ExpectedStatModID))
+        foreach (var contentTuningXExpectedStat in _cliDb.ContentTuningXExpectedStorage.Values)
+            if (_cliDb.ExpectedStatModStorage.ContainsKey(contentTuningXExpectedStat.ExpectedStatModID))
                 _expectedStatModsByContentTuning.Add(contentTuningXExpectedStat.ContentTuningID, contentTuningXExpectedStat);
 
-        foreach (var currencyContainer in _cliDB.CurrencyContainerStorage.Values)
+        foreach (var currencyContainer in _cliDb.CurrencyContainerStorage.Values)
             _currencyContainers.Add(currencyContainer.CurrencyTypesID, currencyContainer);
 
-        foreach (var curvePoint in _cliDB.CurvePointStorage.Values)
-            if (_cliDB.CurveStorage.ContainsKey(curvePoint.CurveID))
+        foreach (var curvePoint in _cliDb.CurvePointStorage.Values)
+            if (_cliDb.CurveStorage.ContainsKey(curvePoint.CurveID))
                 _curvePoints.Add(curvePoint.CurveID, curvePoint);
 
         foreach (var key in _curvePoints.Keys.ToList())
             _curvePoints[key] = _curvePoints[key].OrderBy(point => point.OrderIndex).ToList();
 
-        foreach (var emoteTextSound in _cliDB.EmotesTextSoundStorage.Values)
+        foreach (var emoteTextSound in _cliDb.EmotesTextSoundStorage.Values)
             _emoteTextSounds[Tuple.Create(emoteTextSound.EmotesTextId, emoteTextSound.RaceId, emoteTextSound.SexId, emoteTextSound.ClassId)] = emoteTextSound;
 
-        foreach (var expectedStat in _cliDB.ExpectedStatStorage.Values)
+        foreach (var expectedStat in _cliDb.ExpectedStatStorage.Values)
             _expectedStatsByLevel[Tuple.Create(expectedStat.Lvl, expectedStat.ExpansionID)] = expectedStat;
 
-        foreach (var faction in _cliDB.FactionStorage.Values)
+        foreach (var faction in _cliDb.FactionStorage.Values)
             if (faction.ParentFactionID != 0)
                 _factionTeams.Add(faction.ParentFactionID, faction.Id);
 
-        foreach (var friendshipRepReaction in _cliDB.FriendshipRepReactionStorage.Values)
+        foreach (var friendshipRepReaction in _cliDb.FriendshipRepReactionStorage.Values)
             _friendshipRepReactions.Add(friendshipRepReaction.FriendshipRepID, friendshipRepReaction);
 
         foreach (var key in _friendshipRepReactions.Keys)
             _friendshipRepReactions[key].Sort(new FriendshipRepReactionRecordComparer());
 
-        foreach (var gameObjectDisplayInfo in _cliDB.GameObjectDisplayInfoStorage.Values)
+        foreach (var gameObjectDisplayInfo in _cliDb.GameObjectDisplayInfoStorage.Values)
         {
             if (gameObjectDisplayInfo.GeoBoxMax.X < gameObjectDisplayInfo.GeoBoxMin.X)
                 Extensions.Swap(ref gameObjectDisplayInfo.GeoBox[3], ref gameObjectDisplayInfo.GeoBox[0]);
@@ -389,62 +389,62 @@ public class DB2Manager
                 Extensions.Swap(ref gameObjectDisplayInfo.GeoBox[5], ref gameObjectDisplayInfo.GeoBox[2]);
         }
 
-        foreach (var heirloom in _cliDB.HeirloomStorage.Values)
+        foreach (var heirloom in _cliDb.HeirloomStorage.Values)
             _heirlooms[heirloom.ItemID] = heirloom;
 
-        foreach (var glyphBindableSpell in _cliDB.GlyphBindableSpellStorage.Values)
+        foreach (var glyphBindableSpell in _cliDb.GlyphBindableSpellStorage.Values)
             _glyphBindableSpells.Add(glyphBindableSpell.GlyphPropertiesID, (uint)glyphBindableSpell.SpellID);
 
-        foreach (var glyphRequiredSpec in _cliDB.GlyphRequiredSpecStorage.Values)
+        foreach (var glyphRequiredSpec in _cliDb.GlyphRequiredSpecStorage.Values)
             _glyphRequiredSpecs.Add(glyphRequiredSpec.GlyphPropertiesID, glyphRequiredSpec.ChrSpecializationID);
 
-        foreach (var bonus in _cliDB.ItemBonusStorage.Values)
+        foreach (var bonus in _cliDb.ItemBonusStorage.Values)
             _itemBonusLists.Add(bonus.ParentItemBonusListID, bonus);
 
-        foreach (var itemBonusListLevelDelta in _cliDB.ItemBonusListLevelDeltaStorage.Values)
+        foreach (var itemBonusListLevelDelta in _cliDb.ItemBonusListLevelDeltaStorage.Values)
             _itemLevelDeltaToBonusListContainer[itemBonusListLevelDelta.ItemLevelDelta] = itemBonusListLevelDelta.Id;
 
-        foreach (var bonusTreeNode in _cliDB.ItemBonusTreeNodeStorage.Values)
+        foreach (var bonusTreeNode in _cliDb.ItemBonusTreeNodeStorage.Values)
             _itemBonusTrees.Add(bonusTreeNode.ParentItemBonusTreeID, bonusTreeNode);
 
-        foreach (var itemChildEquipment in _cliDB.ItemChildEquipmentStorage.Values)
+        foreach (var itemChildEquipment in _cliDb.ItemChildEquipmentStorage.Values)
             //ASSERT(_itemChildEquipment.find(itemChildEquipment.ParentItemID) == _itemChildEquipment.end(), "Item must have max 1 child item.");
             _itemChildEquipment[itemChildEquipment.ParentItemID] = itemChildEquipment;
 
-        foreach (var itemClass in _cliDB.ItemClassStorage.Values)
+        foreach (var itemClass in _cliDb.ItemClassStorage.Values)
             //ASSERT(itemClass.ClassID < _itemClassByOldEnum.size());
             //ASSERT(!_itemClassByOldEnum[itemClass.ClassID]);
             _itemClassByOldEnum[itemClass.ClassID] = itemClass;
 
-        foreach (var itemCurrencyCost in _cliDB.ItemCurrencyCostStorage.Values)
+        foreach (var itemCurrencyCost in _cliDb.ItemCurrencyCostStorage.Values)
             _itemsWithCurrencyCost.Add(itemCurrencyCost.ItemID);
 
-        foreach (var condition in _cliDB.ItemLimitCategoryConditionStorage.Values)
+        foreach (var condition in _cliDb.ItemLimitCategoryConditionStorage.Values)
             _itemCategoryConditions.Add(condition.ParentItemLimitCategoryID, condition);
 
-        foreach (var itemLevelSelectorQuality in _cliDB.ItemLevelSelectorQualityStorage.Values)
+        foreach (var itemLevelSelectorQuality in _cliDb.ItemLevelSelectorQualityStorage.Values)
             _itemLevelQualitySelectorQualities.Add(itemLevelSelectorQuality.ParentILSQualitySetID, itemLevelSelectorQuality);
 
-        foreach (var appearanceMod in _cliDB.ItemModifiedAppearanceStorage.Values)
+        foreach (var appearanceMod in _cliDb.ItemModifiedAppearanceStorage.Values)
             //ASSERT(appearanceMod.ItemID <= 0xFFFFFF);
             _itemModifiedAppearancesByItem[(uint)((int)appearanceMod.ItemID | (appearanceMod.ItemAppearanceModifierID << 24))] = appearanceMod;
 
-        foreach (var itemSetSpell in _cliDB.ItemSetSpellStorage.Values)
+        foreach (var itemSetSpell in _cliDb.ItemSetSpellStorage.Values)
             _itemSetSpells.Add(itemSetSpell.ItemSetID, itemSetSpell);
 
-        foreach (var itemSpecOverride in _cliDB.ItemSpecOverrideStorage.Values)
+        foreach (var itemSpecOverride in _cliDb.ItemSpecOverrideStorage.Values)
             _itemSpecOverrides.Add(itemSpecOverride.ItemID, itemSpecOverride);
 
-        foreach (var itemBonusTreeAssignment in _cliDB.ItemXBonusTreeStorage.Values)
+        foreach (var itemBonusTreeAssignment in _cliDb.ItemXBonusTreeStorage.Values)
             _itemToBonusTree.Add(itemBonusTreeAssignment.ItemID, itemBonusTreeAssignment.ItemBonusTreeID);
 
         foreach (var pair in _azeriteEmpoweredItems)
             LoadAzeriteEmpoweredItemUnlockMappings(azeriteUnlockMappings, pair.Key);
 
-        foreach (var journalTier in _cliDB.JournalTierStorage.Values)
+        foreach (var journalTier in _cliDb.JournalTierStorage.Values)
             _journalTiersByIndex.Add(journalTier);
 
-        foreach (var entry in _cliDB.MapDifficultyStorage.Values)
+        foreach (var entry in _cliDb.MapDifficultyStorage.Values)
         {
             if (!_mapDifficulties.ContainsKey(entry.MapID))
                 _mapDifficulties[entry.MapID] = new Dictionary<uint, MapDifficultyRecord>();
@@ -454,32 +454,32 @@ public class DB2Manager
 
         List<MapDifficultyXConditionRecord> mapDifficultyConditions = new();
 
-        foreach (var mapDifficultyCondition in _cliDB.MapDifficultyXConditionStorage.Values)
+        foreach (var mapDifficultyCondition in _cliDb.MapDifficultyXConditionStorage.Values)
             mapDifficultyConditions.Add(mapDifficultyCondition);
 
         mapDifficultyConditions = mapDifficultyConditions.OrderBy(p => p.OrderIndex).ToList();
 
         foreach (var mapDifficultyCondition in mapDifficultyConditions)
         {
-            var playerCondition = _cliDB.PlayerConditionStorage.LookupByKey(mapDifficultyCondition.PlayerConditionID);
+            var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(mapDifficultyCondition.PlayerConditionID);
 
             if (playerCondition != null)
                 _mapDifficultyConditions.Add(mapDifficultyCondition.MapDifficultyID, Tuple.Create(mapDifficultyCondition.Id, playerCondition));
         }
 
-        foreach (var mount in _cliDB.MountStorage.Values)
+        foreach (var mount in _cliDb.MountStorage.Values)
             _mountsBySpellId[mount.SourceSpellID] = mount;
 
-        foreach (var mountTypeCapability in _cliDB.MountTypeXCapabilityStorage.Values)
+        foreach (var mountTypeCapability in _cliDb.MountTypeXCapabilityStorage.Values)
             _mountCapabilitiesByType.Add(mountTypeCapability.MountTypeID, mountTypeCapability);
 
         foreach (var key in _mountCapabilitiesByType.Keys)
             _mountCapabilitiesByType[key].Sort(new MountTypeXCapabilityRecordComparer());
 
-        foreach (var mountDisplay in _cliDB.MountXDisplayStorage.Values)
+        foreach (var mountDisplay in _cliDb.MountXDisplayStorage.Values)
             _mountDisplays.Add(mountDisplay.MountID, mountDisplay);
 
-        foreach (var entry in _cliDB.NameGenStorage.Values)
+        foreach (var entry in _cliDb.NameGenStorage.Values)
         {
             if (!_nameGenData.ContainsKey(entry.RaceID))
             {
@@ -492,7 +492,7 @@ public class DB2Manager
             _nameGenData[entry.RaceID][entry.Sex].Add(entry);
         }
 
-        foreach (var namesProfanity in _cliDB.NamesProfanityStorage.Values)
+        foreach (var namesProfanity in _cliDb.NamesProfanityStorage.Values)
         {
             if (namesProfanity.Language != -1)
                 _nameValidators[namesProfanity.Language].Add(namesProfanity.Name);
@@ -506,10 +506,10 @@ public class DB2Manager
                 }
         }
 
-        foreach (var namesReserved in _cliDB.NamesReservedStorage.Values)
+        foreach (var namesReserved in _cliDb.NamesReservedStorage.Values)
             _nameValidators[(int)Locale.Total].Add(namesReserved.Name);
 
-        foreach (var namesReserved in _cliDB.NamesReservedLocaleStorage.Values)
+        foreach (var namesReserved in _cliDb.NamesReservedLocaleStorage.Values)
         {
             for (var i = 0; i < (int)Locale.Total; ++i)
             {
@@ -521,42 +521,42 @@ public class DB2Manager
             }
         }
 
-        foreach (var paragonReputation in _cliDB.ParagonReputationStorage.Values)
-            if (_cliDB.FactionStorage.HasRecord(paragonReputation.FactionID))
+        foreach (var paragonReputation in _cliDb.ParagonReputationStorage.Values)
+            if (_cliDb.FactionStorage.HasRecord(paragonReputation.FactionID))
                 _paragonReputations[paragonReputation.FactionID] = paragonReputation;
 
-        foreach (var group in _cliDB.PhaseXPhaseGroupStorage.Values)
+        foreach (var group in _cliDb.PhaseXPhaseGroupStorage.Values)
         {
-            var phase = _cliDB.PhaseStorage.LookupByKey(group.PhaseId);
+            var phase = _cliDb.PhaseStorage.LookupByKey(group.PhaseId);
 
             if (phase != null)
                 _phasesByGroup.Add(group.PhaseGroupID, phase.Id);
         }
 
-        foreach (var powerType in _cliDB.PowerTypeStorage.Values)
+        foreach (var powerType in _cliDb.PowerTypeStorage.Values)
         {
             _powerTypes[powerType.PowerTypeEnum] = powerType;
         }
 
-        foreach (var pvpItem in _cliDB.PvpItemStorage.Values)
+        foreach (var pvpItem in _cliDb.PvpItemStorage.Values)
             _pvpItemBonus[pvpItem.ItemID] = pvpItem.ItemLevelDelta;
 
-        foreach (var talentUnlock in _cliDB.PvpTalentSlotUnlockStorage.Values)
+        foreach (var talentUnlock in _cliDb.PvpTalentSlotUnlockStorage.Values)
             for (byte i = 0; i < PlayerConst.MaxPvpTalentSlots; ++i)
                 if (Convert.ToBoolean(talentUnlock.Slot & (1 << i)))
                     _pvpTalentSlotUnlock[i] = talentUnlock;
 
 
-        foreach (var poiBlob in _cliDB.QuestPOIBlobStorage)
+        foreach (var poiBlob in _cliDb.QuestPOIBlobStorage)
             QuestPOIBlobEntriesByMapId.Add(poiBlob.Value.UiMapID, poiBlob.Value);
 
-        foreach (var questLineQuest in _cliDB.QuestLineXQuestStorage.Values)
+        foreach (var questLineQuest in _cliDb.QuestLineXQuestStorage.Values)
         {
             _questsByQuestLine.Add(questLineQuest.QuestLineID, questLineQuest);
             QuestLinesByQuest.Add(questLineQuest.QuestID, questLineQuest);
         }
 
-        foreach (var questPackageItem in _cliDB.QuestPackageItemStorage.Values)
+        foreach (var questPackageItem in _cliDb.QuestPackageItemStorage.Values)
         {
             if (!_questPackages.ContainsKey(questPackageItem.PackageID))
                 _questPackages[questPackageItem.PackageID] = Tuple.Create(new List<QuestPackageItemRecord>(), new List<QuestPackageItemRecord>());
@@ -567,39 +567,39 @@ public class DB2Manager
                 _questPackages[questPackageItem.PackageID].Item2.Add(questPackageItem);
         }
 
-        foreach (var rewardPackXCurrencyType in _cliDB.RewardPackXCurrencyTypeStorage.Values)
+        foreach (var rewardPackXCurrencyType in _cliDb.RewardPackXCurrencyTypeStorage.Values)
             _rewardPackCurrencyTypes.Add(rewardPackXCurrencyType.RewardPackID, rewardPackXCurrencyType);
 
-        foreach (var rewardPackXItem in _cliDB.RewardPackXItemStorage.Values)
+        foreach (var rewardPackXItem in _cliDb.RewardPackXItemStorage.Values)
             _rewardPackItems.Add(rewardPackXItem.RewardPackID, rewardPackXItem);
 
-        foreach (var skill in _cliDB.SkillLineStorage.Values)
+        foreach (var skill in _cliDb.SkillLineStorage.Values)
             if (skill.ParentSkillLineID != 0)
                 _skillLinesByParentSkillLine.Add(skill.ParentSkillLineID, skill);
 
-        foreach (var skillLineAbility in _cliDB.SkillLineAbilityStorage.Values)
+        foreach (var skillLineAbility in _cliDb.SkillLineAbilityStorage.Values)
             _skillLineAbilitiesBySkillupSkill.Add(skillLineAbility.SkillupSkillLineID != 0 ? skillLineAbility.SkillupSkillLineID : skillLineAbility.SkillLine, skillLineAbility);
 
-        foreach (var entry in _cliDB.SkillRaceClassInfoStorage.Values)
-            if (_cliDB.SkillLineStorage.ContainsKey(entry.SkillID))
+        foreach (var entry in _cliDb.SkillRaceClassInfoStorage.Values)
+            if (_cliDb.SkillLineStorage.ContainsKey(entry.SkillID))
                 _skillRaceClassInfoBySkill.Add((uint)entry.SkillID, entry);
 
-        foreach (var soulbindConduitRank in _cliDB.SoulbindConduitRankStorage.Values)
+        foreach (var soulbindConduitRank in _cliDb.SoulbindConduitRankStorage.Values)
             _soulbindConduitRanks[Tuple.Create((int)soulbindConduitRank.SoulbindConduitID, soulbindConduitRank.RankIndex)] = soulbindConduitRank;
 
-        foreach (var specSpells in _cliDB.SpecializationSpellsStorage.Values)
+        foreach (var specSpells in _cliDb.SpecializationSpellsStorage.Values)
             _specializationSpellsBySpec.Add(specSpells.SpecID, specSpells);
 
-        foreach (var specSetMember in _cliDB.SpecSetMemberStorage.Values)
+        foreach (var specSetMember in _cliDb.SpecSetMemberStorage.Values)
             _specsBySpecSet.Add(Tuple.Create((int)specSetMember.SpecSetID, (uint)specSetMember.ChrSpecializationID));
 
-        foreach (var classOption in _cliDB.SpellClassOptionsStorage.Values)
+        foreach (var classOption in _cliDb.SpellClassOptionsStorage.Values)
             _spellFamilyNames.Add(classOption.SpellClassSet);
 
-        foreach (var ppmMod in _cliDB.SpellProcsPerMinuteModStorage.Values)
+        foreach (var ppmMod in _cliDb.SpellProcsPerMinuteModStorage.Values)
             _spellProcsPerMinuteMods.Add(ppmMod.SpellProcsPerMinuteID, ppmMod);
 
-        foreach (var spellVisualMissile in _cliDB.SpellVisualMissileStorage.Values)
+        foreach (var spellVisualMissile in _cliDb.SpellVisualMissileStorage.Values)
             _spellVisualMissilesBySet.Add(spellVisualMissile.SpellVisualMissileSetID, spellVisualMissile);
 
         for (var i = 0; i < (int)PlayerClass.Max; ++i)
@@ -615,21 +615,21 @@ public class DB2Manager
             }
         }
 
-        foreach (var talentInfo in _cliDB.TalentStorage.Values)
+        foreach (var talentInfo in _cliDb.TalentStorage.Values)
             //ASSERT(talentInfo.ClassID < MAX_CLASSES);
             //ASSERT(talentInfo.TierID < MAX_TALENT_TIERS, "MAX_TALENT_TIERS must be at least {0}", talentInfo.TierID);
             //ASSERT(talentInfo.ColumnIndex < MAX_TALENT_COLUMNS, "MAX_TALENT_COLUMNS must be at least {0}", talentInfo.ColumnIndex);
             _talentsByPosition[talentInfo.ClassID][talentInfo.TierID][talentInfo.ColumnIndex].Add(talentInfo);
 
-        foreach (var toy in _cliDB.ToyStorage.Values)
+        foreach (var toy in _cliDb.ToyStorage.Values)
             _toys.Add(toy.ItemID);
 
-        foreach (var transmogIllusion in _cliDB.TransmogIllusionStorage.Values)
+        foreach (var transmogIllusion in _cliDb.TransmogIllusionStorage.Values)
             _transmogIllusionsByEnchantmentId[(uint)transmogIllusion.SpellItemEnchantmentID] = transmogIllusion;
 
-        foreach (var transmogSetItem in _cliDB.TransmogSetItemStorage.Values)
+        foreach (var transmogSetItem in _cliDb.TransmogSetItemStorage.Values)
         {
-            var set = _cliDB.TransmogSetStorage.LookupByKey(transmogSetItem.TransmogSetID);
+            var set = _cliDb.TransmogSetStorage.LookupByKey(transmogSetItem.TransmogSetID);
 
             if (set == null)
                 continue;
@@ -648,10 +648,10 @@ public class DB2Manager
 
         MultiMap<int, UiMapAssignmentRecord> uiMapAssignmentByUiMap = new();
 
-        foreach (var uiMapAssignment in _cliDB.UiMapAssignmentStorage.Values)
+        foreach (var uiMapAssignment in _cliDb.UiMapAssignmentStorage.Values)
         {
             uiMapAssignmentByUiMap.Add(uiMapAssignment.UiMapID, uiMapAssignment);
-            var uiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMapAssignment.UiMapID);
+            var uiMap = _cliDb.UiMapStorage.LookupByKey((uint)uiMapAssignment.UiMapID);
 
             if (uiMap != null)
             {
@@ -672,13 +672,13 @@ public class DB2Manager
 
         Dictionary<Tuple<int, uint>, UiMapLinkRecord> uiMapLinks = new();
 
-        foreach (var uiMapLink in _cliDB.UiMapLinkStorage.Values)
+        foreach (var uiMapLink in _cliDb.UiMapLinkStorage.Values)
             uiMapLinks[Tuple.Create(uiMapLink.ParentUiMapID, (uint)uiMapLink.ChildUiMapID)] = uiMapLink;
 
-        foreach (var uiMap in _cliDB.UiMapStorage.Values)
+        foreach (var uiMap in _cliDb.UiMapStorage.Values)
         {
             UiMapBounds bounds = new();
-            var parentUiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMap.ParentUiMapID);
+            var parentUiMap = _cliDb.UiMapStorage.LookupByKey((uint)uiMap.ParentUiMapID);
 
             if (parentUiMap != null)
             {
@@ -750,11 +750,11 @@ public class DB2Manager
             _uiMapBounds[(int)uiMap.Id] = bounds;
         }
 
-        foreach (var uiMapArt in _cliDB.UiMapXMapArtStorage.Values)
+        foreach (var uiMapArt in _cliDb.UiMapXMapArtStorage.Values)
             if (uiMapArt.PhaseID != 0)
                 _uiMapPhases.Add(uiMapArt.PhaseID);
 
-        foreach (var entry in _cliDB.WMOAreaTableStorage.Values)
+        foreach (var entry in _cliDb.WMOAreaTableStorage.Values)
             _wmoAreaTableLookup[Tuple.Create((short)entry.WmoID, (sbyte)entry.NameSetID, entry.WmoGroupID)] = entry;
     }
 
@@ -873,7 +873,7 @@ public class DB2Manager
     public void LoadHotfixOptionalData(BitSet availableDb2Locales)
     {
         // Register allowed optional data keys
-        _allowedHotfixOptionalData.Add(_cliDB.BroadcastTextStorage.GetTableHash(), Tuple.Create(_cliDB.TactKeyStorage.GetTableHash(), (AllowedHotfixOptionalData)ValidateBroadcastTextTactKeyOptionalData));
+        _allowedHotfixOptionalData.Add(_cliDb.BroadcastTextStorage.GetTableHash(), Tuple.Create(_cliDb.TactKeyStorage.GetTableHash(), (AllowedHotfixOptionalData)ValidateBroadcastTextTactKeyOptionalData));
 
         var oldMSTime = Time.MSTime;
 
@@ -977,7 +977,7 @@ public class DB2Manager
 
     public uint GetEmptyAnimStateID()
     {
-        return _cliDB.AnimationDataStorage.GetNumRows();
+        return _cliDb.AnimationDataStorage.GetNumRows();
     }
 
     public List<uint> GetAreasForGroup(uint areaGroupId)
@@ -997,7 +997,7 @@ public class DB2Manager
             if (objectAreaId == areaId)
                 return true;
 
-            var objectArea = _cliDB.AreaTableStorage.LookupByKey(objectAreaId);
+            var objectArea = _cliDb.AreaTableStorage.LookupByKey(objectAreaId);
 
             if (objectArea == null)
                 break;
@@ -1030,7 +1030,7 @@ public class DB2Manager
 
     public bool IsAzeriteItem(uint itemId)
     {
-        return _cliDB.AzeriteItemStorage.Any(pair => pair.Value.ItemID == itemId);
+        return _cliDb.AzeriteItemStorage.Any(pair => pair.Value.ItemID == itemId);
     }
 
     public AzeriteEssencePowerRecord GetAzeriteEssencePower(uint azeriteEssenceId, uint rank)
@@ -1067,7 +1067,7 @@ public class DB2Manager
         if (levels != null)
             return levels[tier];
 
-        var azeriteTierUnlockSet = _cliDB.AzeriteTierUnlockSetStorage.LookupByKey(azeriteUnlockSetId);
+        var azeriteTierUnlockSet = _cliDb.AzeriteTierUnlockSetStorage.LookupByKey(azeriteUnlockSetId);
 
         if (azeriteTierUnlockSet != null && azeriteTierUnlockSet.Flags.HasAnyFlag(AzeriteTierUnlockSetFlags.Default))
         {
@@ -1077,7 +1077,7 @@ public class DB2Manager
                 return levels[tier];
         }
 
-        return _cliDB.AzeriteLevelInfoStorage.GetNumRows();
+        return _cliDb.AzeriteLevelInfoStorage.GetNumRows();
     }
 
     public string GetBroadcastTextValue(BroadcastTextRecord broadcastText, Locale locale = Locale.enUS, Gender gender = Gender.Male, bool forceGender = false)
@@ -1108,7 +1108,7 @@ public class DB2Manager
 
     public string GetClassName(PlayerClass class_, Locale locale = Locale.enUS)
     {
-        var classEntry = _cliDB.ChrClassesStorage.LookupByKey((uint)class_);
+        var classEntry = _cliDb.ChrClassesStorage.LookupByKey((uint)class_);
 
         if (classEntry == null)
             return "";
@@ -1146,7 +1146,7 @@ public class DB2Manager
 
     public string GetChrRaceName(Race race, Locale locale = Locale.enUS)
     {
-        var raceEntry = _cliDB.ChrRacesStorage.LookupByKey((uint)race);
+        var raceEntry = _cliDb.ChrRacesStorage.LookupByKey((uint)race);
 
         if (raceEntry == null)
             return "";
@@ -1169,7 +1169,7 @@ public class DB2Manager
 
     public ContentTuningLevels? GetContentTuningData(uint contentTuningId, uint replacementConditionMask, bool forItem = false)
     {
-        var contentTuning = _cliDB.ContentTuningStorage.LookupByKey(contentTuningId);
+        var contentTuning = _cliDb.ContentTuningStorage.LookupByKey(contentTuningId);
 
         if (contentTuning == null)
             return null;
@@ -1212,7 +1212,7 @@ public class DB2Manager
         if (petfamily == CreatureFamily.None)
             return null;
 
-        var petFamily = _cliDB.CreatureFamilyStorage.LookupByKey((uint)petfamily);
+        var petFamily = _cliDb.CreatureFamilyStorage.LookupByKey((uint)petfamily);
 
         if (petFamily == null)
             return "";
@@ -1246,7 +1246,7 @@ public class DB2Manager
         if (points.Empty())
             return 0.0f;
 
-        var curve = _cliDB.CurveStorage.LookupByKey(curveId);
+        var curve = _cliDb.CurveStorage.LookupByKey(curveId);
 
         switch (DetermineCurveType(curve, points))
         {
@@ -1403,19 +1403,19 @@ public class DB2Manager
         switch (unitClass)
         {
             case PlayerClass.Warrior:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(4u);
+                classMod = _cliDb.ExpectedStatModStorage.LookupByKey(4u);
 
                 break;
             case PlayerClass.Paladin:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(2u);
+                classMod = _cliDb.ExpectedStatModStorage.LookupByKey(2u);
 
                 break;
             case PlayerClass.Rogue:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(3u);
+                classMod = _cliDb.ExpectedStatModStorage.LookupByKey(3u);
 
                 break;
             case PlayerClass.Mage:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(1u);
+                classMod = _cliDb.ExpectedStatModStorage.LookupByKey(1u);
 
                 break;
             default:
@@ -1538,7 +1538,7 @@ public class DB2Manager
 
     public uint GetGlobalCurveId(GlobalCurve globalCurveType)
     {
-        foreach (var globalCurveEntry in _cliDB.GlobalCurveStorage.Values)
+        foreach (var globalCurveEntry in _cliDb.GlobalCurveStorage.Values)
             if (globalCurveEntry.Type == globalCurveType)
                 return globalCurveEntry.CurveID;
 
@@ -1579,7 +1579,7 @@ public class DB2Manager
     {
         List<uint> bonusListIDs = new();
 
-        var proto = _cliDB.ItemSparseStorage.LookupByKey(itemId);
+        var proto = _cliDb.ItemSparseStorage.LookupByKey(itemId);
 
         if (proto == null)
             return bonusListIDs;
@@ -1622,7 +1622,7 @@ public class DB2Manager
                                 });
         }
 
-        var selector = _cliDB.ItemLevelSelectorStorage.LookupByKey(itemLevelSelectorId);
+        var selector = _cliDb.ItemLevelSelectorStorage.LookupByKey(itemLevelSelectorId);
 
         if (selector != null)
         {
@@ -1633,7 +1633,7 @@ public class DB2Manager
             if (bonus != 0)
                 bonusListIDs.Add(bonus);
 
-            var selectorQualitySet = _cliDB.ItemLevelSelectorQualitySetStorage.LookupByKey(selector.ItemLevelSelectorQualitySetID);
+            var selectorQualitySet = _cliDb.ItemLevelSelectorQualitySetStorage.LookupByKey(selector.ItemLevelSelectorQualitySetID);
 
             if (selectorQualitySet != null)
             {
@@ -1715,7 +1715,7 @@ public class DB2Manager
 
         if (modifiedAppearance != null)
         {
-            var itemAppearance = _cliDB.ItemAppearanceStorage.LookupByKey((uint)modifiedAppearance.ItemAppearanceID);
+            var itemAppearance = _cliDb.ItemAppearanceStorage.LookupByKey((uint)modifiedAppearance.ItemAppearanceID);
 
             if (itemAppearance != null)
                 return itemAppearance.ItemDisplayInfoID;
@@ -1768,7 +1768,7 @@ public class DB2Manager
 
     public LFGDungeonsRecord GetLfgDungeon(uint mapId, Difficulty difficulty)
     {
-        foreach (var dungeon in _cliDB.LFGDungeonsStorage.Values)
+        foreach (var dungeon in _cliDb.LFGDungeonsStorage.Values)
             if (dungeon.MapID == mapId && dungeon.DifficultyID == difficulty)
                 return dungeon;
 
@@ -1777,7 +1777,7 @@ public class DB2Manager
 
     public uint GetDefaultMapLight(uint mapId)
     {
-        foreach (var light in _cliDB.LightStorage.Values.Reverse())
+        foreach (var light in _cliDb.LightStorage.Values.Reverse())
             if (light.ContinentID == mapId && light.GameCoords.X == 0.0f && light.GameCoords.Y == 0.0f && light.GameCoords.Z == 0.0f)
                 return light.Id;
 
@@ -1786,7 +1786,7 @@ public class DB2Manager
 
     public uint GetLiquidFlags(uint liquidType)
     {
-        var liq = _cliDB.LiquidTypeStorage.LookupByKey(liquidType);
+        var liq = _cliDb.LiquidTypeStorage.LookupByKey(liquidType);
 
         if (liq != null)
             return 1u << liq.SoundBank;
@@ -1813,7 +1813,7 @@ public class DB2Manager
 
         foreach (var pair in dicMapDiff)
         {
-            var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(pair.Key);
+            var difficultyEntry = _cliDb.DifficultyStorage.LookupByKey(pair.Key);
 
             if (difficultyEntry == null)
                 continue;
@@ -1848,7 +1848,7 @@ public class DB2Manager
 
     public MapDifficultyRecord GetDownscaledMapDifficultyData(uint mapId, ref Difficulty difficulty)
     {
-        var diffEntry = _cliDB.DifficultyStorage.LookupByKey((uint)difficulty);
+        var diffEntry = _cliDb.DifficultyStorage.LookupByKey((uint)difficulty);
 
         if (diffEntry == null)
             return GetDefaultMapDifficulty(mapId, ref difficulty);
@@ -1859,7 +1859,7 @@ public class DB2Manager
         while (mapDiff == null)
         {
             tmpDiff = (Difficulty)diffEntry.FallbackDifficultyID;
-            diffEntry = _cliDB.DifficultyStorage.LookupByKey((uint)tmpDiff);
+            diffEntry = _cliDb.DifficultyStorage.LookupByKey((uint)tmpDiff);
 
             if (diffEntry == null)
                 return GetDefaultMapDifficulty(mapId, ref difficulty);
@@ -1885,7 +1885,7 @@ public class DB2Manager
 
     public MountRecord GetMountById(uint id)
     {
-        return _cliDB.MountStorage.LookupByKey(id);
+        return _cliDb.MountStorage.LookupByKey(id);
     }
 
     public List<MountTypeXCapabilityRecord> GetMountCapabilities(uint mountType)
@@ -1927,10 +1927,10 @@ public class DB2Manager
 
     public uint GetNumTalentsAtLevel(uint level, PlayerClass playerClass)
     {
-        var numTalentsAtLevel = _cliDB.NumTalentsAtLevelStorage.LookupByKey(level);
+        var numTalentsAtLevel = _cliDb.NumTalentsAtLevelStorage.LookupByKey(level);
 
         if (numTalentsAtLevel == null)
-            numTalentsAtLevel = _cliDB.NumTalentsAtLevelStorage.LastOrDefault().Value;
+            numTalentsAtLevel = _cliDb.NumTalentsAtLevelStorage.LastOrDefault().Value;
 
         if (numTalentsAtLevel != null)
             return playerClass switch
@@ -1952,7 +1952,7 @@ public class DB2Manager
     {
         PvpDifficultyRecord maxEntry = null; // used for level > max listed level case
 
-        foreach (var entry in _cliDB.PvpDifficultyStorage.Values)
+        foreach (var entry in _cliDb.PvpDifficultyStorage.Values)
         {
             // skip unrelated and too-high brackets
             if (entry.MapID != mapid || entry.MinLevel > level)
@@ -1972,7 +1972,7 @@ public class DB2Manager
 
     public PvpDifficultyRecord GetBattlegroundBracketById(uint mapid, BattlegroundBracketId id)
     {
-        foreach (var entry in _cliDB.PvpDifficultyStorage.Values)
+        foreach (var entry in _cliDb.PvpDifficultyStorage.Values)
             if (entry.MapID == mapid && entry.GetBracketId() == id)
                 return entry;
 
@@ -2035,7 +2035,7 @@ public class DB2Manager
 
     public uint GetQuestUniqueBitFlag(uint questId)
     {
-        var v2 = _cliDB.QuestV2Storage.LookupByKey(questId);
+        var v2 = _cliDb.QuestV2Storage.LookupByKey(questId);
 
         if (v2 == null)
             return 0;
@@ -2058,7 +2058,7 @@ public class DB2Manager
 
     public PowerTypeRecord GetPowerTypeByName(string name)
     {
-        foreach (var powerType in _cliDB.PowerTypeStorage.Values)
+        foreach (var powerType in _cliDb.PowerTypeStorage.Values)
         {
             var powerName = powerType.NameGlobalStringTag;
 
@@ -2170,12 +2170,12 @@ public class DB2Manager
         if (itemTotemCategoryId == 0)
             return false;
 
-        var itemEntry = _cliDB.TotemCategoryStorage.LookupByKey(itemTotemCategoryId);
+        var itemEntry = _cliDb.TotemCategoryStorage.LookupByKey(itemTotemCategoryId);
 
         if (itemEntry == null)
             return false;
 
-        var reqEntry = _cliDB.TotemCategoryStorage.LookupByKey(requiredTotemCategoryId);
+        var reqEntry = _cliDb.TotemCategoryStorage.LookupByKey(requiredTotemCategoryId);
 
         if (reqEntry == null)
             return false;
@@ -2250,7 +2250,7 @@ public class DB2Manager
 
     public bool Zone2MapCoordinates(uint areaId, ref float x, ref float y)
     {
-        var areaEntry = _cliDB.AreaTableStorage.LookupByKey(areaId);
+        var areaEntry = _cliDb.AreaTableStorage.LookupByKey(areaId);
 
         if (areaEntry == null)
             return false;
@@ -2361,7 +2361,7 @@ public class DB2Manager
         //        if (MythicPlusSubSeason >= mythicPlusSeason->SubSeason)
         //            return mod;
 
-        var expectedStatMod = _cliDB.ExpectedStatModStorage.LookupByKey((uint)contentTuningXExpected.ExpectedStatModID);
+        var expectedStatMod = _cliDb.ExpectedStatModStorage.LookupByKey((uint)contentTuningXExpected.ExpectedStatModID);
 
         switch (stat)
         {
@@ -2420,7 +2420,7 @@ public class DB2Manager
                                 {
                                     if (bonusTreeNode.ChildItemBonusListID == 0 && bonusTreeNode.ChildItemLevelSelectorID != 0)
                                     {
-                                        var selector = _cliDB.ItemLevelSelectorStorage.LookupByKey(bonusTreeNode.ChildItemLevelSelectorID);
+                                        var selector = _cliDb.ItemLevelSelectorStorage.LookupByKey(bonusTreeNode.ChildItemLevelSelectorID);
 
                                         if (selector == null)
                                             return;
@@ -2518,7 +2518,7 @@ public class DB2Manager
             if (areaId != 0)
                 while (areaId != uiMapAssignment.AreaID)
                 {
-                    var areaEntry = _cliDB.AreaTableStorage.LookupByKey((uint)areaId);
+                    var areaEntry = _cliDb.AreaTableStorage.LookupByKey((uint)areaId);
 
                     if (areaEntry != null)
                     {
@@ -2540,7 +2540,7 @@ public class DB2Manager
         {
             if (mapId != uiMapAssignment.MapID)
             {
-                var mapEntry = _cliDB.MapStorage.LookupByKey((uint)mapId);
+                var mapEntry = _cliDb.MapStorage.LookupByKey((uint)mapId);
 
                 if (mapEntry != null)
                 {
@@ -2609,17 +2609,17 @@ public class DB2Manager
         iterateUiMapAssignments(_uiMapAssignmentByWmoGroup[(int)system], wmoGroupId);
         iterateUiMapAssignments(_uiMapAssignmentByWmoDoodadPlacement[(int)system], wmoDoodadPlacementId);
 
-        var areaEntry = _cliDB.AreaTableStorage.LookupByKey((uint)areaId);
+        var areaEntry = _cliDb.AreaTableStorage.LookupByKey((uint)areaId);
 
         while (areaEntry != null)
         {
             iterateUiMapAssignments(_uiMapAssignmentByArea[(int)system], (int)areaEntry.Id);
-            areaEntry = _cliDB.AreaTableStorage.LookupByKey(areaEntry.ParentAreaID);
+            areaEntry = _cliDb.AreaTableStorage.LookupByKey(areaEntry.ParentAreaID);
         }
 
         if (mapId > 0)
         {
-            var mapEntry = _cliDB.MapStorage.LookupByKey((uint)mapId);
+            var mapEntry = _cliDb.MapStorage.LookupByKey((uint)mapId);
 
             if (mapEntry != null)
             {
@@ -2638,7 +2638,7 @@ public class DB2Manager
 
     Vector2 CalculateGlobalUiMapPosition(int uiMapID, Vector2 uiPosition)
     {
-        var uiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMapID);
+        var uiMap = _cliDb.UiMapStorage.LookupByKey((uint)uiMapID);
 
         while (uiMap != null)
         {
@@ -2651,7 +2651,7 @@ public class DB2Manager
             uiPosition.X = ((1.0f - uiPosition.X) * bounds.Bounds[1]) + (bounds.Bounds[3] * uiPosition.X);
             uiPosition.Y = ((1.0f - uiPosition.Y) * bounds.Bounds[0]) + (bounds.Bounds[2] * uiPosition.Y);
 
-            uiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMap.ParentUiMapID);
+            uiMap = _cliDb.UiMapStorage.LookupByKey((uint)uiMap.ParentUiMapID);
         }
 
         return uiPosition;
@@ -2769,7 +2769,7 @@ public class DB2Manager
     readonly Dictionary<Tuple<short, sbyte, int>, WMOAreaTableRecord> _wmoAreaTableLookup = new();
     List<AzeriteItemMilestonePowerRecord> _azeriteItemMilestonePowers = new();
     internal Dictionary<uint, IDB2Storage> Storage => _storage;
-    private CliDB _cliDB;
+    private CliDB _cliDb;
 
     public DB2Manager(HotfixDatabase hotfixDatabase, GameObjectManager objectManager)
     {
@@ -2796,33 +2796,33 @@ public class DB2Manager
 
     public void LoadStores(CliDB cliDB)
     {
-        _cliDB = cliDB;
+        _cliDb = cliDB;
 
-        foreach (var areaGroupMember in _cliDB.AreaGroupMemberStorage.Values)
+        foreach (var areaGroupMember in _cliDb.AreaGroupMemberStorage.Values)
             _areaGroupMembers.Add(areaGroupMember.AreaGroupID, areaGroupMember.AreaID);
 
-        foreach (var arPoi in _cliDB.AreaPOIStorage.Values)
+        foreach (var arPoi in _cliDb.AreaPOIStorage.Values)
             _areaPOIRecords.Add((uint)arPoi.AreaID, arPoi);
 
-        foreach (var artifactPower in _cliDB.ArtifactPowerStorage.Values)
+        foreach (var artifactPower in _cliDb.ArtifactPowerStorage.Values)
             _artifactPowers.Add(artifactPower.ArtifactID, artifactPower);
 
-        foreach (var artifactPowerLink in _cliDB.ArtifactPowerLinkStorage.Values)
+        foreach (var artifactPowerLink in _cliDb.ArtifactPowerLinkStorage.Values)
         {
             _artifactPowerLinks.Add(artifactPowerLink.PowerA, artifactPowerLink.PowerB);
             _artifactPowerLinks.Add(artifactPowerLink.PowerB, artifactPowerLink.PowerA);
         }
 
-        foreach (var artifactPowerRank in _cliDB.ArtifactPowerRankStorage.Values)
+        foreach (var artifactPowerRank in _cliDb.ArtifactPowerRankStorage.Values)
             _artifactPowerRanks[Tuple.Create(artifactPowerRank.ArtifactPowerID, artifactPowerRank.RankIndex)] = artifactPowerRank;
 
-        foreach (var azeriteEmpoweredItem in _cliDB.AzeriteEmpoweredItemStorage.Values)
+        foreach (var azeriteEmpoweredItem in _cliDb.AzeriteEmpoweredItemStorage.Values)
             _azeriteEmpoweredItems[azeriteEmpoweredItem.ItemID] = azeriteEmpoweredItem;
 
-        foreach (var azeriteEssencePower in _cliDB.AzeriteEssencePowerStorage.Values)
+        foreach (var azeriteEssencePower in _cliDb.AzeriteEssencePowerStorage.Values)
             _azeriteEssencePowersByIdAndRank[((uint)azeriteEssencePower.AzeriteEssenceID, azeriteEssencePower.Tier)] = azeriteEssencePower;
 
-        foreach (var azeriteItemMilestonePower in _cliDB.AzeriteItemMilestonePowerStorage.Values)
+        foreach (var azeriteItemMilestonePower in _cliDb.AzeriteItemMilestonePowerStorage.Values)
             _azeriteItemMilestonePowers.Add(azeriteItemMilestonePower);
 
         _azeriteItemMilestonePowers = _azeriteItemMilestonePowers.OrderBy(p => p.RequiredLevel).ToList();
@@ -2841,11 +2841,11 @@ public class DB2Manager
             }
         }
 
-        foreach (var azeritePowerSetMember in _cliDB.AzeritePowerSetMemberStorage.Values)
-            if (_cliDB.AzeritePowerStorage.ContainsKey(azeritePowerSetMember.AzeritePowerID))
+        foreach (var azeritePowerSetMember in _cliDb.AzeritePowerSetMemberStorage.Values)
+            if (_cliDb.AzeritePowerStorage.ContainsKey(azeritePowerSetMember.AzeritePowerID))
                 _azeritePowers.Add(azeritePowerSetMember.AzeritePowerSetID, azeritePowerSetMember);
 
-        foreach (var azeriteTierUnlock in _cliDB.AzeriteTierUnlockStorage.Values)
+        foreach (var azeriteTierUnlock in _cliDb.AzeriteTierUnlockStorage.Values)
         {
             var key = (azeriteTierUnlock.AzeriteTierUnlockSetID, (ItemContext)azeriteTierUnlock.ItemCreationContext);
 
@@ -2857,10 +2857,10 @@ public class DB2Manager
 
         MultiMap<uint, AzeriteUnlockMappingRecord> azeriteUnlockMappings = new();
 
-        foreach (var azeriteUnlockMapping in _cliDB.AzeriteUnlockMappingStorage.Values)
+        foreach (var azeriteUnlockMapping in _cliDb.AzeriteUnlockMappingStorage.Values)
             azeriteUnlockMappings.Add(azeriteUnlockMapping.AzeriteUnlockMappingSetID, azeriteUnlockMapping);
 
-        foreach (var battlemaster in _cliDB.BattlemasterListStorage.Values)
+        foreach (var battlemaster in _cliDb.BattlemasterListStorage.Values)
         {
             if (battlemaster.MaxLevel < battlemaster.MinLevel)
             {
@@ -2877,18 +2877,18 @@ public class DB2Manager
             }
         }
 
-        foreach (var broadcastTextDuration in _cliDB.BroadcastTextDurationStorage.Values)
+        foreach (var broadcastTextDuration in _cliDb.BroadcastTextDurationStorage.Values)
             _broadcastTextDurations[(broadcastTextDuration.BroadcastTextID, (CascLocaleBit)broadcastTextDuration.Locale)] = broadcastTextDuration.Duration;
 
 
-        foreach (var uiDisplay in _cliDB.ChrClassUIDisplayStorage.Values)
+        foreach (var uiDisplay in _cliDb.ChrClassUIDisplayStorage.Values)
         {
             _uiDisplayByClass[uiDisplay.ChrClassesID] = uiDisplay;
         }
 
         var powers = new List<ChrClassesXPowerTypesRecord>();
 
-        foreach (var chrClasses in _cliDB.ChrClassesXPowerTypesStorage.Values)
+        foreach (var chrClasses in _cliDb.ChrClassesXPowerTypesStorage.Values)
             powers.Add(chrClasses);
 
         powers.Sort(new ChrClassesXPowerTypesRecordComparer());
@@ -2904,25 +2904,25 @@ public class DB2Manager
             _powersByClass[power.ClassID][power.PowerType] = index;
         }
 
-        foreach (var customizationChoice in _cliDB.ChrCustomizationChoiceStorage.Values)
+        foreach (var customizationChoice in _cliDb.ChrCustomizationChoiceStorage.Values)
             _chrCustomizationChoicesByOption.Add(customizationChoice.ChrCustomizationOptionID, customizationChoice);
 
         MultiMap<uint, Tuple<uint, byte>> shapeshiftFormByModel = new();
         Dictionary<uint, ChrCustomizationDisplayInfoRecord> displayInfoByCustomizationChoice = new();
 
         // build shapeshift form model lookup
-        foreach (var customizationElement in _cliDB.ChrCustomizationElementStorage.Values)
+        foreach (var customizationElement in _cliDb.ChrCustomizationElementStorage.Values)
         {
-            var customizationDisplayInfo = _cliDB.ChrCustomizationDisplayInfoStorage.LookupByKey((uint)customizationElement.ChrCustomizationDisplayInfoID);
+            var customizationDisplayInfo = _cliDb.ChrCustomizationDisplayInfoStorage.LookupByKey((uint)customizationElement.ChrCustomizationDisplayInfoID);
 
             if (customizationDisplayInfo != null)
             {
-                var customizationChoice = _cliDB.ChrCustomizationChoiceStorage.LookupByKey(customizationElement.ChrCustomizationChoiceID);
+                var customizationChoice = _cliDb.ChrCustomizationChoiceStorage.LookupByKey(customizationElement.ChrCustomizationChoiceID);
 
                 if (customizationChoice != null)
                 {
                     displayInfoByCustomizationChoice[customizationElement.ChrCustomizationChoiceID] = customizationDisplayInfo;
-                    var customizationOption = _cliDB.ChrCustomizationOptionStorage.LookupByKey(customizationChoice.ChrCustomizationOptionID);
+                    var customizationOption = _cliDb.ChrCustomizationOptionStorage.LookupByKey(customizationChoice.ChrCustomizationOptionID);
 
                     if (customizationOption != null)
                         shapeshiftFormByModel.Add(customizationOption.ChrModelID, Tuple.Create(customizationOption.Id, (byte)customizationDisplayInfo.ShapeshiftFormID));
@@ -2932,12 +2932,12 @@ public class DB2Manager
 
         MultiMap<uint, ChrCustomizationOptionRecord> customizationOptionsByModel = new();
 
-        foreach (var customizationOption in _cliDB.ChrCustomizationOptionStorage.Values)
+        foreach (var customizationOption in _cliDb.ChrCustomizationOptionStorage.Values)
             customizationOptionsByModel.Add(customizationOption.ChrModelID, customizationOption);
 
-        foreach (var reqChoice in _cliDB.ChrCustomizationReqChoiceStorage.Values)
+        foreach (var reqChoice in _cliDb.ChrCustomizationReqChoiceStorage.Values)
         {
-            var customizationChoice = _cliDB.ChrCustomizationChoiceStorage.LookupByKey(reqChoice.ChrCustomizationChoiceID);
+            var customizationChoice = _cliDb.ChrCustomizationChoiceStorage.LookupByKey(reqChoice.ChrCustomizationChoiceID);
 
             if (customizationChoice != null)
             {
@@ -2950,13 +2950,13 @@ public class DB2Manager
 
         Dictionary<uint, uint> parentRaces = new();
 
-        foreach (var chrRace in _cliDB.ChrRacesStorage.Values)
+        foreach (var chrRace in _cliDb.ChrRacesStorage.Values)
             if (chrRace.UnalteredVisualRaceID != 0)
                 parentRaces[(uint)chrRace.UnalteredVisualRaceID] = chrRace.Id;
 
-        foreach (var raceModel in _cliDB.ChrRaceXChrModelStorage.Values)
+        foreach (var raceModel in _cliDb.ChrRaceXChrModelStorage.Values)
         {
-            var model = _cliDB.ChrModelStorage.LookupByKey((uint)raceModel.ChrModelID);
+            var model = _cliDb.ChrModelStorage.LookupByKey((uint)raceModel.ChrModelID);
 
             if (model != null)
             {
@@ -2990,7 +2990,7 @@ public class DB2Manager
             }
         }
 
-        foreach (var chrSpec in _cliDB.ChrSpecializationStorage.Values)
+        foreach (var chrSpec in _cliDb.ChrSpecializationStorage.Values)
         {
             //ASSERT(chrSpec.ClassID < MAX_CLASSES);
             //ASSERT(chrSpec.OrderIndex < MAX_SPECIALIZATIONS);
@@ -3007,37 +3007,37 @@ public class DB2Manager
             _chrSpecializationsByIndex[storageIndex][chrSpec.OrderIndex] = chrSpec;
         }
 
-        foreach (var contentTuningXExpectedStat in _cliDB.ContentTuningXExpectedStorage.Values)
-            if (_cliDB.ExpectedStatModStorage.ContainsKey(contentTuningXExpectedStat.ExpectedStatModID))
+        foreach (var contentTuningXExpectedStat in _cliDb.ContentTuningXExpectedStorage.Values)
+            if (_cliDb.ExpectedStatModStorage.ContainsKey(contentTuningXExpectedStat.ExpectedStatModID))
                 _expectedStatModsByContentTuning.Add(contentTuningXExpectedStat.ContentTuningID, contentTuningXExpectedStat);
 
-        foreach (var currencyContainer in _cliDB.CurrencyContainerStorage.Values)
+        foreach (var currencyContainer in _cliDb.CurrencyContainerStorage.Values)
             _currencyContainers.Add(currencyContainer.CurrencyTypesID, currencyContainer);
 
-        foreach (var curvePoint in _cliDB.CurvePointStorage.Values)
-            if (_cliDB.CurveStorage.ContainsKey(curvePoint.CurveID))
+        foreach (var curvePoint in _cliDb.CurvePointStorage.Values)
+            if (_cliDb.CurveStorage.ContainsKey(curvePoint.CurveID))
                 _curvePoints.Add(curvePoint.CurveID, curvePoint);
 
         foreach (var key in _curvePoints.Keys.ToList())
             _curvePoints[key] = _curvePoints[key].OrderBy(point => point.OrderIndex).ToList();
 
-        foreach (var emoteTextSound in _cliDB.EmotesTextSoundStorage.Values)
+        foreach (var emoteTextSound in _cliDb.EmotesTextSoundStorage.Values)
             _emoteTextSounds[Tuple.Create(emoteTextSound.EmotesTextId, emoteTextSound.RaceId, emoteTextSound.SexId, emoteTextSound.ClassId)] = emoteTextSound;
 
-        foreach (var expectedStat in _cliDB.ExpectedStatStorage.Values)
+        foreach (var expectedStat in _cliDb.ExpectedStatStorage.Values)
             _expectedStatsByLevel[Tuple.Create(expectedStat.Lvl, expectedStat.ExpansionID)] = expectedStat;
 
-        foreach (var faction in _cliDB.FactionStorage.Values)
+        foreach (var faction in _cliDb.FactionStorage.Values)
             if (faction.ParentFactionID != 0)
                 _factionTeams.Add(faction.ParentFactionID, faction.Id);
 
-        foreach (var friendshipRepReaction in _cliDB.FriendshipRepReactionStorage.Values)
+        foreach (var friendshipRepReaction in _cliDb.FriendshipRepReactionStorage.Values)
             _friendshipRepReactions.Add(friendshipRepReaction.FriendshipRepID, friendshipRepReaction);
 
         foreach (var key in _friendshipRepReactions.Keys)
             _friendshipRepReactions[key].Sort(new FriendshipRepReactionRecordComparer());
 
-        foreach (var gameObjectDisplayInfo in _cliDB.GameObjectDisplayInfoStorage.Values)
+        foreach (var gameObjectDisplayInfo in _cliDb.GameObjectDisplayInfoStorage.Values)
         {
             if (gameObjectDisplayInfo.GeoBoxMax.X < gameObjectDisplayInfo.GeoBoxMin.X)
                 Extensions.Swap(ref gameObjectDisplayInfo.GeoBox[3], ref gameObjectDisplayInfo.GeoBox[0]);
@@ -3049,62 +3049,62 @@ public class DB2Manager
                 Extensions.Swap(ref gameObjectDisplayInfo.GeoBox[5], ref gameObjectDisplayInfo.GeoBox[2]);
         }
 
-        foreach (var heirloom in _cliDB.HeirloomStorage.Values)
+        foreach (var heirloom in _cliDb.HeirloomStorage.Values)
             _heirlooms[heirloom.ItemID] = heirloom;
 
-        foreach (var glyphBindableSpell in _cliDB.GlyphBindableSpellStorage.Values)
+        foreach (var glyphBindableSpell in _cliDb.GlyphBindableSpellStorage.Values)
             _glyphBindableSpells.Add(glyphBindableSpell.GlyphPropertiesID, (uint)glyphBindableSpell.SpellID);
 
-        foreach (var glyphRequiredSpec in _cliDB.GlyphRequiredSpecStorage.Values)
+        foreach (var glyphRequiredSpec in _cliDb.GlyphRequiredSpecStorage.Values)
             _glyphRequiredSpecs.Add(glyphRequiredSpec.GlyphPropertiesID, glyphRequiredSpec.ChrSpecializationID);
 
-        foreach (var bonus in _cliDB.ItemBonusStorage.Values)
+        foreach (var bonus in _cliDb.ItemBonusStorage.Values)
             _itemBonusLists.Add(bonus.ParentItemBonusListID, bonus);
 
-        foreach (var itemBonusListLevelDelta in _cliDB.ItemBonusListLevelDeltaStorage.Values)
+        foreach (var itemBonusListLevelDelta in _cliDb.ItemBonusListLevelDeltaStorage.Values)
             _itemLevelDeltaToBonusListContainer[itemBonusListLevelDelta.ItemLevelDelta] = itemBonusListLevelDelta.Id;
 
-        foreach (var bonusTreeNode in _cliDB.ItemBonusTreeNodeStorage.Values)
+        foreach (var bonusTreeNode in _cliDb.ItemBonusTreeNodeStorage.Values)
             _itemBonusTrees.Add(bonusTreeNode.ParentItemBonusTreeID, bonusTreeNode);
 
-        foreach (var itemChildEquipment in _cliDB.ItemChildEquipmentStorage.Values)
+        foreach (var itemChildEquipment in _cliDb.ItemChildEquipmentStorage.Values)
             //ASSERT(_itemChildEquipment.find(itemChildEquipment.ParentItemID) == _itemChildEquipment.end(), "Item must have max 1 child item.");
             _itemChildEquipment[itemChildEquipment.ParentItemID] = itemChildEquipment;
 
-        foreach (var itemClass in _cliDB.ItemClassStorage.Values)
+        foreach (var itemClass in _cliDb.ItemClassStorage.Values)
             //ASSERT(itemClass.ClassID < _itemClassByOldEnum.size());
             //ASSERT(!_itemClassByOldEnum[itemClass.ClassID]);
             _itemClassByOldEnum[itemClass.ClassID] = itemClass;
 
-        foreach (var itemCurrencyCost in _cliDB.ItemCurrencyCostStorage.Values)
+        foreach (var itemCurrencyCost in _cliDb.ItemCurrencyCostStorage.Values)
             _itemsWithCurrencyCost.Add(itemCurrencyCost.ItemID);
 
-        foreach (var condition in _cliDB.ItemLimitCategoryConditionStorage.Values)
+        foreach (var condition in _cliDb.ItemLimitCategoryConditionStorage.Values)
             _itemCategoryConditions.Add(condition.ParentItemLimitCategoryID, condition);
 
-        foreach (var itemLevelSelectorQuality in _cliDB.ItemLevelSelectorQualityStorage.Values)
+        foreach (var itemLevelSelectorQuality in _cliDb.ItemLevelSelectorQualityStorage.Values)
             _itemLevelQualitySelectorQualities.Add(itemLevelSelectorQuality.ParentILSQualitySetID, itemLevelSelectorQuality);
 
-        foreach (var appearanceMod in _cliDB.ItemModifiedAppearanceStorage.Values)
+        foreach (var appearanceMod in _cliDb.ItemModifiedAppearanceStorage.Values)
             //ASSERT(appearanceMod.ItemID <= 0xFFFFFF);
             _itemModifiedAppearancesByItem[(uint)((int)appearanceMod.ItemID | (appearanceMod.ItemAppearanceModifierID << 24))] = appearanceMod;
 
-        foreach (var itemSetSpell in _cliDB.ItemSetSpellStorage.Values)
+        foreach (var itemSetSpell in _cliDb.ItemSetSpellStorage.Values)
             _itemSetSpells.Add(itemSetSpell.ItemSetID, itemSetSpell);
 
-        foreach (var itemSpecOverride in _cliDB.ItemSpecOverrideStorage.Values)
+        foreach (var itemSpecOverride in _cliDb.ItemSpecOverrideStorage.Values)
             _itemSpecOverrides.Add(itemSpecOverride.ItemID, itemSpecOverride);
 
-        foreach (var itemBonusTreeAssignment in _cliDB.ItemXBonusTreeStorage.Values)
+        foreach (var itemBonusTreeAssignment in _cliDb.ItemXBonusTreeStorage.Values)
             _itemToBonusTree.Add(itemBonusTreeAssignment.ItemID, itemBonusTreeAssignment.ItemBonusTreeID);
 
         foreach (var pair in _azeriteEmpoweredItems)
             LoadAzeriteEmpoweredItemUnlockMappings(azeriteUnlockMappings, pair.Key);
 
-        foreach (var journalTier in _cliDB.JournalTierStorage.Values)
+        foreach (var journalTier in _cliDb.JournalTierStorage.Values)
             _journalTiersByIndex.Add(journalTier);
 
-        foreach (var entry in _cliDB.MapDifficultyStorage.Values)
+        foreach (var entry in _cliDb.MapDifficultyStorage.Values)
         {
             if (!_mapDifficulties.ContainsKey(entry.MapID))
                 _mapDifficulties[entry.MapID] = new Dictionary<uint, MapDifficultyRecord>();
@@ -3114,32 +3114,32 @@ public class DB2Manager
 
         List<MapDifficultyXConditionRecord> mapDifficultyConditions = new();
 
-        foreach (var mapDifficultyCondition in _cliDB.MapDifficultyXConditionStorage.Values)
+        foreach (var mapDifficultyCondition in _cliDb.MapDifficultyXConditionStorage.Values)
             mapDifficultyConditions.Add(mapDifficultyCondition);
 
         mapDifficultyConditions = mapDifficultyConditions.OrderBy(p => p.OrderIndex).ToList();
 
         foreach (var mapDifficultyCondition in mapDifficultyConditions)
         {
-            var playerCondition = _cliDB.PlayerConditionStorage.LookupByKey(mapDifficultyCondition.PlayerConditionID);
+            var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(mapDifficultyCondition.PlayerConditionID);
 
             if (playerCondition != null)
                 _mapDifficultyConditions.Add(mapDifficultyCondition.MapDifficultyID, Tuple.Create(mapDifficultyCondition.Id, playerCondition));
         }
 
-        foreach (var mount in _cliDB.MountStorage.Values)
+        foreach (var mount in _cliDb.MountStorage.Values)
             _mountsBySpellId[mount.SourceSpellID] = mount;
 
-        foreach (var mountTypeCapability in _cliDB.MountTypeXCapabilityStorage.Values)
+        foreach (var mountTypeCapability in _cliDb.MountTypeXCapabilityStorage.Values)
             _mountCapabilitiesByType.Add(mountTypeCapability.MountTypeID, mountTypeCapability);
 
         foreach (var key in _mountCapabilitiesByType.Keys)
             _mountCapabilitiesByType[key].Sort(new MountTypeXCapabilityRecordComparer());
 
-        foreach (var mountDisplay in _cliDB.MountXDisplayStorage.Values)
+        foreach (var mountDisplay in _cliDb.MountXDisplayStorage.Values)
             _mountDisplays.Add(mountDisplay.MountID, mountDisplay);
 
-        foreach (var entry in _cliDB.NameGenStorage.Values)
+        foreach (var entry in _cliDb.NameGenStorage.Values)
         {
             if (!_nameGenData.ContainsKey(entry.RaceID))
             {
@@ -3152,7 +3152,7 @@ public class DB2Manager
             _nameGenData[entry.RaceID][entry.Sex].Add(entry);
         }
 
-        foreach (var namesProfanity in _cliDB.NamesProfanityStorage.Values)
+        foreach (var namesProfanity in _cliDb.NamesProfanityStorage.Values)
         {
             if (namesProfanity.Language != -1)
                 _nameValidators[namesProfanity.Language].Add(namesProfanity.Name);
@@ -3166,10 +3166,10 @@ public class DB2Manager
                 }
         }
 
-        foreach (var namesReserved in _cliDB.NamesReservedStorage.Values)
+        foreach (var namesReserved in _cliDb.NamesReservedStorage.Values)
             _nameValidators[(int)Locale.Total].Add(namesReserved.Name);
 
-        foreach (var namesReserved in _cliDB.NamesReservedLocaleStorage.Values)
+        foreach (var namesReserved in _cliDb.NamesReservedLocaleStorage.Values)
         {
             for (var i = 0; i < (int)Locale.Total; ++i)
             {
@@ -3181,42 +3181,42 @@ public class DB2Manager
             }
         }
 
-        foreach (var paragonReputation in _cliDB.ParagonReputationStorage.Values)
-            if (_cliDB.FactionStorage.HasRecord(paragonReputation.FactionID))
+        foreach (var paragonReputation in _cliDb.ParagonReputationStorage.Values)
+            if (_cliDb.FactionStorage.HasRecord(paragonReputation.FactionID))
                 _paragonReputations[paragonReputation.FactionID] = paragonReputation;
 
-        foreach (var group in _cliDB.PhaseXPhaseGroupStorage.Values)
+        foreach (var group in _cliDb.PhaseXPhaseGroupStorage.Values)
         {
-            var phase = _cliDB.PhaseStorage.LookupByKey(group.PhaseId);
+            var phase = _cliDb.PhaseStorage.LookupByKey(group.PhaseId);
 
             if (phase != null)
                 _phasesByGroup.Add(group.PhaseGroupID, phase.Id);
         }
 
-        foreach (var powerType in _cliDB.PowerTypeStorage.Values)
+        foreach (var powerType in _cliDb.PowerTypeStorage.Values)
         {
             _powerTypes[powerType.PowerTypeEnum] = powerType;
         }
 
-        foreach (var pvpItem in _cliDB.PvpItemStorage.Values)
+        foreach (var pvpItem in _cliDb.PvpItemStorage.Values)
             _pvpItemBonus[pvpItem.ItemID] = pvpItem.ItemLevelDelta;
 
-        foreach (var talentUnlock in _cliDB.PvpTalentSlotUnlockStorage.Values)
+        foreach (var talentUnlock in _cliDb.PvpTalentSlotUnlockStorage.Values)
             for (byte i = 0; i < PlayerConst.MaxPvpTalentSlots; ++i)
                 if (Convert.ToBoolean(talentUnlock.Slot & (1 << i)))
                     _pvpTalentSlotUnlock[i] = talentUnlock;
 
 
-        foreach (var poiBlob in _cliDB.QuestPOIBlobStorage)
+        foreach (var poiBlob in _cliDb.QuestPOIBlobStorage)
             QuestPOIBlobEntriesByMapId.Add(poiBlob.Value.UiMapID, poiBlob.Value);
 
-        foreach (var questLineQuest in _cliDB.QuestLineXQuestStorage.Values)
+        foreach (var questLineQuest in _cliDb.QuestLineXQuestStorage.Values)
         {
             _questsByQuestLine.Add(questLineQuest.QuestLineID, questLineQuest);
             QuestLinesByQuest.Add(questLineQuest.QuestID, questLineQuest);
         }
 
-        foreach (var questPackageItem in _cliDB.QuestPackageItemStorage.Values)
+        foreach (var questPackageItem in _cliDb.QuestPackageItemStorage.Values)
         {
             if (!_questPackages.ContainsKey(questPackageItem.PackageID))
                 _questPackages[questPackageItem.PackageID] = Tuple.Create(new List<QuestPackageItemRecord>(), new List<QuestPackageItemRecord>());
@@ -3227,39 +3227,39 @@ public class DB2Manager
                 _questPackages[questPackageItem.PackageID].Item2.Add(questPackageItem);
         }
 
-        foreach (var rewardPackXCurrencyType in _cliDB.RewardPackXCurrencyTypeStorage.Values)
+        foreach (var rewardPackXCurrencyType in _cliDb.RewardPackXCurrencyTypeStorage.Values)
             _rewardPackCurrencyTypes.Add(rewardPackXCurrencyType.RewardPackID, rewardPackXCurrencyType);
 
-        foreach (var rewardPackXItem in _cliDB.RewardPackXItemStorage.Values)
+        foreach (var rewardPackXItem in _cliDb.RewardPackXItemStorage.Values)
             _rewardPackItems.Add(rewardPackXItem.RewardPackID, rewardPackXItem);
 
-        foreach (var skill in _cliDB.SkillLineStorage.Values)
+        foreach (var skill in _cliDb.SkillLineStorage.Values)
             if (skill.ParentSkillLineID != 0)
                 _skillLinesByParentSkillLine.Add(skill.ParentSkillLineID, skill);
 
-        foreach (var skillLineAbility in _cliDB.SkillLineAbilityStorage.Values)
+        foreach (var skillLineAbility in _cliDb.SkillLineAbilityStorage.Values)
             _skillLineAbilitiesBySkillupSkill.Add(skillLineAbility.SkillupSkillLineID != 0 ? skillLineAbility.SkillupSkillLineID : skillLineAbility.SkillLine, skillLineAbility);
 
-        foreach (var entry in _cliDB.SkillRaceClassInfoStorage.Values)
-            if (_cliDB.SkillLineStorage.ContainsKey(entry.SkillID))
+        foreach (var entry in _cliDb.SkillRaceClassInfoStorage.Values)
+            if (_cliDb.SkillLineStorage.ContainsKey(entry.SkillID))
                 _skillRaceClassInfoBySkill.Add((uint)entry.SkillID, entry);
 
-        foreach (var soulbindConduitRank in _cliDB.SoulbindConduitRankStorage.Values)
+        foreach (var soulbindConduitRank in _cliDb.SoulbindConduitRankStorage.Values)
             _soulbindConduitRanks[Tuple.Create((int)soulbindConduitRank.SoulbindConduitID, soulbindConduitRank.RankIndex)] = soulbindConduitRank;
 
-        foreach (var specSpells in _cliDB.SpecializationSpellsStorage.Values)
+        foreach (var specSpells in _cliDb.SpecializationSpellsStorage.Values)
             _specializationSpellsBySpec.Add(specSpells.SpecID, specSpells);
 
-        foreach (var specSetMember in _cliDB.SpecSetMemberStorage.Values)
+        foreach (var specSetMember in _cliDb.SpecSetMemberStorage.Values)
             _specsBySpecSet.Add(Tuple.Create((int)specSetMember.SpecSetID, (uint)specSetMember.ChrSpecializationID));
 
-        foreach (var classOption in _cliDB.SpellClassOptionsStorage.Values)
+        foreach (var classOption in _cliDb.SpellClassOptionsStorage.Values)
             _spellFamilyNames.Add(classOption.SpellClassSet);
 
-        foreach (var ppmMod in _cliDB.SpellProcsPerMinuteModStorage.Values)
+        foreach (var ppmMod in _cliDb.SpellProcsPerMinuteModStorage.Values)
             _spellProcsPerMinuteMods.Add(ppmMod.SpellProcsPerMinuteID, ppmMod);
 
-        foreach (var spellVisualMissile in _cliDB.SpellVisualMissileStorage.Values)
+        foreach (var spellVisualMissile in _cliDb.SpellVisualMissileStorage.Values)
             _spellVisualMissilesBySet.Add(spellVisualMissile.SpellVisualMissileSetID, spellVisualMissile);
 
         for (var i = 0; i < (int)PlayerClass.Max; ++i)
@@ -3275,21 +3275,21 @@ public class DB2Manager
             }
         }
 
-        foreach (var talentInfo in _cliDB.TalentStorage.Values)
+        foreach (var talentInfo in _cliDb.TalentStorage.Values)
             //ASSERT(talentInfo.ClassID < MAX_CLASSES);
             //ASSERT(talentInfo.TierID < MAX_TALENT_TIERS, "MAX_TALENT_TIERS must be at least {0}", talentInfo.TierID);
             //ASSERT(talentInfo.ColumnIndex < MAX_TALENT_COLUMNS, "MAX_TALENT_COLUMNS must be at least {0}", talentInfo.ColumnIndex);
             _talentsByPosition[talentInfo.ClassID][talentInfo.TierID][talentInfo.ColumnIndex].Add(talentInfo);
 
-        foreach (var toy in _cliDB.ToyStorage.Values)
+        foreach (var toy in _cliDb.ToyStorage.Values)
             _toys.Add(toy.ItemID);
 
-        foreach (var transmogIllusion in _cliDB.TransmogIllusionStorage.Values)
+        foreach (var transmogIllusion in _cliDb.TransmogIllusionStorage.Values)
             _transmogIllusionsByEnchantmentId[(uint)transmogIllusion.SpellItemEnchantmentID] = transmogIllusion;
 
-        foreach (var transmogSetItem in _cliDB.TransmogSetItemStorage.Values)
+        foreach (var transmogSetItem in _cliDb.TransmogSetItemStorage.Values)
         {
-            var set = _cliDB.TransmogSetStorage.LookupByKey(transmogSetItem.TransmogSetID);
+            var set = _cliDb.TransmogSetStorage.LookupByKey(transmogSetItem.TransmogSetID);
 
             if (set == null)
                 continue;
@@ -3308,10 +3308,10 @@ public class DB2Manager
 
         MultiMap<int, UiMapAssignmentRecord> uiMapAssignmentByUiMap = new();
 
-        foreach (var uiMapAssignment in _cliDB.UiMapAssignmentStorage.Values)
+        foreach (var uiMapAssignment in _cliDb.UiMapAssignmentStorage.Values)
         {
             uiMapAssignmentByUiMap.Add(uiMapAssignment.UiMapID, uiMapAssignment);
-            var uiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMapAssignment.UiMapID);
+            var uiMap = _cliDb.UiMapStorage.LookupByKey((uint)uiMapAssignment.UiMapID);
 
             if (uiMap != null)
             {
@@ -3332,13 +3332,13 @@ public class DB2Manager
 
         Dictionary<Tuple<int, uint>, UiMapLinkRecord> uiMapLinks = new();
 
-        foreach (var uiMapLink in _cliDB.UiMapLinkStorage.Values)
+        foreach (var uiMapLink in _cliDb.UiMapLinkStorage.Values)
             uiMapLinks[Tuple.Create(uiMapLink.ParentUiMapID, (uint)uiMapLink.ChildUiMapID)] = uiMapLink;
 
-        foreach (var uiMap in _cliDB.UiMapStorage.Values)
+        foreach (var uiMap in _cliDb.UiMapStorage.Values)
         {
             UiMapBounds bounds = new();
-            var parentUiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMap.ParentUiMapID);
+            var parentUiMap = _cliDb.UiMapStorage.LookupByKey((uint)uiMap.ParentUiMapID);
 
             if (parentUiMap != null)
             {
@@ -3410,11 +3410,11 @@ public class DB2Manager
             _uiMapBounds[(int)uiMap.Id] = bounds;
         }
 
-        foreach (var uiMapArt in _cliDB.UiMapXMapArtStorage.Values)
+        foreach (var uiMapArt in _cliDb.UiMapXMapArtStorage.Values)
             if (uiMapArt.PhaseID != 0)
                 _uiMapPhases.Add(uiMapArt.PhaseID);
 
-        foreach (var entry in _cliDB.WMOAreaTableStorage.Values)
+        foreach (var entry in _cliDb.WMOAreaTableStorage.Values)
             _wmoAreaTableLookup[Tuple.Create((short)entry.WmoID, (sbyte)entry.NameSetID, entry.WmoGroupID)] = entry;
     }
 
@@ -3533,7 +3533,7 @@ public class DB2Manager
     public void LoadHotfixOptionalData(BitSet availableDb2Locales)
     {
         // Register allowed optional data keys
-        _allowedHotfixOptionalData.Add(_cliDB.BroadcastTextStorage.GetTableHash(), Tuple.Create(_cliDB.TactKeyStorage.GetTableHash(), (AllowedHotfixOptionalData)ValidateBroadcastTextTactKeyOptionalData));
+        _allowedHotfixOptionalData.Add(_cliDb.BroadcastTextStorage.GetTableHash(), Tuple.Create(_cliDb.TactKeyStorage.GetTableHash(), (AllowedHotfixOptionalData)ValidateBroadcastTextTactKeyOptionalData));
 
         var oldMSTime = Time.MSTime;
 
@@ -3637,7 +3637,7 @@ public class DB2Manager
 
     public uint GetEmptyAnimStateID()
     {
-        return _cliDB.AnimationDataStorage.GetNumRows();
+        return _cliDb.AnimationDataStorage.GetNumRows();
     }
 
     public List<uint> GetAreasForGroup(uint areaGroupId)
@@ -3657,7 +3657,7 @@ public class DB2Manager
             if (objectAreaId == areaId)
                 return true;
 
-            var objectArea = _cliDB.AreaTableStorage.LookupByKey(objectAreaId);
+            var objectArea = _cliDb.AreaTableStorage.LookupByKey(objectAreaId);
 
             if (objectArea == null)
                 break;
@@ -3690,7 +3690,7 @@ public class DB2Manager
 
     public bool IsAzeriteItem(uint itemId)
     {
-        return _cliDB.AzeriteItemStorage.Any(pair => pair.Value.ItemID == itemId);
+        return _cliDb.AzeriteItemStorage.Any(pair => pair.Value.ItemID == itemId);
     }
 
     public AzeriteEssencePowerRecord GetAzeriteEssencePower(uint azeriteEssenceId, uint rank)
@@ -3727,7 +3727,7 @@ public class DB2Manager
         if (levels != null)
             return levels[tier];
 
-        var azeriteTierUnlockSet = _cliDB.AzeriteTierUnlockSetStorage.LookupByKey(azeriteUnlockSetId);
+        var azeriteTierUnlockSet = _cliDb.AzeriteTierUnlockSetStorage.LookupByKey(azeriteUnlockSetId);
 
         if (azeriteTierUnlockSet != null && azeriteTierUnlockSet.Flags.HasAnyFlag(AzeriteTierUnlockSetFlags.Default))
         {
@@ -3737,7 +3737,7 @@ public class DB2Manager
                 return levels[tier];
         }
 
-        return _cliDB.AzeriteLevelInfoStorage.GetNumRows();
+        return _cliDb.AzeriteLevelInfoStorage.GetNumRows();
     }
 
     public string GetBroadcastTextValue(BroadcastTextRecord broadcastText, Locale locale = Locale.enUS, Gender gender = Gender.Male, bool forceGender = false)
@@ -3768,7 +3768,7 @@ public class DB2Manager
 
     public string GetClassName(PlayerClass class_, Locale locale = Locale.enUS)
     {
-        var classEntry = _cliDB.ChrClassesStorage.LookupByKey((uint)class_);
+        var classEntry = _cliDb.ChrClassesStorage.LookupByKey((uint)class_);
 
         if (classEntry == null)
             return "";
@@ -3806,7 +3806,7 @@ public class DB2Manager
 
     public string GetChrRaceName(Race race, Locale locale = Locale.enUS)
     {
-        var raceEntry = _cliDB.ChrRacesStorage.LookupByKey((uint)race);
+        var raceEntry = _cliDb.ChrRacesStorage.LookupByKey((uint)race);
 
         if (raceEntry == null)
             return "";
@@ -3829,7 +3829,7 @@ public class DB2Manager
 
     public ContentTuningLevels? GetContentTuningData(uint contentTuningId, uint replacementConditionMask, bool forItem = false)
     {
-        var contentTuning = _cliDB.ContentTuningStorage.LookupByKey(contentTuningId);
+        var contentTuning = _cliDb.ContentTuningStorage.LookupByKey(contentTuningId);
 
         if (contentTuning == null)
             return null;
@@ -3872,7 +3872,7 @@ public class DB2Manager
         if (petfamily == CreatureFamily.None)
             return null;
 
-        var petFamily = _cliDB.CreatureFamilyStorage.LookupByKey((uint)petfamily);
+        var petFamily = _cliDb.CreatureFamilyStorage.LookupByKey((uint)petfamily);
 
         if (petFamily == null)
             return "";
@@ -3906,7 +3906,7 @@ public class DB2Manager
         if (points.Empty())
             return 0.0f;
 
-        var curve = _cliDB.CurveStorage.LookupByKey(curveId);
+        var curve = _cliDb.CurveStorage.LookupByKey(curveId);
 
         switch (DetermineCurveType(curve, points))
         {
@@ -4063,19 +4063,19 @@ public class DB2Manager
         switch (unitClass)
         {
             case PlayerClass.Warrior:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(4u);
+                classMod = _cliDb.ExpectedStatModStorage.LookupByKey(4u);
 
                 break;
             case PlayerClass.Paladin:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(2u);
+                classMod = _cliDb.ExpectedStatModStorage.LookupByKey(2u);
 
                 break;
             case PlayerClass.Rogue:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(3u);
+                classMod = _cliDb.ExpectedStatModStorage.LookupByKey(3u);
 
                 break;
             case PlayerClass.Mage:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(1u);
+                classMod = _cliDb.ExpectedStatModStorage.LookupByKey(1u);
 
                 break;
             default:
@@ -4198,7 +4198,7 @@ public class DB2Manager
 
     public uint GetGlobalCurveId(GlobalCurve globalCurveType)
     {
-        foreach (var globalCurveEntry in _cliDB.GlobalCurveStorage.Values)
+        foreach (var globalCurveEntry in _cliDb.GlobalCurveStorage.Values)
             if (globalCurveEntry.Type == globalCurveType)
                 return globalCurveEntry.CurveID;
 
@@ -4239,7 +4239,7 @@ public class DB2Manager
     {
         List<uint> bonusListIDs = new();
 
-        var proto = _cliDB.ItemSparseStorage.LookupByKey(itemId);
+        var proto = _cliDb.ItemSparseStorage.LookupByKey(itemId);
 
         if (proto == null)
             return bonusListIDs;
@@ -4282,7 +4282,7 @@ public class DB2Manager
                                 });
         }
 
-        var selector = _cliDB.ItemLevelSelectorStorage.LookupByKey(itemLevelSelectorId);
+        var selector = _cliDb.ItemLevelSelectorStorage.LookupByKey(itemLevelSelectorId);
 
         if (selector != null)
         {
@@ -4293,7 +4293,7 @@ public class DB2Manager
             if (bonus != 0)
                 bonusListIDs.Add(bonus);
 
-            var selectorQualitySet = _cliDB.ItemLevelSelectorQualitySetStorage.LookupByKey(selector.ItemLevelSelectorQualitySetID);
+            var selectorQualitySet = _cliDb.ItemLevelSelectorQualitySetStorage.LookupByKey(selector.ItemLevelSelectorQualitySetID);
 
             if (selectorQualitySet != null)
             {
@@ -4375,7 +4375,7 @@ public class DB2Manager
 
         if (modifiedAppearance != null)
         {
-            var itemAppearance = _cliDB.ItemAppearanceStorage.LookupByKey((uint)modifiedAppearance.ItemAppearanceID);
+            var itemAppearance = _cliDb.ItemAppearanceStorage.LookupByKey((uint)modifiedAppearance.ItemAppearanceID);
 
             if (itemAppearance != null)
                 return itemAppearance.ItemDisplayInfoID;
@@ -4428,7 +4428,7 @@ public class DB2Manager
 
     public LFGDungeonsRecord GetLfgDungeon(uint mapId, Difficulty difficulty)
     {
-        foreach (var dungeon in _cliDB.LFGDungeonsStorage.Values)
+        foreach (var dungeon in _cliDb.LFGDungeonsStorage.Values)
             if (dungeon.MapID == mapId && dungeon.DifficultyID == difficulty)
                 return dungeon;
 
@@ -4437,7 +4437,7 @@ public class DB2Manager
 
     public uint GetDefaultMapLight(uint mapId)
     {
-        foreach (var light in _cliDB.LightStorage.Values.Reverse())
+        foreach (var light in _cliDb.LightStorage.Values.Reverse())
             if (light.ContinentID == mapId && light.GameCoords.X == 0.0f && light.GameCoords.Y == 0.0f && light.GameCoords.Z == 0.0f)
                 return light.Id;
 
@@ -4446,7 +4446,7 @@ public class DB2Manager
 
     public uint GetLiquidFlags(uint liquidType)
     {
-        var liq = _cliDB.LiquidTypeStorage.LookupByKey(liquidType);
+        var liq = _cliDb.LiquidTypeStorage.LookupByKey(liquidType);
 
         if (liq != null)
             return 1u << liq.SoundBank;
@@ -4473,7 +4473,7 @@ public class DB2Manager
 
         foreach (var pair in dicMapDiff)
         {
-            var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(pair.Key);
+            var difficultyEntry = _cliDb.DifficultyStorage.LookupByKey(pair.Key);
 
             if (difficultyEntry == null)
                 continue;
@@ -4508,7 +4508,7 @@ public class DB2Manager
 
     public MapDifficultyRecord GetDownscaledMapDifficultyData(uint mapId, ref Difficulty difficulty)
     {
-        var diffEntry = _cliDB.DifficultyStorage.LookupByKey((uint)difficulty);
+        var diffEntry = _cliDb.DifficultyStorage.LookupByKey((uint)difficulty);
 
         if (diffEntry == null)
             return GetDefaultMapDifficulty(mapId, ref difficulty);
@@ -4519,7 +4519,7 @@ public class DB2Manager
         while (mapDiff == null)
         {
             tmpDiff = (Difficulty)diffEntry.FallbackDifficultyID;
-            diffEntry = _cliDB.DifficultyStorage.LookupByKey((uint)tmpDiff);
+            diffEntry = _cliDb.DifficultyStorage.LookupByKey((uint)tmpDiff);
 
             if (diffEntry == null)
                 return GetDefaultMapDifficulty(mapId, ref difficulty);
@@ -4545,7 +4545,7 @@ public class DB2Manager
 
     public MountRecord GetMountById(uint id)
     {
-        return _cliDB.MountStorage.LookupByKey(id);
+        return _cliDb.MountStorage.LookupByKey(id);
     }
 
     public List<MountTypeXCapabilityRecord> GetMountCapabilities(uint mountType)
@@ -4587,10 +4587,10 @@ public class DB2Manager
 
     public uint GetNumTalentsAtLevel(uint level, PlayerClass playerClass)
     {
-        var numTalentsAtLevel = _cliDB.NumTalentsAtLevelStorage.LookupByKey(level);
+        var numTalentsAtLevel = _cliDb.NumTalentsAtLevelStorage.LookupByKey(level);
 
         if (numTalentsAtLevel == null)
-            numTalentsAtLevel = _cliDB.NumTalentsAtLevelStorage.LastOrDefault().Value;
+            numTalentsAtLevel = _cliDb.NumTalentsAtLevelStorage.LastOrDefault().Value;
 
         if (numTalentsAtLevel != null)
             return playerClass switch
@@ -4612,7 +4612,7 @@ public class DB2Manager
     {
         PvpDifficultyRecord maxEntry = null; // used for level > max listed level case
 
-        foreach (var entry in _cliDB.PvpDifficultyStorage.Values)
+        foreach (var entry in _cliDb.PvpDifficultyStorage.Values)
         {
             // skip unrelated and too-high brackets
             if (entry.MapID != mapid || entry.MinLevel > level)
@@ -4632,7 +4632,7 @@ public class DB2Manager
 
     public PvpDifficultyRecord GetBattlegroundBracketById(uint mapid, BattlegroundBracketId id)
     {
-        foreach (var entry in _cliDB.PvpDifficultyStorage.Values)
+        foreach (var entry in _cliDb.PvpDifficultyStorage.Values)
             if (entry.MapID == mapid && entry.GetBracketId() == id)
                 return entry;
 
@@ -4695,7 +4695,7 @@ public class DB2Manager
 
     public uint GetQuestUniqueBitFlag(uint questId)
     {
-        var v2 = _cliDB.QuestV2Storage.LookupByKey(questId);
+        var v2 = _cliDb.QuestV2Storage.LookupByKey(questId);
 
         if (v2 == null)
             return 0;
@@ -4718,7 +4718,7 @@ public class DB2Manager
 
     public PowerTypeRecord GetPowerTypeByName(string name)
     {
-        foreach (var powerType in _cliDB.PowerTypeStorage.Values)
+        foreach (var powerType in _cliDb.PowerTypeStorage.Values)
         {
             var powerName = powerType.NameGlobalStringTag;
 
@@ -4830,12 +4830,12 @@ public class DB2Manager
         if (itemTotemCategoryId == 0)
             return false;
 
-        var itemEntry = _cliDB.TotemCategoryStorage.LookupByKey(itemTotemCategoryId);
+        var itemEntry = _cliDb.TotemCategoryStorage.LookupByKey(itemTotemCategoryId);
 
         if (itemEntry == null)
             return false;
 
-        var reqEntry = _cliDB.TotemCategoryStorage.LookupByKey(requiredTotemCategoryId);
+        var reqEntry = _cliDb.TotemCategoryStorage.LookupByKey(requiredTotemCategoryId);
 
         if (reqEntry == null)
             return false;
@@ -4910,7 +4910,7 @@ public class DB2Manager
 
     public bool Zone2MapCoordinates(uint areaId, ref float x, ref float y)
     {
-        var areaEntry = _cliDB.AreaTableStorage.LookupByKey(areaId);
+        var areaEntry = _cliDb.AreaTableStorage.LookupByKey(areaId);
 
         if (areaEntry == null)
             return false;
@@ -5021,7 +5021,7 @@ public class DB2Manager
         //        if (MythicPlusSubSeason >= mythicPlusSeason->SubSeason)
         //            return mod;
 
-        var expectedStatMod = _cliDB.ExpectedStatModStorage.LookupByKey((uint)contentTuningXExpected.ExpectedStatModID);
+        var expectedStatMod = _cliDb.ExpectedStatModStorage.LookupByKey((uint)contentTuningXExpected.ExpectedStatModID);
 
         switch (stat)
         {
@@ -5080,7 +5080,7 @@ public class DB2Manager
                                 {
                                     if (bonusTreeNode.ChildItemBonusListID == 0 && bonusTreeNode.ChildItemLevelSelectorID != 0)
                                     {
-                                        var selector = _cliDB.ItemLevelSelectorStorage.LookupByKey(bonusTreeNode.ChildItemLevelSelectorID);
+                                        var selector = _cliDb.ItemLevelSelectorStorage.LookupByKey(bonusTreeNode.ChildItemLevelSelectorID);
 
                                         if (selector == null)
                                             return;
@@ -5178,7 +5178,7 @@ public class DB2Manager
             if (areaId != 0)
                 while (areaId != uiMapAssignment.AreaID)
                 {
-                    var areaEntry = _cliDB.AreaTableStorage.LookupByKey((uint)areaId);
+                    var areaEntry = _cliDb.AreaTableStorage.LookupByKey((uint)areaId);
 
                     if (areaEntry != null)
                     {
@@ -5200,7 +5200,7 @@ public class DB2Manager
         {
             if (mapId != uiMapAssignment.MapID)
             {
-                var mapEntry = _cliDB.MapStorage.LookupByKey((uint)mapId);
+                var mapEntry = _cliDb.MapStorage.LookupByKey((uint)mapId);
 
                 if (mapEntry != null)
                 {
@@ -5269,17 +5269,17 @@ public class DB2Manager
         iterateUiMapAssignments(_uiMapAssignmentByWmoGroup[(int)system], wmoGroupId);
         iterateUiMapAssignments(_uiMapAssignmentByWmoDoodadPlacement[(int)system], wmoDoodadPlacementId);
 
-        var areaEntry = _cliDB.AreaTableStorage.LookupByKey((uint)areaId);
+        var areaEntry = _cliDb.AreaTableStorage.LookupByKey((uint)areaId);
 
         while (areaEntry != null)
         {
             iterateUiMapAssignments(_uiMapAssignmentByArea[(int)system], (int)areaEntry.Id);
-            areaEntry = _cliDB.AreaTableStorage.LookupByKey(areaEntry.ParentAreaID);
+            areaEntry = _cliDb.AreaTableStorage.LookupByKey(areaEntry.ParentAreaID);
         }
 
         if (mapId > 0)
         {
-            var mapEntry = _cliDB.MapStorage.LookupByKey((uint)mapId);
+            var mapEntry = _cliDb.MapStorage.LookupByKey((uint)mapId);
 
             if (mapEntry != null)
             {
@@ -5298,7 +5298,7 @@ public class DB2Manager
 
     Vector2 CalculateGlobalUiMapPosition(int uiMapID, Vector2 uiPosition)
     {
-        var uiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMapID);
+        var uiMap = _cliDb.UiMapStorage.LookupByKey((uint)uiMapID);
 
         while (uiMap != null)
         {
@@ -5311,7 +5311,7 @@ public class DB2Manager
             uiPosition.X = ((1.0f - uiPosition.X) * bounds.Bounds[1]) + (bounds.Bounds[3] * uiPosition.X);
             uiPosition.Y = ((1.0f - uiPosition.Y) * bounds.Bounds[0]) + (bounds.Bounds[2] * uiPosition.Y);
 
-            uiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMap.ParentUiMapID);
+            uiMap = _cliDb.UiMapStorage.LookupByKey((uint)uiMap.ParentUiMapID);
         }
 
         return uiPosition;

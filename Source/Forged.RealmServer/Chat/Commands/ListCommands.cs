@@ -35,7 +35,7 @@ class ListCommands
 			return false;
 
 		uint creatureCount = 0;
-		var result = DB.World.Query("SELECT COUNT(guid) FROM creature WHERE id='{0}'", creatureId);
+		var result = _worldDatabase.Query("SELECT COUNT(guid) FROM creature WHERE id='{0}'", creatureId);
 
 		if (!result.IsEmpty())
 			creatureCount = result.Read<uint>(0);
@@ -44,7 +44,7 @@ class ListCommands
 		{
 			var player = handler.Session.Player;
 
-			result = DB.World.Query("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM creature WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
+			result = _worldDatabase.Query("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM creature WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
 									player.Location.X,
 									player.Location.Y,
 									player.Location.Z,
@@ -53,7 +53,7 @@ class ListCommands
 		}
 		else
 		{
-			result = DB.World.Query("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '{0}' LIMIT {1}",
+			result = _worldDatabase.Query("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '{0}' LIMIT {1}",
 									creatureId,
 									count);
 		}
@@ -383,7 +383,7 @@ class ListCommands
 			return false;
 
 		uint objectCount = 0;
-		var result = DB.World.Query("SELECT COUNT(guid) FROM gameobject WHERE id='{0}'", gameObjectId);
+		var result = _worldDatabase.Query("SELECT COUNT(guid) FROM gameobject WHERE id='{0}'", gameObjectId);
 
 		if (!result.IsEmpty())
 			objectCount = result.Read<uint>(0);
@@ -392,7 +392,7 @@ class ListCommands
 		{
 			var player = handler.Session.Player;
 
-			result = DB.World.Query("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
+			result = _worldDatabase.Query("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
 									player.Location.X,
 									player.Location.Y,
 									player.Location.Z,
@@ -401,7 +401,7 @@ class ListCommands
 		}
 		else
 		{
-			result = DB.World.Query("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '{0}' LIMIT {1}",
+			result = _worldDatabase.Query("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '{0}' LIMIT {1}",
 									gameObjectId,
 									count);
 		}
@@ -579,7 +579,7 @@ class ListCommands
 
 	static string GetZoneName(uint zoneId, Locale locale)
 	{
-		var zoneEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
+		var zoneEntry = _cliDb.AreaTableStorage.LookupByKey(zoneId);
 
 		return zoneEntry != null ? zoneEntry.AreaName[locale] : "<unknown zone>";
 	}

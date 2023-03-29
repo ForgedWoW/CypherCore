@@ -39,7 +39,7 @@ public class SceneMgr
 		if (sceneTemplate == null)
 			return 0;
 
-		var entry = CliDB.SceneScriptPackageStorage.LookupByKey(sceneTemplate.ScenePackageId);
+		var entry = _cliDb.SceneScriptPackageStorage.LookupByKey(sceneTemplate.ScenePackageId);
 
 		if (entry == null)
 			return 0;
@@ -70,7 +70,7 @@ public class SceneMgr
 
 		AddInstanceIdToSceneMap(sceneInstanceId, sceneTemplate);
 
-		Global.ScriptMgr.RunScript<ISceneOnSceneStart>(script => script.OnSceneStart(Player, sceneInstanceId, sceneTemplate), sceneTemplate.ScriptId);
+		_scriptManager.RunScript<ISceneOnSceneStart>(script => script.OnSceneStart(Player, sceneInstanceId, sceneTemplate), sceneTemplate.ScriptId);
 
 		return sceneInstanceId;
 	}
@@ -96,7 +96,7 @@ public class SceneMgr
 			Player.SendSysMessage(CypherStrings.CommandSceneDebugTrigger, sceneInstanceId, triggerName);
 
 		var sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceId);
-		Global.ScriptMgr.RunScript<ISceneOnSceneTrigger>(script => script.OnSceneTriggerEvent(Player, sceneInstanceId, sceneTemplate, triggerName), sceneTemplate.ScriptId);
+		_scriptManager.RunScript<ISceneOnSceneTrigger>(script => script.OnSceneTriggerEvent(Player, sceneInstanceId, sceneTemplate, triggerName), sceneTemplate.ScriptId);
 	}
 
 	public void OnSceneCancel(uint sceneInstanceId)
@@ -118,7 +118,7 @@ public class SceneMgr
 		if (sceneTemplate.SceneId != 0)
 			RemoveAurasDueToSceneId(sceneTemplate.SceneId);
 
-		Global.ScriptMgr.RunScript<ISceneOnSceneChancel>(script => script.OnSceneCancel(Player, sceneInstanceId, sceneTemplate), sceneTemplate.ScriptId);
+		_scriptManager.RunScript<ISceneOnSceneChancel>(script => script.OnSceneCancel(Player, sceneInstanceId, sceneTemplate), sceneTemplate.ScriptId);
 
 		if (sceneTemplate.PlaybackFlags.HasFlag(SceneFlags.FadeToBlackscreenOnCancel))
 			CancelScene(sceneInstanceId, false);
@@ -140,7 +140,7 @@ public class SceneMgr
 		if (sceneTemplate.SceneId != 0)
 			RemoveAurasDueToSceneId(sceneTemplate.SceneId);
 
-		Global.ScriptMgr.RunScript<ISceneOnSceneComplete>(script => script.OnSceneComplete(Player, sceneInstanceId, sceneTemplate), sceneTemplate.ScriptId);
+		_scriptManager.RunScript<ISceneOnSceneComplete>(script => script.OnSceneComplete(Player, sceneInstanceId, sceneTemplate), sceneTemplate.ScriptId);
 
 		if (sceneTemplate.PlaybackFlags.HasFlag(SceneFlags.FadeToBlackscreenOnComplete))
 			CancelScene(sceneInstanceId, false);

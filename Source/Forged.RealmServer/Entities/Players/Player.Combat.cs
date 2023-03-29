@@ -136,7 +136,7 @@ public partial class Player
 			SetBaseWeaponDamage(attType, WeaponDamageRange.MaxDamage, damage);
 		}
 
-		var shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey(ShapeshiftForm);
+		var shapeshift = _cliDb.SpellShapeshiftFormStorage.LookupByKey(ShapeshiftForm);
 
 		if (proto.Delay != 0 && !(shapeshift != null && shapeshift.CombatRoundTime != 0))
 			SetBaseAttackTime(attType, apply ? proto.Delay : SharedConst.BaseAttackTime);
@@ -181,7 +181,7 @@ public partial class Player
 	public override float GetBlockPercent(uint attackerLevel)
 	{
 		var blockArmor = (float)ActivePlayerData.ShieldBlock;
-		var armorConstant = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, attackerLevel, -2, 0, PlayerClass.None);
+		var armorConstant = _db2Manager.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, attackerLevel, -2, 0, PlayerClass.None);
 
 		if ((blockArmor + armorConstant) == 0)
 			return 0;
@@ -266,7 +266,7 @@ public partial class Player
 		opponent.DisablePvpRules();
 		DisablePvpRules();
 
-		Global.ScriptMgr.ForEach<IPlayerOnDuelEnd>(p => p.OnDuelEnd(type == DuelCompleteType.Won ? this : opponent,
+		_scriptManager.ForEach<IPlayerOnDuelEnd>(p => p.OnDuelEnd(type == DuelCompleteType.Won ? this : opponent,
 																	type == DuelCompleteType.Won ? opponent : this,
 																	type));
 
@@ -500,7 +500,7 @@ public partial class Player
 
 	float GetRatingMultiplier(CombatRating cr)
 	{
-		var rating = CliDB.CombatRatingsGameTable.GetRow(Level);
+		var rating = _cliDb.CombatRatingsGameTable.GetRow(Level);
 
 		if (rating == null)
 			return 1.0f;
@@ -549,11 +549,11 @@ public partial class Player
 		uint level = getLevel();
 		uint pclass = (uint)GetClass();
 
-		if (level > CliDB.GtChanceToMeleeCritStorage.GetTableRowCount())
-		    level = CliDB.GtChanceToMeleeCritStorage.GetTableRowCount() - 1;
+		if (level > _cliDb.GtChanceToMeleeCritStorage.GetTableRowCount())
+		    level = _cliDb.GtChanceToMeleeCritStorage.GetTableRowCount() - 1;
 
 		// Dodge per agility is proportional to crit per agility, which is available from DBC files
-		var dodgeRatio = CliDB.GtChanceToMeleeCritStorage.EvaluateTable(level - 1, pclass - 1);
+		var dodgeRatio = _cliDb.GtChanceToMeleeCritStorage.EvaluateTable(level - 1, pclass - 1);
 		if (dodgeRatio == null || pclass > (int)Class.Max)
 		    return;
 
@@ -574,58 +574,58 @@ public partial class Player
 		switch (cr)
 		{
 			case CombatRating.Dodge:
-				diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.DodgeDiminishing);
+				diminishingCurveId = _db2Manager.GetGlobalCurveId(GlobalCurve.DodgeDiminishing);
 
 				break;
 			case CombatRating.Parry:
-				diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.ParryDiminishing);
+				diminishingCurveId = _db2Manager.GetGlobalCurveId(GlobalCurve.ParryDiminishing);
 
 				break;
 			case CombatRating.Block:
-				diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.BlockDiminishing);
+				diminishingCurveId = _db2Manager.GetGlobalCurveId(GlobalCurve.BlockDiminishing);
 
 				break;
 			case CombatRating.CritMelee:
 			case CombatRating.CritRanged:
 			case CombatRating.CritSpell:
-				diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.CritDiminishing);
+				diminishingCurveId = _db2Manager.GetGlobalCurveId(GlobalCurve.CritDiminishing);
 
 				break;
 			case CombatRating.Speed:
-				diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.SpeedDiminishing);
+				diminishingCurveId = _db2Manager.GetGlobalCurveId(GlobalCurve.SpeedDiminishing);
 
 				break;
 			case CombatRating.Lifesteal:
-				diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.LifestealDiminishing);
+				diminishingCurveId = _db2Manager.GetGlobalCurveId(GlobalCurve.LifestealDiminishing);
 
 				break;
 			case CombatRating.HasteMelee:
 			case CombatRating.HasteRanged:
 			case CombatRating.HasteSpell:
-				diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.HasteDiminishing);
+				diminishingCurveId = _db2Manager.GetGlobalCurveId(GlobalCurve.HasteDiminishing);
 
 				break;
 			case CombatRating.Avoidance:
-				diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.AvoidanceDiminishing);
+				diminishingCurveId = _db2Manager.GetGlobalCurveId(GlobalCurve.AvoidanceDiminishing);
 
 				break;
 			case CombatRating.Mastery:
-				diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.MasteryDiminishing);
+				diminishingCurveId = _db2Manager.GetGlobalCurveId(GlobalCurve.MasteryDiminishing);
 
 				break;
 			case CombatRating.VersatilityDamageDone:
 			case CombatRating.VersatilityHealingDone:
-				diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.VersatilityDoneDiminishing);
+				diminishingCurveId = _db2Manager.GetGlobalCurveId(GlobalCurve.VersatilityDoneDiminishing);
 
 				break;
 			case CombatRating.VersatilityDamageTaken:
-				diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.VersatilityTakenDiminishing);
+				diminishingCurveId = _db2Manager.GetGlobalCurveId(GlobalCurve.VersatilityTakenDiminishing);
 
 				break;
 		}
 
 		if (diminishingCurveId != 0)
-			return Global.DB2Mgr.GetCurveValueAt(diminishingCurveId, (float)bonusValue);
+			return _db2Manager.GetCurveValueAt(diminishingCurveId, (float)bonusValue);
 
 		return bonusValue;
 	}
@@ -684,7 +684,7 @@ public partial class Player
 	{
 		if (Duel != null && Duel.State == DuelState.Countdown && Duel.StartTime <= currTime)
 		{
-			Global.ScriptMgr.ForEach<IPlayerOnDuelStart>(p => p.OnDuelStart(this, Duel.Opponent));
+			_scriptManager.ForEach<IPlayerOnDuelStart>(p => p.OnDuelStart(this, Duel.Opponent));
 
 			SetDuelTeam(1);
 			Duel.Opponent.SetDuelTeam(2);

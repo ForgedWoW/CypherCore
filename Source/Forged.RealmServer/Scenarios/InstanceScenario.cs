@@ -49,7 +49,7 @@ public class InstanceScenario : Scenario
 
 		List<CriteriaTree> criteriaTrees = new();
 
-		var killCreatureCriteria = Global.CriteriaMgr.GetScenarioCriteriaByTypeAndScenario(CriteriaType.KillCreature, _data.Entry.Id);
+		var killCreatureCriteria = _criteriaManager.GetScenarioCriteriaByTypeAndScenario(CriteriaType.KillCreature, _data.Entry.Id);
 
 		if (!killCreatureCriteria.Empty())
 		{
@@ -84,7 +84,7 @@ public class InstanceScenario : Scenario
 					if (progress != 0)
 					{
 						SetCriteriaProgress(criteria, progress, null, ProgressType.Set);
-						var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
+						var trees = _criteriaManager.GetCriteriaTreesByCriteria(criteria.Id);
 
 						if (trees != null)
 							foreach (var tree in trees)
@@ -94,13 +94,13 @@ public class InstanceScenario : Scenario
 			}
 		}
 
-		foreach (var criteria in Global.CriteriaMgr.GetScenarioCriteriaByTypeAndScenario(CriteriaType.DefeatDungeonEncounter, _data.Entry.Id))
+		foreach (var criteria in _criteriaManager.GetScenarioCriteriaByTypeAndScenario(CriteriaType.DefeatDungeonEncounter, _data.Entry.Id))
 		{
 			if (!instanceScript.IsEncounterCompleted(criteria.Entry.Asset))
 				continue;
 
 			SetCriteriaProgress(criteria, 1, null, ProgressType.Set);
-			var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
+			var trees = _criteriaManager.GetCriteriaTreesByCriteria(criteria.Id);
 
 			if (trees != null)
 				foreach (var tree in trees)

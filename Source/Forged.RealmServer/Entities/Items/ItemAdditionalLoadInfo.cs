@@ -42,7 +42,7 @@ class ItemAdditionalLoadInfo
 				artifactPowerData.ArtifactPowerId = artifactResult.Read<uint>(4);
 				artifactPowerData.PurchasedRank = artifactResult.Read<byte>(5);
 
-				var artifactPower = CliDB.ArtifactPowerStorage.LookupByKey(artifactPowerData.ArtifactPowerId);
+				var artifactPower = _cliDb.ArtifactPowerStorage.LookupByKey(artifactPowerData.ArtifactPowerId);
 
 				if (artifactPower != null)
 				{
@@ -79,16 +79,16 @@ class ItemAdditionalLoadInfo
 
 					var specializationId = azeriteItemResult.Read<uint>(4 + i * 4);
 
-					if (!CliDB.ChrSpecializationStorage.ContainsKey(specializationId))
+					if (!_cliDb.ChrSpecializationStorage.ContainsKey(specializationId))
 						continue;
 
 					info.AzeriteItem.SelectedAzeriteEssences[i].SpecializationId = specializationId;
 
 					for (var j = 0; j < SharedConst.MaxAzeriteEssenceSlot; ++j)
 					{
-						var azeriteEssence = CliDB.AzeriteEssenceStorage.LookupByKey(azeriteItemResult.Read<uint>(5 + i * 5 + j));
+						var azeriteEssence = _cliDb.AzeriteEssenceStorage.LookupByKey(azeriteItemResult.Read<uint>(5 + i * 5 + j));
 
-						if (azeriteEssence == null || !Global.DB2Mgr.IsSpecSetMember(azeriteEssence.SpecSetID, specializationId))
+						if (azeriteEssence == null || !_db2Manager.IsSpecSetMember(azeriteEssence.SpecSetID, specializationId))
 							continue;
 
 						info.AzeriteItem.SelectedAzeriteEssences[i].AzeriteEssenceId[j] = azeriteEssence.Id;
@@ -110,7 +110,7 @@ class ItemAdditionalLoadInfo
 		if (!azeriteItemUnlockedEssencesResult.IsEmpty())
 			do
 			{
-				var azeriteEssencePower = Global.DB2Mgr.GetAzeriteEssencePower(azeriteItemUnlockedEssencesResult.Read<uint>(1), azeriteItemUnlockedEssencesResult.Read<uint>(2));
+				var azeriteEssencePower = _db2Manager.GetAzeriteEssencePower(azeriteItemUnlockedEssencesResult.Read<uint>(1), azeriteItemUnlockedEssencesResult.Read<uint>(2));
 
 				if (azeriteEssencePower != null)
 				{
@@ -132,7 +132,7 @@ class ItemAdditionalLoadInfo
 					info.AzeriteEmpoweredItem = new AzeriteEmpoweredData();
 
 				for (var i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
-					if (CliDB.AzeritePowerStorage.ContainsKey(azeriteEmpoweredItemResult.Read<int>(1 + i)))
+					if (_cliDb.AzeritePowerStorage.ContainsKey(azeriteEmpoweredItemResult.Read<int>(1 + i)))
 						info.AzeriteEmpoweredItem.SelectedAzeritePowers[i] = azeriteEmpoweredItemResult.Read<int>(1 + i);
 			} while (azeriteEmpoweredItemResult.NextRow());
 	}

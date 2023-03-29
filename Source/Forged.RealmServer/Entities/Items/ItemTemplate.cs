@@ -243,7 +243,7 @@ public class ItemTemplate
 
 			case ItemClass.Profession:
 
-				if (ConfigMgr.GetDefaultValue("Professions.AllowClassicProfessionSlots", false))
+				if (_configuration.GetDefaultValue("Professions.AllowClassicProfessionSlots", false))
 					if (SubClass >= (int)ItemSubclassProfession.Max)
 						return 0;
 					else
@@ -268,8 +268,8 @@ public class ItemTemplate
 		// all items but shields
 		if (Class != ItemClass.Armor || SubClass != (uint)ItemSubClassArmor.Shield)
 		{
-			var armorQuality = CliDB.ItemArmorQualityStorage.LookupByKey(itemLevel);
-			var armorTotal = CliDB.ItemArmorTotalStorage.LookupByKey(itemLevel);
+			var armorQuality = _cliDb.ItemArmorQualityStorage.LookupByKey(itemLevel);
+			var armorTotal = _cliDb.ItemArmorTotalStorage.LookupByKey(itemLevel);
 
 			if (armorQuality == null || armorTotal == null)
 				return 0;
@@ -279,7 +279,7 @@ public class ItemTemplate
 			if (inventoryType == InventoryType.Robe)
 				inventoryType = InventoryType.Chest;
 
-			var location = CliDB.ArmorLocationStorage.LookupByKey(inventoryType);
+			var location = _cliDb.ArmorLocationStorage.LookupByKey(inventoryType);
 
 			if (location == null)
 				return 0;
@@ -320,7 +320,7 @@ public class ItemTemplate
 		}
 
 		// shields
-		var shield = CliDB.ItemArmorShieldStorage.LookupByKey(itemLevel);
+		var shield = _cliDb.ItemArmorShieldStorage.LookupByKey(itemLevel);
 
 		if (shield == null)
 			return 0;
@@ -340,14 +340,14 @@ public class ItemTemplate
 		switch (InventoryType)
 		{
 			case InventoryType.Ammo:
-				dps = CliDB.ItemDamageAmmoStorage.LookupByKey(itemLevel).Quality[(int)quality];
+				dps = _cliDb.ItemDamageAmmoStorage.LookupByKey(itemLevel).Quality[(int)quality];
 
 				break;
 			case InventoryType.Weapon2Hand:
 				if (HasFlag(ItemFlags2.CasterWeapon))
-					dps = CliDB.ItemDamageTwoHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
+					dps = _cliDb.ItemDamageTwoHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
 				else
-					dps = CliDB.ItemDamageTwoHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
+					dps = _cliDb.ItemDamageTwoHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
 
 				break;
 			case InventoryType.Ranged:
@@ -356,16 +356,16 @@ public class ItemTemplate
 				switch ((ItemSubClassWeapon)SubClass)
 				{
 					case ItemSubClassWeapon.Wand:
-						dps = CliDB.ItemDamageOneHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
+						dps = _cliDb.ItemDamageOneHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
 
 						break;
 					case ItemSubClassWeapon.Bow:
 					case ItemSubClassWeapon.Gun:
 					case ItemSubClassWeapon.Crossbow:
 						if (HasFlag(ItemFlags2.CasterWeapon))
-							dps = CliDB.ItemDamageTwoHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
+							dps = _cliDb.ItemDamageTwoHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
 						else
-							dps = CliDB.ItemDamageTwoHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
+							dps = _cliDb.ItemDamageTwoHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
 
 						break;
 					default:
@@ -377,9 +377,9 @@ public class ItemTemplate
 			case InventoryType.WeaponMainhand:
 			case InventoryType.WeaponOffhand:
 				if (HasFlag(ItemFlags2.CasterWeapon))
-					dps = CliDB.ItemDamageOneHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
+					dps = _cliDb.ItemDamageOneHandCasterStorage.LookupByKey(itemLevel).Quality[(int)quality];
 				else
-					dps = CliDB.ItemDamageOneHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
+					dps = _cliDb.ItemDamageOneHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
 
 				break;
 			default:
@@ -415,7 +415,7 @@ public class ItemTemplate
 		if (spec == 0)
 			spec = player.GetDefaultSpecId();
 
-		var chrSpecialization = CliDB.ChrSpecializationStorage.LookupByKey(spec);
+		var chrSpecialization = _cliDb.ChrSpecializationStorage.LookupByKey(spec);
 
 		if (chrSpecialization == null)
 			return false;

@@ -1,24 +1,29 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.World;
 using Framework.Constants;
 using Framework.Database;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Entities.Objects;
+using Serilog;
+using System.Collections.Generic;
 
 namespace Forged.RealmServer.Groups;
 
-public class GroupManager : Singleton<GroupManager>
+public class GroupManager
 {
-	readonly Dictionary<ulong, PlayerGroup> GroupStore = new();
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly WorldManager _worldManager;
+    readonly Dictionary<ulong, PlayerGroup> GroupStore = new();
 	readonly Dictionary<uint, PlayerGroup> GroupDbStore = new();
 	ulong NextGroupId;
 	uint NextGroupDbStoreId;
 
-	GroupManager()
+	public GroupManager(CharacterDatabase characterDatabase, WorldManager worldManager)
 	{
-		NextGroupDbStoreId = 1;
+        _characterDatabase = characterDatabase;
+        _worldManager = worldManager;
+        NextGroupDbStoreId = 1;
 		NextGroupId = 1;
 	}
 

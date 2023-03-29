@@ -1,16 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
-using Framework.Constants;
+using Blizzard.Telemetry.Wow;
 using Forged.RealmServer.Achievements;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.Garrisons;
 using Forged.RealmServer.Groups;
-using Forged.RealmServer.Loots;
-using Forged.RealmServer.Mails;
 using Forged.RealmServer.Misc;
-using Forged.RealmServer.Spells;
+using Forged.RealmServer.Quest;
+using Framework.Constants;
+using System.Collections.Generic;
 
 namespace Forged.RealmServer.Entities;
 
@@ -42,17 +41,10 @@ public partial class Player
 
 	//Spell
 	readonly Dictionary<uint, PlayerSpell> _spells = new();
-	readonly Dictionary<uint, SkillStatusData> _skillStatus = new();
 	readonly Dictionary<uint, PlayerCurrency> _currencyStorage = new();
-	readonly List<SpellModifier>[][] _spellModifiers = new List<SpellModifier>[(int)SpellModOp.Max][];
 	readonly MultiMap<uint, uint> _overrideSpells = new();
 	readonly Dictionary<uint, StoredAuraTeleportLocation> _storedAuraTeleportLocations = new();
-
-	//Mail
-	readonly List<Mail> _mail = new();
-	readonly Dictionary<ulong, Item> _mailItems = new();
-	readonly RestMgr _restMgr;
-
+	
 	//Combat
 	readonly int[] _baseRatingValue = new int[(int)CombatRating.Max];
 	readonly double[] _auraBaseFlatMod = new double[(int)BaseModGroup.End];
@@ -77,7 +69,6 @@ public partial class Player
 	readonly WorldLocation _homebind = new();
 	readonly SceneMgr _sceneMgr;
 	readonly Dictionary<ObjectGuid, Loot> _aeLootView = new();
-	readonly List<LootRoll> _lootRolls = new(); // loot rolls waiting for answer
 
 	readonly CufProfile[] _cufProfiles = new CufProfile[PlayerConst.MaxCUFProfiles];
 	readonly double[] _powerFraction = new double[(int)PowerType.MaxPerClass];
@@ -223,11 +214,9 @@ public partial class Player
 	public PlayerTaxi Taxi { get; set; } = new();
 	public byte[] ForcedSpeedChanges { get; set; } = new byte[(int)UnitMoveType.Max];
 	public byte MovementForceModMagnitudeChanges { get; set; }
-	public Spell SpellModTakingSpell { get; set; }
 	public float EmpoweredSpellMinHoldPct { get; set; }
 	public byte UnReadMails { get; set; }
 	public bool MailsUpdated { get; set; }
-	public List<PetAura> PetAuras { get; set; } = new();
 	public DuelInfo Duel { get; set; }
 
 	public PlayerData PlayerData { get; set; }

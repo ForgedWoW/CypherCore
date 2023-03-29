@@ -24,7 +24,7 @@ public class SocialHandler : IWorldSessionHandler
     private readonly WorldConfig _worldConfig;
     private readonly WhoListStorageManager _whoListStorageManager;
     private readonly AccountManager _accountManager;
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly LoginDatabase _loginDatabase;
     private readonly WorldManager _worldManager;
     private readonly ObjectAccessor _objectAccessor;
@@ -39,7 +39,7 @@ public class SocialHandler : IWorldSessionHandler
         _worldConfig = worldConfig;
         _whoListStorageManager = whoListStorageManager;
         _accountManager = accountManager;
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _loginDatabase = loginDatabase;
         _worldManager = worldManager;
         _objectAccessor = objectAccessor;
@@ -134,7 +134,7 @@ public class SocialHandler : IWorldSessionHandler
 			if (!request.Words.Empty())
 			{
 				var aname = "";
-				var areaEntry = _cliDB.AreaTableStorage.LookupByKey(target.ZoneId);
+				var areaEntry = _cliDb.AreaTableStorage.LookupByKey(target.ZoneId);
 
 				if (areaEntry != null)
 					aname = areaEntry.AreaName[_session.SessionDbcLocale].ToLower();

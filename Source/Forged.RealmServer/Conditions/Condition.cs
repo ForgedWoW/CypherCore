@@ -1,23 +1,27 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Players;
-using Forged.RealmServer.Maps;
-using Forged.RealmServer.Scenarios;
+using Forged.RealmServer.Achievements;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Globals;
+using Forged.RealmServer.Scripting;
 using Forged.RealmServer.Scripting.Interfaces.ICondition;
 using Framework.Constants;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Forged.RealmServer.Conditions;
 
 public class Condition
 {
-	public ConditionSourceType SourceType; //SourceTypeOrReferenceId
+    private readonly CliDB _cliDb;
+    private readonly AchievementGlobalMgr _achievementManager;
+    private readonly ConditionManager _conditionManager;
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly ScriptManager _scriptManager;
+    public ConditionSourceType SourceType; //SourceTypeOrReferenceId
 	public uint SourceGroup;
 	public int SourceEntry;
 	public uint SourceId; // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
@@ -33,15 +37,21 @@ public class Condition
 	public byte ConditionTarget;
 	public bool NegativeCondition;
 
-	public Condition()
+	public Condition(CliDB cliDB, AchievementGlobalMgr achievementManager, ConditionManager conditionManager,
+        GameObjectManager gameObjectManager, ScriptManager scriptManager)
 	{
-		SourceType = ConditionSourceType.None;
+        _cliDb = cliDB;
+        _achievementManager = achievementManager;
+        _conditionManager = conditionManager;
+        _gameObjectManager = gameObjectManager;
+        _scriptManager = scriptManager;
+
+        SourceType = ConditionSourceType.None;
 		ConditionType = ConditionTypes.None;
 	}
 
 	public bool Meets(ConditionSourceInfo sourceInfo)
 	{
-		var map = sourceInfo.mConditionMap;
 		var condMeets = false;
 		var needsObject = false;
 
@@ -51,90 +61,17 @@ public class Condition
 				condMeets = true; // empty condition, always met
 
 				break;
-			case ConditionTypes.ActiveEvent:
-				condMeets = _gameEventManager.IsActiveEvent((ushort)ConditionValue1);
-
-				break;
-			case ConditionTypes.InstanceInfo:
-			{
-				if (map.IsDungeon)
-				{
-					var instance = ((InstanceMap)map).InstanceScript;
-
-					if (instance != null)
-						switch ((InstanceInfo)ConditionValue3)
-						{
-							case InstanceInfo.Data:
-								condMeets = instance.GetData(ConditionValue1) == ConditionValue2;
-
-								break;
-							//case INSTANCE_INFO_GUID_DATA:
-							//    condMeets = instance->GetGuidData(ConditionValue1) == ObjectGuid(uint64(ConditionValue2));
-							//    break;
-							case InstanceInfo.BossState:
-								condMeets = instance.GetBossState(ConditionValue1) == (EncounterState)ConditionValue2;
-
-								break;
-							case InstanceInfo.Data64:
-								condMeets = instance.GetData64(ConditionValue1) == ConditionValue2;
-
-								break;
-							default:
-								condMeets = false;
-
-								break;
-						}
-				}
-
-				break;
-			}
-			case ConditionTypes.Mapid:
-				condMeets = map.Id == ConditionValue1;
-
-				break;
-			case ConditionTypes.WorldState:
-			{
-				condMeets = Global.WorldStateMgr.GetValue((int)ConditionValue1, map) == ConditionValue2;
-
-				break;
-			}
 			case ConditionTypes.RealmAchievement:
 			{
-				var achievement = CliDB.AchievementStorage.LookupByKey(ConditionValue1);
+				var achievement = _cliDb.AchievementStorage.LookupByKey(ConditionValue1);
 
-				if (achievement != null && Global.AchievementMgr.IsRealmCompleted(achievement))
+				if (achievement != null && _achievementManager.IsRealmCompleted(achievement))
 					condMeets = true;
-
-				break;
-			}
-			case ConditionTypes.DifficultyId:
-			{
-				condMeets = (uint)map.DifficultyID == ConditionValue1;
-
-				break;
-			}
-			case ConditionTypes.ScenarioStep:
-			{
-				var instanceMap = map.ToInstanceMap;
-
-				if (instanceMap != null)
-				{
-					Scenario scenario = instanceMap.InstanceScenario;
-
-					if (scenario != null)
-					{
-						var step = scenario.GetStep();
-
-						if (step != null)
-							condMeets = step.Id == ConditionValue1;
-					}
-				}
 
 				break;
 			}
 			default:
 				needsObject = true;
-
 				break;
 		}
 
@@ -178,7 +115,7 @@ public class Condition
 			case ConditionTypes.ReputationRank:
 				if (player != null)
 				{
-					var faction = CliDB.FactionStorage.LookupByKey(ConditionValue1);
+					var faction = _cliDb.FactionStorage.LookupByKey(ConditionValue1);
 
 					if (faction != null)
 						condMeets = Convert.ToBoolean(ConditionValue2 & (1 << (int)player.ReputationMgr.GetRank(faction)));
@@ -505,7 +442,7 @@ public class Condition
 			case ConditionTypes.BattlePetCount:
 			{
 				if (player != null)
-					condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, (uint)player.Session.BattlePetMgr.GetPetCount(CliDB.BattlePetSpeciesStorage.LookupByKey(ConditionValue1), player.GUID), ConditionValue2);
+					condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, (uint)player.Session.BattlePetMgr.GetPetCount(_cliDb.BattlePetSpeciesStorage.LookupByKey(ConditionValue1), player.GUID), ConditionValue2);
 
 				break;
 			}
@@ -520,10 +457,10 @@ public class Condition
 			{
 				if (player != null)
 				{
-					var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(ConditionValue1);
+					var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(ConditionValue1);
 
 					if (playerCondition != null)
-						condMeets = ConditionManager.IsPlayerMeetingCondition(player, playerCondition);
+						condMeets = _conditionManager.IsPlayerMeetingCondition(player, playerCondition);
 				}
 
 				break;
@@ -538,7 +475,7 @@ public class Condition
 		if (!condMeets)
 			sourceInfo.mLastFailedCondition = this;
 
-		return condMeets && Global.ScriptMgr.RunScriptRet<IConditionCheck>(p => p.OnConditionCheck(this, sourceInfo), ScriptId, true); // Returns true by default.;
+		return condMeets && _scriptManager.RunScriptRet<IConditionCheck>(p => p.OnConditionCheck(this, sourceInfo), ScriptId, true); // Returns true by default.;
 	}
 
 	public GridMapTypeMask GetSearcherTypeMaskForCondition()
@@ -706,20 +643,20 @@ public class Condition
 
 		if (SourceType < ConditionSourceType.Max)
 		{
-			if (Global.ConditionMgr.StaticSourceTypeData.Length > (int)SourceType)
-				ss.AppendFormat(" ({0})", Global.ConditionMgr.StaticSourceTypeData[(int)SourceType]);
+			if (_conditionManager.StaticSourceTypeData.Length > (int)SourceType)
+				ss.AppendFormat(" ({0})", _conditionManager.StaticSourceTypeData[(int)SourceType]);
 		}
 		else
 		{
 			ss.Append(" (Unknown)");
 		}
 
-		if (Global.ConditionMgr.CanHaveSourceGroupSet(SourceType))
+		if (_conditionManager.CanHaveSourceGroupSet(SourceType))
 			ss.AppendFormat(", SourceGroup: {0}", SourceGroup);
 
 		ss.AppendFormat(", SourceEntry: {0}", SourceEntry);
 
-		if (Global.ConditionMgr.CanHaveSourceIdSet(SourceType))
+		if (_conditionManager.CanHaveSourceIdSet(SourceType))
 			ss.AppendFormat(", SourceId: {0}", SourceId);
 
 		if (ext)
@@ -727,7 +664,7 @@ public class Condition
 			ss.AppendFormat(", ConditionType: {0}", ConditionType);
 
 			if (ConditionType < ConditionTypes.Max)
-				ss.AppendFormat(" ({0})", Global.ConditionMgr.StaticConditionTypeData[(int)ConditionType].Name);
+				ss.AppendFormat(" ({0})", _conditionManager.StaticConditionTypeData[(int)ConditionType].Name);
 			else
 				ss.Append(" (Unknown)");
 		}
@@ -741,7 +678,6 @@ public class Condition
 public class ConditionSourceInfo
 {
 	public WorldObject[] mConditionTargets = new WorldObject[SharedConst.MaxConditionTargets]; // an array of targets available for conditions
-	public Map mConditionMap;
 	public Condition mLastFailedCondition;
 
 	public ConditionSourceInfo(WorldObject target0, WorldObject target1 = null, WorldObject target2 = null)
@@ -749,13 +685,6 @@ public class ConditionSourceInfo
 		mConditionTargets[0] = target0;
 		mConditionTargets[1] = target1;
 		mConditionTargets[2] = target2;
-		mConditionMap = target0 != null ? target0.Map : null;
-		mLastFailedCondition = null;
-	}
-
-	public ConditionSourceInfo(Map map)
-	{
-		mConditionMap = map;
 		mLastFailedCondition = null;
 	}
 }

@@ -44,7 +44,7 @@ public class Channel
 		_channelGuid = guid;
 		_zoneEntry = zoneEntry;
 
-		var channelEntry = CliDB.ChatChannelsStorage.LookupByKey(channelId);
+		var channelEntry = _cliDb.ChatChannelsStorage.LookupByKey(channelId);
 
 		if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Trade)) // for trade channel
 			_channelFlags |= ChannelFlags.Trade;
@@ -88,7 +88,7 @@ public class Channel
 	{
 		if (channelId != 0)
 		{
-			var channelEntry = CliDB.ChatChannelsStorage.LookupByKey(channelId);
+			var channelEntry = _cliDb.ChatChannelsStorage.LookupByKey(channelId);
 
 			if (!channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Global))
 			{

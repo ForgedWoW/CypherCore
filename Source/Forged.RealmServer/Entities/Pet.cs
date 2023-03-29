@@ -36,7 +36,7 @@ public class Pet : Guardian
 	{
 		get
 		{
-			var creatureFamily = CliDB.CreatureFamilyStorage.LookupByKey(Template.Family);
+			var creatureFamily = _cliDb.CreatureFamilyStorage.LookupByKey(Template.Family);
 
 			if (creatureFamily != null && creatureFamily.MinScale > 0.0f && PetType == PetType.Hunter)
 			{
@@ -444,10 +444,10 @@ public class Pet : Guardian
 				Log.outDebug(LogFilter.Pet, $"New Pet has {GUID}");
 
 				var specId = specializationId;
-				var petSpec = CliDB.ChrSpecializationStorage.LookupByKey(specId);
+				var petSpec = _cliDb.ChrSpecializationStorage.LookupByKey(specId);
 
 				if (petSpec != null)
-					specId = (ushort)Global.DB2Mgr.GetChrSpecializationByIndex(owner.HasAuraType(AuraType.OverridePetSpecs) ? PlayerClass.Max : 0, petSpec.OrderIndex).Id;
+					specId = (ushort)_db2Manager.GetChrSpecializationByIndex(owner.HasAuraType(AuraType.OverridePetSpecs) ? PlayerClass.Max : 0, petSpec.OrderIndex).Id;
 
 				SetSpecialization(specId);
 
@@ -837,7 +837,7 @@ public class Pet : Guardian
 		}
 
 		SetDisplayId(creature.DisplayId);
-		var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cinfo.Family);
+		var cFamily = _cliDb.CreatureFamilyStorage.LookupByKey(cinfo.Family);
 
 		if (cFamily != null)
 			SetName(cFamily.Name[OwningPlayer.Session.SessionDbcLocale]);
@@ -852,7 +852,7 @@ public class Pet : Guardian
 		if (!CreateBaseAtTamed(cinfo, owner.Map))
 			return false;
 
-		var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cinfo.Family);
+		var cFamily = _cliDb.CreatureFamilyStorage.LookupByKey(cinfo.Family);
 
 		if (cFamily != null)
 			SetName(cFamily.Name[OwningPlayer.Session.SessionDbcLocale]);
@@ -872,7 +872,7 @@ public class Pet : Guardian
 		if (cInfo == null)
 			return false;
 
-		var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cInfo.Family);
+		var cFamily = _cliDb.CreatureFamilyStorage.LookupByKey(cInfo.Family);
 
 		if (cFamily == null)
 			return false;
@@ -1134,7 +1134,7 @@ public class Pet : Guardian
 		// clearActionBars is false because we'll be updating the pet actionbar later so we don't have to do it now
 		RemoveSpecializationSpells(false);
 
-		if (!CliDB.ChrSpecializationStorage.ContainsKey(spec))
+		if (!_cliDb.ChrSpecializationStorage.ContainsKey(spec))
 		{
 			_petSpecialization = 0;
 
@@ -1300,7 +1300,7 @@ public class Pet : Guardian
 					continue;
 				}
 
-				if (difficulty != Difficulty.None && !CliDB.DifficultyStorage.ContainsKey(difficulty))
+				if (difficulty != Difficulty.None && !_cliDb.DifficultyStorage.ContainsKey(difficulty))
 				{
 					Log.outError(LogFilter.Pet, $"Pet._LoadAuras: Unknown difficulty {difficulty} (spellid {key.SpellId}), ignore.");
 
@@ -1631,7 +1631,7 @@ public class Pet : Guardian
 		if (cInfo == null)
 			return;
 
-		var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cInfo.Family);
+		var cFamily = _cliDb.CreatureFamilyStorage.LookupByKey(cInfo.Family);
 
 		if (cFamily == null)
 			return;
@@ -1685,7 +1685,7 @@ public class Pet : Guardian
 	{
 		List<uint> learnedSpells = new();
 
-		var specSpells = Global.DB2Mgr.GetSpecializationSpells(_petSpecialization);
+		var specSpells = _db2Manager.GetSpecializationSpells(_petSpecialization);
 
 		if (specSpells != null)
 			foreach (var specSpell in specSpells)
@@ -1707,22 +1707,22 @@ public class Pet : Guardian
 
 		for (uint i = 0; i < PlayerConst.MaxSpecializations; ++i)
 		{
-			var specialization = Global.DB2Mgr.GetChrSpecializationByIndex(0, i);
+			var specialization = _db2Manager.GetChrSpecializationByIndex(0, i);
 
 			if (specialization != null)
 			{
-				var specSpells = Global.DB2Mgr.GetSpecializationSpells(specialization.Id);
+				var specSpells = _db2Manager.GetSpecializationSpells(specialization.Id);
 
 				if (specSpells != null)
 					foreach (var specSpell in specSpells)
 						unlearnedSpells.Add(specSpell.SpellID);
 			}
 
-			var specialization1 = Global.DB2Mgr.GetChrSpecializationByIndex(PlayerClass.Max, i);
+			var specialization1 = _db2Manager.GetChrSpecializationByIndex(PlayerClass.Max, i);
 
 			if (specialization1 != null)
 			{
-				var specSpells = Global.DB2Mgr.GetSpecializationSpells(specialization1.Id);
+				var specSpells = _db2Manager.GetSpecializationSpells(specialization1.Id);
 
 				if (specSpells != null)
 					foreach (var specSpell in specSpells)

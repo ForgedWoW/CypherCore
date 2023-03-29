@@ -240,11 +240,11 @@ class GroupCommands
 				onlineState = "online";
 				phases = PhasingHandler.FormatPhases(p.PhaseShift);
 
-				var area = CliDB.AreaTableStorage.LookupByKey(p.Area);
+				var area = _cliDb.AreaTableStorage.LookupByKey(p.Area);
 
 				if (area != null)
 				{
-					var zone = CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
+					var zone = _cliDb.AreaTableStorage.LookupByKey(area.ParentAreaID);
 
 					if (zone != null)
 						zoneName = zone.AreaName[handler.SessionDbcLocale];

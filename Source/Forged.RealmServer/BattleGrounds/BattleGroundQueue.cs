@@ -435,7 +435,7 @@ public class BattlegroundQueue
 			return;
 		}
 
-		var bracketEntry = Global.DB2Mgr.GetBattlegroundBracketById(bg_template.GetMapId(), bracket_id);
+		var bracketEntry = _db2Manager.GetBattlegroundBracketById(bg_template.GetMapId(), bracket_id);
 
 		if (bracketEntry == null)
 		{

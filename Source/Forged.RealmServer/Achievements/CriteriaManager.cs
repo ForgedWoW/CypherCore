@@ -28,7 +28,7 @@ public class CriteriaManager
 	readonly MultiMap<CriteriaType, Criteria> _questObjectiveCriteriasByType = new();
 	readonly MultiMap<CriteriaStartEvent, Criteria> _criteriasByTimedType = new();
 	readonly MultiMap<int, Criteria>[] _criteriasByFailEvent = new MultiMap<int, Criteria>[(int)CriteriaFailEvent.Max];
-    private readonly CliDB _cliDB;
+    private readonly CliDB _cliDb;
     private readonly GameObjectManager _gameObjectManager;
     private readonly WorldDatabase _worldDatabase;
 
@@ -39,7 +39,7 @@ public class CriteriaManager
 			_criteriasByAsset[i] = new MultiMap<uint, Criteria>();
 			_scenarioCriteriasByTypeAndScenarioId[i] = new MultiMap<uint, Criteria>();
 		}
-        _cliDB = cliDB;
+        _cliDb = cliDB;
         _gameObjectManager = gameObjectManager;
         _worldDatabase = worldDatabase;
 
@@ -52,7 +52,7 @@ public class CriteriaManager
 	{
 		var oldMSTime = Time.MSTime;
 
-		if (_cliDB.ModifierTreeStorage.Empty())
+		if (_cliDb.ModifierTreeStorage.Empty())
 		{
 			Log.Logger.Information("Loaded 0 criteria modifiers.");
 
@@ -60,7 +60,7 @@ public class CriteriaManager
 		}
 
 		// Load modifier tree nodes
-		foreach (var tree in _cliDB.ModifierTreeStorage.Values)
+		foreach (var tree in _cliDb.ModifierTreeStorage.Values)
 		{
 			ModifierTreeNode node = new();
 			node.Entry = tree;
@@ -85,13 +85,13 @@ public class CriteriaManager
 
 		Dictionary<uint /*criteriaTreeID*/, AchievementRecord> achievementCriteriaTreeIds = new();
 
-		foreach (var achievement in _cliDB.AchievementStorage.Values)
+		foreach (var achievement in _cliDb.AchievementStorage.Values)
 			if (achievement.CriteriaTree != 0)
 				achievementCriteriaTreeIds[achievement.CriteriaTree] = achievement;
 
 		Dictionary<uint, ScenarioStepRecord> scenarioCriteriaTreeIds = new();
 
-		foreach (var scenarioStep in _cliDB.ScenarioStepStorage.Values)
+		foreach (var scenarioStep in _cliDb.ScenarioStepStorage.Values)
 			if (scenarioStep.CriteriaTreeId != 0)
 				scenarioCriteriaTreeIds[scenarioStep.CriteriaTreeId] = scenarioStep;
 
@@ -110,7 +110,7 @@ public class CriteriaManager
 		}
 
 		// Load criteria tree nodes
-		foreach (var tree in _cliDB.CriteriaTreeStorage.Values)
+		foreach (var tree in _cliDb.CriteriaTreeStorage.Values)
 		{
 			// Find linked achievement
 			var achievement = GetEntry(achievementCriteriaTreeIds, tree);
@@ -138,7 +138,7 @@ public class CriteriaManager
 			if (parent != null)
 				parent.Children.Add(pair.Value);
 
-			if (_cliDB.CriteriaStorage.HasRecord(pair.Value.Entry.CriteriaID))
+			if (_cliDb.CriteriaStorage.HasRecord(pair.Value.Entry.CriteriaID))
 				_criteriaTreeByCriteria.Add(pair.Value.Entry.CriteriaID, pair.Value);
 		}
 
@@ -151,7 +151,7 @@ public class CriteriaManager
 		uint scenarioCriterias = 0;
 		uint questObjectiveCriterias = 0;
 
-		foreach (var criteriaEntry in _cliDB.CriteriaStorage.Values)
+		foreach (var criteriaEntry in _cliDb.CriteriaStorage.Values)
 		{
 			var treeList = _criteriaTreeByCriteria.LookupByKey(criteriaEntry.Id);
 
@@ -206,7 +206,7 @@ public class CriteriaManager
 					}
 					else
 					{
-						var worldOverlayEntry = _cliDB.WorldMapOverlayStorage.LookupByKey(criteriaEntry.Asset);
+						var worldOverlayEntry = _cliDb.WorldMapOverlayStorage.LookupByKey(criteriaEntry.Asset);
 
 						if (worldOverlayEntry == null)
 							break;
@@ -419,7 +419,7 @@ public class CriteriaManager
 			if (cur.Parent == 0)
 				break;
 
-			cur = _cliDB.CriteriaTreeStorage.LookupByKey(cur.Parent);
+			cur = _cliDb.CriteriaTreeStorage.LookupByKey(cur.Parent);
 
 			if (cur == null)
 				break;

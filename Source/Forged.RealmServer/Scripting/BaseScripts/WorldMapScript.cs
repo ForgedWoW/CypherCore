@@ -13,6 +13,6 @@ public class WorldMapScript : MapScript<Map>
 			!GetEntry().IsWorldMap())
 			Log.Logger.Error("WorldMapScript for map {0} is invalid.", mapId);
 
-		Global.ScriptMgr.AddScript(this);
+		_scriptManager.AddScript(this);
 	}
 }
