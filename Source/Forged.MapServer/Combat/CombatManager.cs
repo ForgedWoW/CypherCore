@@ -174,7 +174,7 @@ public class CombatManager
         // ...then create new reference
         CombatReference refe;
 
-        if (_owner.IsControlledByPlayer && who.IsControlledByPlayer)
+        if (_owner.ControlledByPlayer && who.ControlledByPlayer)
             refe = new PvPCombatReference(_owner, who);
         else
             refe = new CombatReference(_owner, who);
@@ -224,7 +224,7 @@ public class CombatManager
                 {
                     var target = refe.Value.GetOther(who);
 
-                    if ((_owner.IsImmuneToPC() && target.HasUnitFlag(UnitFlags.PlayerControlled)) ||
+                    if ((_owner.IsImmuneToPc() && target.HasUnitFlag(UnitFlags.PlayerControlled)) ||
                         (_owner.IsImmuneToNPC() && !target.HasUnitFlag(UnitFlags.PlayerControlled)))
                         continue;
 
@@ -235,7 +235,7 @@ public class CombatManager
             {
                 var target = refe.Value.GetOther(who);
 
-                if ((_owner.IsImmuneToPC() && target.HasUnitFlag(UnitFlags.PlayerControlled)) ||
+                if ((_owner.IsImmuneToPc() && target.HasUnitFlag(UnitFlags.PlayerControlled)) ||
                     (_owner.IsImmuneToNPC() && !target.HasUnitFlag(UnitFlags.PlayerControlled)))
                     continue;
 

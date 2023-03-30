@@ -22,7 +22,7 @@ internal class ControlledUnitVisitor
     {
         foreach (var controlled in unit.Controlled)
             // Player inside nested vehicle should not phase the root vehicle and its accessories (only direct root vehicle control does)
-            if (!controlled.IsPlayer && controlled.Vehicle1 == null)
+            if (!controlled.IsPlayer && controlled.Vehicle == null)
                 if (_visited.Add(controlled))
                     func(controlled);
 
@@ -36,7 +36,7 @@ internal class ControlledUnitVisitor
                         func(summon);
             }
 
-        var vehicle = unit.VehicleKit1;
+        var vehicle = unit.VehicleKit;
 
         if (vehicle != null)
             foreach (var seatPair in vehicle.Seats)

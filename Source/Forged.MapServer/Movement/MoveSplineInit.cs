@@ -42,7 +42,7 @@ public class MoveSplineInit
         // there is a big chance that current position is unknown if current state is not finalized, need compute it
         // this also allows calculate spline position and update map position in much greater intervals
         // Don't compute for transport movement if the unit is in a motion between two transports
-        if (!move_spline.Finalized() && move_spline.onTransport == transport)
+        if (!move_spline.Finalized() && move_spline.OnTransport == transport)
         {
             real_position = move_spline.ComputePosition();
         }
@@ -69,7 +69,7 @@ public class MoveSplineInit
         args.path[0] = new Vector3(real_position.X, real_position.Y, real_position.Z);
         args.initialOrientation = real_position.W;
         args.flags.SetUnsetFlag(SplineFlag.EnterCycle, args.flags.HasFlag(SplineFlag.Cyclic));
-        move_spline.onTransport = transport;
+        move_spline.OnTransport = transport;
 
         var moveFlags = unit.MovementInfo.MovementFlags;
 
@@ -151,7 +151,7 @@ public class MoveSplineInit
         var transport = !unit.GetTransGUID().IsEmpty;
         Vector4 loc = new();
 
-        if (move_spline.onTransport == transport)
+        if (move_spline.OnTransport == transport)
         {
             loc = move_spline.ComputePosition();
         }
@@ -172,7 +172,7 @@ public class MoveSplineInit
 
         args.flags.Flags = SplineFlag.Done;
         unit.MovementInfo.RemoveMovementFlag(MovementFlag.Forward);
-        move_spline.onTransport = transport;
+        move_spline.OnTransport = transport;
         move_spline.Initialize(args);
 
         MonsterMove packet = new()

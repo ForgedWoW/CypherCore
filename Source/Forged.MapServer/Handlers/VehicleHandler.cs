@@ -34,7 +34,7 @@ public class VehicleHandler : IWorldSessionHandler
         if (!vehicle_base)
             return;
 
-        var seat = Player.Vehicle1.GetSeatForPassenger(Player);
+        var seat = Player.Vehicle.GetSeatForPassenger(Player);
 
         if (!seat.CanSwitchFromSeat())
         {
@@ -56,7 +56,7 @@ public class VehicleHandler : IWorldSessionHandler
         if (!vehicle_base)
             return;
 
-        var seat = Player.Vehicle1.GetSeatForPassenger(Player);
+        var seat = Player.Vehicle.GetSeatForPassenger(Player);
 
         if (!seat.CanSwitchFromSeat())
         {
@@ -78,7 +78,7 @@ public class VehicleHandler : IWorldSessionHandler
         if (!vehicle_base)
             return;
 
-        var seat = Player.Vehicle1.GetSeatForPassenger(Player);
+        var seat = Player.Vehicle.GetSeatForPassenger(Player);
 
         if (!seat.CanSwitchFromSeat())
         {
@@ -106,7 +106,7 @@ public class VehicleHandler : IWorldSessionHandler
 
             if (vehUnit)
             {
-                var vehicle = vehUnit.VehicleKit1;
+                var vehicle = vehUnit.VehicleKit;
 
                 if (vehicle)
                     if (vehicle.HasEmptySeat((sbyte)packet.DstSeatIndex))
@@ -123,7 +123,7 @@ public class VehicleHandler : IWorldSessionHandler
         if (!vehicle_base)
             return;
 
-        var seat = Player.Vehicle1.GetSeatForPassenger(Player);
+        var seat = Player.Vehicle.GetSeatForPassenger(Player);
 
         if (!seat.CanSwitchFromSeat())
         {
@@ -144,7 +144,7 @@ public class VehicleHandler : IWorldSessionHandler
 
             if (vehUnit)
             {
-                var vehicle = vehUnit.VehicleKit1;
+                var vehicle = vehUnit.VehicleKit;
 
                 if (vehicle)
                     if (vehicle.HasEmptySeat((sbyte)packet.SeatIndex))
@@ -160,7 +160,7 @@ public class VehicleHandler : IWorldSessionHandler
 
         if (player)
         {
-            if (!player.VehicleKit1)
+            if (!player.VehicleKit)
                 return;
 
             if (!player.IsInRaidWith(Player))
@@ -180,7 +180,7 @@ public class VehicleHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.EjectPassenger)]
     private void HandleEjectPassenger(EjectPassenger packet)
     {
-        var vehicle = Player.VehicleKit1;
+        var vehicle = Player.VehicleKit;
 
         if (!vehicle)
         {
@@ -224,7 +224,7 @@ public class VehicleHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.RequestVehicleExit, Processing = PacketProcessing.Inplace)]
     private void HandleRequestVehicleExit(RequestVehicleExit packet)
     {
-        var vehicle = Player.Vehicle1;
+        var vehicle = Player.Vehicle;
 
         if (vehicle)
         {

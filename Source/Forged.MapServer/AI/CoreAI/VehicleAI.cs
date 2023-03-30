@@ -51,7 +51,7 @@ public class VehicleAI : CreatureAI
     {
         var charmed = Me.IsCharmed;
 
-        if (!Me.VehicleKit1.IsVehicleInUse() && !charmed && _hasConditions) //was used and has conditions
+        if (!Me.VehicleKit.IsVehicleInUse() && !charmed && _hasConditions) //was used and has conditions
             _doDismiss = true;                                              //needs reset
         else if (charmed)
             _doDismiss = false; //in use again
@@ -71,7 +71,7 @@ public class VehicleAI : CreatureAI
 
         if (_conditionsTimer <= diff)
         {
-            var vehicleKit = Me.VehicleKit1;
+            var vehicleKit = Me.VehicleKit;
 
             if (vehicleKit)
                 foreach (var pair in vehicleKit.Seats)

@@ -25,21 +25,21 @@ public class MonsterMove : ServerPacket
         SplineData.Id = moveSpline.GetId();
         var movementSpline = SplineData.Move;
 
-        var splineFlags = moveSpline.splineflags;
+        var splineFlags = moveSpline.Splineflags;
         splineFlags.SetUnsetFlag(SplineFlag.Cyclic, moveSpline.IsCyclic());
         movementSpline.Flags = (uint)(splineFlags.Flags & ~SplineFlag.MaskNoMonsterMove);
-        movementSpline.Face = moveSpline.facing.type;
-        movementSpline.FaceDirection = moveSpline.facing.angle;
-        movementSpline.FaceGUID = moveSpline.facing.target;
-        movementSpline.FaceSpot = moveSpline.facing.f;
+        movementSpline.Face = moveSpline.Facing.type;
+        movementSpline.FaceDirection = moveSpline.Facing.angle;
+        movementSpline.FaceGUID = moveSpline.Facing.target;
+        movementSpline.FaceSpot = moveSpline.Facing.f;
 
         if (splineFlags.HasFlag(SplineFlag.Animation))
         {
             MonsterSplineAnimTierTransition animTierTransition = new()
             {
-                TierTransitionID = (int)moveSpline.anim_tier.TierTransitionId,
-                StartTime = (uint)moveSpline.effect_start_time,
-                AnimTier = moveSpline.anim_tier.AnimTier
+                TierTransitionID = (int)moveSpline.AnimTier.TierTransitionId,
+                StartTime = (uint)moveSpline.EffectStartTime,
+                AnimTier = moveSpline.AnimTier.AnimTier
             };
 
             movementSpline.AnimTierTransition = animTierTransition;
@@ -47,37 +47,37 @@ public class MonsterMove : ServerPacket
 
         movementSpline.MoveTime = (uint)moveSpline.Duration();
 
-        if (splineFlags.HasFlag(SplineFlag.Parabolic) && (moveSpline.spell_effect_extra == null || moveSpline.effect_start_time != 0))
+        if (splineFlags.HasFlag(SplineFlag.Parabolic) && (moveSpline.SpellEffectExtra == null || moveSpline.EffectStartTime != 0))
         {
             MonsterSplineJumpExtraData jumpExtraData = new()
             {
-                JumpGravity = moveSpline.vertical_acceleration,
-                StartTime = (uint)moveSpline.effect_start_time
+                JumpGravity = moveSpline.VerticalAcceleration,
+                StartTime = (uint)moveSpline.EffectStartTime
             };
 
             movementSpline.JumpExtraData = jumpExtraData;
         }
 
         if (splineFlags.HasFlag(SplineFlag.FadeObject))
-            movementSpline.FadeObjectTime = (uint)moveSpline.effect_start_time;
+            movementSpline.FadeObjectTime = (uint)moveSpline.EffectStartTime;
 
-        if (moveSpline.spell_effect_extra != null)
+        if (moveSpline.SpellEffectExtra != null)
         {
             MonsterSplineSpellEffectExtraData spellEffectExtraData = new()
             {
-                TargetGuid = moveSpline.spell_effect_extra.Target,
-                SpellVisualID = moveSpline.spell_effect_extra.SpellVisualId,
-                ProgressCurveID = moveSpline.spell_effect_extra.ProgressCurveId,
-                ParabolicCurveID = moveSpline.spell_effect_extra.ParabolicCurveId,
-                JumpGravity = moveSpline.vertical_acceleration
+                TargetGuid = moveSpline.SpellEffectExtra.Target,
+                SpellVisualID = moveSpline.SpellEffectExtra.SpellVisualId,
+                ProgressCurveID = moveSpline.SpellEffectExtra.ProgressCurveId,
+                ParabolicCurveID = moveSpline.SpellEffectExtra.ParabolicCurveId,
+                JumpGravity = moveSpline.VerticalAcceleration
             };
 
             movementSpline.SpellEffectExtraData = spellEffectExtraData;
         }
 
-        lock (moveSpline.spline)
+        lock (moveSpline.Spline)
         {
-            var spline = moveSpline.spline;
+            var spline = moveSpline.Spline;
             var array = spline.GetPoints();
 
             if (splineFlags.HasFlag(SplineFlag.UncompressedPath))

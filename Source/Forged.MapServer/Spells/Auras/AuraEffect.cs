@@ -2985,13 +2985,13 @@ public class AuraEffect
             // so this break such spells or most of them.
             // Current formula about m_amount: effect base points + dieside - 1
             // TO DO: Reasearch more about 0/0 and fix it.
-            caster._EnterVehicle(target.VehicleKit1, (sbyte)(Amount - 1), aurApp);
+            caster.EnterVehicle(target.VehicleKit, (sbyte)(Amount - 1), aurApp);
         }
         else
         {
             // Remove pending passengers before exiting vehicle - might cause an Uninstall
             target. // Remove pending passengers before exiting vehicle - might cause an Uninstall
-                VehicleKit1.RemovePendingEventsForPassenger(caster);
+                VehicleKit.RemovePendingEventsForPassenger(caster);
 
             if (Id == 53111) // Devour Humanoid
             {
@@ -3008,7 +3008,7 @@ public class AuraEffect
             if (!seatChange)
                 caster._ExitVehicle();
             else
-                target.VehicleKit1.RemovePassenger(caster); // Only remove passenger from vehicle without launching exit movement or despawning the vehicle
+                target.VehicleKit.RemovePassenger(caster); // Only remove passenger from vehicle without launching exit movement or despawning the vehicle
 
             // some SPELL_AURA_CONTROL_VEHICLE auras have a dummy effect on the player - remove them
             caster.RemoveAura(Id);
@@ -5416,7 +5416,7 @@ public class AuraEffect
             if (!target.CreateVehicleKit((uint)vehicleId, 0))
                 return;
         }
-        else if (target.VehicleKit1 != null)
+        else if (target.VehicleKit != null)
         {
             target.RemoveVehicleKit();
         }

@@ -77,7 +77,7 @@ public class Vehicle : ITransport
         if (unit == null)
             return null;
 
-        if (unit.Vehicle1 != this)
+        if (unit.Vehicle != this)
             return null;
 
         var seat = GetSeatKeyValuePairForPassenger(unit);
@@ -118,7 +118,7 @@ public class Vehicle : ITransport
         if (GetBase().IsTypeId(TypeId.Unit))
             Global.ScriptMgr.RunScript<IVehicleOnRemovePassenger>(p => p.OnRemovePassenger(this, unit), GetBase().AsCreature.GetScriptId());
 
-        unit.Vehicle1 = null;
+        unit.Vehicle = null;
 
         return this;
     }

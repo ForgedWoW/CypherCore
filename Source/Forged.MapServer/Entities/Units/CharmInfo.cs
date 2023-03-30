@@ -340,7 +340,7 @@ public class CharmInfo
         //! At this point a new spline destination is enabled because of Unit.StopMoving()
         var stayPos = new Position(_unit.MoveSpline.FinalDestination());
 
-        if (_unit.MoveSpline.onTransport)
+        if (_unit.MoveSpline.OnTransport)
         {
             var transport = _unit.DirectTransport;
 

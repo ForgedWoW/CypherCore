@@ -317,7 +317,7 @@ public class UnitAI : IUnitAI
                             if (spellInfo.HasAttribute(SpellAttr3.OnlyOnPlayer))
                                 return false;
 
-                            if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && candidate.IsControlledByPlayer)
+                            if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && candidate.ControlledByPlayer)
                                 return false;
                         }
                         else if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayer))
@@ -356,7 +356,7 @@ public class UnitAI : IUnitAI
                             if (spellInfo.HasAttribute(SpellAttr3.OnlyOnPlayer))
                                 return false;
 
-                            if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && candidate.IsControlledByPlayer)
+                            if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && candidate.ControlledByPlayer)
                                 return false;
                         }
                         else if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayer))

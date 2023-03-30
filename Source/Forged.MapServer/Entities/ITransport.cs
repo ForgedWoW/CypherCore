@@ -78,7 +78,7 @@ public interface ITransport
 
         if (unit != null)
         {
-            var vehicle = unit.VehicleKit1;
+            var vehicle = unit.VehicleKit;
 
             if (vehicle != null)
                 vehicle.RelocatePassengers();

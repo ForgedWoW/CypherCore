@@ -923,7 +923,7 @@ internal class MiscCommands
         else
             return false;
 
-        var graveyard = Global.ObjectMgr.GetWorldSafeLoc(graveyardId);
+        var graveyard = ObjectManager.GetWorldSafeLoc(graveyardId);
 
         if (graveyard == null)
         {
@@ -945,7 +945,7 @@ internal class MiscCommands
             return false;
         }
 
-        if (Global.ObjectMgr.AddGraveYardLink(graveyardId, zoneId, team))
+        if (ObjectManager.AddGraveYardLink(graveyardId, zoneId, team))
             handler.SendSysMessage(CypherStrings.CommandGraveyardlinked, graveyardId, zoneId);
         else
             handler.SendSysMessage(CypherStrings.CommandGraveyardalrlinked, graveyardId, zoneId);
@@ -1245,13 +1245,13 @@ internal class MiscCommands
         var player = handler.Session.Player;
         var zoneId = player.Location.Zone;
 
-        var graveyard = Global.ObjectMgr.GetClosestGraveYard(player.Location, team, null);
+        var graveyard = ObjectManager.GetClosestGraveYard(player.Location, team, null);
 
         if (graveyard != null)
         {
             var graveyardId = graveyard.Id;
 
-            var data = Global.ObjectMgr.FindGraveYardData(graveyardId, zoneId);
+            var data = ObjectManager.FindGraveYardData(graveyardId, zoneId);
 
             if (data == null)
             {
@@ -1524,7 +1524,7 @@ internal class MiscCommands
         {
             xp = result4.Read<uint>(0);         // Used for "current xp" output and "%u XP Left" calculation
             var gguid = result4.Read<ulong>(1); // We check if have a guild for the person, so we might not require to query it at all
-            xptotal = Global.ObjectMgr.GetXPForLevel(level);
+            xptotal = ObjectManager.GetXPForLevel(level);
 
             if (gguid != 0)
             {

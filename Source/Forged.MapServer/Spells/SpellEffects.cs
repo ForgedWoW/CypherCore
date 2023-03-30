@@ -780,7 +780,7 @@ public partial class Spell
     private void CalculateJumpSpeeds(SpellEffectInfo effInfo, float dist, out float speedXY, out float speedZ)
     {
         var unitCaster = UnitCasterForEffectHandlers;
-        var runSpeed = unitCaster.IsControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)UnitMoveType.Run] : SharedConst.baseMoveSpeed[(int)UnitMoveType.Run];
+        var runSpeed = unitCaster.ControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)UnitMoveType.Run] : SharedConst.baseMoveSpeed[(int)UnitMoveType.Run];
         var creature = unitCaster.AsCreature;
 
         if (creature != null)

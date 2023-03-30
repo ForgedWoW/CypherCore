@@ -2655,7 +2655,7 @@ public partial class Player
                     if (proto.SpellPPMRate != 0)
                     {
                         var WeaponSpeed = GetBaseAttackTime(damageInfo.AttackType);
-                        chance = GetPPMProcChance(WeaponSpeed, proto.SpellPPMRate, spellInfo);
+                        chance = GetPpmProcChance(WeaponSpeed, proto.SpellPPMRate, spellInfo);
                     }
                     else if (chance > 100.0f)
                     {
@@ -2717,7 +2717,7 @@ public partial class Player
                 if (entry != null)
                 {
                     if (entry.ProcsPerMinute != 0)
-                        chance = GetPPMProcChance(proto.Delay, entry.ProcsPerMinute, spellInfo);
+                        chance = GetPpmProcChance(proto.Delay, entry.ProcsPerMinute, spellInfo);
                     else if (entry.Chance != 0)
                         chance = entry.Chance;
                 }

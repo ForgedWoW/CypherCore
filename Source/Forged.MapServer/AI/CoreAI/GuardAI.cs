@@ -26,7 +26,7 @@ public class GuardAI : ScriptedAI.ScriptedAI
         var unit = obj.AsUnit;
 
         if (unit != null)
-            if (unit.IsControlledByPlayer && Me.IsEngagedBy(unit))
+            if (unit.ControlledByPlayer && Me.IsEngagedBy(unit))
                 return true;
 
         return false;

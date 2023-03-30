@@ -1225,7 +1225,7 @@ public class LFGManager
         {
             error = LfgTeleportResult.Exhaustion;
         }
-        else if (player.Vehicle1)
+        else if (player.Vehicle)
         {
             error = LfgTeleportResult.OnTransport;
         }

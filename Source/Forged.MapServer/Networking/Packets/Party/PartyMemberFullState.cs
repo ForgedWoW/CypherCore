@@ -56,7 +56,7 @@ internal class PartyMemberFullState : ServerPacket
         if (player.IsDND)
             MemberStats.Status |= GroupMemberOnlineStatus.DND;
 
-        if (player.Vehicle1)
+        if (player.Vehicle)
             MemberStats.Status |= GroupMemberOnlineStatus.Vehicle;
 
         // Level
@@ -85,7 +85,7 @@ internal class PartyMemberFullState : ServerPacket
         MemberStats.WmoDoodadPlacementID = 0;
 
         // Vehicle
-        var vehicle = player.Vehicle1;
+        var vehicle = player.Vehicle;
 
         if (vehicle != null)
         {

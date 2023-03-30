@@ -14,7 +14,7 @@ internal class GameEvents
     {
         var refForMapAndZoneScript = source ?? target;
 
-        var zoneScript = refForMapAndZoneScript.ZoneScript1;
+        var zoneScript = refForMapAndZoneScript.ZoneScript;
 
         if (zoneScript == null && refForMapAndZoneScript.IsPlayer)
             zoneScript = refForMapAndZoneScript.Location.FindZoneScript();

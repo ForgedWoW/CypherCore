@@ -1055,7 +1055,7 @@ public class SmartAI : CreatureAI
 
         if (_conditionsTimer <= diff)
         {
-            var vehicleKit = Me.VehicleKit1;
+            var vehicleKit = Me.VehicleKit;
 
             if (vehicleKit != null)
                 foreach (var pair in vehicleKit.Seats)

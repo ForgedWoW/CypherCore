@@ -926,7 +926,7 @@ public class Map : IDisposable
         player.Location.Relocate(x, y, z, orientation);
 
         if (player.IsVehicle)
-            player.VehicleKit1.RelocatePassengers();
+            player.VehicleKit.RelocatePassengers();
 
         if (oldcell == null || oldcell.DiffGrid(newcell) || oldcell.DiffCell(newcell))
         {
@@ -967,7 +967,7 @@ public class Map : IDisposable
             creature.Location.Relocate(x, y, z, ang);
 
             if (creature.IsVehicle)
-                creature.VehicleKit1.RelocatePassengers();
+                creature.VehicleKit.RelocatePassengers();
 
             creature.UpdateObjectVisibility(false);
             creature.Location.UpdatePositionData();
@@ -3373,7 +3373,7 @@ public class Map : IDisposable
                     creature.Location.Relocate(creature.Location.NewPosition);
 
                     if (creature.IsVehicle)
-                        creature.VehicleKit1.RelocatePassengers();
+                        creature.VehicleKit.RelocatePassengers();
 
                     creature.Location.UpdatePositionData();
                     creature.UpdateObjectVisibility(false);

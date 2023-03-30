@@ -297,12 +297,12 @@ public class DynamicObject : WorldObject
     private void BindToCaster()
     {
         _caster = Global.ObjAccessor.GetUnit(this, GetCasterGUID());
-        _caster._RegisterDynObject(this);
+        _caster.RegisterDynObject(this);
     }
 
     private void UnbindFromCaster()
     {
-        _caster._UnregisterDynObject(this);
+        _caster.UnregisterDynObject(this);
         _caster = null;
     }
 

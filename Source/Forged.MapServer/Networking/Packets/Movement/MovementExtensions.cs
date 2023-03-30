@@ -222,23 +222,23 @@ public static class MovementExtensions
         else
             data.WriteVector3(Vector3.Zero);
 
-        var hasSplineMove = data.WriteBit(!moveSpline.Finalized() && !moveSpline.splineIsFacingOnly);
+        var hasSplineMove = data.WriteBit(!moveSpline.Finalized() && !moveSpline.SplineIsFacingOnly);
         data.FlushBits();
 
         if (hasSplineMove)
         {
-            data.WriteUInt32((uint)moveSpline.splineflags.Flags); // SplineFlags
-            data.WriteInt32(moveSpline.TimePassed());             // Elapsed
+            data.WriteUInt32((uint)moveSpline.Splineflags.Flags); // SplineFlags
+            data.WriteInt32(moveSpline.TimePassed);              // Elapsed
             data.WriteInt32(moveSpline.Duration());               // Duration
             data.WriteFloat(1.0f);                                // DurationModifier
             data.WriteFloat(1.0f);                                // NextDurationModifier
-            data.WriteBits((byte)moveSpline.facing.type, 2);      // Face
-            var hasFadeObjectTime = data.WriteBit(moveSpline.splineflags.HasFlag(SplineFlag.FadeObject) && moveSpline.effect_start_time < moveSpline.Duration());
+            data.WriteBits((byte)moveSpline.Facing.type, 2);      // Face
+            var hasFadeObjectTime = data.WriteBit(moveSpline.Splineflags.HasFlag(SplineFlag.FadeObject) && moveSpline.EffectStartTime < moveSpline.Duration());
             data.WriteBits(moveSpline.GetPath().Length, 16);
             data.WriteBit(false);                                 // HasSplineFilter
-            data.WriteBit(moveSpline.spell_effect_extra != null); // HasSpellEffectExtraData
-            var hasJumpExtraData = data.WriteBit(moveSpline.splineflags.HasFlag(SplineFlag.Parabolic) && (moveSpline.spell_effect_extra == null || moveSpline.effect_start_time != 0));
-            data.WriteBit(moveSpline.anim_tier != null); // HasAnimTierTransition
+            data.WriteBit(moveSpline.SpellEffectExtra != null); // HasSpellEffectExtraData
+            var hasJumpExtraData = data.WriteBit(moveSpline.Splineflags.HasFlag(SplineFlag.Parabolic) && (moveSpline.SpellEffectExtra == null || moveSpline.EffectStartTime != 0));
+            data.WriteBit(moveSpline.AnimTier != null); // HasAnimTierTransition
             data.WriteBit(false);                        // HasUnknown901
             data.FlushBits();
 
@@ -255,49 +255,49 @@ public static class MovementExtensions
             //    data.FlushBits();
             //}
 
-            switch (moveSpline.facing.type)
+            switch (moveSpline.Facing.type)
             {
                 case MonsterMoveType.FacingSpot:
-                    data.WriteVector3(moveSpline.facing.f); // FaceSpot
+                    data.WriteVector3(moveSpline.Facing.f); // FaceSpot
 
                     break;
                 case MonsterMoveType.FacingTarget:
-                    data.WritePackedGuid(moveSpline.facing.target); // FaceGUID
+                    data.WritePackedGuid(moveSpline.Facing.target); // FaceGUID
 
                     break;
                 case MonsterMoveType.FacingAngle:
-                    data.WriteFloat(moveSpline.facing.angle); // FaceDirection
+                    data.WriteFloat(moveSpline.Facing.angle); // FaceDirection
 
                     break;
             }
 
             if (hasFadeObjectTime)
-                data.WriteInt32(moveSpline.effect_start_time); // FadeObjectTime
+                data.WriteInt32(moveSpline.EffectStartTime); // FadeObjectTime
 
             foreach (var vec in moveSpline.GetPath())
                 data.WriteVector3(vec);
 
-            if (moveSpline.spell_effect_extra != null)
+            if (moveSpline.SpellEffectExtra != null)
             {
-                data.WritePackedGuid(moveSpline.spell_effect_extra.Target);
-                data.WriteUInt32(moveSpline.spell_effect_extra.SpellVisualId);
-                data.WriteUInt32(moveSpline.spell_effect_extra.ProgressCurveId);
-                data.WriteUInt32(moveSpline.spell_effect_extra.ParabolicCurveId);
+                data.WritePackedGuid(moveSpline.SpellEffectExtra.Target);
+                data.WriteUInt32(moveSpline.SpellEffectExtra.SpellVisualId);
+                data.WriteUInt32(moveSpline.SpellEffectExtra.ProgressCurveId);
+                data.WriteUInt32(moveSpline.SpellEffectExtra.ParabolicCurveId);
             }
 
             if (hasJumpExtraData)
             {
-                data.WriteFloat(moveSpline.vertical_acceleration);
-                data.WriteInt32(moveSpline.effect_start_time);
+                data.WriteFloat(moveSpline.VerticalAcceleration);
+                data.WriteInt32(moveSpline.EffectStartTime);
                 data.WriteUInt32(0); // Duration (override)
             }
 
-            if (moveSpline.anim_tier != null)
+            if (moveSpline.AnimTier != null)
             {
-                data.WriteUInt32(moveSpline.anim_tier.TierTransitionId);
-                data.WriteInt32(moveSpline.effect_start_time);
+                data.WriteUInt32(moveSpline.AnimTier.TierTransitionId);
+                data.WriteInt32(moveSpline.EffectStartTime);
                 data.WriteUInt32(0);
-                data.WriteUInt8(moveSpline.anim_tier.AnimTier);
+                data.WriteUInt8(moveSpline.AnimTier.AnimTier);
             }
 
             //if (HasUnknown901)

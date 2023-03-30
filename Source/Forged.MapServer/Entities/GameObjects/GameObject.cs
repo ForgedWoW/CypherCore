@@ -2421,7 +2421,7 @@ namespace Forged.MapServer.Entities.GameObjects
                         if (!bg)
                             return;
 
-                        if (player.Vehicle1 != null)
+                        if (player.Vehicle != null)
                             return;
 
                         player.RemoveAurasByType(AuraType.ModStealth);
@@ -2473,7 +2473,7 @@ namespace Forged.MapServer.Entities.GameObjects
                         if (!bg)
                             return;
 
-                        if (player.Vehicle1 != null)
+                        if (player.Vehicle != null)
                             return;
 
                         player.RemoveAurasByType(AuraType.ModStealth);

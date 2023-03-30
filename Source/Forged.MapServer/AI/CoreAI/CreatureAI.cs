@@ -192,7 +192,7 @@ public class CreatureAI : UnitAI
 
             if (summon != null)
                 // Only apply this to specific types of summons
-                if (!summon.Vehicle1 && ShouldFollowOnSpawn(summon.SummonPropertiesRecord) && summon.CanFollowOwner())
+                if (!summon.Vehicle && ShouldFollowOnSpawn(summon.SummonPropertiesRecord) && summon.CanFollowOwner())
                 {
                     var owner = summon.CharmerOrOwner;
 
@@ -219,7 +219,7 @@ public class CreatureAI : UnitAI
 
         Log.Logger.Debug($"CreatureAI::EnterEvadeMode: entering evade mode (why: {why}) ({Me.GUID})");
 
-        if (Me.Vehicle1 == null) // otherwise me will be in evade mode forever
+        if (Me.Vehicle == null) // otherwise me will be in evade mode forever
         {
             var owner = Me.CharmerOrOwner;
 

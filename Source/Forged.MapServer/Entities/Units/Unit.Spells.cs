@@ -2625,8 +2625,8 @@ public partial class Unit
     {
         var spellClickHandled = false;
 
-        var spellClickEntry = VehicleKit1 != null ? VehicleKit1.GetCreatureEntry() : Entry;
-        var flags = VehicleKit1 ? TriggerCastFlags.IgnoreCasterMountedOrOnVehicle : TriggerCastFlags.None;
+        var spellClickEntry = VehicleKit != null ? VehicleKit.GetCreatureEntry() : Entry;
+        var flags = VehicleKit ? TriggerCastFlags.IgnoreCasterMountedOrOnVehicle : TriggerCastFlags.None;
 
         var clickBounds = Global.ObjectMgr.GetSpellClickInfoMapBounds(spellClickEntry);
 

@@ -64,7 +64,7 @@ public class SceneObject : WorldObject
 
     public static SceneObject CreateSceneObject(uint sceneId, Unit creator, Position pos, ObjectGuid privateObjectOwner)
     {
-        var sceneTemplate = Global.ObjectMgr.GetSceneTemplate(sceneId);
+        var sceneTemplate = ObjectManager.GetSceneTemplate(sceneId);
 
         if (sceneTemplate == null)
             return null;

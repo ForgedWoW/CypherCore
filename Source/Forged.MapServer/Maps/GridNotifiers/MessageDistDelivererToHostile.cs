@@ -93,7 +93,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
                     if (visionPlayer.SeerView == player)
                         SendPacket(visionPlayer);
 
-            if (player.SeerView == player || player.Vehicle1)
+            if (player.SeerView == player || player.Vehicle)
                 SendPacket(player);
         }
     }

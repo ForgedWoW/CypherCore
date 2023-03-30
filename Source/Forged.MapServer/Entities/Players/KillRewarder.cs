@@ -162,7 +162,7 @@ public class KillRewarder
         // * on Battlegrounds;
         // * otherwise, not in PvP;
         // * not if killer is on vehicle.
-        if (_isBattleground || (!_isPvP && killer.Vehicle1 == null))
+        if (_isBattleground || (!_isPvP && killer.Vehicle == null))
             _xp = Formulas.XPGain(player, _victim, _isBattleground);
     }
 

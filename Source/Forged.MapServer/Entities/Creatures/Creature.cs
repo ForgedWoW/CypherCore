@@ -70,7 +70,7 @@ public partial class Creature : Unit
             InitializeAI();
 
             if (IsVehicle)
-                VehicleKit1.Install();
+                VehicleKit.Install();
 
             if (ZoneScript != null)
                 ZoneScript.OnCreatureCreate(this);
@@ -750,8 +750,8 @@ public partial class Creature : Unit
         Ai.InitializeAI();
 
         // Initialize vehicle
-        if (VehicleKit1 != null)
-            VehicleKit1.Reset();
+        if (VehicleKit != null)
+            VehicleKit.Reset();
 
         return true;
     }
@@ -943,7 +943,7 @@ public partial class Creature : Unit
         }
 
         /// @todo a vehicle may eat some mob, so mob should not evade
-        if (Vehicle1)
+        if (Vehicle)
             return null;
 
         var iAuras = GetAuraEffectsByType(AuraType.ModInvisibility);
@@ -1081,7 +1081,7 @@ public partial class Creature : Unit
             HomePosition = Location;
             // if its a vehicle, set the home positon of every creature passenger at engage
             // so that they are in combat range if hostile
-            var vehicle = VehicleKit1;
+            var vehicle = VehicleKit;
 
             if (vehicle != null)
                 foreach (var (_, seat) in vehicle.Seats)
@@ -1710,7 +1710,7 @@ public partial class Creature : Unit
             return false;
 
         // This set of checks is should be done only for creatures
-        if ((IsImmuneToNPC() && !who.HasUnitFlag(UnitFlags.PlayerControlled)) || (IsImmuneToPC() && who.HasUnitFlag(UnitFlags.PlayerControlled)))
+        if ((IsImmuneToNPC() && !who.HasUnitFlag(UnitFlags.PlayerControlled)) || (IsImmuneToPc() && who.HasUnitFlag(UnitFlags.PlayerControlled)))
             return false;
 
         // Do not attack non-combat pets
@@ -2991,9 +2991,9 @@ public partial class Creature : Unit
         SetImmuneToAll(apply, HasReactState(ReactStates.Passive));
     }
 
-    public override void SetImmuneToPC(bool apply)
+    public override void SetImmuneToPc(bool apply)
     {
-        SetImmuneToPC(apply, HasReactState(ReactStates.Passive));
+        SetImmuneToPc(apply, HasReactState(ReactStates.Passive));
     }
 
     public override void SetImmuneToNPC(bool apply)

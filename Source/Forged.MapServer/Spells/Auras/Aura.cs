@@ -1363,7 +1363,7 @@ public class Aura
             Vehicle veh = null;
 
             if (Owner.AsUnit)
-                veh = Owner.AsUnit.VehicleKit1;
+                veh = Owner.AsUnit.VehicleKit;
 
             if (!veh) // We should probably just let it stack. Vehicle system will prevent undefined behaviour later
                 return true;
@@ -2111,7 +2111,7 @@ public class Aura
             if (eventInfo.DamageInfo != null && procEntry.ProcsPerMinute != 0)
             {
                 var WeaponSpeed = caster.GetBaseAttackTime(eventInfo.DamageInfo.AttackType);
-                chance = caster.GetPPMProcChance(WeaponSpeed, procEntry.ProcsPerMinute, SpellInfo);
+                chance = caster.GetPpmProcChance(WeaponSpeed, procEntry.ProcsPerMinute, SpellInfo);
             }
 
             if (SpellInfo.ProcBasePpm > 0.0f)

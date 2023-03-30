@@ -139,7 +139,7 @@ public class MovementHandler : IWorldSessionHandler
                 }
             }
 
-            if (mover.Transport == null && !mover.Vehicle1)
+            if (mover.Transport == null && !mover.Vehicle)
                 movementInfo.Transport.Reset();
         }
         else if (plrMover && plrMover.Transport != null) // if we were on a transport, leave
@@ -160,7 +160,7 @@ public class MovementHandler : IWorldSessionHandler
         mover.MovementInfo = movementInfo;
 
         // Some vehicles allow the passenger to turn by himself
-        var vehicle = mover.Vehicle1;
+        var vehicle = mover.Vehicle;
 
         if (vehicle)
         {

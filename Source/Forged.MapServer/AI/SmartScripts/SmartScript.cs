@@ -775,7 +775,7 @@ public class SmartScript
                     // Special handling for vehicles
                     if (IsUnit(target))
                     {
-                        var vehicle = target.AsUnit.VehicleKit1;
+                        var vehicle = target.AsUnit.VehicleKit;
 
                         if (vehicle != null)
                             foreach (var seat in vehicle.Seats)
@@ -1102,7 +1102,7 @@ public class SmartScript
                 }
 
                 // Special handling for vehicles
-                var vehicle = unit.VehicleKit1;
+                var vehicle = unit.VehicleKit;
 
                 if (vehicle != null)
                     foreach (var seat in vehicle.Seats)
@@ -1262,7 +1262,7 @@ public class SmartScript
                         }
                         else if (IsUnit(target)) // Special handling for vehicles
                         {
-                            var vehicle = target.AsUnit.VehicleKit1;
+                            var vehicle = target.AsUnit.VehicleKit;
 
                             if (vehicle != null)
                                 foreach (var seat in vehicle.Seats)
@@ -3331,8 +3331,8 @@ public class SmartScript
 
                 break;
             case SmartTargets.ActionInvokerVehicle:
-                if (scriptTrigger is { AsUnit.Vehicle1: { } } && scriptTrigger.AsUnit.Vehicle1.GetBase() != null)
-                    targets.Add(scriptTrigger.AsUnit.Vehicle1.GetBase());
+                if (scriptTrigger is { AsUnit.Vehicle: { } } && scriptTrigger.AsUnit.Vehicle.GetBase() != null)
+                    targets.Add(scriptTrigger.AsUnit.Vehicle.GetBase());
 
                 break;
             case SmartTargets.InvokerParty:
@@ -3707,7 +3707,7 @@ public class SmartScript
             case SmartTargets.VehiclePassenger:
             {
                 if (_me && _me.IsVehicle)
-                    foreach (var pair in _me.VehicleKit1.Seats)
+                    foreach (var pair in _me.VehicleKit.Seats)
                         if (e.Target.vehicle.seatMask == 0 || (e.Target.vehicle.seatMask & (1 << pair.Key)) != 0)
                         {
                             var u = Global.ObjAccessor.GetUnit(_me, pair.Value.Passenger.Guid);

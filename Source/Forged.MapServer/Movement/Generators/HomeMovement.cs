@@ -69,7 +69,7 @@ public class HomeMovementGenerator<T> : MovementGeneratorMedium<T> where T : Cre
             owner.LoadCreaturesAddon();
 
             if (owner.IsVehicle)
-                owner.VehicleKit1.Reset(true);
+                owner.VehicleKit.Reset(true);
 
             var ai = owner.AI;
 

@@ -26,7 +26,6 @@ public partial class Unit
     protected float[] CreateStats = new float[(int)Stats.Max];
     private readonly List<AbstractFollower> _followingMe = new();
 
-    private readonly MotionMaster _motionMaster;
     private readonly TimeTracker _splineSyncTimer;
     private readonly Dictionary<ReactiveType, uint> _reactiveTimer = new();
     private readonly uint[] _baseAttackSpeed = new uint[(int)WeaponAttackType.Max];
@@ -58,8 +57,6 @@ public partial class Unit
 
     private uint _lastExtraAttackSpell;
     private ObjectGuid _lastDamagedTargetGuid;
-    private Unit _charmer; // Unit that is charming ME
-    private Unit _charmed; // Unit that is being charmed BY ME
     private CharmInfo _charmInfo;
 
     private uint _oldFactionId;         // faction before charm
@@ -70,9 +67,7 @@ public partial class Unit
     private uint _removedAurasCount;
     private UnitState _state;
     private bool _canModifyStats;
-    private uint _transformSpell;
     private bool _cleanupDone;           // lock made to not add stuff after cleanup before delete
-    private bool _duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
     private bool _instantCast;
 
     private bool _playHoverAnim;

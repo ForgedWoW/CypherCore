@@ -242,7 +242,7 @@ public class Pet : Guardian
 
         if (petInfo.Type == PetType.Hunter)
         {
-            var creatureInfo = Global.ObjectMgr.GetCreatureTemplate(petInfo.CreatureId);
+            var creatureInfo = ObjectManager.GetCreatureTemplate(petInfo.CreatureId);
 
             if (creatureInfo == null || !creatureInfo.IsTameable(owner.CanTameExoticPets))
                 return false;
@@ -810,7 +810,7 @@ public class Pet : Guardian
         if (PetType == PetType.Hunter)
         {
             SetPetExperience(0);
-            SetPetNextLevelExperience((uint)(Global.ObjectMgr.GetXPForLevel((uint)level) * PetXPFactor));
+            SetPetNextLevelExperience((uint)(ObjectManager.GetXPForLevel((uint)level) * PetXPFactor));
         }
 
         InitStatsForLevel((uint)level);
@@ -1179,12 +1179,12 @@ public class Pet : Guardian
     {
         Log.Logger.Debug("CreateBaseForTamed");
 
-        if (!Create(map.GenerateLowGuid(HighGuid.Pet), map, cinfo.Entry, Global.ObjectMgr.GeneratePetNumber()))
+        if (!Create(map.GenerateLowGuid(HighGuid.Pet), map, cinfo.Entry, ObjectManager.GeneratePetNumber()))
             return false;
 
         SetPetNameTimestamp(0);
         SetPetExperience(0);
-        SetPetNextLevelExperience((uint)(Global.ObjectMgr.GetXPForLevel(Level + 1) * PetXPFactor));
+        SetPetNextLevelExperience((uint)(ObjectManager.GetXPForLevel(Level + 1) * PetXPFactor));
         ReplaceAllNpcFlags(NPCFlags.None);
         ReplaceAllNpcFlags2(NPCFlags2.None);
 

@@ -37,7 +37,7 @@ public class CombatHandler : IWorldSessionHandler
         //! Client explicitly checks the following before sending CMSG_ATTACKSWING packet,
         //! so we'll place the same check here. Note that it might be possible to reuse this snippet
         //! in other places as well.
-        var vehicle = Player.Vehicle1;
+        var vehicle = Player.Vehicle;
 
         if (vehicle)
         {

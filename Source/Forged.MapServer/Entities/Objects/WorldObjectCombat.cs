@@ -513,10 +513,10 @@ public class WorldObjectCombat
 
             if (bySpell == null || !bySpell.HasAttribute(SpellAttr8.AttackIgnoreImmuneToPCFlag))
             {
-                if (unitOrOwner.HasUnitFlag(UnitFlags.PlayerControlled) && unitTarget.IsImmuneToPC())
+                if (unitOrOwner.HasUnitFlag(UnitFlags.PlayerControlled) && unitTarget.IsImmuneToPc())
                     return false;
 
-                if (unitTarget.HasUnitFlag(UnitFlags.PlayerControlled) && unitOrOwner.IsImmuneToPC())
+                if (unitTarget.HasUnitFlag(UnitFlags.PlayerControlled) && unitOrOwner.IsImmuneToPc())
                     return false;
             }
         }
@@ -624,7 +624,7 @@ public class WorldObjectCombat
         // can't assist own vehicle or passenger
         var unit = _worldObject.AsUnit;
 
-        if (unit && unitTarget && unit.Vehicle1)
+        if (unit && unitTarget && unit.Vehicle)
         {
             if (unit.IsOnVehicle(unitTarget))
                 return false;
@@ -657,7 +657,7 @@ public class WorldObjectCombat
             if (unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled))
             {
                 if (bySpell == null || !bySpell.HasAttribute(SpellAttr8.AttackIgnoreImmuneToPCFlag))
-                    if (unitTarget != null && unitTarget.IsImmuneToPC())
+                    if (unitTarget != null && unitTarget.IsImmuneToPc())
                         return false;
             }
             else

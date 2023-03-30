@@ -80,7 +80,7 @@ public class BossAI : ScriptedAI
         {
             var target = pair.Value.GetOther(Me);
 
-            if (target.IsControlledByPlayer && !IsInBoundary(target.Location))
+            if (target.ControlledByPlayer && !IsInBoundary(target.Location))
                 target.NearTeleportTo(Me.Location);
         }
     }

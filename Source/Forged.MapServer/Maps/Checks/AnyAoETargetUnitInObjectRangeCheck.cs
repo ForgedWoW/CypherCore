@@ -41,7 +41,7 @@ public class AnyAoETargetUnitInObjectRangeCheck : ICheck<Unit>
                 if (_spellInfo.HasAttribute(SpellAttr3.OnlyOnPlayer))
                     return false;
 
-                if (_spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && u.IsControlledByPlayer)
+                if (_spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && u.ControlledByPlayer)
                     return false;
             }
             else if (_spellInfo.HasAttribute(SpellAttr5.NotOnPlayer))

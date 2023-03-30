@@ -590,7 +590,7 @@ public partial class Unit
             if (IsTypeId(TypeId.Player))
             {
                 SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Charm), charm.GUID);
-                _charmed = charm;
+                Charmed = charm;
 
                 charm.ControlledByPlayer = true;
                 // @todo maybe we can use this flag to check if controlled by player
@@ -605,7 +605,7 @@ public partial class Unit
             charm.ReplaceAllPvpFlags(PvpFlags);
 
             charm.SetUpdateFieldValue(charm.Values.ModifyValue(UnitData).ModifyValue(UnitData.CharmedBy), GUID);
-            charm._charmer = this;
+            charm.Charmer = this;
 
             _isWalkingBeforeCharm = charm.IsWalking;
 
@@ -622,11 +622,11 @@ public partial class Unit
             if (IsPlayer)
             {
                 SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Charm), ObjectGuid.Empty);
-                _charmed = null;
+                Charmed = null;
             }
 
             charm.SetUpdateFieldValue(charm.Values.ModifyValue(UnitData).ModifyValue(UnitData.CharmedBy), ObjectGuid.Empty);
-            charm._charmer = null;
+            charm.Charmer = null;
 
             var player = charm.CharmerOrOwnerPlayerOrPlayerItself;
 

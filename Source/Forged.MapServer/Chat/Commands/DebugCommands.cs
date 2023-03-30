@@ -527,7 +527,7 @@ internal class DebugCommands
         else
             groupID = (uint)optArg;
 
-        if (groupID != 0 && Global.ObjectMgr.GetSpawnGroupData(groupID) == null)
+        if (groupID != 0 && ObjectManager.GetSpawnGroupData(groupID) == null)
         {
             handler.SendSysMessage($"There is no spawn group with ID {groupID}.");
 
@@ -575,7 +575,7 @@ internal class DebugCommands
 
         if (groupID != 0 && !store.ContainsKey(groupID))
         {
-            handler.SendSysMessage($"{mapName}'s instance script does not manage group '{Global.ObjectMgr.GetSpawnGroupData(groupID).Name}'.");
+            handler.SendSysMessage($"{mapName}'s instance script does not manage group '{ObjectManager.GetSpawnGroupData(groupID).Name}'.");
 
             return false;
         }
@@ -585,7 +585,7 @@ internal class DebugCommands
 
         foreach (var key in store.Keys)
         {
-            var groupData = Global.ObjectMgr.GetSpawnGroupData(key);
+            var groupData = ObjectManager.GetSpawnGroupData(key);
 
             if (groupData == null)
                 continue;
@@ -804,7 +804,7 @@ internal class DebugCommands
                 if (bf != null)
                     nearestLoc = bf.GetClosestGraveYard(player);
                 else
-                    nearestLoc = Global.ObjectMgr.GetClosestGraveYard(player.Location, player.Team, player);
+                    nearestLoc = ObjectManager.GetClosestGraveYard(player.Location, player.Team, player);
             }
         }
         else
@@ -814,7 +814,7 @@ internal class DebugCommands
             var z = player.Location.Z;
             var distNearest = float.MaxValue;
 
-            foreach (var pair in Global.ObjectMgr.GetWorldSafeLocs())
+            foreach (var pair in ObjectManager.GetWorldSafeLocs())
             {
                 var worldSafe = pair.Value;
 
@@ -1044,7 +1044,7 @@ internal class DebugCommands
         if (id == 0)
             return handler.Player.SummonCreature(entry, pos);
 
-        var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(entry);
+        var creatureTemplate = ObjectManager.GetCreatureTemplate(entry);
 
         if (creatureTemplate == null)
             return false;

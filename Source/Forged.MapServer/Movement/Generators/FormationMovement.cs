@@ -197,7 +197,7 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
         if (!target.MoveSpline.Finalized())
         {
             // Pick up leader's spline velocity
-            velocity = target.MoveSpline.velocity;
+            velocity = target.MoveSpline.Velocity;
 
             // Calculate travel distance to get a 1650ms result
             var travelDist = velocity * 1.65f;

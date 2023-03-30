@@ -573,7 +573,7 @@ public partial class Unit
                 non_stack_bonus += GetMaxPositiveAuraModifier(AuraType.ModFlightSpeedNotStack) / 100.0f;
 
                 // Update speed for vehicle if available
-                if (IsTypeId(TypeId.Player) && Vehicle1 != null)
+                if (IsTypeId(TypeId.Player) && Vehicle != null)
                     VehicleBase.UpdateSpeed(UnitMoveType.Flight);
 
                 break;
@@ -1382,7 +1382,7 @@ public partial class Unit
 
                     break;
                 case UnitState.Root:
-                    if (HasAuraType(AuraType.ModRoot) || HasAuraType(AuraType.ModRoot2) || HasAuraType(AuraType.ModRootDisableGravity) || Vehicle1 != null || (IsCreature && AsCreature.MovementTemplate.IsRooted()))
+                    if (HasAuraType(AuraType.ModRoot) || HasAuraType(AuraType.ModRoot2) || HasAuraType(AuraType.ModRootDisableGravity) || Vehicle != null || (IsCreature && AsCreature.MovementTemplate.IsRooted()))
                         return;
 
                     ClearUnitState(state);
@@ -1495,7 +1495,7 @@ public partial class Unit
                     player.SendOnCancelExpectedVehicleRideAura();
 
                     // mounts can also have accessories
-                    VehicleKit1.InstallAllAccessories(false);
+                    VehicleKit.InstallAllAccessories(false);
                 }
 
             // unsummon pet
@@ -1539,7 +1539,7 @@ public partial class Unit
             thisPlayer.SendMovementSetCollisionHeight(thisPlayer.CollisionHeight, UpdateCollisionHeightReason.Mount);
 
         // dismount as a vehicle
-        if (IsTypeId(TypeId.Player) && VehicleKit1 != null)
+        if (IsTypeId(TypeId.Player) && VehicleKit != null)
             // Remove vehicle from player
             RemoveVehicleKit();
 
@@ -1765,7 +1765,7 @@ public partial class Unit
     //Transport
     public override ObjectGuid GetTransGUID()
     {
-        if (Vehicle1 != null)
+        if (Vehicle != null)
             return VehicleBase.GUID;
 
         if (Transport != null)
@@ -1904,7 +1904,7 @@ public partial class Unit
         Location.Orientation = orientation;
 
         if (IsVehicle)
-            VehicleKit1.RelocatePassengers();
+            VehicleKit.RelocatePassengers();
     }
 
     //! Only server-side height update, does not broadcast to client
@@ -1913,7 +1913,7 @@ public partial class Unit
         Location.Relocate(Location.X, Location.Y, newZ);
 
         if (IsVehicle)
-            VehicleKit1.RelocatePassengers();
+            VehicleKit.RelocatePassengers();
     }
 
     private void ApplyControlStatesIfNeeded()
@@ -2179,7 +2179,7 @@ public partial class Unit
                 FlightSplineSync flightSplineSync = new()
                 {
                     Guid = GUID,
-                    SplineDist = MoveSpline.TimePassed() / MoveSpline.Duration()
+                    SplineDist = MoveSpline.TimePassed / MoveSpline.Duration()
                 };
 
                 SendMessageToSet(flightSplineSync, true);
@@ -2203,7 +2203,7 @@ public partial class Unit
     {
         var loc = new Position(MoveSpline.ComputePosition());
 
-        if (MoveSpline.onTransport)
+        if (MoveSpline.OnTransport)
         {
             MovementInfo.Transport.Pos.Relocate(loc);
 
@@ -2227,7 +2227,7 @@ public partial class Unit
         if (_positionUpdateInfo.Turned)
             RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Turning);
 
-        if (_positionUpdateInfo.Relocated && !Vehicle1)
+        if (_positionUpdateInfo.Relocated && !Vehicle)
             RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Moving);
     }
 }

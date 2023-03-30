@@ -1292,7 +1292,7 @@ public class SpellInfo
             if (HasAttribute(SpellAttr3.OnlyOnPlayer))
                 return SpellCastResult.TargetNotPlayer;
 
-            if (HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && unitTarget.IsControlledByPlayer)
+            if (HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && unitTarget.ControlledByPlayer)
                 return SpellCastResult.TargetIsPlayerControlled;
         }
         else if (HasAttribute(SpellAttr5.NotOnPlayer))
@@ -1428,7 +1428,7 @@ public class SpellInfo
         if (!caster.IsTypeId(TypeId.Player))
             return SpellCastResult.SpellCastOk;
 
-        var vehicle = caster.Vehicle1;
+        var vehicle = caster.Vehicle;
 
         if (vehicle)
         {
@@ -2662,7 +2662,7 @@ public class SpellInfo
             }
         }
 
-        if (!unitCaster.IsControlledByPlayer && MathFunctions.fuzzyEq(power.PowerCostPct, 0.0f) && SpellLevel != 0 && power.PowerType == PowerType.Mana)
+        if (!unitCaster.ControlledByPlayer && MathFunctions.fuzzyEq(power.PowerCostPct, 0.0f) && SpellLevel != 0 && power.PowerType == PowerType.Mana)
             if (HasAttribute(SpellAttr0.ScalesWithCreatureLevel))
             {
                 var spellScaler = CliDB.NpcManaCostScalerGameTable.GetRow(SpellLevel);
