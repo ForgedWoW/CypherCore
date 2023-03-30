@@ -28,7 +28,6 @@ public partial class Creature
     private uint _cannotReachTimer;
     private SpellSchoolMask _meleeDamageSchoolMask;
     private LootModes _lootMode; // Bitmask (default: LOOT_MODE_DEFAULT) that determines what loot will be lootable
-    private (uint nodeId, uint pathId) _currentWaypointNodeInfo;
     private bool _triggerJustAppeared;
 
     // Timers
@@ -357,7 +356,7 @@ public partial class Creature
 
     public uint WaypointPath { get; private set; }
 
-    public (uint nodeId, uint pathId) CurrentWaypointInfo => _currentWaypointNodeInfo;
+    public (uint nodeId, uint pathId) CurrentWaypointInfo { get; private set; }
 
     public CreatureGroup Formation { get; set; }
 

@@ -41,7 +41,6 @@ public class DB2Manager
     private readonly HotfixDatabase _hotfixDatabase;
     private readonly GameObjectManager _gameObjectManager;
     private readonly IConfiguration _configuration;
-    private readonly Dictionary<uint, IDB2Storage> _storage = new();
     private readonly MultiMap<int, HotfixRecord> _hotfixData = new();
     private readonly Dictionary<(uint tableHash, int recordId), byte[]>[] _hotfixBlob = new Dictionary<(uint tableHash, int recordId), byte[]>[(int)Locale.Total];
     private readonly MultiMap<uint, Tuple<uint, AllowedHotfixOptionalData>> _allowedHotfixOptionalData = new();
@@ -128,7 +127,7 @@ public class DB2Manager
     private readonly Dictionary<Tuple<short, sbyte, int>, WMOAreaTableRecord> _wmoAreaTableLookup = new();
     private List<AzeriteItemMilestonePowerRecord> _azeriteItemMilestonePowers = new();
     private CliDB _cliDB;
-    internal Dictionary<uint, IDB2Storage> Storage => _storage;
+    internal Dictionary<uint, IDB2Storage> Storage { get; } = new();
 
     public DB2Manager(HotfixDatabase hotfixDatabase, GameObjectManager gameObjectManager, IConfiguration configuration)
     {
@@ -774,7 +773,7 @@ public class DB2Manager
 
     public IDB2Storage GetStorage(uint type)
     {
-        return _storage.LookupByKey(type);
+        return Storage.LookupByKey(type);
     }
 
     public void LoadHotfixData()
@@ -802,7 +801,7 @@ public class DB2Manager
             var recordId = result.Read<int>(3);
             var status = (HotfixRecord.Status)result.Read<byte>(4);
 
-            if (status == HotfixRecord.Status.Valid && !_storage.ContainsKey(tableHash))
+            if (status == HotfixRecord.Status.Valid && !Storage.ContainsKey(tableHash))
                 if (!_hotfixBlob.Any(p => p.ContainsKey((tableHash, recordId))))
                 {
                     Log.Logger.Error($"Table `hotfix_data` references unknown DB2 store by hash 0x{tableHash:X} and has no reference to `hotfix_blob` in hotfix id {id} with RecordID: {recordId}");
@@ -829,7 +828,7 @@ public class DB2Manager
         foreach (var itr in deletedRecords)
             if (itr.Value)
             {
-                var store = _storage.LookupByKey(itr.Key.tableHash);
+                var store = Storage.LookupByKey(itr.Key.tableHash);
 
                 if (store != null)
                     store.EraseRecord((uint)itr.Key.recordId);
@@ -859,7 +858,7 @@ public class DB2Manager
             var recordId = result.Read<int>(1);
             var localeName = result.Read<string>(2);
 
-            var storeItr = _storage.LookupByKey(tableHash);
+            var storeItr = Storage.LookupByKey(tableHash);
 
             if (storeItr != null)
             {
@@ -918,7 +917,7 @@ public class DB2Manager
             }
 
             var recordId = result.Read<uint>(1);
-            var db2Storage = _storage.LookupByKey(tableHash);
+            var db2Storage = Storage.LookupByKey(tableHash);
 
             if (db2Storage == null)
             {
@@ -2317,9 +2316,9 @@ public class DB2Manager
 
     public void AddDB2<T>(uint tableHash, DB6Storage<T> store) where T : new()
     {
-        lock (_storage)
+        lock (Storage)
         {
-            _storage[tableHash] = store;
+            Storage[tableHash] = store;
         }
     }
 

@@ -70,19 +70,8 @@ public class Item : WorldObject
     private readonly Dictionary<uint, ushort> _artifactPowerIdToIndex = new();
     private readonly Array<uint> _gemScalingLevels = new(ItemConst.MaxGemSockets);
 
-    private ItemUpdateState _updateState;
-    private uint _paidExtendedCost;
-    private ulong _paidMoney;
-    private ObjectGuid _refundRecipient;
-    private byte _slot;
-    private Bag _container;
-    private int _queuePos;
-    private string _text;
-    private bool _mbInTrade;
     private long _lastPlayedTimeUpdate;
     private List<ObjectGuid> _allowedGuiDs = new();
-    private uint _randomBonusListId; // store separately to easily find which bonus list is the one randomly given for stat rerolling
-    private ObjectGuid _childItem;
 
     public ItemData ItemData { get; set; }
 
@@ -95,9 +84,9 @@ public class Item : WorldObject
     public override Player OwnerUnit => Global.ObjAccessor.FindPlayer(OwnerGUID);
 
     public ItemTemplate Template => Global.ObjectMgr.GetItemTemplate(Entry);
-    public byte BagSlot => _container != null ? _container.Slot : InventorySlots.Bag0;
+    public byte BagSlot => Container != null ? Container.Slot : InventorySlots.Bag0;
 
-    public bool IsEquipped => !IsInBag && (_slot < EquipmentSlot.End || _slot is >= ProfessionSlots.Start and < ProfessionSlots.End);
+    public bool IsEquipped => !IsInBag && (Slot < EquipmentSlot.End || Slot is >= ProfessionSlots.Start and < ProfessionSlots.End);
 
     public SkillType Skill
     {
@@ -173,27 +162,27 @@ public class Item : WorldObject
 
     public bool IsBroken => ItemData.MaxDurability > 0 && ItemData.Durability == 0;
 
-    public bool IsInTrade => _mbInTrade;
+    public bool IsInTrade { get; private set; }
 
     public uint Count => ItemData.StackCount;
 
     public uint MaxStackCount => Template.MaxStackSize;
 
-    public byte Slot => _slot;
+    public byte Slot { get; private set; }
 
-    public Bag Container => _container;
+    public Bag Container { get; private set; }
 
     public ushort Pos => (ushort)(BagSlot << 8 | Slot);
 
-    public uint ItemRandomBonusListId => _randomBonusListId;
+    public uint ItemRandomBonusListId { get; private set; }
 
-    public string Text => _text;
+    public string Text { get; private set; }
 
-    public ItemUpdateState State => _updateState;
+    public ItemUpdateState State { get; private set; }
 
-    public bool IsInUpdateQueue => _queuePos != -1;
+    public bool IsInUpdateQueue => QueuePos != -1;
 
-    public int QueuePos => _queuePos;
+    public int QueuePos { get; private set; }
 
     public bool IsPotion => Template.IsPotion;
 
@@ -211,19 +200,19 @@ public class Item : WorldObject
 
     public uint ScalingContentTuningId => BonusData.ContentTuningId;
 
-    public ObjectGuid RefundRecipient => _refundRecipient;
+    public ObjectGuid RefundRecipient { get; private set; }
 
-    public ulong PaidMoney => _paidMoney;
+    public ulong PaidMoney { get; private set; }
 
-    public uint PaidExtendedCost => _paidExtendedCost;
+    public uint PaidExtendedCost { get; private set; }
 
     public uint ScriptId => Template.ScriptId;
 
-    public ObjectGuid ChildItem => _childItem;
+    public ObjectGuid ChildItem { get; private set; }
 
     public ItemEffectRecord[] Effects => BonusData.Effects[0..BonusData.EffectCount];
 
-    private bool IsInBag => _container != null;
+    private bool IsInBag => Container != null;
 
     public Item() : base(false)
     {
@@ -232,8 +221,8 @@ public class Item : WorldObject
 
         ItemData = new ItemData();
 
-        _updateState = ItemUpdateState.New;
-        _queuePos = -1;
+        State = ItemUpdateState.New;
+        QueuePos = -1;
         _lastPlayedTimeUpdate = GameTime.GetGameTime();
     }
 
@@ -338,13 +327,13 @@ public class Item : WorldObject
     {
         PreparedStatement stmt;
 
-        switch (_updateState)
+        switch (State)
         {
             case ItemUpdateState.New:
             case ItemUpdateState.Changed:
             {
                 byte index = 0;
-                stmt = DB.Characters.GetPreparedStatement(_updateState == ItemUpdateState.New ? CharStatements.REP_ITEM_INSTANCE : CharStatements.UPD_ITEM_INSTANCE);
+                stmt = DB.Characters.GetPreparedStatement(State == ItemUpdateState.New ? CharStatements.REP_ITEM_INSTANCE : CharStatements.UPD_ITEM_INSTANCE);
                 stmt.AddValue(index, Entry);
                 stmt.AddValue(++index, OwnerGUID.Counter);
                 stmt.AddValue(++index, Creator.Counter);
@@ -373,10 +362,10 @@ public class Item : WorldObject
                 }
 
                 stmt.AddValue(++index, ss.ToString());
-                stmt.AddValue(++index, _randomBonusListId);
+                stmt.AddValue(++index, ItemRandomBonusListId);
                 stmt.AddValue(++index, (uint)ItemData.Durability);
                 stmt.AddValue(++index, (uint)ItemData.CreatePlayedTime);
-                stmt.AddValue(++index, _text);
+                stmt.AddValue(++index, Text);
                 stmt.AddValue(++index, GetModifier(ItemModifier.BattlePetSpeciesId));
                 stmt.AddValue(++index, GetModifier(ItemModifier.BattlePetBreedData));
                 stmt.AddValue(++index, GetModifier(ItemModifier.BattlePetLevel));
@@ -393,7 +382,7 @@ public class Item : WorldObject
 
                 DB.Characters.Execute(stmt);
 
-                if ((_updateState == ItemUpdateState.Changed) && IsWrapped)
+                if ((State == ItemUpdateState.Changed) && IsWrapped)
                 {
                     stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GIFT_OWNER);
                     stmt.AddValue(0, OwnerGUID.Counter);
@@ -730,7 +719,7 @@ public class Item : WorldObject
                 SetUpdateFieldValue(enchantmentField.ModifyValue(enchantmentField.Charges), short.Parse(enchantmentTokens[i * 3 + 2]));
             }
 
-        _randomBonusListId = fields.Read<uint>(9);
+        ItemRandomBonusListId = fields.Read<uint>(9);
 
         // Remove bind flag for items vs NO_BIND set
         if (IsSoulBound && Bonding == ItemBondingType.None)
@@ -909,7 +898,7 @@ public class Item : WorldObject
 
     public void SetState(ItemUpdateState state, Player forplayer = null)
     {
-        if (_updateState == ItemUpdateState.New && state == ItemUpdateState.Removed)
+        if (State == ItemUpdateState.New && state == ItemUpdateState.Removed)
         {
             // pretend the item never existed
             if (forplayer)
@@ -924,8 +913,8 @@ public class Item : WorldObject
         if (state != ItemUpdateState.Unchanged)
         {
             // new items must stay in new state until saved
-            if (_updateState != ItemUpdateState.New)
-                _updateState = state;
+            if (State != ItemUpdateState.New)
+                State = state;
 
             if (forplayer)
                 AddItemToUpdateQueueOf(this, forplayer);
@@ -934,8 +923,8 @@ public class Item : WorldObject
         {
             // unset in queue
             // the item must be removed from the queue manually
-            _queuePos = -1;
-            _updateState = ItemUpdateState.Unchanged;
+            QueuePos = -1;
+            State = ItemUpdateState.Unchanged;
         }
     }
 
@@ -954,8 +943,8 @@ public class Item : WorldObject
         if (player.ItemUpdateQueueBlocked)
             return;
 
-        player.ItemUpdateQueue[item._queuePos] = null;
-        item._queuePos = -1;
+        player.ItemUpdateQueue[item.QueuePos] = null;
+        item.QueuePos = -1;
     }
 
 
@@ -1377,7 +1366,7 @@ public class Item : WorldObject
 
         // player CAN be NULL in which case we must not update random properties because that accesses player's item update queue
         if (player != null)
-            newItem.SetItemRandomBonusList(_randomBonusListId);
+            newItem.SetItemRandomBonusList(ItemRandomBonusListId);
 
         return newItem;
     }
@@ -2467,17 +2456,17 @@ public class Item : WorldObject
 
     public void SetInTrade(bool b = true)
     {
-        _mbInTrade = b;
+        IsInTrade = b;
     }
 
     public void SetSlot(byte slot)
     {
-        _slot = slot;
+        Slot = slot;
     }
 
     public void SetContainer(Bag container)
     {
-        _container = container;
+        Container = container;
     }
 
     public uint GetEnchantmentId(EnchantmentSlot slot)
@@ -2502,7 +2491,7 @@ public class Item : WorldObject
 
     public void SetText(string text)
     {
-        _text = text;
+        Text = text;
     }
 
     public int GetSpellCharges(int index = 0)
@@ -2517,7 +2506,7 @@ public class Item : WorldObject
 
     public void FSetState(ItemUpdateState state) // forced
     {
-        _updateState = state;
+        State = state;
     }
 
     public override bool HasQuest(uint quest_id)
@@ -2547,22 +2536,22 @@ public class Item : WorldObject
 
     public void SetRefundRecipient(ObjectGuid guid)
     {
-        _refundRecipient = guid;
+        RefundRecipient = guid;
     }
 
     public void SetPaidMoney(ulong money)
     {
-        _paidMoney = money;
+        PaidMoney = money;
     }
 
     public void SetPaidExtendedCost(uint iece)
     {
-        _paidExtendedCost = iece;
+        PaidExtendedCost = iece;
     }
 
     public void SetChildItem(ObjectGuid childItem)
     {
-        _childItem = childItem;
+        ChildItem = childItem;
     }
 
     public override LootManagement.Loot GetLootForPlayer(Player player)
@@ -2687,7 +2676,7 @@ public class Item : WorldObject
             return;
 
         player.ItemUpdateQueue.Add(item);
-        item._queuePos = player.ItemUpdateQueue.Count - 1;
+        item.QueuePos = player.ItemUpdateQueue.Count - 1;
     }
 
     private bool HasEnchantRequiredSkill(Player player)

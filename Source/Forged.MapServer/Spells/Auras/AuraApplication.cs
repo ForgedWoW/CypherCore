@@ -14,47 +14,39 @@ namespace Forged.MapServer.Spells.Auras;
 
 public class AuraApplication
 {
-    private readonly Unit _target;
-    private readonly Aura _base;
-    private readonly byte _slot; // Aura slot on unit
-    private readonly HashSet<int> _effectMask = new();
-    private AuraFlags _flags;                     // Aura info flag
-    private HashSet<int> _effectsToApply = new(); // Used only at spell hit to determine which effect should be applied
-    private bool _needClientUpdate;
-
     public Guid Guid { get; } = Guid.NewGuid();
 
-    public Unit Target => _target;
+    public Unit Target { get; }
 
-    public Aura Base => _base;
+    public Aura Base { get; }
 
-    public byte Slot => _slot;
+    public byte Slot { get; }
 
-    public AuraFlags Flags => _flags;
+    public AuraFlags Flags { get; private set; }
 
-    public HashSet<int> EffectMask => _effectMask;
+    public HashSet<int> EffectMask { get; } = new();
 
-    public bool IsPositive => _flags.HasAnyFlag(AuraFlags.Positive);
+    public bool IsPositive => Flags.HasAnyFlag(AuraFlags.Positive);
 
-    public HashSet<int> EffectsToApply => _effectsToApply;
+    public HashSet<int> EffectsToApply { get; private set; } = new();
 
     public AuraRemoveMode RemoveMode { get; set; } // Store info for know remove aura reason
 
     public bool HasRemoveMode => RemoveMode != 0;
 
-    public bool IsNeedClientUpdate => _needClientUpdate;
+    public bool IsNeedClientUpdate { get; private set; }
 
-    private bool IsSelfcasted => _flags.HasAnyFlag(AuraFlags.NoCaster);
+    private bool IsSelfcasted => Flags.HasAnyFlag(AuraFlags.NoCaster);
 
     public AuraApplication(Unit target, Unit caster, Aura aura, HashSet<int> effMask)
     {
-        _target = target;
-        _base = aura;
+        Target = target;
+        Base = aura;
         RemoveMode = AuraRemoveMode.None;
-        _slot = SpellConst.MaxAuras;
-        _flags = AuraFlags.None;
-        _effectsToApply = effMask;
-        _needClientUpdate = false;
+        Slot = SpellConst.MaxAuras;
+        Flags = AuraFlags.None;
+        EffectsToApply = effMask;
+        IsNeedClientUpdate = false;
 
         // Try find slot for aura
         byte slot = 0;
@@ -71,9 +63,9 @@ public class AuraApplication
         // Register Visible Aura
         if (slot < SpellConst.MaxAuras)
         {
-            _slot = slot;
+            Slot = slot;
             Target.SetVisibleAura(this);
-            _needClientUpdate = true;
+            IsNeedClientUpdate = true;
             Log.Logger.Debug("Aura: {0} Effect: {1} put to unit visible auras slot: {2}", Base.Id, EffectMask, slot);
         }
         else
@@ -117,12 +109,12 @@ public class AuraApplication
 
         if (apply)
         {
-            _effectMask.Add(effIndex);
+            EffectMask.Add(effIndex);
             aurEff.HandleEffect(this, AuraEffectHandleModes.Real, true);
         }
         else
         {
-            _effectMask.Remove(effIndex);
+            EffectMask.Remove(effIndex);
             aurEff.HandleEffect(this, AuraEffectHandleModes.Real, false);
         }
 
@@ -131,28 +123,28 @@ public class AuraApplication
 
     public void UpdateApplyEffectMask(HashSet<int> newEffMask, bool canHandleNewEffects)
     {
-        if (_effectsToApply.SetEquals(newEffMask))
+        if (EffectsToApply.SetEquals(newEffMask))
             return;
 
         var toAdd = newEffMask.ToHashSet();
-        var toRemove = _effectsToApply.ToHashSet();
+        var toRemove = EffectsToApply.ToHashSet();
 
-        toAdd.SymmetricExceptWith(_effectsToApply);
+        toAdd.SymmetricExceptWith(EffectsToApply);
         toRemove.SymmetricExceptWith(newEffMask);
 
-        toAdd.ExceptWith(_effectsToApply);
+        toAdd.ExceptWith(EffectsToApply);
         toRemove.ExceptWith(newEffMask);
 
         // quick check, removes application completely
         if (toAdd.SetEquals(toRemove) && toAdd.Count == 0)
         {
-            _target._UnapplyAura(this, AuraRemoveMode.Default);
+            Target._UnapplyAura(this, AuraRemoveMode.Default);
 
             return;
         }
 
         // update real effects only if they were applied already
-        _effectsToApply = newEffMask;
+        EffectsToApply = newEffMask;
 
         foreach (var eff in Base.AuraEffects)
         {
@@ -167,11 +159,11 @@ public class AuraApplication
 
     public void SetNeedClientUpdate()
     {
-        if (_needClientUpdate || RemoveMode != AuraRemoveMode.None)
+        if (IsNeedClientUpdate || RemoveMode != AuraRemoveMode.None)
             return;
 
-        _needClientUpdate = true;
-        _target.SetVisibleAuraUpdate(this);
+        IsNeedClientUpdate = true;
+        Target.SetVisibleAuraUpdate(this);
     }
 
     public void BuildUpdatePacket(ref AuraInfo auraInfo, bool remove)
@@ -240,7 +232,7 @@ public class AuraApplication
 
     public void ClientUpdate(bool remove = false)
     {
-        _needClientUpdate = false;
+        IsNeedClientUpdate = false;
 
         AuraUpdate update = new()
         {
@@ -252,7 +244,7 @@ public class AuraApplication
         BuildUpdatePacket(ref auraInfo, remove);
         update.Auras.Add(auraInfo);
 
-        _target.SendMessageToSet(update, true);
+        Target.SendMessageToSet(update, true);
     }
 
     public string GetDebugInfo()
@@ -262,13 +254,13 @@ public class AuraApplication
 
     public bool HasEffect(int effect)
     {
-        return _effectMask.Contains(effect);
+        return EffectMask.Contains(effect);
     }
 
     private void _InitFlags(Unit caster, HashSet<int> effMask)
     {
         // mark as selfcasted if needed
-        _flags |= (Base.CasterGuid == Target.GUID) ? AuraFlags.NoCaster : AuraFlags.None;
+        Flags |= (Base.CasterGuid == Target.GUID) ? AuraFlags.NoCaster : AuraFlags.None;
 
         // aura is casted by self or an enemy
         // one negative effect and we know aura is negative
@@ -284,7 +276,7 @@ public class AuraApplication
                     break;
                 }
 
-            _flags |= negativeFound ? AuraFlags.Negative : AuraFlags.Positive;
+            Flags |= negativeFound ? AuraFlags.Negative : AuraFlags.Positive;
         }
         // aura is casted by friend
         // one positive effect and we know aura is positive
@@ -300,12 +292,12 @@ public class AuraApplication
                     break;
                 }
 
-            _flags |= positiveFound ? AuraFlags.Positive : AuraFlags.Negative;
+            Flags |= positiveFound ? AuraFlags.Positive : AuraFlags.Negative;
         }
 
         bool effectNeedsAmount(KeyValuePair<int, AuraEffect> effect) => EffectsToApply.Contains(effect.Value.EffIndex) && Aura.EffectTypeNeedsSendingAmount(effect.Value.AuraType);
 
         if (Base.SpellInfo.HasAttribute(SpellAttr8.AuraSendAmount) || Base.AuraEffects.Any(effectNeedsAmount))
-            _flags |= AuraFlags.Scalable;
+            Flags |= AuraFlags.Scalable;
     }
 }

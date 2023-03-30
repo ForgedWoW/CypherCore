@@ -8,15 +8,10 @@ namespace Forged.MapServer.Entities.Objects;
 public class MovementForces
 {
     private readonly List<MovementForce> _forces = new();
-    private float _modMagnitude = 1.0f;
 
-    public float ModMagnitude
-    {
-        get => _modMagnitude;
-        set => _modMagnitude = value;
-    }
+    public float ModMagnitude { get; set; } = 1.0f;
 
-    public bool IsEmpty => _forces.Empty() && _modMagnitude == 1.0f;
+    public bool IsEmpty => _forces.Empty() && ModMagnitude == 1.0f;
 
     public List<MovementForce> GetForces()
     {

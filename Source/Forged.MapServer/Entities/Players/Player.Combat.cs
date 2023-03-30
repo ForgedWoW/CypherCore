@@ -200,19 +200,19 @@ public partial class Player
 
     public void SetCanParry(bool value)
     {
-        if (_canParry == value)
+        if (CanParry == value)
             return;
 
-        _canParry = value;
+        CanParry = value;
         UpdateParryPercentage();
     }
 
     public void SetCanBlock(bool value)
     {
-        if (_canBlock == value)
+        if (CanBlock == value)
             return;
 
-        _canBlock = value;
+        CanBlock = value;
         UpdateBlockPercentage();
     }
 

@@ -11,7 +11,6 @@ public class MovementInfo
     public MovementInertia? Inertia;
     public JumpInfo Jump;
     public AdvFlyingMovement? AdvFlying;
-    private MovementFlag _flags;
     private MovementFlag2 _flags2;
     private MovementFlags3 _flags3;
 
@@ -21,16 +20,12 @@ public class MovementInfo
     public float Pitch { get; set; }
     public float StepUpStartElevation { get; set; }
 
-    public MovementFlag MovementFlags
-    {
-        get => _flags;
-        set => _flags = value;
-    }
+    public MovementFlag MovementFlags { get; set; }
 
     public MovementInfo()
     {
         Guid = ObjectGuid.Empty;
-        _flags = MovementFlag.None;
+        MovementFlags = MovementFlag.None;
         _flags2 = MovementFlag2.None;
         Time = 0;
         Pitch = 0.0f;
@@ -42,17 +37,17 @@ public class MovementInfo
 
     public void AddMovementFlag(MovementFlag f)
     {
-        _flags |= f;
+        MovementFlags |= f;
     }
 
     public void RemoveMovementFlag(MovementFlag f)
     {
-        _flags &= ~f;
+        MovementFlags &= ~f;
     }
 
     public bool HasMovementFlag(MovementFlag f)
     {
-        return (_flags & f) != 0;
+        return (MovementFlags & f) != 0;
     }
 
     public MovementFlag2 GetMovementFlags2()

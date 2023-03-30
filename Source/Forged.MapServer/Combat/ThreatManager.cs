@@ -25,11 +25,8 @@ public class ThreatManager
 
     public List<Tuple<ObjectGuid, uint>> _redirectInfo = new();                      // current redirection targets and percentages (updated from registry in ThreatManager::UpdateRedirectInfo)
     public Dictionary<uint, Dictionary<ObjectGuid, uint>> _redirectRegistry = new(); // spellid . (victim . pct); all redirection effects on us (removal individually managed by spell scripts because blizzard is dumb)
-    private readonly List<ThreatReference> _sortedThreatList = new();
     private readonly Dictionary<ObjectGuid, ThreatReference> _myThreatListEntries = new();
     private readonly List<ThreatReference> _needsAIUpdate = new();
-    private readonly Dictionary<ObjectGuid, ThreatReference> _threatenedByMe = new(); // these refs are entries for myself on other units' threat lists
-    private bool _ownerCanHaveThreatList;
     private uint _updateTimer;
     private ThreatReference _currentVictimRef;
     private ThreatReference _fixateRef;
@@ -59,15 +56,15 @@ public class ThreatManager
     // can our owner have a threat list?
     // identical to ThreatManager::CanHaveThreatList(GetOwner())
 
-    public bool CanHaveThreatList => _ownerCanHaveThreatList;
+    public bool CanHaveThreatList { get; private set; }
 
-    public int ThreatListSize => _sortedThreatList.Count;
+    public int ThreatListSize => SortedThreatList.Count;
 
     // fastest of the three threat list getters - gets the threat list in "arbitrary" order
 
-    public List<ThreatReference> SortedThreatList => _sortedThreatList;
+    public List<ThreatReference> SortedThreatList { get; } = new();
 
-    public Dictionary<ObjectGuid, ThreatReference> ThreatenedByMeList => _threatenedByMe;
+    public Dictionary<ObjectGuid, ThreatReference> ThreatenedByMeList { get; } = new();
 
     // never nullptr
 
@@ -109,7 +106,7 @@ public class ThreatManager
 
     public void Initialize()
     {
-        _ownerCanHaveThreatList = CanHaveThreatListForUnit(_owner);
+        CanHaveThreatList = CanHaveThreatListForUnit(_owner);
     }
 
     public void Update(uint tdiff)
@@ -130,7 +127,7 @@ public class ThreatManager
 
     public Unit GetAnyTarget()
     {
-        foreach (var refe in _sortedThreatList)
+        foreach (var refe in SortedThreatList)
             if (!refe.IsOffline)
                 return refe.Victim;
 
@@ -140,9 +137,9 @@ public class ThreatManager
     public bool IsThreatListEmpty(bool includeOffline = false)
     {
         if (includeOffline)
-            return _sortedThreatList.Empty();
+            return SortedThreatList.Empty();
 
-        foreach (var refe in _sortedThreatList)
+        foreach (var refe in SortedThreatList)
             if (refe.IsAvailable)
                 return false;
 
@@ -176,15 +173,15 @@ public class ThreatManager
 
     public List<ThreatReference> GetModifiableThreatList()
     {
-        return new List<ThreatReference>(_sortedThreatList);
+        return new List<ThreatReference>(SortedThreatList);
     }
 
     public bool IsThreateningAnyone(bool includeOffline = false)
     {
         if (includeOffline)
-            return !_threatenedByMe.Empty();
+            return !ThreatenedByMeList.Empty();
 
-        foreach (var pair in _threatenedByMe)
+        foreach (var pair in ThreatenedByMeList)
             if (pair.Value.IsAvailable)
                 return true;
 
@@ -193,7 +190,7 @@ public class ThreatManager
 
     public bool IsThreateningTo(ObjectGuid who, bool includeOffline = false)
     {
-        var refe = _threatenedByMe.LookupByKey(who);
+        var refe = ThreatenedByMeList.LookupByKey(who);
 
         if (refe == null)
             return false;
@@ -208,7 +205,7 @@ public class ThreatManager
 
     public void EvaluateSuppressed(bool canExpire = false)
     {
-        foreach (var pair in _threatenedByMe)
+        foreach (var pair in ThreatenedByMeList)
         {
             var shouldBeSuppressed = pair.Value.ShouldBeSuppressed;
 
@@ -362,19 +359,19 @@ public class ThreatManager
 
     public void MatchUnitThreatToHighestThreat(Unit target)
     {
-        if (_sortedThreatList.Empty())
+        if (SortedThreatList.Empty())
             return;
 
         var index = 0;
 
-        var highest = _sortedThreatList[index];
+        var highest = SortedThreatList[index];
 
         if (!highest.IsAvailable)
             return;
 
-        if (highest.IsTaunting && (++index) != _sortedThreatList.Count - 1) // might need to skip this - max threat could be the preceding element (there is only one taunt element)
+        if (highest.IsTaunting && (++index) != SortedThreatList.Count - 1) // might need to skip this - max threat could be the preceding element (there is only one taunt element)
         {
-            var a = _sortedThreatList[index];
+            var a = SortedThreatList[index];
 
             if (a.IsAvailable && a.Threat > highest.Threat)
                 highest = a;
@@ -557,13 +554,13 @@ public class ThreatManager
         if (spell != null && (spell.HasAttribute(SpellAttr1.NoThreat) || spell.HasAttribute(SpellAttr4.NoHelpfulThreat))) // shortcut, none of the calls would do anything
             return;
 
-        if (_threatenedByMe.Empty())
+        if (ThreatenedByMeList.Empty())
             return;
 
         List<Creature> canBeThreatened = new();
         List<Creature> cannotBeThreatened = new();
 
-        foreach (var pair in _threatenedByMe)
+        foreach (var pair in ThreatenedByMeList)
         {
             var owner = pair.Value.Owner;
 
@@ -587,9 +584,9 @@ public class ThreatManager
 
     public void RemoveMeFromThreatLists()
     {
-        while (!_threatenedByMe.Empty())
+        while (!ThreatenedByMeList.Empty())
         {
-            var refe = _threatenedByMe.FirstOrDefault().Value;
+            var refe = ThreatenedByMeList.FirstOrDefault().Value;
             refe._mgr.ClearThreat(_owner);
         }
     }
@@ -601,10 +598,10 @@ public class ThreatManager
         foreach (var eff in _owner.GetAuraEffectsByType(AuraType.ModTotalThreat))
             mod += eff.Amount;
 
-        if (_threatenedByMe.Empty())
+        if (ThreatenedByMeList.Empty())
             return;
 
-        foreach (var pair in _threatenedByMe)
+        foreach (var pair in ThreatenedByMeList)
         {
             pair.Value.TempModifier = (int)mod;
             pair.Value.ListNotifyChanged();
@@ -653,7 +650,7 @@ public class ThreatManager
             return;
 
         _myThreatListEntries.Remove(guid);
-        _sortedThreatList.Remove(refe);
+        SortedThreatList.Remove(refe);
 
         if (_fixateRef == refe)
             _fixateRef = null;
@@ -664,12 +661,12 @@ public class ThreatManager
 
     public void PurgeThreatenedByMeRef(ObjectGuid guid)
     {
-        _threatenedByMe.Remove(guid);
+        ThreatenedByMeList.Remove(guid);
     }
 
     public void ListNotifyChanged()
     {
-        _sortedThreatList.Sort();
+        SortedThreatList.Sort();
     }
 
     // Modify target's threat by +percent%
@@ -716,7 +713,7 @@ public class ThreatManager
 
     private ThreatReference ReselectVictim()
     {
-        if (_sortedThreatList.Empty())
+        if (SortedThreatList.Empty())
             return null;
 
         foreach (var pair in _myThreatListEntries)
@@ -732,7 +729,7 @@ public class ThreatManager
             oldVictimRef = null;
 
         // in 99% of cases - we won't need to actually look at anything beyond the first element
-        var highest = _sortedThreatList.First();
+        var highest = SortedThreatList.First();
 
         // if the highest reference is offline, the entire list is offline, and we indicate this
         if (!highest.IsAvailable)
@@ -756,7 +753,7 @@ public class ThreatManager
 
         // If we get here, highest threat is ranged, but below 130% of current - there might be a melee that breaks 110% below us somewhere, so now we need to actually look at the next highest element
         // luckily, this is a heap, so getting the next highest element is O(log n), and we're just gonna do that repeatedly until we've seen enough targets (or find a target)
-        foreach (var next in _sortedThreatList)
+        foreach (var next in SortedThreatList)
         {
             // if we've found current victim, we're done (nothing above is higher, and nothing below can be higher)
             if (next == oldVictimRef)
@@ -815,7 +812,7 @@ public class ThreatManager
         {
             packet.UnitGUID = _owner.GUID;
 
-            foreach (var refe in _sortedThreatList)
+            foreach (var refe in SortedThreatList)
             {
                 if (!refe.IsAvailable)
                     continue;
@@ -852,13 +849,13 @@ public class ThreatManager
     {
         NeedClientUpdate = true;
         _myThreatListEntries[guid] = refe;
-        _sortedThreatList.Add(refe);
-        _sortedThreatList.Sort();
+        SortedThreatList.Add(refe);
+        SortedThreatList.Sort();
     }
 
     private void PutThreatenedByMeRef(ObjectGuid guid, ThreatReference refe)
     {
-        _threatenedByMe[guid] = refe;
+        ThreatenedByMeList[guid] = refe;
     }
 
     private void UpdateRedirectInfo()

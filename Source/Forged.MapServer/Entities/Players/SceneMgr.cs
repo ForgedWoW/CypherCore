@@ -14,17 +14,16 @@ namespace Forged.MapServer.Entities.Players;
 
 public class SceneMgr
 {
-    private readonly Player _player;
     private readonly Dictionary<uint, SceneTemplate> _scenesByInstance = new();
     private readonly List<ServerPacket> _delayedScenes = new();
     private uint _standaloneSceneInstanceId;
     private bool _isDebuggingScenes;
 
-    private Player Player => _player;
+    private Player Player { get; }
 
     public SceneMgr(Player player)
     {
-        _player = player;
+        Player = player;
         _standaloneSceneInstanceId = 0;
         _isDebuggingScenes = false;
     }

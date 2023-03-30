@@ -10,12 +10,11 @@ namespace Forged.MapServer.Scripting;
 
 public class AreaTriggerScript : IAreaTriggerScript
 {
-    private AreaTrigger _areaTrigger;
     public byte CurrentScriptState { get; set; }
     public string ScriptName { get; set; }
     public uint ScriptAreaTriggerId { get; set; }
 
-    public AreaTrigger At => _areaTrigger;
+    public AreaTrigger At { get; private set; }
 
     public void _Register()
     {
@@ -70,7 +69,7 @@ public class AreaTriggerScript : IAreaTriggerScript
 
     public bool _Load(AreaTrigger areaTrigger)
     {
-        _areaTrigger = areaTrigger;
+        At = areaTrigger;
         _PrepareScriptCall((SpellScriptHookType)SpellScriptState.Loading);
         var load = Load();
         _FinishScriptCall();

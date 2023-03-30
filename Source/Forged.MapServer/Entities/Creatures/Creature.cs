@@ -52,7 +52,7 @@ public partial class Creature : Unit
 
         _homePosition = new WorldLocation();
 
-        _currentWaypointNodeInfo = new ValueTuple<uint, uint>();
+        CurrentWaypointInfo = new ValueTuple<uint, uint>();
     }
 
     public override void AddToWorld()
@@ -3207,7 +3207,7 @@ public partial class Creature : Unit
 
     public void UpdateCurrentWaypointInfo(uint nodeId, uint pathId)
     {
-        _currentWaypointNodeInfo = (nodeId, pathId);
+        CurrentWaypointInfo = (nodeId, pathId);
     }
 
     public void ResetPlayerDamageReq()

@@ -21,7 +21,7 @@ namespace Forged.MapServer.Entities.Units;
 
 public partial class Unit
 {
-    public static TimeSpan MAX_DAMAGE_HISTORY_DURATION = TimeSpan.FromSeconds(20);
+    public static TimeSpan MaxDamageHistoryDuration = TimeSpan.FromSeconds(20);
     public bool CanDualWield;
     protected float[] CreateStats = new float[(int)Stats.Max];
     private readonly List<AbstractFollower> _followingMe = new();
@@ -46,31 +46,22 @@ public partial class Unit
     private readonly SortedSet<AuraApplication> _visibleAurasToUpdate = new(new VisibleAuraSlotCompare());
     private readonly AuraApplicationCollection _appliedAuras = new();
     private readonly AuraCollection _ownedAuras = new();
-    private readonly List<Aura> _scAuras = new();
     private readonly DiminishingReturn[] _diminishing = new DiminishingReturn[(int)DiminishingGroup.Max];
     private readonly List<AreaTrigger> _areaTrigger = new();
     private readonly double[] _floatStatPosBuff = new double[(int)Stats.Max];
     private readonly double[] _floatStatNegBuff = new double[(int)Stats.Max];
-    private MovementForces _movementForces;
     private PositionUpdateInfo _positionUpdateInfo;
-    private bool _isCombatDisallowed;
 
     private uint _lastExtraAttackSpell;
-    private ObjectGuid _lastDamagedTargetGuid;
     private CharmInfo _charmInfo;
 
     private uint _oldFactionId;         // faction before charm
     private bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
     private SpellAuraInterruptFlags _interruptMask;
     private SpellAuraInterruptFlags2 _interruptMask2;
-    private SpellHistory _spellHistory;
     private uint _removedAurasCount;
     private UnitState _state;
     private bool _canModifyStats;
-    private bool _cleanupDone;           // lock made to not add stuff after cleanup before delete
-    private bool _instantCast;
-
-    private bool _playHoverAnim;
 
     private ushort _aiAnimKitId;
     private ushort _movementAnimKitId;
@@ -126,26 +117,4 @@ public partial class Unit
     public Vehicle VehicleKit { get; set; }
     public uint LastSanctuaryTime { get; set; }
     public LoopSafeSortedDictionary<DateTime, double> DamageTakenHistory { get; set; } = new();
-
-    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-    {
-        private readonly Unit _owner;
-        private readonly ObjectFieldData _objectMask = new();
-        private readonly UnitData _unitMask = new();
-
-        public ValuesUpdateForPlayerWithMaskSender(Unit owner)
-        {
-            _owner = owner;
-        }
-
-        public void Invoke(Player player)
-        {
-            UpdateData udata = new(_owner.Location.MapId);
-
-            _owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _unitMask.GetUpdateMask(), player);
-
-            udata.BuildPacket(out var packet);
-            player.SendPacket(packet);
-        }
-    }
 }

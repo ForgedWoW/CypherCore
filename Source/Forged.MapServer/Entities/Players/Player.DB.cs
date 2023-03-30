@@ -50,9 +50,9 @@ public partial class Player
             }
             else if (!result.IsEmpty())
             {
-                _corpseLocation = new WorldLocation(result.Read<ushort>(0), result.Read<float>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4));
+                CorpseLocation = new WorldLocation(result.Read<ushort>(0), result.Read<float>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4));
 
-                if (!CliDB.MapStorage.LookupByKey(_corpseLocation.MapId).Instanceable())
+                if (!CliDB.MapStorage.LookupByKey(CorpseLocation.MapId).Instanceable())
                     SetPlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
                 else
                     RemovePlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
@@ -94,7 +94,7 @@ public partial class Player
 
                 m.state = MailState.Unchanged;
 
-                _mail.Add(m);
+                Mails.Add(m);
                 mailById[m.messageID] = m;
             } while (mailsResult.NextRow());
 
@@ -138,7 +138,7 @@ public partial class Player
     {
         PreparedStatement stmt;
 
-        foreach (var m in _mail)
+        foreach (var m in Mails)
             if (m.state == MailState.Changed)
             {
                 stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_MAIL);
@@ -188,7 +188,7 @@ public partial class Player
         //deallocate deleted mails...
         foreach (var m in Mails.ToList())
             if (m.state == MailState.Deleted)
-                _mail.Remove(m);
+                Mails.Remove(m);
 
         MailsUpdated = false;
     }
@@ -435,9 +435,9 @@ public partial class Player
 
         var RelocateToHomebind = new Action(() =>
         {
-            mapId = _homebind.MapId;
+            mapId = Homebind.MapId;
             instance_id = 0;
-            Location.Relocate(_homebind);
+            Location.Relocate(Homebind);
         });
 
         _LoadGroup(holder.GetResult(PlayerLoginQueryLoad.Group));
@@ -712,7 +712,7 @@ public partial class Player
 
         // randomize first save time in range [CONFIG_INTERVAL_SAVE] around [CONFIG_INTERVAL_SAVE]
         // this must help in case next save after mass player load after server startup
-        _nextSave = RandomHelper.URand(_nextSave / 2, _nextSave * 3 / 2);
+        SaveTimer = RandomHelper.URand(SaveTimer / 2, SaveTimer * 3 / 2);
 
         SaveRecallPosition();
 
@@ -732,10 +732,10 @@ public partial class Player
             SetDrunkValue(0);
 
         _createTime = createTime;
-        _createMode = createMode;
-        _cinematic = cinematic;
-        _playedTimeTotal = totaltime;
-        _playedTimeLevel = leveltime;
+        CreateMode = createMode;
+        Cinematic = cinematic;
+        TotalPlayedTime = totaltime;
+        LevelPlayedTime = leveltime;
 
         SetTalentResetCost(resettalents_cost);
         SetTalentResetTime(resettalents_time);
@@ -765,7 +765,7 @@ public partial class Player
         InitRunes();
 
         // rest bonus can only be calculated after InitStatsForLevel()
-        _restMgr.LoadRestBonus(RestTypes.XP, restState, rest_bonus);
+        RestMgr.LoadRestBonus(RestTypes.XP, restState, rest_bonus);
 
         // load skills after InitStatsForLevel because it triggering aura apply also
         _LoadSkills(holder.GetResult(PlayerLoginQueryLoad.Skills));
@@ -825,7 +825,7 @@ public partial class Player
         _LoadTraits(holder.GetResult(PlayerLoginQueryLoad.TraitConfigs), holder.GetResult(PlayerLoginQueryLoad.TraitEntries)); // must be after loading spells
 
         // must be before inventory (some items required reputation check)
-        _reputationMgr.LoadFromDB(holder.GetResult(PlayerLoginQueryLoad.Reputation));
+        ReputationMgr.LoadFromDB(holder.GetResult(PlayerLoginQueryLoad.Reputation));
 
         _LoadInventory(holder.GetResult(PlayerLoginQueryLoad.Inventory),
                        holder.GetResult(PlayerLoginQueryLoad.Artifacts),
@@ -852,7 +852,7 @@ public partial class Player
                   holder.GetResult(PlayerLoginQueryLoad.MailItemsAzeriteUnlockedEssence),
                   holder.GetResult(PlayerLoginQueryLoad.MailItemsAzeriteEmpowered));
 
-        _social = Global.SocialMgr.LoadFromDB(holder.GetResult(PlayerLoginQueryLoad.SocialList), GUID);
+        Social = Global.SocialMgr.LoadFromDB(holder.GetResult(PlayerLoginQueryLoad.SocialList), GUID);
 
         // check PLAYER_CHOSEN_TITLE compatibility with PLAYER__FIELD_KNOWN_TITLES
         // note: PLAYER__FIELD_KNOWN_TITLES updated at quest status loaded
@@ -1006,11 +1006,11 @@ public partial class Player
                                 holder.GetResult(PlayerLoginQueryLoad.GarrisonBuildings),
                                 holder.GetResult(PlayerLoginQueryLoad.GarrisonFollowers),
                                 holder.GetResult(PlayerLoginQueryLoad.GarrisonFollowerAbilities)))
-            _garrison = garrison;
+            Garrison = garrison;
 
         _InitHonorLevelOnLoadFromDB(honor, honorLevel);
 
-        _restMgr.LoadRestBonus(RestTypes.Honor, honorRestState, honorRestBonus);
+        RestMgr.LoadRestBonus(RestTypes.Honor, honorRestState, honorRestBonus);
 
         if (time_diff > 0)
         {
@@ -1023,7 +1023,7 @@ public partial class Player
                              ? bubble1 * GetDefaultValue("Rate.Rest.Offline.InTavernOrCity", 1.0f)
                              : bubble0 * GetDefaultValue("Rate.Rest.Offline.InWilderness", 1.0f);
 
-            _restMgr.AddRestBonus(RestTypes.XP, time_diff * _restMgr.CalcExtraPerSec(RestTypes.XP, bubble));
+            RestMgr.AddRestBonus(RestTypes.XP, time_diff * RestMgr.CalcExtraPerSec(RestTypes.XP, bubble));
         }
 
         // Unlock battle pet system if it's enabled in bnet account
@@ -1069,7 +1069,7 @@ public partial class Player
     public void SaveToDB(SQLTransaction loginTransaction, SQLTransaction characterTransaction, bool create = false)
     {
         // delay auto save at any saves (manual, in code, or autosave)
-        _nextSave = GetDefaultValue("PlayerSaveInterval", 15u * Time.Minute * Time.InMilliseconds);
+        SaveTimer = GetDefaultValue("PlayerSaveInterval", 15u * Time.Minute * Time.InMilliseconds);
 
         //lets allow only players in world to be saved
         if (IsBeingTeleportedFar)
@@ -1151,11 +1151,11 @@ public partial class Player
 
             stmt.AddValue(index++, ss.ToString());
             stmt.AddValue(index++, _createTime);
-            stmt.AddValue(index++, (byte)_createMode);
-            stmt.AddValue(index++, _cinematic);
-            stmt.AddValue(index++, _playedTimeTotal);
-            stmt.AddValue(index++, _playedTimeLevel);
-            stmt.AddValue(index++, finiteAlways((float)_restMgr.GetRestBonus(RestTypes.XP)));
+            stmt.AddValue(index++, (byte)CreateMode);
+            stmt.AddValue(index++, Cinematic);
+            stmt.AddValue(index++, TotalPlayedTime);
+            stmt.AddValue(index++, LevelPlayedTime);
+            stmt.AddValue(index++, finiteAlways((float)RestMgr.GetRestBonus(RestTypes.XP)));
             stmt.AddValue(index++, GameTime.GetGameTime());
             stmt.AddValue(index++, (HasPlayerFlag(PlayerFlags.Resting) ? 1 : 0));
             //save, far from tavern/city
@@ -1305,10 +1305,10 @@ public partial class Player
             }
 
             stmt.AddValue(index++, ss.ToString());
-            stmt.AddValue(index++, _cinematic);
-            stmt.AddValue(index++, _playedTimeTotal);
-            stmt.AddValue(index++, _playedTimeLevel);
-            stmt.AddValue(index++, finiteAlways((float)_restMgr.GetRestBonus(RestTypes.XP)));
+            stmt.AddValue(index++, Cinematic);
+            stmt.AddValue(index++, TotalPlayedTime);
+            stmt.AddValue(index++, LevelPlayedTime);
+            stmt.AddValue(index++, finiteAlways((float)RestMgr.GetRestBonus(RestTypes.XP)));
             stmt.AddValue(index++, GameTime.GetGameTime());
             stmt.AddValue(index++, (HasPlayerFlag(PlayerFlags.Resting) ? 1 : 0));
             //save, far from tavern/city
@@ -1405,7 +1405,7 @@ public partial class Player
             stmt.AddValue(index++, ActivePlayerData.Honor);
             stmt.AddValue(index++, HonorLevel);
             stmt.AddValue(index++, ActivePlayerData.RestInfo[(int)RestTypes.Honor].StateID);
-            stmt.AddValue(index++, finiteAlways((float)_restMgr.GetRestBonus(RestTypes.Honor)));
+            stmt.AddValue(index++, finiteAlways((float)RestMgr.GetRestBonus(RestTypes.Honor)));
             stmt.AddValue(index++, Global.RealmMgr.GetMinorMajorBugfixVersionForBuild(Global.WorldMgr.Realm.Build));
 
             // Index
@@ -1445,7 +1445,7 @@ public partial class Player
         _SaveSkills(characterTransaction);
         _SaveStoredAuraTeleportLocations(characterTransaction);
         _AchievementSys.SaveToDB(characterTransaction);
-        _reputationMgr.SaveToDB(characterTransaction);
+        ReputationMgr.SaveToDB(characterTransaction);
         _questObjectiveCriteriaManager.SaveToDB(characterTransaction);
         _SaveEquipmentSets(characterTransaction);
         Session.SaveTutorialsData(characterTransaction); // changed only while character in game
@@ -1453,8 +1453,8 @@ public partial class Player
         _SaveCurrency(characterTransaction);
         _SaveCUFProfiles(characterTransaction);
 
-        if (_garrison != null)
-            _garrison.SaveToDB(characterTransaction);
+        if (Garrison != null)
+            Garrison.SaveToDB(characterTransaction);
 
         // check if stats should only be saved on logout
         // save stats can be out of transaction
@@ -2744,13 +2744,13 @@ public partial class Player
 
         if (!result.IsEmpty())
         {
-            _homebind.WorldRelocate(result.Read<uint>(0), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), result.Read<float>(5));
+            Homebind.WorldRelocate(result.Read<uint>(0), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), result.Read<float>(5));
             _homebindAreaId = result.Read<uint>(1);
 
-            var map = CliDB.MapStorage.LookupByKey(_homebind.MapId);
+            var map = CliDB.MapStorage.LookupByKey(Homebind.MapId);
 
             // accept saved data only for valid position (and non instanceable), and accessable
-            if (GridDefines.IsValidMapCoord(_homebind) &&
+            if (GridDefines.IsValidMapCoord(Homebind) &&
                 !map.Instanceable() &&
                 Session.Expansion >= map.Expansion())
             {
@@ -2768,12 +2768,12 @@ public partial class Player
         {
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PLAYER_HOMEBIND);
             stmt.AddValue(0, GUID.Counter);
-            stmt.AddValue(1, _homebind.MapId);
+            stmt.AddValue(1, Homebind.MapId);
             stmt.AddValue(2, _homebindAreaId);
-            stmt.AddValue(3, _homebind.X);
-            stmt.AddValue(4, _homebind.Y);
-            stmt.AddValue(5, _homebind.Z);
-            stmt.AddValue(6, _homebind.Orientation);
+            stmt.AddValue(3, Homebind.X);
+            stmt.AddValue(4, Homebind.Y);
+            stmt.AddValue(5, Homebind.Z);
+            stmt.AddValue(6, Homebind.Orientation);
             DB.Characters.Execute(stmt);
         }
 
@@ -2781,12 +2781,12 @@ public partial class Player
 
         if (!ok && HasAtLoginFlag(AtLoginFlags.FirstLogin))
         {
-            var createPosition = _createMode == PlayerCreateMode.NPE && info.CreatePositionNpe.HasValue ? info.CreatePositionNpe.Value : info.CreatePosition;
+            var createPosition = CreateMode == PlayerCreateMode.NPE && info.CreatePositionNpe.HasValue ? info.CreatePositionNpe.Value : info.CreatePosition;
 
             if (!createPosition.TransportGuid.HasValue)
             {
-                _homebind.WorldRelocate(createPosition.Loc);
-                _homebindAreaId = Global.TerrainMgr.GetAreaId(PhasingHandler.EmptyPhaseShift, _homebind);
+                Homebind.WorldRelocate(createPosition.Loc);
+                _homebindAreaId = Global.TerrainMgr.GetAreaId(PhasingHandler.EmptyPhaseShift, Homebind);
 
                 saveHomebindToDb();
                 ok = true;
@@ -2800,13 +2800,13 @@ public partial class Player
             if (loc == null && Race == Race.PandarenNeutral)
                 loc = Global.ObjectMgr.GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY
 
-            _homebind.WorldRelocate(loc.Loc);
+            Homebind.WorldRelocate(loc.Loc);
             _homebindAreaId = Global.TerrainMgr.GetAreaId(PhasingHandler.EmptyPhaseShift, loc.Loc);
 
             saveHomebindToDb();
         }
 
-        Log.Logger.Debug($"Setting player home position - mapid: {_homebind.MapId}, areaid: {_homebindAreaId}, {_homebind}");
+        Log.Logger.Debug($"Setting player home position - mapid: {Homebind.MapId}, areaid: {_homebindAreaId}, {Homebind}");
 
         return true;
     }
@@ -3509,10 +3509,10 @@ public partial class Player
         if (result.IsEmpty())
             return;
 
-        _declinedname = new DeclinedName();
+        DeclinedNames = new DeclinedName();
 
         for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-            _declinedname.Name[i] = result.Read<string>(i);
+            DeclinedNames.Name[i] = result.Read<string>(i);
     }
 
     private void _LoadArenaTeamInfo(SQLResult result)
@@ -3765,7 +3765,7 @@ public partial class Player
         if (result.IsEmpty())
             return;
 
-        _petStable = new PetStable();
+        PetStable1 = new PetStable();
 
         //         0      1        2      3    4           5     6     7        8          9       10      11        12              13       14              15
         // SELECT id, entry, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization FROM character_pet WHERE owner = ?
@@ -3794,15 +3794,15 @@ public partial class Player
                 petInfo.SpecializationId = result.Read<ushort>(15);
 
                 if (slot is >= PetSaveMode.FirstActiveSlot and < PetSaveMode.LastActiveSlot)
-                    _petStable.ActivePets[(int)slot] = petInfo;
+                    PetStable1.ActivePets[(int)slot] = petInfo;
                 else if (slot is >= PetSaveMode.FirstStableSlot and < PetSaveMode.LastStableSlot)
-                    _petStable.StabledPets[slot - PetSaveMode.FirstStableSlot] = petInfo;
+                    PetStable1.StabledPets[slot - PetSaveMode.FirstStableSlot] = petInfo;
                 else if (slot == PetSaveMode.NotInSlot)
-                    _petStable.UnslottedPets.Add(petInfo);
+                    PetStable1.UnslottedPets.Add(petInfo);
             } while (result.NextRow());
 
-        if (Pet.GetLoadPetInfo(_petStable, 0, summonedPetNumber, null).Item1 != null)
-            _temporaryUnsummonedPetNumber = summonedPetNumber;
+        if (Pet.GetLoadPetInfo(PetStable1, 0, summonedPetNumber, null).Item1 != null)
+            TemporaryUnsummonedPetNumber = summonedPetNumber;
     }
 
 

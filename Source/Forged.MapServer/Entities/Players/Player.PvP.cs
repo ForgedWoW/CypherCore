@@ -27,7 +27,7 @@ public partial class Player
 
     public bool IsMaxHonorLevel => HonorLevel == PlayerConst.MaxHonorLevel;
 
-    public bool IsUsingPvpItemLevels => _usePvpItemLevels;
+    public bool IsUsingPvpItemLevels { get; private set; }
 
     //BGs
     public Battleground Battleground
@@ -194,7 +194,7 @@ public partial class Player
 
             // apply honor multiplier from aura (not stacking-get highest)
             MathFunctions.AddPct(ref honorF, GetMaxPositiveAuraModifier(AuraType.ModHonorGainPct));
-            honorF += (float)_restMgr.GetRestBonusFor(RestTypes.Honor, (uint)honorF);
+            honorF += (float)RestMgr.GetRestBonusFor(RestTypes.Honor, (uint)honorF);
         }
 
         honorF *= GetDefaultValue("Rate.Honor", 1.0f);
@@ -283,7 +283,7 @@ public partial class Player
 
     public void ActivatePvpItemLevels(bool activate)
     {
-        _usePvpItemLevels = activate;
+        IsUsingPvpItemLevels = activate;
     }
 
     public void EnablePvpRules(bool dueToCombat = false)

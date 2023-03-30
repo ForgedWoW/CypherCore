@@ -70,9 +70,9 @@ public partial class Unit
 
     public bool IsFalling => MovementInfo.HasMovementFlag(MovementFlag.Falling | MovementFlag.FallingFar) || MoveSpline.IsFalling();
 
-    public MovementForces MovementForces => _movementForces;
+    public MovementForces MovementForces { get; private set; }
 
-    public bool IsPlayingHoverAnim => _playHoverAnim;
+    public bool IsPlayingHoverAnim { get; private set; }
 
     public Unit UnitBeingMoved => UnitMovedByMe;
 
@@ -83,12 +83,12 @@ public partial class Unit
 
     public float GetSpeed(UnitMoveType mtype)
     {
-        return SpeedRate[(int)mtype] * (IsControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)mtype] : SharedConst.baseMoveSpeed[(int)mtype]);
+        return SpeedRate[(int)mtype] * (ControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)mtype] : SharedConst.baseMoveSpeed[(int)mtype]);
     }
 
     public void SetSpeed(UnitMoveType mtype, float newValue)
     {
-        SetSpeedRate(mtype, newValue / (IsControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)mtype] : SharedConst.baseMoveSpeed[(int)mtype]));
+        SetSpeedRate(mtype, newValue / (ControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)mtype] : SharedConst.baseMoveSpeed[(int)mtype]));
     }
 
     public void SetSpeedRate(UnitMoveType mtype, float rate)
@@ -545,7 +545,7 @@ public partial class Unit
             }
             case UnitMoveType.Flight:
             {
-                if (IsTypeId(TypeId.Unit) && IsControlledByPlayer) // not sure if good for pet
+                if (IsTypeId(TypeId.Unit) && ControlledByPlayer) // not sure if good for pet
                 {
                     main_speed_mod = GetMaxPositiveAuraModifier(AuraType.ModIncreaseVehicleFlightSpeed);
                     stack_bonus = GetTotalAuraMultiplier(AuraType.ModVehicleSpeedAlways);
@@ -617,7 +617,7 @@ public partial class Unit
                     }
 
                     // Use speed from aura
-                    var max_speed = normalization / (IsControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)mtype] : SharedConst.baseMoveSpeed[(int)mtype]);
+                    var max_speed = normalization / (ControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)mtype] : SharedConst.baseMoveSpeed[(int)mtype]);
 
                     if (speed > max_speed)
                         speed = max_speed;
@@ -630,7 +630,7 @@ public partial class Unit
 
                     if (minSpeedMod1 != 0)
                     {
-                        var minSpeed = minSpeedMod1 / (IsControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)mtype] : SharedConst.baseMoveSpeed[(int)mtype]);
+                        var minSpeed = minSpeedMod1 / (ControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)mtype] : SharedConst.baseMoveSpeed[(int)mtype]);
 
                         if (speed < minSpeed)
                             speed = minSpeed;
@@ -953,7 +953,7 @@ public partial class Unit
 
     public virtual void ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, LiquidData newLiquidData)
     {
-        if (!IsControlledByPlayer)
+        if (!ControlledByPlayer)
             return;
 
         // remove appropriate auras if we are swimming/not swimming respectively
@@ -1674,15 +1674,15 @@ public partial class Unit
             SendMessageToSet(updateModMovementForceMagnitude, true);
         }
 
-        if (modMagnitude != 1.0f && _movementForces == null)
-            _movementForces = new MovementForces();
+        if (modMagnitude != 1.0f && MovementForces == null)
+            MovementForces = new MovementForces();
 
-        if (_movementForces != null)
+        if (MovementForces != null)
         {
-            _movementForces.ModMagnitude = modMagnitude;
+            MovementForces.ModMagnitude = modMagnitude;
 
-            if (_movementForces.IsEmpty)
-                _movementForces = new MovementForces();
+            if (MovementForces.IsEmpty)
+                MovementForces = new MovementForces();
         }
     }
 
@@ -1785,8 +1785,8 @@ public partial class Unit
             Status = MovementInfo
         };
 
-        if (_movementForces != null)
-            moveUpdateTeleport.MovementForces = _movementForces.GetForces();
+        if (MovementForces != null)
+            moveUpdateTeleport.MovementForces = MovementForces.GetForces();
 
         var broadcastSource = this;
 
@@ -2052,8 +2052,8 @@ public partial class Unit
 
     private void ApplyMovementForce(ObjectGuid id, Vector3 origin, float magnitude, MovementForceType type, Vector3 direction, ObjectGuid transportGuid = default)
     {
-        if (_movementForces == null)
-            _movementForces = new MovementForces();
+        if (MovementForces == null)
+            MovementForces = new MovementForces();
 
         MovementForce force = new()
         {
@@ -2068,7 +2068,7 @@ public partial class Unit
         force.Magnitude = magnitude;
         force.Type = type;
 
-        if (_movementForces.Add(force))
+        if (MovementForces.Add(force))
         {
             var movingPlayer = PlayerMovingMe1;
 
@@ -2098,10 +2098,10 @@ public partial class Unit
 
     private void RemoveMovementForce(ObjectGuid id)
     {
-        if (_movementForces == null)
+        if (MovementForces == null)
             return;
 
-        if (_movementForces.Remove(id))
+        if (MovementForces.Remove(id))
         {
             var movingPlayer = PlayerMovingMe1;
 
@@ -2128,13 +2128,13 @@ public partial class Unit
             }
         }
 
-        if (_movementForces.IsEmpty)
-            _movementForces = new MovementForces();
+        if (MovementForces.IsEmpty)
+            MovementForces = new MovementForces();
     }
 
     private void SetPlayHoverAnim(bool enable)
     {
-        _playHoverAnim = enable;
+        IsPlayingHoverAnim = enable;
 
         SetPlayHoverAnim data = new()
         {

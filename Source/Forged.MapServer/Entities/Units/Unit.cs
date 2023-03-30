@@ -486,7 +486,7 @@ public partial class Unit : WorldObject
         MotionMaster = new MotionMaster(this);
         _combatManager = new CombatManager(this);
         _threatManager = new ThreatManager(this);
-        _spellHistory = new SpellHistory(this);
+        SpellHistory = new SpellHistory(this);
 
         ObjectTypeId = TypeId.Unit;
         ObjectTypeMask |= TypeMask.Unit;
@@ -559,7 +559,7 @@ public partial class Unit : WorldObject
         //i_motionMaster = null;
         _charmInfo = null;
         MoveSpline = null;
-        _spellHistory = null;
+        SpellHistory = null;
 
         base.Dispose();
     }
@@ -580,7 +580,7 @@ public partial class Unit : WorldObject
 
         _combatManager.Update(diff);
 
-        _lastDamagedTargetGuid = ObjectGuid.Empty;
+        LastDamagedTargetGuid = ObjectGuid.Empty;
 
         if (_lastExtraAttackSpell != 0)
         {
@@ -862,7 +862,8 @@ public partial class Unit : WorldObject
         }
         else
         {
-            base.UpdateObjectVisibility();
+            // ReSharper disable once RedundantArgumentDefaultValue
+            base.UpdateObjectVisibility(true);
             // call MoveInLineOfSight for nearby creatures
             AIRelocationNotifier notifier = new(this, GridType.All);
             Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
@@ -935,9 +936,6 @@ public partial class Unit : WorldObject
         // and may have some references during delete
         RemoveAllAuras();
         RemoveAllGameObjects();
-
-        if (finalCleanup)
-            _cleanupDone = true;
 
         CombatStop();
     }
@@ -2992,11 +2990,11 @@ public partial class Unit : WorldObject
         if (victim.IsPlayer)
             victim.AsPlayer.UpdateCriteria(CriteriaType.HighestDamageTaken, damageTaken);
 
-        if (victim.TypeId != TypeId.Player && (!victim.IsControlledByPlayer || victim.IsVehicle))
+        if (victim.TypeId != TypeId.Player && (!victim.ControlledByPlayer || victim.IsVehicle))
         {
             victim.AsCreature.SetTappedBy(attacker);
 
-            if (attacker == null || attacker.IsControlledByPlayer)
+            if (attacker == null || attacker.ControlledByPlayer)
                 victim.AsCreature.LowerPlayerDamageReq(health < damageTaken ? health : damageTaken);
         }
 
@@ -4188,7 +4186,7 @@ public partial class Unit : WorldObject
     public void SaveDamageHistory(double damage)
     {
         var currentTime = GameTime.GetDateAndTime();
-        var maxPastTime = currentTime - MAX_DAMAGE_HISTORY_DURATION;
+        var maxPastTime = currentTime - MaxDamageHistoryDuration;
 
         // Remove damages older than maxPastTime, can be increased if required
         foreach (var kvp in DamageTakenHistory)
@@ -4389,7 +4387,7 @@ public partial class Unit : WorldObject
 
     private void _UpdateSpells(uint diff)
     {
-        _spellHistory.Update();
+        SpellHistory.Update();
 
         if (GetCurrentSpell(CurrentSpellTypes.AutoRepeat) != null)
             _UpdateAutoRepeatSpell();
@@ -4687,7 +4685,7 @@ public partial class Unit : WorldObject
         // If this is a creature and it attacks from behind it has a probability to daze it's victim
         if ((damageInfo.HitOutCome == MeleeHitOutcome.Crit || damageInfo.HitOutCome == MeleeHitOutcome.Crushing || damageInfo.HitOutCome == MeleeHitOutcome.Normal || damageInfo.HitOutCome == MeleeHitOutcome.Glancing) &&
             !IsTypeId(TypeId.Player) &&
-            !AsCreature.IsControlledByPlayer &&
+            !AsCreature.ControlledByPlayer &&
             !victim.Location.HasInArc(MathFunctions.PI, Location) &&
             (victim.IsTypeId(TypeId.Player) || !victim.AsCreature.IsWorldBoss) &&
             !victim.IsVehicle)

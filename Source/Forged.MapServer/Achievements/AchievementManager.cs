@@ -23,12 +23,11 @@ public class AchievementManager : CriteriaHandler
         return null;
     };
 
-    protected Dictionary<uint, CompletedAchievementData> _completedAchievements = new();
-    protected uint _achievementPoints;
+    protected Dictionary<uint, CompletedAchievementData> CompletedAchievements = new();
 
-    public uint AchievementPoints => _achievementPoints;
+    public uint AchievementPoints { get; protected set; }
 
-    public ICollection<uint> CompletedAchievementIds => _completedAchievements.Keys;
+    public ICollection<uint> CompletedAchievementIds => CompletedAchievements.Keys;
 
     /// <summary>
     ///     called at player login. The player might have fulfilled some achievements when the achievement system wasn't working yet
@@ -43,7 +42,7 @@ public class AchievementManager : CriteriaHandler
 
     public bool HasAchieved(uint achievementId)
     {
-        return _completedAchievements.ContainsKey(achievementId);
+        return CompletedAchievements.ContainsKey(achievementId);
     }
 
     public override bool CanUpdateCriteriaTree(Criteria criteria, CriteriaTree tree, Player referencePlayer)

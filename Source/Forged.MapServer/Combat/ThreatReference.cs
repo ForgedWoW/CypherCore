@@ -13,8 +13,6 @@ public class ThreatReference : IComparable<ThreatReference>
     public ThreatManager _mgr;
     public OnlineState Online;
     public int TempModifier; // Temporary effects (auras with SPELL_AURA_MOD_TOTAL_THREAT) - set from victim's threatmanager in ThreatManager::UpdateMyTempModifiers
-    private readonly Creature _owner;
-    private readonly Unit _victim;
     private double _baseAmount;
     private TauntState _taunted;
 
@@ -22,13 +20,13 @@ public class ThreatReference : IComparable<ThreatReference>
     {
         get
         {
-            if (!_owner.Visibility.CanSeeOrDetect(_victim))
+            if (!Owner.Visibility.CanSeeOrDetect(Victim))
                 return true;
 
-            if (!_owner._IsTargetAcceptable(_victim) || !_owner.CanCreatureAttack(_victim))
+            if (!Owner._IsTargetAcceptable(Victim) || !Owner.CanCreatureAttack(Victim))
                 return true;
 
-            if (!FlagsAllowFighting(_owner, _victim) || !FlagsAllowFighting(_victim, _owner))
+            if (!FlagsAllowFighting(Owner, Victim) || !FlagsAllowFighting(Victim, Owner))
                 return true;
 
             return false;
@@ -42,22 +40,22 @@ public class ThreatReference : IComparable<ThreatReference>
             if (IsTaunting) // a taunting victim can never be suppressed
                 return false;
 
-            if (_victim.IsImmunedToDamage(_owner.GetMeleeDamageSchoolMask()))
+            if (Victim.IsImmunedToDamage(Owner.GetMeleeDamageSchoolMask()))
                 return true;
 
-            if (_victim.HasAuraType(AuraType.ModConfuse))
+            if (Victim.HasAuraType(AuraType.ModConfuse))
                 return true;
 
-            if (_victim.HasBreakableByDamageAuraType(AuraType.ModStun))
+            if (Victim.HasBreakableByDamageAuraType(AuraType.ModStun))
                 return true;
 
             return false;
         }
     }
 
-    public Creature Owner => _owner;
+    public Creature Owner { get; }
 
-    public Unit Victim => _victim;
+    public Unit Victim { get; }
 
     public double Threat => Math.Max(_baseAmount + TempModifier, 0.0f);
 
@@ -79,9 +77,9 @@ public class ThreatReference : IComparable<ThreatReference>
 
     public ThreatReference(ThreatManager mgr, Unit victim)
     {
-        _owner = mgr._owner as Creature;
+        Owner = mgr._owner as Creature;
         _mgr = mgr;
-        _victim = victim;
+        Victim = victim;
         Online = OnlineState.Offline;
     }
 
@@ -121,7 +119,7 @@ public class ThreatReference : IComparable<ThreatReference>
         {
             Online = OnlineState.Offline;
             ListNotifyChanged();
-            _mgr.SendRemoveToClients(_victim);
+            _mgr.SendRemoveToClients(Victim);
         }
         else
         {
@@ -153,7 +151,7 @@ public class ThreatReference : IComparable<ThreatReference>
     public void UpdateTauntState(TauntState state = TauntState.None)
     {
         // Check for SPELL_AURA_MOD_DETAUNT (applied from owner to victim)
-        if (state < TauntState.Taunt && _victim.HasAuraTypeWithCaster(AuraType.ModDetaunt, _owner.GUID))
+        if (state < TauntState.Taunt && Victim.HasAuraTypeWithCaster(AuraType.ModDetaunt, Owner.GUID))
             state = TauntState.Detaunt;
 
         if (state == _taunted)
@@ -172,8 +170,8 @@ public class ThreatReference : IComparable<ThreatReference>
 
     public void UnregisterAndFree()
     {
-        _owner.GetThreatManager().PurgeThreatListRef(_victim.GUID);
-        _victim.GetThreatManager().PurgeThreatenedByMeRef(_owner.GUID);
+        Owner.GetThreatManager().PurgeThreatListRef(Victim.GUID);
+        Victim.GetThreatManager().PurgeThreatenedByMeRef(Owner.GUID);
     }
 
     public void SetThreat(float amount)

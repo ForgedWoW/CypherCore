@@ -29,9 +29,7 @@ public class CreatureAI : UnitAI
     protected EventMap Events = new();
     protected TaskScheduler SchedulerProtected = new();
     protected InstanceScript Script;
-    private bool _isEngaged;
     private bool _moveInLosLocked;
-    private List<AreaBoundary> _boundary = new();
     private bool _negateBoundary;
 
     public TaskScheduler Scheduler
@@ -39,9 +37,9 @@ public class CreatureAI : UnitAI
         get { return SchedulerProtected; }
     }
 
-    public List<AreaBoundary> Boundary => _boundary;
+    public List<AreaBoundary> Boundary { get; private set; } = new();
 
-    public bool IsEngaged => _isEngaged;
+    public bool IsEngaged { get; private set; }
 
     public CreatureAI(Creature creature) : base(creature)
     {
@@ -277,28 +275,28 @@ public class CreatureAI : UnitAI
 
     public void EngagementStart(Unit who)
     {
-        if (_isEngaged)
+        if (IsEngaged)
         {
             Log.Logger.Error($"CreatureAI::EngagementStart called even though creature is already engaged. Creature debug info:\n{Me.GetDebugInfo()}");
 
             return;
         }
 
-        _isEngaged = true;
+        IsEngaged = true;
 
         Me.AtEngage(who);
     }
 
     public void EngagementOver()
     {
-        if (!_isEngaged)
+        if (!IsEngaged)
         {
             Log.Logger.Debug($"CreatureAI::EngagementOver called even though creature is not currently engaged. Creature debug info:\n{Me.GetDebugInfo()}");
 
             return;
         }
 
-        _isEngaged = false;
+        IsEngaged = false;
 
         Me.AtDisengage();
     }
@@ -336,7 +334,7 @@ public class CreatureAI : UnitAI
         if (owner == null)
             return 0;
 
-        if (_boundary.Empty())
+        if (Boundary.Empty())
             return CypherStrings.CreatureMovementNotBounded;
 
         List<KeyValuePair<int, int>> q = new();
@@ -431,13 +429,13 @@ public class CreatureAI : UnitAI
 
     public bool IsInBoundary(Position who = null)
     {
-        if (_boundary == null)
+        if (Boundary == null)
             return true;
 
         if (who == null)
             who = Me.Location;
 
-        return IsInBounds(_boundary, who) != _negateBoundary;
+        return IsInBounds(Boundary, who) != _negateBoundary;
     }
 
     public virtual bool CheckInRoom()
@@ -485,7 +483,7 @@ public class CreatureAI : UnitAI
 
     public void SetBoundary(List<AreaBoundary> boundary, bool negateBoundaries = false)
     {
-        _boundary = boundary;
+        Boundary = boundary;
         _negateBoundary = negateBoundaries;
         Me.DoImmediateBoundaryCheck();
     }

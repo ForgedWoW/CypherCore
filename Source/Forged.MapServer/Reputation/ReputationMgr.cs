@@ -45,31 +45,26 @@ public class ReputationMgr
 
 
     private readonly Player _player;
-    private readonly SortedDictionary<uint, FactionState> _factions = new();
     private readonly Dictionary<uint, ReputationRank> _forcedReactions = new();
-    private byte _visibleFactionCount;
-    private byte _honoredFactionCount;
-    private byte _reveredFactionCount;
-    private byte _exaltedFactionCount;
     private bool _sendFactionIncreased; //! Play visual effect on next SMSG_SET_FACTION_STANDING sent
 
-    public byte VisibleFactionCount => _visibleFactionCount;
+    public byte VisibleFactionCount { get; private set; }
 
-    public byte HonoredFactionCount => _honoredFactionCount;
+    public byte HonoredFactionCount { get; private set; }
 
-    public byte ReveredFactionCount => _reveredFactionCount;
+    public byte ReveredFactionCount { get; private set; }
 
-    public byte ExaltedFactionCount => _exaltedFactionCount;
+    public byte ExaltedFactionCount { get; private set; }
 
-    public SortedDictionary<uint, FactionState> StateList => _factions;
+    public SortedDictionary<uint, FactionState> StateList { get; } = new();
 
     public ReputationMgr(Player owner)
     {
         _player = owner;
-        _visibleFactionCount = 0;
-        _honoredFactionCount = 0;
-        _reveredFactionCount = 0;
-        _exaltedFactionCount = 0;
+        VisibleFactionCount = 0;
+        HonoredFactionCount = 0;
+        ReveredFactionCount = 0;
+        ExaltedFactionCount = 0;
         _sendFactionIncreased = false;
     }
 
@@ -192,7 +187,7 @@ public class ReputationMgr
         if (faction != null)
             setFactionStanding.Faction.Add(new FactionStandingData((int)faction.ReputationListID, standing));
 
-        foreach (var state in _factions.Values)
+        foreach (var state in StateList.Values)
             if (state.needSend)
             {
                 state.needSend = false;
@@ -214,7 +209,7 @@ public class ReputationMgr
     {
         InitializeFactions initFactions = new();
 
-        foreach (var pair in _factions)
+        foreach (var pair in StateList)
         {
             initFactions.FactionFlags[pair.Key] = pair.Value.Flags;
             initFactions.FactionStandings[pair.Key] = pair.Value.Standing;
@@ -289,7 +284,7 @@ public class ReputationMgr
 
                     if (parent != null)
                     {
-                        var parentState = _factions.LookupByKey(parent.ReputationIndex);
+                        var parentState = StateList.LookupByKey(parent.ReputationIndex);
 
                         // some team factions have own reputation standing, in this case do not spill to other sub-factions
                         if (parentState != null && parentState.Flags.HasFlag(ReputationFlags.HeaderShowsBar))
@@ -320,7 +315,7 @@ public class ReputationMgr
         }
 
         // spillover done, update faction itself
-        var faction = _factions.LookupByKey(factionEntry.ReputationIndex);
+        var faction = StateList.LookupByKey(factionEntry.ReputationIndex);
 
         if (faction != null)
         {
@@ -329,7 +324,7 @@ public class ReputationMgr
             if (incremental && standing > 0 && CanGainParagonReputationForFaction(factionEntry))
             {
                 primaryFactionToModify = CliDB.FactionStorage.LookupByKey(factionEntry.ParagonFactionID);
-                faction = _factions.LookupByKey(primaryFactionToModify.ReputationIndex);
+                faction = StateList.LookupByKey(primaryFactionToModify.ReputationIndex);
             }
 
             if (faction != null)
@@ -348,7 +343,7 @@ public class ReputationMgr
 
     public bool SetOneFactionReputation(FactionRecord factionEntry, int standing, bool incremental)
     {
-        var factionState = _factions.LookupByKey((uint)factionEntry.ReputationIndex);
+        var factionState = StateList.LookupByKey((uint)factionEntry.ReputationIndex);
 
         if (factionState != null)
         {
@@ -485,7 +480,7 @@ public class ReputationMgr
         if (!factionEntry.CanHaveReputation())
             return;
 
-        var factionState = _factions.LookupByKey((uint)factionEntry.ReputationIndex);
+        var factionState = StateList.LookupByKey((uint)factionEntry.ReputationIndex);
 
         if (factionState == null)
             return;
@@ -495,7 +490,7 @@ public class ReputationMgr
 
     public void SetAtWar(uint repListID, bool on)
     {
-        var factionState = _factions.LookupByKey(repListID);
+        var factionState = StateList.LookupByKey(repListID);
 
         if (factionState == null)
             return;
@@ -509,7 +504,7 @@ public class ReputationMgr
 
     public void SetInactive(uint repListID, bool on)
     {
-        var factionState = _factions.LookupByKey(repListID);
+        var factionState = StateList.LookupByKey(repListID);
 
         if (factionState == null)
             return;
@@ -529,7 +524,7 @@ public class ReputationMgr
 
                 if (factionEntry != null && factionEntry.CanHaveReputation())
                 {
-                    var faction = _factions.LookupByKey((uint)factionEntry.ReputationIndex);
+                    var faction = StateList.LookupByKey((uint)factionEntry.ReputationIndex);
 
                     if (faction == null)
                         continue;
@@ -581,7 +576,7 @@ public class ReputationMgr
 
     public void SaveToDB(SQLTransaction trans)
     {
-        foreach (var factionState in _factions.Values)
+        foreach (var factionState in StateList.Values)
             if (factionState.needSave)
             {
                 var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_REPUTATION_BY_FACTION);
@@ -602,7 +597,7 @@ public class ReputationMgr
 
     public FactionState GetState(int id)
     {
-        return _factions.LookupByKey((uint)id);
+        return StateList.LookupByKey((uint)id);
     }
 
     public uint GetReputationRankStrIndex(FactionRecord factionEntry)
@@ -808,11 +803,11 @@ public class ReputationMgr
 
     private void Initialize()
     {
-        _factions.Clear();
-        _visibleFactionCount = 0;
-        _honoredFactionCount = 0;
-        _reveredFactionCount = 0;
-        _exaltedFactionCount = 0;
+        StateList.Clear();
+        VisibleFactionCount = 0;
+        HonoredFactionCount = 0;
+        ReveredFactionCount = 0;
+        ExaltedFactionCount = 0;
         _sendFactionIncreased = false;
 
         foreach (var factionEntry in CliDB.FactionStorage.Values)
@@ -830,12 +825,12 @@ public class ReputationMgr
                 };
 
                 if (newFaction.Flags.HasFlag(ReputationFlags.Visible))
-                    ++_visibleFactionCount;
+                    ++VisibleFactionCount;
 
                 if (factionEntry.FriendshipRepID == 0)
                     UpdateRankCounters(ReputationRank.Hostile, GetBaseRank(factionEntry));
 
-                _factions[newFaction.ReputationListID] = newFaction;
+                StateList[newFaction.ReputationListID] = newFaction;
             }
     }
 
@@ -859,7 +854,7 @@ public class ReputationMgr
         faction.needSend = true;
         faction.needSave = true;
 
-        _visibleFactionCount++;
+        VisibleFactionCount++;
 
         SendVisible(faction);
     }
@@ -905,22 +900,22 @@ public class ReputationMgr
     private void UpdateRankCounters(ReputationRank old_rank, ReputationRank new_rank)
     {
         if (old_rank >= ReputationRank.Exalted)
-            --_exaltedFactionCount;
+            --ExaltedFactionCount;
 
         if (old_rank >= ReputationRank.Revered)
-            --_reveredFactionCount;
+            --ReveredFactionCount;
 
         if (old_rank >= ReputationRank.Honored)
-            --_honoredFactionCount;
+            --HonoredFactionCount;
 
         if (new_rank >= ReputationRank.Exalted)
-            ++_exaltedFactionCount;
+            ++ExaltedFactionCount;
 
         if (new_rank >= ReputationRank.Revered)
-            ++_reveredFactionCount;
+            ++ReveredFactionCount;
 
         if (new_rank >= ReputationRank.Honored)
-            ++_honoredFactionCount;
+            ++HonoredFactionCount;
     }
 
     private int GetFactionDataIndexForRaceAndClass(FactionRecord factionEntry)

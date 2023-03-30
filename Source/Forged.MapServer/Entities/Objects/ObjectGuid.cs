@@ -12,13 +12,10 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
     public static ObjectGuid FromStringFailed = Create(HighGuid.Uniq, 4);
     public static ObjectGuid TradeItem = Create(HighGuid.Uniq, 10);
 
-    private ulong _low;
-    private ulong _high;
-
     public ObjectGuid(ulong high, ulong low)
     {
-        _low = low;
-        _high = high;
+        LowValue = low;
+        HighValue = high;
     }
 
     public static ObjectGuid Create(HighGuid type, ulong dbId)
@@ -169,8 +166,8 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
     public byte[] GetRawValue()
     {
         var temp = new byte[16];
-        var hiBytes = BitConverter.GetBytes(_high);
-        var lowBytes = BitConverter.GetBytes(_low);
+        var hiBytes = BitConverter.GetBytes(HighValue);
+        var lowBytes = BitConverter.GetBytes(LowValue);
 
         for (var i = 0; i < temp.Length / 2; ++i)
         {
@@ -183,46 +180,46 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 
     public void SetRawValue(byte[] bytes)
     {
-        _low = BitConverter.ToUInt64(bytes, 0);
-        _high = BitConverter.ToUInt64(bytes, 8);
+        LowValue = BitConverter.ToUInt64(bytes, 0);
+        HighValue = BitConverter.ToUInt64(bytes, 8);
     }
 
     public void SetRawValue(ulong high, ulong low)
     {
-        _high = high;
-        _low = low;
+        HighValue = high;
+        LowValue = low;
     }
 
     public void Clear()
     {
-        _high = 0;
-        _low = 0;
+        HighValue = 0;
+        LowValue = 0;
     }
 
-    public ulong HighValue => _high;
+    public ulong HighValue { get; private set; }
 
-    public ulong LowValue => _low;
+    public ulong LowValue { get; private set; }
 
-    public HighGuid High => (HighGuid)(_high >> 58);
+    public HighGuid High => (HighGuid)(HighValue >> 58);
 
-    public byte SubType => (byte)(_high & 0x3F);
+    public byte SubType => (byte)(HighValue & 0x3F);
 
-    public uint RealmId => (uint)((_high >> 42) & 0x1FFF);
+    public uint RealmId => (uint)((HighValue >> 42) & 0x1FFF);
 
-    public uint ServerId => (uint)((_low >> 40) & 0x1FFF);
+    public uint ServerId => (uint)((LowValue >> 40) & 0x1FFF);
 
-    public uint MapId => (uint)((_high >> 29) & 0x1FFF);
+    public uint MapId => (uint)((HighValue >> 29) & 0x1FFF);
 
-    public uint Entry => (uint)((_high >> 6) & 0x7FFFFF);
+    public uint Entry => (uint)((HighValue >> 6) & 0x7FFFFF);
 
     public ulong Counter
     {
         get
         {
             if (High == HighGuid.Transport)
-                return (_high >> 38) & 0xFFFFF;
+                return (HighValue >> 38) & 0xFFFFF;
             else
-                return _low & 0xFFFFFFFFFF;
+                return LowValue & 0xFFFFFFFFFF;
         }
     }
 
@@ -234,7 +231,7 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
             return 0xFFFFFFFFFF;
     }
 
-    public bool IsEmpty => _low == 0 && _high == 0;
+    public bool IsEmpty => LowValue == 0 && HighValue == 0;
 
     public bool IsCreature => High == HighGuid.Creature;
 
@@ -285,27 +282,27 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 
     public static bool operator <(ObjectGuid left, ObjectGuid right)
     {
-        if (left._high < right._high)
+        if (left.HighValue < right.HighValue)
             return true;
-        else if (left._high > right._high)
+        else if (left.HighValue > right.HighValue)
             return false;
 
-        return left._low < right._low;
+        return left.LowValue < right.LowValue;
     }
 
     public static bool operator >(ObjectGuid left, ObjectGuid right)
     {
-        if (left._high > right._high)
+        if (left.HighValue > right.HighValue)
             return true;
-        else if (left._high < right._high)
+        else if (left.HighValue < right.HighValue)
             return false;
 
-        return left._low > right._low;
+        return left.LowValue > right.LowValue;
     }
 
     public override string ToString()
     {
-        var str = $"GUID Full: 0x{_high + _low}, Type: {High}";
+        var str = $"GUID Full: 0x{HighValue + LowValue}, Type: {High}";
 
         if (HasEntry())
             str += (IsPet ? " Pet number: " : " Entry: ") + Entry + " ";
@@ -337,15 +334,15 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 
     public bool Equals(ObjectGuid other)
     {
-        return other._high == _high && other._low == _low;
+        return other.HighValue == HighValue && other.LowValue == LowValue;
     }
 
     public override int GetHashCode()
     {
         return new
         {
-            _high,
-            _low
+            HighValue,
+            LowValue
         }.GetHashCode();
     }
 

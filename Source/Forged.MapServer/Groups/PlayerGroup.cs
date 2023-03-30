@@ -22,7 +22,6 @@ namespace Forged.MapServer.Groups;
 
 public class PlayerGroup
 {
-    private readonly List<MemberSlot> _memberSlots = new();
     private readonly GroupRefManager _memberMgr = new();
     private readonly List<Player> _invitees = new();
     private readonly ObjectGuid[] _targetIcons = new ObjectGuid[MapConst.TargetIconsCount];
@@ -34,39 +33,29 @@ public class PlayerGroup
     private readonly RaidMarker[] _markers = new RaidMarker[MapConst.RaidMarkersCount];
     private ObjectGuid _leaderGuid;
     private byte _leaderFactionGroup;
-    private string _leaderName;
-    private GroupFlags _groupFlags;
-    private GroupCategory _groupCategory;
-    private Difficulty _dungeonDifficulty;
-    private Difficulty _raidDifficulty;
-    private Difficulty _legacyRaidDifficulty;
     private Battleground _bgGroup;
     private BattleField _bfGroup;
-    private LootMethod _lootMethod;
-    private ItemQuality _lootThreshold;
     private ObjectGuid _looterGuid;
     private ObjectGuid _masterLooterGuid;
     private byte[] _subGroupsCounts;
     private ObjectGuid _guid;
-    private uint _dbStoreId;
     private bool _isLeaderOffline;
 
     // Ready Check
-    private bool _readyCheckStarted;
     private TimeSpan _readyCheckTimer;
     private uint _activeMarkers;
 
-    public Difficulty DungeonDifficultyID => _dungeonDifficulty;
+    public Difficulty DungeonDifficultyID { get; private set; }
 
-    public Difficulty RaidDifficultyID => _raidDifficulty;
+    public Difficulty RaidDifficultyID { get; private set; }
 
-    public Difficulty LegacyRaidDifficultyID => _legacyRaidDifficulty;
+    public Difficulty LegacyRaidDifficultyID { get; private set; }
 
     private bool IsReadyCheckCompleted
     {
         get
         {
-            foreach (var member in _memberSlots)
+            foreach (var member in MemberSlots)
                 if (!member.ReadyChecked)
                     return false;
 
@@ -74,11 +63,11 @@ public class PlayerGroup
         }
     }
 
-    public bool IsFull => IsRaidGroup ? (_memberSlots.Count >= MapConst.MaxRaidSize) : (_memberSlots.Count >= MapConst.MaxGroupSize);
+    public bool IsFull => IsRaidGroup ? (MemberSlots.Count >= MapConst.MaxRaidSize) : (MemberSlots.Count >= MapConst.MaxGroupSize);
 
-    public bool IsLFGGroup => _groupFlags.HasAnyFlag(GroupFlags.Lfg);
+    public bool IsLFGGroup => GroupFlags.HasAnyFlag(GroupFlags.Lfg);
 
-    public bool IsRaidGroup => _groupFlags.HasAnyFlag(GroupFlags.Raid);
+    public bool IsRaidGroup => GroupFlags.HasAnyFlag(GroupFlags.Raid);
 
     public bool IsBGGroup => _bgGroup != null;
 
@@ -92,9 +81,9 @@ public class PlayerGroup
 
     public ulong LowGUID => _guid.Counter;
 
-    public string LeaderName => _leaderName;
+    public string LeaderName { get; private set; }
 
-    public LootMethod LootMethod => _lootMethod;
+    public LootMethod LootMethod { get; private set; }
 
     public ObjectGuid LooterGuid
     {
@@ -109,33 +98,33 @@ public class PlayerGroup
 
     public ObjectGuid MasterLooterGuid => _masterLooterGuid;
 
-    public ItemQuality LootThreshold => _lootThreshold;
+    public ItemQuality LootThreshold { get; private set; }
 
-    public GroupCategory GroupCategory => _groupCategory;
+    public GroupCategory GroupCategory { get; private set; }
 
-    public uint DbStoreId => _dbStoreId;
+    public uint DbStoreId { get; private set; }
 
-    public List<MemberSlot> MemberSlots => _memberSlots;
+    public List<MemberSlot> MemberSlots { get; } = new();
 
     public GroupReference FirstMember => _memberMgr.GetFirst();
 
-    public uint MembersCount => (uint)_memberSlots.Count;
+    public uint MembersCount => (uint)MemberSlots.Count;
 
     public uint InviteeCount => (uint)_invitees.Count;
 
-    public GroupFlags GroupFlags => _groupFlags;
+    public GroupFlags GroupFlags { get; private set; }
 
-    public bool IsReadyCheckStarted => _readyCheckStarted;
+    public bool IsReadyCheckStarted { get; private set; }
 
     public PlayerGroup()
     {
-        _leaderName = "";
-        _groupFlags = GroupFlags.None;
-        _dungeonDifficulty = Difficulty.Normal;
-        _raidDifficulty = Difficulty.NormalRaid;
-        _legacyRaidDifficulty = Difficulty.Raid10N;
-        _lootMethod = LootMethod.PersonalLoot;
-        _lootThreshold = ItemQuality.Uncommon;
+        LeaderName = "";
+        GroupFlags = GroupFlags.None;
+        DungeonDifficultyID = Difficulty.Normal;
+        RaidDifficultyID = Difficulty.NormalRaid;
+        LegacyRaidDifficultyID = Difficulty.Raid10N;
+        LootMethod = LootMethod.PersonalLoot;
+        LootThreshold = ItemQuality.Uncommon;
     }
 
     public void Update(uint diff)
@@ -161,45 +150,45 @@ public class PlayerGroup
         _guid = ObjectGuid.Create(HighGuid.Party, Global.GroupMgr.GenerateGroupId());
         _leaderGuid = leaderGuid;
         _leaderFactionGroup = Player.GetFactionGroupForRace(leader.Race);
-        _leaderName = leader.GetName();
+        LeaderName = leader.GetName();
         leader.SetPlayerFlag(PlayerFlags.GroupLeader);
 
         if (IsBGGroup || IsBFGroup)
         {
-            _groupFlags = GroupFlags.MaskBgRaid;
-            _groupCategory = GroupCategory.Instance;
+            GroupFlags = GroupFlags.MaskBgRaid;
+            GroupCategory = GroupCategory.Instance;
         }
 
-        if (_groupFlags.HasAnyFlag(GroupFlags.Raid))
+        if (GroupFlags.HasAnyFlag(GroupFlags.Raid))
             _initRaidSubGroupsCounter();
 
-        _lootThreshold = ItemQuality.Uncommon;
+        LootThreshold = ItemQuality.Uncommon;
         _looterGuid = leaderGuid;
 
-        _dungeonDifficulty = Difficulty.Normal;
-        _raidDifficulty = Difficulty.NormalRaid;
-        _legacyRaidDifficulty = Difficulty.Raid10N;
+        DungeonDifficultyID = Difficulty.Normal;
+        RaidDifficultyID = Difficulty.NormalRaid;
+        LegacyRaidDifficultyID = Difficulty.Raid10N;
 
         if (!IsBGGroup && !IsBFGroup)
         {
-            _dungeonDifficulty = leader.DungeonDifficultyId;
-            _raidDifficulty = leader.RaidDifficultyId;
-            _legacyRaidDifficulty = leader.LegacyRaidDifficultyId;
+            DungeonDifficultyID = leader.DungeonDifficultyId;
+            RaidDifficultyID = leader.RaidDifficultyId;
+            LegacyRaidDifficultyID = leader.LegacyRaidDifficultyId;
 
-            _dbStoreId = Global.GroupMgr.GenerateNewGroupDbStoreId();
+            DbStoreId = Global.GroupMgr.GenerateNewGroupDbStoreId();
 
-            Global.GroupMgr.RegisterGroupDbStoreId(_dbStoreId, this);
+            Global.GroupMgr.RegisterGroupDbStoreId(DbStoreId, this);
 
             // Store group in database
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GROUP);
 
             byte index = 0;
 
-            stmt.AddValue(index++, _dbStoreId);
+            stmt.AddValue(index++, DbStoreId);
             stmt.AddValue(index++, _leaderGuid.Counter);
-            stmt.AddValue(index++, (byte)_lootMethod);
+            stmt.AddValue(index++, (byte)LootMethod);
             stmt.AddValue(index++, _looterGuid.Counter);
-            stmt.AddValue(index++, (byte)_lootThreshold);
+            stmt.AddValue(index++, (byte)LootThreshold);
             stmt.AddValue(index++, _targetIcons[0].GetRawValue());
             stmt.AddValue(index++, _targetIcons[1].GetRawValue());
             stmt.AddValue(index++, _targetIcons[2].GetRawValue());
@@ -208,10 +197,10 @@ public class PlayerGroup
             stmt.AddValue(index++, _targetIcons[5].GetRawValue());
             stmt.AddValue(index++, _targetIcons[6].GetRawValue());
             stmt.AddValue(index++, _targetIcons[7].GetRawValue());
-            stmt.AddValue(index++, (byte)_groupFlags);
-            stmt.AddValue(index++, (byte)_dungeonDifficulty);
-            stmt.AddValue(index++, (byte)_raidDifficulty);
-            stmt.AddValue(index++, (byte)_legacyRaidDifficulty);
+            stmt.AddValue(index++, (byte)GroupFlags);
+            stmt.AddValue(index++, (byte)DungeonDifficultyID);
+            stmt.AddValue(index++, (byte)RaidDifficultyID);
+            stmt.AddValue(index++, (byte)LegacyRaidDifficultyID);
             stmt.AddValue(index++, _masterLooterGuid.Counter);
 
             DB.Characters.Execute(stmt);
@@ -233,7 +222,7 @@ public class PlayerGroup
 
     public void LoadGroupFromDB(SQLFields field)
     {
-        _dbStoreId = field.Read<uint>(17);
+        DbStoreId = field.Read<uint>(17);
         _guid = ObjectGuid.Create(HighGuid.Party, Global.GroupMgr.GenerateGroupId());
         _leaderGuid = ObjectGuid.Create(HighGuid.Player, field.Read<ulong>(0));
 
@@ -244,26 +233,26 @@ public class PlayerGroup
             return;
 
         _leaderFactionGroup = Player.GetFactionGroupForRace(leader.RaceId);
-        _leaderName = leader.Name;
-        _lootMethod = (LootMethod)field.Read<byte>(1);
+        LeaderName = leader.Name;
+        LootMethod = (LootMethod)field.Read<byte>(1);
         _looterGuid = ObjectGuid.Create(HighGuid.Player, field.Read<ulong>(2));
-        _lootThreshold = (ItemQuality)field.Read<byte>(3);
+        LootThreshold = (ItemQuality)field.Read<byte>(3);
 
         for (byte i = 0; i < MapConst.TargetIconsCount; ++i)
             _targetIcons[i].SetRawValue(field.Read<byte[]>(4 + i));
 
-        _groupFlags = (GroupFlags)field.Read<byte>(12);
+        GroupFlags = (GroupFlags)field.Read<byte>(12);
 
-        if (_groupFlags.HasAnyFlag(GroupFlags.Raid))
+        if (GroupFlags.HasAnyFlag(GroupFlags.Raid))
             _initRaidSubGroupsCounter();
 
-        _dungeonDifficulty = Player.CheckLoadedDungeonDifficultyId((Difficulty)field.Read<byte>(13));
-        _raidDifficulty = Player.CheckLoadedRaidDifficultyId((Difficulty)field.Read<byte>(14));
-        _legacyRaidDifficulty = Player.CheckLoadedLegacyRaidDifficultyId((Difficulty)field.Read<byte>(15));
+        DungeonDifficultyID = Player.CheckLoadedDungeonDifficultyId((Difficulty)field.Read<byte>(13));
+        RaidDifficultyID = Player.CheckLoadedRaidDifficultyId((Difficulty)field.Read<byte>(14));
+        LegacyRaidDifficultyID = Player.CheckLoadedLegacyRaidDifficultyId((Difficulty)field.Read<byte>(15));
 
         _masterLooterGuid = ObjectGuid.Create(HighGuid.Player, field.Read<ulong>(16));
 
-        if (_groupFlags.HasAnyFlag(GroupFlags.Lfg))
+        if (GroupFlags.HasAnyFlag(GroupFlags.Lfg))
             Global.LFGMgr._LoadFromDB(field, GUID);
     }
 
@@ -294,7 +283,7 @@ public class PlayerGroup
         member.Roles = roles;
         member.ReadyChecked = false;
 
-        _memberSlots.Add(member);
+        MemberSlots.Add(member);
 
         SubGroupCounterIncrease(subgroup);
 
@@ -303,16 +292,16 @@ public class PlayerGroup
 
     public void ConvertToLFG()
     {
-        _groupFlags = (_groupFlags | GroupFlags.Lfg | GroupFlags.LfgRestricted);
-        _groupCategory = GroupCategory.Instance;
-        _lootMethod = LootMethod.PersonalLoot;
+        GroupFlags = (GroupFlags | GroupFlags.Lfg | GroupFlags.LfgRestricted);
+        GroupCategory = GroupCategory.Instance;
+        LootMethod = LootMethod.PersonalLoot;
 
         if (!IsBGGroup && !IsBFGroup)
         {
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
 
-            stmt.AddValue(0, (byte)_groupFlags);
-            stmt.AddValue(1, _dbStoreId);
+            stmt.AddValue(0, (byte)GroupFlags);
+            stmt.AddValue(1, DbStoreId);
 
             DB.Characters.Execute(stmt);
         }
@@ -322,7 +311,7 @@ public class PlayerGroup
 
     public void ConvertToRaid()
     {
-        _groupFlags |= GroupFlags.Raid;
+        GroupFlags |= GroupFlags.Raid;
 
         _initRaidSubGroupsCounter();
 
@@ -330,8 +319,8 @@ public class PlayerGroup
         {
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
 
-            stmt.AddValue(0, (byte)_groupFlags);
-            stmt.AddValue(1, _dbStoreId);
+            stmt.AddValue(0, (byte)GroupFlags);
+            stmt.AddValue(1, DbStoreId);
 
             DB.Characters.Execute(stmt);
         }
@@ -339,7 +328,7 @@ public class PlayerGroup
         SendUpdate();
 
         // update quest related GO states (quest activity dependent from raid membership)
-        foreach (var member in _memberSlots)
+        foreach (var member in MemberSlots)
         {
             var player = Global.ObjAccessor.FindPlayer(member.Guid);
 
@@ -350,10 +339,10 @@ public class PlayerGroup
 
     public void ConvertToGroup()
     {
-        if (_memberSlots.Count > 5)
+        if (MemberSlots.Count > 5)
             return; // What message error should we send?
 
-        _groupFlags = GroupFlags.None;
+        GroupFlags = GroupFlags.None;
 
         _subGroupsCounts = null;
 
@@ -361,8 +350,8 @@ public class PlayerGroup
         {
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
 
-            stmt.AddValue(0, (byte)_groupFlags);
-            stmt.AddValue(1, _dbStoreId);
+            stmt.AddValue(0, (byte)GroupFlags);
+            stmt.AddValue(1, DbStoreId);
 
             DB.Characters.Execute(stmt);
         }
@@ -370,7 +359,7 @@ public class PlayerGroup
         SendUpdate();
 
         // update quest related GO states (quest activity dependent from raid membership)
-        foreach (var member in _memberSlots)
+        foreach (var member in MemberSlots)
         {
             var player = Global.ObjAccessor.FindPlayer(member.Guid);
 
@@ -410,7 +399,7 @@ public class PlayerGroup
 
         _leaderGuid = player.GUID;
         _leaderFactionGroup = Player.GetFactionGroupForRace(player.Race);
-        _leaderName = player.GetName();
+        LeaderName = player.GetName();
 
         return true;
     }
@@ -485,7 +474,7 @@ public class PlayerGroup
             ReadyChecked = false
         };
 
-        _memberSlots.Add(member);
+        MemberSlots.Add(member);
 
         SubGroupCounterIncrease(subGroup);
 
@@ -503,7 +492,7 @@ public class PlayerGroup
             player.SetGroup(this, subGroup);
         }
 
-        player.SetPartyType(_groupCategory, GroupType.Normal);
+        player.SetPartyType(GroupCategory, GroupType.Normal);
         player.ResetGroupUpdateSequenceIfNeeded(this);
 
         // if the same group invites the player back, cancel the homebind timer
@@ -518,7 +507,7 @@ public class PlayerGroup
         {
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GROUP_MEMBER);
 
-            stmt.AddValue(0, _dbStoreId);
+            stmt.AddValue(0, DbStoreId);
             stmt.AddValue(1, member.Guid.Counter);
             stmt.AddValue(2, (byte)member.Flags);
             stmt.AddValue(3, member.Group);
@@ -629,7 +618,7 @@ public class PlayerGroup
 
         // LFG group vote kick handled in scripts
         if (IsLFGGroup && method == RemoveMethod.Kick)
-            return _memberSlots.Count != 0;
+            return MemberSlots.Count != 0;
 
         // remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG/BF allow 1 member group)
         if (MembersCount > ((IsBGGroup || IsLFGGroup || IsBFGroup) ? 1 : 2))
@@ -653,7 +642,7 @@ public class PlayerGroup
                     player.UpdateVisibleGameobjectsOrSpellClicks();
                 }
 
-                player.SetPartyType(_groupCategory, GroupType.None);
+                player.SetPartyType(GroupCategory, GroupType.None);
 
                 if (method == RemoveMethod.Kick || method == RemoveMethod.KickLFG)
                     player.SendPacket(new GroupUninvite());
@@ -676,12 +665,12 @@ public class PlayerGroup
             if (slot != null)
             {
                 SubGroupCounterDecrease(slot.Group);
-                _memberSlots.Remove(slot);
+                MemberSlots.Remove(slot);
             }
 
             // Pick new leader if necessary
             if (_leaderGuid == guid)
-                foreach (var member in _memberSlots)
+                foreach (var member in MemberSlots)
                     if (Global.ObjAccessor.FindPlayer(member.Guid) != null)
                     {
                         ChangeLeader(member.Guid);
@@ -745,7 +734,7 @@ public class PlayerGroup
             stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_LEADER);
 
             stmt.AddValue(0, newLeader.GUID.Counter);
-            stmt.AddValue(1, _dbStoreId);
+            stmt.AddValue(1, DbStoreId);
 
             trans.Append(stmt);
 
@@ -760,12 +749,12 @@ public class PlayerGroup
         newLeader.SetPlayerFlag(PlayerFlags.GroupLeader);
         _leaderGuid = newLeader.GUID;
         _leaderFactionGroup = Player.GetFactionGroupForRace(newLeader.Race);
-        _leaderName = newLeader.GetName();
+        LeaderName = newLeader.GetName();
         ToggleGroupMemberFlag(slot, GroupMemberFlags.Assistant, false);
 
         GroupNewLeader groupNewLeader = new()
         {
-            Name = _leaderName,
+            Name = LeaderName,
             PartyIndex = partyIndex
         };
 
@@ -778,7 +767,7 @@ public class PlayerGroup
 
         Player player;
 
-        foreach (var member in _memberSlots)
+        foreach (var member in MemberSlots)
         {
             player = Global.ObjAccessor.FindPlayer(member.Guid);
 
@@ -800,7 +789,7 @@ public class PlayerGroup
                     player.SetGroup(null);
             }
 
-            player.SetPartyType(_groupCategory, GroupType.None);
+            player.SetPartyType(GroupCategory, GroupType.None);
 
             // quest related GO state dependent from raid membership
             if (IsRaidGroup)
@@ -814,7 +803,7 @@ public class PlayerGroup
             _homebindIfInstance(player);
         }
 
-        _memberSlots.Clear();
+        MemberSlots.Clear();
 
         RemoveAllInvites();
 
@@ -823,15 +812,15 @@ public class PlayerGroup
             SQLTransaction trans = new();
 
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GROUP);
-            stmt.AddValue(0, _dbStoreId);
+            stmt.AddValue(0, DbStoreId);
             trans.Append(stmt);
 
             stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GROUP_MEMBER_ALL);
-            stmt.AddValue(0, _dbStoreId);
+            stmt.AddValue(0, DbStoreId);
             trans.Append(stmt);
 
             stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_LFG_DATA);
-            stmt.AddValue(0, _dbStoreId);
+            stmt.AddValue(0, DbStoreId);
             trans.Append(stmt);
 
             DB.Characters.CommitTransaction(trans);
@@ -884,7 +873,7 @@ public class PlayerGroup
 
     public void SendUpdate()
     {
-        foreach (var member in _memberSlots)
+        foreach (var member in MemberSlots)
             SendUpdateToPlayer(member.Guid, member);
     }
 
@@ -908,21 +897,21 @@ public class PlayerGroup
 
         PartyUpdate partyUpdate = new()
         {
-            PartyFlags = _groupFlags,
-            PartyIndex = (byte)_groupCategory,
+            PartyFlags = GroupFlags,
+            PartyIndex = (byte)GroupCategory,
             PartyType = IsCreated ? GroupType.Normal : GroupType.None,
             PartyGUID = _guid,
             LeaderGUID = _leaderGuid,
             LeaderFactionGroup = _leaderFactionGroup,
-            SequenceNum = player.NextGroupUpdateSequenceNumber(_groupCategory),
+            SequenceNum = player.NextGroupUpdateSequenceNumber(GroupCategory),
             MyIndex = -1
         };
 
         byte index = 0;
 
-        for (var i = 0; i < _memberSlots.Count; ++i, ++index)
+        for (var i = 0; i < MemberSlots.Count; ++i, ++index)
         {
-            var member = _memberSlots[i];
+            var member = MemberSlots[i];
 
             if (memberSlot.Guid == member.Guid)
                 partyUpdate.MyIndex = index;
@@ -949,9 +938,9 @@ public class PlayerGroup
             // LootSettings
             PartyLootSettings lootSettings = new()
             {
-                Method = (byte)_lootMethod,
-                Threshold = (byte)_lootThreshold,
-                LootMaster = _lootMethod == LootMethod.MasterLoot ? _masterLooterGuid : ObjectGuid.Empty
+                Method = (byte)LootMethod,
+                Threshold = (byte)LootThreshold,
+                LootMaster = LootMethod == LootMethod.MasterLoot ? _masterLooterGuid : ObjectGuid.Empty
             };
 
             partyUpdate.LootSettings = lootSettings;
@@ -959,9 +948,9 @@ public class PlayerGroup
             // Difficulty Settings
             PartyDifficultySettings difficultySettings = new()
             {
-                DungeonDifficultyID = (uint)_dungeonDifficulty,
-                RaidDifficultyID = (uint)_raidDifficulty,
-                LegacyRaidDifficultyID = (uint)_legacyRaidDifficulty
+                DungeonDifficultyID = (uint)DungeonDifficultyID,
+                RaidDifficultyID = (uint)RaidDifficultyID,
+                LegacyRaidDifficultyID = (uint)LegacyRaidDifficultyID
             };
 
             partyUpdate.DifficultySettings = difficultySettings;
@@ -1192,7 +1181,7 @@ public class PlayerGroup
         // search next after current
         Player pNewLooter = null;
 
-        foreach (var member in _memberSlots)
+        foreach (var member in MemberSlots)
         {
             if (member == memberSlot)
                 continue;
@@ -1210,7 +1199,7 @@ public class PlayerGroup
 
         if (!pNewLooter)
             // search from start
-            foreach (var member in _memberSlots)
+            foreach (var member in MemberSlots)
             {
                 var player = Global.ObjAccessor.FindPlayer(member.Guid);
 
@@ -1349,14 +1338,14 @@ public class PlayerGroup
 
     public void SetDungeonDifficultyID(Difficulty difficulty)
     {
-        _dungeonDifficulty = difficulty;
+        DungeonDifficultyID = difficulty;
 
         if (!IsBGGroup && !IsBFGroup)
         {
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_DIFFICULTY);
 
-            stmt.AddValue(0, (byte)_dungeonDifficulty);
-            stmt.AddValue(1, _dbStoreId);
+            stmt.AddValue(0, (byte)DungeonDifficultyID);
+            stmt.AddValue(1, DbStoreId);
 
             DB.Characters.Execute(stmt);
         }
@@ -1375,14 +1364,14 @@ public class PlayerGroup
 
     public void SetRaidDifficultyID(Difficulty difficulty)
     {
-        _raidDifficulty = difficulty;
+        RaidDifficultyID = difficulty;
 
         if (!IsBGGroup && !IsBFGroup)
         {
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_RAID_DIFFICULTY);
 
-            stmt.AddValue(0, (byte)_raidDifficulty);
-            stmt.AddValue(1, _dbStoreId);
+            stmt.AddValue(0, (byte)RaidDifficultyID);
+            stmt.AddValue(1, DbStoreId);
 
             DB.Characters.Execute(stmt);
         }
@@ -1401,14 +1390,14 @@ public class PlayerGroup
 
     public void SetLegacyRaidDifficultyID(Difficulty difficulty)
     {
-        _legacyRaidDifficulty = difficulty;
+        LegacyRaidDifficultyID = difficulty;
 
         if (!IsBGGroup && !IsBFGroup)
         {
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_LEGACY_RAID_DIFFICULTY);
 
-            stmt.AddValue(0, (byte)_legacyRaidDifficulty);
-            stmt.AddValue(1, _dbStoreId);
+            stmt.AddValue(0, (byte)LegacyRaidDifficultyID);
+            stmt.AddValue(1, DbStoreId);
 
             DB.Characters.Execute(stmt);
         }
@@ -1428,19 +1417,19 @@ public class PlayerGroup
     public Difficulty GetDifficultyID(MapRecord mapEntry)
     {
         if (!mapEntry.IsRaid())
-            return _dungeonDifficulty;
+            return DungeonDifficultyID;
 
         var defaultDifficulty = Global.DB2Mgr.GetDefaultMapDifficulty(mapEntry.Id);
 
         if (defaultDifficulty == null)
-            return _legacyRaidDifficulty;
+            return LegacyRaidDifficultyID;
 
         var difficulty = CliDB.DifficultyStorage.LookupByKey(defaultDifficulty.DifficultyID);
 
         if (difficulty == null || difficulty.Flags.HasAnyFlag(DifficultyFlags.Legacy))
-            return _legacyRaidDifficulty;
+            return LegacyRaidDifficultyID;
 
-        return _raidDifficulty;
+        return RaidDifficultyID;
     }
 
     public void ResetInstances(InstanceResetMethod method, Player notifyPlayer)
@@ -1482,7 +1471,7 @@ public class PlayerGroup
     {
         // FG: HACK: force flags update on group leave - for values update hack
         // -- not very efficient but safe
-        foreach (var member in _memberSlots)
+        foreach (var member in MemberSlots)
         {
             var pp = Global.ObjAccessor.FindPlayer(member.Guid);
 
@@ -1498,7 +1487,7 @@ public class PlayerGroup
 
     public void SetLootMethod(LootMethod method)
     {
-        _lootMethod = method;
+        LootMethod = method;
     }
 
     public void SetLooterGuid(ObjectGuid guid)
@@ -1513,7 +1502,7 @@ public class PlayerGroup
 
     public void SetLootThreshold(ItemQuality threshold)
     {
-        _lootThreshold = threshold;
+        LootThreshold = threshold;
     }
 
     public void SetLfgRoles(ObjectGuid guid, LfgRoles roles)
@@ -1539,7 +1528,7 @@ public class PlayerGroup
 
     public void StartReadyCheck(ObjectGuid starterGuid, sbyte partyIndex, TimeSpan duration)
     {
-        if (_readyCheckStarted)
+        if (IsReadyCheckStarted)
             return;
 
         var slot = _getMemberSlot(starterGuid);
@@ -1547,7 +1536,7 @@ public class PlayerGroup
         if (slot == null)
             return;
 
-        _readyCheckStarted = true;
+        IsReadyCheckStarted = true;
         _readyCheckTimer = duration;
 
         SetOfflineMembersReadyChecked();
@@ -1567,7 +1556,7 @@ public class PlayerGroup
 
     public void SetMemberReadyCheck(ObjectGuid guid, bool ready)
     {
-        if (!_readyCheckStarted)
+        if (!IsReadyCheckStarted)
             return;
 
         var slot = _getMemberSlot(guid);
@@ -1636,7 +1625,7 @@ public class PlayerGroup
 
     public ObjectGuid GetMemberGUID(string name)
     {
-        foreach (var member in _memberSlots)
+        foreach (var member in MemberSlots)
             if (member.Name == name)
                 return member.Guid;
 
@@ -1749,7 +1738,7 @@ public class PlayerGroup
 
     public void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag)
     {
-        foreach (var member in _memberSlots)
+        foreach (var member in MemberSlots)
             if (member.Flags.HasAnyFlag(flag))
                 member.Flags &= ~flag;
     }
@@ -1768,11 +1757,11 @@ public class PlayerGroup
     public void SetEveryoneIsAssistant(bool apply)
     {
         if (apply)
-            _groupFlags |= GroupFlags.EveryoneAssistant;
+            GroupFlags |= GroupFlags.EveryoneAssistant;
         else
-            _groupFlags &= ~GroupFlags.EveryoneAssistant;
+            GroupFlags &= ~GroupFlags.EveryoneAssistant;
 
-        foreach (var member in _memberSlots)
+        foreach (var member in MemberSlots)
             ToggleGroupMemberFlag(member, GroupMemberFlags.Assistant, apply);
 
         SendUpdate();
@@ -1816,7 +1805,7 @@ public class PlayerGroup
 
         // Attempt to give leadership to main assistant first
         if (IsRaidGroup)
-            foreach (var memberSlot in _memberSlots)
+            foreach (var memberSlot in MemberSlots)
                 if (memberSlot.Flags.HasFlag(GroupMemberFlags.Assistant))
                 {
                     var player = Global.ObjAccessor.FindPlayer(memberSlot.Guid);
@@ -1831,7 +1820,7 @@ public class PlayerGroup
 
         // If there aren't assistants in raid, or if the group is not a raid, pick the first available member
         if (!newLeader)
-            foreach (var memberSlot in _memberSlots)
+            foreach (var memberSlot in MemberSlots)
             {
                 var player = Global.ObjAccessor.FindPlayer(memberSlot.Guid);
 
@@ -1855,11 +1844,11 @@ public class PlayerGroup
         PartyUpdate partyUpdate = new()
         {
             PartyFlags = GroupFlags.Destroyed,
-            PartyIndex = (byte)_groupCategory,
+            PartyIndex = (byte)GroupCategory,
             PartyType = GroupType.None,
             PartyGUID = _guid,
             MyIndex = -1,
-            SequenceNum = player.NextGroupUpdateSequenceNumber(_groupCategory)
+            SequenceNum = player.NextGroupUpdateSequenceNumber(GroupCategory)
         };
 
         player.SendPacket(partyUpdate);
@@ -1897,7 +1886,7 @@ public class PlayerGroup
 
     private void UpdateReadyCheck(uint diff)
     {
-        if (!_readyCheckStarted)
+        if (!IsReadyCheckStarted)
             return;
 
         _readyCheckTimer -= TimeSpan.FromMilliseconds(diff);
@@ -1908,10 +1897,10 @@ public class PlayerGroup
 
     private void EndReadyCheck()
     {
-        if (!_readyCheckStarted)
+        if (!IsReadyCheckStarted)
             return;
 
-        _readyCheckStarted = false;
+        IsReadyCheckStarted = false;
         _readyCheckTimer = TimeSpan.Zero;
 
         ResetMemberReadyChecked();
@@ -1941,7 +1930,7 @@ public class PlayerGroup
 
     private void SetOfflineMembersReadyChecked()
     {
-        foreach (var member in _memberSlots)
+        foreach (var member in MemberSlots)
         {
             var player = Global.ObjAccessor.FindConnectedPlayer(member.Guid);
 
@@ -1960,7 +1949,7 @@ public class PlayerGroup
 
     private void ResetMemberReadyChecked()
     {
-        foreach (var member in _memberSlots)
+        foreach (var member in MemberSlots)
             member.ReadyChecked = false;
     }
 
@@ -1989,13 +1978,13 @@ public class PlayerGroup
         if (_subGroupsCounts == null)
             _subGroupsCounts = new byte[MapConst.MaxRaidSubGroups];
 
-        foreach (var memberSlot in _memberSlots)
+        foreach (var memberSlot in MemberSlots)
             ++_subGroupsCounts[memberSlot.Group];
     }
 
     private MemberSlot _getMemberSlot(ObjectGuid guid)
     {
-        foreach (var member in _memberSlots)
+        foreach (var member in MemberSlots)
             if (member.Guid == guid)
                 return member;
 

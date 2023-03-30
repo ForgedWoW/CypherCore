@@ -219,7 +219,6 @@ public sealed class GameObjectManager
     private readonly Dictionary<uint, ItemTemplate> _itemTemplateStorage = new();
 
     //Player
-    private readonly Dictionary<Race, Dictionary<PlayerClass, PlayerInfo>> _playerInfo = new();
 
     //Pets
     private readonly Dictionary<uint, PetLevelInfo[]> _petInfoStore = new();
@@ -262,7 +261,7 @@ public sealed class GameObjectManager
     private ulong _voidItemId;
     private uint[] _playerXPperLevel;
 
-    public Dictionary<Race, Dictionary<PlayerClass, PlayerInfo>> PlayerInfos => _playerInfo;
+    public Dictionary<Race, Dictionary<PlayerClass, PlayerInfo>> PlayerInfos { get; } = new();
 
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration)
     {
@@ -6260,7 +6259,7 @@ public sealed class GameObjectManager
                         Log.Logger.Debug($"Invalid NPE intro scene id {introSceneId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
                 }
 
-                _playerInfo.Add((Race)currentrace, (PlayerClass)currentclass, info);
+                PlayerInfos.Add((Race)currentrace, (PlayerClass)currentclass, info);
 
                 ++count;
             } while (result.NextRow());
@@ -6298,7 +6297,7 @@ public sealed class GameObjectManager
                     if (!characterLoadout.RaceMask.HasAnyFlag(SharedConst.GetMaskForRace(raceIndex)))
                         continue;
 
-                    if (_playerInfo.TryGetValue(raceIndex, (PlayerClass)characterLoadout.ChrClassID, out var playerInfo))
+                    if (PlayerInfos.TryGetValue(raceIndex, (PlayerClass)characterLoadout.ChrClassID, out var playerInfo))
                     {
                         playerInfo.ItemContext = (ItemContext)characterLoadout.ItemContext;
 
@@ -6421,7 +6420,7 @@ public sealed class GameObjectManager
                         if (rcInfo.RaceMask == -1 || Convert.ToBoolean(SharedConst.GetMaskForRace(raceIndex) & rcInfo.RaceMask))
                             for (var classIndex = PlayerClass.Warrior; classIndex < PlayerClass.Max; ++classIndex)
                                 if (rcInfo.ClassMask == -1 || Convert.ToBoolean((1 << ((int)classIndex - 1)) & rcInfo.ClassMask))
-                                    if (_playerInfo.TryGetValue(raceIndex, classIndex, out var info))
+                                    if (PlayerInfos.TryGetValue(raceIndex, classIndex, out var info))
                                         info.Skills.Add(rcInfo);
 
             Log.Logger.Information("Loaded player create skills in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
@@ -6467,7 +6466,7 @@ public sealed class GameObjectManager
                         if (raceMask == 0 || Convert.ToBoolean((ulong)SharedConst.GetMaskForRace(raceIndex) & raceMask))
                             for (var classIndex = PlayerClass.Warrior; classIndex < PlayerClass.Max; ++classIndex)
                                 if (classMask == 0 || Convert.ToBoolean((1 << ((int)classIndex - 1)) & classMask))
-                                    if (_playerInfo.TryGetValue(raceIndex, classIndex, out var playerInfo))
+                                    if (PlayerInfos.TryGetValue(raceIndex, classIndex, out var playerInfo))
                                     {
                                         playerInfo.CustomSpells.Add(spellId);
                                         ++count;
@@ -6526,7 +6525,7 @@ public sealed class GameObjectManager
                         if (raceMask == 0 || Convert.ToBoolean((ulong)SharedConst.GetMaskForRace(raceIndex) & raceMask))
                             for (var classIndex = PlayerClass.Warrior; classIndex < PlayerClass.Max; ++classIndex)
                                 if (classMask == 0 || Convert.ToBoolean((1 << ((int)classIndex - 1)) & classMask))
-                                    if (_playerInfo.TryGetValue(raceIndex, classIndex, out var info))
+                                    if (PlayerInfos.TryGetValue(raceIndex, classIndex, out var info))
                                     {
                                         info.CastSpells[playerCreateMode].Add(spellId);
                                         ++count;
@@ -6573,7 +6572,7 @@ public sealed class GameObjectManager
                         continue;
                     }
 
-                    if (_playerInfo.TryGetValue(currentrace, currentclass, out var info))
+                    if (PlayerInfos.TryGetValue(currentrace, currentclass, out var info))
                         info.Actions.Add(new PlayerCreateInfoAction(result.Read<byte>(2), result.Read<uint>(3), result.Read<byte>(4)));
 
                     ++count;
@@ -6657,7 +6656,7 @@ public sealed class GameObjectManager
 
                 for (var race = 0; race < raceStatModifiers.Length; ++race)
                 {
-                    if (!_playerInfo.TryGetValue((Race)race, currentclass, out var playerInfo))
+                    if (!PlayerInfos.TryGetValue((Race)race, currentclass, out var playerInfo))
                         continue;
 
                     for (var i = 0; i < (int)Stats.Max; i++)
@@ -6680,7 +6679,7 @@ public sealed class GameObjectManager
                     if (_cliDB.ChrClassesStorage.LookupByKey(_class) == null)
                         continue;
 
-                    if (!_playerInfo.TryGetValue(race, _class, out var playerInfo))
+                    if (!PlayerInfos.TryGetValue(race, _class, out var playerInfo))
                         continue;
 
                     if (_configuration.GetDefaultValue("character.EnforceRaceAndClassExpations", true))
@@ -6790,7 +6789,7 @@ public sealed class GameObjectManager
         if (classId >= PlayerClass.Max)
             return null;
 
-        if (!_playerInfo.TryGetValue(raceId, classId, out var info))
+        if (!PlayerInfos.TryGetValue(raceId, classId, out var info))
             return null;
 
         return info;
@@ -6823,7 +6822,7 @@ public sealed class GameObjectManager
         if (level < 1 || race >= Race.Max || _class >= PlayerClass.Max)
             return null;
 
-        if (!_playerInfo.TryGetValue(race, _class, out var pInfo))
+        if (!PlayerInfos.TryGetValue(race, _class, out var pInfo))
             return null;
 
         if (level <= _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
@@ -12529,7 +12528,7 @@ public sealed class GameObjectManager
 
     private void PlayerCreateInfoAddItemHelper(uint race, uint class_, uint itemId, int count)
     {
-        if (!_playerInfo.TryGetValue((Race)race, (PlayerClass)class_, out var playerInfo))
+        if (!PlayerInfos.TryGetValue((Race)race, (PlayerClass)class_, out var playerInfo))
             return;
 
         if (count > 0)
@@ -12548,7 +12547,7 @@ public sealed class GameObjectManager
     private PlayerLevelInfo BuildPlayerLevelInfo(Race race, PlayerClass _class, uint level)
     {
         // base data (last known level)
-        var info = _playerInfo[race][_class].LevelInfo[_configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel) - 1];
+        var info = PlayerInfos[race][_class].LevelInfo[_configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel) - 1];
 
         for (var lvl = _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel) - 1; lvl < level; ++lvl)
             switch (_class)

@@ -11,19 +11,18 @@ namespace Forged.MapServer.Weather;
 
 public class Weather
 {
-    private readonly uint _zone;
     private readonly IntervalTimer _timer = new();
     private readonly WeatherData _weatherChances;
     private WeatherType _type;
     private float _intensity;
 
-    public uint Zone => _zone;
+    public uint Zone { get; }
 
     public uint ScriptId => _weatherChances.ScriptId;
 
     public Weather(uint zoneId, WeatherData weatherChances)
     {
-        _zone = zoneId;
+        Zone = zoneId;
         _weatherChances = weatherChances;
         _timer.Interval = 10 * Time.Minute * Time.InMilliseconds;
         _type = WeatherType.Fine;
@@ -89,7 +88,7 @@ public class Weather
             "spring", "summer", "fall", "winter"
         };
 
-        Log.Logger.Verbose("Generating a change in {0} weather for zone {1}.", seasonName[season], _zone);
+        Log.Logger.Verbose("Generating a change in {0} weather for zone {1}.", seasonName[season], Zone);
 
         if ((u < 60) && (_intensity < 0.33333334f)) // Get fair
         {
@@ -201,7 +200,7 @@ public class Weather
 
     public bool UpdateWeather()
     {
-        var player = Global.WorldMgr.FindPlayerInZone(_zone);
+        var player = Global.WorldMgr.FindPlayerInZone(Zone);
 
         if (player == null)
             return false;
@@ -217,7 +216,7 @@ public class Weather
         WeatherPkt weather = new(state, _intensity);
 
         //- Returns false if there were no players found to update
-        if (!Global.WorldMgr.SendZoneMessage(_zone, weather))
+        if (!Global.WorldMgr.SendZoneMessage(Zone, weather))
             return false;
 
         // Log the event
@@ -280,7 +279,7 @@ public class Weather
                 break;
         }
 
-        Log.Logger.Debug("Change the weather of zone {0} to {1}.", _zone, wthstr);
+        Log.Logger.Debug("Change the weather of zone {0} to {1}.", Zone, wthstr);
 
         Global.ScriptMgr.RunScript<IWeatherOnChange>(p => p.OnChange(this, state, _intensity), ScriptId);
 

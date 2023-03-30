@@ -36,19 +36,16 @@ public class SpellInfo
 
     private readonly List<SpellProcsPerMinuteModRecord> _procPpmMods = new();
 
-    private readonly List<SpellEffectInfo> _effects = new();
-    private readonly List<SpellXSpellVisualRecord> _visuals = new();
     private SpellSpecificType _spellSpecific;
     private AuraStateType _auraState;
 
     private SpellDiminishInfo _diminishInfo;
-    private ulong _allowedMechanicMask;
 
     public uint Category => CategoryId;
 
-    public List<SpellEffectInfo> Effects => _effects;
+    public List<SpellEffectInfo> Effects { get; } = new();
 
-    public List<SpellXSpellVisualRecord> SpellVisuals => _visuals;
+    public List<SpellXSpellVisualRecord> SpellVisuals { get; } = new();
 
 
     public uint Id { get; set; }
@@ -173,7 +170,7 @@ public class SpellInfo
     {
         get
         {
-            foreach (var effectInfo in _effects)
+            foreach (var effectInfo in Effects)
                 if (effectInfo.IsAreaAuraEffect)
                     return true;
 
@@ -185,7 +182,7 @@ public class SpellInfo
     {
         get
         {
-            foreach (var effectInfo in _effects)
+            foreach (var effectInfo in Effects)
                 switch (effectInfo.Effect)
                 {
                     case SpellEffectName.WeaponDamage:
@@ -222,7 +219,7 @@ public class SpellInfo
     {
         get
         {
-            foreach (var effectInfo in _effects)
+            foreach (var effectInfo in Effects)
                 if (effectInfo.IsEffect(SpellEffectName.Skill))
                 {
                     var skill = (uint)effectInfo.MiscValue;
@@ -239,7 +236,7 @@ public class SpellInfo
     {
         get
         {
-            foreach (var effectInfo in _effects)
+            foreach (var effectInfo in Effects)
                 if (effectInfo.IsEffect(SpellEffectName.Skill) && Global.SpellMgr.IsPrimaryProfessionSkill((uint)effectInfo.MiscValue))
                     return true;
 
@@ -253,7 +250,7 @@ public class SpellInfo
     {
         get
         {
-            foreach (var effectInfo in _effects)
+            foreach (var effectInfo in Effects)
                 if (effectInfo.IsEffect() && (effectInfo.IsTargetingArea || effectInfo.IsEffect(SpellEffectName.PersistentAreaAura) || effectInfo.IsAreaAuraEffect))
                     return true;
 
@@ -266,7 +263,7 @@ public class SpellInfo
     {
         get
         {
-            foreach (var effectInfo in _effects)
+            foreach (var effectInfo in Effects)
                 if (effectInfo.IsEffect() && effectInfo.IsTargetingArea)
                     return true;
 
@@ -300,7 +297,7 @@ public class SpellInfo
                 return false;
 
             // All stance spells. if any better way, change it.
-            foreach (var effectInfo in _effects)
+            foreach (var effectInfo in Effects)
                 switch (SpellFamilyName)
                 {
                     case SpellFamilyNames.Paladin:
@@ -342,7 +339,7 @@ public class SpellInfo
             if (HasAttribute(SpellAttr2.AllowDeadTarget) || Targets.HasAnyFlag(SpellCastTargetFlags.CorpseAlly | SpellCastTargetFlags.CorpseEnemy | SpellCastTargetFlags.UnitDead))
                 return true;
 
-            foreach (var effectInfo in _effects)
+            foreach (var effectInfo in Effects)
                 if (effectInfo.TargetA.ObjectType == SpellTargetObjectTypes.Corpse || effectInfo.TargetB.ObjectType == SpellTargetObjectTypes.Corpse)
                     return true;
 
@@ -354,7 +351,7 @@ public class SpellInfo
     {
         get
         {
-            foreach (var effectInfo in _effects)
+            foreach (var effectInfo in Effects)
                 switch (effectInfo.TargetA.CheckType)
                 {
                     case SpellTargetCheckTypes.Party:
@@ -380,7 +377,7 @@ public class SpellInfo
 
     public int DiminishingReturnsLimitDuration => _diminishInfo.DiminishDurationLimit;
 
-    public ulong AllowedMechanicMask => _allowedMechanicMask;
+    public ulong AllowedMechanicMask { get; private set; }
 
     public int Duration
     {
@@ -473,13 +470,13 @@ public class SpellInfo
 
         foreach (var spellEffect in data.Effects)
         {
-            _effects.EnsureWritableListIndex(spellEffect.Key, new SpellEffectInfo(this));
-            _effects[spellEffect.Key] = new SpellEffectInfo(this, spellEffect.Value);
+            Effects.EnsureWritableListIndex(spellEffect.Key, new SpellEffectInfo(this));
+            Effects[spellEffect.Key] = new SpellEffectInfo(this, spellEffect.Value);
         }
 
         // Correct EffectIndex for blank effects
-        for (var i = 0; i < _effects.Count; ++i)
-            _effects[i].EffectIndex = i;
+        for (var i = 0; i < Effects.Count; ++i)
+            Effects[i].EffectIndex = i;
 
         NegativeEffects = new HashSet<int>();
 
@@ -696,7 +693,7 @@ public class SpellInfo
                 Totem[i] = totem.Totem[i];
             }
 
-        _visuals = data.Visuals;
+        SpellVisuals = data.Visuals;
 
         _spellSpecific = SpellSpecificType.Normal;
         _auraState = AuraStateType.None;
@@ -712,20 +709,20 @@ public class SpellInfo
 
         foreach (var spellEffect in effects)
         {
-            _effects.EnsureWritableListIndex(spellEffect.EffectIndex, new SpellEffectInfo(this));
-            _effects[spellEffect.EffectIndex] = new SpellEffectInfo(this, spellEffect);
+            Effects.EnsureWritableListIndex(spellEffect.EffectIndex, new SpellEffectInfo(this));
+            Effects[spellEffect.EffectIndex] = new SpellEffectInfo(this, spellEffect);
         }
 
         // Correct EffectIndex for blank effects
-        for (var i = 0; i < _effects.Count; ++i)
-            _effects[i].EffectIndex = i;
+        for (var i = 0; i < Effects.Count; ++i)
+            Effects[i].EffectIndex = i;
 
         NegativeEffects = new HashSet<int>();
     }
 
     public bool HasEffect(SpellEffectName effect)
     {
-        foreach (var effectInfo in _effects)
+        foreach (var effectInfo in Effects)
             if (effectInfo.IsEffect(effect))
                 return true;
 
@@ -734,7 +731,7 @@ public class SpellInfo
 
     public bool HasAura(AuraType aura)
     {
-        foreach (var effectInfo in _effects)
+        foreach (var effectInfo in Effects)
             if (effectInfo.IsAura(aura))
                 return true;
 
@@ -761,7 +758,7 @@ public class SpellInfo
         {
             SpellCastTargetFlags mask = 0;
 
-            foreach (var effectInfo in _effects)
+            foreach (var effectInfo in Effects)
                 if (effectInfo.TargetA.Target != Framework.Constants.Targets.UnitCaster && effectInfo.TargetA.Target != Framework.Constants.Targets.DestCaster && effectInfo.TargetB.Target != Framework.Constants.Targets.UnitCaster && effectInfo.TargetB.Target != Framework.Constants.Targets.DestCaster)
                     mask |= effectInfo.ProvidedTargetMask;
 
@@ -1153,7 +1150,7 @@ public class SpellInfo
 
         // aura limitations
         if (player)
-            foreach (var effectInfo in _effects)
+            foreach (var effectInfo in Effects)
             {
                 if (!effectInfo.IsAura())
                     continue;
@@ -1434,7 +1431,7 @@ public class SpellInfo
         {
             VehicleSeatFlags checkMask = 0;
 
-            foreach (var effectInfo in _effects)
+            foreach (var effectInfo in Effects)
                 if (effectInfo.IsAura(AuraType.ModShapeshift))
                 {
                     var shapeShiftFromEntry = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)effectInfo.MiscValue);
@@ -1458,7 +1455,7 @@ public class SpellInfo
 
             // Can only summon uncontrolled minions/guardians when on controlled vehicle
             if (vehicleSeat.HasFlag(VehicleSeatFlags.CanControl | VehicleSeatFlags.Unk2))
-                foreach (var effectInfo in _effects)
+                foreach (var effectInfo in Effects)
                 {
                     if (!effectInfo.IsEffect(SpellEffectName.Summon))
                         continue;
@@ -1507,7 +1504,7 @@ public class SpellInfo
         if (Mechanic != 0)
             mask |= 1ul << (int)Mechanic;
 
-        foreach (var effectInfo in _effects)
+        foreach (var effectInfo in Effects)
             if (effectInfo.IsEffect() && effectInfo.Mechanic != 0)
                 mask |= 1ul << (int)effectInfo.Mechanic;
 
@@ -1534,7 +1531,7 @@ public class SpellInfo
         if (Mechanic != 0)
             mask |= 1ul << (int)Mechanic;
 
-        foreach (var effectInfo in _effects)
+        foreach (var effectInfo in Effects)
             if (effectMask.Contains(effectInfo.EffectIndex) && effectInfo.Mechanic != 0)
                 mask |= 1ul << (int)effectInfo.Mechanic;
 
@@ -1601,7 +1598,7 @@ public class SpellInfo
             _auraState = AuraStateType.Bleed;
 
         if (Convert.ToBoolean(GetSchoolMask() & SpellSchoolMask.Frost))
-            foreach (var effectInfo in _effects)
+            foreach (var effectInfo in Effects)
                 if (effectInfo.IsAura(AuraType.ModStun) || effectInfo.IsAura(AuraType.ModRoot) || effectInfo.IsAura(AuraType.ModRoot2))
                     _auraState = AuraStateType.Frozen;
 
@@ -1680,7 +1677,7 @@ public class SpellInfo
                     var food = false;
                     var drink = false;
 
-                    foreach (var effectInfo in _effects)
+                    foreach (var effectInfo in Effects)
                     {
                         if (!effectInfo.IsAura())
                             continue;
@@ -1834,7 +1831,7 @@ public class SpellInfo
                 break;
         }
 
-        foreach (var effectInfo in _effects)
+        foreach (var effectInfo in Effects)
             if (effectInfo.IsEffect(SpellEffectName.ApplyAura))
                 switch (effectInfo.ApplyAuraName)
                 {
@@ -1875,7 +1872,7 @@ public class SpellInfo
 
     public void _LoadImmunityInfo()
     {
-        foreach (var effect in _effects)
+        foreach (var effect in Effects)
         {
             uint schoolImmunityMask = 0;
             uint applyHarmfulAuraImmunityMask = 0;
@@ -2154,7 +2151,7 @@ public class SpellInfo
             immuneInfo.DispelImmune = dispelImmunity;
             immuneInfo.DamageSchoolMask = damageImmunityMask;
 
-            _allowedMechanicMask |= immuneInfo.MechanicImmuneMask;
+            AllowedMechanicMask |= immuneInfo.MechanicImmuneMask;
         }
 
         if (HasAttribute(SpellAttr5.AllowWhileStunned))
@@ -2162,7 +2159,7 @@ public class SpellInfo
             {
                 case 22812: // Barkskin
                 case 47585: // Dispersion
-                    _allowedMechanicMask |=
+                    AllowedMechanicMask |=
                         (1 << (int)Mechanics.Stun) |
                         (1 << (int)Mechanics.Freeze) |
                         (1 << (int)Mechanics.Knockout) |
@@ -2172,24 +2169,24 @@ public class SpellInfo
                 case 49039: // Lichborne, don't allow normal stuns
                     break;
                 default:
-                    _allowedMechanicMask |= (1 << (int)Mechanics.Stun);
+                    AllowedMechanicMask |= (1 << (int)Mechanics.Stun);
 
                     break;
             }
 
         if (HasAttribute(SpellAttr5.AllowWhileConfused))
-            _allowedMechanicMask |= (1 << (int)Mechanics.Disoriented);
+            AllowedMechanicMask |= (1 << (int)Mechanics.Disoriented);
 
         if (HasAttribute(SpellAttr5.AllowWhileFleeing))
             switch (Id)
             {
                 case 22812: // Barkskin
                 case 47585: // Dispersion
-                    _allowedMechanicMask |= (1 << (int)Mechanics.Fear) | (1 << (int)Mechanics.Horror);
+                    AllowedMechanicMask |= (1 << (int)Mechanics.Fear) | (1 << (int)Mechanics.Horror);
 
                     break;
                 default:
-                    _allowedMechanicMask |= (1 << (int)Mechanics.Fear);
+                    AllowedMechanicMask |= (1 << (int)Mechanics.Fear);
 
                     break;
             }
@@ -2880,7 +2877,7 @@ public class SpellInfo
 
     public uint GetSpellXSpellVisualId(WorldObject caster = null, WorldObject viewer = null)
     {
-        foreach (var visual in _visuals)
+        foreach (var visual in SpellVisuals)
         {
             var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(visual.CasterPlayerConditionID);
 
@@ -2995,16 +2992,16 @@ public class SpellInfo
     public void UnloadImplicitTargetConditionLists()
     {
         // find the same instances of ConditionList and delete them.
-        foreach (var effectInfo in _effects)
+        foreach (var effectInfo in Effects)
         {
             var cur = effectInfo.ImplicitTargetConditions;
 
             if (cur == null)
                 continue;
 
-            for (var j = effectInfo.EffectIndex; j < _effects.Count; ++j)
+            for (var j = effectInfo.EffectIndex; j < Effects.Count; ++j)
             {
-                var eff = _effects[j];
+                var eff = Effects[j];
 
                 if (eff.ImplicitTargetConditions == cur)
                     eff.ImplicitTargetConditions = null;
@@ -3058,24 +3055,24 @@ public class SpellInfo
 
     public SpellEffectInfo GetEffect(int index)
     {
-        return _effects[index];
+        return Effects[index];
     }
 
     public bool TryGetEffect(int index, out SpellEffectInfo spellEffectInfo)
     {
         spellEffectInfo = null;
 
-        if (_effects.Count < index)
+        if (Effects.Count < index)
             return false;
 
-        spellEffectInfo = _effects[index];
+        spellEffectInfo = Effects[index];
 
         return spellEffectInfo != null;
     }
 
     public bool HasTargetType(Targets target)
     {
-        foreach (var effectInfo in _effects)
+        foreach (var effectInfo in Effects)
             if (effectInfo.TargetA.Target == target || effectInfo.TargetB.Target == target)
                 return true;
 
@@ -3684,7 +3681,7 @@ public class SpellInfo
         if (auraSpellInfo == null)
             return false;
 
-        foreach (var effectInfo in _effects)
+        foreach (var effectInfo in Effects)
         {
             if (!effectInfo.IsEffect())
                 continue;

@@ -37,7 +37,7 @@ public class PlayerAchievementMgr : AchievementManager
     {
         base.Reset();
 
-        foreach (var iter in _completedAchievements)
+        foreach (var iter in CompletedAchievements)
         {
             AchievementDeleted achievementDeleted = new()
             {
@@ -47,8 +47,8 @@ public class PlayerAchievementMgr : AchievementManager
             SendPacket(achievementDeleted);
         }
 
-        _completedAchievements.Clear();
-        _achievementPoints = 0;
+        CompletedAchievements.Clear();
+        AchievementPoints = 0;
         DeleteFromDB(_owner.GUID);
 
         // re-fill data
@@ -89,7 +89,7 @@ public class PlayerAchievementMgr : AchievementManager
                     Changed = false
                 };
 
-                _achievementPoints += achievement.Points;
+                AchievementPoints += achievement.Points;
 
                 // title achievement rewards are retroactive
                 var reward = Global.AchievementMgr.GetAchievementReward(achievement);
@@ -107,7 +107,7 @@ public class PlayerAchievementMgr : AchievementManager
                     }
                 }
 
-                _completedAchievements[achievementid] = ca;
+                CompletedAchievements[achievementid] = ca;
             } while (achievementResult.NextRow());
 
         if (!criteriaResult.IsEmpty())
@@ -152,8 +152,8 @@ public class PlayerAchievementMgr : AchievementManager
 
     public void SaveToDB(SQLTransaction trans)
     {
-        if (!_completedAchievements.Empty())
-            foreach (var pair in _completedAchievements)
+        if (!CompletedAchievements.Empty())
+            foreach (var pair in CompletedAchievements)
             {
                 if (!pair.Value.Changed)
                     continue;
@@ -234,7 +234,7 @@ public class PlayerAchievementMgr : AchievementManager
         AllAccountCriteria allAccountCriteria = new();
         AllAchievementData achievementData = new();
 
-        foreach (var pair in _completedAchievements)
+        foreach (var pair in CompletedAchievements)
         {
             var achievement = VisibleAchievementCheck(pair);
 
@@ -303,7 +303,7 @@ public class PlayerAchievementMgr : AchievementManager
             Player = _owner.GUID
         };
 
-        foreach (var pair in _completedAchievements)
+        foreach (var pair in CompletedAchievements)
         {
             var achievement = VisibleAchievementCheck(pair);
 
@@ -376,13 +376,13 @@ public class PlayerAchievementMgr : AchievementManager
             Changed = true
         };
 
-        _completedAchievements[achievement.Id] = ca;
+        CompletedAchievements[achievement.Id] = ca;
 
         if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
             Global.AchievementMgr.SetRealmCompleted(achievement);
 
         if (!achievement.Flags.HasAnyFlag(AchievementFlags.TrackingFlag))
-            _achievementPoints += achievement.Points;
+            AchievementPoints += achievement.Points;
 
         UpdateCriteria(CriteriaType.EarnAchievement, achievement.Id, 0, 0, null, referencePlayer);
         UpdateCriteria(CriteriaType.EarnAchievementPoints, achievement.Points, 0, 0, null, referencePlayer);

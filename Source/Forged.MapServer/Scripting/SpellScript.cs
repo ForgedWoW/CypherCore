@@ -107,7 +107,6 @@ public class BaseSpellScript : IBaseSpellScript
 
 public class SpellScript : BaseSpellScript, ISpellScript
 {
-    private Spell _spell;
     private uint _hitPreventEffectMask;
     private uint _hitPreventDefaultEffectMask;
 
@@ -155,12 +154,12 @@ public class SpellScript : BaseSpellScript, ISpellScript
     // methods allowing interaction with Spell object
     //
     // methods useable during all spell handling phases
-    public Unit Caster => _spell.Caster.AsUnit;
-    public GameObject GObjCaster => _spell.Caster.AsGameObject;
-    public Unit OriginalCaster => _spell.OriginalCaster;
-    public SpellInfo SpellInfo => _spell.SpellInfo;
-    public Difficulty CastDifficulty => _spell.CastDifficulty;
-    public SpellValue SpellValue => _spell.SpellValue;
+    public Unit Caster => Spell.Caster.AsUnit;
+    public GameObject GObjCaster => Spell.Caster.AsGameObject;
+    public Unit OriginalCaster => Spell.OriginalCaster;
+    public SpellInfo SpellInfo => Spell.SpellInfo;
+    public Difficulty CastDifficulty => Spell.CastDifficulty;
+    public SpellValue SpellValue => Spell.SpellValue;
 
     // methods useable after spell is prepared
     // accessors to the explicit targets of the spell
@@ -178,26 +177,26 @@ public class SpellScript : BaseSpellScript, ISpellScript
     {
         get
         {
-            if (_spell.Targets.HasDst)
-                return _spell.Targets.DstPos;
+            if (Spell.Targets.HasDst)
+                return Spell.Targets.DstPos;
 
             return null;
         }
 
-        set => _spell.Targets.SetDst(value);
+        set => Spell.Targets.SetDst(value);
     }
 
     // returns: WorldObject which was selected as an explicit spell Target or null if there's no Target
-    public WorldObject ExplTargetWorldObject => _spell.Targets.ObjectTarget;
+    public WorldObject ExplTargetWorldObject => Spell.Targets.ObjectTarget;
 
     // returns: Unit which was selected as an explicit spell Target or null if there's no Target
-    public Unit ExplTargetUnit => _spell.Targets.UnitTarget;
+    public Unit ExplTargetUnit => Spell.Targets.UnitTarget;
 
     // returns: GameObject which was selected as an explicit spell Target or null if there's no Target
-    public GameObject ExplTargetGObj => _spell.Targets.GOTarget;
+    public GameObject ExplTargetGObj => Spell.Targets.GOTarget;
 
     // returns: Item which was selected as an explicit spell Target or null if there's no Target
-    public Item ExplTargetItem => _spell.Targets.ItemTarget;
+    public Item ExplTargetItem => Spell.Targets.ItemTarget;
 
     /// <summary>
     ///     useable only during spell hit on Target, or during spell launch on Target
@@ -214,7 +213,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return null;
             }
 
-            return _spell.UnitTarget;
+            return Spell.UnitTarget;
         }
     }
 
@@ -232,8 +231,8 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return null;
             }
 
-            if (_spell.UnitTarget != null)
-                return _spell.UnitTarget.AsCreature;
+            if (Spell.UnitTarget != null)
+                return Spell.UnitTarget.AsCreature;
             else
                 return null;
         }
@@ -253,8 +252,8 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return null;
             }
 
-            if (_spell.UnitTarget != null)
-                return _spell.UnitTarget.AsPlayer;
+            if (Spell.UnitTarget != null)
+                return Spell.UnitTarget.AsPlayer;
             else
                 return null;
         }
@@ -274,7 +273,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return null;
             }
 
-            return _spell.ItemTarget;
+            return Spell.ItemTarget;
         }
     }
 
@@ -292,7 +291,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return null;
             }
 
-            return _spell.GameObjTarget;
+            return Spell.GameObjTarget;
         }
     }
 
@@ -310,7 +309,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return null;
             }
 
-            return _spell.CorpseTarget;
+            return Spell.CorpseTarget;
         }
     }
 
@@ -328,7 +327,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return null;
             }
 
-            return _spell.DestTarget;
+            return Spell.DestTarget;
         }
     }
 
@@ -345,7 +344,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return 0;
             }
 
-            return _spell.DamageInEffects;
+            return Spell.DamageInEffects;
         }
 
         set
@@ -357,7 +356,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return;
             }
 
-            _spell.DamageInEffects = value;
+            Spell.DamageInEffects = value;
         }
     }
 
@@ -374,7 +373,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return 0;
             }
 
-            return _spell.HealingInEffects;
+            return Spell.HealingInEffects;
         }
 
         set
@@ -386,11 +385,11 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return;
             }
 
-            _spell.HealingInEffects = value;
+            Spell.HealingInEffects = value;
         }
     }
 
-    public Spell Spell => _spell;
+    public Spell Spell { get; private set; }
 
     /// <summary>
     /// </summary>
@@ -410,7 +409,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
             if (hitUnit != null)
             {
-                var targetInfo = _spell.UniqueTargetInfoOrgi.Find(targetInfo => targetInfo.TargetGuid == hitUnit.GUID);
+                var targetInfo = Spell.UniqueTargetInfoOrgi.Find(targetInfo => targetInfo.TargetGuid == hitUnit.GUID);
 
                 return targetInfo.IsCrit;
             }
@@ -421,7 +420,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
     public SpellEffectInfo EffectInfo
     {
-        get { return _spell.EffectInfo; }
+        get { return Spell.EffectInfo; }
     }
 
     // method avalible only in EffectHandler method
@@ -436,7 +435,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return 0;
             }
 
-            return _spell.Damage;
+            return Spell.Damage;
         }
 
         set
@@ -448,7 +447,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return;
             }
 
-            _spell.Damage = value;
+            Spell.Damage = value;
         }
     }
 
@@ -463,7 +462,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return 0.0f;
             }
 
-            return _spell.Variance;
+            return Spell.Variance;
         }
 
         set
@@ -475,15 +474,15 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return;
             }
 
-            _spell.Variance = value;
+            Spell.Variance = value;
         }
     }
 
     // returns: cast Item if present.
-    public Item CastItem => _spell.CastItem;
+    public Item CastItem => Spell.CastItem;
 
     // Returns SpellInfo from the spell that triggered the current one
-    public SpellInfo TriggeringSpell => _spell.TriggeredByAuraSpell;
+    public SpellInfo TriggeringSpell => Spell.TriggeredByAuraSpell;
 
     public Position TargetPosition
     {
@@ -492,7 +491,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
             Position pos = ExplTargetWorldObject.Location;
 
             if (pos == null || pos.IsDefault || !pos.IsPositionValid)
-                pos = _spell.Targets.Dst.Position;
+                pos = Spell.Targets.Dst.Position;
 
             return pos;
         }
@@ -521,7 +520,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
     public bool _Load(Spell spell)
     {
-        _spell = spell;
+        Spell = spell;
         _PrepareScriptCall((SpellScriptHookType)SpellScriptState.Loading);
         var load = Load();
         _FinishScriptCall();
@@ -569,7 +568,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
             return 0;
         }
 
-        return _spell.GetUnitTargetCountForEffect(effect);
+        return Spell.GetUnitTargetCountForEffect(effect);
     }
 
     public long GetGameObjectTargetCountForEffect(int effect)
@@ -581,7 +580,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
             return 0;
         }
 
-        return _spell.GetGameObjectTargetCountForEffect(effect);
+        return Spell.GetGameObjectTargetCountForEffect(effect);
     }
 
     public long GetItemTargetCountForEffect(int effect)
@@ -593,7 +592,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
             return 0;
         }
 
-        return _spell.GetItemTargetCountForEffect(effect);
+        return Spell.GetItemTargetCountForEffect(effect);
     }
 
     public long GetCorpseTargetCountForEffect(int effect)
@@ -605,7 +604,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
             return 0;
         }
 
-        return _spell.GetCorpseTargetCountForEffect(effect);
+        return Spell.GetCorpseTargetCountForEffect(effect);
     }
 
     public void PreventHitDamage()
@@ -623,10 +622,10 @@ public class SpellScript : BaseSpellScript, ISpellScript
             return null;
         }
 
-        Aura aura = _spell.SpellAura;
+        Aura aura = Spell.SpellAura;
 
         if (dynObjAura)
-            aura = _spell.DynObjAura;
+            aura = Spell.DynObjAura;
 
         if (aura == null || aura.IsRemoved)
             return null;
@@ -644,10 +643,10 @@ public class SpellScript : BaseSpellScript, ISpellScript
             return;
         }
 
-        var unitAura = _spell.SpellAura;
+        var unitAura = Spell.SpellAura;
         unitAura?.Remove();
 
-        var dynAura = _spell.DynObjAura;
+        var dynAura = Spell.DynObjAura;
         dynAura?.Remove();
     }
 
@@ -686,14 +685,14 @@ public class SpellScript : BaseSpellScript, ISpellScript
     // Creates Item. Calls Spell.DoCreateItem method.
     public void CreateItem(uint itemId, ItemContext context)
     {
-        _spell.DoCreateItem(itemId, context);
+        Spell.DoCreateItem(itemId, context);
     }
 
     // finishes spellcast prematurely with selected error message
     public void FinishCast(SpellCastResult result, int? param1 = null, int? param2 = null)
     {
-        _spell.SendCastResult(result, param1, param2);
-        _spell.Finish(result);
+        Spell.SendCastResult(result, param1, param2);
+        Spell.Finish(result);
     }
 
     public void SetCustomCastResultMessage(SpellCustomErrors result)
@@ -705,7 +704,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
             return;
         }
 
-        _spell.CustomErrors = result;
+        Spell.CustomErrors = result;
     }
 
     public void SelectRandomInjuredTargets(List<WorldObject> targets, uint maxTargets, bool prioritizePlayers)
@@ -770,21 +769,21 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
     public bool TryGetCaster(out Unit result)
     {
-        result = _spell.Caster?.AsUnit;
+        result = Spell.Caster?.AsUnit;
 
         return result != null;
     }
 
     public bool TryGetCaster(out Player result)
     {
-        result = _spell.Caster?.AsPlayer;
+        result = Spell.Caster?.AsPlayer;
 
         return result != null;
     }
 
     public bool TryGetExplTargetUnit(out Unit target)
     {
-        target = _spell.Targets.UnitTarget;
+        target = Spell.Targets.UnitTarget;
 
         return target != null;
     }

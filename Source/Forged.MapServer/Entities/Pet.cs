@@ -33,14 +33,11 @@ public class Pet : Guardian
     private const float PetXPFactor = 0.05f;
     private readonly List<uint> _autospells = new();
 
-    private PetType _petType;
-    private int _duration; // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
     private bool _loading;
     private uint _focusRegenTimer;
     private GroupUpdatePetFlags _mGroupUpdateMask;
 
     private DeclinedName _declinedname;
-    private ushort _petSpecialization;
 
     public override float NativeObjectScale
     {
@@ -72,19 +69,15 @@ public class Pet : Guardian
 
     public Player OwningPlayer => base.OwnerUnit.AsPlayer;
 
-    public PetType PetType
-    {
-        get => _petType;
-        set => _petType = value;
-    }
+    public PetType PetType { get; set; }
 
     public bool IsControlled => PetType == PetType.Summon || PetType == PetType.Hunter;
 
-    public bool IsTemporarySummoned => _duration > 0;
+    public bool IsTemporarySummoned => Duration > 0;
 
-    public int Duration => _duration;
+    public int Duration { get; private set; }
 
-    public ushort Specialization => _petSpecialization;
+    public ushort Specialization { get; private set; }
 
     public GroupUpdatePetFlags GroupUpdateFlag
     {
@@ -101,7 +94,7 @@ public class Pet : Guardian
 
     public Pet(Player owner, PetType type = PetType.Max) : base(null, owner, true)
     {
-        _petType = type;
+        PetType = type;
         UnitTypeMask |= UnitTypeMask.Pet;
 
         if (type == PetType.Hunter)
@@ -709,11 +702,11 @@ public class Pet : Guardian
                         return;
                     }
 
-                if (_duration > 0)
+                if (Duration > 0)
                 {
-                    if (_duration > diff)
+                    if (Duration > diff)
                     {
-                        _duration -= (int)diff;
+                        Duration -= (int)diff;
                     }
                     else
                     {
@@ -1113,7 +1106,7 @@ public class Pet : Guardian
 
     public void SetDuration(uint dur)
     {
-        _duration = (int)dur;
+        Duration = (int)dur;
     }
 
     public void SetPetExperience(uint xp)
@@ -1136,7 +1129,7 @@ public class Pet : Guardian
 
     public void SetSpecialization(uint spec)
     {
-        if (_petSpecialization == spec)
+        if (Specialization == spec)
             return;
 
         // remove all the old spec's specalization spells, set the new spec, then add the new spec's spells
@@ -1145,12 +1138,12 @@ public class Pet : Guardian
 
         if (!CliDB.ChrSpecializationStorage.ContainsKey(spec))
         {
-            _petSpecialization = 0;
+            Specialization = 0;
 
             return;
         }
 
-        _petSpecialization = (ushort)spec;
+        Specialization = (ushort)spec;
         LearnSpecializationSpells();
 
         // resend SMSG_PET_SPELLS_MESSAGE to remove old specialization spells from the pet action bar
@@ -1159,7 +1152,7 @@ public class Pet : Guardian
 
         SetPetSpecialization setPetSpecialization = new()
         {
-            SpecID = _petSpecialization
+            SpecID = Specialization
         };
 
         OwningPlayer.SendPacket(setPetSpecialization);
@@ -1699,7 +1692,7 @@ public class Pet : Guardian
     {
         List<uint> learnedSpells = new();
 
-        var specSpells = Global.DB2Mgr.GetSpecializationSpells(_petSpecialization);
+        var specSpells = Global.DB2Mgr.GetSpecializationSpells(Specialization);
 
         if (specSpells != null)
             foreach (var specSpell in specSpells)

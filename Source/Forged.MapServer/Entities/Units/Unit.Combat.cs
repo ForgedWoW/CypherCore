@@ -53,13 +53,9 @@ public partial class Unit
     /// <summary>
     ///     returns if the unit can't enter combat
     /// </summary>
-    public bool IsCombatDisallowed => _isCombatDisallowed;
+    public bool IsCombatDisallowed { get; private set; }
 
-    public ObjectGuid LastDamagedTargetGuid
-    {
-        get => _lastDamagedTargetGuid;
-        set => _lastDamagedTargetGuid = value;
-    }
+    public ObjectGuid LastDamagedTargetGuid { get; set; }
 
     public bool IsThreatened => !_threatManager.IsThreatListEmpty();
 
@@ -341,7 +337,7 @@ public partial class Unit
 
     public void AddExtraAttacks(uint count)
     {
-        var targetGUID = _lastDamagedTargetGuid;
+        var targetGUID = LastDamagedTargetGuid;
 
         if (!targetGUID.IsEmpty)
         {
@@ -445,7 +441,7 @@ public partial class Unit
         if (meleeAttack)
             AddUnitState(UnitState.MeleeAttacking);
 
-        if (creature != null && !IsControlledByPlayer)
+        if (creature != null && !ControlledByPlayer)
         {
             EngageWithTarget(victim); // ensure that anything we're attacking has threat
 
@@ -679,11 +675,11 @@ public partial class Unit
                 if (TryGetAI(out var aI))
                     aI.OnMeleeAttack(damageInfo, attType, extra);
 
-                Global.ScriptMgr.ForEach<IUnitOnMeleeAttack>(s => s.OnMeleeAttack(damageInfo, attType, extra));
+                ScriptManager.ForEach<IUnitOnMeleeAttack>(s => s.OnMeleeAttack(damageInfo, attType, extra));
 
                 SendAttackStateUpdate(damageInfo);
 
-                _lastDamagedTargetGuid = victim.GUID;
+                LastDamagedTargetGuid = victim.GUID;
 
                 DealMeleeDamage(damageInfo, true);
 
@@ -700,7 +696,7 @@ public partial class Unit
             }
             else
             {
-                CastSpell(victim, meleeAttackSpellId, new CastSpellExtraArgs(meleeAttackAuraEffect));
+                SpellFactory.CastSpell(victim, meleeAttackSpellId, new CastSpellExtraArgs(meleeAttackAuraEffect));
 
                 var hitInfo = HitInfo.AffectsVictim | HitInfo.NoAnimation;
 
@@ -1417,7 +1413,7 @@ public partial class Unit
     /// </summary>
     public void SetIsCombatDisallowed(bool apply)
     {
-        _isCombatDisallowed = apply;
+        IsCombatDisallowed = apply;
     }
 
     private void _addAttacker(Unit pAttacker)
@@ -1754,7 +1750,7 @@ public partial class Unit
         // mobs can score crushing blows if they're 4 or more levels above victim
         if (attackerLevel >= victimLevel + 4 &&
             // can be from by creature (if can) or from controlled player that considered as creature
-            !IsControlledByPlayer &&
+            !ControlledByPlayer &&
             !(TypeId == TypeId.Unit && AsCreature.Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrushingBlows)))
         {
             // add 2% chance per level, min. is 15%

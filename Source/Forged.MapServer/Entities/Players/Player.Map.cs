@@ -23,23 +23,11 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
-    public Difficulty DungeonDifficultyId
-    {
-        get => _dungeonDifficulty;
-        set => _dungeonDifficulty = value;
-    }
+    public Difficulty DungeonDifficultyId { get; set; }
 
-    public Difficulty RaidDifficultyId
-    {
-        get => _raidDifficulty;
-        set => _raidDifficulty = value;
-    }
+    public Difficulty RaidDifficultyId { get; set; }
 
-    public Difficulty LegacyRaidDifficultyId
-    {
-        get => _legacyRaidDifficulty;
-        set => _legacyRaidDifficulty = value;
-    }
+    public Difficulty LegacyRaidDifficultyId { get; set; }
 
     public ZonePVPTypeOverride OverrideZonePvpType
     {
@@ -50,19 +38,19 @@ public partial class Player
     public Difficulty GetDifficultyId(MapRecord mapEntry)
     {
         if (!mapEntry.IsRaid())
-            return _dungeonDifficulty;
+            return DungeonDifficultyId;
 
         var defaultDifficulty = Global.DB2Mgr.GetDefaultMapDifficulty(mapEntry.Id);
 
         if (defaultDifficulty == null)
-            return _legacyRaidDifficulty;
+            return LegacyRaidDifficultyId;
 
         var difficulty = CliDB.DifficultyStorage.LookupByKey(defaultDifficulty.DifficultyID);
 
         if (difficulty == null || difficulty.Flags.HasAnyFlag(DifficultyFlags.Legacy))
-            return _legacyRaidDifficulty;
+            return LegacyRaidDifficultyId;
 
-        return _raidDifficulty;
+        return RaidDifficultyId;
     }
 
     public static Difficulty CheckLoadedDungeonDifficultyId(Difficulty difficulty)
@@ -164,13 +152,13 @@ public partial class Player
         if (zone.HasFlag(AreaFlags.Capital)) // Is in a capital city
         {
             if (!PvpInfo.IsInHostileArea || zone.IsSanctuary())
-                _restMgr.SetRestFlag(RestFlag.City);
+                RestMgr.SetRestFlag(RestFlag.City);
 
             PvpInfo.IsInNoPvPArea = true;
         }
         else
         {
-            _restMgr.RemoveRestFlag(RestFlag.City);
+            RestMgr.RemoveRestFlag(RestFlag.City);
         }
 
         UpdatePvPState();
@@ -662,9 +650,9 @@ public partial class Player
         var areaRestFlag = (Team == TeamFaction.Alliance) ? AreaFlags.RestZoneAlliance : AreaFlags.RestZoneHorde;
 
         if (area != null && area.HasFlag(areaRestFlag))
-            _restMgr.SetRestFlag(RestFlag.FactionArea);
+            RestMgr.SetRestFlag(RestFlag.FactionArea);
         else
-            _restMgr.RemoveRestFlag(RestFlag.FactionArea);
+            RestMgr.RemoveRestFlag(RestFlag.FactionArea);
 
         PushQuests();
 

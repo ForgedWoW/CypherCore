@@ -14,10 +14,7 @@ public class RBACData
     private readonly int _realmId; // RealmId Affected
     private readonly AccountManager _accountManager;
     private readonly LoginDatabase _loginDatabase;
-    private readonly List<uint> _grantedPerms = new(); // Granted permissions
-    private readonly List<uint> _deniedPerms = new();  // Denied permissions
     private byte _secLevel;                            // Account SecurityLevel
-    private List<uint> _globalPerms = new();           // Calculated permissions
 
     // Gets the Name of the Object
 
@@ -28,13 +25,13 @@ public class RBACData
 
     // Returns all the granted permissions (after computation)
 
-    public List<uint> Permissions => _globalPerms;
+    public List<uint> Permissions { get; private set; } = new();
     // Returns all the granted permissions
 
-    public List<uint> GrantedPermissions => _grantedPerms;
+    public List<uint> GrantedPermissions { get; } = new();
     // Returns all the denied permissions
 
-    public List<uint> DeniedPermissions => _deniedPerms;
+    public List<uint> DeniedPermissions { get; } = new();
 
     public RBACData(uint id, string name, int realmId, AccountManager accountManager, LoginDatabase loginDatabase, byte secLevel = 255)
     {
@@ -278,7 +275,7 @@ public class RBACData
 
     public bool HasPermission(RBACPermissions permission)
     {
-        return _globalPerms.Contains((uint)permission);
+        return Permissions.Contains((uint)permission);
     }
 
     public void SetSecurityLevel(byte id)
@@ -307,11 +304,11 @@ public class RBACData
         Log.Logger.Debug("RBACData.CalculateNewPermissions [Id: {0} Name: {1}]", Id, Name);
 
         // Get the list of granted permissions
-        _globalPerms = GrantedPermissions;
-        ExpandPermissions(_globalPerms);
+        Permissions = GrantedPermissions;
+        ExpandPermissions(Permissions);
         var revoked = DeniedPermissions;
         ExpandPermissions(revoked);
-        RemovePermissions(_globalPerms, revoked);
+        RemovePermissions(Permissions, revoked);
     }
 
     /// <summary>
@@ -357,9 +354,9 @@ public class RBACData
 
     private void ClearData()
     {
-        _grantedPerms.Clear();
-        _deniedPerms.Clear();
-        _globalPerms.Clear();
+        GrantedPermissions.Clear();
+        DeniedPermissions.Clear();
+        Permissions.Clear();
     }
 
     private int GetRealmId()
@@ -370,36 +367,36 @@ public class RBACData
     // Checks if a permission is granted
     private bool HasGrantedPermission(uint permissionId)
     {
-        return _grantedPerms.Contains(permissionId);
+        return GrantedPermissions.Contains(permissionId);
     }
 
     // Checks if a permission is denied
     private bool HasDeniedPermission(uint permissionId)
     {
-        return _deniedPerms.Contains(permissionId);
+        return DeniedPermissions.Contains(permissionId);
     }
 
     // Adds a new granted permission
     private void AddGrantedPermission(uint permissionId)
     {
-        _grantedPerms.Add(permissionId);
+        GrantedPermissions.Add(permissionId);
     }
 
     // Removes a granted permission
     private void RemoveGrantedPermission(uint permissionId)
     {
-        _grantedPerms.Remove(permissionId);
+        GrantedPermissions.Remove(permissionId);
     }
 
     // Adds a new denied permission
     private void AddDeniedPermission(uint permissionId)
     {
-        _deniedPerms.Add(permissionId);
+        DeniedPermissions.Add(permissionId);
     }
 
     // Removes a denied permission
     private void RemoveDeniedPermission(uint permissionId)
     {
-        _deniedPerms.Remove(permissionId);
+        DeniedPermissions.Remove(permissionId);
     }
 }

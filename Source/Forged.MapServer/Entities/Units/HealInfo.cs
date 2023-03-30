@@ -9,53 +9,51 @@ namespace Forged.MapServer.Entities.Units;
 
 public class HealInfo
 {
-    private readonly Unit _healer;
-    private readonly Unit _target;
-    private readonly double _originalHeal;
-    private readonly SpellInfo _spellInfo;
-    private readonly SpellSchoolMask _schoolMask;
-    private double _heal;
-    private double _effectiveHeal;
-    private double _absorb;
-    private ProcFlagsHit _hitMask;
+    public Unit Healer { get; }
 
-    public Unit Healer => _healer;
-    public Unit Target => _target;
-    public double OriginalHeal => _originalHeal;
-    public SpellInfo SpellInfo => _spellInfo;
-    public SpellSchoolMask SchoolMask => _schoolMask;
-    public double Heal => _heal;
-    public double EffectiveHeal => _effectiveHeal;
-    public double Absorb => _absorb;
-    public ProcFlagsHit HitMask => _hitMask;
+    public Unit Target { get; }
+
+    public double OriginalHeal { get; }
+
+    public SpellInfo SpellInfo { get; }
+
+    public SpellSchoolMask SchoolMask { get; }
+
+    public double Heal { get; private set; }
+
+    public double EffectiveHeal { get; private set; }
+
+    public double Absorb { get; private set; }
+
+    public ProcFlagsHit HitMask { get; private set; }
 
     public bool IsCritical
     {
-        get { return _hitMask.HasFlag(ProcFlagsHit.Critical); }
+        get { return HitMask.HasFlag(ProcFlagsHit.Critical); }
     }
 
     public HealInfo(Unit healer, Unit target, double heal, SpellInfo spellInfo, SpellSchoolMask schoolMask)
     {
-        _healer = healer;
-        _target = target;
-        _heal = heal;
-        _originalHeal = heal;
-        _spellInfo = spellInfo;
-        _schoolMask = schoolMask;
+        Healer = healer;
+        Target = target;
+        Heal = heal;
+        OriginalHeal = heal;
+        SpellInfo = spellInfo;
+        SchoolMask = schoolMask;
     }
 
     public void AbsorbHeal(double amount)
     {
         amount = Math.Min(amount, Heal);
-        _absorb += amount;
-        _heal -= amount;
+        Absorb += amount;
+        Heal -= amount;
         amount = Math.Min(amount, EffectiveHeal);
-        _effectiveHeal -= amount;
-        _hitMask |= ProcFlagsHit.Absorb;
+        EffectiveHeal -= amount;
+        HitMask |= ProcFlagsHit.Absorb;
     }
 
     public void SetEffectiveHeal(uint amount)
     {
-        _effectiveHeal = amount;
+        EffectiveHeal = amount;
     }
 }

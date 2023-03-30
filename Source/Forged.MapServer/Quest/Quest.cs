@@ -114,10 +114,6 @@ public class Quest
     public List<uint> DependentPreviousQuests = new();
     public List<uint> DependentBreadcrumbQuests = new();
     public QueryQuestInfoResponse[] response = new QueryQuestInfoResponse[(int)Locale.Total];
-    private readonly uint _rewChoiceItemsCount;
-    private readonly uint _rewItemsCount;
-    private readonly uint _rewCurrencyCount;
-    private ushort _eventIdForQuest;
 
     public uint MaxMoneyValue
     {
@@ -175,17 +171,13 @@ public class Quest
 
     public bool IsDailyOrWeekly => Flags.HasAnyFlag(QuestFlags.Daily | QuestFlags.Weekly);
     public bool IsDFQuest => SpecialFlags.HasAnyFlag(QuestSpecialFlags.DfQuest);
-    public uint RewChoiceItemsCount => _rewChoiceItemsCount;
+    public uint RewChoiceItemsCount { get; }
 
-    public uint RewItemsCount => _rewItemsCount;
+    public uint RewItemsCount { get; }
 
-    public uint RewCurrencyCount => _rewCurrencyCount;
+    public uint RewCurrencyCount { get; }
 
-    public ushort EventIdForQuest
-    {
-        get => _eventIdForQuest;
-        set => _eventIdForQuest = value;
-    }
+    public ushort EventIdForQuest { get; set; }
 
     public uint NextQuestInChain { get; set; }
     public uint RewardSpell { get; set; }
@@ -251,7 +243,7 @@ public class Quest
             ItemDropQuantity[i] = fields.Read<uint>(26 + i * 4);
 
             if (RewardItemId[i] != 0)
-                ++_rewItemsCount;
+                ++RewItemsCount;
         }
 
         for (var i = 0; i < SharedConst.QuestRewardChoicesCount; ++i)
@@ -261,7 +253,7 @@ public class Quest
             RewardChoiceItemDisplayId[i] = fields.Read<uint>(41 + i * 3);
 
             if (RewardChoiceItemId[i] != 0)
-                ++_rewChoiceItemsCount;
+                ++RewChoiceItemsCount;
         }
 
         POIContinent = fields.Read<uint>(57);
@@ -295,7 +287,7 @@ public class Quest
             RewardCurrencyCount[i] = fields.Read<uint>(91 + i * 2);
 
             if (RewardCurrencyId[i] != 0)
-                ++_rewCurrencyCount;
+                ++RewCurrencyCount;
         }
 
         SoundAccept = fields.Read<uint>(98);

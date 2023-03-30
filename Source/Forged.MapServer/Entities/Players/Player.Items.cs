@@ -5316,14 +5316,14 @@ public partial class Player
             return;
 
         // If not released spirit, do it !
-        if (_deathTimer > 0)
+        if (DeathTimer > 0)
         {
-            _deathTimer = 0;
+            DeathTimer = 0;
             BuildPlayerRepop();
             RepopAtGraveyard();
         }
 
-        _corpseLocation = new WorldLocation();
+        CorpseLocation = new WorldLocation();
 
         // We have to convert player corpse to bones, not to be able to resurrect there
         // SpawnCorpseBones isn't handy, 'cos it saves player while he in BG
@@ -5378,7 +5378,7 @@ public partial class Player
     public void SendLoot(Loot loot, bool aeLooting = false)
     {
         if (!GetLootGUID().IsEmpty && !aeLooting)
-            _session.DoLootReleaseAll();
+            Session.DoLootReleaseAll();
 
         Log.Logger.Debug($"Player::SendLoot: Player: '{GetName()}' ({GUID}), Loot: {loot.GetOwnerGuid()}");
 
@@ -7568,7 +7568,7 @@ public partial class Player
         var map = Location.Map;
         var pvpActivity = map.IsBattlegroundOrArena || ((int)map.Entry.Flags[1]).HasAnyFlag(0x40) || HasPvpRulesEnabled();
 
-        if (_usePvpItemLevels != pvpActivity)
+        if (IsUsingPvpItemLevels != pvpActivity)
         {
             var healthPct = HealthPct;
             _RemoveAllItemMods();

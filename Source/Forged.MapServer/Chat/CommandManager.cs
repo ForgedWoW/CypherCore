@@ -12,9 +12,7 @@ namespace Forged.MapServer.Chat;
 
 public class CommandManager
 {
-    private static readonly SortedDictionary<string, ChatCommandNode> _commands = new();
-
-    public static SortedDictionary<string, ChatCommandNode> Commands => _commands;
+    public static SortedDictionary<string, ChatCommandNode> Commands { get; } = new();
 
     static CommandManager()
     {
@@ -29,7 +27,7 @@ public class CommandManager
             {
                 ChatCommandNode command = new(groupAttribute);
                 BuildSubCommandsForCommand(command, type);
-                _commands.Add(groupAttribute.Name, command);
+                Commands.Add(groupAttribute.Name, command);
             }
 
             //This check for any command not part of that group,  but saves us from having to add them into a new class.
@@ -38,7 +36,7 @@ public class CommandManager
                 var commandAttribute = method.GetCustomAttribute<CommandNonGroupAttribute>(true);
 
                 if (commandAttribute != null)
-                    _commands.Add(commandAttribute.Name, new ChatCommandNode(commandAttribute, method));
+                    Commands.Add(commandAttribute.Name, new ChatCommandNode(commandAttribute, method));
             }
         }
 
@@ -52,7 +50,7 @@ public class CommandManager
                 var help = result.Read<string>(1);
 
                 ChatCommandNode cmd = null;
-                var map = _commands;
+                var map = Commands;
 
                 foreach (var key in name.Split(' ', StringSplitOptions.RemoveEmptyEntries))
                 {
@@ -84,7 +82,7 @@ public class CommandManager
                     Log.Logger.Error($"Table `command` contains legacy help text for command '{name}', which uses `trinity_string`. Skipped.");
             } while (result.NextRow());
 
-        foreach (var (name, cmd) in _commands)
+        foreach (var (name, cmd) in Commands)
             cmd.ResolveNames(name);
     }
 

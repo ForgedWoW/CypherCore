@@ -8,17 +8,11 @@ namespace Forged.MapServer.Groups;
 
 public class GroupReference : Reference<PlayerGroup, Player>
 {
-    private byte _iSubGroup;
-
-    public byte SubGroup
-    {
-        get => _iSubGroup;
-        set => _iSubGroup = value;
-    }
+    public byte SubGroup { get; set; }
 
     public GroupReference()
     {
-        _iSubGroup = 0;
+        SubGroup = 0;
     }
 
     public override void TargetObjectBuildLink()

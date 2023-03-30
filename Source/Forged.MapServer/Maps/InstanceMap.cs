@@ -17,11 +17,7 @@ namespace Forged.MapServer.Maps;
 
 public class InstanceMap : Map
 {
-    private readonly InstanceLock _instanceLock;
     private readonly GroupInstanceReference _owningGroupRef = new();
-    private InstanceScript _data;
-    private uint _scriptId;
-    private InstanceScenario _scenario;
     private DateTime? _instanceExpireEvent;
 
     public uint MaxPlayers
@@ -53,17 +49,17 @@ public class InstanceMap : Map
 
     public TeamFaction TeamInInstance => TeamIdInInstance == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde;
 
-    public uint ScriptId => _scriptId;
+    public uint ScriptId { get; private set; }
 
-    public InstanceScript InstanceScript => _data;
+    public InstanceScript InstanceScript { get; private set; }
 
-    public InstanceScenario InstanceScenario => _scenario;
+    public InstanceScenario InstanceScenario { get; private set; }
 
-    public InstanceLock InstanceLock => _instanceLock;
+    public InstanceLock InstanceLock { get; }
 
     public InstanceMap(uint id, long expiry, uint InstanceId, Difficulty spawnMode, int instanceTeam, InstanceLock instanceLock) : base(id, expiry, InstanceId, spawnMode)
     {
-        _instanceLock = instanceLock;
+        InstanceLock = instanceLock;
 
         //lets initialize visibility distance for dungeons
         InitVisibilityDistance();
@@ -75,10 +71,10 @@ public class InstanceMap : Map
         Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceAlliance, instanceTeam == TeamIds.Alliance ? 1 : 0, false, this);
         Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceHorde, instanceTeam == TeamIds.Horde ? 1 : 0, false, this);
 
-        if (_instanceLock != null)
+        if (InstanceLock != null)
         {
-            _instanceLock.SetInUse(true);
-            _instanceExpireEvent = _instanceLock.GetExpiryTime(); // ignore extension state for reset event (will ask players to accept extended save on expiration)
+            InstanceLock.SetInUse(true);
+            _instanceExpireEvent = InstanceLock.GetExpiryTime(); // ignore extension state for reset event (will ask players to accept extended save on expiration)
         }
     }
 
@@ -116,10 +112,10 @@ public class InstanceMap : Map
         if (!player.IsLoading && IsRaid && InstanceScript != null && InstanceScript.IsEncounterInProgress())
             return new TransferAbortParams(TransferAbortReason.ZoneInCombat);
 
-        if (_instanceLock != null)
+        if (InstanceLock != null)
         {
             // cannot enter if player is permanent saved to a different instance id
-            var lockError = Global.InstanceLockMgr.CanJoinInstanceLock(player.GUID, new MapDb2Entries(Entry, MapDifficulty), _instanceLock);
+            var lockError = Global.InstanceLockMgr.CanJoinInstanceLock(player.GUID, new MapDb2Entries(Entry, MapDifficulty), InstanceLock);
 
             if (lockError != TransferAbortReason.None)
                 return new TransferAbortParams(lockError);
@@ -135,19 +131,19 @@ public class InstanceMap : Map
 
         MapDb2Entries entries = new(Entry, MapDifficulty);
 
-        if (entries.MapDifficulty.HasResetSchedule() && _instanceLock != null && _instanceLock.GetData().CompletedEncountersMask != 0)
+        if (entries.MapDifficulty.HasResetSchedule() && InstanceLock != null && InstanceLock.GetData().CompletedEncountersMask != 0)
             if (!entries.MapDifficulty.IsUsingEncounterLocks())
             {
                 var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GUID, entries);
 
                 if (playerLock == null ||
                     (playerLock.IsExpired() && playerLock.IsExtended()) ||
-                    playerLock.GetData().CompletedEncountersMask != _instanceLock.GetData().CompletedEncountersMask)
+                    playerLock.GetData().CompletedEncountersMask != InstanceLock.GetData().CompletedEncountersMask)
                 {
                     PendingRaidLock pendingRaidLock = new()
                     {
                         TimeUntilLock = 60000,
-                        CompletedMask = _instanceLock.GetData().CompletedEncountersMask,
+                        CompletedMask = InstanceLock.GetData().CompletedEncountersMask,
                         Extending = playerLock != null && playerLock.IsExtended(),
                         WarningOnly = entries.Map.IsFlexLocking() // events it triggers:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
                     };
@@ -170,11 +166,11 @@ public class InstanceMap : Map
         // this will acquire the same mutex so it cannot be in the previous block
         base.AddPlayerToMap(player, initPlayer);
 
-        if (_data != null)
-            _data.OnPlayerEnter(player);
+        if (InstanceScript != null)
+            InstanceScript.OnPlayerEnter(player);
 
-        if (_scenario != null)
-            _scenario.OnPlayerEnter(player);
+        if (InstanceScenario != null)
+            InstanceScenario.OnPlayerEnter(player);
 
         return true;
     }
@@ -183,14 +179,14 @@ public class InstanceMap : Map
     {
         base.Update(diff);
 
-        if (_data != null)
+        if (InstanceScript != null)
         {
-            _data.Update(diff);
-            _data.UpdateCombatResurrection(diff);
+            InstanceScript.Update(diff);
+            InstanceScript.UpdateCombatResurrection(diff);
         }
 
-        if (_scenario != null)
-            _scenario.Update(diff);
+        if (InstanceScenario != null)
+            InstanceScenario.Update(diff);
 
         if (_instanceExpireEvent.HasValue && _instanceExpireEvent.Value < GameTime.GetSystemTime())
         {
@@ -203,38 +199,38 @@ public class InstanceMap : Map
     {
         Log.Logger.Information("MAP: Removing player '{0}' from instance '{1}' of map '{2}' before relocating to another map", player.GetName(), InstanceId, MapName);
 
-        if (_data != null)
-            _data.OnPlayerLeave(player);
+        if (InstanceScript != null)
+            InstanceScript.OnPlayerLeave(player);
 
         // if last player set unload timer
         if (UnloadTimer == 0 && Players.Count == 1)
-            UnloadTimer = (_instanceLock != null && _instanceLock.IsExpired()) ? 1 : (uint)Math.Max(GetDefaultValue("Instance.UnloadDelay", 30 * Time.Minute * Time.InMilliseconds), 1);
+            UnloadTimer = (InstanceLock != null && InstanceLock.IsExpired()) ? 1 : (uint)Math.Max(GetDefaultValue("Instance.UnloadDelay", 30 * Time.Minute * Time.InMilliseconds), 1);
 
-        if (_scenario != null)
-            _scenario.OnPlayerExit(player);
+        if (InstanceScenario != null)
+            InstanceScenario.OnPlayerExit(player);
 
         base.RemovePlayerFromMap(player, remove);
     }
 
     public void CreateInstanceData()
     {
-        if (_data != null)
+        if (InstanceScript != null)
             return;
 
         var mInstance = Global.ObjectMgr.GetInstanceTemplate(Id);
 
         if (mInstance != null)
         {
-            _scriptId = mInstance.ScriptId;
-            _data = Global.ScriptMgr.RunScriptRet<IInstanceMapGetInstanceScript, InstanceScript>(p => p.GetInstanceScript(this), ScriptId, null);
+            ScriptId = mInstance.ScriptId;
+            InstanceScript = Global.ScriptMgr.RunScriptRet<IInstanceMapGetInstanceScript, InstanceScript>(p => p.GetInstanceScript(this), ScriptId, null);
         }
 
-        if (_data == null)
+        if (InstanceScript == null)
             return;
 
-        if (_instanceLock == null || _instanceLock.GetInstanceId() == 0)
+        if (InstanceLock == null || InstanceLock.GetInstanceId() == 0)
         {
-            _data.Create();
+            InstanceScript.Create();
 
             return;
         }
@@ -243,23 +239,23 @@ public class InstanceMap : Map
 
         if (!entries.IsInstanceIdBound() || !IsRaid || !entries.MapDifficulty.IsRestoringDungeonState() || _owningGroupRef.IsValid())
         {
-            _data.Create();
+            InstanceScript.Create();
 
             return;
         }
 
-        var lockData = _instanceLock.GetInstanceInitializationData();
-        _data.SetCompletedEncountersMask(lockData.CompletedEncountersMask);
-        _data.SetEntranceLocation(lockData.EntranceWorldSafeLocId);
+        var lockData = InstanceLock.GetInstanceInitializationData();
+        InstanceScript.SetCompletedEncountersMask(lockData.CompletedEncountersMask);
+        InstanceScript.SetEntranceLocation(lockData.EntranceWorldSafeLocId);
 
         if (!lockData.Data.IsEmpty())
         {
-            Log.Logger.Debug($"Loading instance data for `{Global.ObjectMgr.GetScriptName(_scriptId)}` with id {InstanceIdInternal}");
-            _data.Load(lockData.Data);
+            Log.Logger.Debug($"Loading instance data for `{Global.ObjectMgr.GetScriptName(ScriptId)}` with id {InstanceIdInternal}");
+            InstanceScript.Load(lockData.Data);
         }
         else
         {
-            _data.Create();
+            InstanceScript.Create();
         }
     }
 
@@ -277,7 +273,7 @@ public class InstanceMap : Map
     public InstanceResetResult Reset(InstanceResetMethod method)
     {
         // raids can be reset if no boss was killed
-        if (method != InstanceResetMethod.Expire && _instanceLock != null && _instanceLock.GetData().CompletedEncountersMask != 0)
+        if (method != InstanceResetMethod.Expire && InstanceLock != null && InstanceLock.GetData().CompletedEncountersMask != 0)
             return InstanceResetResult.CannotReset;
 
         if (HavePlayers)
@@ -307,7 +303,7 @@ public class InstanceMap : Map
                     PendingRaidLock pendingRaidLock = new()
                     {
                         TimeUntilLock = 60000,
-                        CompletedMask = _instanceLock.GetData().CompletedEncountersMask,
+                        CompletedMask = InstanceLock.GetData().CompletedEncountersMask,
                         Extending = true,
                         WarningOnly = Entry.IsFlexLocking()
                     };
@@ -342,14 +338,14 @@ public class InstanceMap : Map
 
     public string GetScriptName()
     {
-        return Global.ObjectMgr.GetScriptName(_scriptId);
+        return Global.ObjectMgr.GetScriptName(ScriptId);
     }
 
     public void UpdateInstanceLock(UpdateBossStateSaveDataEvent updateSaveDataEvent)
     {
-        if (_instanceLock != null)
+        if (InstanceLock != null)
         {
-            var instanceCompletedEncounters = _instanceLock.GetData().CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter.Bit);
+            var instanceCompletedEncounters = InstanceLock.GetData().CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter.Bit);
 
             MapDb2Entries entries = new(Entry, MapDifficulty);
 
@@ -358,10 +354,10 @@ public class InstanceMap : Map
             if (entries.IsInstanceIdBound())
                 Global.InstanceLockMgr.UpdateSharedInstanceLock(trans,
                                                                 new InstanceLockUpdateEvent(InstanceId,
-                                                                                            _data.GetSaveData(),
+                                                                                            InstanceScript.GetSaveData(),
                                                                                             instanceCompletedEncounters,
                                                                                             updateSaveDataEvent.DungeonEncounter,
-                                                                                            _data.GetEntranceLocationForCompletedEncounters(instanceCompletedEncounters)));
+                                                                                            InstanceScript.GetEntranceLocationForCompletedEncounters(instanceCompletedEncounters)));
 
             foreach (var player in Players)
             {
@@ -385,10 +381,10 @@ public class InstanceMap : Map
                                                                                  player.GUID,
                                                                                  entries,
                                                                                  new InstanceLockUpdateEvent(InstanceId,
-                                                                                                             _data.UpdateBossStateSaveData(oldData, updateSaveDataEvent),
+                                                                                                             InstanceScript.UpdateBossStateSaveData(oldData, updateSaveDataEvent),
                                                                                                              instanceCompletedEncounters,
                                                                                                              updateSaveDataEvent.DungeonEncounter,
-                                                                                                             _data.GetEntranceLocationForCompletedEncounters(playerCompletedEncounters)));
+                                                                                                             InstanceScript.GetEntranceLocationForCompletedEncounters(playerCompletedEncounters)));
 
                 if (isNewLock)
                 {
@@ -409,16 +405,16 @@ public class InstanceMap : Map
 
     public void UpdateInstanceLock(UpdateAdditionalSaveDataEvent updateSaveDataEvent)
     {
-        if (_instanceLock != null)
+        if (InstanceLock != null)
         {
-            var instanceCompletedEncounters = _instanceLock.GetData().CompletedEncountersMask;
+            var instanceCompletedEncounters = InstanceLock.GetData().CompletedEncountersMask;
 
             MapDb2Entries entries = new(Entry, MapDifficulty);
 
             SQLTransaction trans = new();
 
             if (entries.IsInstanceIdBound())
-                Global.InstanceLockMgr.UpdateSharedInstanceLock(trans, new InstanceLockUpdateEvent(InstanceId, _data.GetSaveData(), instanceCompletedEncounters, null, null));
+                Global.InstanceLockMgr.UpdateSharedInstanceLock(trans, new InstanceLockUpdateEvent(InstanceId, InstanceScript.GetSaveData(), instanceCompletedEncounters, null, null));
 
             foreach (var player in Players)
             {
@@ -438,7 +434,7 @@ public class InstanceMap : Map
                                                                                  player.GUID,
                                                                                  entries,
                                                                                  new InstanceLockUpdateEvent(InstanceId,
-                                                                                                             _data.UpdateAdditionalSaveData(oldData, updateSaveDataEvent),
+                                                                                                             InstanceScript.UpdateAdditionalSaveData(oldData, updateSaveDataEvent),
                                                                                                              instanceCompletedEncounters,
                                                                                                              null,
                                                                                                              null));
@@ -469,7 +465,7 @@ public class InstanceMap : Map
 
         SQLTransaction trans = new();
 
-        var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans, player.GUID, entries, new InstanceLockUpdateEvent(InstanceId, _data.GetSaveData(), _instanceLock.GetData().CompletedEncountersMask, null, null));
+        var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans, player.GUID, entries, new InstanceLockUpdateEvent(InstanceId, InstanceScript.GetSaveData(), InstanceLock.GetData().CompletedEncountersMask, null, null));
 
         DB.Characters.CommitTransaction(trans);
 
@@ -493,12 +489,12 @@ public class InstanceMap : Map
 
     public void SetInstanceScenario(InstanceScenario scenario)
     {
-        _scenario = scenario;
+        InstanceScenario = scenario;
     }
 
     ~InstanceMap()
     {
-        if (_instanceLock != null)
-            _instanceLock.SetInUse(false);
+        if (InstanceLock != null)
+            InstanceLock.SetInUse(false);
     }
 }

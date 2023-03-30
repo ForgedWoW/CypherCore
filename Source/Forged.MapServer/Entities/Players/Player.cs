@@ -72,15 +72,15 @@ public partial class Player : Unit
 {
     public override bool IsLoading => Session.PlayerLoading;
 
-    public DeclinedName DeclinedNames => _declinedname;
+    public DeclinedName DeclinedNames { get; private set; }
 
-    public Garrison Garrison => _garrison;
+    public Garrison Garrison { get; private set; }
 
-    public SceneMgr SceneMgr => _sceneMgr;
+    public SceneMgr SceneMgr { get; }
 
-    public RestMgr RestMgr => _restMgr;
+    public RestMgr RestMgr { get; }
 
-    public bool IsAdvancedCombatLoggingEnabled => _advancedCombatLoggingEnabled;
+    public bool IsAdvancedCombatLoggingEnabled { get; private set; }
 
     public override float ObjectScale
     {
@@ -101,10 +101,10 @@ public partial class Player : Unit
     {
         get
         {
-            if (_petStable == null)
-                _petStable = new PetStable();
+            if (PetStable1 == null)
+                PetStable1 = new PetStable();
 
-            return _petStable;
+            return PetStable1;
         }
     }
 
@@ -129,25 +129,25 @@ public partial class Player : Unit
 
     public bool IsGMVisible => !_extraFlags.HasAnyFlag(PlayerExtraFlags.GMInvisible);
 
-    public List<Channel> JoinedChannels => _channels;
+    public List<Channel> JoinedChannels { get; } = new();
 
-    public List<Mail> Mails => _mail;
+    public List<Mail> Mails { get; } = new();
 
-    public uint MailSize => (uint)_mail.Count;
+    public uint MailSize => (uint)Mails.Count;
 
     //Binds
     public bool HasPendingBind => _pendingBindId > 0;
 
     //Misc
-    public uint TotalPlayedTime => _playedTimeTotal;
+    public uint TotalPlayedTime { get; private set; }
 
-    public uint LevelPlayedTime => _playedTimeLevel;
+    public uint LevelPlayedTime { get; private set; }
 
-    public CinematicManager CinematicMgr => _cinematicMgr;
+    public CinematicManager CinematicMgr { get; }
 
-    public bool HasCorpse => _corpseLocation != null && _corpseLocation.MapId != 0xFFFFFFFF;
+    public bool HasCorpse => CorpseLocation != null && CorpseLocation.MapId != 0xFFFFFFFF;
 
-    public WorldLocation CorpseLocation => _corpseLocation;
+    public WorldLocation CorpseLocation { get; private set; }
 
     public override bool CanFly => MovementInfo.HasMovementFlag(MovementFlag.CanFly);
 
@@ -168,9 +168,9 @@ public partial class Player : Unit
 
     public bool IsWarModeLocalActive => HasPlayerLocalFlag(PlayerLocalFlags.WarMode);
 
-    public TeamFaction Team => _team;
+    public TeamFaction Team { get; private set; }
 
-    public int TeamId => _team == TeamFaction.Alliance ? TeamIds.Alliance : TeamIds.Horde;
+    public int TeamId => Team == TeamFaction.Alliance ? TeamIds.Alliance : TeamIds.Horde;
 
     public TeamFaction EffectiveTeam => HasPlayerFlagEx(PlayerFlagsEx.MercenaryMode) ? (Team == TeamFaction.Alliance ? TeamFaction.Horde : TeamFaction.Alliance) : Team;
 
@@ -214,17 +214,13 @@ public partial class Player : Unit
         }
     }
 
-    public ulong GuildIdInvited
-    {
-        get => _guildIdInvited;
-        set => _guildIdInvited = value;
-    }
+    public ulong GuildIdInvited { get; set; }
 
     public string GuildName => GuildId != 0 ? Global.GuildMgr.GetGuildById(GuildId).GetName() : "";
 
-    public bool CanParry => _canParry;
+    public bool CanParry { get; private set; }
 
-    public bool CanBlock => _canBlock;
+    public bool CanBlock { get; private set; }
 
     public bool IsAFK => HasPlayerFlag(PlayerFlags.AFK);
 
@@ -263,27 +259,15 @@ public partial class Player : Unit
         }
     }
 
-    public uint SaveTimer
-    {
-        get => _nextSave;
-        private set => _nextSave = value;
-    }
+    public uint SaveTimer { get; private set; }
 
-    public ReputationMgr ReputationMgr => _reputationMgr;
+    public ReputationMgr ReputationMgr { get; private set; }
 
-    public PlayerCreateMode CreateMode => _createMode;
+    public PlayerCreateMode CreateMode { get; private set; }
 
-    public byte Cinematic
-    {
-        get => _cinematic;
-        set => _cinematic = value;
-    }
+    public byte Cinematic { get; set; }
 
-    public uint Movie
-    {
-        get => _movie;
-        set => _movie = value;
-    }
+    public uint Movie { get; set; }
 
     public uint XP
     {
@@ -306,17 +290,17 @@ public partial class Player : Unit
 
     public byte DrunkValue => PlayerData.Inebriation;
 
-    public uint DeathTimer => _deathTimer;
+    public uint DeathTimer { get; private set; }
 
-    public TeleportToOptions TeleportOptions => _teleportOptions;
+    public TeleportToOptions TeleportOptions { get; private set; }
 
-    public bool IsBeingTeleported => _semaphoreTeleportNear || _semaphoreTeleportFar;
+    public bool IsBeingTeleported => IsBeingTeleportedNear || IsBeingTeleportedFar;
 
-    public bool IsBeingTeleportedNear => _semaphoreTeleportNear;
+    public bool IsBeingTeleportedNear { get; private set; }
 
-    public bool IsBeingTeleportedFar => _semaphoreTeleportFar;
+    public bool IsBeingTeleportedFar { get; private set; }
 
-    public bool IsBeingTeleportedSeamlessly => IsBeingTeleportedFar && _teleportOptions.HasAnyFlag(TeleportToOptions.Seamless);
+    public bool IsBeingTeleportedSeamlessly => IsBeingTeleportedFar && TeleportOptions.HasAnyFlag(TeleportToOptions.Seamless);
 
     public bool IsReagentBankUnlocked => HasPlayerFlagEx(PlayerFlagsEx.ReagentBankUnlocked);
 
@@ -335,13 +319,13 @@ public partial class Player : Unit
         }
     }
 
-    public WorldLocation TeleportDest => _teleportDest;
+    public WorldLocation TeleportDest { get; private set; }
 
-    public uint? TeleportDestInstanceId => _teleportInstanceId;
+    public uint? TeleportDestInstanceId { get; private set; }
 
-    public WorldLocation Homebind => _homebind;
+    public WorldLocation Homebind { get; } = new();
 
-    public WorldLocation Recall1 => _recallLocation;
+    public WorldLocation Recall1 { get; private set; }
 
     public override Gender NativeGender
     {
@@ -356,9 +340,9 @@ public partial class Player : Unit
     public bool CanTameExoticPets => IsGameMaster || HasAuraType(AuraType.AllowTamePetType);
 
     //Movement
-    private bool IsCanDelayTeleport => _canDelayTeleport;
+    private bool IsCanDelayTeleport { get; set; }
 
-    private bool IsHasDelayedTeleport => _hasDelayedTeleport;
+    private bool IsHasDelayedTeleport { get; set; }
 
     private bool IsTotalImmune
     {
@@ -398,20 +382,12 @@ public partial class Player : Unit
     private bool IsWarModeActive => HasPlayerFlag(PlayerFlags.WarModeActive);
 
     //Pet - Summons - Vehicles
-    public PetStable PetStable1 => _petStable;
+    public PetStable PetStable1 { get; private set; }
 
     // last used pet number (for BG's)
-    public uint LastPetNumber
-    {
-        get => _lastpetnumber;
-        set => _lastpetnumber = value;
-    }
+    public uint LastPetNumber { get; set; }
 
-    public uint TemporaryUnsummonedPetNumber
-    {
-        get => _temporaryUnsummonedPetNumber;
-        set => _temporaryUnsummonedPetNumber = value;
-    }
+    public uint TemporaryUnsummonedPetNumber { get; set; }
 
     public bool IsResurrectRequested => _resurrectionData != null;
 
@@ -478,14 +454,14 @@ public partial class Player : Unit
         PlayerData = new PlayerData();
         ActivePlayerData = new ActivePlayerData();
 
-        _session = session;
+        Session = session;
 
         // players always accept
         if (!Session.HasPermission(RBACPermissions.CanFilterWhispers))
             SetAcceptWhispers(true);
 
         _zoneUpdateId = 0xffffffff;
-        _nextSave = GetDefaultValue("PlayerSaveInterval", 15u * Time.Minute * Time.InMilliseconds);
+        SaveTimer = GetDefaultValue("PlayerSaveInterval", 15u * Time.Minute * Time.InMilliseconds);
         _customizationsChanged = false;
 
         GroupInvite = null;
@@ -500,9 +476,9 @@ public partial class Player : Unit
         _logintime = GameTime.GetGameTime();
         _lastTick = _logintime;
 
-        _dungeonDifficulty = Difficulty.Normal;
-        _raidDifficulty = Difficulty.NormalRaid;
-        _legacyRaidDifficulty = Difficulty.Raid10N;
+        DungeonDifficultyId = Difficulty.Normal;
+        RaidDifficultyId = Difficulty.NormalRaid;
+        LegacyRaidDifficultyId = Difficulty.Raid10N;
         InstanceValid = true;
 
         _specializationInfo = new SpecializationInfo();
@@ -533,19 +509,19 @@ public partial class Player : Unit
 
         Global.WorldMgr.IncreasePlayerCount();
 
-        _cinematicMgr = new CinematicManager(this);
+        CinematicMgr = new CinematicManager(this);
 
         _AchievementSys = new PlayerAchievementMgr(this);
-        _reputationMgr = new ReputationMgr(this);
+        ReputationMgr = new ReputationMgr(this);
         _questObjectiveCriteriaManager = new QuestObjectiveCriteriaManager(this);
-        _sceneMgr = new SceneMgr(this);
+        SceneMgr = new SceneMgr(this);
 
         _battlegroundQueueIdRecs[0] = new BgBattlegroundQueueIdRec();
         _battlegroundQueueIdRecs[1] = new BgBattlegroundQueueIdRec();
 
         _bgData = new BgData();
 
-        _restMgr = new RestMgr(this);
+        RestMgr = new RestMgr(this);
 
         _groupUpdateTimer = new TimeTracker(5000);
 
@@ -563,7 +539,7 @@ public partial class Player : Unit
 
         _spells.Clear();
         _specializationInfo = null;
-        _mail.Clear();
+        Mails.Clear();
 
         foreach (var item in _mailItems.Values)
             item.Dispose();
@@ -571,12 +547,12 @@ public partial class Player : Unit
         PlayerTalkClass.ClearMenus();
         ItemSetEff.Clear();
 
-        _declinedname = null;
+        DeclinedNames = null;
         _runes = null;
         _AchievementSys = null;
-        _reputationMgr = null;
+        ReputationMgr = null;
 
-        _cinematicMgr.Dispose();
+        CinematicMgr.Dispose();
 
         for (byte i = 0; i < SharedConst.VoidStorageMaxSlot; ++i)
             _voidStorageItems[i] = null;
@@ -632,7 +608,7 @@ public partial class Player : Unit
         var position = createInfo.UseNPE && info.CreatePositionNpe.HasValue ? info.CreatePositionNpe.Value : info.CreatePosition;
 
         _createTime = GameTime.GetGameTime();
-        _createMode = createInfo.UseNPE && info.CreatePositionNpe.HasValue ? PlayerCreateMode.NPE : PlayerCreateMode.Normal;
+        CreateMode = createInfo.UseNPE && info.CreatePositionNpe.HasValue ? PlayerCreateMode.NPE : PlayerCreateMode.Normal;
 
         Location.Relocate(position.Loc);
 
@@ -704,8 +680,8 @@ public partial class Player : Unit
 
         // Played time
         _lastTick = GameTime.GetGameTime();
-        _playedTimeTotal = 0;
-        _playedTimeLevel = 0;
+        TotalPlayedTime = 0;
+        LevelPlayedTime = 0;
 
         // base stats and related field values
         InitStatsForLevel();
@@ -805,12 +781,12 @@ public partial class Player : Unit
         }
 
         // Update cinematic location, if 500ms have passed and we're doing a cinematic now.
-        _cinematicMgr.CinematicDiff += diff;
+        CinematicMgr.CinematicDiff += diff;
 
-        if (_cinematicMgr.CinematicCamera != null && _cinematicMgr.ActiveCinematic != null && Time.GetMSTimeDiffToNow(_cinematicMgr.LastCinematicCheck) > 500)
+        if (CinematicMgr.CinematicCamera != null && CinematicMgr.ActiveCinematic != null && Time.GetMSTimeDiffToNow(CinematicMgr.LastCinematicCheck) > 500)
         {
-            _cinematicMgr.LastCinematicCheck = GameTime.GetGameTimeMS();
-            _cinematicMgr.UpdateCinematicLocation(diff);
+            CinematicMgr.LastCinematicCheck = GameTime.GetGameTimeMS();
+            CinematicMgr.UpdateCinematicLocation(diff);
         }
 
         //used to implement delayed far teleports
@@ -950,7 +926,7 @@ public partial class Player : Unit
         }
 
         if (HasPlayerFlag(PlayerFlags.Resting))
-            _restMgr.Update(diff);
+            RestMgr.Update(diff);
 
         if (_weaponChangeTimer > 0)
         {
@@ -965,12 +941,12 @@ public partial class Player : Unit
             if (diff >= _zoneUpdateTimer)
             {
                 // On zone update tick check if we are still in an inn if we are supposed to be in one
-                if (_restMgr.HasRestFlag(RestFlag.Tavern))
+                if (RestMgr.HasRestFlag(RestFlag.Tavern))
                 {
-                    var atEntry = CliDB.AreaTriggerStorage.LookupByKey(_restMgr.GetInnTriggerId());
+                    var atEntry = CliDB.AreaTriggerStorage.LookupByKey(RestMgr.GetInnTriggerId());
 
                     if (atEntry == null || !IsInAreaTriggerRadius(atEntry))
-                        _restMgr.RemoveRestFlag(RestFlag.Tavern);
+                        RestMgr.RemoveRestFlag(RestFlag.Tavern);
                 }
                 
                 if (_zoneUpdateId != Location.Zone)
@@ -1002,9 +978,9 @@ public partial class Player : Unit
         if (DeathState == DeathState.JustDied)
             KillPlayer();
 
-        if (_nextSave > 0)
+        if (SaveTimer > 0)
         {
-            if (diff >= _nextSave)
+            if (diff >= SaveTimer)
             {
                 // m_nextSave reset in SaveToDB call
                 Global.ScriptMgr.ForEach<IPlayerOnSave>(p => p.OnSave(this));
@@ -1013,7 +989,7 @@ public partial class Player : Unit
             }
             else
             {
-                _nextSave -= diff;
+                SaveTimer -= diff;
             }
         }
 
@@ -1024,8 +1000,8 @@ public partial class Player : Unit
         if (now > _lastTick)
         {
             var elapsed = (uint)(now - _lastTick);
-            _playedTimeTotal += elapsed;
-            _playedTimeLevel += elapsed;
+            TotalPlayedTime += elapsed;
+            LevelPlayedTime += elapsed;
             _lastTick = now;
         }
 
@@ -1054,17 +1030,17 @@ public partial class Player : Unit
         }
 
         // not auto-free ghost from body in instances
-        if (_deathTimer > 0 && !Location.Map.Instanceable && !HasAuraType(AuraType.PreventResurrection))
+        if (DeathTimer > 0 && !Location.Map.Instanceable && !HasAuraType(AuraType.PreventResurrection))
         {
-            if (diff >= _deathTimer)
+            if (diff >= DeathTimer)
             {
-                _deathTimer = 0;
+                DeathTimer = 0;
                 BuildPlayerRepop();
                 RepopAtGraveyard();
             }
             else
             {
-                _deathTimer -= diff;
+                DeathTimer -= diff;
             }
         }
 
@@ -1108,7 +1084,7 @@ public partial class Player : Unit
         //we should execute delayed teleports only for alive(!) players
         //because we don't want player's ghost teleported from graveyard
         if (IsHasDelayedTeleport && IsAlive)
-            TeleportTo(_teleportDest, _teleportOptions);
+            TeleportTo(TeleportDest, TeleportOptions);
     }
 
     public override void SetDeathState(DeathState s)
@@ -1283,20 +1259,20 @@ public partial class Player : Unit
     //Network
     public void SendPacket(ServerPacket data)
     {
-        _session.SendPacket(data);
+        Session.SendPacket(data);
     }
 
     public void CreateGarrison(uint garrSiteId)
     {
-        _garrison = new Garrison(this);
+        Garrison = new Garrison(this);
 
-        if (!_garrison.Create(garrSiteId))
-            _garrison = null;
+        if (!Garrison.Create(garrSiteId))
+            Garrison = null;
     }
 
     public void SetAdvancedCombatLogging(bool enabled)
     {
-        _advancedCombatLoggingEnabled = enabled;
+        IsAdvancedCombatLoggingEnabled = enabled;
     }
 
     public void SetInvSlot(uint slot, ObjectGuid guid)
@@ -1333,9 +1309,9 @@ public partial class Player : Unit
         if (!pet)
             return;
 
-        if (_temporaryUnsummonedPetNumber == 0 && pet.IsControlled && !pet.IsTemporarySummoned)
+        if (TemporaryUnsummonedPetNumber == 0 && pet.IsControlled && !pet.IsTemporarySummoned)
         {
-            _temporaryUnsummonedPetNumber = pet.GetCharmInfo().GetPetNumber();
+            TemporaryUnsummonedPetNumber = pet.GetCharmInfo().GetPetNumber();
             _oldpetspell = pet.UnitData.CreatedBySpell;
         }
 
@@ -1344,7 +1320,7 @@ public partial class Player : Unit
 
     public void ResummonPetTemporaryUnSummonedIfAny()
     {
-        if (_temporaryUnsummonedPetNumber == 0)
+        if (TemporaryUnsummonedPetNumber == 0)
             return;
 
         // not resummon in not appropriate state
@@ -1355,9 +1331,9 @@ public partial class Player : Unit
             return;
 
         Pet NewPet = new(this);
-        NewPet.LoadPetFromDB(this, 0, _temporaryUnsummonedPetNumber, true);
+        NewPet.LoadPetFromDB(this, 0, TemporaryUnsummonedPetNumber, true);
 
-        _temporaryUnsummonedPetNumber = 0;
+        TemporaryUnsummonedPetNumber = 0;
     }
 
     public bool IsPetNeedBeTemporaryUnsummoned()
@@ -2187,9 +2163,9 @@ public partial class Player : Unit
             {
                 SetSemaphoreTeleportNear(true);
                 //lets save teleport destination for player
-                _teleportDest = new WorldLocation(mapid, x, y, z, orientation);
-                _teleportInstanceId = null;
-                _teleportOptions = options;
+                TeleportDest = new WorldLocation(mapid, x, y, z, orientation);
+                TeleportDestInstanceId = null;
+                TeleportOptions = options;
 
                 return true;
             }
@@ -2206,9 +2182,9 @@ public partial class Player : Unit
                 CombatStop();
 
             // this will be used instead of the current location in SaveToDB
-            _teleportDest = new WorldLocation(mapid, x, y, z, orientation);
-            _teleportInstanceId = null;
-            _teleportOptions = options;
+            TeleportDest = new WorldLocation(mapid, x, y, z, orientation);
+            TeleportDestInstanceId = null;
+            TeleportOptions = options;
             SetFallInformation(0, Location.Z);
 
             // code for finish transfer called in WorldSession.HandleMovementOpcodes()
@@ -2217,7 +2193,7 @@ public partial class Player : Unit
 
             // near teleport, triggering send CMSG_MOVE_TELEPORT_ACK from client at landing
             if (!Session.PlayerLogout)
-                SendTeleportPacket(_teleportDest);
+                SendTeleportPacket(TeleportDest);
         }
         else
         {
@@ -2261,9 +2237,9 @@ public partial class Player : Unit
             {
                 SetSemaphoreTeleportFar(true);
                 //lets save teleport destination for player
-                _teleportDest = new WorldLocation(mapid, x, y, z, orientation);
-                _teleportInstanceId = instanceId;
-                _teleportOptions = options;
+                TeleportDest = new WorldLocation(mapid, x, y, z, orientation);
+                TeleportDestInstanceId = instanceId;
+                TeleportOptions = options;
 
                 return true;
             }
@@ -2344,9 +2320,9 @@ public partial class Player : Unit
             if (oldmap != null)
                 oldmap.RemovePlayerFromMap(this, false);
 
-            _teleportDest = new WorldLocation(mapid, x, y, z, orientation);
-            _teleportInstanceId = instanceId;
-            _teleportOptions = options;
+            TeleportDest = new WorldLocation(mapid, x, y, z, orientation);
+            TeleportDestInstanceId = instanceId;
+            TeleportOptions = options;
             SetFallInformation(0, Location.Z);
             // if the player is saved before worldportack (at logout for example)
             // this will be used instead of the current location in SaveToDB
@@ -2802,7 +2778,7 @@ public partial class Player : Unit
             Visibility.ServerSideVisibility.SetValue(ServerSideVisibilityType.GM, Session.Security);
         }
 
-        foreach (var channel in _channels)
+        foreach (var channel in JoinedChannels)
             channel.SetInvisible(this, !on);
     }
 
@@ -3211,20 +3187,20 @@ public partial class Player : Unit
 
     public void JoinedChannel(Channel c)
     {
-        _channels.Add(c);
+        JoinedChannels.Add(c);
     }
 
     public void LeftChannel(Channel c)
     {
-        _channels.Remove(c);
+        JoinedChannels.Remove(c);
     }
 
     public void CleanupChannels()
     {
-        while (!_channels.Empty())
+        while (!JoinedChannels.Empty())
         {
-            var ch = _channels.FirstOrDefault();
-            _channels.RemoveAt(0);        // remove from player's channel list
+            var ch = JoinedChannels.FirstOrDefault();
+            JoinedChannels.RemoveAt(0);        // remove from player's channel list
             ch.LeaveChannel(this, false); // not send to client, not remove from player's channel list
 
             // delete channel if empty
@@ -3241,16 +3217,16 @@ public partial class Player : Unit
     //Mail
     public void AddMail(Mail mail)
     {
-        _mail.Insert(0, mail);
+        Mails.Insert(0, mail);
     }
 
     public void RemoveMail(ulong id)
     {
-        foreach (var mail in _mail)
+        foreach (var mail in Mails)
             if (mail.messageID == id)
             {
                 //do not delete item, because Player.removeMail() is called when returning mail to sender.
-                _mail.Remove(mail);
+                Mails.Remove(mail);
 
                 return;
             }
@@ -3289,7 +3265,7 @@ public partial class Player : Unit
         _nextMailDelivereTime = 0;
         UnReadMails = 0;
 
-        foreach (var mail in _mail)
+        foreach (var mail in Mails)
             if (mail.deliver_time > cTime)
             {
                 if (_nextMailDelivereTime == 0 || _nextMailDelivereTime > mail.deliver_time)
@@ -3332,22 +3308,22 @@ public partial class Player : Unit
 
     public Mail GetMail(ulong id)
     {
-        return _mail.Find(p => p.messageID == id);
+        return Mails.Find(p => p.messageID == id);
     }
 
     public void SetHomebind(WorldLocation loc, uint areaId)
     {
-        _homebind.WorldRelocate(loc);
+        Homebind.WorldRelocate(loc);
         _homebindAreaId = areaId;
 
         // update sql homebind
         var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_PLAYER_HOMEBIND);
-        stmt.AddValue(0, _homebind.MapId);
+        stmt.AddValue(0, Homebind.MapId);
         stmt.AddValue(1, _homebindAreaId);
-        stmt.AddValue(2, _homebind.X);
-        stmt.AddValue(3, _homebind.Y);
-        stmt.AddValue(4, _homebind.Z);
-        stmt.AddValue(5, _homebind.Orientation);
+        stmt.AddValue(2, Homebind.X);
+        stmt.AddValue(3, Homebind.Y);
+        stmt.AddValue(4, Homebind.Z);
+        stmt.AddValue(5, Homebind.Orientation);
         stmt.AddValue(6, GUID.Counter);
         DB.Characters.Execute(stmt);
     }
@@ -3371,8 +3347,8 @@ public partial class Player : Unit
         BindPointUpdate packet = new();
 
         {
-            BindPosition = new Vector3(_homebind.X, _homebind.Y, _homebind.Z),
-            BindMapID = _homebind.MapId,
+            BindPosition = new Vector3(Homebind.X, Homebind.Y, Homebind.Z),
+            BindMapID = Homebind.MapId,
             BindAreaID = _homebindAreaId
         }
 
@@ -3455,7 +3431,7 @@ public partial class Player : Unit
 
     public void SetFactionForRace(Race race)
     {
-        _team = TeamForRace(race);
+        Team = TeamForRace(race);
 
         var rEntry = CliDB.ChrRacesStorage.LookupByKey(race);
         Faction = rEntry != null ? (uint)rEntry.FactionID : 0;
@@ -3690,7 +3666,7 @@ public partial class Player : Unit
             Resisted = (int)resist
         }
 
-        v final_damage = DealDamage(this, this, damage, null, DamageEffectType.Self, dmgSchool, null, false);
+        v final_damage = DealDamage(this, damage, null, DamageEffectType.Self, dmgSchool, null, false);
         packet.LogData.Initialize(this);
 
         SendCombatLogMessage(packet);
@@ -3882,7 +3858,7 @@ public partial class Player : Unit
         if (!HasUnitState(UnitState.Stunned))
             SetRooted(false);
 
-        _deathTimer = 0;
+        DeathTimer = 0;
 
         // set health/powers (0- will be set in caller)
         if (restore_percent > 0.0f)
@@ -3959,7 +3935,7 @@ public partial class Player : Unit
             RemovePlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
 
         // 6 minutes until repop at graveyard
-        _deathTimer = 6 * Time.Minute * Time.InMilliseconds;
+        DeathTimer = 6 * Time.Minute * Time.InMilliseconds;
 
         UpdateCorpseReclaimDelay(); // dependent at use SetDeathPvP() call before kill
 
@@ -3986,7 +3962,7 @@ public partial class Player : Unit
 
     public void SpawnCorpseBones(bool triggerSave = true)
     {
-        _corpseLocation = new WorldLocation();
+        CorpseLocation = new WorldLocation();
 
         if (Location.Map.ConvertCorpseToBones(GUID))
             if (triggerSave && !Session.PlayerLogoutWithSave) // at logout we will already store the player
@@ -4034,7 +4010,7 @@ public partial class Player : Unit
         }
 
         // stop countdown until repop
-        _deathTimer = 0;
+        DeathTimer = 0;
 
         // if no grave found, stay at the current location
         // and don't show spirit healer location
@@ -4056,7 +4032,7 @@ public partial class Player : Unit
         }
         else if (Location.Z < Location.Map.GetMinHeight(Location.PhaseShift, Location.X, Location.Y))
         {
-            TeleportTo(_homebind);
+            TeleportTo(Homebind);
         }
 
         RemovePlayerFlag(PlayerFlags.IsOutOfBounds);
@@ -4196,7 +4172,7 @@ public partial class Player : Unit
                 return;
         }
 
-        if (returnreagent && (pet || _temporaryUnsummonedPetNumber != 0) && !InBattleground)
+        if (returnreagent && (pet || TemporaryUnsummonedPetNumber != 0) && !InBattleground)
         {
             //returning of reagents only for players, so best done here
             var spellId = pet ? pet.UnitData.CreatedBySpell : _oldpetspell;
@@ -4218,14 +4194,14 @@ public partial class Player : Unit
                         }
                     }
 
-            _temporaryUnsummonedPetNumber = 0;
+            TemporaryUnsummonedPetNumber = 0;
         }
 
         if (pet == null)
         {
             // Handle removing pet while it is in "temporarily unsummoned" state, for example on mount
-            if (mode == PetSaveMode.NotInSlot && _petStable is { CurrentPetIndex: { } })
-                _petStable.CurrentPetIndex = null;
+            if (mode == PetSaveMode.NotInSlot && PetStable1 is { CurrentPetIndex: { } })
+                PetStable1.CurrentPetIndex = null;
 
             return;
         }
@@ -4235,10 +4211,10 @@ public partial class Player : Unit
         // only if current pet in slot
         pet.SavePetToDB(mode);
 
-        var currentPet = _petStable.GetCurrentPet();
+        var currentPet = PetStable1.GetCurrentPet();
 
         if (mode == PetSaveMode.NotInSlot || mode == PetSaveMode.AsDeleted)
-            _petStable.CurrentPetIndex = null;
+            PetStable1.CurrentPetIndex = null;
         // else if (stable slots) handled in opcode handlers due to required swaps
         // else (current pet) doesnt need to do anything
 
@@ -4799,7 +4775,7 @@ public partial class Player : Unit
         SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), Global.ObjectMgr.GetXPForLevel(level));
 
         //update level, max level of skills
-        _playedTimeLevel = 0; // Level Played Time reset
+        LevelPlayedTime = 0; // Level Played Time reset
 
         _ApplyAllLevelScaleItemMods(false);
 
@@ -5001,7 +4977,7 @@ public partial class Player : Unit
 
     public void SendInitialPacketsBeforeAddToMap()
     {
-        if (!_teleportOptions.HasAnyFlag(TeleportToOptions.Seamless))
+        if (!TeleportOptions.HasAnyFlag(TeleportToOptions.Seamless))
         {
             MovementCounter = 0;
             Session.ResetTimeSync();
@@ -5055,7 +5031,7 @@ public partial class Player : Unit
         SendInitialActionButtons();
 
         // SMSG_INITIALIZE_FACTIONS
-        _reputationMgr.SendInitialReputations();
+        ReputationMgr.SendInitialReputations();
 
         // SMSG_SETUP_CURRENCY
         SendCurrencies();
@@ -5219,8 +5195,8 @@ public partial class Player : Unit
 
         PhasingHandler.OnMapChange(this);
 
-        if (_garrison != null)
-            _garrison.SendRemoteInfo();
+        if (Garrison != null)
+            Garrison.SendRemoteInfo();
 
         UpdateItemLevelAreaBasedScaling();
 
@@ -5240,18 +5216,18 @@ public partial class Player : Unit
     public void RemoveSocial()
     {
         Global.SocialMgr.RemovePlayerSocial(GUID);
-        _social = null;
+        Social = null;
     }
 
     public void SaveRecallPosition()
     {
-        _recallLocation = new WorldLocation(Location);
+        Recall1 = new WorldLocation(Location);
         _recallInstanceId = (uint)Location.Map?.InstanceId;
     }
 
     public void Recall()
     {
-        TeleportTo(_recallLocation, 0, _recallInstanceId);
+        TeleportTo(Recall1, 0, _recallInstanceId);
     }
 
     public void InitStatsForLevel(bool reapplyMods = false)
@@ -5534,7 +5510,7 @@ public partial class Player : Unit
         var sequence = CliDB.CinematicSequencesStorage.LookupByKey(CinematicSequenceId);
 
         if (sequence != null)
-            _cinematicMgr.BeginCinematic(sequence);
+            CinematicMgr.BeginCinematic(sequence);
     }
 
     public void SendMovieStart(uint movieId)
@@ -5609,7 +5585,7 @@ public partial class Player : Unit
         if (recruitAFriend)
             bonus_xp = 2 * xp; // xp + bonus_xp must add up to 3 * xp for RaF; calculation for quests done client-side
         else
-            bonus_xp = victim != null ? _restMgr.GetRestBonusFor(RestTypes.XP, xp) : 0; // XP resting bonus
+            bonus_xp = victim != null ? RestMgr.GetRestBonusFor(RestTypes.XP, xp) : 0; // XP resting bonus
 
         LogXPGain packet = new();
 
@@ -6119,12 +6095,12 @@ public partial class Player : Unit
 
     public void SetSemaphoreTeleportNear(bool semphsetting)
     {
-        _semaphoreTeleportNear = semphsetting;
+        IsBeingTeleportedNear = semphsetting;
     }
 
     public void SetSemaphoreTeleportFar(bool semphsetting)
     {
-        _semaphoreTeleportFar = semphsetting;
+        IsBeingTeleportedFar = semphsetting;
     }
 
     public void UnlockReagentBank()
@@ -6957,6 +6933,54 @@ public partial class Player : Unit
         SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.CovenantID), covenantId);
     }
 
+    public bool MeetsChrCustomizationReq(ChrCustomizationReqRecord req, PlayerClass playerClass, bool checkRequiredDependentChoices, List<ChrCustomizationChoice> selectedChoices)
+    {
+        if (!req.GetFlags().HasFlag(ChrCustomizationReqFlag.HasRequirements))
+            return true;
+
+        if (req.ClassMask != 0 && (req.ClassMask & (1 << ((int)playerClass - 1))) == 0)
+            return false;
+
+        if (req.AchievementID != 0 /*&& !HasAchieved(req->AchievementID)*/)
+            return false;
+
+        if (req.ItemModifiedAppearanceID != 0 && !CollectionMgr.HasItemAppearance(req.ItemModifiedAppearanceID).PermAppearance)
+            return false;
+
+        if (req.QuestID != 0)
+        {
+            if (!_player)
+                return false;
+
+            if (!_player.IsQuestRewarded((uint)req.QuestID))
+                return false;
+        }
+
+        if (checkRequiredDependentChoices)
+        {
+            var requiredChoices = Global.DB2Mgr.GetRequiredCustomizationChoices(req.Id);
+
+            if (requiredChoices != null)
+                foreach (var key in requiredChoices.Keys)
+                {
+                    var hasRequiredChoiceForOption = false;
+
+                    foreach (var requiredChoice in requiredChoices[key])
+                        if (selectedChoices.Any(choice => choice.ChrCustomizationChoiceID == requiredChoice))
+                        {
+                            hasRequiredChoiceForOption = true;
+
+                            break;
+                        }
+
+                    if (!hasRequiredChoiceForOption)
+                        return false;
+                }
+        }
+
+        return true;
+    }
+
     private void ApplyCustomConfigs()
     {
         // Adds the extra bag slots for having an authenticator.
@@ -6994,10 +7018,10 @@ public partial class Player : Unit
 
     private void DeleteGarrison()
     {
-        if (_garrison != null)
+        if (Garrison != null)
         {
-            _garrison.Delete();
-            _garrison = null;
+            Garrison.Delete();
+            Garrison = null;
         }
     }
 
@@ -7201,12 +7225,12 @@ public partial class Player : Unit
 
     private void SetCanDelayTeleport(bool setting)
     {
-        _canDelayTeleport = setting;
+        IsCanDelayTeleport = setting;
     }
 
     private void SetDelayedTeleportFlag(bool setting)
     {
-        _hasDelayedTeleport = setting;
+        IsHasDelayedTeleport = setting;
     }
 
     private void UpdateLocalChannels(uint newZone)
@@ -7231,7 +7255,7 @@ public partial class Player : Unit
 
             Channel usedChannel = null;
 
-            foreach (var channel in _channels)
+            foreach (var channel in JoinedChannels)
                 if (channel.GetChannelId() == channelEntry.Id)
                 {
                     usedChannel = channel;
@@ -7637,7 +7661,7 @@ public partial class Player : Unit
 
     private void LeaveLFGChannel()
     {
-        foreach (var i in _channels)
+        foreach (var i in JoinedChannels)
             if (i.IsLFG())
             {
                 i.LeaveChannel(this);
@@ -7873,7 +7897,7 @@ public partial class Player : Unit
         if (!corpse.Create(Location.Map.GenerateLowGuid(HighGuid.Corpse), this))
             return null;
 
-        _corpseLocation = new WorldLocation(Location);
+        CorpseLocation = new WorldLocation(Location);
 
         CorpseFlags flags = 0;
 
@@ -8689,7 +8713,7 @@ public partial class Player : Unit
 
     public void SendSysMessage(string str, params object[] args)
     {
-        new CommandHandler(_session).SendSysMessage(string.Format(str, args));
+        new CommandHandler(Session).SendSysMessage(string.Format(str, args));
     }
 
     public void SendBuyError(BuyResult msg, Creature creature, uint item)

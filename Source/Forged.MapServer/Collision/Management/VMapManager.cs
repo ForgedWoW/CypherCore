@@ -24,15 +24,13 @@ public class VMapManager
     private readonly Dictionary<uint, StaticMapTree> _instanceMapTrees = new();
     private readonly Dictionary<uint, uint> _parentMapData = new();
     private readonly object _loadedModelFilesLock = new();
-    private bool _enableLineOfSightCalc;
-    private bool _enableHeightCalc;
     public string VMapPath { get; }
 
-    public bool IsLineOfSightCalcEnabled => _enableLineOfSightCalc;
+    public bool IsLineOfSightCalcEnabled { get; private set; }
 
-    public bool IsHeightCalcEnabled => _enableHeightCalc;
+    public bool IsHeightCalcEnabled { get; private set; }
 
-    public bool IsMapLoadingEnabled => _enableLineOfSightCalc || _enableHeightCalc;
+    public bool IsMapLoadingEnabled => IsLineOfSightCalcEnabled || IsHeightCalcEnabled;
 
     public VMapManager(IConfiguration configuration, DisableManager disableManager, DB2Manager db2Manager)
     {
@@ -329,12 +327,12 @@ public class VMapManager
 
     public void SetEnableLineOfSightCalc(bool pVal)
     {
-        _enableLineOfSightCalc = pVal;
+        IsLineOfSightCalcEnabled = pVal;
     }
 
     public void SetEnableHeightCalc(bool pVal)
     {
-        _enableHeightCalc = pVal;
+        IsHeightCalcEnabled = pVal;
     }
 
     private Vector3 ConvertPositionToInternalRep(float x, float y, float z)

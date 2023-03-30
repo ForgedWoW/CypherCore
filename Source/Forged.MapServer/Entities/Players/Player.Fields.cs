@@ -25,7 +25,6 @@ public partial class Player
 {
     public PvPInfo PvpInfo;
     private readonly LootFactory _lootFactory;
-    private readonly List<Channel> _channels = new();
     private readonly List<ObjectGuid> _whisperList = new();
 
     //Inventory
@@ -42,8 +41,6 @@ public partial class Player
     private readonly BgData _bgData;
 
     //Groups/Raids
-    private readonly GroupReference _group = new();
-    private readonly GroupReference _originalGroup = new();
     private readonly GroupUpdateCounter[] _groupUpdateSequences = new GroupUpdateCounter[2];
     private readonly Dictionary<uint, uint> _recentInstances = new();
     private readonly Dictionary<uint, long> _instanceResetTimes = new();
@@ -57,9 +54,7 @@ public partial class Player
     private readonly Dictionary<uint, StoredAuraTeleportLocation> _storedAuraTeleportLocations = new();
 
     //Mail
-    private readonly List<Mail> _mail = new();
     private readonly Dictionary<ulong, Item> _mailItems = new();
-    private readonly RestMgr _restMgr;
 
     //Combat
     private readonly int[] _baseRatingValue = new int[(int)CombatRating.Max];
@@ -77,13 +72,9 @@ public partial class Player
     private readonly List<uint> _dfQuests = new();
     private readonly List<uint> _rewardedQuests = new();
     private readonly Dictionary<uint, QuestSaveType> _rewardedQuestsSave = new();
-    private readonly CinematicManager _cinematicMgr;
 
     //Core
-    private readonly WorldSession _session;
     private readonly QuestObjectiveCriteriaManager _questObjectiveCriteriaManager;
-    private readonly WorldLocation _homebind = new();
-    private readonly SceneMgr _sceneMgr;
     private readonly Dictionary<ObjectGuid, Loot> _aeLootView = new();
     private readonly List<LootRoll> _lootRolls = new(); // loot rolls waiting for answer
 
@@ -94,7 +85,6 @@ public partial class Player
     private readonly long _logintime;
     private readonly Dictionary<int, PlayerSpellState> _traitConfigStates = new();
     private readonly Dictionary<byte, ActionButton> _actionButtons = new();
-    private PlayerSocial _social;
     private uint _weaponProficiency;
     private uint _armorProficiency;
     private uint _currentBuybackSlot;
@@ -103,26 +93,12 @@ public partial class Player
     private uint _arenaTeamIdInvited;
     private long _lastHonorUpdateTime;
     private uint _contestedPvPTimer;
-    private bool _usePvpItemLevels;
-    private PlayerGroup _groupInvite;
-    private GroupUpdateFlags _groupUpdateFlags;
-    private bool _bPassOnGroupLoot;
     private uint _pendingBindId;
     private uint _pendingBindTimer;
 
-    private Difficulty _dungeonDifficulty;
-    private Difficulty _raidDifficulty;
-    private Difficulty _legacyRaidDifficulty;
     private uint _lastFallTime;
     private float _lastFallZ;
-    private WorldLocation _teleportDest;
-    private uint? _teleportInstanceId;
-    private TeleportToOptions _teleportOptions;
-    private bool _semaphoreTeleportNear;
-    private bool _semaphoreTeleportFar;
     private PlayerDelayedOperations _delayedOperations;
-    private bool _canDelayTeleport;
-    private bool _hasDelayedTeleport;
 
     private PlayerUnderwaterState _mirrorTimerFlags;
     private PlayerUnderwaterState _mirrorTimerFlagsLast;
@@ -137,19 +113,13 @@ public partial class Player
     private long _nextMailDelivereTime;
 
     //Pets
-    private PetStable _petStable;
-    private uint _temporaryUnsummonedPetNumber;
-    private uint _lastpetnumber;
 
     // Player summoning
     private long _summonExpire;
     private WorldLocation _summonLocation;
     private uint _summonInstanceId;
-    private bool _canParry;
-    private bool _canBlock;
     private bool _canTitanGrip;
     private uint _titanGripPenaltySpellId;
-    private uint _deathTimer;
     private long _deathExpireTime;
     private byte _swingErrorMsg;
     private uint _combatExitTime;
@@ -163,28 +133,15 @@ public partial class Player
     private bool _seasonalQuestChanged;
     private long _lastDailyQuestTime;
 
-    private Garrison _garrison;
-
     // variables to save health and mana before duel and restore them after duel
     private ulong _healthBeforeDuel;
     private uint _manaBeforeDuel;
 
-    private bool _advancedCombatLoggingEnabled;
-
-    private WorldLocation _corpseLocation;
-
     private long _createTime;
-    private PlayerCreateMode _createMode;
 
-    private uint _nextSave;
-    private byte _cinematic;
-
-    private uint _movie;
     private bool _customizationsChanged;
 
     private SpecializationInfo _specializationInfo;
-    private TeamFaction _team;
-    private ReputationMgr _reputationMgr;
 
     private PlayerExtraFlags _extraFlags;
     private uint _zoneUpdateId;
@@ -195,7 +152,6 @@ public partial class Player
     private byte _fishingSteps;
 
     // Recall position
-    private WorldLocation _recallLocation;
     private uint _recallInstanceId;
     private uint _homebindAreaId;
     private uint _homebindTimer;
@@ -204,14 +160,10 @@ public partial class Player
 
     private PlayerAchievementMgr _AchievementSys;
 
-    private ulong _guildIdInvited;
-    private DeclinedName _declinedname;
     private Runes _runes = new();
     private uint _hostileReferenceCheckTimer;
     private uint _drunkTimer;
     private long _lastTick;
-    private uint _playedTimeTotal;
-    private uint _playedTimeLevel;
     private ObjectGuid _playerSharingQuest;
     private uint _sharedQuestId;
     private uint _ingametime;
@@ -248,9 +200,9 @@ public partial class Player
 
     public bool IsDebugAreaTriggers { get; set; }
 
-    public WorldSession Session => _session;
+    public WorldSession Session { get; }
 
-    public PlayerSocial Social => _social;
+    public PlayerSocial Social { get; private set; }
 
     private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
     {

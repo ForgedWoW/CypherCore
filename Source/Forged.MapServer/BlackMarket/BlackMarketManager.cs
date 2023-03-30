@@ -32,11 +32,10 @@ public class BlackMarketManager
     private readonly AccountManager _accountManager;
     private readonly Dictionary<uint, BlackMarketEntry> _auctions = new();
     private readonly Dictionary<uint, BlackMarketTemplate> _templates = new();
-    private long _lastUpdate;
 
 
     public bool IsEnabled => _configuration.GetDefaultValue("BlackMarket.Enabled", true);
-    public long LastUpdate => _lastUpdate;
+    public long LastUpdate { get; private set; }
 
     public BlackMarketManager(IConfiguration configuration, WorldDatabase worldDatabase, CharacterDatabase characterDatabase,
                               ObjectAccessor objectAccessor, Realm realm, GameObjectManager objectManager,
@@ -98,7 +97,7 @@ public class BlackMarketManager
             return;
         }
 
-        _lastUpdate = GameTime.GetGameTime(); //Set update time before loading
+        LastUpdate = GameTime.GetGameTime(); //Set update time before loading
 
         SQLTransaction trans = new();
 
@@ -143,7 +142,7 @@ public class BlackMarketManager
         }
 
         if (updateTime)
-            _lastUpdate = now;
+            LastUpdate = now;
 
         _characterDatabase.CommitTransaction(trans);
     }
@@ -196,7 +195,7 @@ public class BlackMarketManager
 
     public void BuildItemsResponse(BlackMarketRequestItemsResult packet, Player player)
     {
-        packet.LastUpdateID = (int)_lastUpdate;
+        packet.LastUpdateID = (int)LastUpdate;
 
         foreach (var pair in _auctions)
         {

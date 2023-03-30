@@ -164,25 +164,23 @@ public class SpellImplicitTargetInfo
         new(SpellTargetObjectTypes.None, SpellTargetReferenceTypes.None, SpellTargetSelectionCategories.Nyi, SpellTargetCheckTypes.Default, SpellTargetDirectionTypes.None),             // 152
     };
 
-    private readonly Targets _target;
-
     public bool IsArea => SelectionCategory == SpellTargetSelectionCategories.Area || SelectionCategory == SpellTargetSelectionCategories.Cone;
 
-    public SpellTargetSelectionCategories SelectionCategory => _data[(int)_target].SelectionCategory;
+    public SpellTargetSelectionCategories SelectionCategory => _data[(int)Target].SelectionCategory;
 
-    public SpellTargetReferenceTypes ReferenceType => _data[(int)_target].ReferenceType;
+    public SpellTargetReferenceTypes ReferenceType => _data[(int)Target].ReferenceType;
 
-    public SpellTargetObjectTypes ObjectType => _data[(int)_target].ObjectType;
+    public SpellTargetObjectTypes ObjectType => _data[(int)Target].ObjectType;
 
-    public SpellTargetCheckTypes CheckType => _data[(int)_target].SelectionCheckType;
+    public SpellTargetCheckTypes CheckType => _data[(int)Target].SelectionCheckType;
 
-    private SpellTargetDirectionTypes DirectionType => _data[(int)_target].DirectionType;
+    private SpellTargetDirectionTypes DirectionType => _data[(int)Target].DirectionType;
 
-    public Targets Target => _target;
+    public Targets Target { get; }
 
     public SpellImplicitTargetInfo(Targets target = 0)
     {
-        _target = target;
+        Target = target;
     }
 
     public float CalcDirectionAngle()

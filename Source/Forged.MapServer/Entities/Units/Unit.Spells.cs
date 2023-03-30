@@ -25,9 +25,9 @@ public partial class Unit
 {
     public virtual bool IsAffectedByDiminishingReturns => (CharmerOrOwnerPlayerOrPlayerItself != null);
 
-    public bool CanInstantCast => _instantCast;
+    public bool CanInstantCast { get; private set; }
 
-    public SpellHistory SpellHistory => _spellHistory;
+    public SpellHistory SpellHistory { get; private set; }
 
     public uint SchoolImmunityMask
     {
@@ -100,7 +100,7 @@ public partial class Unit
     }
 
     // Auras
-    public List<Aura> SingleCastAuras => _scAuras;
+    public List<Aura> SingleCastAuras { get; } = new();
 
     public List<Aura> OwnedAurasList => _ownedAuras.Auras;
 
@@ -128,7 +128,7 @@ public partial class Unit
 
     public void SetInstantCast(bool set)
     {
-        _instantCast = set;
+        CanInstantCast = set;
     }
 
     public double SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
@@ -3136,9 +3136,9 @@ public partial class Unit
             }
 
         // single target auras at other targets
-        for (var i = 0; i < _scAuras.Count; i++)
+        for (var i = 0; i < SingleCastAuras.Count; i++)
         {
-            var aura = _scAuras[i];
+            var aura = SingleCastAuras[i];
 
             if (aura.OwnerAsUnit != this && (!onPhaseChange || !aura.OwnerAsUnit.Location.InSamePhase(this)))
                 aura.Remove();
@@ -3901,7 +3901,7 @@ public partial class Unit
         if (aura.IsSingleTarget)
         {
             // register single target aura
-            caster._scAuras.Add(aura);
+            caster.SingleCastAuras.Add(aura);
 
             Queue<Aura> aurasSharingLimit = new();
 

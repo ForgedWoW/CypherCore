@@ -65,7 +65,6 @@ public class WorldSession : IDisposable
     private readonly ConcurrentQueue<WorldPacket> _inPlaceQueue = new();
     private readonly ConcurrentQueue<WorldPacket> _threadSafeQueue = new();
 
-    private readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
     private readonly AsyncCallbackProcessor<TransactionCallback> _transactionCallbacks = new();
     private readonly AsyncCallbackProcessor<ISqlCallback> _queryHolderProcessor = new();
 
@@ -146,7 +145,7 @@ public class WorldSession : IDisposable
 
     public bool IsLogingOut => _logoutTime != 0 || PlayerLogout;
     public ulong ConnectToInstanceKey => _instanceConnectKey.Raw;
-    public AsyncCallbackProcessor<QueryCallback> QueryProcessor => _queryProcessor;
+    public AsyncCallbackProcessor<QueryCallback> QueryProcessor { get; } = new();
 
     public RBACData RBACData { get; private set; }
 
@@ -1239,7 +1238,7 @@ public class WorldSession : IDisposable
 
     private void ProcessQueryCallbacks()
     {
-        _queryProcessor.ProcessReadyCallbacks();
+        QueryProcessor.ProcessReadyCallbacks();
         _transactionCallbacks.ProcessReadyCallbacks();
         _queryHolderProcessor.ProcessReadyCallbacks();
     }

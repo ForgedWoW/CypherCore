@@ -35,7 +35,7 @@ public class GuildAchievementMgr : AchievementManager
 
         var guid = _owner.GetGUID();
 
-        foreach (var iter in _completedAchievements)
+        foreach (var iter in CompletedAchievements)
         {
             GuildAchievementDeleted guildAchievementDeleted = new()
             {
@@ -47,8 +47,8 @@ public class GuildAchievementMgr : AchievementManager
             SendPacket(guildAchievementDeleted);
         }
 
-        _achievementPoints = 0;
-        _completedAchievements.Clear();
+        AchievementPoints = 0;
+        CompletedAchievements.Clear();
         DeleteFromDB(guid);
     }
 
@@ -80,7 +80,7 @@ public class GuildAchievementMgr : AchievementManager
                 if (achievement == null)
                     continue;
 
-                if (_completedAchievements.TryGetValue(achievementid, out var ca))
+                if (CompletedAchievements.TryGetValue(achievementid, out var ca))
                 {
                     ca.Date = achievementResult.Read<long>(1);
                     var guids = new StringArray(achievementResult.Read<string>(2), ',');
@@ -92,7 +92,7 @@ public class GuildAchievementMgr : AchievementManager
 
                     ca.Changed = false;
 
-                    _achievementPoints += achievement.Points;
+                    AchievementPoints += achievement.Points;
                 }
             } while (achievementResult.NextRow());
 
@@ -142,7 +142,7 @@ public class GuildAchievementMgr : AchievementManager
         PreparedStatement stmt;
         StringBuilder guidstr = new();
 
-        foreach (var pair in _completedAchievements)
+        foreach (var pair in CompletedAchievements)
         {
             if (!pair.Value.Changed)
                 continue;
@@ -190,7 +190,7 @@ public class GuildAchievementMgr : AchievementManager
     {
         AllGuildAchievements allGuildAchievements = new();
 
-        foreach (var pair in _completedAchievements)
+        foreach (var pair in CompletedAchievements)
         {
             var achievement = VisibleAchievementCheck(pair);
 
@@ -278,7 +278,7 @@ public class GuildAchievementMgr : AchievementManager
 
     public void SendAchievementMembers(Player receiver, uint achievementId)
     {
-        var achievementData = _completedAchievements.LookupByKey(achievementId);
+        var achievementData = CompletedAchievements.LookupByKey(achievementId);
 
         if (achievementData != null)
         {
@@ -336,13 +336,13 @@ public class GuildAchievementMgr : AchievementManager
                 }
         }
 
-        _completedAchievements[achievement.Id] = ca;
+        CompletedAchievements[achievement.Id] = ca;
 
         if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
             Global.AchievementMgr.SetRealmCompleted(achievement);
 
         if (!achievement.Flags.HasAnyFlag(AchievementFlags.TrackingFlag))
-            _achievementPoints += achievement.Points;
+            AchievementPoints += achievement.Points;
 
         UpdateCriteria(CriteriaType.EarnAchievement, achievement.Id, 0, 0, null, referencePlayer);
         UpdateCriteria(CriteriaType.EarnAchievementPoints, achievement.Points, 0, 0, null, referencePlayer);

@@ -208,8 +208,8 @@ public partial class Player
         _dailyQuestChanged = false;
         _lastDailyQuestTime = 0;
 
-        if (_garrison != null)
-            _garrison.ResetFollowerActivationLimit();
+        if (Garrison != null)
+            Garrison.ResetFollowerActivationLimit();
     }
 
     public void ResetWeeklyQuestStatus()

@@ -356,7 +356,6 @@ public class SpellEffectInfo
 
 
     private readonly SpellInfo _spellInfo;
-    private readonly ImmunityInfo _immunityInfo;
 
     public bool IsTargetingArea => TargetA.IsArea || TargetB.IsArea;
 
@@ -390,7 +389,7 @@ public class SpellEffectInfo
 
     public SpellTargetObjectTypes UsedTargetObjectType => _data[(int)Effect].UsedTargetObjectType;
 
-    public ImmunityInfo ImmunityInfo => _immunityInfo;
+    public ImmunityInfo ImmunityInfo { get; }
 
     public SpellEffectInfo(SpellInfo spellInfo, SpellEffectRecord effect = null)
     {
@@ -430,7 +429,7 @@ public class SpellEffectInfo
 
         ImplicitTargetConditions = null;
 
-        _immunityInfo = new ImmunityInfo();
+        ImmunityInfo = new ImmunityInfo();
     }
 
     public bool IsEffect()

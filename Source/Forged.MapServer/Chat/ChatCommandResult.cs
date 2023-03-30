@@ -7,27 +7,25 @@ namespace Forged.MapServer.Chat;
 
 public struct ChatCommandResult
 {
-    private bool _result;
     private readonly dynamic _value;
-    private string _errorMessage;
 
     public ChatCommandResult(string _value = "")
     {
-        _result = true;
+        IsSuccessful = true;
         this._value = _value;
-        _errorMessage = null;
+        ErrorMessage = null;
     }
 
-    public bool IsSuccessful => _result;
+    public bool IsSuccessful { get; private set; }
 
-    public bool HasErrorMessage => !_errorMessage.IsEmpty();
+    public bool HasErrorMessage => !ErrorMessage.IsEmpty();
 
-    public string ErrorMessage => _errorMessage;
+    public string ErrorMessage { get; private set; }
 
     public void SetErrorMessage(string _value)
     {
-        _result = false;
-        _errorMessage = _value;
+        IsSuccessful = false;
+        ErrorMessage = _value;
     }
 
     public static ChatCommandResult FromErrorMessage(string str)

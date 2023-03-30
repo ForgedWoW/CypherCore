@@ -12,31 +12,23 @@ public partial class Player
 {
     public bool IsUsingLfg => Global.LFGMgr.GetState(GUID) != LfgState.None;
 
-    public PlayerGroup GroupInvite
-    {
-        get => _groupInvite;
-        set => _groupInvite = value;
-    }
+    public PlayerGroup GroupInvite { get; set; }
 
-    public PlayerGroup Group => _group.Target;
+    public PlayerGroup Group => GroupRef.Target;
 
-    public GroupReference GroupRef => _group;
+    public GroupReference GroupRef { get; } = new();
 
-    public byte SubGroup => _group.SubGroup;
+    public byte SubGroup => GroupRef.SubGroup;
 
-    public GroupUpdateFlags GroupUpdateFlag => _groupUpdateFlags;
+    public GroupUpdateFlags GroupUpdateFlag { get; private set; }
 
-    public PlayerGroup OriginalGroup => _originalGroup.Target;
+    public PlayerGroup OriginalGroup => OriginalGroupRef.Target;
 
-    public GroupReference OriginalGroupRef => _originalGroup;
+    public GroupReference OriginalGroupRef { get; } = new();
 
-    public byte OriginalSubGroup => _originalGroup.SubGroup;
+    public byte OriginalSubGroup => OriginalGroupRef.SubGroup;
 
-    public bool PassOnGroupLoot
-    {
-        get => _bPassOnGroupLoot;
-        set => _bPassOnGroupLoot = value;
-    }
+    public bool PassOnGroupLoot { get; set; }
 
     public bool InRandomLfgDungeon
     {
@@ -113,21 +105,21 @@ public partial class Player
         //we must move references from m_group to m_originalGroup
         SetOriginalGroup(Group, SubGroup);
 
-        _group.Unlink();
-        _group.Link(group, this);
-        _group.SubGroup = subgroup;
+        GroupRef.Unlink();
+        GroupRef.Link(group, this);
+        GroupRef.SubGroup = subgroup;
     }
 
     public void RemoveFromBattlegroundOrBattlefieldRaid()
     {
         //remove existing reference
-        _group.Unlink();
+        GroupRef.Unlink();
         var group = OriginalGroup;
 
         if (group)
         {
-            _group.Link(group, this);
-            _group.SubGroup = OriginalSubGroup;
+            GroupRef.Link(group, this);
+            GroupRef.SubGroup = OriginalSubGroup;
         }
 
         SetOriginalGroup(null);
@@ -137,12 +129,12 @@ public partial class Player
     {
         if (!group)
         {
-            _originalGroup.Unlink();
+            OriginalGroupRef.Unlink();
         }
         else
         {
-            _originalGroup.Link(group, this);
-            _originalGroup.SubGroup = subgroup;
+            OriginalGroupRef.Link(group, this);
+            OriginalGroupRef.SubGroup = subgroup;
         }
     }
 
@@ -167,12 +159,12 @@ public partial class Player
     {
         if (!group)
         {
-            _group.Unlink();
+            GroupRef.Unlink();
         }
         else
         {
-            _group.Link(group, this);
-            _group.SubGroup = subgroup;
+            GroupRef.Link(group, this);
+            GroupRef.SubGroup = subgroup;
         }
 
         UpdateObjectVisibility(false);
@@ -223,12 +215,12 @@ public partial class Player
 
     public void SetGroupUpdateFlag(GroupUpdateFlags flag)
     {
-        _groupUpdateFlags |= flag;
+        GroupUpdateFlag |= flag;
     }
 
     public void RemoveGroupUpdateFlag(GroupUpdateFlags flag)
     {
-        _groupUpdateFlags &= ~flag;
+        GroupUpdateFlag &= ~flag;
     }
 
     public bool IsGroupVisibleFor(Player p)
@@ -325,7 +317,7 @@ public partial class Player
 
     private void SendUpdateToOutOfRangeGroupMembers()
     {
-        if (_groupUpdateFlags == GroupUpdateFlags.None)
+        if (GroupUpdateFlag == GroupUpdateFlags.None)
             return;
 
         var group = Group;
@@ -333,7 +325,7 @@ public partial class Player
         if (group)
             group.UpdatePlayerOutOfRange(this);
 
-        _groupUpdateFlags = GroupUpdateFlags.None;
+        GroupUpdateFlag = GroupUpdateFlags.None;
 
         var pet = CurrentPet;
 

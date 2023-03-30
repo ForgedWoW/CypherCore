@@ -9,30 +9,28 @@ namespace Forged.MapServer.Spells;
 
 public class SpellEvent : BasicEvent
 {
-    private readonly Spell _spell;
+    public override bool IsDeletable => Spell.IsDeletable;
 
-    public override bool IsDeletable => _spell.IsDeletable;
-
-    public Spell Spell => _spell;
+    public Spell Spell { get; }
 
     public SpellEvent(Spell spell)
     {
-        _spell = spell;
+        Spell = spell;
     }
 
     public override bool Execute(ulong etime, uint pTime)
     {
         // update spell if it is not finished
-        if (_spell.State != SpellState.Finished)
-            _spell.Update(pTime);
+        if (Spell.State != SpellState.Finished)
+            Spell.Update(pTime);
 
         // check spell state to process
-        switch (_spell.State)
+        switch (Spell.State)
         {
             case SpellState.Finished:
             {
                 // spell was finished, check deletable state
-                if (_spell.IsDeletable)
+                if (Spell.IsDeletable)
                     // check, if we do have unfinished triggered spells
                     return true; // spell is deletable, finish event
 
@@ -42,16 +40,16 @@ public class SpellEvent : BasicEvent
             case SpellState.Delayed:
             {
                 // first, check, if we have just started
-                if (_spell.DelayStart != 0)
+                if (Spell.DelayStart != 0)
                 {
                     // run the spell handler and think about what we can do next
-                    var tOffset = etime - _spell.DelayStart;
-                    var nOffset = _spell.HandleDelayed(tOffset);
+                    var tOffset = etime - Spell.DelayStart;
+                    var nOffset = Spell.HandleDelayed(tOffset);
 
                     if (nOffset != 0)
                     {
                         // re-add us to the queue
-                        _spell.Caster.Events.AddEvent(this, TimeSpan.FromMilliseconds(_spell.DelayStart + nOffset), false);
+                        Spell.Caster.Events.AddEvent(this, TimeSpan.FromMilliseconds(Spell.DelayStart + nOffset), false);
 
                         return false; // event not complete
                     }
@@ -61,12 +59,12 @@ public class SpellEvent : BasicEvent
                 else
                 {
                     // delaying had just started, record the moment
-                    _spell.DelayStart = etime;
+                    Spell.DelayStart = etime;
                     // handle effects on caster if the spell has travel time but also affects the caster in some way
-                    var nOffset = _spell.HandleDelayed(0);
+                    var nOffset = Spell.HandleDelayed(0);
 
                     // re-plan the event for the delay moment
-                    _spell.Caster.Events.AddEvent(this, TimeSpan.FromMilliseconds(etime + nOffset), false);
+                    Spell.Caster.Events.AddEvent(this, TimeSpan.FromMilliseconds(etime + nOffset), false);
 
                     return false; // event not complete
                 }
@@ -76,7 +74,7 @@ public class SpellEvent : BasicEvent
         }
 
         // spell processing not complete, plan event on the next update interval
-        _spell.Caster.Events.AddEvent(this, TimeSpan.FromMilliseconds(etime + 1), false);
+        Spell.Caster.Events.AddEvent(this, TimeSpan.FromMilliseconds(etime + 1), false);
 
         return false; // event not complete
     }
@@ -84,7 +82,7 @@ public class SpellEvent : BasicEvent
     public override void Abort(ulong eTime)
     {
         // oops, the spell we try to do is aborted
-        if (_spell.State != SpellState.Finished)
-            _spell.Cancel();
+        if (Spell.State != SpellState.Finished)
+            Spell.Cancel();
     }
 }

@@ -65,11 +65,9 @@ public class WorldManager
     private readonly MultiMap<ObjectGuid, WorldSession> _sessionsByBnetGuid = new();
     private readonly Dictionary<uint, long> _disconnects = new();
     private readonly Dictionary<string, int> _worldVariables = new();
-    private readonly List<string> _motd = new();
     private readonly List<WorldSession> _queuedPlayer = new();
     private readonly ConcurrentQueue<WorldSession> _addSessQueue = new();
     private readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
-    private readonly WorldUpdateTime _worldUpdateTime;
     private readonly object _guidAlertLock = new();
     private readonly LimitedThreadTaskManager _taskManager = new(10);
     private AccountManager _accountManager;
@@ -81,59 +79,32 @@ public class WorldManager
     private WorldStateManager _worldStateManager;
     private GameEventManager _eventManager;
 
-    private uint _shutdownTimer;
     private ShutdownMask _shutdownMask;
     private ShutdownExitCode _exitCode;
 
-    private CleaningFlags _cleaningFlags;
-
-    private float _maxVisibleDistanceOnContinents = SharedConst.DefaultVisibilityDistance;
-    private float _maxVisibleDistanceInInstances = SharedConst.DefaultVisibilityInstance;
-    private float _maxVisibleDistanceInBg = SharedConst.DefaultVisibilityBGAreans;
-    private float _maxVisibleDistanceInArenas = SharedConst.DefaultVisibilityBGAreans;
-
-    private int _visibilityNotifyPeriodOnContinents = SharedConst.DefaultVisibilityNotifyPeriod;
-    private int _visibilityNotifyPeriodInInstances = SharedConst.DefaultVisibilityNotifyPeriod;
-    private int _visibilityNotifyPeriodInBg = SharedConst.DefaultVisibilityNotifyPeriod;
-    private int _visibilityNotifyPeriodInArenas = SharedConst.DefaultVisibilityNotifyPeriod;
-
-    private bool _isClosed;
     private long _mailTimer;
     private long _timerExpires;
     private long _blackmarketTimer;
-    private uint _maxActiveSessionCount;
-    private uint _maxQueuedSessionCount;
-    private uint _playerCount;
-    private uint _maxPlayerCount;
-    private uint _playerLimit;
     private AccountTypes _allowedSecurityLevel;
-    private Locale _defaultDbcLocale;       // from config for one from loaded DBC locales
     private BitSet _availableDbcLocaleMask; // by loaded DBC
 
     // scheduled reset times
-    private long _nextDailyQuestReset;
-    private long _nextWeeklyQuestReset;
-    private long _nextMonthlyQuestReset;
     private long _nextRandomBgReset;
     private long _nextCalendarOldEventsDeletionTime;
     private long _nextGuildReset;
     private long _nextCurrencyReset;
 
-    private string _dataPath;
-
     private string _guidWarningMsg;
     private string _alertRestartReason;
 
-    private bool _guidWarn;
-    private bool _guidAlert;
     private uint _warnDiff;
     private long _warnShutdownTime;
 
     private uint _maxSkill;
 
-    public bool IsClosed => _isClosed;
+    public bool IsClosed { get; private set; }
 
-    public List<string> Motd => _motd;
+    public List<string> Motd { get; } = new();
 
     public List<WorldSession> AllSessions => _sessions.Values.ToList();
 
@@ -144,13 +115,13 @@ public class WorldManager
     public int QueuedSessionCount => _queuedPlayer.Count;
 
     // Get the maximum number of parallel sessions on the server since last reboot
-    public uint MaxQueuedSessionCount => _maxQueuedSessionCount;
+    public uint MaxQueuedSessionCount { get; private set; }
 
-    public uint MaxActiveSessionCount => _maxActiveSessionCount;
+    public uint MaxActiveSessionCount { get; private set; }
 
-    public uint PlayerCount => _playerCount;
+    public uint PlayerCount { get; private set; }
 
-    public uint MaxPlayerCount => _maxPlayerCount;
+    public uint MaxPlayerCount { get; private set; }
 
     public AccountTypes PlayerSecurityLimit
     {
@@ -166,36 +137,16 @@ public class WorldManager
         }
     }
 
-    public uint PlayerAmountLimit
-    {
-        get => _playerLimit;
-        set => _playerLimit = value;
-    }
+    public uint PlayerAmountLimit { get; set; }
 
     /// Get the path where data (dbc, maps) are stored on disk
-    public string DataPath
-    {
-        get => _dataPath;
-        set => _dataPath = value;
-    }
+    public string DataPath { get; set; }
 
-    public long NextDailyQuestsResetTime
-    {
-        get => _nextDailyQuestReset;
-        set => _nextDailyQuestReset = value;
-    }
+    public long NextDailyQuestsResetTime { get; set; }
 
-    public long NextWeeklyQuestsResetTime
-    {
-        get => _nextWeeklyQuestReset;
-        set => _nextWeeklyQuestReset = value;
-    }
+    public long NextWeeklyQuestsResetTime { get; set; }
 
-    public long NextMonthlyQuestsResetTime
-    {
-        get => _nextMonthlyQuestReset;
-        set => _nextMonthlyQuestReset = value;
-    }
+    public long NextMonthlyQuestsResetTime { get; set; }
 
     public uint ConfigMaxSkillValue
     {
@@ -212,9 +163,9 @@ public class WorldManager
         }
     }
 
-    public bool IsShuttingDown => _shutdownTimer > 0;
+    public bool IsShuttingDown => ShutDownTimeLeft > 0;
 
-    public uint ShutDownTimeLeft => _shutdownTimer;
+    public uint ShutDownTimeLeft { get; private set; }
 
     public int ExitCode => (int)_exitCode;
 
@@ -230,37 +181,33 @@ public class WorldManager
 
     public bool IsFFAPvPRealm => _configuration.GetDefaultValue("GameType", 0) == (int)RealmType.FFAPVP;
 
-    public Locale DefaultDbcLocale => _defaultDbcLocale;
+    public Locale DefaultDbcLocale { get; private set; }
 
     public Realm Realm { get; }
 
-    public float MaxVisibleDistanceOnContinents => _maxVisibleDistanceOnContinents;
+    public float MaxVisibleDistanceOnContinents { get; private set; } = SharedConst.DefaultVisibilityDistance;
 
-    public float MaxVisibleDistanceInInstances => _maxVisibleDistanceInInstances;
+    public float MaxVisibleDistanceInInstances { get; private set; } = SharedConst.DefaultVisibilityInstance;
 
-    public float MaxVisibleDistanceInBG => _maxVisibleDistanceInBg;
+    public float MaxVisibleDistanceInBG { get; private set; } = SharedConst.DefaultVisibilityBGAreans;
 
-    public float MaxVisibleDistanceInArenas => _maxVisibleDistanceInArenas;
+    public float MaxVisibleDistanceInArenas { get; private set; } = SharedConst.DefaultVisibilityBGAreans;
 
-    public int VisibilityNotifyPeriodOnContinents => _visibilityNotifyPeriodOnContinents;
+    public int VisibilityNotifyPeriodOnContinents { get; private set; } = SharedConst.DefaultVisibilityNotifyPeriod;
 
-    public int VisibilityNotifyPeriodInInstances => _visibilityNotifyPeriodInInstances;
+    public int VisibilityNotifyPeriodInInstances { get; private set; } = SharedConst.DefaultVisibilityNotifyPeriod;
 
-    public int VisibilityNotifyPeriodInBG => _visibilityNotifyPeriodInBg;
+    public int VisibilityNotifyPeriodInBG { get; private set; } = SharedConst.DefaultVisibilityNotifyPeriod;
 
-    public int VisibilityNotifyPeriodInArenas => _visibilityNotifyPeriodInArenas;
+    public int VisibilityNotifyPeriodInArenas { get; private set; } = SharedConst.DefaultVisibilityNotifyPeriod;
 
-    public CleaningFlags CleaningFlags
-    {
-        get => _cleaningFlags;
-        set => _cleaningFlags = value;
-    }
+    public CleaningFlags CleaningFlags { get; set; }
 
-    public bool IsGuidWarning => _guidWarn;
+    public bool IsGuidWarning { get; private set; }
 
-    public bool IsGuidAlert => _guidAlert;
+    public bool IsGuidAlert { get; private set; }
 
-    public WorldUpdateTime WorldUpdateTime => _worldUpdateTime;
+    public WorldUpdateTime WorldUpdateTime { get; }
 
     public WorldManager(IConfiguration configuration, LoginDatabase loginDatabase, ScriptManager scriptManager,
                         WorldDatabase worldDatabase, CharacterDatabase characterDatabase, SupportManager supportManager,
@@ -283,7 +230,7 @@ public class WorldManager
 
         _allowedSecurityLevel = AccountTypes.Player;
 
-        _worldUpdateTime = new WorldUpdateTime();
+        WorldUpdateTime = new WorldUpdateTime();
         _warnShutdownTime = GameTime.GetGameTime();
 
         LoadRealmInfo();
@@ -327,7 +274,7 @@ public class WorldManager
 
         Log.Logger.Information("Loading GameObject models...");
 
-        if (!GameObjectModel.LoadGameObjectModelList(_dataPath))
+        if (!GameObjectModel.LoadGameObjectModelList(DataPath))
         {
             Log.Logger.Fatal("Unable to load gameobject models (part of vmaps), objects using WMO models will crash the client - server shutting down!");
             Environment.Exit(1);
@@ -418,7 +365,7 @@ public class WorldManager
 
     public void SetClosed(bool val)
     {
-        _isClosed = val;
+        IsClosed = val;
         _scriptManager.ForEach<IWorldOnOpenStateChange>(p => p.OnOpenStateChange(!val));
     }
 
@@ -436,8 +383,8 @@ public class WorldManager
     {
         _scriptManager.ForEach<IWorldOnMotdChange>(p => p.OnMotdChange(motd));
 
-        _motd.Clear();
-        _motd.AddRange(motd.Split('@'));
+        Motd.Clear();
+        Motd.AddRange(motd.Split('@'));
     }
 
     public void TriggerGuidWarning()
@@ -455,7 +402,7 @@ public class WorldManager
             // Schedule restart for 30 minutes before quiet time, or as long as we have
             _warnShutdownTime = Time.GetLocalHourTimestamp(today, _configuration.GetDefaultValue("Respawn.RestartQuietTime", 3u)) - 1800u;
 
-            _guidWarn = true;
+            IsGuidWarning = true;
             SendGuidWarning();
         }
     }
@@ -466,8 +413,8 @@ public class WorldManager
         lock (_guidAlertLock)
         {
             DoGuidAlertRestart();
-            _guidAlert = true;
-            _guidWarn = false;
+            IsGuidAlert = true;
+            IsGuidWarning = false;
         }
     }
 
@@ -490,27 +437,27 @@ public class WorldManager
     {
         _availableDbcLocaleMask = mask;
 
-        if (_availableDbcLocaleMask == null || !_availableDbcLocaleMask[(int)_defaultDbcLocale])
+        if (_availableDbcLocaleMask == null || !_availableDbcLocaleMask[(int)DefaultDbcLocale])
         {
-            Log.Logger.Fatal($"Unable to load db2 files for {_defaultDbcLocale} locale specified in DBC.Locale config!");
+            Log.Logger.Fatal($"Unable to load db2 files for {DefaultDbcLocale} locale specified in DBC.Locale config!");
             Environment.Exit(1);
         }
     }
 
     public void LoadConfigSettings(bool reload = false)
     {
-        _defaultDbcLocale = (Locale)_configuration.GetDefaultValue("DBC.Locale", 0);
+        DefaultDbcLocale = (Locale)_configuration.GetDefaultValue("DBC.Locale", 0);
 
-        if (_defaultDbcLocale >= Locale.Total || _defaultDbcLocale == Locale.None)
+        if (DefaultDbcLocale >= Locale.Total || DefaultDbcLocale == Locale.None)
         {
             Log.Logger.Error("Incorrect DBC.Locale! Must be >= 0 and < {0} and not {1} (set to 0)", Locale.Total, Locale.None);
-            _defaultDbcLocale = Locale.enUS;
+            DefaultDbcLocale = Locale.enUS;
         }
 
-        Log.Logger.Information("Using {0} DBC Locale", _defaultDbcLocale);
+        Log.Logger.Information("Using {0} DBC Locale", DefaultDbcLocale);
 
         // load update time related configs
-        _worldUpdateTime.LoadFromConfig();
+        WorldUpdateTime.LoadFromConfig();
 
         PlayerAmountLimit = (uint)_configuration.GetDefaultValue("PlayerLimit", 100);
         SetMotd(_configuration.GetDefaultValue("Motd", "Welcome to a Forged Core Server."));
@@ -542,65 +489,65 @@ public class WorldManager
 
         var rateCreatureAggro = _configuration.GetDefaultValue("Rate.Creature.Aggro", 1.0f);
         //visibility on continents
-        _maxVisibleDistanceOnContinents = _configuration.GetDefaultValue("Visibility.Distance.Continents", SharedConst.DefaultVisibilityDistance);
+        MaxVisibleDistanceOnContinents = _configuration.GetDefaultValue("Visibility.Distance.Continents", SharedConst.DefaultVisibilityDistance);
 
-        if (_maxVisibleDistanceOnContinents < 45 * rateCreatureAggro)
+        if (MaxVisibleDistanceOnContinents < 45 * rateCreatureAggro)
         {
             Log.Logger.Error("Visibility.Distance.Continents can't be less max aggro radius {0}", 45 * rateCreatureAggro);
-            _maxVisibleDistanceOnContinents = 45 * rateCreatureAggro;
+            MaxVisibleDistanceOnContinents = 45 * rateCreatureAggro;
         }
-        else if (_maxVisibleDistanceOnContinents > SharedConst.MaxVisibilityDistance)
+        else if (MaxVisibleDistanceOnContinents > SharedConst.MaxVisibilityDistance)
         {
             Log.Logger.Error("Visibility.Distance.Continents can't be greater {0}", SharedConst.MaxVisibilityDistance);
-            _maxVisibleDistanceOnContinents = SharedConst.MaxVisibilityDistance;
+            MaxVisibleDistanceOnContinents = SharedConst.MaxVisibilityDistance;
         }
 
         //visibility in instances
-        _maxVisibleDistanceInInstances = _configuration.GetDefaultValue("Visibility.Distance.Instances", SharedConst.DefaultVisibilityInstance);
+        MaxVisibleDistanceInInstances = _configuration.GetDefaultValue("Visibility.Distance.Instances", SharedConst.DefaultVisibilityInstance);
 
-        if (_maxVisibleDistanceInInstances < 45 * rateCreatureAggro)
+        if (MaxVisibleDistanceInInstances < 45 * rateCreatureAggro)
         {
             Log.Logger.Error("Visibility.Distance.Instances can't be less max aggro radius {0}", 45 * rateCreatureAggro);
-            _maxVisibleDistanceInInstances = 45 * rateCreatureAggro;
+            MaxVisibleDistanceInInstances = 45 * rateCreatureAggro;
         }
-        else if (_maxVisibleDistanceInInstances > SharedConst.MaxVisibilityDistance)
+        else if (MaxVisibleDistanceInInstances > SharedConst.MaxVisibilityDistance)
         {
             Log.Logger.Error("Visibility.Distance.Instances can't be greater {0}", SharedConst.MaxVisibilityDistance);
-            _maxVisibleDistanceInInstances = SharedConst.MaxVisibilityDistance;
+            MaxVisibleDistanceInInstances = SharedConst.MaxVisibilityDistance;
         }
 
         //visibility in BG
-        _maxVisibleDistanceInBg = _configuration.GetDefaultValue("Visibility.Distance.BG", SharedConst.DefaultVisibilityBGAreans);
+        MaxVisibleDistanceInBG = _configuration.GetDefaultValue("Visibility.Distance.BG", SharedConst.DefaultVisibilityBGAreans);
 
-        if (_maxVisibleDistanceInBg < 45 * rateCreatureAggro)
+        if (MaxVisibleDistanceInBG < 45 * rateCreatureAggro)
         {
             Log.Logger.Error($"Visibility.Distance.BG can't be less max aggro radius {45 * rateCreatureAggro}");
-            _maxVisibleDistanceInBg = 45 * rateCreatureAggro;
+            MaxVisibleDistanceInBG = 45 * rateCreatureAggro;
         }
-        else if (_maxVisibleDistanceInBg > SharedConst.MaxVisibilityDistance)
+        else if (MaxVisibleDistanceInBG > SharedConst.MaxVisibilityDistance)
         {
             Log.Logger.Error($"Visibility.Distance.BG can't be greater {SharedConst.MaxVisibilityDistance}");
-            _maxVisibleDistanceInBg = SharedConst.MaxVisibilityDistance;
+            MaxVisibleDistanceInBG = SharedConst.MaxVisibilityDistance;
         }
 
         // Visibility in Arenas
-        _maxVisibleDistanceInArenas = _configuration.GetDefaultValue("Visibility.Distance.Arenas", SharedConst.DefaultVisibilityBGAreans);
+        MaxVisibleDistanceInArenas = _configuration.GetDefaultValue("Visibility.Distance.Arenas", SharedConst.DefaultVisibilityBGAreans);
 
-        if (_maxVisibleDistanceInArenas < 45 * rateCreatureAggro)
+        if (MaxVisibleDistanceInArenas < 45 * rateCreatureAggro)
         {
             Log.Logger.Error($"Visibility.Distance.Arenas can't be less max aggro radius {45 * rateCreatureAggro}");
-            _maxVisibleDistanceInArenas = 45 * rateCreatureAggro;
+            MaxVisibleDistanceInArenas = 45 * rateCreatureAggro;
         }
-        else if (_maxVisibleDistanceInArenas > SharedConst.MaxVisibilityDistance)
+        else if (MaxVisibleDistanceInArenas > SharedConst.MaxVisibilityDistance)
         {
             Log.Logger.Error($"Visibility.Distance.Arenas can't be greater {SharedConst.MaxVisibilityDistance}");
-            _maxVisibleDistanceInArenas = SharedConst.MaxVisibilityDistance;
+            MaxVisibleDistanceInArenas = SharedConst.MaxVisibilityDistance;
         }
 
-        _visibilityNotifyPeriodOnContinents = _configuration.GetDefaultValue("Visibility.Notify.Period.OnContinents", SharedConst.DefaultVisibilityNotifyPeriod);
-        _visibilityNotifyPeriodInInstances = _configuration.GetDefaultValue("Visibility.Notify.Period.InInstances", SharedConst.DefaultVisibilityNotifyPeriod);
-        _visibilityNotifyPeriodInBg = _configuration.GetDefaultValue("Visibility.Notify.Period.InBG", SharedConst.DefaultVisibilityNotifyPeriod);
-        _visibilityNotifyPeriodInArenas = _configuration.GetDefaultValue("Visibility.Notify.Period.InArenas", SharedConst.DefaultVisibilityNotifyPeriod);
+        VisibilityNotifyPeriodOnContinents = _configuration.GetDefaultValue("Visibility.Notify.Period.OnContinents", SharedConst.DefaultVisibilityNotifyPeriod);
+        VisibilityNotifyPeriodInInstances = _configuration.GetDefaultValue("Visibility.Notify.Period.InInstances", SharedConst.DefaultVisibilityNotifyPeriod);
+        VisibilityNotifyPeriodInBG = _configuration.GetDefaultValue("Visibility.Notify.Period.InBG", SharedConst.DefaultVisibilityNotifyPeriod);
+        VisibilityNotifyPeriodInArenas = _configuration.GetDefaultValue("Visibility.Notify.Period.InArenas", SharedConst.DefaultVisibilityNotifyPeriod);
 
         _guidWarningMsg = _configuration.GetDefaultValue("Respawn.WarningMessage", "There will be an unscheduled server restart at 03:00. The server will be available again shortly after.");
         _alertRestartReason = _configuration.GetDefaultValue("Respawn.AlertRestartReason", "Urgent Maintenance");
@@ -609,16 +556,16 @@ public class WorldManager
 
         if (reload)
         {
-            if (dataPath != _dataPath)
-                Log.Logger.Error("DataDir option can't be changed at worldserver.conf reload, using current value ({0}).", _dataPath);
+            if (dataPath != DataPath)
+                Log.Logger.Error("DataDir option can't be changed at worldserver.conf reload, using current value ({0}).", DataPath);
         }
         else
         {
-            _dataPath = dataPath;
-            Log.Logger.Information("Using DataDir {0}", _dataPath);
+            DataPath = dataPath;
+            Log.Logger.Information("Using DataDir {0}", DataPath);
         }
 
-        Log.Logger.Information(@"WORLD: MMap data directory is: {0}\mmaps", _dataPath);
+        Log.Logger.Information(@"WORLD: MMap data directory is: {0}\mmaps", DataPath);
 
         var enableIndoor = _configuration.GetDefaultValue("vmap.EnableIndoorCheck", true);
         var enableLOS = _configuration.GetDefaultValue("vmap.EnableLOS", true);
@@ -674,10 +621,10 @@ public class WorldManager
         UpdateGameTime();
         var currentGameTime = GameTime.GetGameTime();
 
-        _worldUpdateTime.UpdateWithDiff(diff);
+        WorldUpdateTime.UpdateWithDiff(diff);
 
         // Record update if recording set in log and diff is greater then minimum set in log
-        _worldUpdateTime.RecordUpdateTime(GameTime.GetGameTimeMS(), diff, (uint)ActiveSessionCount);
+        WorldUpdateTime.RecordUpdateTime(GameTime.GetGameTimeMS(), diff, (uint)ActiveSessionCount);
         Realm.PopulationLevel = ActiveSessionCount;
 
         // Update the different timers
@@ -767,9 +714,9 @@ public class WorldManager
         }
 
         //Handle session updates when the timer has passed
-        _worldUpdateTime.RecordUpdateTimeReset();
+        WorldUpdateTime.RecordUpdateTimeReset();
         UpdateSessions(diff);
-        _worldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
+        WorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
 
         // <li> Update uptime table
         if (_timers[WorldTimers.UpTime].Passed)
@@ -810,9 +757,9 @@ public class WorldManager
             }
 
         _taskManager.Wait();
-        _worldUpdateTime.RecordUpdateTimeReset();
+        WorldUpdateTime.RecordUpdateTimeReset();
         _mapManager.Update(diff);
-        _worldUpdateTime.RecordUpdateTimeDuration("UpdateMapMgr");
+        WorldUpdateTime.RecordUpdateTimeDuration("UpdateMapMgr");
 
         Global.TerrainMgr.Update(diff); // TPL blocks inside
 
@@ -824,13 +771,13 @@ public class WorldManager
             }
 
         Global.BattlegroundMgr.Update(diff); // TPL Blocks inside
-        _worldUpdateTime.RecordUpdateTimeDuration("UpdateBattlegroundMgr");
+        WorldUpdateTime.RecordUpdateTimeDuration("UpdateBattlegroundMgr");
 
         Global.OutdoorPvPMgr.Update(diff); // TPL Blocks inside
-        _worldUpdateTime.RecordUpdateTimeDuration("UpdateOutdoorPvPMgr");
+        WorldUpdateTime.RecordUpdateTimeDuration("UpdateOutdoorPvPMgr");
 
         Global.BattleFieldMgr.Update(diff); // TPL Blocks inside
-        _worldUpdateTime.RecordUpdateTimeDuration("BattlefieldMgr");
+        WorldUpdateTime.RecordUpdateTimeDuration("BattlefieldMgr");
 
         //- Delete all characters which have been deleted X days before
         if (_timers[WorldTimers.DeleteChars].Passed)
@@ -840,14 +787,14 @@ public class WorldManager
         }
 
         _taskManager.Schedule(() => Global.LFGMgr.Update(diff));
-        _worldUpdateTime.RecordUpdateTimeDuration("UpdateLFGMgr");
+        WorldUpdateTime.RecordUpdateTimeDuration("UpdateLFGMgr");
 
         _taskManager.Schedule(() => Global.GroupMgr.Update(diff));
-        _worldUpdateTime.RecordUpdateTimeDuration("GroupMgr");
+        WorldUpdateTime.RecordUpdateTimeDuration("GroupMgr");
 
         // execute callbacks from sql queries that were queued recently
         _taskManager.Schedule(ProcessQueryCallbacks);
-        _worldUpdateTime.RecordUpdateTimeDuration("ProcessQueryCallbacks");
+        WorldUpdateTime.RecordUpdateTimeDuration("ProcessQueryCallbacks");
 
         // Erase corpses once every 20 minutes
         if (_timers[WorldTimers.Corpses].Passed)
@@ -872,7 +819,7 @@ public class WorldManager
         }
 
         // Check for shutdown warning
-        if (_guidWarn && !_guidAlert)
+        if (IsGuidWarning && !IsGuidAlert)
         {
             _warnDiff += diff;
 
@@ -1210,12 +1157,12 @@ public class WorldManager
         // If the shutdown time is 0, evaluate shutdown on next tick (no message)
         if (time == 0)
         {
-            _shutdownTimer = 1;
+            ShutDownTimeLeft = 1;
         }
         // Else set the shutdown timer and warn users
         else
         {
-            _shutdownTimer = time;
+            ShutDownTimeLeft = time;
             ShutdownMsg(true, null, reason);
         }
 
@@ -1230,13 +1177,13 @@ public class WorldManager
 
         // Display a message every 12 hours, hours, 5 minutes, minute, 5 seconds and finally seconds
         if (show ||
-            (_shutdownTimer < 5 * Time.Minute && (_shutdownTimer % 15) == 0) ||                 // < 5 min; every 15 sec
-            (_shutdownTimer < 15 * Time.Minute && (_shutdownTimer % Time.Minute) == 0) ||       // < 15 min ; every 1 min
-            (_shutdownTimer < 30 * Time.Minute && (_shutdownTimer % (5 * Time.Minute)) == 0) || // < 30 min ; every 5 min
-            (_shutdownTimer < 12 * Time.Hour && (_shutdownTimer % Time.Hour) == 0) ||           // < 12 h ; every 1 h
-            (_shutdownTimer > 12 * Time.Hour && (_shutdownTimer % (12 * Time.Hour)) == 0))      // > 12 h ; every 12 h
+            (ShutDownTimeLeft < 5 * Time.Minute && (ShutDownTimeLeft % 15) == 0) ||                 // < 5 min; every 15 sec
+            (ShutDownTimeLeft < 15 * Time.Minute && (ShutDownTimeLeft % Time.Minute) == 0) ||       // < 15 min ; every 1 min
+            (ShutDownTimeLeft < 30 * Time.Minute && (ShutDownTimeLeft % (5 * Time.Minute)) == 0) || // < 30 min ; every 5 min
+            (ShutDownTimeLeft < 12 * Time.Hour && (ShutDownTimeLeft % Time.Hour) == 0) ||           // < 12 h ; every 1 h
+            (ShutDownTimeLeft > 12 * Time.Hour && (ShutDownTimeLeft % (12 * Time.Hour)) == 0))      // > 12 h ; every 12 h
         {
-            var str = Time.secsToTimeString(_shutdownTimer, TimeFormat.Numeric);
+            var str = Time.secsToTimeString(ShutDownTimeLeft, TimeFormat.Numeric);
 
             if (!reason.IsEmpty())
                 str += " - " + reason;
@@ -1251,14 +1198,14 @@ public class WorldManager
     public uint ShutdownCancel()
     {
         // nothing cancel or too late
-        if (_shutdownTimer == 0 || IsStopped)
+        if (ShutDownTimeLeft == 0 || IsStopped)
             return 0;
 
         var msgid = _shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? ServerMessageType.RestartCancelled : ServerMessageType.ShutdownCancelled;
 
-        var oldTimer = _shutdownTimer;
+        var oldTimer = ShutDownTimeLeft;
         _shutdownMask = 0;
-        _shutdownTimer = 0;
+        ShutDownTimeLeft = 0;
         _exitCode = (byte)ShutdownExitCode.Shutdown; // to default value
         SendServerMessage(msgid);
 
@@ -1345,7 +1292,7 @@ public class WorldManager
         var now = GameTime.GetGameTime();
         var next = GetNextDailyResetTime(now);
 
-        _nextDailyQuestReset = next;
+        NextDailyQuestsResetTime = next;
         SetPersistentWorldVariable(NEXT_DAILY_QUEST_RESET_TIME_VAR_ID, (int)next);
 
         Log.Logger.Information("Daily quests for all characters have been reset.");
@@ -1373,7 +1320,7 @@ public class WorldManager
         var now = GameTime.GetGameTime();
         var next = GetNextWeeklyResetTime(now);
 
-        _nextWeeklyQuestReset = next;
+        NextWeeklyQuestsResetTime = next;
         SetPersistentWorldVariable(NEXT_WEEKLY_QUEST_RESET_TIME_VAR_ID, (int)next);
 
         Log.Logger.Information("Weekly quests for all characters have been reset.");
@@ -1401,7 +1348,7 @@ public class WorldManager
         var now = GameTime.GetGameTime();
         var next = GetNextMonthlyResetTime(now);
 
-        _nextMonthlyQuestReset = next;
+        NextMonthlyQuestsResetTime = next;
 
         Log.Logger.Information("Monthly quests for all characters have been reset.");
     }
@@ -1466,13 +1413,13 @@ public class WorldManager
 
     public void IncreasePlayerCount()
     {
-        _playerCount++;
-        _maxPlayerCount = Math.Max(_maxPlayerCount, _playerCount);
+        PlayerCount++;
+        MaxPlayerCount = Math.Max(MaxPlayerCount, PlayerCount);
     }
 
     public void DecreasePlayerCount()
     {
-        _playerCount--;
+        PlayerCount--;
     }
 
     public void StopNow(ShutdownExitCode exitcode = ShutdownExitCode.Error)
@@ -1515,12 +1462,12 @@ public class WorldManager
         if (_availableDbcLocaleMask[(int)locale])
             return locale;
         else
-            return _defaultDbcLocale;
+            return DefaultDbcLocale;
     }
 
     private void DoGuidWarningRestart()
     {
-        if (_shutdownTimer != 0)
+        if (ShutDownTimeLeft != 0)
             return;
 
         ShutdownServ(1800, ShutdownMask.Restart, ShutdownExitCode.Restart);
@@ -1529,7 +1476,7 @@ public class WorldManager
 
     private void DoGuidAlertRestart()
     {
-        if (_shutdownTimer != 0)
+        if (ShutDownTimeLeft != 0)
             return;
 
         ShutdownServ(300, ShutdownMask.Restart, ShutdownExitCode.Restart, _alertRestartReason);
@@ -1537,7 +1484,7 @@ public class WorldManager
 
     private void SendGuidWarning()
     {
-        if (_shutdownTimer == 0 && _guidWarn && _configuration.GetDefaultValue("Respawn.WarningFrequency", 1800) > 0)
+        if (ShutDownTimeLeft == 0 && IsGuidWarning && _configuration.GetDefaultValue("Respawn.WarningFrequency", 1800) > 0)
             SendServerMessage(ServerMessageType.String, _guidWarningMsg);
 
         _warnDiff = 0;
@@ -1703,7 +1650,7 @@ public class WorldManager
             --sessions;
 
         // accept first in queue
-        if ((_playerLimit == 0 || sessions < _playerLimit) && !_queuedPlayer.Empty())
+        if ((PlayerAmountLimit == 0 || sessions < PlayerAmountLimit) && !_queuedPlayer.Empty())
         {
             var popSess = _queuedPlayer.First();
             popSess.InitializeSession();
@@ -1739,20 +1686,20 @@ public class WorldManager
         var elapsed = (uint)(GameTime.GetGameTime() - lastGameTime);
 
         //- if there is a shutdown timer
-        if (!IsStopped && _shutdownTimer > 0 && elapsed > 0)
+        if (!IsStopped && ShutDownTimeLeft > 0 && elapsed > 0)
         {
             //- ... and it is overdue, stop the world
-            if (_shutdownTimer <= elapsed)
+            if (ShutDownTimeLeft <= elapsed)
             {
                 if (!_shutdownMask.HasAnyFlag(ShutdownMask.Idle) || ActiveAndQueuedSessionCount == 0)
                     IsStopped = true; // exist code already set
                 else
-                    _shutdownTimer = 1; // minimum timer value to wait idle state
+                    ShutDownTimeLeft = 1; // minimum timer value to wait idle state
             }
             //- ... else decrease it and if necessary display a shutdown countdown to the users
             else
             {
-                _shutdownTimer -= elapsed;
+                ShutDownTimeLeft -= elapsed;
 
                 ShutdownMsg();
             }
@@ -1802,9 +1749,9 @@ public class WorldManager
 
     private void InitQuestResetTimes()
     {
-        _nextDailyQuestReset = GetPersistentWorldVariable(NEXT_DAILY_QUEST_RESET_TIME_VAR_ID);
-        _nextWeeklyQuestReset = GetPersistentWorldVariable(NEXT_WEEKLY_QUEST_RESET_TIME_VAR_ID);
-        _nextMonthlyQuestReset = GetPersistentWorldVariable(NEXT_MONTHLY_QUEST_RESET_TIME_VAR_ID);
+        NextDailyQuestsResetTime = GetPersistentWorldVariable(NEXT_DAILY_QUEST_RESET_TIME_VAR_ID);
+        NextWeeklyQuestsResetTime = GetPersistentWorldVariable(NEXT_WEEKLY_QUEST_RESET_TIME_VAR_ID);
+        NextMonthlyQuestsResetTime = GetPersistentWorldVariable(NEXT_MONTHLY_QUEST_RESET_TIME_VAR_ID);
     }
 
     private long GetNextDailyResetTime(long t)
@@ -1844,13 +1791,13 @@ public class WorldManager
     {
         var now = GameTime.GetGameTime();
 
-        if (_nextDailyQuestReset <= now)
+        if (NextDailyQuestsResetTime <= now)
             _taskManager.Schedule(DailyReset);
 
-        if (_nextWeeklyQuestReset <= now)
+        if (NextWeeklyQuestsResetTime <= now)
             _taskManager.Schedule(ResetWeeklyQuests);
 
-        if (_nextMonthlyQuestReset <= now)
+        if (NextMonthlyQuestsResetTime <= now)
             _taskManager.Schedule(ResetMonthlyQuests);
     }
 
@@ -1988,8 +1935,8 @@ public class WorldManager
 
     private void UpdateMaxSessionCounters()
     {
-        _maxActiveSessionCount = Math.Max(_maxActiveSessionCount, (uint)(_sessions.Count - _queuedPlayer.Count));
-        _maxQueuedSessionCount = Math.Max(_maxQueuedSessionCount, (uint)_queuedPlayer.Count);
+        MaxActiveSessionCount = Math.Max(MaxActiveSessionCount, (uint)(_sessions.Count - _queuedPlayer.Count));
+        MaxQueuedSessionCount = Math.Max(MaxQueuedSessionCount, (uint)_queuedPlayer.Count);
     }
 
     private void LoadPersistentWorldVariables()

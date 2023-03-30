@@ -49,32 +49,20 @@ namespace Forged.MapServer.Entities.GameObjects
         private readonly Dictionary<uint, ObjectGuid> _chairListSlots = new();
         private readonly List<ObjectGuid> _skillupList = new();
         private GameObjectTypeBase _goTypeImpl;
-        private GameObjectData _goData;
-        private ulong _spawnId;
         private uint _spellId;
-        private long _respawnTime;      // (secs) time of next respawn (or despawn if GO have owner()),
-        private uint _respawnDelayTime; // (secs) if 0 then current GO state no dependent from timer
         private uint _despawnDelay;
-        private TimeSpan _despawnRespawnTime; // override respawn time after delayed despawn
-        private LootState _lootState;
+        private TimeSpan _despawnRespawnTime;  // override respawn time after delayed despawn
         private ObjectGuid _lootStateUnitGuid; // GUID of the unit passed with SetLootState(LootState, Unit*)
-        private bool _spawnedByDefault;
         private long _restockTime;
 
         private long _cooldownTime; // used as internal reaction delay time store (not state change reaction).
         // For traps this: spell casting cooldown, for doors/buttons: reset time.
 
         private Player _ritualOwner; // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
-        private uint _usetimes;
 
-        private LootModes _lootMode; // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
-        private long _packedRotation;
         private Quaternion _localRotation;
 
-        private GameObjectAI _ai;
-        private bool _respawnCompatibilityMode;
         private ushort _animKitId;
-        private uint _worldEffectId;
         private uint? _gossipMenuId;
 
         private Dictionary<ObjectGuid, PerPlayerState> _perPlayerState;
@@ -119,9 +107,9 @@ namespace Forged.MapServer.Entities.GameObjects
         {
             get
             {
-                if (_spawnId != 0)
+                if (SpawnId != 0)
                 {
-                    var goOverride = ObjectManager.GetGameObjectOverride(_spawnId);
+                    var goOverride = ObjectManager.GetGameObjectOverride(SpawnId);
 
                     if (goOverride != null)
                         return goOverride;
@@ -214,11 +202,7 @@ namespace Forged.MapServer.Entities.GameObjects
             set => _linkedTrap = value.GUID;
         }
 
-        public uint WorldEffectID
-        {
-            get => _worldEffectId;
-            set => _worldEffectId = value;
-        }
+        public uint WorldEffectID { get; set; }
 
         public uint GossipMenuId
         {
@@ -236,27 +220,27 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public GameObjectTemplateAddon TemplateAddon => GoTemplateAddonProtected;
 
-        public GameObjectData GameObjectData => _goData;
+        public GameObjectData GameObjectData { get; private set; }
 
         public GameObjectValue GoValue => GoValueProtected;
 
-        public ulong SpawnId => _spawnId;
+        public ulong SpawnId { get; private set; }
 
         public Quaternion LocalRotation => _localRotation;
 
-        public long PackedLocalRotation => _packedRotation;
+        public long PackedLocalRotation { get; private set; }
 
         public uint SpellId
         {
             get => _spellId;
             set
             {
-                _spawnedByDefault = false; // all summoned object is despawned after delay
+                IsSpawnedByDefault = false; // all summoned object is despawned after delay
                 _spellId = value;
             }
         }
 
-        public long RespawnTime => _respawnTime;
+        public long RespawnTime { get; private set; }
 
         public long RespawnTimeEx
         {
@@ -264,20 +248,20 @@ namespace Forged.MapServer.Entities.GameObjects
             {
                 var now = GameTime.GetGameTime();
 
-                if (_respawnTime > now)
-                    return _respawnTime;
+                if (RespawnTime > now)
+                    return RespawnTime;
                 else
                     return now;
             }
         }
 
-        public bool IsSpawned => _respawnDelayTime == 0 ||
-                                 (_respawnTime > 0 && !_spawnedByDefault) ||
-                                 (_respawnTime == 0 && _spawnedByDefault);
+        public bool IsSpawned => RespawnDelay == 0 ||
+                                 (RespawnTime > 0 && !IsSpawnedByDefault) ||
+                                 (RespawnTime == 0 && IsSpawnedByDefault);
 
-        public bool IsSpawnedByDefault => _spawnedByDefault;
+        public bool IsSpawnedByDefault { get; private set; }
 
-        public uint RespawnDelay => _respawnDelayTime;
+        public uint RespawnDelay { get; private set; }
 
         public GameObjectTypes GoType
         {
@@ -287,17 +271,13 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public GameObjectState GoState => (GameObjectState)(sbyte)GameObjectFieldData.State;
 
-        public LootState LootState => _lootState;
+        public LootState LootState { get; private set; }
 
-        public LootModes LootMode
-        {
-            get => _lootMode;
-            private set => _lootMode = value;
-        }
+        public LootModes LootMode { get; private set; }
 
-        public uint UseCount => _usetimes;
+        public uint UseCount { get; private set; }
 
-        public GameObjectAI AI => _ai;
+        public GameObjectAI AI { get; private set; }
 
         public uint DisplayId
         {
@@ -310,11 +290,7 @@ namespace Forged.MapServer.Entities.GameObjects
         }
 
         // There's many places not ready for dynamic spawns. This allows them to live on for now.
-        public bool RespawnCompatibilityMode
-        {
-            get => _respawnCompatibilityMode;
-            private set => _respawnCompatibilityMode = value;
-        }
+        public bool RespawnCompatibilityMode { get; private set; }
 
         public uint GoArtKit
         {
@@ -322,7 +298,7 @@ namespace Forged.MapServer.Entities.GameObjects
             set
             {
                 SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.ArtKit), value);
-                var data = ObjectManager.GetGameObjectData(_spawnId);
+                var data = ObjectManager.GetGameObjectData(SpawnId);
 
                 if (data != null)
                     data.ArtKit = value;
@@ -356,10 +332,10 @@ namespace Forged.MapServer.Entities.GameObjects
             UpdateFlag.Stationary = true;
             UpdateFlag.Rotation = true;
 
-            _respawnDelayTime = 300;
+            RespawnDelay = 300;
             _despawnDelay = 0;
-            _lootState = LootState.NotReady;
-            _spawnedByDefault = true;
+            LootState = LootState.NotReady;
+            IsSpawnedByDefault = true;
 
             ResetLootMode(); // restore default loot mode
             StationaryPosition = new Position();
@@ -369,7 +345,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public override void Dispose()
         {
-            _ai = null;
+            AI = null;
             Model = null;
 
             base.Dispose();
@@ -377,12 +353,12 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public bool AIM_Initialize()
         {
-            _ai = AISelector.SelectGameObjectAI(this);
+            AI = AISelector.SelectGameObjectAI(this);
 
-            if (_ai == null)
+            if (AI == null)
                 return false;
 
-            _ai.InitializeAI();
+            AI.InitializeAI();
 
             return true;
         }
@@ -404,8 +380,8 @@ namespace Forged.MapServer.Entities.GameObjects
 
                 Location.Map.ObjectsStore.TryAdd(GUID, this);
 
-                if (_spawnId != 0)
-                    Location.Map.GameObjectBySpawnIdStore.Add(_spawnId, this);
+                if (SpawnId != 0)
+                    Location.Map.GameObjectBySpawnIdStore.Add(SpawnId, this);
 
                 // The state can be changed after GameObject.Create but before GameObject.AddToWorld
                 var toggledState = GoType == GameObjectTypes.Chest ? LootState == LootState.Ready : (GoState == GameObjectState.Ready || IsTransport);
@@ -448,8 +424,8 @@ namespace Forged.MapServer.Entities.GameObjects
 
                     base.RemoveFromWorld();
 
-                    if (_spawnId != 0)
-                        Location.Map.GameObjectBySpawnIdStore.Remove(_spawnId, this);
+                    if (SpawnId != 0)
+                        Location.Map.GameObjectBySpawnIdStore.Remove(SpawnId, this);
 
                     Location.Map.ObjectsStore.TryRemove(GUID, out _);
                 }
@@ -541,7 +517,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     }
                 }
 
-            switch (_lootState)
+            switch (LootState)
             {
                 case LootState.NotReady:
                 {
@@ -561,14 +537,14 @@ namespace Forged.MapServer.Entities.GameObjects
                                 if (owner.IsInCombat)
                                     _cooldownTime = GameTime.GetGameTimeMS() + goInfo.Trap.startDelay * Time.InMilliseconds;
 
-                            _lootState = LootState.Ready;
+                            LootState = LootState.Ready;
 
                             break;
                         }
                         case GameObjectTypes.FishingNode:
                         {
                             // fishing code (bobber ready)
-                            if (GameTime.GetGameTime() > _respawnTime - 5)
+                            if (GameTime.GetGameTime() > RespawnTime - 5)
                             {
                                 // splash bobber (bobber ready now)
                                 var caster = OwnerUnit;
@@ -576,7 +552,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                 if (caster != null && caster.IsTypeId(TypeId.Player))
                                     SendCustomAnim(0);
 
-                                _lootState = LootState.Ready; // can be successfully open with some chance
+                                LootState = LootState.Ready; // can be successfully open with some chance
                             }
 
                             return;
@@ -587,13 +563,13 @@ namespace Forged.MapServer.Entities.GameObjects
 
                             // If there is no restock timer, or if the restock timer passed, the chest becomes ready to loot
                             _restockTime = 0;
-                            _lootState = LootState.Ready;
+                            LootState = LootState.Ready;
                             ClearLoot();
                             UpdateDynamicFlagsForNearbyPlayers();
 
                             break;
                         default:
-                            _lootState = LootState.Ready; // for other GOis same switched without delay to GO_READY
+                            LootState = LootState.Ready; // for other GOis same switched without delay to GO_READY
 
                             break;
                     }
@@ -602,14 +578,14 @@ namespace Forged.MapServer.Entities.GameObjects
                     goto case LootState.Ready;
                 case LootState.Ready:
                 {
-                    if (_respawnCompatibilityMode)
-                        if (_respawnTime > 0) // timer on
+                    if (RespawnCompatibilityMode)
+                        if (RespawnTime > 0) // timer on
                         {
                             var now = GameTime.GetGameTime();
 
-                            if (_respawnTime <= now) // timer expired
+                            if (RespawnTime <= now) // timer expired
                             {
-                                var dbtableHighGuid = ObjectGuid.Create(HighGuid.GameObject, Location.MapId, Entry, _spawnId);
+                                var dbtableHighGuid = ObjectGuid.Create(HighGuid.GameObject, Location.MapId, Entry, SpawnId);
                                 var linkedRespawntime = Location.Map.GetLinkedRespawnTime(dbtableHighGuid);
 
                                 if (linkedRespawntime != 0) // Can't respawn, the master is dead
@@ -619,16 +595,16 @@ namespace Forged.MapServer.Entities.GameObjects
                                     if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
                                         SetRespawnTime(Time.Week);
                                     else
-                                        _respawnTime = (now > linkedRespawntime ? now : linkedRespawntime) + RandomHelper.IRand(5, Time.Minute); // else copy time from master and add a little
+                                        RespawnTime = (now > linkedRespawntime ? now : linkedRespawntime) + RandomHelper.IRand(5, Time.Minute); // else copy time from master and add a little
 
                                     SaveRespawnTime();
 
                                     return;
                                 }
 
-                                _respawnTime = 0;
+                                RespawnTime = 0;
                                 _skillupList.Clear();
-                                _usetimes = 0;
+                                UseCount = 0;
 
                                 switch (GoType)
                                 {
@@ -643,7 +619,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                         }
 
                                         // can be delete
-                                        _lootState = LootState.JustDeactivated;
+                                        LootState = LootState.JustDeactivated;
 
                                         return;
                                     }
@@ -663,7 +639,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                         break;
                                 }
 
-                                if (!_spawnedByDefault) // despawn timer
+                                if (!IsSpawnedByDefault) // despawn timer
                                 {
                                     // can be despawned or destroyed
                                     SetLootState(LootState.JustDeactivated);
@@ -686,7 +662,7 @@ namespace Forged.MapServer.Entities.GameObjects
                         }
 
                     // Set respawn timer
-                    if (!_respawnCompatibilityMode && _respawnTime > 0)
+                    if (!RespawnCompatibilityMode && RespawnTime > 0)
                         SaveRespawnTime();
 
                     if (IsSpawned)
@@ -806,9 +782,9 @@ namespace Forged.MapServer.Entities.GameObjects
                         }
                         else if ((maxCharges = goInfo.GetCharges()) != 0)
                         {
-                            if (_usetimes >= maxCharges)
+                            if (UseCount >= maxCharges)
                             {
-                                _usetimes = 0;
+                                UseCount = 0;
                                 SetLootState(LootState.JustDeactivated); // can be despawned or destroyed
                             }
                         }
@@ -846,7 +822,7 @@ namespace Forged.MapServer.Entities.GameObjects
                             if (Template.Chest.consumable == 0 && Template.Chest.chestRestockTime != 0 && GameTime.GetGameTime() >= _restockTime)
                             {
                                 _restockTime = 0;
-                                _lootState = LootState.Ready;
+                                LootState = LootState.Ready;
                                 ClearLoot();
                                 UpdateDynamicFlagsForNearbyPlayers();
                             }
@@ -928,7 +904,7 @@ namespace Forged.MapServer.Entities.GameObjects
                             }
 
                             _uniqueUsers.Clear();
-                            _usetimes = 0;
+                            UseCount = 0;
                         }
 
                         // Only goobers with a lock id or a reset time may reset their go state
@@ -945,7 +921,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     ClearLoot();
 
                     // Do not delete chests or goobers that are not consumed on loot, while still allowing them to despawn when they expire if summoned
-                    var isSummonedAndExpired = (OwnerUnit != null || SpellId != 0) && _respawnTime == 0;
+                    var isSummonedAndExpired = (OwnerUnit != null || SpellId != 0) && RespawnTime == 0;
 
                     if ((GoType == GameObjectTypes.Chest || GoType == GameObjectTypes.Goober) && !Template.IsDespawnAtAction() && !isSummonedAndExpired)
                     {
@@ -986,14 +962,14 @@ namespace Forged.MapServer.Entities.GameObjects
                             ReplaceAllFlags(goOverride.Flags);
                     }
 
-                    if (_respawnDelayTime == 0)
+                    if (RespawnDelay == 0)
                         return;
 
-                    if (!_spawnedByDefault)
+                    if (!IsSpawnedByDefault)
                     {
-                        _respawnTime = 0;
+                        RespawnTime = 0;
 
-                        if (_spawnId != 0)
+                        if (SpawnId != 0)
                             UpdateObjectVisibilityOnDestroy();
                         else
                             Delete();
@@ -1001,19 +977,19 @@ namespace Forged.MapServer.Entities.GameObjects
                         return;
                     }
 
-                    var respawnDelay = _respawnDelayTime;
+                    var respawnDelay = RespawnDelay;
                     var scalingMode = GetDefaultValue("Respawn.DynamicMode", 0u);
 
                     if (scalingMode != 0)
-                        Location.Map.ApplyDynamicModeRespawnScaling(this, _spawnId, ref respawnDelay, scalingMode);
+                        Location.Map.ApplyDynamicModeRespawnScaling(this, SpawnId, ref respawnDelay, scalingMode);
 
-                    _respawnTime = GameTime.GetGameTime() + respawnDelay;
+                    RespawnTime = GameTime.GetGameTime() + respawnDelay;
 
                     // if option not set then object will be saved at grid unload
                     // Otherwise just save respawn time to map object memory
                     SaveRespawnTime();
 
-                    if (_respawnCompatibilityMode)
+                    if (RespawnCompatibilityMode)
                         UpdateObjectVisibilityOnDestroy();
                     else
                         Location.AddObjectToRemoveList();
@@ -1026,7 +1002,7 @@ namespace Forged.MapServer.Entities.GameObjects
         public void Refresh()
         {
             // not refresh despawned not casted GO (despawned casted GO destroyed in all cases anyway)
-            if (_respawnTime > 0 && _spawnedByDefault)
+            if (RespawnTime > 0 && IsSpawnedByDefault)
                 return;
 
             if (IsSpawned)
@@ -1051,9 +1027,9 @@ namespace Forged.MapServer.Entities.GameObjects
             }
             else
             {
-                if (_goData != null)
+                if (GameObjectData != null)
                 {
-                    var respawnDelay = (uint)((forceRespawnTime > TimeSpan.Zero) ? forceRespawnTime.TotalSeconds : _respawnDelayTime);
+                    var respawnDelay = (uint)((forceRespawnTime > TimeSpan.Zero) ? forceRespawnTime.TotalSeconds : RespawnDelay);
                     SaveRespawnTime(respawnDelay);
                 }
 
@@ -1081,7 +1057,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
             var poolid = GameObjectData != null ? GameObjectData.poolId : 0;
 
-            if (_respawnCompatibilityMode && poolid != 0)
+            if (RespawnCompatibilityMode && poolid != 0)
                 Global.PoolMgr.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
             else
                 Location.AddObjectToRemoveList();
@@ -1151,7 +1127,7 @@ namespace Forged.MapServer.Entities.GameObjects
         {
             // this should only be used when the gameobject has already been loaded
             // preferably after adding to map, because mapid may not be valid otherwise
-            var data = ObjectManager.GetGameObjectData(_spawnId);
+            var data = ObjectManager.GetGameObjectData(SpawnId);
 
             if (data == null)
             {
@@ -1177,20 +1153,20 @@ namespace Forged.MapServer.Entities.GameObjects
             if (goI == null)
                 return;
 
-            if (_spawnId == 0)
-                _spawnId = ObjectManager.GenerateGameObjectSpawnId();
+            if (SpawnId == 0)
+                SpawnId = ObjectManager.GenerateGameObjectSpawnId();
 
             // update in loaded data (changing data only in this place)
-            var data = ObjectManager.NewOrExistGameObjectData(_spawnId);
+            var data = ObjectManager.NewOrExistGameObjectData(SpawnId);
 
             if (data.SpawnId == 0)
-                data.SpawnId = _spawnId;
+                data.SpawnId = SpawnId;
 
             data.Id = Entry;
             data.MapId = Location.MapId;
             data.SpawnPoint.Relocate(Location);
             data.Rotation = _localRotation;
-            data.spawntimesecs = (int)(_spawnedByDefault ? _respawnDelayTime : -_respawnDelayTime);
+            data.spawntimesecs = (int)(IsSpawnedByDefault ? RespawnDelay : -RespawnDelay);
             data.Animprogress = GoAnimProgress;
             data.GoState = GoState;
             data.SpawnDifficulties = spawnDifficulties;
@@ -1205,11 +1181,11 @@ namespace Forged.MapServer.Entities.GameObjects
             // Update in DB
             byte index = 0;
             var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_GAMEOBJECT);
-            stmt.AddValue(0, _spawnId);
+            stmt.AddValue(0, SpawnId);
             DB.World.Execute(stmt);
 
             stmt = DB.World.GetPreparedStatement(WorldStatements.INS_GAMEOBJECT);
-            stmt.AddValue(index++, _spawnId);
+            stmt.AddValue(index++, SpawnId);
             stmt.AddValue(index++, Entry);
             stmt.AddValue(index++, mapid);
             stmt.AddValue(index++, data.SpawnDifficulties.Empty() ? "" : string.Join(",", data.SpawnDifficulties));
@@ -1223,7 +1199,7 @@ namespace Forged.MapServer.Entities.GameObjects
             stmt.AddValue(index++, _localRotation.Y);
             stmt.AddValue(index++, _localRotation.Z);
             stmt.AddValue(index++, _localRotation.W);
-            stmt.AddValue(index++, _respawnDelayTime);
+            stmt.AddValue(index++, RespawnDelay);
             stmt.AddValue(index++, GoAnimProgress);
             stmt.AddValue(index++, (byte)GoState);
             DB.World.Execute(stmt);
@@ -1246,10 +1222,10 @@ namespace Forged.MapServer.Entities.GameObjects
             var goState = data.GoState;
             var artKit = data.ArtKit;
 
-            _spawnId = spawnId;
-            _respawnCompatibilityMode = ((data.SpawnGroupData.Flags & SpawnGroupFlags.CompatibilityMode) != 0);
+            SpawnId = spawnId;
+            RespawnCompatibilityMode = ((data.SpawnGroupData.Flags & SpawnGroupFlags.CompatibilityMode) != 0);
 
-            if (!Create(entry, map, data.SpawnPoint, data.Rotation, animprogress, goState, artKit, !_respawnCompatibilityMode, spawnId))
+            if (!Create(entry, map, data.SpawnPoint, data.Rotation, animprogress, goState, artKit, !RespawnCompatibilityMode, spawnId))
                 return false;
 
             PhasingHandler.InitDbPhaseShift(Location.PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
@@ -1257,41 +1233,41 @@ namespace Forged.MapServer.Entities.GameObjects
 
             if (data.spawntimesecs >= 0)
             {
-                _spawnedByDefault = true;
+                IsSpawnedByDefault = true;
 
                 if (!Template.GetDespawnPossibility() && !Template.IsDespawnAtAction())
                 {
                     SetFlag(GameObjectFlags.NoDespawn);
-                    _respawnDelayTime = 0;
-                    _respawnTime = 0;
+                    RespawnDelay = 0;
+                    RespawnTime = 0;
                 }
                 else
                 {
-                    _respawnDelayTime = (uint)data.spawntimesecs;
-                    _respawnTime = Location.Map.GetGORespawnTime(_spawnId);
+                    RespawnDelay = (uint)data.spawntimesecs;
+                    RespawnTime = Location.Map.GetGORespawnTime(SpawnId);
 
                     // ready to respawn
-                    if (_respawnTime != 0 && _respawnTime <= GameTime.GetGameTime())
+                    if (RespawnTime != 0 && RespawnTime <= GameTime.GetGameTime())
                     {
-                        _respawnTime = 0;
-                        Location.Map.RemoveRespawnTime(SpawnObjectType.GameObject, _spawnId);
+                        RespawnTime = 0;
+                        Location.Map.RemoveRespawnTime(SpawnObjectType.GameObject, SpawnId);
                     }
                 }
             }
             else
             {
-                if (!_respawnCompatibilityMode)
+                if (!RespawnCompatibilityMode)
                 {
                     Log.Logger.Warning($"GameObject {entry} (SpawnID {spawnId}) is not spawned by default, but tries to use a non-hack spawn system. This will not work. Defaulting to compatibility mode.");
-                    _respawnCompatibilityMode = true;
+                    RespawnCompatibilityMode = true;
                 }
 
-                _spawnedByDefault = false;
-                _respawnDelayTime = (uint)-data.spawntimesecs;
-                _respawnTime = 0;
+                IsSpawnedByDefault = false;
+                RespawnDelay = (uint)-data.spawntimesecs;
+                RespawnTime = 0;
             }
 
-            _goData = data;
+            GameObjectData = data;
 
             if (addToMap && !Location.Map.AddToMap(this))
                 return false;
@@ -1378,15 +1354,15 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public void SaveRespawnTime(uint forceDelay = 0)
         {
-            if (_goData != null && (forceDelay != 0 || _respawnTime > GameTime.GetGameTime()) && _spawnedByDefault)
+            if (GameObjectData != null && (forceDelay != 0 || RespawnTime > GameTime.GetGameTime()) && IsSpawnedByDefault)
             {
-                if (_respawnCompatibilityMode)
+                if (RespawnCompatibilityMode)
                 {
                     RespawnInfo ri = new()
                     {
                         ObjectType = SpawnObjectType.GameObject,
-                        SpawnId = _spawnId,
-                        RespawnTime = _respawnTime
+                        SpawnId = SpawnId,
+                        RespawnTime = RespawnTime
                     };
 
                     Location.Map.SaveRespawnInfoDB(ri);
@@ -1394,8 +1370,8 @@ namespace Forged.MapServer.Entities.GameObjects
                     return;
                 }
 
-                var thisRespawnTime = forceDelay != 0 ? GameTime.GetGameTime() + forceDelay : _respawnTime;
-                Location.Map.SaveRespawnTime(SpawnObjectType.GameObject, _spawnId, Entry, thisRespawnTime, GridDefines.ComputeGridCoord(Location.X, Location.Y).GetId());
+                var thisRespawnTime = forceDelay != 0 ? GameTime.GetGameTime() + forceDelay : RespawnTime;
+                Location.Map.SaveRespawnTime(SpawnObjectType.GameObject, SpawnId, Entry, thisRespawnTime, GridDefines.ComputeGridCoord(Location.X, Location.Y).GetId());
             }
         }
 
@@ -1463,10 +1439,10 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public void Respawn()
         {
-            if (_spawnedByDefault && _respawnTime > 0)
+            if (IsSpawnedByDefault && RespawnTime > 0)
             {
-                _respawnTime = GameTime.GetGameTime();
-                Location.Map.Respawn(SpawnObjectType.GameObject, _spawnId);
+                RespawnTime = GameTime.GetGameTime();
+                Location.Map.Respawn(SpawnObjectType.GameObject, SpawnId);
             }
         }
 
@@ -1547,7 +1523,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public void ResetDoorOrButton()
         {
-            if (_lootState == LootState.Ready || _lootState == LootState.JustDeactivated)
+            if (LootState == LootState.Ready || LootState == LootState.JustDeactivated)
                 return;
 
             RemoveFlag(GameObjectFlags.InUse);
@@ -1559,7 +1535,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public void UseDoorOrButton(uint timeToRestore = 0, bool alternative = false, Unit user = null)
         {
-            if (_lootState != LootState.Ready)
+            if (LootState != LootState.Ready)
                 return;
 
             if (timeToRestore == 0)
@@ -2097,7 +2073,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     if (info.Goober.AllowMultiInteract != 0 && player != null)
                     {
                         if (info.IsDespawnAtAction())
-                            DespawnForPlayer(player, TimeSpan.FromSeconds(_respawnDelayTime));
+                            DespawnForPlayer(player, TimeSpan.FromSeconds(RespawnDelay));
                         else
                             SetGoStateFor(GameObjectState.Active, player);
                     }
@@ -2334,7 +2310,7 @@ namespace Forged.MapServer.Entities.GameObjects
                             // reset ritual for this GO
                             _ritualOwner = null;
                             _uniqueUsers.Clear();
-                            _usetimes = 0;
+                            UseCount = 0;
                         }
                     }
                     else
@@ -2819,7 +2795,7 @@ namespace Forged.MapServer.Entities.GameObjects
             long x = (int)(_localRotation.X * packX) * wSign & packXMask;
             long y = (int)(_localRotation.Y * packYz) * wSign & packYzMask;
             long z = (int)(_localRotation.Z * packYz) * wSign & packYzMask;
-            _packedRotation = z | (y << 21) | (x << 42);
+            PackedLocalRotation = z | (y << 21) | (x << 42);
         }
 
         public void SetLocalRotation(float qx, float qy, float qz, float qw)
@@ -3119,7 +3095,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public void SetLootState(LootState state, Unit unit = null)
         {
-            _lootState = state;
+            LootState = state;
             _lootStateUnitGuid = unit ? unit.GUID : ObjectGuid.Empty;
             AI.OnLootStateChanged((uint)state, unit);
 
@@ -3155,7 +3131,7 @@ namespace Forged.MapServer.Entities.GameObjects
                         DespawnForPlayer(looter,
                                          goInfo.Chest.chestRestockTime != 0
                                              ? TimeSpan.FromSeconds(goInfo.Chest.chestRestockTime)
-                                             : TimeSpan.FromSeconds(_respawnDelayTime)); // not hiding this object permanently to prevent infinite growth of m_perPlayerState
+                                             : TimeSpan.FromSeconds(RespawnDelay)); // not hiding this object permanently to prevent infinite growth of m_perPlayerState
 
                     // while also maintaining some sort of cheater protection (not getting rid of entries on logout)
                     break;
@@ -3374,8 +3350,8 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public Position GetRespawnPosition()
         {
-            if (_goData != null)
-                return _goData.SpawnPoint.Copy();
+            if (GameObjectData != null)
+                return GameObjectData.SpawnPoint.Copy();
             else
                 return Location.Copy();
         }
@@ -3632,23 +3608,23 @@ namespace Forged.MapServer.Entities.GameObjects
             }
             else
             {
-                _spawnedByDefault = false; // all object with owner is despawned after delay
+                IsSpawnedByDefault = false; // all object with owner is despawned after delay
                 SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.CreatedBy), owner);
             }
         }
 
         public void SetRespawnTime(int respawn)
         {
-            _respawnTime = respawn > 0 ? GameTime.GetGameTime() + respawn : 0;
-            _respawnDelayTime = (uint)(respawn > 0 ? respawn : 0);
+            RespawnTime = respawn > 0 ? GameTime.GetGameTime() + respawn : 0;
+            RespawnDelay = (uint)(respawn > 0 ? respawn : 0);
 
-            if (respawn != 0 && !_spawnedByDefault)
+            if (respawn != 0 && !IsSpawnedByDefault)
                 UpdateObjectVisibility(true);
         }
 
         public void SetSpawnedByDefault(bool b)
         {
-            _spawnedByDefault = b;
+            IsSpawnedByDefault = b;
         }
 
         public bool HasFlag(GameObjectFlags flags)
@@ -3722,7 +3698,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public void AddUse()
         {
-            ++_usetimes;
+            ++UseCount;
         }
 
         public override uint GetLevelForTarget(WorldObject target)
@@ -3755,7 +3731,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public T GetAI<T>() where T : GameObjectAI
         {
-            return (T)_ai;
+            return (T)AI;
         }
 
         public void RelocateStationaryPosition(Position pos)
@@ -3828,7 +3804,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
             if (ZoneScript != null)
             {
-                entry = ZoneScript.GetGameObjectEntry(_spawnId, entry);
+                entry = ZoneScript.GetGameObjectEntry(SpawnId, entry);
 
                 if (entry == 0)
                     return false;
@@ -4011,7 +3987,7 @@ namespace Forged.MapServer.Entities.GameObjects
             AIM_Initialize();
 
             if (spawnid != 0)
-                _spawnId = spawnid;
+                SpawnId = spawnid;
 
             var linkedEntry = Template.GetLinkedGameObjectEntry();
 
@@ -4106,13 +4082,13 @@ namespace Forged.MapServer.Entities.GameObjects
             Loot = null;
             _personalLoot.Clear();
             _uniqueUsers.Clear();
-            _usetimes = 0;
+            UseCount = 0;
         }
 
         private void SetGoStateFor(GameObjectState state, Player viewer)
         {
             var perPlayerState = GetOrCreatePerPlayerStates(viewer.GUID);
-            perPlayerState.ValidUntil = GameTime.GetSystemTime() + TimeSpan.FromSeconds(_respawnDelayTime);
+            perPlayerState.ValidUntil = GameTime.GetSystemTime() + TimeSpan.FromSeconds(RespawnDelay);
             perPlayerState.State = state;
 
             GameObjectSetStateLocal setStateLocal = new()
@@ -4240,22 +4216,22 @@ namespace Forged.MapServer.Entities.GameObjects
 
         private bool HasLootMode(LootModes lootMode)
         {
-            return Convert.ToBoolean(_lootMode & lootMode);
+            return Convert.ToBoolean(LootMode & lootMode);
         }
 
         private void AddLootMode(LootModes lootMode)
         {
-            _lootMode |= lootMode;
+            LootMode |= lootMode;
         }
 
         private void RemoveLootMode(LootModes lootMode)
         {
-            _lootMode &= ~lootMode;
+            LootMode &= ~lootMode;
         }
 
         private void ResetLootMode()
         {
-            _lootMode = LootModes.Default;
+            LootMode = LootModes.Default;
         }
 
         private void ClearSkillupList()

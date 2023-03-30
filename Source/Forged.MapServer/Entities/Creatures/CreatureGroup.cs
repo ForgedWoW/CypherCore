@@ -12,23 +12,20 @@ namespace Forged.MapServer.Entities.Creatures;
 public class CreatureGroup
 {
     private readonly Dictionary<Creature, FormationInfo> _members = new();
-    private readonly ulong _leaderSpawnId;
-    private readonly bool _formed;
-    private Creature _leader;
     private bool _engaging;
 
 
-    public Creature Leader => _leader;
+    public Creature Leader { get; private set; }
 
-    public ulong LeaderSpawnId => _leaderSpawnId;
+    public ulong LeaderSpawnId { get; }
 
     public bool IsEmpty => _members.Empty();
 
-    public bool IsFormed => _formed;
+    public bool IsFormed { get; }
 
     public CreatureGroup(ulong leaderSpawnId)
     {
-        _leaderSpawnId = leaderSpawnId;
+        LeaderSpawnId = leaderSpawnId;
     }
 
     public void AddMember(Creature member)
@@ -36,10 +33,10 @@ public class CreatureGroup
         Log.Logger.Debug("CreatureGroup.AddMember: Adding {0}.", member.GUID.ToString());
 
         //Check if it is a leader
-        if (member.SpawnId == _leaderSpawnId)
+        if (member.SpawnId == LeaderSpawnId)
         {
             Log.Logger.Debug("{0} is formation leader. Adding group.", member.GUID.ToString());
-            _leader = member;
+            Leader = member;
         }
 
         // formation must be registered at this point
@@ -50,8 +47,8 @@ public class CreatureGroup
 
     public void RemoveMember(Creature member)
     {
-        if (_leader == member)
-            _leader = null;
+        if (Leader == member)
+            Leader = null;
 
         _members.Remove(member);
         member.Formation = null;
@@ -68,7 +65,7 @@ public class CreatureGroup
         if (groupAI == 0)
             return;
 
-        if (member == _leader)
+        if (member == Leader)
         {
             if (!groupAI.HasFlag(GroupAIFlags.MembersAssistLeader))
                 return;
@@ -91,7 +88,7 @@ public class CreatureGroup
             if (!other.IsAlive)
                 continue;
 
-            if (((other != _leader && groupAI.HasFlag(GroupAIFlags.MembersAssistLeader)) || (other == _leader && groupAI.HasFlag(GroupAIFlags.LeaderAssistsMember))) && other.WorldObjectCombat.IsValidAttackTarget(target))
+            if (((other != Leader && groupAI.HasFlag(GroupAIFlags.MembersAssistLeader)) || (other == Leader && groupAI.HasFlag(GroupAIFlags.LeaderAssistsMember))) && other.WorldObjectCombat.IsValidAttackTarget(target))
                 other.EngageWithTarget(target);
         }
 
@@ -101,7 +98,7 @@ public class CreatureGroup
     public void FormationReset(bool dismiss)
     {
         foreach (var creature in _members.Keys)
-            if (creature != _leader && creature.IsAlive)
+            if (creature != Leader && creature.IsAlive)
                 creature.MotionMaster.MoveIdle();
 
         //_formed = !dismiss;
@@ -109,28 +106,28 @@ public class CreatureGroup
 
     public void LeaderStartedMoving()
     {
-        if (_leader == null)
+        if (Leader == null)
             return;
 
         foreach (var pair in _members)
         {
             var member = pair.Key;
 
-            if (member == _leader || !member.IsAlive || member.IsEngaged || !pair.Value.GroupAi.HasAnyFlag((uint)GroupAIFlags.IdleInFormation))
+            if (member == Leader || !member.IsAlive || member.IsEngaged || !pair.Value.GroupAi.HasAnyFlag((uint)GroupAIFlags.IdleInFormation))
                 continue;
 
             var angle = pair.Value.FollowAngle + MathF.PI; // for some reason, someone thought it was a great idea to invert relativ angles...
             var dist = pair.Value.FollowDist;
 
             if (!member.HasUnitState(UnitState.FollowFormation))
-                member.MotionMaster.MoveFormation(_leader, dist, angle, pair.Value.LeaderWaypointIDs[0], pair.Value.LeaderWaypointIDs[1]);
+                member.MotionMaster.MoveFormation(Leader, dist, angle, pair.Value.LeaderWaypointIDs[0], pair.Value.LeaderWaypointIDs[1]);
         }
     }
 
     public bool CanLeaderStartMoving()
     {
         foreach (var pair in _members)
-            if (pair.Key != _leader && pair.Key.IsAlive)
+            if (pair.Key != Leader && pair.Key.IsAlive)
                 if (pair.Key.IsEngaged || pair.Key.IsReturningHome)
                     return false;
 
@@ -139,7 +136,7 @@ public class CreatureGroup
 
     public bool IsLeader(Creature creature)
     {
-        return _leader == creature;
+        return Leader == creature;
     }
 
     public bool HasMember(Creature member)
