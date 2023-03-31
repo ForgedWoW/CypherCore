@@ -31,7 +31,7 @@ public class CreatureTextBuilder : MessageBuilder
 
 	public override ChatPacketSender Invoke(Locale locale = Locale.enUS)
 	{
-		var text = Global.CreatureTextMgr.GetLocalizedChatString(_source.Entry, _gender, _textGroup, _textId, locale);
+		var text = _creatureTextManager.GetLocalizedChatString(_source.Entry, _gender, _textGroup, _textId, locale);
 
 		return new ChatPacketSender(_msgType, _language, _source, _target, text, 0, locale);
 	}

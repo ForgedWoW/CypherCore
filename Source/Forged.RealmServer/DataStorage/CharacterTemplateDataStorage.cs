@@ -14,9 +14,9 @@ public class CharacterTemplateDataStorage
     private readonly CliDB _cliDb;
     private readonly WorldDatabase _worldDatabase;
 
-    CharacterTemplateDataStorage(CliDB cliDB, WorldDatabase worldDatabase)
+    CharacterTemplateDataStorage(CliDB cliDb, WorldDatabase worldDatabase)
     {
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _worldDatabase = worldDatabase;
 
 		LoadCharacterTemplates();

@@ -817,7 +817,7 @@ class BgArathiBasin : Battleground
 	void _NodeOccupied(byte node, TeamFaction team)
 	{
 		if (!AddSpiritGuide(node, SpiritGuidePos[node], GetTeamIndexByTeamId(team)))
-			Log.outError(LogFilter.Battleground, "Failed to spawn spirit guide! point: {0}, team: {1}, ", node, team);
+			Log.Logger.Error("Failed to spawn spirit guide! point: {0}, team: {1}, ", node, team);
 
 		if (node >= ABBattlegroundNodes.DynamicNodesCount) //only dynamic nodes, no start points
 			return;

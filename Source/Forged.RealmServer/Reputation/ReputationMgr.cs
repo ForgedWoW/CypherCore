@@ -70,7 +70,7 @@ public class ReputationMgr
 	public SortedDictionary<uint, FactionState> StateList => _factions;
 
 	public ReputationMgr(Player owner,
-                            CliDB cliDB,
+                            CliDB cliDb,
                             ScriptManager scriptManager,
                             GameObjectManager gameObjectManager,
                             DB2Manager db2Manager,
@@ -78,7 +78,7 @@ public class ReputationMgr
                             CharacterDatabase characterDatabase)
 	{
 		_player = owner;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _scriptManager = scriptManager;
         _gameObjectManager = gameObjectManager;
         _db2Manager = db2Manager;

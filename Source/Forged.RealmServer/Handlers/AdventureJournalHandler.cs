@@ -1,32 +1,27 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
 using Forged.RealmServer.DataStorage;
-using Framework.Constants;
-using Forged.RealmServer.Networking;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Networking.Packets;
-using Game.Common.Handlers;
-using Forged.RealmServer.DataStorage.ClientReader;
 using Forged.RealmServer.Globals;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
+using Framework.Constants;
+using Game.Common.Handlers;
+using System.Collections.Generic;
 
 namespace Forged.RealmServer;
 
 public class AdventureJournalHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
-    private readonly Player _player;
-    private readonly DB6Storage<AdventureJournalRecord> _adventureJournalStorage;
+    private readonly CliDB _cliDb;
 	private readonly DB2Manager _dB2Manager;
     private readonly GameObjectManager _objectManager;
 
-    public AdventureJournalHandler(WorldSession session, Player player, DB6Storage<AdventureJournalRecord> adventureJournalStorage, 
-		DB2Manager dB2Manager, GameObjectManager objectManager)
+    public AdventureJournalHandler(WorldSession session, CliDB cliDb, DB2Manager dB2Manager, GameObjectManager objectManager)
     {
         _session = session;
-        _player = player;
-        _adventureJournalStorage = adventureJournalStorage;
+        _cliDb = cliDb;
         _dB2Manager = dB2Manager;
         _objectManager = objectManager;
     }
@@ -34,18 +29,18 @@ public class AdventureJournalHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.AdventureJournalOpenQuest)]
 	void HandleAdventureJournalOpenQuest(AdventureJournalOpenQuest openQuest)
 	{
-		var uiDisplay = _dB2Manager.GetUiDisplayForClass(_player.Class);
+		var uiDisplay = _dB2Manager.GetUiDisplayForClass(_session.Player.Class);
 
 		if (uiDisplay != null)
-			if (!_player.MeetPlayerCondition(uiDisplay.AdvGuidePlayerConditionID))
+			if (!_session.Player.MeetPlayerCondition(uiDisplay.AdvGuidePlayerConditionID))
 				return;
 
-		var adventureJournal = _adventureJournalStorage.LookupByKey(openQuest.AdventureJournalID);
+		var adventureJournal = _cliDb.AdventureJournalStorage.LookupByKey(openQuest.AdventureJournalID);
 
 		if (adventureJournal == null)
 			return;
 
-		if (!_player.MeetPlayerCondition(adventureJournal.PlayerConditionID))
+		if (!_session.Player.MeetPlayerCondition(adventureJournal.PlayerConditionID))
 			return;
 
 		var quest = _objectManager.GetQuestTemplate(adventureJournal.QuestID);
@@ -53,7 +48,7 @@ public class AdventureJournalHandler : IWorldSessionHandler
 		if (quest == null)
 			return;
 
-		if (_player.CanTakeQuest(quest, true))
-			_player.PlayerTalkClass.SendQuestGiverQuestDetails(quest, _player.GUID, true, false);
+		if (_session.Player.CanTakeQuest(quest, true))
+			_session.Player.PlayerTalkClass.SendQuestGiverQuestDetails(quest, _session.Player.GUID, true, false);
 	}
 }

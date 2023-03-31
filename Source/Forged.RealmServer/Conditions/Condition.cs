@@ -37,10 +37,10 @@ public class Condition
 	public byte ConditionTarget;
 	public bool NegativeCondition;
 
-	public Condition(CliDB cliDB, AchievementGlobalMgr achievementManager, ConditionManager conditionManager,
+	public Condition(CliDB cliDb, AchievementGlobalMgr achievementManager, ConditionManager conditionManager,
         GameObjectManager gameObjectManager, ScriptManager scriptManager)
 	{
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _achievementManager = achievementManager;
         _conditionManager = conditionManager;
         _gameObjectManager = gameObjectManager;

@@ -24,12 +24,12 @@ public class ChannelManager
     public FactionChannel AllianceChannel { get; }
     public FactionChannel HordeChannel { get; }
 
-	public ChannelManager(WorldConfig worldConfig, CharacterDatabase characterDatabase, WorldManager worldManager, CliDB cliDB)
+	public ChannelManager(WorldConfig worldConfig, CharacterDatabase characterDatabase, WorldManager worldManager, CliDB cliDb)
     {
         _worldConfig = worldConfig;
         _characterDatabase = characterDatabase;
         _worldManager = worldManager;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
 
         AllianceChannel = new FactionChannel(TeamFaction.Alliance, _worldConfig, _characterDatabase, _worldManager, _cliDb);
         HordeChannel = new FactionChannel(TeamFaction.Horde, _worldConfig, _characterDatabase, _worldManager, _cliDb);

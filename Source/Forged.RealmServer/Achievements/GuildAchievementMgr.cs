@@ -31,17 +31,17 @@ public class GuildAchievementMgr : AchievementManager
     private readonly ScriptManager _scriptManager;
 
     public GuildAchievementMgr(Guild owner,
-                                CliDB cliDB,
+                                CliDB cliDb,
                                 CriteriaManager criteriaManager,
                                 AchievementGlobalMgr achievementGlobalMgr,
                                 CharacterDatabase characterDatabase, 
                                 GameTime gameTime, 
                                 WorldManager worldManager, 
                                 ScriptManager scriptManager)
-                                : base(cliDB, criteriaManager, achievementGlobalMgr)
+                                : base(cliDb, criteriaManager, achievementGlobalMgr)
     {
         _owner = owner;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _criteriaManager = criteriaManager;
         _achievementGlobalMgr = achievementGlobalMgr;
         _characterDatabase = characterDatabase;

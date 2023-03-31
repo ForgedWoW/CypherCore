@@ -28,7 +28,7 @@ public class PlayerAchievementMgr : AchievementManager
     private readonly ScriptManager _scriptManager;
 
     public PlayerAchievementMgr(Player owner,
-                                    CliDB cliDB,
+                                    CliDB cliDb,
                                     CriteriaManager criteriaManager,
                                     AchievementGlobalMgr achievementGlobalMgr,
                                     CharacterDatabase characterDatabase,
@@ -37,7 +37,7 @@ public class PlayerAchievementMgr : AchievementManager
                                     WorldManager worldManager,
                                     GuildManager guildManager,
                                     ScriptManager scriptManager)
-	                            : base(cliDB, criteriaManager, achievementGlobalMgr)
+	                            : base(cliDb, criteriaManager, achievementGlobalMgr)
     {
         _owner = owner;
         _characterDatabase = characterDatabase;

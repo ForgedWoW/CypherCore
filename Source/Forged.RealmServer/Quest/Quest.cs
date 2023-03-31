@@ -1,23 +1,33 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.RealmServer.Conditions;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Globals;
+using Forged.RealmServer.Networking.Packets;
+using Framework.Constants;
+using Framework.Database;
+using Serilog;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Forged.RealmServer.Conditions;
+using Autofac;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Globals;
-using Forged.RealmServer.Networking.Packets.Quest;
-using Framework.Constants;
-using Framework.Database;
-using Serilog;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.RealmServer.Quest;
 
 public class Quest
 {
-	public uint Id;
+    private readonly ConditionManager _conditionManager;
+    private readonly IConfiguration _configuration;
+    private readonly CliDB _cliDb;
+    private readonly DB2Manager _db2Manager;
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly QuestPoolManager _questPoolManager;
+    public uint Id;
 	public QuestType Type;
 	public uint PackageID;
 	public uint ContentTuningId;
@@ -122,11 +132,11 @@ public class Quest
 		get
 		{
 			uint value = 0;
-			var questLevels = Global.DB2Mgr.GetContentTuningData(ContentTuningId, 0);
+			var questLevels = _db2Manager.GetContentTuningData(ContentTuningId, 0);
 
 			if (questLevels.HasValue)
 			{
-				var money = CliDB.QuestMoneyRewardStorage.LookupByKey(questLevels.Value.MaxLevel);
+				var money = _cliDb.QuestMoneyRewardStorage.LookupByKey((uint)questLevels.Value.MaxLevel);
 
 				if (money != null)
 					value = (uint)(money.Difficulty[RewardMoneyDifficulty] * RewardMoneyMultiplier);
@@ -136,13 +146,13 @@ public class Quest
 		}
 	}
 
-	public uint MaxMoneyReward => (uint)(MaxMoneyValue * GetDefaultValue("Rate.Quest.Money.Reward", 1.0f));
+	public uint MaxMoneyReward => (uint)(MaxMoneyValue * _configuration.GetDefaultValue("Rate.Quest.Money.Reward", 1.0f));
 
 	public QuestTagType? QuestTag
 	{
 		get
 		{
-			var questInfo = CliDB.QuestInfoStorage.LookupByKey(QuestInfoID);
+			var questInfo = _cliDb.QuestInfoStorage.LookupByKey(QuestInfoID);
 
 			if (questInfo != null)
 				return (QuestTagType)questInfo.Type;
@@ -151,9 +161,9 @@ public class Quest
 		}
 	}
 
-	public bool IsAutoAccept => !GetDefaultValue("Quests.IgnoreAutoAccept", false) && HasFlag(QuestFlags.AutoAccept);
+	public bool IsAutoAccept => !_configuration.GetDefaultValue("Quests.IgnoreAutoAccept", false) && HasFlag(QuestFlags.AutoAccept);
 
-	public bool IsAutoComplete => !GetDefaultValue("Quests.IgnoreAutoComplete", false) && Type == QuestType.AutoComplete;
+	public bool IsAutoComplete => !_configuration.GetDefaultValue("Quests.IgnoreAutoComplete", false) && Type == QuestType.AutoComplete;
 
 	public bool IsAutoPush => HasFlagEx(QuestFlagsEx.AutoPush);
 
@@ -215,9 +225,16 @@ public class Quest
 	public QuestSpecialFlags SpecialFlags { get; set; } // custom flags, not sniffed/WDB
 	public uint ScriptId { get; set; }
 
-	public Quest(SQLFields fields)
+	public Quest(SQLFields fields, IContainer container)
 	{
-		Id = fields.Read<uint>(0);
+        _configuration = container.Resolve<IConfiguration>();
+        _cliDb = container.Resolve<CliDB>();
+        _db2Manager = container.Resolve<DB2Manager>();
+        _gameObjectManager = container.Resolve<GameObjectManager>();
+        _questPoolManager = container.Resolve<QuestPoolManager>();
+        _conditionManager = container.Resolve<ConditionManager>();
+
+        Id = fields.Read<uint>(0);
 		Type = (QuestType)fields.Read<byte>(1);
 		PackageID = fields.Read<uint>(2);
 		ContentTuningId = fields.Read<uint>(3);
@@ -318,27 +335,11 @@ public class Quest
 	}
 
 	public void LoadRewardDisplaySpell(SQLFields fields)
-	{
-		var spellId = fields.Read<uint>(1);
-		var playerConditionId = fields.Read<uint>(2);
+    {
+        // Send to map server
+    }
 
-		if (!Global.SpellMgr.HasSpellInfo(spellId, Difficulty.None))
-		{
-			Log.Logger.Error($"Table `quest_reward_display_spell` has non-existing Spell ({spellId}) set for quest {Id}. Skipped.");
-
-			return;
-		}
-
-		if (playerConditionId != 0 && !CliDB.PlayerConditionStorage.ContainsKey(playerConditionId))
-		{
-			Log.Logger.Error($"Table `quest_reward_display_spell` has non-existing PlayerCondition ({playerConditionId}) set for quest {Id}. and spell {spellId} Set to 0.");
-			playerConditionId = 0;
-		}
-
-		RewardDisplaySpell.Add(new QuestRewardDisplaySpell(spellId, playerConditionId));
-	}
-
-	public void LoadRewardChoiceItems(SQLFields fields)
+    public void LoadRewardChoiceItems(SQLFields fields)
 	{
 		for (var i = 0; i < SharedConst.QuestRewardChoicesCount; ++i)
 			RewardChoiceItemType[i] = (LootItemType)fields.Read<byte>(1 + i);
@@ -350,7 +351,7 @@ public class Quest
 		{
 			var emoteId = fields.Read<ushort>(1 + i);
 
-			if (!CliDB.EmotesStorage.ContainsKey(emoteId))
+			if (!_cliDb.EmotesStorage.ContainsKey(emoteId))
 			{
 				Log.Logger.Error("Table `quest_details` has non-existing Emote{0} ({1}) set for quest {2}. Skipped.", 1 + i, emoteId, fields.Read<uint>(0));
 
@@ -369,10 +370,10 @@ public class Quest
 		EmoteOnComplete = fields.Read<ushort>(1);
 		EmoteOnIncomplete = fields.Read<ushort>(2);
 
-		if (!CliDB.EmotesStorage.ContainsKey(EmoteOnComplete))
+		if (!_cliDb.EmotesStorage.ContainsKey(EmoteOnComplete))
 			Log.Logger.Error("Table `quest_request_items` has non-existing EmoteOnComplete ({0}) set for quest {1}.", EmoteOnComplete, fields.Read<uint>(0));
 
-		if (!CliDB.EmotesStorage.ContainsKey(EmoteOnIncomplete))
+		if (!_cliDb.EmotesStorage.ContainsKey(EmoteOnIncomplete))
 			Log.Logger.Error("Table `quest_request_items` has non-existing EmoteOnIncomplete ({0}) set for quest {1}.", EmoteOnIncomplete, fields.Read<uint>(0));
 
 		EmoteOnCompleteDelay = fields.Read<uint>(3);
@@ -386,7 +387,7 @@ public class Quest
 		{
 			var emoteId = fields.Read<short>(1 + i);
 
-			if (emoteId < 0 || !CliDB.EmotesStorage.ContainsKey(emoteId))
+			if (emoteId < 0 || !_cliDb.EmotesStorage.ContainsKey(emoteId))
 			{
 				Log.Logger.Error("Table `quest_offer_reward` has non-existing Emote{0} ({1}) set for quest {2}. Skipped.", 1 + i, emoteId, fields.Read<uint>(0));
 
@@ -478,12 +479,12 @@ public class Quest
 		return XPValue(player, ContentTuningId, RewardXPDifficulty, RewardXPMultiplier, Expansion);
 	}
 
-	public static uint XPValue(Player player, uint contentTuningId, uint xpDifficulty, float xpMultiplier = 1.0f, int expansion = -1)
+	public uint XPValue(Player player, uint contentTuningId, uint xpDifficulty, float xpMultiplier = 1.0f, int expansion = -1)
 	{
 		if (player)
 		{
 			var questLevel = (uint)player.GetQuestLevel(contentTuningId);
-			var questXp = CliDB.QuestXPStorage.LookupByKey(questLevel);
+			var questXp = _cliDb.QuestXPStorage.LookupByKey(questLevel);
 
 			if (questXp == null || xpDifficulty >= 10)
 				return 0;
@@ -497,17 +498,17 @@ public class Quest
 
 			var xp = (uint)(diffFactor * questXp.Difficulty[xpDifficulty] * xpMultiplier / 10);
 
-			if (player.Level >= _gameObjectManager.GetMaxLevelForExpansion((Expansion)GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight) - 1) && 
-                player.Session.Expansion == (Expansion)GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight) && expansion >= 0 && 
-                expansion < (int)GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight))
+			if (player.Level >= _gameObjectManager.GetMaxLevelForExpansion((Expansion)_configuration.GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight) - 1) && 
+                player.Session.Expansion == (Expansion)_configuration.GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight) && expansion >= 0 && 
+                expansion < (int)_configuration.GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight))
 				xp = (uint)(xp / 9.0f);
 
 			xp = RoundXPValue(xp);
 
-			if (GetDefaultValue("MinQuestScaledXPRatio", 0) != 0)
+			if (_configuration.GetDefaultValue("MinQuestScaledXPRatio", 0) != 0)
 			{
-				var minScaledXP = RoundXPValue((uint)(questXp.Difficulty[xpDifficulty] * xpMultiplier)) * GetDefaultValue("MinQuestScaledXPRatio", 0) / 100;
-				xp = Math.Max(minScaledXP, xp);
+				var minScaledXP = RoundXPValue((uint)(questXp.Difficulty[xpDifficulty] * xpMultiplier)) * _configuration.GetDefaultValue("MinQuestScaledXPRatio", 0) / 100;
+				xp = (uint)Math.Max(minScaledXP, xp);
 			}
 
 			return xp;
@@ -516,9 +517,9 @@ public class Quest
 		return 0;
 	}
 
-	public static bool IsTakingQuestEnabled(uint questId)
+	public bool IsTakingQuestEnabled(uint questId)
 	{
-		if (!Global.QuestPoolMgr.IsQuestActive(questId))
+		if (!_questPoolManager.IsQuestActive(questId))
 			return false;
 
 		return true;
@@ -526,7 +527,7 @@ public class Quest
 
 	public uint MoneyValue(Player player)
 	{
-		var money = CliDB.QuestMoneyRewardStorage.LookupByKey(player.GetQuestLevel(this));
+		var money = _cliDb.QuestMoneyRewardStorage.LookupByKey((uint)player.GetQuestLevel(this));
 
 		if (money != null)
 			return (uint)(money.Difficulty[RewardMoneyDifficulty] * RewardMoneyMultiplier);
@@ -548,10 +549,10 @@ public class Quest
 
 		foreach (var displaySpell in RewardDisplaySpell)
 		{
-			var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(displaySpell.PlayerConditionId);
+			var playerCondition = _cliDb.PlayerConditionStorage.LookupByKey(displaySpell.PlayerConditionId);
 
 			if (playerCondition != null)
-				if (!ConditionManager.IsPlayerMeetingCondition(player, playerCondition))
+				if (!_conditionManager.IsPlayerMeetingCondition(player, playerCondition))
 					continue;
 
 			rewards.SpellCompletionDisplayID[displaySpellIndex] = (int)displaySpell.SpellId;
@@ -601,7 +602,7 @@ public class Quest
 			return 0;
 
 		// Else, return the rewarded copper sum modified by the rate
-		return (uint)(RewardBonusMoney * GetDefaultValue("Rate.Quest.Money.Max.Level.Reward", 1.0f));
+		return (uint)(RewardBonusMoney * _configuration.GetDefaultValue("Rate.Quest.Money.Max.Level.Reward", 1.0f));
 	}
 
 	public bool IsRaidQuest(Difficulty difficulty)
@@ -629,7 +630,7 @@ public class Quest
 		if (IsRaidQuest(difficulty))
 			return true;
 
-		return GetDefaultValue("Quests.IgnoreRaid", false);
+		return _configuration.GetDefaultValue("Quests.IgnoreRaid", false);
 	}
 
 	public uint CalculateHonorGain(uint level)

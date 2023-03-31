@@ -1,27 +1,27 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Forged.RealmServer.Arenas;
+using Forged.RealmServer.Cache;
+using Forged.RealmServer.Conditions;
+using Forged.RealmServer.DataStorage;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Globals;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting;
+using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Forged.RealmServer.World;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
-using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets;
-using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Framework.Util;
 using Game.Common.Handlers;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using Forged.RealmServer.Scripting;
-using Framework.Util;
-using Forged.RealmServer.Arenas;
-using Forged.RealmServer.Globals;
-using Forged.RealmServer.Cache;
-using Forged.RealmServer.Conditions;
-using Forged.RealmServer.World;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Forged.RealmServer;
 
@@ -47,13 +47,13 @@ public class CharacterHandler : IWorldSessionHandler
     private readonly CalendarManager _calendarManager;
     private readonly ConditionManager _conditionManager;
 
-    public CharacterHandler(WorldSession session, CliDB cliDB, CollectionMgr collectionMgr, IConfiguration configuration, WorldConfig worldConfig, 
+    public CharacterHandler(WorldSession session, CliDB cliDb, CollectionMgr collectionMgr, IConfiguration configuration, WorldConfig worldConfig, 
 		CharacterDatabase characterDatabase, ScriptManager scriptManager, GameTime gameTime, LoginDatabase loginDatabase, DB2Manager dB2Manager,
 		WorldManager worldManager, GuildManager guildManager, GameObjectManager objectManager, ObjectAccessor objectAccessor, CharacterCache characterCache,
 		ArenaTeamManager arenaTeamManager, SocialManager socialManager, CalendarManager calendarManager, ConditionManager conditionManager)
     {
         _session = session;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _collectionMgr = collectionMgr;
         _configuration = configuration;
         _worldConfig = worldConfig;

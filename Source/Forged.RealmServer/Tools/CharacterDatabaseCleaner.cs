@@ -21,13 +21,13 @@ public class CharacterDatabaseCleaner
     private readonly CliDB _cliDb;
 
     public CharacterDatabaseCleaner(WorldConfig worldConfig, WorldManager worldManager, CriteriaManager criteriaManager,
-		CharacterDatabase characterDatabase, CliDB cliDB)
+		CharacterDatabase characterDatabase, CliDB cliDb)
 	{
         _worldConfig = worldConfig;
         _worldManager = worldManager;
         _criteriaManager = criteriaManager;
         _characterDatabase = characterDatabase;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
     }
 
     public void CleanDatabase()

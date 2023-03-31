@@ -1,11 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Globals;
+using Forged.RealmServer.Networking.Packets;
+using Framework.Constants;
+using Serilog;
 using System.Collections.Generic;
 using System.Linq;
-using Framework.Constants;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Networking.Packets;
 
 namespace Forged.RealmServer.Misc;
 
@@ -14,13 +16,17 @@ public class PlayerMenu
 	readonly GossipMenu _gossipMenu = new();
 	readonly QuestMenu _questMenu = new();
 	readonly WorldSession _session;
-	readonly InteractionData _interactionData = new();
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly WorldConfig _worldConfig;
+    readonly InteractionData _interactionData = new();
 
-	public PlayerMenu(WorldSession session)
+	public PlayerMenu(WorldSession session, GameObjectManager gameObjectManager, WorldConfig worldConfig)
 	{
 		_session = session;
+        _gameObjectManager = gameObjectManager;
+        _worldConfig = worldConfig;
 
-		if (_session != null)
+        if (_session != null)
 			_gossipMenu.SetLocale(_session.SessionDbLocaleIndex);
 	}
 
@@ -114,7 +120,7 @@ public class PlayerMenu
 
 		if (pointOfInterest == null)
 		{
-			Log.outError(LogFilter.Sql, "Request to send non-existing PointOfInterest (Id: {0}), ignored.", id);
+			Log.Logger.Error("Request to send non-existing PointOfInterest (Id: {0}), ignored.", id);
 
 			return;
 		}
@@ -209,7 +215,7 @@ public class PlayerMenu
 		_session.SendPacket(packet);
 	}
 
-	public void SendQuestGiverQuestDetails(Quest quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup)
+	public void SendQuestGiverQuestDetails(Quest.Quest quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup)
 	{
 		QuestGiverQuestDetails packet = new();
 
@@ -270,15 +276,10 @@ public class PlayerMenu
 		if (creature != null)
 			packet.QuestGiverCreatureID = (int)creature.Template.Entry;
 
-		// RewardSpell can teach multiple spells in trigger spell effects. But not all effects must be SPELL_EFFECT_LEARN_SPELL. See example spell 33950
-		var spellInfo = Global.SpellMgr.GetSpellInfo(quest.RewardSpell, Difficulty.None);
+        // RewardSpell can teach multiple spells in trigger spell effects. But not all effects must be SPELL_EFFECT_LEARN_SPELL. See example spell 33950
+        // Send to map server
 
-		if (spellInfo != null)
-			foreach (var spellEffectInfo in spellInfo.Effects)
-				if (spellEffectInfo.IsEffect(SpellEffectName.LearnSpell))
-					packet.LearnSpells.Add(spellEffectInfo.TriggerSpell);
-
-		quest.BuildQuestRewards(packet.Rewards, _session.Player);
+        quest.BuildQuestRewards(packet.Rewards, _session.Player);
 
 		for (var i = 0; i < SharedConst.QuestEmoteCount; ++i)
 		{
@@ -301,7 +302,7 @@ public class PlayerMenu
 		_session.SendPacket(packet);
 	}
 
-	public void SendQuestQueryResponse(Quest quest)
+	public void SendQuestQueryResponse(Quest.Quest quest)
 	{
 		if (_worldConfig.GetBoolValue(WorldCfg.CacheDataQueries))
 		{
@@ -314,7 +315,7 @@ public class PlayerMenu
 		}
 	}
 
-	public void SendQuestGiverOfferReward(Quest quest, ObjectGuid npcGUID, bool autoLaunched)
+	public void SendQuestGiverOfferReward(Quest.Quest quest, ObjectGuid npcGUID, bool autoLaunched)
 	{
 		QuestGiverOfferRewardMessage packet = new();
 
@@ -391,7 +392,7 @@ public class PlayerMenu
 		_session.SendPacket(packet);
 	}
 
-	public void SendQuestGiverRequestItems(Quest quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched)
+	public void SendQuestGiverRequestItems(Quest.Quest quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched)
 	{
 		// We can always call to RequestItems, but this packet only goes out if there are actually
 		// items.  Otherwise, we'll skip straight to the OfferReward

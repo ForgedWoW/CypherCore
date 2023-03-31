@@ -4,12 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Blizzard.Telemetry.Wow;
 using Framework.Constants;
 using Framework.Dynamic;
 using Framework.Util;
 using Forged.RealmServer.DataStorage;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Maps.Grids;
 using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scenarios;
+using Serilog;
 
 namespace Forged.RealmServer.Entities;
 
@@ -35,7 +40,6 @@ public abstract class WorldObject : IDisposable
 	float? _visibilityDistanceOverride;
 
 	ITransport _transport;
-	Map _currMap;
 	PhaseShift _phaseShift = new();
 	PhaseShift _suppressedPhaseShift = new(); // contains phases for current area but not applied due to conditions
 	int _dbPhase;
@@ -58,7 +62,6 @@ public abstract class WorldObject : IDisposable
 	public EventSystem Events { get; set; } = new();
 
 	public MovementInfo MovementInfo { get; set; }
-	public ZoneScript ZoneScript { get; set; }
 	public uint InstanceId { get; set; }
 	public bool IsInWorld { get; set; }
 

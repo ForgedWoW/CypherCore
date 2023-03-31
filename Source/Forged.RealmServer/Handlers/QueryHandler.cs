@@ -1,17 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
-using System.Numerics;
-using Framework.Constants;
-using Framework.Realm;
-using Forged.RealmServer.Entities;
+using Forged.RealmServer.Globals;
 using Forged.RealmServer.Networking;
 using Forged.RealmServer.Networking.Packets;
-using Forged.RealmServer.Globals;
 using Forged.RealmServer.World;
+using Framework.Constants;
+using Framework.Realm;
 using Game.Common.Handlers;
 using Serilog;
+using System.Numerics;
 
 namespace Forged.RealmServer;
 
@@ -24,12 +22,12 @@ public class QueryHandler : IWorldSessionHandler
     private readonly WorldManager _worldManager;
 
     public QueryHandler(WorldSession session, GameObjectManager objectManager, ObjectAccessor objectAccessor,
-		CliDB cliDB, WorldManager worldManager)
+		CliDB cliDb, WorldManager worldManager)
     {
         _session = session;
         _objectManager = objectManager;
         _objectAccessor = objectAccessor;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _worldManager = worldManager;
     }
 

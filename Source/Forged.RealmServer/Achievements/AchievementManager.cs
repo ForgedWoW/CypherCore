@@ -16,9 +16,9 @@ public class AchievementManager : CriteriaHandler
     internal readonly CriteriaManager _criteriaManager;
     internal readonly AchievementGlobalMgr _achievementGlobalMgr;
 
-    public AchievementManager(CliDB cliDB, CriteriaManager criteriaManager, AchievementGlobalMgr achievementGlobalMgr)
+    public AchievementManager(CliDB cliDb, CriteriaManager criteriaManager, AchievementGlobalMgr achievementGlobalMgr)
     {
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _criteriaManager = criteriaManager;
         _achievementGlobalMgr = achievementGlobalMgr;
     }

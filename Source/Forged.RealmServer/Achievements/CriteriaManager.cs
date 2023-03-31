@@ -32,14 +32,14 @@ public class CriteriaManager
     private readonly GameObjectManager _gameObjectManager;
     private readonly WorldDatabase _worldDatabase;
 
-    CriteriaManager(CliDB cliDB, GameObjectManager gameObjectManager, WorldDatabase worldDatabase)
+    CriteriaManager(CliDB cliDb, GameObjectManager gameObjectManager, WorldDatabase worldDatabase)
 	{
 		for (var i = 0; i < (int)CriteriaType.Count; ++i)
 		{
 			_criteriasByAsset[i] = new MultiMap<uint, Criteria>();
 			_scenarioCriteriasByTypeAndScenarioId[i] = new MultiMap<uint, Criteria>();
 		}
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _gameObjectManager = gameObjectManager;
         _worldDatabase = worldDatabase;
 

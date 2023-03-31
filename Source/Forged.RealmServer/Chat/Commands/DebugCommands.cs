@@ -1300,7 +1300,7 @@ class DebugCommands
 			return false;
 		}
 
-		var wsExpressionEntry = _cliDb.StateExpressionStorage.LookupByKey(expressionId);
+		var wsExpressionEntry = _cliDb.WorldStateExpressionStorage.LookupByKey(expressionId);
 
 		if (wsExpressionEntry == null)
 			return false;

@@ -1,17 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
-using Framework.Constants;
-using Framework.Database;
+using Forged.RealmServer.Cache;
 using Forged.RealmServer.Entities;
+using Forged.RealmServer.Globals;
 using Forged.RealmServer.Guilds;
 using Forged.RealmServer.Networking;
-using Game.Common.Handlers;
 using Forged.RealmServer.Networking.Packets;
+using Framework.Constants;
+using Framework.Database;
+using Game.Common.Handlers;
 using Serilog;
-using Forged.RealmServer.Globals;
-using Forged.RealmServer.Cache;
+using System.Collections.Generic;
 
 namespace Forged.RealmServer;
 

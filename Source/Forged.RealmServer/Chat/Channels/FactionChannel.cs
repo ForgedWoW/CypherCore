@@ -27,13 +27,13 @@ public class FactionChannel
     readonly ObjectGuidGenerator _guidGenerator;
 
 	public FactionChannel(TeamFaction team, WorldConfig worldConfig, CharacterDatabase characterDatabase, 
-		WorldManager worldManager, CliDB cliDB)
+		WorldManager worldManager, CliDB cliDb)
 	{
 		_team = team;
         _worldConfig = worldConfig;
         _characterDatabase = characterDatabase;
         _worldManager = worldManager;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _guidGenerator = new ObjectGuidGenerator(HighGuid.ChatChannel);
 	}
 

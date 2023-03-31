@@ -246,12 +246,6 @@ internal class Program
                 w.Instance.LoadWardenChecks();
                 w.Instance.LoadWardenOverrides();
             });
-            builder.RegisterType<WorldStateManager>().SingleInstance().OnActivated(w =>
-            {
-                w.Instance.LoadFromDB();
-                w.Instance.SetValue(WorldStates.CurrentPvpSeasonId, configuration.GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? configuration.GetDefaultValue("Arena.ArenaSeason.ID", 32) : 0, false, null);
-                w.Instance.SetValue(WorldStates.PreviousPvpSeasonId, configuration.GetDefaultValue("Arena.ArenaSeason.ID", 32) - (configuration.GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? 1 : 0), false, null);
-            });
             builder.RegisterType<CharacterCache>().SingleInstance().OnActivated(c => c.Instance.LoadCharacterCacheStorage());
             builder.RegisterType<WorldServiceManager>().SingleInstance();
             builder.RegisterType<SupportManager>().SingleInstance().OnActivated(s =>

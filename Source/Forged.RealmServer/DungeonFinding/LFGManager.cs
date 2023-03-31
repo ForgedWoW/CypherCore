@@ -55,13 +55,13 @@ public class LFGManager
 	uint m_lfgProposalId; //< used as internal counter for proposals
 	LfgOptions m_options; //< Stores config options
 
-	public LFGManager(IConfiguration configuration, WorldConfig worldConfig, CliDB cliDB, GameObjectManager gameObjectManager,
+	public LFGManager(IConfiguration configuration, WorldConfig worldConfig, CliDB cliDb, GameObjectManager gameObjectManager,
 		ObjectAccessor objectAccessor, DB2Manager dB2Manager, GroupManager groupManager, GameEventManager gameEventManager, WorldManager worldManager,
 		LFGManager lFGManager, WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameTime gameTime)
     {
         _configuration = configuration;
         _worldConfig = worldConfig;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _gameObjectManager = gameObjectManager;
         _objectAccessor = objectAccessor;
         _dB2Manager = dB2Manager;

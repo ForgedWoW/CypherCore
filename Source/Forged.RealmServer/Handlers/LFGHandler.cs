@@ -1,18 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
-using System.Linq;
-using Framework.Constants;
-using Forged.RealmServer.DungeonFinding;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Networking;
-using Game.Common.Handlers;
-using Forged.RealmServer.Networking.Packets;
-using Serilog;
-using System.Runtime.Serialization;
 using Forged.RealmServer.Cache;
+using Forged.RealmServer.DungeonFinding;
 using Forged.RealmServer.Globals;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
+using Framework.Constants;
+using Game.Common.Handlers;
+using Serilog;
+using System.Collections.Generic;
 
 namespace Forged.RealmServer;
 
@@ -25,12 +22,12 @@ public class LFGHandler : IWorldSessionHandler
     private readonly GameObjectManager _objectManager;
     private readonly CharacterCache _characterCache;
 
-    public LFGHandler(WorldSession session, GameTime gameTime, LFGManager lFGManager, CliDB cliDB, GameObjectManager objectManager, CharacterCache characterCache)
+    public LFGHandler(WorldSession session, GameTime gameTime, LFGManager lFGManager, CliDB cliDb, GameObjectManager objectManager, CharacterCache characterCache)
     {
         _session = session;
         _gameTime = gameTime;
         _lFGManager = lFGManager;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _objectManager = objectManager;
         _characterCache = characterCache;
     }

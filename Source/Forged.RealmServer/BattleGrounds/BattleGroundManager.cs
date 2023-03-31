@@ -1,21 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Forged.RealmServer.Conditions;
+using Forged.RealmServer.DataStorage;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Globals;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.World;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Threading;
-using Forged.RealmServer.BattleGrounds.Zones;
-using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Networking.Packets;
+using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using Framework.Util;
-using Forged.RealmServer.Conditions;
-using Forged.RealmServer.Globals;
+using System;
+using System.Collections.Generic;
 
 namespace Forged.RealmServer.BattleGrounds;
 
@@ -41,12 +40,12 @@ public class BattlegroundManager
 	bool _arenaTesting;
 	bool _testing;
 
-	BattlegroundManager(IConfiguration configuration, WorldConfig worldConfig, CliDB cliDB, DisableManager disableManager,
+	BattlegroundManager(IConfiguration configuration, WorldConfig worldConfig, CliDB cliDb, DisableManager disableManager,
 		GameObjectManager gameObjectManager, WorldManager worldManager, WorldDatabase worldDatabase, GameEventManager gameEventManager)
 	{
         _configuration = configuration;
         _worldConfig = worldConfig;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _disableManager = disableManager;
         _gameObjectManager = gameObjectManager;
         _worldManager = worldManager;

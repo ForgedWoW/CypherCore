@@ -16,7 +16,6 @@ namespace Forged.RealmServer;
 public class CalendarHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
-    private readonly Player _player;
     private readonly CalendarManager _calendarManager;
     private readonly WorldConfig _worldConfig;
     private readonly CharacterCache _characterCache;
@@ -26,12 +25,11 @@ public class CalendarHandler : IWorldSessionHandler
     private readonly ObjectAccessor _objectAccessor;
     private long _calendarEventCreationCooldown = 0;
 
-    public CalendarHandler(WorldSession session, Player player, CalendarManager calendarManager, WorldConfig worldConfig,
+    public CalendarHandler(WorldSession session, CalendarManager calendarManager, WorldConfig worldConfig,
         CharacterCache characterCache, GuildManager guildManager, ObjectAccessor objectAccessor, CharacterDatabase characterDatabase,
 		GameTime gameTime)
     {
         _session = session;
-        _player = player;
 		_calendarManager = calendarManager;
         _worldConfig = worldConfig;
         _characterCache = characterCache;
@@ -44,7 +42,7 @@ public class CalendarHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.CalendarGet)]
 	void HandleCalendarGetCalendar(CalendarGetCalendar calendarGetCalendar)
 	{
-		var guid = _player.GUID;
+		var guid = _session.Player.GUID;
 
 		var currTime = _gameTime.CurrentGameTime;
 
@@ -64,7 +62,7 @@ public class CalendarHandler : IWorldSessionHandler
 			var calendarEvent = _calendarManager.GetEvent(invite.EventId);
 
 			if (calendarEvent != null)
-				inviteInfo.InviteType = (byte)(calendarEvent.IsGuildEvent && calendarEvent.GuildId == _player.GuildId ? 1 : 0);
+				inviteInfo.InviteType = (byte)(calendarEvent.IsGuildEvent && calendarEvent.GuildId == _session.Player.GuildId ? 1 : 0);
 
 			packet.Invites.Add(inviteInfo);
 		}
@@ -97,15 +95,15 @@ public class CalendarHandler : IWorldSessionHandler
 		var calendarEvent = _calendarManager.GetEvent(calendarGetEvent.EventID);
 
 		if (calendarEvent != null)
-			_calendarManager.SendCalendarEvent(_player.GUID, calendarEvent, CalendarSendEventType.Get);
+			_calendarManager.SendCalendarEvent(_session.Player.GUID, calendarEvent, CalendarSendEventType.Get);
 		else
-			_calendarManager.SendCalendarCommandResult(_player.GUID, CalendarError.EventInvalid);
+			_calendarManager.SendCalendarCommandResult(_session.Player.GUID, CalendarError.EventInvalid);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CalendarCommunityInvite)]
 	void HandleCalendarCommunityInvite(CalendarCommunityInviteRequest calendarCommunityInvite)
 	{
-		var guild = _guildManager.GetGuildById(_player.GuildId);
+		var guild = _guildManager.GetGuildById(_session.Player.GuildId);
 
 		if (guild)
 			guild.MassInviteToEvent(_session, calendarCommunityInvite.MinLevel, calendarCommunityInvite.MaxLevel, (GuildRankOrder)calendarCommunityInvite.MaxRankOrder);
@@ -114,7 +112,7 @@ public class CalendarHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.CalendarAddEvent)]
 	void HandleCalendarAddEvent(CalendarAddEvent calendarAddEvent)
 	{
-		var guid = _player.GUID;
+		var guid = _session.Player.GUID;
 
 		calendarAddEvent.EventInfo.Time = Time.LocalTimeToUTCTime(calendarAddEvent.EventInfo.Time);
 
@@ -129,7 +127,7 @@ public class CalendarHandler : IWorldSessionHandler
 
 		// If the event is a guild event, check if the player is in a guild
 		if (CalendarEvent.ModifyIsGuildEventFlags(calendarAddEvent.EventInfo.Flags) || CalendarEvent.ModifyIsGuildAnnouncementFlags(calendarAddEvent.EventInfo.Flags))
-			if (_player.GuildId == 0)
+			if (_session.Player.GuildId == 0)
 			{
 				_calendarManager.SendCalendarCommandResult(guid, CalendarError.GuildPlayerNotInGuild);
 
@@ -139,7 +137,7 @@ public class CalendarHandler : IWorldSessionHandler
 		// Check if the player reached the max number of events allowed to create
 		if (CalendarEvent.ModifyIsGuildEventFlags(calendarAddEvent.EventInfo.Flags) || CalendarEvent.ModifyIsGuildAnnouncementFlags(calendarAddEvent.EventInfo.Flags))
 		{
-			if (_calendarManager.GetGuildEvents(_player.GuildId).Count >= SharedConst.CalendarMaxGuildEvents)
+			if (_calendarManager.GetGuildEvents(_session.Player.GuildId).Count >= SharedConst.CalendarMaxGuildEvents)
 			{
 				_calendarManager.SendCalendarCommandResult(guid, CalendarError.GuildEventsExceeded);
 
@@ -177,7 +175,7 @@ public class CalendarHandler : IWorldSessionHandler
 										0);
 
 		if (calendarEvent.IsGuildEvent || calendarEvent.IsGuildAnnouncement)
-			calendarEvent.GuildId = _player.GuildId;
+			calendarEvent.GuildId = _session.Player.GuildId;
 
 		if (calendarEvent.IsGuildAnnouncement)
 		{
@@ -217,7 +215,7 @@ public class CalendarHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.CalendarUpdateEvent)]
 	void HandleCalendarUpdateEvent(CalendarUpdateEvent calendarUpdateEvent)
 	{
-		var guid = _player.GUID;
+		var guid = _session.Player.GUID;
 		long oldEventTime;
 
 		calendarUpdateEvent.EventInfo.Time = Time.LocalTimeToUTCTime(calendarUpdateEvent.EventInfo.Time);
@@ -252,14 +250,14 @@ public class CalendarHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.CalendarRemoveEvent)]
 	void HandleCalendarRemoveEvent(CalendarRemoveEvent calendarRemoveEvent)
 	{
-		var guid = _player.GUID;
+		var guid = _session.Player.GUID;
 		_calendarManager.RemoveEvent(calendarRemoveEvent.EventID, guid);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CalendarCopyEvent)]
 	void HandleCalendarCopyEvent(CalendarCopyEvent calendarCopyEvent)
 	{
-		var guid = _player.GUID;
+		var guid = _session.Player.GUID;
 
 		calendarCopyEvent.Date = Time.LocalTimeToUTCTime(calendarCopyEvent.Date);
 
@@ -279,7 +277,7 @@ public class CalendarHandler : IWorldSessionHandler
 			// Ensure that the player has access to the event
 			if (oldEvent.IsGuildEvent || oldEvent.IsGuildAnnouncement)
 			{
-				if (oldEvent.GuildId != _player.GuildId)
+				if (oldEvent.GuildId != _session.Player.GuildId)
 				{
 					_calendarManager.SendCalendarCommandResult(guid, CalendarError.EventInvalid);
 
@@ -299,7 +297,7 @@ public class CalendarHandler : IWorldSessionHandler
 			// Check if the player reached the max number of events allowed to create
 			if (oldEvent.IsGuildEvent || oldEvent.IsGuildAnnouncement)
 			{
-				if (_calendarManager.GetGuildEvents(_player.GuildId).Count >= SharedConst.CalendarMaxGuildEvents)
+				if (_calendarManager.GetGuildEvents(_session.Player.GuildId).Count >= SharedConst.CalendarMaxGuildEvents)
 				{
 					_calendarManager.SendCalendarCommandResult(guid, CalendarError.GuildEventsExceeded);
 
@@ -351,7 +349,7 @@ public class CalendarHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.CalendarInvite)]
 	void HandleCalendarInvite(CalendarInvitePkt calendarInvite)
 	{
-		var playerGuid = _player.GUID;
+		var playerGuid = _session.Player.GUID;
 
 		var inviteeGuid = ObjectGuid.Empty;
 		TeamFaction inviteeTeam = 0;
@@ -394,7 +392,7 @@ public class CalendarHandler : IWorldSessionHandler
 			return;
 		}
 
-		if (_player.Team != inviteeTeam && !_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionCalendar))
+		if (_session.Player.Team != inviteeTeam && !_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionCalendar))
 		{
 			_calendarManager.SendCalendarCommandResult(playerGuid, CalendarError.NotAllied);
 
@@ -435,7 +433,7 @@ public class CalendarHandler : IWorldSessionHandler
 		}
 		else
 		{
-			if (calendarInvite.IsSignUp && inviteeGuildId == _player.GuildId)
+			if (calendarInvite.IsSignUp && inviteeGuildId == _session.Player.GuildId)
 			{
 				_calendarManager.SendCalendarCommandResult(playerGuid, CalendarError.NoGuildInvites);
 
@@ -450,13 +448,13 @@ public class CalendarHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.CalendarEventSignUp)]
 	void HandleCalendarEventSignup(CalendarEventSignUp calendarEventSignUp)
 	{
-		var guid = _player.GUID;
+		var guid = _session.Player.GUID;
 
 		var calendarEvent = _calendarManager.GetEvent(calendarEventSignUp.EventID);
 
 		if (calendarEvent != null)
 		{
-			if (calendarEvent.IsGuildEvent && calendarEvent.GuildId != _player.GuildId)
+			if (calendarEvent.IsGuildEvent && calendarEvent.GuildId != _session.Player.GuildId)
 			{
 				_calendarManager.SendCalendarCommandResult(guid, CalendarError.GuildPlayerNotInGuild);
 
@@ -477,7 +475,7 @@ public class CalendarHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.CalendarRsvp)]
 	void HandleCalendarRsvp(HandleCalendarRsvp calendarRSVP)
 	{
-		var guid = _player.GUID;
+		var guid = _session.Player.GUID;
 
 		var calendarEvent = _calendarManager.GetEvent(calendarRSVP.EventID);
 
@@ -516,7 +514,7 @@ public class CalendarHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.CalendarRemoveInvite)]
 	void HandleCalendarEventRemoveInvite(CalendarRemoveInvite calendarRemoveInvite)
 	{
-		var guid = _player.GUID;
+		var guid = _session.Player.GUID;
 
 		var calendarEvent = _calendarManager.GetEvent(calendarRemoveInvite.EventID);
 
@@ -540,7 +538,7 @@ public class CalendarHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.CalendarStatus)]
 	void HandleCalendarStatus(CalendarStatus calendarStatus)
 	{
-		var guid = _player.GUID;
+		var guid = _session.Player.GUID;
 
 		var calendarEvent = _calendarManager.GetEvent(calendarStatus.EventID);
 
@@ -570,7 +568,7 @@ public class CalendarHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.CalendarModeratorStatus)]
 	void HandleCalendarModeratorStatus(CalendarModeratorStatusQuery calendarModeratorStatus)
 	{
-		var guid = _player.GUID;
+		var guid = _session.Player.GUID;
 
 		var calendarEvent = _calendarManager.GetEvent(calendarModeratorStatus.EventID);
 
@@ -604,7 +602,7 @@ public class CalendarHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.CalendarGetNumPending)]
 	void HandleCalendarGetNumPending(CalendarGetNumPending calendarGetNumPending)
 	{
-		var guid = _player.GUID;
+		var guid = _session.Player.GUID;
 		var pending = _calendarManager.GetPlayerNumPending(guid);
 
         _session.SendPacket(new CalendarSendNumPending(pending));
@@ -614,7 +612,7 @@ public class CalendarHandler : IWorldSessionHandler
 	void HandleSetSavedInstanceExtend(SetSavedInstanceExtend setSavedInstanceExtend)
 	{
 		// cannot modify locks currently in use
-		if (_player.Location.MapId == setSavedInstanceExtend.MapID)
+		if (_session.Player.Location.MapId == setSavedInstanceExtend.MapID)
 			return;
 
         // Send to map server
