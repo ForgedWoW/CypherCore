@@ -264,7 +264,7 @@ public class WorldManager
 
     public WorldManager(IConfiguration configuration, LoginDatabase loginDatabase, ScriptManager scriptManager,
                         WorldDatabase worldDatabase, CharacterDatabase characterDatabase, SupportManager supportManager,
-                        CliDB cliDB, Realm realm, GameTime gameTime)
+                        CliDB cliDb, Realm realm, GameTime gameTime)
     {
         _configuration = configuration;
         _loginDatabase = loginDatabase;
@@ -272,7 +272,7 @@ public class WorldManager
         _worldDatabase = worldDatabase;
         _characterDatabase = characterDatabase;
         _supportManager = supportManager;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _realm = realm;
         _gameTime = gameTime;
 

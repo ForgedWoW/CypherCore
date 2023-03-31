@@ -57,9 +57,9 @@ public class GarrisonManager
 
 	ulong _followerDbIdGenerator = 1;
 
-	public GarrisonManager(CliDB cliDB, WorldDatabase worldDatabase, CharacterDatabase characterDatabase, WorldManager worldManager, GameObjectManager gameObjectManager)
+	public GarrisonManager(CliDB cliDb, WorldDatabase worldDatabase, CharacterDatabase characterDatabase, WorldManager worldManager, GameObjectManager gameObjectManager)
     {
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _worldDatabase = worldDatabase;
         _characterDatabase = characterDatabase;
         _worldManager = worldManager;

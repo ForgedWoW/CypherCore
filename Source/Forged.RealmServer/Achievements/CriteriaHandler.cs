@@ -1812,7 +1812,7 @@ public class CriteriaHandler
 			case ModifierTreeType.ResearchProjectBranch: // 66 NYI
 				return false;
 			case ModifierTreeType.WorldStateExpression: // 67
-				var worldStateExpression = _cliDb.StateExpressionStorage.LookupByKey(reqValue);
+				var worldStateExpression = _cliDb.WorldStateExpressionStorage.LookupByKey(reqValue);
 
 				if (worldStateExpression != null)
 					return ConditionManager.IsPlayerMeetingExpression(referencePlayer, worldStateExpression);

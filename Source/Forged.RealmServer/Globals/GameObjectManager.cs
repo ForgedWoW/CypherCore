@@ -1,10 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
+using Autofac;
 using Forged.RealmServer.Conditions;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
@@ -17,11 +14,17 @@ using Framework.Database;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 
 namespace Forged.RealmServer.Globals;
 
 public sealed class GameObjectManager
 {
+    private readonly IContainer _container;
+
     //Faction Change
     public Dictionary<uint, uint> FactionChangeAchievements = new();
     public Dictionary<uint, uint> FactionChangeItemsAllianceToHorde = new();
@@ -243,11 +246,12 @@ public sealed class GameObjectManager
 
     public MultiMap<uint, GraveYardData> GraveYardStorage { get; } = new();
 
-    public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration)
+    public GameObjectManager(IContainer container)
     {
-        _cliDb = cliDB;
-        _worldDatabase = worldDatabase;
-        _configuration = configuration;
+        _container = container;
+        _cliDb = container.Resolve<CliDB>();
+        _worldDatabase = container.Resolve<WorldDatabase>();
+        _configuration = container.Resolve<IConfiguration>();
 
         for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
         {
@@ -7247,7 +7251,7 @@ public sealed class GameObjectManager
         // for example set of race quests can lead to single not race specific quest
         do
         {
-            Quest.Quest newQuest = new(result.GetFields());
+            Quest.Quest newQuest = new(result.GetFields(), _container);
             _questTemplates[newQuest.Id] = newQuest;
 
             if (newQuest.IsAutoPush)

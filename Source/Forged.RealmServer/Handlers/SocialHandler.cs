@@ -1,20 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using Framework.Constants;
-using Framework.Database;
+using Forged.RealmServer.Accounts;
+using Forged.RealmServer.Cache;
+using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
+using Forged.RealmServer.Globals;
 using Forged.RealmServer.Networking;
 using Forged.RealmServer.Networking.Packets;
-using Game.Common.Handlers;
-using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Accounts;
-using Forged.RealmServer.Globals;
-using Forged.RealmServer.Cache;
-using Serilog;
 using Forged.RealmServer.World;
+using Framework.Constants;
+using Framework.Database;
+using Game.Common.Handlers;
+using Serilog;
+using System;
+using System.Collections.Generic;
 
 namespace Forged.RealmServer;
 
@@ -32,14 +32,14 @@ public class SocialHandler : IWorldSessionHandler
     private readonly SocialManager _socialManager;
 
     public SocialHandler(WorldSession session, WorldConfig worldConfig, WhoListStorageManager whoListStorageManager,
-		AccountManager accountManager, CliDB cliDB, LoginDatabase loginDatabase, WorldManager worldManager, ObjectAccessor objectAccessor,
+		AccountManager accountManager, CliDB cliDb, LoginDatabase loginDatabase, WorldManager worldManager, ObjectAccessor objectAccessor,
 		CharacterCache characterCache, SocialManager socialManager)
     {
         _session = session;
         _worldConfig = worldConfig;
         _whoListStorageManager = whoListStorageManager;
         _accountManager = accountManager;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _loginDatabase = loginDatabase;
         _worldManager = worldManager;
         _objectAccessor = objectAccessor;

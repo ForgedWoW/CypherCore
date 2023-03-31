@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Forged.RealmServer.Handlers;
 using Forged.RealmServer.Networking;
-using Game.Common.Handlers;
 using Forged.RealmServer.Networking.Packets;
+using Framework.Constants;
+using Game.Common.Handlers;
 
 namespace Forged.RealmServer;
 
@@ -34,7 +33,7 @@ public class CollectionsHandler : IWorldSessionHandler
 				if (!pair.Item1 || pair.Item2)
 					return;
 
-                    _session.CollectionMgr.SetAppearanceIsFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
+                _session.CollectionMgr.SetAppearanceIsFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
 
 				break;
 			}

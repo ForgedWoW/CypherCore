@@ -20,10 +20,10 @@ public class ConversationDataStorage
     private readonly WorldDatabase _worldDatabase;
     private readonly GameObjectManager _gameObjectManager;
 
-    ConversationDataStorage(IConfiguration configuration, CliDB cliDB, WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
+    ConversationDataStorage(IConfiguration configuration, CliDB cliDb, WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
     {
         _configuration = configuration;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _worldDatabase = worldDatabase;
         _gameObjectManager = gameObjectManager;
 
@@ -210,19 +210,19 @@ public class ConversationDataStorage
 		public uint CreatureId;
 		public uint CreatureDisplayInfoId;
 
-		public bool Invoke(ConversationActorTemplate template, IConfiguration configuration, CliDB cliDB, GameObjectManager gameObjectManager, WorldDatabase worldDatabase)
+		public bool Invoke(ConversationActorTemplate template, IConfiguration configuration, CliDB cliDb, GameObjectManager gameObjectManager, WorldDatabase worldDatabase)
 		{
 			if (template.WorldObjectTemplate != null)
 				return Invoke(template.WorldObjectTemplate, configuration, gameObjectManager, worldDatabase);
 
 			if (template.NoObjectTemplate != null)
-				return Invoke(template.NoObjectTemplate, cliDB, gameObjectManager);
+				return Invoke(template.NoObjectTemplate, cliDb, gameObjectManager);
 
 			if (template.ActivePlayerTemplate != null)
 				return Invoke(template.ActivePlayerTemplate);
 
 			if (template.TalkingHeadTemplate != null)
-				return Invoke(template.TalkingHeadTemplate, cliDB, gameObjectManager);
+				return Invoke(template.TalkingHeadTemplate, cliDb, gameObjectManager);
 
 			return false;
 		}
@@ -257,7 +257,7 @@ public class ConversationDataStorage
 			return true;
 		}
 
-		public bool Invoke(ConversationActorNoObjectTemplate noObject, CliDB cliDB, GameObjectManager gameObjectManager)
+		public bool Invoke(ConversationActorNoObjectTemplate noObject, CliDB cliDb, GameObjectManager gameObjectManager)
 		{
 			if (gameObjectManager.GetCreatureTemplate(CreatureId) == null)
 			{
@@ -266,7 +266,7 @@ public class ConversationDataStorage
 				return false;
 			}
 
-			if (CreatureDisplayInfoId != 0 && !cliDB.CreatureDisplayInfoStorage.ContainsKey(CreatureDisplayInfoId))
+			if (CreatureDisplayInfoId != 0 && !cliDb.CreatureDisplayInfoStorage.ContainsKey(CreatureDisplayInfoId))
 			{
 				Log.Logger.Error($"Table `conversation_actors` references an invalid creature display id ({CreatureDisplayInfoId}) for Conversation {ConversationId} and Idx {ActorIndex}, skipped.");
 
@@ -296,7 +296,7 @@ public class ConversationDataStorage
 			return true;
 		}
 
-		public bool Invoke(ConversationActorTalkingHeadTemplate talkingHead, CliDB cliDB, GameObjectManager gameObjectManager)
+		public bool Invoke(ConversationActorTalkingHeadTemplate talkingHead, CliDB cliDb, GameObjectManager gameObjectManager)
 		{
 			if (gameObjectManager.GetCreatureTemplate(CreatureId) == null)
 			{
@@ -305,7 +305,7 @@ public class ConversationDataStorage
 				return false;
 			}
 
-			if (CreatureDisplayInfoId != 0 && !cliDB.CreatureDisplayInfoStorage.ContainsKey(CreatureDisplayInfoId))
+			if (CreatureDisplayInfoId != 0 && !cliDb.CreatureDisplayInfoStorage.ContainsKey(CreatureDisplayInfoId))
 			{
 				Log.Logger.Error($"Table `conversation_actors` references an invalid creature display id ({CreatureDisplayInfoId}) for Conversation {ConversationId} and Idx {ActorIndex}, skipped.");
 

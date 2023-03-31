@@ -522,7 +522,7 @@ public class BgStrandOfAncients : Battleground
 
 		if (!AddCreature(SAMiscConst.NpcEntries[SACreatureTypes.Kanrethad], SACreatureTypes.Kanrethad, SAMiscConst.NpcSpawnlocs[SACreatureTypes.Kanrethad]))
 		{
-			Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn Kanrethad, aborted. Entry: {SAMiscConst.NpcEntries[SACreatureTypes.Kanrethad]}");
+			Log.Logger.Error($"SOTA: couldn't spawn Kanrethad, aborted. Entry: {SAMiscConst.NpcEntries[SACreatureTypes.Kanrethad]}");
 
 			return false;
 		}
@@ -530,7 +530,7 @@ public class BgStrandOfAncients : Battleground
 		for (byte i = 0; i <= SAObjectTypes.PortalDeffenderRed; i++)
 			if (!AddObject(i, SAMiscConst.ObjEntries[i], SAMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
 			{
-				Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn BG_SA_PORTAL_DEFFENDER_RED, Entry: {SAMiscConst.ObjEntries[i]}");
+				Log.Logger.Error($"SOTA: couldn't spawn BG_SA_PORTAL_DEFFENDER_RED, Entry: {SAMiscConst.ObjEntries[i]}");
 
 				continue;
 			}
@@ -565,7 +565,7 @@ public class BgStrandOfAncients : Battleground
 							0,
 							BattlegroundConst.RespawnOneDay))
 			{
-				Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn one of the BG_SA_BOAT, Entry: {boatid}");
+				Log.Logger.Error($"SOTA: couldn't spawn one of the BG_SA_BOAT, Entry: {boatid}");
 
 				continue;
 			}
@@ -574,7 +574,7 @@ public class BgStrandOfAncients : Battleground
 		for (byte i = SAObjectTypes.Sigil1; i <= SAObjectTypes.LeftFlagpole; i++)
 			if (!AddObject(i, SAMiscConst.ObjEntries[i], SAMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
 			{
-				Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn Sigil, Entry: {SAMiscConst.ObjEntries[i]}");
+				Log.Logger.Error($"SOTA: couldn't spawn Sigil, Entry: {SAMiscConst.ObjEntries[i]}");
 
 				continue;
 			}
@@ -590,7 +590,7 @@ public class BgStrandOfAncients : Battleground
 		for (byte i = 0; i < SACreatureTypes.Demolisher5; i++)
 			if (!AddCreature(SAMiscConst.NpcEntries[i], i, SAMiscConst.NpcSpawnlocs[i], Attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance, 600))
 			{
-				Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn Cannon or demolisher, Entry: {SAMiscConst.NpcEntries[i]}, Attackers: {(Attackers == TeamIds.Alliance ? "Horde(1)" : "Alliance(0)")}");
+				Log.Logger.Error($"SOTA: couldn't spawn Cannon or demolisher, Entry: {SAMiscConst.NpcEntries[i]}, Attackers: {(Attackers == TeamIds.Alliance ? "Horde(1)" : "Alliance(0)")}");
 
 				continue;
 			}
@@ -617,7 +617,7 @@ public class BgStrandOfAncients : Battleground
 
 			if (sg == null)
 			{
-				Log.outError(LogFilter.Battleground, $"SOTA: Can't find GY entry {SAMiscConst.GYEntries[i]}");
+				Log.Logger.Error($"SOTA: Can't find GY entry {SAMiscConst.GYEntries[i]}");
 
 				return false;
 			}
@@ -632,7 +632,7 @@ public class BgStrandOfAncients : Battleground
 				GraveyardStatus[i] = ((Attackers == TeamIds.Horde) ? TeamIds.Alliance : TeamIds.Horde);
 
 				if (!AddSpiritGuide(i + SACreatureTypes.Max, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, SAMiscConst.GYOrientation[i], Attackers == TeamIds.Horde ? TeamIds.Alliance : TeamIds.Horde))
-					Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn GY: {i}");
+					Log.Logger.Error($"SOTA: couldn't spawn GY: {i}");
 			}
 		}
 
@@ -641,7 +641,7 @@ public class BgStrandOfAncients : Battleground
 		{
 			if (!AddObject(i, (SAMiscConst.ObjEntries[i] - (Attackers == TeamIds.Alliance ? 1u : 0)), SAMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
 			{
-				Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn Central Flag Entry: {SAMiscConst.ObjEntries[i] - (Attackers == TeamIds.Alliance ? 1 : 0)}");
+				Log.Logger.Error($"SOTA: couldn't spawn Central Flag Entry: {SAMiscConst.ObjEntries[i] - (Attackers == TeamIds.Alliance ? 1 : 0)}");
 
 				continue;
 			}
@@ -655,7 +655,7 @@ public class BgStrandOfAncients : Battleground
 		{
 			if (!AddObject(i, SAMiscConst.ObjEntries[SAObjectTypes.Bomb], SAMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
 			{
-				Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn SA Bomb Entry: {SAMiscConst.ObjEntries[SAObjectTypes.Bomb] + i}");
+				Log.Logger.Error($"SOTA: couldn't spawn SA Bomb Entry: {SAMiscConst.ObjEntries[SAObjectTypes.Bomb] + i}");
 
 				continue;
 			}
@@ -909,7 +909,7 @@ public class BgStrandOfAncients : Battleground
 
 		if (sg == null)
 		{
-			Log.outError(LogFilter.Battleground, $"CaptureGraveyard: non-existant GY entry: {SAMiscConst.GYEntries[i]}");
+			Log.Logger.Error($"CaptureGraveyard: non-existant GY entry: {SAMiscConst.GYEntries[i]}");
 
 			return;
 		}

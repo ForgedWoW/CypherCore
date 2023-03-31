@@ -1,20 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Forged.RealmServer.BattleGrounds;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Globals;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
-using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Maps;
-using Serilog;
-using Forged.RealmServer.Globals;
-using Microsoft.Extensions.Configuration;
 using Framework.Util;
-using Forged.RealmServer.BattleGrounds;
+using Microsoft.Extensions.Configuration;
+using Serilog;
+using System;
+using System.Collections.Generic;
+using Forged.RealmServer.World;
 
 namespace Forged.RealmServer;
 
@@ -34,7 +32,6 @@ public class GameEventManager
     private readonly WorldConfig _worldConfig;
     private readonly PoolManager _poolManager;
     private readonly BattlegroundManager _battlegroundManager;
-    private readonly WorldStateManager _worldStateManager;
     List<Tuple<uint, uint>>[] _gameEventCreatureQuests;
 	List<Tuple<uint, uint>>[] _gameEventGameObjectQuests;
 	Dictionary<uint, VendorItem>[] _gameEventVendors;
@@ -45,13 +42,20 @@ public class GameEventManager
 	List<(ulong guid, ulong npcflag)>[] _gameEventNPCFlags;
 	bool _isSystemInit;
 
-	GameEventManager(GameTime gameTime, WorldManager worldManager, CliDB cliDB, CharacterDatabase characterDatabase, WorldDatabase worldDatabase,
-		GameObjectManager gameObjectManager, IConfiguration configuration, WorldConfig worldConfig, PoolManager poolManager, BattlegroundManager battlegroundManager,
-		WorldStateManager worldStateManager)
+	GameEventManager(GameTime gameTime,
+                        WorldManager worldManager,
+                        CliDB cliDb,
+                        CharacterDatabase characterDatabase,
+                        WorldDatabase worldDatabase,
+                        GameObjectManager gameObjectManager,
+                        IConfiguration configuration,
+                        WorldConfig worldConfig,
+                        PoolManager poolManager,
+                        BattlegroundManager battlegroundManager)
     {
         _gameTime = gameTime;
         _worldManager = worldManager;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _characterDatabase = characterDatabase;
         _worldDatabase = worldDatabase;
         _gameObjectManager = gameObjectManager;
@@ -59,7 +63,6 @@ public class GameEventManager
         _worldConfig = worldConfig;
         _poolManager = poolManager;
         _battlegroundManager = battlegroundManager;
-        _worldStateManager = worldStateManager;
 
 		Initialize();
 		LoadFromDB();
@@ -1323,7 +1326,8 @@ public class GameEventManager
 		ChangeEquipOrModel((short)event_id, false);
 		// Remove quests that are events only to non event npc
 		UpdateEventQuests(event_id, false);
-		UpdateWorldStates(event_id, false);
+        // Send to map server
+        //UpdateWorldStates(event_id, false);
 		// update npcflags in this event
 		UpdateEventNPCFlags(event_id);
 		// remove vendor items
@@ -1350,7 +1354,8 @@ public class GameEventManager
 		ChangeEquipOrModel((short)event_id, true);
 		// Add quests that are events only to non event npc
 		UpdateEventQuests(event_id, true);
-		UpdateWorldStates(event_id, true);
+        // Send to map server
+        //UpdateWorldStates(event_id, true);
 		// add vendor items
 		UpdateEventNPCVendor(event_id, true);
 		// update bg holiday
@@ -1370,10 +1375,11 @@ public class GameEventManager
 
     void UpdateBattlegroundSettings()
 	{
-        _battlegroundManager.ResetHolidays();
+		// TODO: Investigate
+  //      _battlegroundManager.ResetHolidays();
 
-		foreach (var activeEventId in _activeEvents)
-            _battlegroundManager.SetHolidayActive(_gameEventBattlegroundHolidays[activeEventId]);
+		//foreach (var activeEventId in _activeEvents)
+  //          _battlegroundManager.SetHolidayActive(_gameEventBattlegroundHolidays[activeEventId]);
 	}
 
 	void UpdateEventNPCVendor(ushort eventId, bool activate)
@@ -1486,26 +1492,7 @@ public class GameEventManager
 			}
 		}
 	}
-
-	void UpdateWorldStates(ushort event_id, bool Activate)
-	{
-		var Event = _gameEvent[event_id];
-
-		if (Event.holiday_id != HolidayIds.None)
-		{
-			var bgTypeId = _battlegroundManager.WeekendHolidayIdToBGType(Event.holiday_id);
-
-			if (bgTypeId != BattlegroundTypeId.None)
-			{
-				var bl = _cliDb.BattlemasterListStorage.LookupByKey((uint)_battlegroundManager.WeekendHolidayIdToBGType(Event.holiday_id));
-
-				if (bl != null)
-					if (bl.HolidayWorldState != 0)
-						_worldStateManager.SetValue(bl.HolidayWorldState, Activate ? 1 : 0, false, null);
-			}
-		}
-	}
-
+	
 	bool CheckOneGameEventConditions(ushort event_id)
 	{
 		foreach (var pair in _gameEvent[event_id].conditions)

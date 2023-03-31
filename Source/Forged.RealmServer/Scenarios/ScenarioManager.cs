@@ -23,11 +23,11 @@ public class ScenarioManager
 	readonly MultiMap<uint, ScenarioPOI> _scenarioPOIStore = new();
 	readonly Dictionary<Tuple<uint, byte>, ScenarioDBData> _scenarioDBData = new();
 
-	public ScenarioManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB, CriteriaManager criteriaManager)
+	public ScenarioManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDb, CriteriaManager criteriaManager)
     {
         _configuration = configuration;
         _worldDatabase = worldDatabase;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _criteriaManager = criteriaManager;
     }
 	

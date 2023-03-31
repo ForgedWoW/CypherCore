@@ -35,7 +35,7 @@ public class PlayerTextBuilder : MessageBuilder
 
 	public override PacketSenderOwning<ChatPkt> Invoke(Locale loc_idx = Locale.enUS)
 	{
-		var text = Global.CreatureTextMgr.GetLocalizedChatString(_source.Entry, _gender, _textGroup, _textId, loc_idx);
+		var text = _creatureTextManager.GetLocalizedChatString(_source.Entry, _gender, _textGroup, _textId, loc_idx);
 		PacketSenderOwning<ChatPkt> chat = new();
 		chat.Data.Initialize(_msgType, _language, _talker, _target, text, 0, "", loc_idx);
 

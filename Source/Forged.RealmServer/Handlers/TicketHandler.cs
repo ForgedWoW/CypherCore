@@ -1,12 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.SupportSystem;
 using Framework.Constants;
 using Framework.Database;
-using Forged.RealmServer.SupportSystem;
-using Forged.RealmServer.Networking;
-using Forged.RealmServer.Handlers;
-using Forged.RealmServer.Networking.Packets;
 using Game.Common.Handlers;
 
 namespace Forged.RealmServer;

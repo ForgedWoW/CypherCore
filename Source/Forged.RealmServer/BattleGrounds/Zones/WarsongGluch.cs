@@ -461,7 +461,7 @@ class BgWarsongGluch : Battleground
 		{
 			if (!player)
 			{
-				Log.outError(LogFilter.Battleground, "BattlegroundWS: Removing offline player who has the FLAG!!");
+				Log.Logger.Error("BattlegroundWS: Removing offline player who has the FLAG!!");
 				SetAllianceFlagPicker(ObjectGuid.Empty);
 				RespawnFlag(TeamFaction.Alliance, false);
 			}
@@ -475,7 +475,7 @@ class BgWarsongGluch : Battleground
 		{
 			if (!player)
 			{
-				Log.outError(LogFilter.Battleground, "BattlegroundWS: Removing offline player who has the FLAG!!");
+				Log.Logger.Error("BattlegroundWS: Removing offline player who has the FLAG!!");
 				SetHordeFlagPicker(ObjectGuid.Empty);
 				RespawnFlag(TeamFaction.Horde, false);
 			}
@@ -794,7 +794,7 @@ class BgWarsongGluch : Battleground
 		if (obj)
 			obj.Delete();
 		else
-			Log.outError(LogFilter.Battleground, "unknown droped flag ({0})", GetDroppedFlagGUID(team).ToString());
+			Log.Logger.Error("unknown droped flag ({0})", GetDroppedFlagGUID(team).ToString());
 
 		SetDroppedFlagGUID(ObjectGuid.Empty, GetTeamIndexByTeamId(team));
 		_bothFlagsKept = false;

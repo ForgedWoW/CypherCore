@@ -26,9 +26,9 @@ public class AchievementGlobalMgr
     private readonly WorldDatabase _worldDatabase;
     private readonly GameObjectManager _gameObjectManager;
 
-    AchievementGlobalMgr(CliDB cliDB, CharacterDatabase characterDatabase, WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
+    AchievementGlobalMgr(CliDB cliDb, CharacterDatabase characterDatabase, WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
     {
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _characterDatabase = characterDatabase;
         _worldDatabase = worldDatabase;
         _gameObjectManager = gameObjectManager;

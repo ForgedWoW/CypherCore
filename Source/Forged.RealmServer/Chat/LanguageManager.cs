@@ -23,9 +23,9 @@ public class LanguageManager
 	readonly MultiMap<Tuple<uint, byte>, string> _wordsMap = new();
     private readonly CliDB _cliDb;
 
-    LanguageManager(CliDB cliDB)
+    LanguageManager(CliDB cliDb)
     {
-        _cliDb = cliDB;
+        _cliDb = cliDb;
 
 		LoadLanguages();
 		LoadLanguagesWords();

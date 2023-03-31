@@ -27,12 +27,12 @@ public class DisableManager
     private readonly GameObjectManager _objectManager;
     private readonly Dictionary<DisableType, Dictionary<uint, DisableData>> _disableMap = new();
 
-    public DisableManager(WorldDatabase worldDatabase, IConfiguration configuration, CliDB cliDB, SpellManager spellManager, 
+    public DisableManager(WorldDatabase worldDatabase, IConfiguration configuration, CliDB cliDb, SpellManager spellManager, 
                           DB2Manager db2Manager, CriteriaManager criteriaManager, GameObjectManager objectManager)
     {
         _worldDatabase = worldDatabase;
         _configuration = configuration;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _spellManager = spellManager;
         _db2Manager = db2Manager;
         _criteriaManager = criteriaManager;

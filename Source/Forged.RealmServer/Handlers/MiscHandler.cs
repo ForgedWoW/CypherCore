@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
+using Framework.Constants;
+using Framework.IO;
+using Game.Common.Handlers;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Framework.Constants;
-using Framework.IO;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Networking;
-using Game.Common.Handlers;
-using Forged.RealmServer.Networking.Packets;
-using Serilog;
 
 namespace Forged.RealmServer;
 
@@ -22,11 +22,11 @@ public class MiscHandler : IWorldSessionHandler
     private readonly GuildManager _guildManager;
     private readonly GameTime _gameTime;
 
-    public MiscHandler(WorldSession session, CliDB cliDB, CollectionMgr collectionMgr,
+    public MiscHandler(WorldSession session, CliDB cliDb, CollectionMgr collectionMgr,
 		GuildManager guildManager, GameTime gameTime)
     {
         _session = session;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _collectionMgr = collectionMgr;
         _guildManager = guildManager;
         _gameTime = gameTime;

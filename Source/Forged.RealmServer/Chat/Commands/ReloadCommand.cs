@@ -265,7 +265,7 @@ class ReloadCommand
 	static bool HandleReloadCreatureText(CommandHandler handler)
 	{
 		Log.Logger.Information("Re-Loading Creature Texts...");
-		Global.CreatureTextMgr.LoadCreatureTexts();
+		_creatureTextManager.LoadCreatureTexts();
 		handler.SendGlobalGMSysMessage("Creature Texts reloaded.");
 
 		return true;
@@ -482,7 +482,7 @@ class ReloadCommand
 	static bool HandleReloadCreatureTextLocaleCommand(CommandHandler handler)
 	{
 		Log.Logger.Information("Re-Loading Creature Texts Locale...");
-		Global.CreatureTextMgr.LoadCreatureTextLocales();
+		_creatureTextManager.LoadCreatureTextLocales();
 		handler.SendGlobalGMSysMessage("DB table `creature_text_locale` reloaded.");
 
 		return true;

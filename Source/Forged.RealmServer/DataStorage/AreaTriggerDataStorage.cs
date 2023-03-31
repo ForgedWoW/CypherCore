@@ -24,12 +24,12 @@ public class AreaTriggerDataStorage
     private readonly WorldDatabase _worldDatabase;
     private readonly CliDB _cliDb;
 
-    AreaTriggerDataStorage(IConfiguration configuration, GameObjectManager gameObjectManager, WorldDatabase worldDatabase, CliDB cliDB)
+    AreaTriggerDataStorage(IConfiguration configuration, GameObjectManager gameObjectManager, WorldDatabase worldDatabase, CliDB cliDb)
     {
         _configuration = configuration;
         _gameObjectManager = gameObjectManager;
         _worldDatabase = worldDatabase;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
     }
 
     public void LoadAreaTriggerTemplates()

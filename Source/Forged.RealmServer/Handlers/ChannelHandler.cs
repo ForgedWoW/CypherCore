@@ -1,16 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using Framework.Constants;
 using Forged.RealmServer.Chat;
-using Forged.RealmServer.DataStorage;
+using Forged.RealmServer.Globals;
 using Forged.RealmServer.Networking;
 using Forged.RealmServer.Networking.Packets;
+using Framework.Constants;
 using Game.Common.Handlers;
 using Serilog;
-using Forged.RealmServer.Globals;
+using System;
+using System.Collections.Generic;
 
 namespace Forged.RealmServer;
 
@@ -20,10 +19,10 @@ public class ChannelHandler : IWorldSessionHandler
     private readonly CliDB _cliDb;
     private readonly ChannelManager _channelManager;
 
-    public ChannelHandler(WorldSession session, CliDB cliDB, ChannelManager channelManager)
+    public ChannelHandler(WorldSession session, CliDB cliDb, ChannelManager channelManager)
     {
         _session = session;
-		_cliDb = cliDB;
+		_cliDb = cliDb;
         _channelManager = channelManager;
     }
 

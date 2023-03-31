@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Microsoft.Extensions.Configuration;
-using Forged.RealmServer.Networking.Packets;
-using Framework.Util;
-using Game.Common.Handlers;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Globals;
+using Forged.RealmServer.Networking.Packets;
+using Framework.Constants;
+using Framework.Util;
+using Game.Common.Handlers;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.RealmServer.Handlers;
 
@@ -21,8 +21,13 @@ public class AuthenticationHandler : IWorldSessionHandler
     private readonly CharacterTemplateDataStorage _characterTemplateDataStorage;
     private readonly GameObjectManager _objectManager;
 
-    public AuthenticationHandler(WorldSession session, Realm realm, IConfiguration configuration, GameTime gameTime, WorldConfig worldConfig,
-		CharacterTemplateDataStorage characterTemplateDataStorage, GameObjectManager objectManager)
+    public AuthenticationHandler(WorldSession session,
+                                    Realm realm,
+                                    IConfiguration configuration,
+                                    GameTime gameTime,
+                                    WorldConfig worldConfig,
+                                    CharacterTemplateDataStorage characterTemplateDataStorage,
+                                    GameObjectManager objectManager)
     {
         _session = session;
         _realm = realm;

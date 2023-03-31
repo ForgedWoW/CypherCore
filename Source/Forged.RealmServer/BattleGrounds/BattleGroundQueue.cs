@@ -260,7 +260,7 @@ public class BattlegroundQueue
 		//player can't be in queue without group, but just in case
 		if (bracket_id == -1)
 		{
-			Log.outError(LogFilter.Battleground, "BattlegroundQueue: ERROR Cannot find groupinfo for {0}", guid.ToString());
+			Log.Logger.Error("BattlegroundQueue: ERROR Cannot find groupinfo for {0}", guid.ToString());
 
 			return;
 		}
@@ -430,7 +430,7 @@ public class BattlegroundQueue
 
 		if (!bg_template)
 		{
-			Log.outError(LogFilter.Battleground, $"Battleground: Update: bg template not found for {m_queueId.BattlemasterListId}");
+			Log.Logger.Error($"Battleground: Update: bg template not found for {m_queueId.BattlemasterListId}");
 
 			return;
 		}
@@ -439,7 +439,7 @@ public class BattlegroundQueue
 
 		if (bracketEntry == null)
 		{
-			Log.outError(LogFilter.Battleground, "Battleground: Update: bg bracket entry not found for map {0} bracket id {1}", bg_template.GetMapId(), bracket_id);
+			Log.Logger.Error("Battleground: Update: bg bracket entry not found for map {0} bracket id {1}", bg_template.GetMapId(), bracket_id);
 
 			return;
 		}
@@ -469,7 +469,7 @@ public class BattlegroundQueue
 
 				if (bg2 == null)
 				{
-					Log.outError(LogFilter.Battleground, $"BattlegroundQueue.Update - Cannot create Battleground: {m_queueId.BattlemasterListId}");
+					Log.Logger.Error($"BattlegroundQueue.Update - Cannot create Battleground: {m_queueId.BattlemasterListId}");
 
 					return;
 				}
@@ -496,7 +496,7 @@ public class BattlegroundQueue
 
 				if (bg2 == null)
 				{
-					Log.outError(LogFilter.Battleground, $"BattlegroundQueue.Update - Cannot create Battleground: {m_queueId.BattlemasterListId}");
+					Log.Logger.Error($"BattlegroundQueue.Update - Cannot create Battleground: {m_queueId.BattlemasterListId}");
 
 					return;
 				}
@@ -590,7 +590,7 @@ public class BattlegroundQueue
 
 				if (!arena)
 				{
-					Log.outError(LogFilter.Battleground, "BattlegroundQueue.Update couldn't create arena instance for rated arena match!");
+					Log.Logger.Error("BattlegroundQueue.Update couldn't create arena instance for rated arena match!");
 
 					return;
 				}

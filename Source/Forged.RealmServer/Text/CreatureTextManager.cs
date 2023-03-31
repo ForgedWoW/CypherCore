@@ -30,12 +30,12 @@ public sealed class CreatureTextManager
     readonly Dictionary<uint, MultiMap<byte, CreatureTextEntry>> _textMap = new();
 	readonly Dictionary<CreatureTextId, CreatureTextLocale> _localeTextMap = new();
 
-	public CreatureTextManager(IConfiguration configuration, WorldConfig worldConfig, CliDB cliDB,
+	public CreatureTextManager(IConfiguration configuration, WorldConfig worldConfig, CliDB cliDb,
         WorldDatabase worldDatabase, WorldManager worldManager, LanguageManager languageManager, DB2Manager db2Manager)
     {
         _configuration = configuration;
         _worldConfig = worldConfig;
-        _cliDb = cliDB;
+        _cliDb = cliDb;
         _worldDatabase = worldDatabase;
         _worldManager = worldManager;
         _languageManager = languageManager;

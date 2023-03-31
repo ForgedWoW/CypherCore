@@ -2876,12 +2876,12 @@ public class Guild
     public class Member
 	{
 		public Member(ulong guildId, ObjectGuid guid, GuildRankId rankId, GameTime gameTime, CharacterDatabase characterDatabase, ObjectAccessor objectAccessor,
-			CliDB cliDB)
+			CliDB cliDb)
         {
             _gameTime = gameTime;
             _characterDatabase = characterDatabase;
             _objectAccessor = objectAccessor;
-            _cliDb = cliDB;
+            _cliDb = cliDb;
             _guildId = guildId;
 			_guid = guid;
 			_zoneId = 0;
@@ -4109,7 +4109,7 @@ public class Guild
         private readonly CliDB _cliDb;
         private readonly CharacterDatabase _characterDatabase;
 
-        public EmblemInfo(CliDB cliDB, CharacterDatabase characterDatabase)
+        public EmblemInfo(CliDB cliDb, CharacterDatabase characterDatabase)
 		{
 			_style = 0;
 			_color = 0;
@@ -4117,7 +4117,7 @@ public class Guild
 			_borderColor = 0;
 			_backgroundColor = 0;
 
-            _cliDb = cliDB;
+            _cliDb = cliDb;
             _characterDatabase = characterDatabase;
         }
 
