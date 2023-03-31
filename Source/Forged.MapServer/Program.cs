@@ -28,6 +28,7 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Taxis;
+using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
 using Forged.MapServer.Garrisons;
 using Forged.MapServer.Globals;
@@ -370,7 +371,7 @@ void RegisterManagers()
     });
 
     builder.RegisterType<LootItemStorage>().SingleInstance().OnActivated(l => l.Instance.LoadStorageFromDB()); 
-    builder.RegisterType<LootStorage>().SingleInstance();
+    builder.RegisterType<LootStoreBox>().SingleInstance();
     builder.RegisterType<LootManager>().SingleInstance().OnActivated(l => l.Instance.LoadLootTables());
     builder.RegisterType<TraitMgr>().SingleInstance().OnActivated(t => t.Instance.Load());
     builder.RegisterType<LanguageManager>().SingleInstance().OnActivated(l =>
@@ -414,6 +415,7 @@ void RegisterManagers()
     builder.RegisterType<PacketManager>().SingleInstance().OnActivated(c => c.Instance.Initialize());
     builder.RegisterType<BattlePetMgr>().SingleInstance();
     builder.RegisterType<BattlePetMgrData>().SingleInstance();
+    builder.RegisterType<UnitCombatHelpers>().SingleInstance();
 }
 
 void RegisterFactories()

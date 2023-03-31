@@ -2992,7 +2992,7 @@ public class AuraEffect
 
             if (Id == 53111) // Devour Humanoid
             {
-                Unit.Kill(target, caster);
+                UnitCombatHelpers.Kill(target, caster);
 
                 if (caster.IsTypeId(TypeId.Unit))
                     caster.AsCreature.DespawnOrUnsummon();
@@ -5607,12 +5607,12 @@ public class AuraEffect
         var crit = RandomHelper.randChance(GetCritChanceFor(caster, target));
 
         if (crit)
-            damage = Unit.SpellCriticalDamageBonus(caster, SpellInfo, damage, target);
+            damage = UnitCombatHelpers.SpellCriticalDamageBonus(caster, SpellInfo, damage, target);
 
         // Calculate armor mitigation
-        if (Unit.IsDamageReducedByArmor(SpellInfo.GetSchoolMask(), SpellInfo))
+        if (UnitCombatHelpers.IsDamageReducedByArmor(SpellInfo.GetSchoolMask(), SpellInfo))
         {
-            var damageReducedArmor = Unit.CalcArmorReducedDamage(caster, target, damage, SpellInfo, SpellInfo.GetAttackType(), Base.CasterLevel);
+            var damageReducedArmor = UnitCombatHelpers.CalcArmorReducedDamage(caster, target, damage, SpellInfo, SpellInfo.GetAttackType(), Base.CasterLevel);
             cleanDamage.MitigatedDamage += damage - damageReducedArmor;
             damage = damageReducedArmor;
         }
@@ -5624,17 +5624,17 @@ public class AuraEffect
         var dmg = damage;
 
         if (!SpellInfo.HasAttribute(SpellAttr4.IgnoreDamageTakenModifiers) && caster != null && caster.CanApplyResilience())
-            Unit.ApplyResilience(target, ref dmg);
+            UnitCombatHelpers.ApplyResilience(target, ref dmg);
 
         damage = dmg;
 
         DamageInfo damageInfo = new(caster, target, damage, SpellInfo, SpellInfo.GetSchoolMask(), DamageEffectType.DOT, WeaponAttackType.BaseAttack);
-        Unit.CalcAbsorbResist(damageInfo);
+        UnitCombatHelpers.CalcAbsorbResist(damageInfo);
         damage = damageInfo.Damage;
 
         var absorb = damageInfo.Absorb;
         var resist = damageInfo.Resist;
-        Unit.DealDamageMods(caster, target, ref damage, ref absorb);
+        UnitCombatHelpers.DealDamageMods(caster, target, ref damage, ref absorb);
 
         // Set trigger flag
         var procAttacker = new ProcFlagsInit(ProcFlags.DealHarmfulPeriodic);
@@ -5654,9 +5654,9 @@ public class AuraEffect
 
         SpellPeriodicAuraLogInfo pInfo = new(this, damage, dmg, overkill, absorb, resist, 0.0f, crit);
 
-        Unit.DealDamage(caster, target, damage, cleanDamage, DamageEffectType.DOT, SpellInfo.GetSchoolMask(), SpellInfo, true);
+        UnitCombatHelpers.DealDamage(caster, target, damage, cleanDamage, DamageEffectType.DOT, SpellInfo.GetSchoolMask(), SpellInfo, true);
 
-        Unit.ProcSkillsAndAuras(caster, target, procAttacker, procVictim, ProcFlagsSpellType.Damage, ProcFlagsSpellPhase.Hit, hitMask, null, damageInfo, null);
+        UnitCombatHelpers.ProcSkillsAndAuras(caster, target, procAttacker, procVictim, ProcFlagsSpellType.Damage, ProcFlagsSpellPhase.Hit, hitMask, null, damageInfo, null);
         target.SendPeriodicAuraLog(pInfo);
     }
 
@@ -5692,12 +5692,12 @@ public class AuraEffect
         var crit = RandomHelper.randChance(GetCritChanceFor(caster, target));
 
         if (crit)
-            damage = Unit.SpellCriticalDamageBonus(caster, SpellInfo, damage, target);
+            damage = UnitCombatHelpers.SpellCriticalDamageBonus(caster, SpellInfo, damage, target);
 
         // Calculate armor mitigation
-        if (Unit.IsDamageReducedByArmor(SpellInfo.GetSchoolMask(), SpellInfo))
+        if (UnitCombatHelpers.IsDamageReducedByArmor(SpellInfo.GetSchoolMask(), SpellInfo))
         {
-            var damageReducedArmor = Unit.CalcArmorReducedDamage(caster, target, damage, SpellInfo, SpellInfo.GetAttackType(), Base.CasterLevel);
+            var damageReducedArmor = UnitCombatHelpers.CalcArmorReducedDamage(caster, target, damage, SpellInfo, SpellInfo.GetAttackType(), Base.CasterLevel);
             cleanDamage.MitigatedDamage += damage - damageReducedArmor;
             damage = damageReducedArmor;
         }
@@ -5709,12 +5709,12 @@ public class AuraEffect
         var dmg = damage;
 
         if (!SpellInfo.HasAttribute(SpellAttr4.IgnoreDamageTakenModifiers) && caster != null && caster.CanApplyResilience())
-            Unit.ApplyResilience(target, ref dmg);
+            UnitCombatHelpers.ApplyResilience(target, ref dmg);
 
         damage = dmg;
 
         DamageInfo damageInfo = new(caster, target, damage, SpellInfo, SpellInfo.GetSchoolMask(), DamageEffectType.DOT, SpellInfo.GetAttackType());
-        Unit.CalcAbsorbResist(damageInfo);
+        UnitCombatHelpers.CalcAbsorbResist(damageInfo);
 
         var absorb = damageInfo.Absorb;
         var resist = damageInfo.Resist;
@@ -5743,8 +5743,8 @@ public class AuraEffect
             procVictim.Or(ProcFlags.TakeAnyDamage);
         }
 
-        var new_damage = Unit.DealDamage(caster, target, damage, cleanDamage, DamageEffectType.DOT, SpellInfo.GetSchoolMask(), SpellInfo, false);
-        Unit.ProcSkillsAndAuras(caster, target, procAttacker, procVictim, ProcFlagsSpellType.Damage, ProcFlagsSpellPhase.Hit, hitMask, null, damageInfo, null);
+        var new_damage = UnitCombatHelpers.DealDamage(caster, target, damage, cleanDamage, DamageEffectType.DOT, SpellInfo.GetSchoolMask(), SpellInfo, false);
+        UnitCombatHelpers.ProcSkillsAndAuras(caster, target, procAttacker, procVictim, ProcFlagsSpellType.Damage, ProcFlagsSpellPhase.Hit, hitMask, null, damageInfo, null);
 
         // process caster heal from now on (must be in world)
         if (!caster || !caster.IsAlive)
@@ -5759,7 +5759,7 @@ public class AuraEffect
         caster.HealBySpell(healInfo);
 
         caster.GetThreatManager().ForwardThreatForAssistingMe(caster, healInfo.EffectiveHeal * 0.5f, SpellInfo);
-        Unit.ProcSkillsAndAuras(caster, caster, new ProcFlagsInit(ProcFlags.DealHelpfulPeriodic), new ProcFlagsInit(ProcFlags.TakeHelpfulPeriodic), ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.Hit, hitMask, null, null, healInfo);
+        UnitCombatHelpers.ProcSkillsAndAuras(caster, caster, new ProcFlagsInit(ProcFlags.DealHelpfulPeriodic), new ProcFlagsInit(ProcFlags.TakeHelpfulPeriodic), ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.Hit, hitMask, null, null, healInfo);
 
         caster.SendSpellNonMeleeDamageLog(log);
     }
@@ -5794,7 +5794,7 @@ public class AuraEffect
 
         HealInfo healInfo = new(caster, target, damage, SpellInfo, SpellInfo.GetSchoolMask());
         caster.HealBySpell(healInfo);
-        Unit.ProcSkillsAndAuras(caster, target, new ProcFlagsInit(ProcFlags.DealHarmfulPeriodic), new ProcFlagsInit(ProcFlags.TakeHarmfulPeriodic), ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.Hit, ProcFlagsHit.Normal, null, null, healInfo);
+        UnitCombatHelpers.ProcSkillsAndAuras(caster, target, new ProcFlagsInit(ProcFlags.DealHarmfulPeriodic), new ProcFlagsInit(ProcFlags.TakeHarmfulPeriodic), ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.Hit, ProcFlagsHit.Normal, null, null, healInfo);
     }
 
     private void HandlePeriodicHealAurasTick(Unit target, Unit caster)
@@ -5828,7 +5828,7 @@ public class AuraEffect
         var crit = RandomHelper.randChance(GetCritChanceFor(caster, target));
 
         if (crit)
-            damage = Unit.SpellCriticalHealingBonus(caster, SpellInfo, damage, target);
+            damage = UnitCombatHelpers.SpellCriticalHealingBonus(caster, SpellInfo, damage, target);
 
         Log.Logger.Debug("PeriodicTick: {0} (TypeId: {1}) heal of {2} (TypeId: {3}) for {4} health inflicted by {5}",
                          CasterGuid.ToString(),
@@ -5841,8 +5841,8 @@ public class AuraEffect
         var heal = damage;
 
         HealInfo healInfo = new(caster, target, heal, SpellInfo, SpellInfo.GetSchoolMask());
-        Unit.CalcHealAbsorb(healInfo);
-        Unit.DealHeal(healInfo);
+        UnitCombatHelpers.CalcHealAbsorb(healInfo);
+        UnitCombatHelpers.DealHeal(healInfo);
 
         SpellPeriodicAuraLogInfo pInfo = new(this, heal, damage, heal - healInfo.EffectiveHeal, healInfo.Absorb, 0, 0.0f, crit);
         target.SendPeriodicAuraLog(pInfo);
@@ -5860,7 +5860,7 @@ public class AuraEffect
 
         // ignore item heals
         if (Base.CastItemGuid.IsEmpty)
-            Unit.ProcSkillsAndAuras(caster, target, procAttacker, procVictim, ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.Hit, hitMask, null, null, healInfo);
+            UnitCombatHelpers.ProcSkillsAndAuras(caster, target, procAttacker, procVictim, ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.Hit, hitMask, null, null, healInfo);
     }
 
     private void HandlePeriodicManaLeechAuraTick(Unit target, Unit caster)
@@ -6021,12 +6021,12 @@ public class AuraEffect
         // no SpellDamageBonus for burn mana
         caster.CalculateSpellDamageTaken(damageInfo, gain * dmgMultiplier, spellProto);
 
-        Unit.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
+        UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
 
         // Set trigger flag
         var procAttacker = new ProcFlagsInit(ProcFlags.DealHarmfulPeriodic);
         var procVictim = new ProcFlagsInit(ProcFlags.TakeHarmfulPeriodic);
-        var hitMask = Unit.CreateProcHitMask(damageInfo, SpellMissInfo.None);
+        var hitMask = UnitCombatHelpers.CreateProcHitMask(damageInfo, SpellMissInfo.None);
         var spellTypeMask = ProcFlagsSpellType.NoDmgHeal;
 
         if (damageInfo.Damage != 0)
@@ -6038,7 +6038,7 @@ public class AuraEffect
         caster.DealSpellDamage(damageInfo, true);
 
         DamageInfo dotDamageInfo = new(damageInfo, DamageEffectType.DOT, WeaponAttackType.BaseAttack, hitMask);
-        Unit.ProcSkillsAndAuras(caster, target, procAttacker, procVictim, spellTypeMask, ProcFlagsSpellPhase.Hit, hitMask, null, dotDamageInfo, null);
+        UnitCombatHelpers.ProcSkillsAndAuras(caster, target, procAttacker, procVictim, spellTypeMask, ProcFlagsSpellPhase.Hit, hitMask, null, dotDamageInfo, null);
 
         caster.SendSpellNonMeleeDamageLog(damageInfo);
     }
@@ -6149,7 +6149,7 @@ public class AuraEffect
         var damage = target.SpellDamageBonusDone(triggerTarget, SpellInfo, Amount, DamageEffectType.SpellDirect, GetSpellEffectInfo());
         damage = triggerTarget.SpellDamageBonusTaken(target, SpellInfo, damage, DamageEffectType.SpellDirect);
         target.CalculateSpellDamageTaken(damageInfo, damage, SpellInfo);
-        Unit.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
+        UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
         target.DealSpellDamage(damageInfo, true);
         target.SendSpellNonMeleeDamageLog(damageInfo);
     }

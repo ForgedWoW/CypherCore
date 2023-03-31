@@ -1238,7 +1238,7 @@ public class SpellInfo
                         if (targetCreature == null)
                             return SpellCastResult.BadTargets;
 
-                        if (!targetCreature.CanHaveLoot || !LootStorage.Pickpocketing.HaveLootFor(targetCreature.Template.PickPocketId))
+                        if (!targetCreature.CanHaveLoot || !LootStoreBox.Pickpocketing.HaveLootFor(targetCreature.Template.PickPocketId))
                             return SpellCastResult.TargetNoPockets;
                     }
 

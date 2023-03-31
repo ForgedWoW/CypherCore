@@ -32,7 +32,7 @@ public class Loot
     private readonly GameObjectManager _objectManager;
     private readonly DB2Manager _db2Manager;
     private readonly ObjectAccessor _objectAccessor;
-    private readonly LootStorage _lootStorage;
+    private readonly LootStoreBox _lootStorage;
     private readonly IConfiguration _configuration;
     private readonly LootFactory _lootFactory;
 
@@ -51,7 +51,7 @@ public class Loot
     private uint _dungeonEncounterId;
 
     public Loot(Map map, ObjectGuid owner, LootType type, PlayerGroup group, ConditionManager conditionManager, GameObjectManager objectManager,
-                DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStorage lootStorage, IConfiguration configuration, LootFactory lootFactory)
+                DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStoreBox lootStorage, IConfiguration configuration, LootFactory lootFactory)
     {
         LootType = type;
         _conditionManager = conditionManager;

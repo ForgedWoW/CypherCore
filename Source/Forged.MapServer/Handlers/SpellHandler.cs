@@ -218,7 +218,7 @@ public class SpellHandler : IWorldSessionHandler
                 Loot loot = new(player.Map, item.GUID, LootType.Item, null);
                 item.Loot = loot;
                 loot.GenerateMoneyLoot(item.Template.MinMoneyLoot, item.Template.MaxMoneyLoot);
-                loot.FillLoot(item.Entry, LootStorage.Items, player, true, loot.Gold != 0);
+                loot.FillLoot(item.Entry, LootStoreBox.Items, player, true, loot.Gold != 0);
 
                 // Force save the loot and money items that were just rolled
                 //  Also saves the container item ID in Loot struct (not to DB)

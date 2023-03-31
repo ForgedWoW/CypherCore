@@ -15,7 +15,7 @@ using Serilog;
 
 namespace Forged.MapServer.LootManagement;
 
-public class LootManager : LootStorage
+public class LootManager : LootStoreBox
 {
     private readonly GameObjectManager _objectManager;
     private readonly SpellManager _spellManager;
@@ -25,10 +25,10 @@ public class LootManager : LootStorage
     private readonly WorldDatabase _worldDatabase;
     private readonly DB2Manager _db2Manager;
     private readonly ObjectAccessor _objectAccessor;
-    private readonly LootStorage _lootStorage;
+    private readonly LootStoreBox _lootStorage;
 
     public LootManager(GameObjectManager objectManager, SpellManager spellManager, CliDB cliDB, ConditionManager conditionManager, IConfiguration configuration, WorldDatabase worldDatabase,
-                       DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStorage lootStorage)
+                       DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStoreBox lootStorage)
     {
         _objectManager = objectManager;
         _spellManager = spellManager;

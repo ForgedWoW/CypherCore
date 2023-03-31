@@ -1084,7 +1084,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
             while ((areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId)) != null)
             {
-                fishLoot.FillLoot(areaId, LootStorage.Fishing, lootOwner, true, true);
+                fishLoot.FillLoot(areaId, LootStoreBox.Fishing, lootOwner, true, true);
 
                 if (!fishLoot.IsLooted())
                     break;
@@ -1093,7 +1093,7 @@ namespace Forged.MapServer.Entities.GameObjects
             }
 
             if (fishLoot.IsLooted())
-                fishLoot.FillLoot(defaultzone, LootStorage.Fishing, lootOwner, true, true);
+                fishLoot.FillLoot(defaultzone, LootStoreBox.Fishing, lootOwner, true, true);
 
             return fishLoot;
         }
@@ -1109,7 +1109,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
             while ((areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId)) != null)
             {
-                fishLoot.FillLoot(areaId, LootStorage.Fishing, lootOwner, true, true, LootModes.JunkFish);
+                fishLoot.FillLoot(areaId, LootStoreBox.Fishing, lootOwner, true, true, LootModes.JunkFish);
 
                 if (!fishLoot.IsLooted())
                     break;
@@ -1118,7 +1118,7 @@ namespace Forged.MapServer.Entities.GameObjects
             }
 
             if (fishLoot.IsLooted())
-                fishLoot.FillLoot(defaultzone, LootStorage.Fishing, lootOwner, true, true, LootModes.JunkFish);
+                fishLoot.FillLoot(defaultzone, LootStoreBox.Fishing, lootOwner, true, true, LootModes.JunkFish);
 
             return fishLoot;
         }
@@ -1470,7 +1470,7 @@ namespace Forged.MapServer.Entities.GameObjects
                         return false;
 
                     // scan GO chest with loot including quest items
-                    if (target.GetQuestStatus(Template.Chest.questID) == QuestStatus.Incomplete || LootStorage.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestLoot, target) || LootStorage.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestPersonalLoot, target) || LootStorage.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestPushLoot, target))
+                    if (target.GetQuestStatus(Template.Chest.questID) == QuestStatus.Incomplete || LootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestLoot, target) || LootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestPersonalLoot, target) || LootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestPushLoot, target))
                     {
                         var bg = target.Battleground;
 
@@ -1851,7 +1851,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                                 _personalLoot = LootManager.GenerateDungeonEncounterPersonalLoot(info.Chest.DungeonEncounter,
                                                                                                  info.Chest.chestPersonalLoot,
-                                                                                                 LootStorage.Gameobject,
+                                                                                                 LootStoreBox.Gameobject,
                                                                                                  LootType.Chest,
                                                                                                  this,
                                                                                                  addon != null ? addon.Mingold : 0,
@@ -1866,7 +1866,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                 _personalLoot[player.GUID] = loot;
 
                                 loot.SetDungeonEncounterId(info.Chest.DungeonEncounter);
-                                loot.FillLoot(info.Chest.chestPersonalLoot, LootStorage.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
+                                loot.FillLoot(info.Chest.chestPersonalLoot, LootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
 
                                 if (LootMode > 0 && addon != null)
                                     loot.GenerateMoneyLoot(addon.Mingold, addon.Maxgold);
@@ -1879,7 +1879,7 @@ namespace Forged.MapServer.Entities.GameObjects
                         if (info.Chest.chestPushLoot != 0)
                         {
                             Loot pushLoot = new(Location.Map, GUID, LootType.Chest, null);
-                            pushLoot.FillLoot(info.Chest.chestPushLoot, LootStorage.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
+                            pushLoot.FillLoot(info.Chest.chestPushLoot, LootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
                             pushLoot.AutoStore(player, ItemConst.NullBag, ItemConst.NullSlot);
                         }
 
@@ -2643,7 +2643,7 @@ namespace Forged.MapServer.Entities.GameObjects
                             Loot newLoot = new(Location.Map, GUID, LootType.Chest, null);
                             _personalLoot[player.GUID] = newLoot;
 
-                            newLoot.FillLoot(info.GatheringNode.chestLoot, LootStorage.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
+                            newLoot.FillLoot(info.GatheringNode.chestLoot, LootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
                         }
 
                         if (info.GatheringNode.triggeredEvent != 0)

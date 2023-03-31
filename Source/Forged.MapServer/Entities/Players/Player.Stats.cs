@@ -212,7 +212,7 @@ public partial class Player
                 break;
         }
 
-        var attackPowerMod = Math.Max(GetAPMultiplier(attType, normalized), 0.25f);
+        var attackPowerMod = Math.Max(GetApMultiplier(attType, normalized), 0.25f);
 
         var baseValue = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + GetTotalAttackPowerValue(attType, false) / 3.5f * attackPowerMod;
         var basePct = GetPctModifierValue(unitMod, UnitModifierPctType.Base);

@@ -90,7 +90,7 @@ public class LootHandler : IWorldSessionHandler
                 player.UpdateCriteria(CriteriaType.LootAnyItem, resultValue.Item.Entry, resultValue.Count);
             }
 
-        Unit.ProcSkillsAndAuras(player, null, new ProcFlagsInit(ProcFlags.Looted), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
+        UnitCombatHelpers.ProcSkillsAndAuras(player, null, new ProcFlagsInit(ProcFlags.Looted), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
     }
 
     [WorldPacketHandler(ClientOpcodes.LootMoney)]

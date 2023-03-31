@@ -4838,7 +4838,7 @@ public sealed class GameObjectManager
                 {
                     // scan GO chest with loot including quest items
                     // find quest loot for GO
-                    if (pair.Value.Chest.questID != 0 || LootStorage.Gameobject.HaveQuestLootFor(pair.Value.Chest.chestLoot) || LootStorage.Gameobject.HaveQuestLootFor(pair.Value.Chest.chestPersonalLoot) || LootStorage.Gameobject.HaveQuestLootFor(pair.Value.Chest.chestPushLoot))
+                    if (pair.Value.Chest.questID != 0 || LootStoreBox.Gameobject.HaveQuestLootFor(pair.Value.Chest.chestLoot) || LootStoreBox.Gameobject.HaveQuestLootFor(pair.Value.Chest.chestPersonalLoot) || LootStoreBox.Gameobject.HaveQuestLootFor(pair.Value.Chest.chestPushLoot))
                         break;
 
                     continue;
@@ -4861,7 +4861,7 @@ public sealed class GameObjectManager
                 {
                     // scan GO chest with loot including quest items
                     // find quest loot for GO
-                    if (LootStorage.Gameobject.HaveQuestLootFor(pair.Value.GatheringNode.chestLoot))
+                    if (LootStoreBox.Gameobject.HaveQuestLootFor(pair.Value.GatheringNode.chestLoot))
                         break;
 
                     continue;

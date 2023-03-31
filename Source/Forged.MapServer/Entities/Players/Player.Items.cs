@@ -13,6 +13,7 @@ using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
@@ -7543,7 +7544,7 @@ public partial class Player
         loot.FillLoot(loot_id, store, this, true, false, LootModes.Default, context);
 
         loot.AutoStore(this, bag, slot, broadcast, createdByPlayer);
-        ProcSkillsAndAuras(this, null, new ProcFlagsInit(ProcFlags.Looted), new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
+        Unit.ProcSkillsAndAuras(this, null, new ProcFlagsInit(ProcFlags.Looted), new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
     }
 
     private void SendEquipmentSetList()

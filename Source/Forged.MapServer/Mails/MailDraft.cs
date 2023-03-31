@@ -219,7 +219,7 @@ public class MailDraft
         Loot mailLoot = new(null, ObjectGuid.Empty, LootType.None, null);
 
         // can be empty
-        mailLoot.FillLoot(m_mailTemplateId, LootStorage.Mail, receiver, true, true, LootModes.Default, ItemContext.None);
+        mailLoot.FillLoot(m_mailTemplateId, LootStoreBox.Mail, receiver, true, true, LootModes.Default, ItemContext.None);
 
         for (uint i = 0; m_items.Count < SharedConst.MaxMailItems && i < mailLoot.Items.Count; ++i)
         {

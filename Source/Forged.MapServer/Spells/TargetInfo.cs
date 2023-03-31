@@ -230,7 +230,7 @@ public class TargetInfo : TargetInfoBase
                 if (IsCrit)
                 {
                     hitMask |= ProcFlagsHit.Critical;
-                    addhealth = Unit.SpellCriticalHealingBonus(caster, spell.SpellInfo, addhealth, null);
+                    addhealth = UnitCombatHelpers.SpellCriticalHealingBonus(caster, spell.SpellInfo, addhealth, null);
                 }
                 else
                 {
@@ -274,9 +274,9 @@ public class TargetInfo : TargetInfoBase
                     if (p != null)
                         Global.ScriptMgr.ForEach<IPlayerOnDealDamage>(p.Class, d => d.OnDamage(p, spell.UnitTarget, ref damageInfo.Damage, spell.SpellInfo));
 
-                    Unit.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
+                    UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
 
-                    hitMask |= Unit.CreateProcHitMask(damageInfo, MissCondition);
+                    hitMask |= UnitCombatHelpers.CreateProcHitMask(damageInfo, MissCondition);
                     procVictim.Or(ProcFlags.TakeAnyDamage);
 
                     spell.DamageInEffects = (int)damageInfo.Damage;
@@ -300,7 +300,7 @@ public class TargetInfo : TargetInfoBase
             {
                 // Fill base damage struct (unitTarget - is real spell target)
                 SpellNonMeleeDamage damageInfo = new(caster, spell.UnitTarget, spell.SpellInfo, spell.SpellVisual, spell.SpellSchoolMask);
-                hitMask |= Unit.CreateProcHitMask(damageInfo, MissCondition);
+                hitMask |= UnitCombatHelpers.CreateProcHitMask(damageInfo, MissCondition);
 
                 // Do triggers for unit
                 if (canEffectTrigger)
@@ -327,7 +327,7 @@ public class TargetInfo : TargetInfoBase
                 if (spell.SpellInfo.HasAttribute(SpellAttr3.SuppressTargetProcs))
                     procVictim = new ProcFlagsInit();
 
-                Unit.ProcSkillsAndAuras(caster, spell.UnitTarget, procAttacker, procVictim, procSpellType, ProcFlagsSpellPhase.Hit, hitMask, spell, spellDamageInfo, healInfo);
+                UnitCombatHelpers.ProcSkillsAndAuras(caster, spell.UnitTarget, procAttacker, procVictim, procSpellType, ProcFlagsSpellPhase.Hit, hitMask, spell, spellDamageInfo, healInfo);
 
                 // item spells (spell hit of non-damage spell may also activate items, for example seal of corruption hidden hit)
                 if (caster.IsPlayer && procSpellType.HasAnyFlag(ProcFlagsSpellType.Damage | ProcFlagsSpellType.NoDmgHeal))

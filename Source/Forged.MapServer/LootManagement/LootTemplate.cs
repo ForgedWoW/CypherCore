@@ -18,11 +18,11 @@ public class LootTemplate
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _objectManager;
     private readonly ConditionManager _conditionManager;
-    private readonly LootStorage _lootStorage;
+    private readonly LootStoreBox _lootStorage;
     private readonly List<LootStoreItem> _entries = new();       // not grouped only
     private readonly Dictionary<int, LootGroup> _groups = new(); // groups have own (optimised) processing, grouped entries go there
 
-    public LootTemplate(IConfiguration configuration, GameObjectManager objectManager, ConditionManager conditionManager, LootStorage lootStorage)
+    public LootTemplate(IConfiguration configuration, GameObjectManager objectManager, ConditionManager conditionManager, LootStoreBox lootStorage)
     {
         _configuration = configuration;
         _objectManager = objectManager;
@@ -430,11 +430,11 @@ public class LootTemplate
     {
         private readonly GameObjectManager _objectManager;
         private readonly ConditionManager _conditionManager;
-        private readonly LootStorage _lootStorage;
+        private readonly LootStoreBox _lootStorage;
         private readonly List<LootStoreItem> _explicitlyChanced = new(); // Entries with chances defined in DB
         private readonly List<LootStoreItem> _equalChanced = new();      // Zero chances - every entry takes the same chance
 
-        public LootGroup(GameObjectManager gameObjectManager, ConditionManager conditionManager, LootStorage lootStorage)
+        public LootGroup(GameObjectManager gameObjectManager, ConditionManager conditionManager, LootStoreBox lootStorage)
         {
             _objectManager = gameObjectManager;
             _conditionManager = conditionManager;

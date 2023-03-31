@@ -1520,7 +1520,7 @@ public partial class Spell : IDisposable
             creatureCaster.ReleaseSpellFocus(this);
 
         if (!SpellInfo.HasAttribute(SpellAttr3.SuppressCasterProcs))
-            Unit.ProcSkillsAndAuras(unitCaster, null, new ProcFlagsInit(ProcFlags.CastEnded), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, this, null, null);
+            UnitCombatHelpers.ProcSkillsAndAuras(unitCaster, null, new ProcFlagsInit(ProcFlags.CastEnded), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, this, null, null);
 
         if (result != SpellCastResult.SpellCastOk)
         {
@@ -5874,7 +5874,7 @@ public partial class Spell : IDisposable
             OriginalCaster.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.ActionDelayed, SpellInfo);
 
         if (!SpellInfo.HasAttribute(SpellAttr3.SuppressCasterProcs))
-            Unit.ProcSkillsAndAuras(OriginalCaster, null, procAttacker, new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Cast, hitMask, this, null, null);
+            UnitCombatHelpers.ProcSkillsAndAuras(OriginalCaster, null, procAttacker, new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Cast, hitMask, this, null, null);
 
         // Call CreatureAI hook OnSpellCast
         var caster = OriginalCaster.AsCreature;
@@ -6045,7 +6045,7 @@ public partial class Spell : IDisposable
         }
 
         if (!SpellInfo.HasAttribute(SpellAttr3.SuppressCasterProcs))
-            Unit.ProcSkillsAndAuras(OriginalCaster, null, procAttacker, new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Finish, HitMask, this, null, null);
+            UnitCombatHelpers.ProcSkillsAndAuras(OriginalCaster, null, procAttacker, new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Finish, HitMask, this, null, null);
     }
 
     private void SendSpellCooldown()
@@ -8202,7 +8202,7 @@ public partial class Spell : IDisposable
                         return SpellCastResult.NeedMoreItems;
                     }
 
-                    if (!LootStorage.Prospecting.HaveLootFor(Targets.ItemTargetEntry))
+                    if (!LootStoreBox.Prospecting.HaveLootFor(Targets.ItemTargetEntry))
                         return SpellCastResult.CantBeProspected;
 
                     break;
@@ -8237,7 +8237,7 @@ public partial class Spell : IDisposable
                         return SpellCastResult.NeedMoreItems;
                     }
 
-                    if (!LootStorage.Milling.HaveLootFor(Targets.ItemTargetEntry))
+                    if (!LootStoreBox.Milling.HaveLootFor(Targets.ItemTargetEntry))
                         return SpellCastResult.CantBeMilled;
 
                     break;

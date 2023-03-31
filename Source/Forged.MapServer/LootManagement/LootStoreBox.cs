@@ -6,7 +6,7 @@
 
 namespace Forged.MapServer.LootManagement;
 
-public class LootStorage
+public class LootStoreBox
 {
     public LootStore Creature;
     public LootStore Fishing;

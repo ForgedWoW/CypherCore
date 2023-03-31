@@ -3647,7 +3647,7 @@ public partial class Player : Unit
             case EnviromentalDamage.Lava:
             case EnviromentalDamage.Slime:
                 DamageInfo dmgInfo = new(this, this, damage, null, dmgSchool, DamageEffectType.Direct, WeaponAttackType.BaseAttack);
-                CalcAbsorbResist(dmgInfo);
+                Unit.CalcAbsorbResist(dmgInfo);
                 absorb = dmgInfo.Absorb;
                 resist = dmgInfo.Resist;
                 damage = dmgInfo.Damage;
@@ -3655,7 +3655,7 @@ public partial class Player : Unit
                 break;
         }
 
-        DealDamageMods(null, this, ref damage, ref absorb);
+        Unit.DealDamageMods(null, this, ref damage, ref absorb);
         EnvironmentalDamageLog packet = new();
 
         {
@@ -3666,7 +3666,7 @@ public partial class Player : Unit
             Resisted = (int)resist
         }
 
-        v final_damage = DealDamage(this, damage, null, DamageEffectType.Self, dmgSchool, null, false);
+        v final_damage = Unit.DealDamage(this, damage, null, DamageEffectType.Self, dmgSchool, null, false);
         packet.LogData.Initialize(this);
 
         SendCombatLogMessage(packet);

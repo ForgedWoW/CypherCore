@@ -322,7 +322,7 @@ internal class MiscCommands
         // flat melee damage without resistence/etc reduction
         if (string.IsNullOrEmpty(schoolStr))
         {
-            damage_ = Unit.DealDamage(attacker, target, damage_, null, DamageEffectType.Direct, SpellSchoolMask.Normal, null, false);
+            damage_ = UnitCombatHelpers.DealDamage(attacker, target, damage_, null, DamageEffectType.Direct, SpellSchoolMask.Normal, null, false);
 
             if (target != attacker)
                 attacker.SendAttackStateUpdate(HitInfo.AffectsVictim, target, SpellSchoolMask.Normal, damage_, 0, 0, VictimState.Hit, 0);
@@ -335,8 +335,8 @@ internal class MiscCommands
 
         var schoolmask = (SpellSchoolMask)(1 << school);
 
-        if (Unit.IsDamageReducedByArmor(schoolmask))
-            damage_ = Unit.CalcArmorReducedDamage(handler.Player, target, damage_, null, WeaponAttackType.BaseAttack);
+        if (UnitCombatHelpers.IsDamageReducedByArmor(schoolmask))
+            damage_ = UnitCombatHelpers.CalcArmorReducedDamage(handler.Player, target, damage_, null, WeaponAttackType.BaseAttack);
 
         var spellStr = args.NextString();
 
@@ -344,7 +344,7 @@ internal class MiscCommands
         if (string.IsNullOrEmpty(spellStr))
         {
             DamageInfo dmgInfo = new(attacker, target, damage_, null, schoolmask, DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
-            Unit.CalcAbsorbResist(dmgInfo);
+            UnitCombatHelpers.CalcAbsorbResist(dmgInfo);
 
             if (dmgInfo.Damage == 0)
                 return true;
@@ -353,8 +353,8 @@ internal class MiscCommands
 
             var absorb = dmgInfo.Absorb;
             var resist = dmgInfo.Resist;
-            Unit.DealDamageMods(attacker, target, ref damage_, ref absorb);
-            damage_ = Unit.DealDamage(attacker, target, damage_, null, DamageEffectType.Direct, schoolmask, null, false);
+            UnitCombatHelpers.DealDamageMods(attacker, target, ref damage_, ref absorb);
+            damage_ = UnitCombatHelpers.DealDamage(attacker, target, damage_, null, DamageEffectType.Direct, schoolmask, null, false);
             attacker.SendAttackStateUpdate(HitInfo.AffectsVictim, target, schoolmask, damage_, absorb, resist, VictimState.Hit, 0);
 
             return true;
@@ -377,7 +377,7 @@ internal class MiscCommands
             Damage = damage_
         };
 
-        Unit.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
+        UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
         target.DealSpellDamage(damageInfo, true);
         target.SendSpellNonMeleeDamageLog(damageInfo);
 
@@ -429,7 +429,7 @@ internal class MiscCommands
                 return false;
 
         if (target.IsAlive)
-            Unit.Kill(handler.Session.Player, target);
+            UnitCombatHelpers.Kill(handler.Session.Player, target);
 
         return true;
     }

@@ -32,7 +32,7 @@ internal class ProcReflectDelayed : BasicEvent
         var spellPhaseMask = ProcFlagsSpellPhase.None;
         var hitMask = ProcFlagsHit.Reflect;
 
-        Unit.ProcSkillsAndAuras(caster, _victim, new ProcFlagsInit(typeMaskActor), new ProcFlagsInit(typeMaskActionTarget), spellTypeMask, spellPhaseMask, hitMask, null, null, null);
+        UnitCombatHelpers.ProcSkillsAndAuras(caster, _victim, new ProcFlagsInit(typeMaskActor), new ProcFlagsInit(typeMaskActionTarget), spellTypeMask, spellPhaseMask, hitMask, null, null, null);
 
         return true;
     }

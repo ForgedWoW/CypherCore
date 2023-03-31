@@ -61,7 +61,7 @@ public sealed class ConditionManager
     private readonly WorldManager _worldManager;
     private readonly WorldStateManager _worldStateManager;
     private readonly ObjectAccessor _objectAccessor;
-    private readonly LootStorage _lootStorage;
+    private readonly LootStoreBox _lootStorage;
 
     private readonly Dictionary<ConditionSourceType, MultiMap<uint, Condition>> _conditionStorage = new();
     private readonly MultiMap<uint, Condition> _conditionReferenceStorage = new();
@@ -78,7 +78,7 @@ public sealed class ConditionManager
                             LFGManager lfgManager, CliDB cliDB, DB2Manager db2Manager, LanguageManager languageManager,
                             IConfiguration configuration, AreaTriggerDataStorage areaTriggerDataStorage, ConversationDataStorage conversationDataStorage,
                             GameEventManager gameEventManager, WorldManager worldManager, WorldStateManager worldStateManager,
-                            ObjectAccessor objectAccessor, LootStorage lootStorage)
+                            ObjectAccessor objectAccessor, LootStoreBox lootStorage)
     {
         _objectManager = objectManager;
         _spellManager = spellManager;

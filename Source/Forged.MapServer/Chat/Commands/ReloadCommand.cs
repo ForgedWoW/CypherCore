@@ -161,7 +161,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`creature_loot_template`)");
         LootManager.LoadLootTemplates_Creature();
-        LootStorage.Creature.CheckLootRefs();
+        LootStoreBox.Creature.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `creature_loot_template` reloaded.");
         Global.ConditionMgr.LoadConditions(true);
 
@@ -308,7 +308,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`disenchant_loot_template`)");
         LootManager.LoadLootTemplates_Disenchant();
-        LootStorage.Disenchant.CheckLootRefs();
+        LootStoreBox.Disenchant.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `disenchant_loot_template` reloaded.");
         Global.ConditionMgr.LoadConditions(true);
 
@@ -341,7 +341,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`fishing_loot_template`)");
         LootManager.LoadLootTemplates_Fishing();
-        LootStorage.Fishing.CheckLootRefs();
+        LootStoreBox.Fishing.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `fishing_loot_template` reloaded.");
         Global.ConditionMgr.LoadConditions(true);
 
@@ -377,7 +377,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`gameobject_loot_template`)");
         LootManager.LoadLootTemplates_Gameobject();
-        LootStorage.Gameobject.CheckLootRefs();
+        LootStoreBox.Gameobject.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `gameobject_loot_template` reloaded.");
         Global.ConditionMgr.LoadConditions(true);
 
@@ -441,7 +441,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`item_loot_template`)");
         LootManager.LoadLootTemplates_Item();
-        LootStorage.Items.CheckLootRefs();
+        LootStoreBox.Items.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `item_loot_template` reloaded.");
         Global.ConditionMgr.LoadConditions(true);
 
@@ -543,7 +543,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`mail_loot_template`)");
         LootManager.LoadLootTemplates_Mail();
-        LootStorage.Mail.CheckLootRefs();
+        LootStoreBox.Mail.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `mail_loot_template` reloaded.");
         Global.ConditionMgr.LoadConditions(true);
 
@@ -555,7 +555,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`milling_loot_template`)");
         LootManager.LoadLootTemplates_Milling();
-        LootStorage.Milling.CheckLootRefs();
+        LootStoreBox.Milling.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `milling_loot_template` reloaded.");
         Global.ConditionMgr.LoadConditions(true);
 
@@ -597,7 +597,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`pickpocketing_loot_template`)");
         LootManager.LoadLootTemplates_Pickpocketing();
-        LootStorage.Pickpocketing.CheckLootRefs();
+        LootStoreBox.Pickpocketing.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `pickpocketing_loot_template` reloaded.");
         Global.ConditionMgr.LoadConditions(true);
 
@@ -619,7 +619,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`prospecting_loot_template`)");
         LootManager.LoadLootTemplates_Prospecting();
-        LootStorage.Prospecting.CheckLootRefs();
+        LootStoreBox.Prospecting.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `prospecting_loot_template` reloaded.");
         Global.ConditionMgr.LoadConditions(true);
 
@@ -788,7 +788,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`skinning_loot_template`)");
         LootManager.LoadLootTemplates_Skinning();
-        LootStorage.Skinning.CheckLootRefs();
+        LootStoreBox.Skinning.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `skinning_loot_template` reloaded.");
         Global.ConditionMgr.LoadConditions(true);
 
@@ -860,7 +860,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`spell_loot_template`)");
         LootManager.LoadLootTemplates_Spell();
-        LootStorage.Spell.CheckLootRefs();
+        LootStoreBox.Spell.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `spell_loot_template` reloaded.");
         Global.ConditionMgr.LoadConditions(true);
 

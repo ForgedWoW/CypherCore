@@ -59,7 +59,7 @@ public partial class Unit
     private bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
     private SpellAuraInterruptFlags _interruptMask;
     private SpellAuraInterruptFlags2 _interruptMask2;
-    private uint _removedAurasCount;
+    internal uint RemovedAurasCount { get; private set; }
     private UnitState _state;
     private bool _canModifyStats;
 
@@ -95,7 +95,7 @@ public partial class Unit
 
     //Charm
     public List<Unit> Controlled { get; set; } = new();
-    protected bool ControlledByPlayer { get; set; }
+    public bool ControlledByPlayer { get; protected set; }
     public ObjectGuid LastCharmerGuid { get; set; }
 
     //Spells 

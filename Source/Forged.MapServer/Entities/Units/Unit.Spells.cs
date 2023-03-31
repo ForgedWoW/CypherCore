@@ -474,28 +474,6 @@ public partial class Unit
         return advertisedBenefit;
     }
 
-    public static double SpellCriticalHealingBonus(Unit caster, SpellInfo spellProto, double damage, Unit victim)
-    {
-        // Calculate critical bonus
-        var crit_bonus = damage;
-
-        // adds additional damage to critBonus (from talents)
-        if (caster != null)
-        {
-            var modOwner = caster.SpellModOwner;
-
-            if (modOwner != null)
-                modOwner.ApplySpellMod(spellProto, SpellModOp.CritDamageAndHealing, ref crit_bonus);
-        }
-
-        damage += crit_bonus;
-
-        if (caster != null)
-            damage = damage * caster.GetTotalAuraMultiplier(AuraType.ModCriticalHealingAmount);
-
-        return damage;
-    }
-
     public double SpellHealingBonusDone(Unit victim, SpellInfo spellProto, double healamount, DamageEffectType damagetype, SpellEffectInfo spellEffectInfo, uint stack = 1, Spell spell = null)
     {
         // For totems get healing bonus from owner (statue isn't totem in fact)
@@ -1092,96 +1070,6 @@ public partial class Unit
         return base.GetCastSpellXSpellVisualId(spellInfo);
     }
 
-    public static ProcFlagsHit CreateProcHitMask(SpellNonMeleeDamage damageInfo, SpellMissInfo missCondition)
-    {
-        var hitMask = ProcFlagsHit.None;
-
-        // Check victim state
-        if (missCondition != SpellMissInfo.None)
-        {
-            switch (missCondition)
-            {
-                case SpellMissInfo.Miss:
-                    hitMask |= ProcFlagsHit.Miss;
-
-                    break;
-                case SpellMissInfo.Dodge:
-                    hitMask |= ProcFlagsHit.Dodge;
-
-                    break;
-                case SpellMissInfo.Parry:
-                    hitMask |= ProcFlagsHit.Parry;
-
-                    break;
-                case SpellMissInfo.Block:
-                    // spells can't be partially blocked (it's damage can though)
-                    hitMask |= ProcFlagsHit.Block | ProcFlagsHit.FullBlock;
-
-                    break;
-                case SpellMissInfo.Evade:
-                    hitMask |= ProcFlagsHit.Evade;
-
-                    break;
-                case SpellMissInfo.Immune:
-                case SpellMissInfo.Immune2:
-                    hitMask |= ProcFlagsHit.Immune;
-
-                    break;
-                case SpellMissInfo.Deflect:
-                    hitMask |= ProcFlagsHit.Deflect;
-
-                    break;
-                case SpellMissInfo.Absorb:
-                    hitMask |= ProcFlagsHit.Absorb;
-
-                    break;
-                case SpellMissInfo.Reflect:
-                    hitMask |= ProcFlagsHit.Reflect;
-
-                    break;
-                case SpellMissInfo.Resist:
-                    hitMask |= ProcFlagsHit.FullResist;
-
-                    break;
-                default:
-                    break;
-            }
-        }
-        else
-        {
-            // On block
-            if (damageInfo.Blocked != 0)
-            {
-                hitMask |= ProcFlagsHit.Block;
-
-                if (damageInfo.FullBlock)
-                    hitMask |= ProcFlagsHit.FullBlock;
-            }
-
-            // On absorb
-            if (damageInfo.Absorb != 0)
-                hitMask |= ProcFlagsHit.Absorb;
-
-            // Don't set hit/crit hitMask if damage is nullified
-            var damageNullified = damageInfo.HitInfo.HasAnyFlag((int)HitInfo.FullAbsorb | (int)HitInfo.FullResist) || hitMask.HasAnyFlag(ProcFlagsHit.FullBlock);
-
-            if (!damageNullified)
-            {
-                // On crit
-                if (damageInfo.HitInfo.HasAnyFlag((int)SpellHitType.Crit))
-                    hitMask |= ProcFlagsHit.Critical;
-                else
-                    hitMask |= ProcFlagsHit.Normal;
-            }
-            else if (damageInfo.HitInfo.HasAnyFlag((int)HitInfo.FullResist))
-            {
-                hitMask |= ProcFlagsHit.FullResist;
-            }
-        }
-
-        return hitMask;
-    }
-
     public void SetAuraStack(uint spellId, Unit target, uint stack)
     {
         var aura = target.GetAura(spellId, GUID);
@@ -1700,20 +1588,6 @@ public partial class Unit
         return false;
     }
 
-    public static void ProcSkillsAndAuras(Unit actor, Unit actionTarget, ProcFlagsInit typeMaskActor, ProcFlagsInit typeMaskActionTarget, ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
-    {
-        var attType = damageInfo != null ? damageInfo.AttackType : WeaponAttackType.BaseAttack;
-
-        if (typeMaskActor && actor != null)
-            actor.ProcSkillsAndReactives(false, actionTarget, typeMaskActor, hitMask, attType);
-
-        if (typeMaskActionTarget && actionTarget)
-            actionTarget.ProcSkillsAndReactives(true, actor, typeMaskActionTarget, hitMask, attType);
-
-        if (actor != null)
-            actor.TriggerAurasProcOnEvent(null, null, actionTarget, typeMaskActor, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
-    }
-
     public void CastWithDelay(TimeSpan delay, Unit target, uint spellId, bool triggered)
     {
         Events.AddEvent(new DelayedCastEvent(this, target, spellId, new CastSpellExtraArgs(triggered)), delay);
@@ -1855,35 +1729,6 @@ public partial class Unit
         return false;
     }
 
-    public static double SpellCriticalDamageBonus(Unit caster, SpellInfo spellProto, double damage, Unit victim = null)
-    {
-        // Calculate critical bonus
-        var crit_bonus = damage * 2;
-        double crit_mod = 0.0f;
-
-        if (caster != null)
-        {
-            crit_mod += (caster.GetTotalAuraMultiplierByMiscMask(AuraType.ModCritDamageBonus, (uint)spellProto.GetSchoolMask()) - 1.0f) * 100;
-
-            if (crit_bonus != 0)
-                MathFunctions.AddPct(ref crit_bonus, crit_mod);
-
-            MathFunctions.AddPct(ref crit_bonus, victim.GetTotalAuraModifier(AuraType.ModCriticalDamageTakenFromCaster, aurEff => { return aurEff.CasterGuid == caster.GUID; }));
-
-            crit_bonus -= damage;
-
-            // adds additional damage to critBonus (from talents)
-            var modOwner = caster.SpellModOwner;
-
-            if (modOwner != null)
-                modOwner.ApplySpellMod(spellProto, SpellModOp.CritDamageAndHealing, ref crit_bonus);
-
-            crit_bonus += damage;
-        }
-
-        return crit_bonus;
-    }
-
     public void _DeleteRemovedAuras()
     {
         lock (_removedAuras)
@@ -1895,73 +1740,14 @@ public partial class Unit
             }
         }
 
-        _removedAurasCount = 0;
-    }
-
-    public static void DealHeal(HealInfo healInfo)
-    {
-        uint gain = 0;
-        var healer = healInfo.Healer;
-        var victim = healInfo.Target;
-        var addhealth = healInfo.Heal;
-
-        var victimAI = victim.AI;
-
-        if (victimAI != null)
-            victimAI.HealReceived(healer, addhealth);
-
-        var healerAI = healer != null ? healer.AI : null;
-
-        if (healerAI != null)
-            healerAI.HealDone(victim, addhealth);
-
-        if (addhealth != 0)
-            gain = (uint)victim.ModifyHealth(addhealth);
-
-        // Hook for OnHeal Event
-        Global.ScriptMgr.ForEach<IUnitOnHeal>(p => p.OnHeal(healInfo, ref gain));
-
-        var unit = healer;
-
-        if (healer is { IsCreature: true, IsTotem: true })
-            unit = healer.OwnerUnit;
-
-        if (unit)
-        {
-            var bgPlayer = unit.AsPlayer;
-
-            if (bgPlayer != null)
-            {
-                var bg = bgPlayer.Battleground;
-
-                if (bg)
-                    bg.UpdatePlayerScore(bgPlayer, ScoreType.HealingDone, gain);
-
-                // use the actual gain, as the overheal shall not be counted, skip gain 0 (it ignored anyway in to criteria)
-                if (gain != 0)
-                    bgPlayer.UpdateCriteria(CriteriaType.HealingDone, gain, 0, 0, victim);
-
-                bgPlayer.UpdateCriteria(CriteriaType.HighestHealCast, (uint)addhealth);
-            }
-        }
-
-        var player = victim.AsPlayer;
-
-        if (player != null)
-        {
-            player.UpdateCriteria(CriteriaType.TotalHealReceived, gain);
-            player.UpdateCriteria(CriteriaType.HighestHealReceived, (uint)addhealth);
-        }
-
-        if (gain != 0)
-            healInfo.SetEffectiveHeal(gain > 0 ? gain : 0u);
+        RemovedAurasCount = 0;
     }
 
     public double HealBySpell(HealInfo healInfo, bool critical = false)
     {
         // calculate heal absorb and reduce healing
-        CalcHealAbsorb(healInfo);
-        DealHeal(healInfo);
+        UnitCombatHelpers.CalcHealAbsorb(healInfo);
+        UnitCombatHelpers.DealHeal(healInfo);
 
         SendHealSpellLog(healInfo, critical);
 
@@ -2025,8 +1811,8 @@ public partial class Unit
         // Spells with SPELL_ATTR4_IGNORE_DAMAGE_TAKEN_MODIFIERS ignore resilience because their damage is based off another spell's damage.
         if (!spellInfo.HasAttribute(SpellAttr4.IgnoreDamageTakenModifiers))
         {
-            if (IsDamageReducedByArmor(damageSchoolMask, spellInfo))
-                damage = (int)CalcArmorReducedDamage(damageInfo.Attacker, victim, (uint)damage, spellInfo, attackType);
+            if (UnitCombatHelpers.IsDamageReducedByArmor(damageSchoolMask, spellInfo))
+                damage = (int)UnitCombatHelpers.CalcArmorReducedDamage(damageInfo.Attacker, victim, (uint)damage, spellInfo, attackType);
 
             // Per-school calc
             switch (spellInfo.DmgClass)
@@ -2077,7 +1863,7 @@ public partial class Unit
                     }
 
                     if (CanApplyResilience())
-                        ApplyResilience(victim, ref damage);
+                        UnitCombatHelpers.ApplyResilience(victim, ref damage);
 
                     break;
                 }
@@ -2089,11 +1875,11 @@ public partial class Unit
                     if (crit)
                     {
                         damageInfo.HitInfo |= (int)SpellHitType.Crit;
-                        damage = (int)SpellCriticalDamageBonus(this, spellInfo, (uint)damage, victim);
+                        damage = (int)UnitCombatHelpers.SpellCriticalDamageBonus(this, spellInfo, (uint)damage, victim);
                     }
 
                     if (CanApplyResilience())
-                        ApplyResilience(victim, ref damage);
+                        UnitCombatHelpers.ApplyResilience(victim, ref damage);
 
                     break;
                 }
@@ -2112,7 +1898,7 @@ public partial class Unit
         damageInfo.Damage = (uint)damage;
         damageInfo.OriginalDamage = (uint)damage;
         DamageInfo dmgInfo = new(damageInfo, DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack, ProcFlagsHit.None);
-        CalcAbsorbResist(dmgInfo, spell);
+        UnitCombatHelpers.CalcAbsorbResist(dmgInfo, spell);
         damageInfo.Absorb = dmgInfo.Absorb;
         damageInfo.Resist = dmgInfo.Resist;
 
@@ -2147,7 +1933,7 @@ public partial class Unit
 
         // Call default DealDamage
         CleanDamage cleanDamage = new(damageInfo.CleanDamage, damageInfo.Absorb, WeaponAttackType.BaseAttack, MeleeHitOutcome.Normal);
-        damageInfo.Damage = DealDamage(this, victim, damageInfo.Damage, cleanDamage, DamageEffectType.SpellDirect, damageInfo.SchoolMask, damageInfo.Spell, durabilityLoss);
+        damageInfo.Damage = UnitCombatHelpers.DealDamage(this, victim, damageInfo.Damage, cleanDamage, DamageEffectType.SpellDirect, damageInfo.SchoolMask, damageInfo.Spell, durabilityLoss);
     }
 
     public void SendSpellNonMeleeDamageLog(SpellNonMeleeDamage log)
@@ -2924,10 +2710,10 @@ public partial class Unit
 
             if (aura.SpellInfo.HasAuraInterruptFlag(flag) && (source == null || aura.Id != source.Id) && !IsInterruptFlagIgnoredForSpell(flag, this, aura.SpellInfo, source))
             {
-                var removedAuras = _removedAurasCount;
+                var removedAuras = RemovedAurasCount;
                 RemoveAura(aura, AuraRemoveMode.Interrupt);
 
-                if (_removedAurasCount > removedAuras + 1)
+                if (RemovedAurasCount > removedAuras + 1)
                     i = 0;
             }
         }
@@ -2954,10 +2740,10 @@ public partial class Unit
 
             if (aura.SpellInfo.HasAuraInterruptFlag(flag) && (source == null || aura.Id != source.Id) && !IsInterruptFlagIgnoredForSpell(flag, this, aura.SpellInfo, source))
             {
-                var removedAuras = _removedAurasCount;
+                var removedAuras = RemovedAurasCount;
                 RemoveAura(aura, AuraRemoveMode.Interrupt);
 
-                if (_removedAurasCount > removedAuras + 1)
+                if (RemovedAurasCount > removedAuras + 1)
                     i = 0;
             }
         }
@@ -3103,10 +2889,10 @@ public partial class Unit
 
                 if (aura != except && (casterGUID.IsEmpty || aura.CasterGuid == casterGUID) && ((negative && !aurApp.IsPositive) || (positive && aurApp.IsPositive)))
                 {
-                    var removedAuras = _removedAurasCount;
+                    var removedAuras = RemovedAurasCount;
                     RemoveAura(aurApp);
 
-                    if (_removedAurasCount > removedAuras + 1)
+                    if (RemovedAurasCount > removedAuras + 1)
                         i = 0;
                 }
             }
@@ -3377,10 +3163,10 @@ public partial class Unit
 
                 if (check(aurApp))
                 {
-                    var removedAuras = _removedAurasCount;
+                    var removedAuras = RemovedAurasCount;
                     RemoveAura(aurApp, removeMode);
 
-                    if (_removedAurasCount > removedAuras + 1)
+                    if (RemovedAurasCount > removedAuras + 1)
                         i = 0;
                 }
             }
@@ -3592,7 +3378,7 @@ public partial class Unit
         var aura = aurApp.Base;
         Log.Logger.Debug("Aura {0} now is remove mode {1}", aura.Id, removeMode);
 
-        ++_removedAurasCount;
+        ++RemovedAurasCount;
 
         var caster = aura.Caster;
 
@@ -4332,7 +4118,7 @@ public partial class Unit
         return dots;
     }
 
-    private void ProcSkillsAndReactives(bool isVictim, Unit procTarget, ProcFlagsInit typeMask, ProcFlagsHit hitMask, WeaponAttackType attType)
+    public void ProcSkillsAndReactives(bool isVictim, Unit procTarget, ProcFlagsInit typeMask, ProcFlagsHit hitMask, WeaponAttackType attType)
     {
         // Player is loaded now - do not allow passive spell casts to proc
         if (IsPlayer && AsPlayer.Session.PlayerLoading)
@@ -4416,7 +4202,7 @@ public partial class Unit
                 processAuraApplication(aura);
     }
 
-    private void TriggerAurasProcOnEvent(List<AuraApplication> myProcAuras, List<AuraApplication> targetProcAuras, Unit actionTarget, ProcFlagsInit typeMaskActor, ProcFlagsInit typeMaskActionTarget, ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
+    public void TriggerAurasProcOnEvent(List<AuraApplication> myProcAuras, List<AuraApplication> targetProcAuras, Unit actionTarget, ProcFlagsInit typeMaskActor, ProcFlagsInit typeMaskActionTarget, ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
     {
         // prepare data for self trigger
         ProcEventInfo myProcEventInfo = new(this, actionTarget, actionTarget, typeMaskActor, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);

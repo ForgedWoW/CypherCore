@@ -19,12 +19,12 @@ public class LootStore
     private readonly WorldDatabase _worldDatabase;
     private readonly ConditionManager _conditionManager;
     private readonly GameObjectManager _objectManager;
-    private readonly LootStorage _storage;
+    private readonly LootStoreBox _storage;
     private readonly string _name;
     private readonly string _entryName;
     private readonly bool _ratesAllowed;
 
-    public LootStore(IConfiguration configuration, WorldDatabase worldDatabase, ConditionManager conditionManager, GameObjectManager objectManager, LootStorage storage, string name, string entryName, bool ratesAllowed = true)
+    public LootStore(IConfiguration configuration, WorldDatabase worldDatabase, ConditionManager conditionManager, GameObjectManager objectManager, LootStoreBox storage, string name, string entryName, bool ratesAllowed = true)
     {
         _configuration = configuration;
         _worldDatabase = worldDatabase;

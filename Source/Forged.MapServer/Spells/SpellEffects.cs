@@ -351,7 +351,7 @@ public partial class Spell
 
         Caster.SendMessageToSet(data, true);
 
-        Unit.Kill(UnitCasterForEffectHandlers, UnitTarget, false);
+        UnitCombatHelpers.Kill(UnitCasterForEffectHandlers, UnitTarget, false);
     }
 
     [SpellEffectHandler(SpellEffectName.EnvironmentalDamage)]
@@ -372,7 +372,7 @@ public partial class Spell
         {
             var unitCaster = UnitCasterForEffectHandlers;
             DamageInfo damageInfo = new(unitCaster, UnitTarget, Damage, SpellInfo, SpellInfo.GetSchoolMask(), DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
-            Unit.CalcAbsorbResist(damageInfo);
+            UnitCombatHelpers.CalcAbsorbResist(damageInfo);
 
             SpellNonMeleeDamage log = new(unitCaster, UnitTarget, SpellInfo, SpellVisual, SpellInfo.GetSchoolMask(), CastId)
             {
@@ -1234,7 +1234,7 @@ public partial class Spell
         DamageInEffects += Damage;
 
         DamageInfo damageInfo = new(unitCaster, UnitTarget, Damage, SpellInfo, SpellInfo.GetSchoolMask(), DamageEffectType.Direct, WeaponAttackType.BaseAttack);
-        Unit.CalcAbsorbResist(damageInfo);
+        UnitCombatHelpers.CalcAbsorbResist(damageInfo);
         var absorb = damageInfo.Absorb;
         Damage -= absorb;
 
@@ -1277,7 +1277,7 @@ public partial class Spell
         // Pick a random item from spell_loot_template
         if (SpellInfo.IsLootCrafting)
         {
-            player.AutoStoreLoot(SpellInfo.Id, LootStorage.Spell, context, false, true);
+            player.AutoStoreLoot(SpellInfo.Id, LootStoreBox.Spell, context, false, true);
             player.UpdateCraftSkill(SpellInfo);
         }
         else // If there's no random loot entries for this spell, pick the item associated with this spell
@@ -1303,7 +1303,7 @@ public partial class Spell
         var player = UnitTarget.AsPlayer;
 
         // create some random items
-        player.AutoStoreLoot(SpellInfo.Id, LootStorage.Spell, SpellInfo.HasAttribute(SpellAttr0.IsTradeskill) ? ItemContext.TradeSkill : ItemContext.None);
+        player.AutoStoreLoot(SpellInfo.Id, LootStoreBox.Spell, SpellInfo.HasAttribute(SpellAttr0.IsTradeskill) ? ItemContext.TradeSkill : ItemContext.None);
         // @todo ExecuteLogEffectCreateItem(i, GetEffect(i].ItemType);
     }
 
@@ -3921,7 +3921,7 @@ public partial class Spell
         if (loot != null)
             creature.PersonalLoot[player.GUID] = loot;
 
-        loot.FillLoot(creature.Template.SkinLootId, LootStorage.Skinning, player, true);
+        loot.FillLoot(creature.Template.SkinLootId, LootStoreBox.Skinning, player, true);
         player.SendLoot(loot);
 
         if (skill == SkillType.Skinning)
@@ -4107,7 +4107,7 @@ public partial class Spell
 
         UnitTarget.KnockbackFrom(origin, speedxy, (float)speedz);
 
-        Unit.ProcSkillsAndAuras(UnitCasterForEffectHandlers, UnitTarget, new ProcFlagsInit(ProcFlags.None), new ProcFlagsInit(ProcFlags.None, ProcFlags2.Knockback), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Hit, ProcFlagsHit.None, null, null, null);
+        UnitCombatHelpers.ProcSkillsAndAuras(UnitCasterForEffectHandlers, UnitTarget, new ProcFlagsInit(ProcFlags.None), new ProcFlagsInit(ProcFlags.None, ProcFlags2.Knockback), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Hit, ProcFlagsHit.None, null, null, null);
     }
 
     [SpellEffectHandler(SpellEffectName.LeapBack)]

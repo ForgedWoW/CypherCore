@@ -25,6 +25,8 @@ namespace Forged.MapServer.Entities.Units;
 
 public partial class Unit
 {
+    private readonly UnitCombatHelpers _unitCombatHelpers;
+
     // This value can be different from IsInCombat, for example:
     // - when a projectile spell is midair against a creature (combat on launch - threat+aggro on impact)
     // - when the creature has no targets left, but the AI has not yet ceased engaged logic
@@ -59,6 +61,11 @@ public partial class Unit
 
     public bool IsThreatened => !_threatManager.IsThreatListEmpty();
 
+    public UnitCombatHelpers UnitCombatHelpers
+    {
+        get { return _unitCombatHelpers; }
+    }
+
     public virtual void AtEnterCombat()
     {
         foreach (var pair in AppliedAuras)
@@ -71,7 +78,7 @@ public partial class Unit
                 InterruptNonMeleeSpells(false);
 
         RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.EnteringCombat);
-        ProcSkillsAndAuras(this, null, new ProcFlagsInit(ProcFlags.EnterCombat), new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
+        UnitCombatHelpers.ProcSkillsAndAuras(this, null, new ProcFlagsInit(ProcFlags.EnterCombat), new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
     }
 
     public virtual void AtExitCombat()
@@ -670,7 +677,7 @@ public partial class Unit
             {
                 CalculateMeleeDamage(victim, out var damageInfo, attType);
                 // Send log damage message to client
-                CheckEvade(damageInfo.Attacker, victim, ref damageInfo.Damage, ref damageInfo.Absorb);
+                UnitCombatHelpers.CheckEvade(damageInfo.Attacker, victim, ref damageInfo.Damage, ref damageInfo.Absorb);
 
                 if (TryGetAI(out var aI))
                     aI.OnMeleeAttack(damageInfo, attType, extra);
@@ -684,7 +691,7 @@ public partial class Unit
                 DealMeleeDamage(damageInfo, true);
 
                 DamageInfo dmgInfo = new(damageInfo);
-                ProcSkillsAndAuras(damageInfo.Attacker, damageInfo.Target, damageInfo.ProcAttacker, damageInfo.ProcVictim, ProcFlagsSpellType.None, ProcFlagsSpellPhase.None, dmgInfo.HitMask, null, dmgInfo, null);
+                UnitCombatHelpers.ProcSkillsAndAuras(damageInfo.Attacker, damageInfo.Target, damageInfo.ProcAttacker, damageInfo.ProcVictim, ProcFlagsSpellType.None, ProcFlagsSpellPhase.None, dmgInfo.HitMask, null, dmgInfo, null);
 
                 Log.Logger.Debug("AttackerStateUpdate: {0} attacked {1} for {2} dmg, absorbed {3}, blocked {4}, resisted {5}.",
                                  GUID.ToString(),
@@ -733,20 +740,20 @@ public partial class Unit
         return victim;
     }
 
-    public void SendAttackStateUpdate(HitInfo HitInfo, Unit target, SpellSchoolMask damageSchoolMask, double Damage, double AbsorbDamage, double Resist, VictimState TargetState, uint BlockedAmount)
+    public void SendAttackStateUpdate(HitInfo hitInfo, Unit target, SpellSchoolMask damageSchoolMask, double damage, double absorbDamage, double resist, VictimState targetState, uint blockedAmount)
     {
         CalcDamageInfo dmgInfo = new()
         {
-            HitInfo = HitInfo,
+            HitInfo = hitInfo,
             Attacker = this,
             Target = target,
-            Damage = Damage - AbsorbDamage - Resist - BlockedAmount,
-            OriginalDamage = Damage,
+            Damage = damage - absorbDamage - resist - blockedAmount,
+            OriginalDamage = damage,
             DamageSchoolMask = (uint)damageSchoolMask,
-            Absorb = AbsorbDamage,
-            Resist = Resist,
-            TargetState = TargetState,
-            Blocked = BlockedAmount
+            Absorb = absorbDamage,
+            Resist = resist,
+            TargetState = targetState,
+            Blocked = blockedAmount
         };
 
         SendAttackStateUpdate(dmgInfo);
@@ -798,390 +805,22 @@ public partial class Unit
 
         var targetOwner = target.CharmerOrOwner;
 
-        if (targetOwner != null)
-            targetOwner.EngageWithTarget(this);
+        targetOwner?.EngageWithTarget(this);
 
         var myPlayerOwner = CharmerOrOwnerPlayerOrPlayerItself;
         var targetPlayerOwner = target.CharmerOrOwnerPlayerOrPlayerItself;
 
-        if (myPlayerOwner && targetPlayerOwner && !(myPlayerOwner.Duel != null && myPlayerOwner.Duel.Opponent == targetPlayerOwner))
-        {
-            myPlayerOwner.UpdatePvP(true);
-            myPlayerOwner.SetContestedPvP(targetPlayerOwner);
-            myPlayerOwner.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
-        }
-    }
-
-    public static void Kill(Unit attacker, Unit victim, bool durabilityLoss = true, bool skipSettingDeathState = false)
-    {
-        // Prevent killing unit twice (and giving reward from kill twice)
-        if (victim.Health == 0)
+        if (!myPlayerOwner || !targetPlayerOwner || myPlayerOwner.Duel != null && myPlayerOwner.Duel.Opponent == targetPlayerOwner)
             return;
 
-        if (attacker != null && !attacker.Location.IsInMap(victim))
-            attacker = null;
-
-        // find player: owner of controlled `this` or `this` itself maybe
-        Player player = null;
-
-        if (attacker != null)
-            player = attacker.CharmerOrOwnerPlayerOrPlayerItself;
-
-        var creature = victim.AsCreature;
-
-        var isRewardAllowed = attacker != victim;
-
-        if (creature != null)
-            isRewardAllowed = isRewardAllowed && !creature.TapList.Empty();
-
-        List<Player> tappers = new();
-
-        if (isRewardAllowed && creature)
-        {
-            foreach (var tapperGuid in creature.TapList)
-            {
-                var tapper = Global.ObjAccessor.GetPlayer(creature, tapperGuid);
-
-                if (tapper != null)
-                    tappers.Add(tapper);
-            }
-
-            if (!creature.CanHaveLoot)
-                isRewardAllowed = false;
-        }
-
-        // Exploit fix
-        if (creature && creature.IsPet && creature.OwnerGUID.IsPlayer)
-            isRewardAllowed = false;
-
-        // Reward player, his pets, and group/raid members
-        // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
-        if (isRewardAllowed)
-        {
-            HashSet<PlayerGroup> groups = new();
-
-            foreach (var tapper in tappers)
-            {
-                var tapperGroup = tapper.Group;
-
-                if (tapperGroup != null)
-                {
-                    if (groups.Add(tapperGroup))
-                    {
-                        PartyKillLog partyKillLog = new()
-                        {
-                            Player = player && tapperGroup.IsMember(player.GUID) ? player.GUID : tapper.GUID,
-                            Victim = victim.GUID
-                        };
-
-                        partyKillLog.Write();
-
-                        tapperGroup.BroadcastPacket(partyKillLog, tapperGroup.GetMemberGroup(tapper.GUID) != 0);
-
-                        if (creature)
-                            tapperGroup.UpdateLooterGuid(creature, true);
-                    }
-                }
-                else
-                {
-                    PartyKillLog partyKillLog = new()
-                    {
-                        Player = tapper.GUID,
-                        Victim = victim.GUID
-                    };
-
-                    tapper.SendPacket(partyKillLog);
-                }
-            }
-
-            // Generate loot before updating looter
-            if (creature)
-            {
-                DungeonEncounterRecord dungeonEncounter = null;
-                var instance = creature.Location.InstanceScript;
-
-                if (instance != null)
-                    dungeonEncounter = instance.GetBossDungeonEncounter(creature);
-
-                if (creature.Location.Map.IsDungeon)
-                {
-                    if (dungeonEncounter != null)
-                    {
-                        creature.PersonalLoot = LootManager.GenerateDungeonEncounterPersonalLoot(dungeonEncounter.Id,
-                                                                                                 creature.LootId,
-                                                                                                 LootStorage.Creature,
-                                                                                                 LootType.Corpse,
-                                                                                                 creature,
-                                                                                                 creature.Template.MinGold,
-                                                                                                 creature.Template.MaxGold,
-                                                                                                 (ushort)creature.GetLootMode(),
-                                                                                                 creature.Location.Map.GetDifficultyLootItemContext(),
-                                                                                                 tappers);
-                    }
-                    else if (!tappers.Empty())
-                    {
-                        var group = !groups.Empty() ? groups.First() : null;
-                        var looter = group ? Global.ObjAccessor.GetPlayer(creature, group.LooterGuid) : tappers[0];
-
-                        Loot loot = new(creature.Location.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
-
-                        var lootid = creature.LootId;
-
-                        if (lootid != 0)
-                            loot.FillLoot(lootid, LootStorage.Creature, looter, dungeonEncounter != null, false, creature.GetLootMode(), creature.Location.Map.GetDifficultyLootItemContext());
-
-                        if (creature.GetLootMode() > 0)
-                            loot.GenerateMoneyLoot(creature.Template.MinGold, creature.Template.MaxGold);
-
-                        if (group)
-                            loot.NotifyLootList(creature.Location.Map);
-
-                        if (loot != null)
-                            creature.PersonalLoot[looter.GUID] = loot; // trash mob loot is personal, generated with round robin rules
-
-                        // Update round robin looter only if the creature had loot
-                        if (!loot.IsLooted())
-                            foreach (var tapperGroup in groups)
-                                tapperGroup.UpdateLooterGuid(creature);
-                    }
-                }
-                else
-                {
-                    foreach (var tapper in tappers)
-                    {
-                        Loot loot = new(creature.Location.Map, creature.GUID, LootType.Corpse, null);
-
-                        if (dungeonEncounter != null)
-                            loot.SetDungeonEncounterId(dungeonEncounter.Id);
-
-                        var lootid = creature.LootId;
-
-                        if (lootid != 0)
-                            loot.FillLoot(lootid, LootStorage.Creature, tapper, true, false, creature.GetLootMode(), creature.Location.Map.GetDifficultyLootItemContext());
-
-                        if (creature.GetLootMode() > 0)
-                            loot.GenerateMoneyLoot(creature.Template.MinGold, creature.Template.MaxGold);
-
-                        if (loot != null)
-                            creature.PersonalLoot[tapper.GUID] = loot;
-                    }
-                }
-            }
-
-            new KillRewarder(tappers.ToArray(), victim, false).Reward();
-        }
-
-        // Do KILL and KILLED procs. KILL proc is called only for the unit who landed the killing blow (and its owner - for pets and totems) regardless of who tapped the victim
-        if (attacker != null && (attacker.IsPet || attacker.IsTotem))
-        {
-            // proc only once for victim
-            var owner = attacker.OwnerUnit;
-
-            if (owner != null)
-                ProcSkillsAndAuras(owner, victim, new ProcFlagsInit(ProcFlags.Kill), new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
-        }
-
-        if (!victim.IsCritter)
-        {
-            ProcSkillsAndAuras(attacker, victim, new ProcFlagsInit(ProcFlags.Kill), new ProcFlagsInit(ProcFlags.Heartbeat), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
-
-            foreach (var tapper in tappers)
-                if (tapper.IsAtGroupRewardDistance(victim))
-                    ProcSkillsAndAuras(tapper, victim, new ProcFlagsInit(ProcFlags.None, ProcFlags2.TargetDies), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
-        }
-
-        // Proc auras on death - must be before aura/combat remove
-        ProcSkillsAndAuras(victim, victim, new ProcFlagsInit(ProcFlags.None), new ProcFlagsInit(ProcFlags.Death), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
-
-        // update get killing blow achievements, must be done before setDeathState to be able to require auras on target
-        // and before Spirit of Redemption as it also removes auras
-        if (attacker != null)
-        {
-            var killerPlayer = attacker.CharmerOrOwnerPlayerOrPlayerItself;
-
-            if (killerPlayer != null)
-                killerPlayer.UpdateCriteria(CriteriaType.DeliveredKillingBlow, 1, 0, 0, victim);
-        }
-
-        if (!skipSettingDeathState)
-        {
-            Log.Logger.Debug("SET JUST_DIED");
-            victim.SetDeathState(DeathState.JustDied);
-        }
-
-        // Inform pets (if any) when player kills target)
-        // MUST come after victim.setDeathState(JUST_DIED); or pet next target
-        // selection will get stuck on same target and break pet react state
-        foreach (var tapper in tappers)
-        {
-            var pet = tapper.CurrentPet;
-
-            if (pet is { IsAlive: true, IsControlled: true })
-            {
-                if (pet.IsAIEnabled)
-                    pet.AI.KilledUnit(victim);
-                else
-                    Log.Logger.Error($"Pet doesn't have any AI in Unit.Kill() {pet.GetDebugInfo()}");
-            }
-        }
-
-        // 10% durability loss on death
-        var plrVictim = victim.AsPlayer;
-
-        if (plrVictim != null)
-        {
-            // remember victim PvP death for corpse type and corpse reclaim delay
-            // at original death (not at SpiritOfRedemtionTalent timeout)
-            plrVictim.SetPvPDeath(player != null);
-
-            // only if not player and not controlled by player pet. And not at BG
-            if ((durabilityLoss && player == null && !victim.AsPlayer.InBattleground) || (player != null && GetDefaultValue("DurabilityLoss.InPvP", false)))
-            {
-                double baseLoss = GetDefaultValue("DurabilityLoss.OnDeath", 10.0f) / 100;
-                var loss = (uint)(baseLoss - (baseLoss * plrVictim.GetTotalAuraMultiplier(AuraType.ModDurabilityLoss)));
-                Log.Logger.Debug("We are dead, losing {0} percent durability", loss);
-                // Durability loss is calculated more accurately again for each item in Player.DurabilityLoss
-                plrVictim.DurabilityLossAll(baseLoss, false);
-                // durability lost message
-                plrVictim.SendDurabilityLoss(plrVictim, loss);
-            }
-
-            // Call KilledUnit for creatures
-            if (attacker is { IsCreature: true, IsAIEnabled: true })
-                attacker.AsCreature.AI.KilledUnit(victim);
-
-            // last damage from non duel opponent or opponent controlled creature
-            if (plrVictim.Duel != null)
-            {
-                plrVictim.Duel.Opponent.CombatStopWithPets(true);
-                plrVictim.CombatStopWithPets(true);
-                plrVictim.DuelComplete(DuelCompleteType.Interrupted);
-            }
-        }
-        else // creature died
-        {
-            Log.Logger.Debug("DealDamageNotPlayer");
-
-            if (!creature.IsPet)
-            {
-                // must be after setDeathState which resets dynamic flags
-                if (!creature.IsFullyLooted)
-                    creature.SetDynamicFlag(UnitDynFlags.Lootable);
-                else
-                    creature.AllLootRemovedFromCorpse();
-
-                if (creature.CanHaveLoot && LootStorage.Skinning.HaveLootFor(creature.Template.SkinLootId))
-                {
-                    creature.SetDynamicFlag(UnitDynFlags.CanSkin);
-                    creature.SetUnitFlag(UnitFlags.Skinnable);
-                }
-            }
-
-            // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
-            if (attacker is { IsCreature: true, IsAIEnabled: true })
-                attacker.AsCreature.AI.KilledUnit(victim);
-
-            // Call creature just died function
-            var ai = creature.AI;
-
-            if (ai != null)
-                ai.JustDied(attacker);
-
-            var summon = creature.ToTempSummon();
-
-            if (summon != null)
-            {
-                var summoner = summon.GetSummoner();
-
-                if (summoner != null)
-                {
-                    if (summoner.IsCreature)
-                        summoner.AsCreature.AI?.SummonedCreatureDies(creature, attacker);
-                    else if (summoner.IsGameObject)
-                        summoner.AsGameObject.AI?.SummonedCreatureDies(creature, attacker);
-                }
-            }
-        }
-
-        // outdoor pvp things, do these after setting the death state, else the player activity notify won't work... doh...
-        // handle player kill only if not suicide (spirit of redemption for example)
-        if (player != null && attacker != victim)
-        {
-            var pvp = player.GetOutdoorPvP();
-
-            if (pvp != null)
-                pvp.HandleKill(player, victim);
-
-            var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.Location.Map, player.Location.Zone);
-
-            if (bf != null)
-                bf.HandleKill(player, victim);
-        }
-
-        // Battlegroundthings (do this at the end, so the death state flag will be properly set to handle in the bg.handlekill)
-        if (player is { InBattleground: true })
-        {
-            var bg = player.Battleground;
-
-            if (bg)
-            {
-                var playerVictim = victim.AsPlayer;
-
-                if (playerVictim)
-                    bg.HandleKillPlayer(playerVictim, player);
-                else
-                    bg.HandleKillUnit(victim.AsCreature, player);
-            }
-        }
-
-        // achievement stuff
-        if (attacker != null && victim.IsPlayer)
-        {
-            if (attacker.IsCreature)
-                victim.AsPlayer.UpdateCriteria(CriteriaType.KilledByCreature, attacker.Entry);
-            else if (attacker.IsPlayer && victim != attacker)
-                victim.AsPlayer.UpdateCriteria(CriteriaType.KilledByPlayer, 1, (ulong)attacker.AsPlayer.EffectiveTeam);
-        }
-
-        // Hook for OnPVPKill Event
-        if (attacker != null)
-        {
-            var killerPlr = attacker.AsPlayer;
-
-            if (killerPlr != null)
-            {
-                var killedPlr = victim.AsPlayer;
-
-                if (killedPlr != null)
-                {
-                    Global.ScriptMgr.ForEach<IPlayerOnPVPKill>(p => p.OnPVPKill(killerPlr, killedPlr));
-                }
-                else
-                {
-                    var killedCre = victim.AsCreature;
-
-                    if (killedCre != null)
-                        Global.ScriptMgr.ForEach<IPlayerOnCreatureKill>(p => p.OnCreatureKill(killerPlr, killedCre));
-                }
-            }
-            else
-            {
-                var killerCre = attacker.AsCreature;
-
-                if (killerCre != null)
-                {
-                    var killed = victim.AsPlayer;
-
-                    if (killed != null)
-                        Global.ScriptMgr.ForEach<IPlayerOnPlayerKilledByCreature>(p => p.OnPlayerKilledByCreature(killerCre, killed));
-                }
-            }
-        }
+        myPlayerOwner.UpdatePvP(true);
+        myPlayerOwner.SetContestedPvP(targetPlayerOwner);
+        myPlayerOwner.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
     }
 
     public void KillSelf(bool durabilityLoss = true, bool skipSettingDeathState = false)
     {
-        Kill(this, this, durabilityLoss, skipSettingDeathState);
+        UnitCombatHelpers.Kill(this, this, durabilityLoss, skipSettingDeathState);
     }
 
     public virtual bool CanUseAttackType(WeaponAttackType attacktype)
@@ -1266,7 +905,7 @@ public partial class Unit
         return WeaponDamage[(int)attType][(int)type];
     }
 
-    public double GetAPMultiplier(WeaponAttackType attType, bool normalized)
+    public double GetApMultiplier(WeaponAttackType attType, bool normalized)
     {
         if (!IsTypeId(TypeId.Player) || (IsInFeralForm && !normalized))
             return GetBaseAttackTime(attType) / 1000.0f;
@@ -1493,14 +1132,14 @@ public partial class Unit
         // Script Hook For CalculateMeleeDamage -- Allow scripts to change the Damage pre class mitigation calculations
         var t = damageInfo.Target;
         var a = damageInfo.Attacker;
-        ScaleDamage(a, t, ref damage);
+        UnitCombatHelpers.ScaleDamage(a, t, ref damage);
 
         Global.ScriptMgr.ForEach<IUnitModifyMeleeDamage>(p => p.ModifyMeleeDamage(t, a, ref damage));
 
         // Calculate armor reduction
-        if (IsDamageReducedByArmor((SpellSchoolMask)damageInfo.DamageSchoolMask))
+        if (UnitCombatHelpers.IsDamageReducedByArmor((SpellSchoolMask)damageInfo.DamageSchoolMask))
         {
-            damageInfo.Damage = CalcArmorReducedDamage(damageInfo.Attacker, damageInfo.Target, damage, null, damageInfo.AttackType);
+            damageInfo.Damage = UnitCombatHelpers.CalcArmorReducedDamage(damageInfo.Attacker, damageInfo.Target, damage, null, damageInfo.AttackType);
             damageInfo.CleanDamage += damage - damageInfo.Damage;
         }
         else
@@ -1602,9 +1241,6 @@ public partial class Unit
                 damageInfo.OriginalDamage = damageInfo.Damage;
 
                 break;
-
-            default:
-                break;
         }
 
         // Always apply HITINFO_AFFECTS_VICTIM in case its not a miss
@@ -1614,7 +1250,7 @@ public partial class Unit
         var resilienceReduction = damageInfo.Damage;
 
         if (CanApplyResilience())
-            ApplyResilience(victim, ref resilienceReduction);
+            UnitCombatHelpers.ApplyResilience(victim, ref resilienceReduction);
 
         resilienceReduction = damageInfo.Damage - resilienceReduction;
         damageInfo.Damage -= resilienceReduction;
@@ -1626,7 +1262,7 @@ public partial class Unit
             damageInfo.ProcVictim.Or(ProcFlags.TakeAnyDamage);
             // Calculate absorb & resists
             DamageInfo dmgInfo = new(damageInfo);
-            CalcAbsorbResist(dmgInfo);
+            UnitCombatHelpers.CalcAbsorbResist(dmgInfo);
             damageInfo.Absorb = dmgInfo.Absorb;
             damageInfo.Resist = dmgInfo.Resist;
 
@@ -1650,14 +1286,14 @@ public partial class Unit
             return MeleeHitOutcome.Evade;
 
         // Miss chance based on melee
-        var miss_chance = (int)(MeleeSpellMissChance(victim, attType, null) * 100.0f);
+        var missChance = (int)(MeleeSpellMissChance(victim, attType, null) * 100.0f);
 
         // Critical hit chance
-        var crit_chance = (int)((GetUnitCriticalChanceAgainst(attType, victim) + GetTotalAuraModifier(AuraType.ModAutoAttackCritChance)) * 100.0f);
+        var critChance = (int)((GetUnitCriticalChanceAgainst(attType, victim) + GetTotalAuraModifier(AuraType.ModAutoAttackCritChance)) * 100.0f);
 
-        var dodge_chance = (int)(GetUnitDodgeChance(attType, victim) * 100.0f);
-        var block_chance = (int)(GetUnitBlockChance(attType, victim) * 100.0f);
-        var parry_chance = (int)(GetUnitParryChance(attType, victim) * 100.0f);
+        var dodgeChance = (int)(GetUnitDodgeChance(attType, victim) * 100.0f);
+        var blockChance = (int)(GetUnitBlockChance(attType, victim) * 100.0f);
+        var parryChance = (int)(GetUnitParryChance(attType, victim) * 100.0f);
 
         // melee attack table implementation
         // outcome priority:
@@ -1684,19 +1320,19 @@ public partial class Unit
         }
 
         // 1. MISS
-        var tmp = miss_chance;
+        var tmp = missChance;
 
         if (tmp > 0 && roll < (sum += tmp))
             return MeleeHitOutcome.Miss;
 
         // always crit against a sitting target (except 0 crit chance)
-        if (victim.IsTypeId(TypeId.Player) && crit_chance > 0 && !victim.IsStandState)
+        if (victim.IsTypeId(TypeId.Player) && critChance > 0 && !victim.IsStandState)
             return MeleeHitOutcome.Crit;
 
         // 2. DODGE
         if (canDodge)
         {
-            tmp = dodge_chance;
+            tmp = dodgeChance;
 
             if (tmp > 0 // check if unit _can_ dodge
                 &&
@@ -1707,7 +1343,7 @@ public partial class Unit
         // 3. PARRY
         if (canParryOrBlock)
         {
-            tmp = parry_chance;
+            tmp = parryChance;
 
             if (tmp > 0 // check if unit _can_ parry
                 &&
@@ -1732,7 +1368,7 @@ public partial class Unit
         // 5. BLOCK
         if (canParryOrBlock)
         {
-            tmp = block_chance;
+            tmp = blockChance;
 
             if (tmp > 0 // check if unit _can_ block
                 &&
@@ -1741,7 +1377,7 @@ public partial class Unit
         }
 
         // 6.CRIT
-        tmp = crit_chance;
+        tmp = critChance;
 
         if (tmp > 0 && roll < (sum += tmp))
             return MeleeHitOutcome.Crit;
@@ -1781,10 +1417,6 @@ public partial class Unit
                 SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.RangedAttackRoundBaseTime), (uint)(_baseAttackSpeed[(int)att] * ModAttackSpeedPct[(int)att]));
 
                 break;
-            default:
-                break;
-
-                ;
         }
     }
 }

@@ -829,32 +829,6 @@ public partial class Unit
         return !IsVehicle && OwnerGUID.IsPlayer;
     }
 
-    public static void ApplyResilience(Unit victim, ref double damage)
-    {
-        // player mounted on multi-passenger mount is also classified as vehicle
-        if (victim.IsVehicle && !victim.IsPlayer)
-            return;
-
-        Unit target = null;
-
-        if (victim.IsPlayer)
-        {
-            target = victim;
-        }
-        else // victim->GetTypeId() == TYPEID_UNIT
-        {
-            var owner = victim.OwnerUnit;
-
-            if (owner is { IsPlayer: true })
-                target = owner;
-        }
-
-        if (!target)
-            return;
-
-        damage -= target.GetDamageReduction(damage);
-    }
-
     public double CalculateAOEAvoidance(double damage, uint schoolMask, ObjectGuid casterGuid)
     {
         damage = (damage * GetTotalAuraMultiplierByMiscMask(AuraType.ModAoeDamageAvoidance, schoolMask));
@@ -1166,7 +1140,7 @@ public partial class Unit
     }
 
     // player or player's pet resilience (-1%)
-    private double GetDamageReduction(double damage)
+    internal double GetDamageReduction(double damage)
     {
         return GetCombatRatingDamageReduction(CombatRating.ResiliencePlayerDamage, 1.0f, 100.0f, damage);
     }
