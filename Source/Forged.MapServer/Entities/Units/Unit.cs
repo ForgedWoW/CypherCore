@@ -487,6 +487,7 @@ public partial class Unit : WorldObject
         CharacterCache = classFactory.Resolve<CharacterCache>();
         ScriptManager = classFactory.Resolve<ScriptManager>();
         DB2Manager = classFactory.Resolve<DB2Manager>();
+        UnitCombatHelpers = classFactory.Resolve<UnitCombatHelpers>();
         MoveSpline = new MoveSpline(DB2Manager);
         MotionMaster = new MotionMaster(this);
         _combatManager = new CombatManager(this);
@@ -505,7 +506,7 @@ public partial class Unit : WorldObject
         DeathState = DeathState.Alive;
 
         for (byte i = 0; i < (int)SpellImmunity.Max; ++i)
-            _spellImmune[i] = new MultiMap<uint, uint>();
+            _spellImmune[(SpellImmunity)i] = new MultiMap<uint, uint>();
 
         for (byte i = 0; i < (int)UnitMods.End; ++i)
         {
@@ -544,7 +545,6 @@ public partial class Unit : WorldObject
         _splineSyncTimer = new TimeTracker();
 
         UnitData = new UnitData();
-        _unitCombatHelpers = new UnitCombatHelpers(this);
     }
 
     public override void Dispose()
@@ -893,8 +893,7 @@ public partial class Unit : WorldObject
             IsDuringRemoveFromWorld = true;
             var ai = AI;
 
-            if (ai != null)
-                ai.OnDespawn();
+            ai?.OnDespawn();
 
             if (IsVehicle)
                 RemoveVehicleKit(true);
@@ -917,7 +916,7 @@ public partial class Unit : WorldObject
             RemoveAllFollowers();
 
             if (IsCharmed)
-                RemoveCharmedBy(null);
+                RemoveCharmedBy();
 
             var owner = OwnerUnit;
 
@@ -1357,8 +1356,7 @@ public partial class Unit : WorldObject
                 // If a player entered a vehicle that is part of a formation, remove it from said formation
                 var creatureGroup = vehicle.GetBase().AsCreature.Formation;
 
-                if (creatureGroup != null)
-                    creatureGroup.RemoveMember(vehicle.GetBase().AsCreature);
+                creatureGroup?.RemoveMember(vehicle.GetBase().AsCreature);
             }
         }
 
@@ -1391,7 +1389,7 @@ public partial class Unit : WorldObject
             rideVehicleEffect = eff;
         }
 
-        rideVehicleEffect.ChangeAmount((seatId < 0 ? MovementInfo.Transport.Seat : seatId) + 1);
+        rideVehicleEffect?.ChangeAmount((seatId < 0 ? MovementInfo.Transport.Seat : seatId) + 1);
     }
 
     public virtual void ExitVehicle(Position exitPosition = null)
@@ -1442,8 +1440,7 @@ public partial class Unit : WorldObject
 
         AddUnitState(UnitState.Move);
 
-        if (player != null)
-            player.SetFallInformation(0, Location.Z);
+        player?.SetFallInformation(0, Location.Z);
 
         Position pos;
 
@@ -1483,8 +1480,7 @@ public partial class Unit : WorldObject
 
         MotionMaster.LaunchMoveSpline(initializer, EventId.VehicleExit, MovementGeneratorPriority.Highest);
 
-        if (player != null)
-            player.ResummonPetTemporaryUnSummonedIfAny();
+        player?.ResummonPetTemporaryUnSummonedIfAny();
 
         if (vehicle.GetBase().HasUnitTypeMask(UnitTypeMask.Minion) && vehicle.GetBase().IsTypeId(TypeId.Unit))
             if (((Minion)vehicle.GetBase()).OwnerUnit == this)
@@ -1622,8 +1618,6 @@ public partial class Unit : WorldObject
 
                 break;
             }
-            default:
-                break;
         }
 
         var thisPlayer = AsPlayer;
@@ -1675,8 +1669,6 @@ public partial class Unit : WorldObject
                         useRandom = HasAura(344342);
 
                         break; // Glyph of the Aerial Chameleon
-                    default:
-                        break;
                 }
 
                 if (useRandom)
@@ -1691,7 +1683,7 @@ public partial class Unit : WorldObject
                         {
                             var choiceReq = CliDB.ChrCustomizationReqStorage.LookupByKey(formModelData.Choices[i].ChrCustomizationReqID);
 
-                            if (choiceReq == null || thisPlayer.Session.MeetsChrCustomizationReq(choiceReq, Class, false, thisPlayer.PlayerData.Customizations))
+                            if (choiceReq == null || thisPlayer.MeetsChrCustomizationReq(choiceReq, Class, false, thisPlayer.PlayerData.Customizations))
                                 displayIds.Add(displayInfo.DisplayID);
                         }
                     }
@@ -1705,7 +1697,7 @@ public partial class Unit : WorldObject
 
                     if (formChoice != 0)
                     {
-                        var choiceIndex = formModelData.Choices.FindIndex(choice => { return choice.Id == formChoice; });
+                        var choiceIndex = formModelData.Choices.FindIndex(choice => choice.Id == formChoice);
 
                         if (choiceIndex != -1)
                         {
@@ -1731,25 +1723,23 @@ public partial class Unit : WorldObject
         uint modelid = 0;
         var formEntry = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)form);
 
-        if (formEntry != null && formEntry.CreatureDisplayID[0] != 0)
-        {
-            // Take the alliance modelid as default
-            if (TypeId != TypeId.Player)
-            {
-                return formEntry.CreatureDisplayID[0];
-            }
-            else
-            {
-                if (Player.TeamForRace(Race) == TeamFaction.Alliance)
-                    modelid = formEntry.CreatureDisplayID[0];
-                else
-                    modelid = formEntry.CreatureDisplayID[1];
+        if (formEntry == null || formEntry.CreatureDisplayID[0] == 0)
+            return modelid;
 
-                // If the player is horde but there are no values for the horde modelid - take the alliance modelid
-                if (modelid == 0 && Player.TeamForRace(Race) == TeamFaction.Horde)
-                    modelid = formEntry.CreatureDisplayID[0];
-            }
+        // Take the alliance modelid as default
+        if (TypeId != TypeId.Player)
+        {
+            return formEntry.CreatureDisplayID[0];
         }
+
+        if (Player.TeamForRace(Race) == TeamFaction.Alliance)
+            modelid = formEntry.CreatureDisplayID[0];
+        else
+            modelid = formEntry.CreatureDisplayID[1];
+
+        // If the player is horde but there are no values for the horde modelid - take the alliance modelid
+        if (modelid == 0 && Player.TeamForRace(Race) == TeamFaction.Horde)
+            modelid = formEntry.CreatureDisplayID[0];
 
         return modelid;
     }
@@ -2977,7 +2967,7 @@ public partial class Unit : WorldObject
         // talent who gave more rage on attack
         MathFunctions.AddPct(ref addRage, GetTotalAuraModifier(AuraType.ModRageFromDamageDealt));
 
-        addRage *= GetDefaultValue("Rate.Rage.Gain", 1.0f);
+        addRage *= Configuration.GetDefaultValue("Rate.Rage.Gain", 1.0f);
 
         ModifyPower(PowerType.Rage, (int)(addRage * 10));
     }
@@ -2993,8 +2983,7 @@ public partial class Unit : WorldObject
         {
             var modOwner = SpellModOwner;
 
-            if (modOwner != null)
-                modOwner.ApplySpellMod(spellProto, SpellModOp.ProcFrequency, ref ppm);
+            modOwner?.ApplySpellMod(spellProto, SpellModOp.ProcFrequency, ref ppm);
         }
 
         return (float)Math.Floor((weaponSpeed * ppm) / 600.0f); // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
@@ -3072,7 +3061,7 @@ public partial class Unit : WorldObject
         if (count == 0)
             return;
 
-        var comboPoints = (sbyte)(spell != null ? spell.ComboPointGain : GetPower(PowerType.ComboPoints));
+        var comboPoints = (sbyte)(spell?.ComboPointGain ?? GetPower(PowerType.ComboPoints));
 
         comboPoints += count;
 
@@ -3081,7 +3070,7 @@ public partial class Unit : WorldObject
         else if (comboPoints < 0)
             comboPoints = 0;
 
-        if (!spell)
+        if (spell == null)
             SetPower(PowerType.ComboPoints, comboPoints);
         else
             spell.ComboPointGain = comboPoints;
@@ -3155,7 +3144,7 @@ public partial class Unit : WorldObject
         // Done total percent damage auras
         double doneTotalMod = 1.0f;
 
-        var schoolMask = spellProto != null ? spellProto.GetSchoolMask() : damageSchoolMask;
+        var schoolMask = spellProto?.GetSchoolMask() ?? damageSchoolMask;
 
         if ((schoolMask & SpellSchoolMask.Normal) == 0)
             // Some spells don't benefit from pct done mods
@@ -3209,8 +3198,7 @@ public partial class Unit : WorldObject
         {
             var modOwner = SpellModOwner;
 
-            if (modOwner != null)
-                modOwner.ApplySpellMod(spellProto, damagetype == DamageEffectType.DOT ? SpellModOp.PeriodicHealingAndDamage : SpellModOp.HealingAndDamage, ref damageF);
+            modOwner?.ApplySpellMod(spellProto, damagetype == DamageEffectType.DOT ? SpellModOp.PeriodicHealingAndDamage : SpellModOp.HealingAndDamage, ref damageF);
         }
 
         damageF = (damageF + doneFlatBenefit) * doneTotalMod;
@@ -3299,7 +3287,7 @@ public partial class Unit : WorldObject
         // Sanctified Wrath (bypass damage reduction)
         if (takenTotalMod < 1.0f)
         {
-            var attackSchoolMask = spellProto != null ? spellProto.GetSchoolMask() : damageSchoolMask;
+            var attackSchoolMask = spellProto?.GetSchoolMask() ?? damageSchoolMask;
 
             var damageReduction = 1.0f - takenTotalMod;
             var casterIgnoreResist = attacker.GetAuraEffectsByType(AuraType.ModIgnoreTargetResist);
@@ -3370,13 +3358,7 @@ public partial class Unit : WorldObject
         };
 
         var amount = GetTotalAuraModifier(AuraType.ModDamageDone,
-                                          aurEff =>
-                                          {
-                                              if ((aurEff.MiscValue & (int)SpellSchoolMask.Normal) == 0)
-                                                  return false;
-
-                                              return CheckAttackFitToAuraRequirement(attackType, aurEff);
-                                          });
+                                          aurEff => (aurEff.MiscValue & (int)SpellSchoolMask.Normal) != 0 && CheckAttackFitToAuraRequirement(attackType, aurEff));
 
         SetStatFlatModifier(unitMod, UnitModifierFlatType.Total, amount);
     }
@@ -3398,13 +3380,7 @@ public partial class Unit : WorldObject
         };
 
         factor *= GetTotalAuraMultiplier(AuraType.ModDamagePercentDone,
-                                         aurEff =>
-                                         {
-                                             if (!aurEff.MiscValue.HasAnyFlag((int)SpellSchoolMask.Normal))
-                                                 return false;
-
-                                             return CheckAttackFitToAuraRequirement(attackType, aurEff);
-                                         });
+                                         aurEff => aurEff.MiscValue.HasAnyFlag((int)SpellSchoolMask.Normal) && CheckAttackFitToAuraRequirement(attackType, aurEff));
 
         if (attackType == WeaponAttackType.OffAttack)
             factor *= GetTotalAuraMultiplier(AuraType.ModOffhandDamagePct, auraEffect => CheckAttackFitToAuraRequirement(attackType, auraEffect));
@@ -3584,21 +3560,6 @@ public partial class Unit : WorldObject
             }
     }
 
-    private Unit GetVehicleRoot()
-    {
-        var vehicleRoot = VehicleBase;
-
-        if (!vehicleRoot)
-            return null;
-
-        for (;;)
-        {
-            if (!vehicleRoot.VehicleBase)
-                return vehicleRoot;
-
-            vehicleRoot = vehicleRoot.VehicleBase;
-        }
-    }
 
     private List<DynamicObject> GetDynObjects(uint spellId)
     {
@@ -3620,38 +3581,6 @@ public partial class Unit : WorldObject
                 gameobjects.Add(obj);
 
         return gameobjects;
-    }
-
-    private void CancelSpellMissiles(uint spellId, bool reverseMissile = false)
-    {
-        var hasMissile = false;
-
-        Events.ScheduleAbortOnAllMatchingEvents(e =>
-        {
-            var spell = Spell.ExtractSpellFromEvent(e);
-
-            if (spell != null)
-                if (spell.SpellInfo.Id == spellId)
-                {
-                    hasMissile = true;
-
-                    return true;
-                }
-
-            return false;
-        });
-
-        if (hasMissile)
-        {
-            MissileCancel packet = new()
-            {
-                OwnerGUID = GUID,
-                SpellID = spellId,
-                Reverse = reverseMissile
-            };
-
-            SendMessageToSet(packet, false);
-        }
     }
 
     private void RestoreDisabledAI()
@@ -3740,11 +3669,6 @@ public partial class Unit : WorldObject
         }
     }
 
-    private uint GetCosmeticMountDisplayId()
-    {
-        return UnitData.CosmeticMountDisplayID;
-    }
-
     public Player GetControllingPlayer()
     {
         var guid = CharmerOrOwnerGUID;
@@ -3809,7 +3733,7 @@ public partial class Unit : WorldObject
         damageInfo.Damage = UnitCombatHelpers.DealDamage(this, victim, damageInfo.Damage, cleanDamage, DamageEffectType.Direct, (SpellSchoolMask)damageInfo.DamageSchoolMask, null, durabilityLoss);
 
         // If this is a creature and it attacks from behind it has a probability to daze it's victim
-        if ((damageInfo.HitOutCome == MeleeHitOutcome.Crit || damageInfo.HitOutCome == MeleeHitOutcome.Crushing || damageInfo.HitOutCome == MeleeHitOutcome.Normal || damageInfo.HitOutCome == MeleeHitOutcome.Glancing) &&
+        if (damageInfo.HitOutCome is MeleeHitOutcome.Crit or MeleeHitOutcome.Crushing or MeleeHitOutcome.Normal or MeleeHitOutcome.Glancing &&
             !IsTypeId(TypeId.Player) &&
             !AsCreature.ControlledByPlayer &&
             !victim.Location.HasInArc(MathFunctions.PI, Location) &&
@@ -3826,7 +3750,7 @@ public partial class Unit : WorldObject
             uint victimDefense = victim.GetMaxSkillValueForLevel(this);
             uint attackerMeleeSkill = GetMaxSkillValueForLevel();
 
-            chance *= attackerMeleeSkill / victimDefense * 0.16f;
+            chance *= (float)attackerMeleeSkill / victimDefense * 0.16f;
 
             // -probability is between 0% and 40%
             MathFunctions.RoundToInterval(ref chance, 0.0f, 40.0f);
@@ -3853,7 +3777,7 @@ public partial class Unit : WorldObject
                 var spellInfo = dmgShield.SpellInfo;
 
                 // Damage shield can be resisted...
-                var missInfo = victim.WorldObjectCombat.SpellHitResult(this, spellInfo, false);
+                var missInfo = victim.WorldObjectCombat.SpellHitResult(this, spellInfo);
 
                 if (missInfo != SpellMissInfo.None)
                 {
@@ -3897,7 +3821,7 @@ public partial class Unit : WorldObject
                     LogAbsorbed = (uint)damageInfo1.Absorb
                 };
 
-                UnitCombatHelpers.DealDamage(victim, this, damage, null, DamageEffectType.SpellDirect, spellInfo.GetSchoolMask(), spellInfo, true);
+                UnitCombatHelpers.DealDamage(victim, this, damage, null, DamageEffectType.SpellDirect, spellInfo.GetSchoolMask(), spellInfo);
                 damageShield.LogData.Initialize(this);
 
                 victim.SendCombatLogMessage(damageShield);
@@ -3924,8 +3848,6 @@ public partial class Unit : WorldObject
                     if (newVal > threshold || oldVal < threshold)
                         continue;
 
-                    break;
-                default:
                     break;
             }
 
@@ -3965,26 +3887,8 @@ public partial class Unit : WorldObject
         }
     }
 
-    private void GainSpellComboPoints(sbyte count)
-    {
-        if (count == 0)
-            return;
-
-        var cp = (sbyte)GetPower(PowerType.ComboPoints);
-
-        cp += count;
-
-        if (cp > 5) cp = 5;
-        else if (cp < 0) cp = 0;
-
-        SetPower(PowerType.ComboPoints, cp);
-    }
-
     private bool IsBlockCritical()
     {
-        if (RandomHelper.randChance(GetTotalAuraModifier(AuraType.ModBlockCritChance)))
-            return true;
-
-        return false;
+        return RandomHelper.randChance(GetTotalAuraModifier(AuraType.ModBlockCritChance));
     }
 }

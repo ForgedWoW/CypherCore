@@ -81,7 +81,7 @@ public class SmartGameObjectAI : GameObjectAI
 
     public override void Destroyed(WorldObject attacker, uint eventId)
     {
-        GetScript().ProcessEventsFor(SmartEvents.Death, attacker != null ? attacker.AsUnit : null, eventId, 0, false, null, Me);
+        GetScript().ProcessEventsFor(SmartEvents.Death, attacker?.AsUnit, eventId, 0, false, null, Me);
     }
 
     public override void SetData(uint id, uint value)

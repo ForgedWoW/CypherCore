@@ -67,7 +67,7 @@ internal class TicketCommands
 
         // If assigned to different player other than current, leave
         //! Console can override though
-        var player = handler.Session != null ? handler.Session.Player : null;
+        var player = handler.Session?.Player;
 
         if (player && ticket.IsAssignedNotTo(player.GUID))
         {
@@ -99,7 +99,7 @@ internal class TicketCommands
 
         // Ticket should be assigned to the player who tries to close it.
         // Console can override though
-        var player = handler.Session != null ? handler.Session.Player : null;
+        var player = handler.Session?.Player;
 
         if (player && ticket.IsAssignedNotTo(player.GUID))
         {
@@ -146,7 +146,7 @@ internal class TicketCommands
 
         // Cannot comment ticket assigned to someone else
         //! Console excluded
-        var player = handler.Session != null ? handler.Session.Player : null;
+        var player = handler.Session?.Player;
 
         if (player && ticket.IsAssignedNotTo(player.GUID))
         {
@@ -252,7 +252,7 @@ internal class TicketCommands
 
         // Check security
         //! If no m_session present it means we're issuing this command from the console
-        var mySecurity = handler.Session != null ? handler.Session.Security : AccountTypes.Console;
+        var mySecurity = handler.Session?.Security ?? AccountTypes.Console;
 
         if (security > mySecurity)
         {

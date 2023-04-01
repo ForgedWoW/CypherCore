@@ -84,7 +84,7 @@ public class Item : WorldObject
     public override Player OwnerUnit => Global.ObjAccessor.FindPlayer(OwnerGUID);
 
     public ItemTemplate Template => Global.ObjectMgr.GetItemTemplate(Entry);
-    public byte BagSlot => Container != null ? Container.Slot : InventorySlots.Bag0;
+    public byte BagSlot => Container?.Slot ?? InventorySlots.Bag0;
 
     public bool IsEquipped => !IsInBag && (Slot < EquipmentSlot.End || Slot is >= ProfessionSlots.Start and < ProfessionSlots.End);
 
@@ -283,7 +283,7 @@ public class Item : WorldObject
                 }
             }
 
-            CheckArtifactRelicSlotUnlock(owner != null ? owner : OwnerUnit);
+            CheckArtifactRelicSlotUnlock(owner ?? OwnerUnit);
         }
 
         return true;

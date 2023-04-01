@@ -124,9 +124,9 @@ public class MapManager
             else if (entry.IsDungeon())
             {
                 var group = player.Group;
-                var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyId(entry);
+                var difficulty = group?.GetDifficultyID(entry) ?? player.GetDifficultyId(entry);
                 MapDb2Entries entries = new(entry, _db2Manager.GetDownscaledMapDifficultyData(mapId, ref difficulty));
-                var instanceOwnerGuid = group != null ? group.GetRecentInstanceOwner(mapId) : player.GUID;
+                var instanceOwnerGuid = group?.GetRecentInstanceOwner(mapId) ?? player.GUID;
                 var instanceLock = _instanceLockManager.FindActiveInstanceLock(instanceOwnerGuid, entries);
 
                 if (instanceLock != null)
@@ -141,7 +141,7 @@ public class MapManager
                 {
                     // Try finding instance id for normal dungeon
                     if (!entries.MapDifficulty.HasResetSchedule())
-                        newInstanceId = group != null ? group.GetRecentInstanceId(mapId) : player.GetRecentInstanceId(mapId);
+                        newInstanceId = group?.GetRecentInstanceId(mapId) ?? player.GetRecentInstanceId(mapId);
 
                     // If not found or instance is not a normal dungeon, generate new one
                     if (newInstanceId == 0)
@@ -220,17 +220,17 @@ public class MapManager
         if (entry.IsDungeon())
         {
             var group = player.Group;
-            var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyId(entry);
+            var difficulty = group?.GetDifficultyID(entry) ?? player.GetDifficultyId(entry);
             MapDb2Entries entries = new(entry, _db2Manager.GetDownscaledMapDifficultyData(mapId, ref difficulty));
 
-            var instanceOwnerGuid = group != null ? group.GetRecentInstanceOwner(mapId) : player.GUID;
+            var instanceOwnerGuid = group?.GetRecentInstanceOwner(mapId) ?? player.GUID;
             var instanceLock = _instanceLockManager.FindActiveInstanceLock(instanceOwnerGuid, entries);
             uint newInstanceId = 0;
 
             if (instanceLock != null)
                 newInstanceId = instanceLock.GetInstanceId();
             else if (!entries.MapDifficulty.HasResetSchedule()) // Try finding instance id for normal dungeon
-                newInstanceId = group != null ? group.GetRecentInstanceId(mapId) : player.GetRecentInstanceId(mapId);
+                newInstanceId = group?.GetRecentInstanceId(mapId) ?? player.GetRecentInstanceId(mapId);
 
             if (newInstanceId == 0)
                 return 0;

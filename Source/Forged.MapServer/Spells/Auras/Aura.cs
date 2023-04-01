@@ -217,7 +217,7 @@ public class Aura
             if (SpellInfo.IsCooldownStartedOnEvent)
             {
                 var castItem = !_castItemGuid.IsEmpty ? caster.AsPlayer.GetItemByGuid(_castItemGuid) : null;
-                caster.SpellHistory.StartCooldown(SpellInfo, castItem != null ? castItem.Entry : 0, null, true);
+                caster.SpellHistory.StartCooldown(SpellInfo, castItem?.Entry ?? 0, null, true);
             }
 
         ForEachAuraScript<IAuraOnApply>(a => a.AuraApply());

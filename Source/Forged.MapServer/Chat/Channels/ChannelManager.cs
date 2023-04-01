@@ -227,7 +227,7 @@ public class ChannelManager
     private ObjectGuid CreateBuiltinChannelGuid(uint channelId, AreaTableRecord zoneEntry = null)
     {
         var channelEntry = _cliDB.ChatChannelsStorage.LookupByKey(channelId);
-        var zoneId = zoneEntry != null ? zoneEntry.Id : 0;
+        var zoneId = zoneEntry?.Id ?? 0;
 
         if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Global | ChannelDBCFlags.CityOnly))
             zoneId = 0;

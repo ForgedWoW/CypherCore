@@ -13,10 +13,10 @@ namespace Forged.MapServer.Entities.Units;
 public class CharmInfo
 {
     private readonly Unit _unit;
-    private readonly UnitActionBarEntry[] PetActionBar = new UnitActionBarEntry[SharedConst.ActionBarIndexMax];
+    private readonly UnitActionBarEntry[] _petActionBar = new UnitActionBarEntry[SharedConst.ActionBarIndexMax];
     private readonly UnitActionBarEntry[] _charmspells = new UnitActionBarEntry[4];
     private readonly ReactStates _oldReactState;
-    private CommandStates _CommandState;
+    private CommandStates _commandState;
     private uint _petnumber;
 
     private bool _isCommandAttack;
@@ -31,7 +31,7 @@ public class CharmInfo
     public CharmInfo(Unit unit)
     {
         _unit = unit;
-        _CommandState = CommandStates.Follow;
+        _commandState = CommandStates.Follow;
         _petnumber = 0;
         _oldReactState = ReactStates.Passive;
 
@@ -42,7 +42,7 @@ public class CharmInfo
         }
 
         for (var i = 0; i < SharedConst.ActionBarIndexMax; ++i)
-            PetActionBar[i] = new UnitActionBarEntry();
+            _petActionBar[i] = new UnitActionBarEntry();
 
         var creature = _unit.AsCreature;
 
@@ -194,18 +194,18 @@ public class CharmInfo
 
     public bool AddSpellToActionBar(SpellInfo spellInfo, ActiveStates newstate = ActiveStates.Decide, int preferredSlot = 0)
     {
-        var spell_id = spellInfo.Id;
-        var first_id = spellInfo.GetFirstRankSpell().Id;
+        var spellID = spellInfo.Id;
+        var firstID = spellInfo.GetFirstRankSpell().Id;
 
         // new spell rank can be already listed
         for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
         {
-            var action = PetActionBar[i].GetAction();
+            var action = _petActionBar[i].GetAction();
 
             if (action != 0)
-                if (PetActionBar[i].IsActionBarForSpell() && Global.SpellMgr.GetFirstSpellInChain(action) == first_id)
+                if (_petActionBar[i].IsActionBarForSpell() && Global.SpellMgr.GetFirstSpellInChain(action) == firstID)
                 {
-                    PetActionBar[i].SetAction(spell_id);
+                    _petActionBar[i].SetAction(spellID);
 
                     return true;
                 }
@@ -216,9 +216,9 @@ public class CharmInfo
         {
             var j = (byte)((preferredSlot + i) % SharedConst.ActionBarIndexMax);
 
-            if (PetActionBar[j].GetAction() == 0 && PetActionBar[j].IsActionBarForSpell())
+            if (_petActionBar[j].GetAction() == 0 && _petActionBar[j].IsActionBarForSpell())
             {
-                SetActionBar(j, spell_id, newstate == ActiveStates.Decide ? spellInfo.IsAutocastable ? ActiveStates.Disabled : ActiveStates.Passive : newstate);
+                SetActionBar(j, spellID, newstate == ActiveStates.Decide ? spellInfo.IsAutocastable ? ActiveStates.Disabled : ActiveStates.Passive : newstate);
 
                 return true;
             }
@@ -227,16 +227,16 @@ public class CharmInfo
         return false;
     }
 
-    public bool RemoveSpellFromActionBar(uint spell_id)
+    public bool RemoveSpellFromActionBar(uint spellID)
     {
-        var first_id = Global.SpellMgr.GetFirstSpellInChain(spell_id);
+        var firstID = Global.SpellMgr.GetFirstSpellInChain(spellID);
 
         for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
         {
-            var action = PetActionBar[i].GetAction();
+            var action = _petActionBar[i].GetAction();
 
             if (action != 0)
-                if (PetActionBar[i].IsActionBarForSpell() && Global.SpellMgr.GetFirstSpellInChain(action) == first_id)
+                if (_petActionBar[i].IsActionBarForSpell() && Global.SpellMgr.GetFirstSpellInChain(action) == firstID)
                 {
                     SetActionBar(i, 0, ActiveStates.Passive);
 
@@ -283,17 +283,17 @@ public class CharmInfo
             var type = tokens[i++].ToEnum<ActiveStates>();
             uint.TryParse(tokens[i], out var action);
 
-            PetActionBar[index].SetActionAndType(action, type);
+            _petActionBar[index].SetActionAndType(action, type);
 
             // check correctness
-            if (PetActionBar[index].IsActionBarForSpell())
+            if (_petActionBar[index].IsActionBarForSpell())
             {
-                var spelInfo = Global.SpellMgr.GetSpellInfo(PetActionBar[index].GetAction(), _unit.Location.Map.DifficultyID);
+                var spelInfo = Global.SpellMgr.GetSpellInfo(_petActionBar[index].GetAction(), _unit.Location.Map.DifficultyID);
 
                 if (spelInfo == null)
                     SetActionBar(index, 0, ActiveStates.Passive);
                 else if (!spelInfo.IsAutocastable)
-                    SetActionBar(index, PetActionBar[index].GetAction(), ActiveStates.Passive);
+                    SetActionBar(index, _petActionBar[index].GetAction(), ActiveStates.Passive);
             }
         }
     }
@@ -301,15 +301,15 @@ public class CharmInfo
     public void BuildActionBar(WorldPacket data)
     {
         for (var i = 0; i < SharedConst.ActionBarIndexMax; ++i)
-            data.WriteUInt32(PetActionBar[i].packedData);
+            data.WriteUInt32(_petActionBar[i].PackedData);
     }
 
     public void SetSpellAutocast(SpellInfo spellInfo, bool state)
     {
         for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
-            if (spellInfo.Id == PetActionBar[i].GetAction() && PetActionBar[i].IsActionBarForSpell())
+            if (spellInfo.Id == _petActionBar[i].GetAction() && _petActionBar[i].IsActionBarForSpell())
             {
-                PetActionBar[i].SetType(state ? ActiveStates.Enabled : ActiveStates.Disabled);
+                _petActionBar[i].SetType(state ? ActiveStates.Enabled : ActiveStates.Disabled);
 
                 break;
             }
@@ -344,8 +344,7 @@ public class CharmInfo
         {
             var transport = _unit.DirectTransport;
 
-            if (transport != null)
-                transport.CalculatePassengerPosition(stayPos);
+            transport?.CalculatePassengerPosition(stayPos);
         }
 
         _stayX = stayPos.X;
@@ -397,27 +396,27 @@ public class CharmInfo
 
     public void SetCommandState(CommandStates st)
     {
-        _CommandState = st;
+        _commandState = st;
     }
 
     public CommandStates GetCommandState()
     {
-        return _CommandState;
+        return _commandState;
     }
 
     public bool HasCommandState(CommandStates state)
     {
-        return (_CommandState == state);
+        return (_commandState == state);
     }
 
     public void SetActionBar(byte index, uint spellOrAction, ActiveStates type)
     {
-        PetActionBar[index].SetActionAndType(spellOrAction, type);
+        _petActionBar[index].SetActionAndType(spellOrAction, type);
     }
 
     public UnitActionBarEntry GetActionBarEntry(byte index)
     {
-        return PetActionBar[index];
+        return _petActionBar[index];
     }
 
     public UnitActionBarEntry GetCharmSpell(byte index)

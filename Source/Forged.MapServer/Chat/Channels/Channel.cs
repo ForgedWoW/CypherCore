@@ -780,7 +780,7 @@ public class Channel
     {
         var info = _playersStore.LookupByKey(guid);
 
-        return info != null ? info.GetFlags() : 0;
+        return info?.GetFlags() ?? 0;
     }
 
     private void KickOrBan(Player player, string badname, bool ban)

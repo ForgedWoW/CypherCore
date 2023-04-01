@@ -23,8 +23,8 @@ public class PowerPctOrderPred : IComparer<WorldObject>
     {
         var a = objA.AsUnit;
         var b = objB.AsUnit;
-        var rA = a != null ? a.GetPowerPct(_power) : 0.0f;
-        var rB = b != null ? b.GetPowerPct(_power) : 0.0f;
+        var rA = a?.GetPowerPct(_power) ?? 0.0f;
+        var rB = b?.GetPowerPct(_power) ?? 0.0f;
 
         return Convert.ToInt32(_ascending ? rA < rB : rA > rB);
     }

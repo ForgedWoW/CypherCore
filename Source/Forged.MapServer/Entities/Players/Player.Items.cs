@@ -1317,7 +1317,7 @@ public partial class Player
                 case InventoryResult.ItemMaxLimitCategoryEquippedExceededIs:
                 {
                     var proto = item1 ? item1.Template : Global.ObjectMgr.GetItemTemplate(itemId);
-                    failure.LimitCategory = (int)(proto != null ? proto.ItemLimitCategory : 0u);
+                    failure.LimitCategory = (int)(proto?.ItemLimitCategory ?? 0u);
 
                     break;
                 }

@@ -16,15 +16,15 @@ public class SpellPeriodicAuraLogInfo
     public double Multiplier { get; set; }
     public bool Critical { get; set; }
 
-    public SpellPeriodicAuraLogInfo(AuraEffect _auraEff, double _damage, double _originalDamage, double _overDamage, double _absorb, double _resist, double _multiplier, bool _critical)
+    public SpellPeriodicAuraLogInfo(AuraEffect auraEff, double damage, double originalDamage, double overDamage, double absorb, double resist, double multiplier, bool critical)
     {
-        AuraEff = _auraEff;
-        Damage = _damage;
-        OriginalDamage = _originalDamage;
-        OverDamage = _overDamage;
-        Absorb = _absorb;
-        Resist = _resist;
-        Multiplier = _multiplier;
-        Critical = _critical;
+        AuraEff = auraEff;
+        Damage = damage;
+        OriginalDamage = originalDamage;
+        OverDamage = overDamage;
+        Absorb = absorb;
+        Resist = resist;
+        Multiplier = multiplier;
+        Critical = critical;
     }
 }

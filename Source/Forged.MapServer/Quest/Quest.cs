@@ -713,7 +713,7 @@ public class Quest
         response.Info.RewardXPMultiplier = RewardXPMultiplier;
 
         if (!HasFlag(QuestFlags.HiddenRewards))
-            response.Info.RewardMoney = (int)(player != null ? player.GetQuestMoneyReward(this) : MaxMoneyReward);
+            response.Info.RewardMoney = (int)(player?.GetQuestMoneyReward(this) ?? MaxMoneyReward);
 
         response.Info.RewardMoneyDifficulty = RewardMoneyDifficulty;
         response.Info.RewardMoneyMultiplier = RewardMoneyMultiplier;

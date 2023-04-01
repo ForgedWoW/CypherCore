@@ -5,16 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Combat;
-using Forged.MapServer.DataStorage.Structs.D;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Entities.Players;
-using Forged.MapServer.Groups;
-using Forged.MapServer.LootManagement;
 using Forged.MapServer.Networking.Packets.Combat;
 using Forged.MapServer.Networking.Packets.CombatLog;
-using Forged.MapServer.Networking.Packets.Party;
 using Forged.MapServer.Networking.Packets.Spell;
-using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Scripting.Interfaces.IUnit;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
@@ -25,8 +19,6 @@ namespace Forged.MapServer.Entities.Units;
 
 public partial class Unit
 {
-    private readonly UnitCombatHelpers _unitCombatHelpers;
-
     // This value can be different from IsInCombat, for example:
     // - when a projectile spell is midair against a creature (combat on launch - threat+aggro on impact)
     // - when the creature has no targets left, but the AI has not yet ceased engaged logic
@@ -61,10 +53,7 @@ public partial class Unit
 
     public bool IsThreatened => !_threatManager.IsThreatListEmpty();
 
-    public UnitCombatHelpers UnitCombatHelpers
-    {
-        get { return _unitCombatHelpers; }
-    }
+    public UnitCombatHelpers UnitCombatHelpers { get; }
 
     public virtual void AtEnterCombat()
     {
@@ -78,7 +67,7 @@ public partial class Unit
                 InterruptNonMeleeSpells(false);
 
         RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.EnteringCombat);
-        UnitCombatHelpers.ProcSkillsAndAuras(this, null, new ProcFlagsInit(ProcFlags.EnterCombat), new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
+        UnitCombatHelpers.ProcSkillsAndAuras(this, null, new ProcFlagsInit(ProcFlags.EnterCombat), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
     }
 
     public virtual void AtExitCombat()
@@ -186,8 +175,7 @@ public partial class Unit
         RemoveUnitFlag(UnitFlags.PetInCombat);
         var owner = OwnerUnit;
 
-        if (owner != null)
-            owner.RemoveUnitFlag(UnitFlags.PetInCombat);
+        owner?.RemoveUnitFlag(UnitFlags.PetInCombat);
     }
 
     public void RemoveAllAttackers()
@@ -436,8 +424,7 @@ public partial class Unit
                 ClearUnitState(UnitState.MeleeAttacking);
         }
 
-        if (Attacking != null)
-            Attacking._removeAttacker(this);
+        Attacking?._removeAttacker(this);
 
         Attacking = victim;
         Attacking._addAttacker(this);
@@ -473,13 +460,9 @@ public partial class Unit
             {
                 var cControlled = controlled.AsCreature;
 
-                if (cControlled != null)
-                {
-                    var controlledAI = cControlled.AI;
+                var controlledAI = cControlled?.AI;
 
-                    if (controlledAI != null)
-                        controlledAI.OwnerAttacked(victim);
-                }
+                controlledAI?.OwnerAttacked(victim);
             }
 
         return true;
@@ -500,7 +483,7 @@ public partial class Unit
     {
         SendMessageToSet(new SAttackStop(this, victim), true);
 
-        if (victim)
+        if (victim != null)
             Log.Logger.Information("{0} {1} stopped attacking {2} {3}",
                                    (IsTypeId(TypeId.Player) ? "Player" : "Creature"),
                                    GUID.ToString(),
@@ -532,8 +515,7 @@ public partial class Unit
         // reset only at real combat stop
         var creature = AsCreature;
 
-        if (creature != null)
-            creature.SetNoCallAssistance(false);
+        creature?.SetNoCallAssistance(false);
 
         SendMeleeAttackStop(victim);
 
@@ -627,10 +609,10 @@ public partial class Unit
         if (!victim.IsAlive)
             return;
 
-        if ((attType == WeaponAttackType.BaseAttack || attType == WeaponAttackType.OffAttack) && !Location.IsWithinLOSInMap(victim))
+        if (attType is WeaponAttackType.BaseAttack or WeaponAttackType.OffAttack && !Location.IsWithinLOSInMap(victim))
             return;
 
-        AtTargetAttacked(victim, true);
+        AtTargetAttacked(victim);
         RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Attacking);
 
         // ignore ranged case
@@ -1134,7 +1116,7 @@ public partial class Unit
         var a = damageInfo.Attacker;
         UnitCombatHelpers.ScaleDamage(a, t, ref damage);
 
-        Global.ScriptMgr.ForEach<IUnitModifyMeleeDamage>(p => p.ModifyMeleeDamage(t, a, ref damage));
+        ScriptManager.ForEach<IUnitModifyMeleeDamage>(p => p.ModifyMeleeDamage(t, a, ref damage));
 
         // Calculate armor reduction
         if (UnitCombatHelpers.IsDamageReducedByArmor((SpellSchoolMask)damageInfo.DamageSchoolMask))
@@ -1286,21 +1268,21 @@ public partial class Unit
             return MeleeHitOutcome.Evade;
 
         // Miss chance based on melee
-        var missChance = (int)(MeleeSpellMissChance(victim, attType, null) * 100.0f);
+        var missChance = MeleeSpellMissChance(victim, attType, null) * 100.0f;
 
         // Critical hit chance
-        var critChance = (int)((GetUnitCriticalChanceAgainst(attType, victim) + GetTotalAuraModifier(AuraType.ModAutoAttackCritChance)) * 100.0f);
+        var critChance = (GetUnitCriticalChanceAgainst(attType, victim) + GetTotalAuraModifier(AuraType.ModAutoAttackCritChance)) * 100.0f;
 
-        var dodgeChance = (int)(GetUnitDodgeChance(attType, victim) * 100.0f);
-        var blockChance = (int)(GetUnitBlockChance(attType, victim) * 100.0f);
-        var parryChance = (int)(GetUnitParryChance(attType, victim) * 100.0f);
+        var dodgeChance = GetUnitDodgeChance(attType, victim) * 100.0f;
+        var blockChance = GetUnitBlockChance(victim) * 100.0f;
+        var parryChance = GetUnitParryChance(attType, victim) * 100.0f;
 
         // melee attack table implementation
         // outcome priority:
         //   1. >    2. >    3. >       4. >    5. >   6. >       7. >  8.
         // MISS > DODGE > PARRY > GLANCING > BLOCK > CRIT > CRUSHING > HIT
 
-        var sum = 0;
+        double sum = 0;
         var roll = RandomHelper.IRand(0, 9999);
 
         var attackerLevel = GetLevelForTarget(victim);

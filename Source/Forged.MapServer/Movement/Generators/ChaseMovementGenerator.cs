@@ -82,10 +82,10 @@ internal class ChaseMovementGenerator : MovementGenerator
         if (SharedConst.DefaultPlayerCombatReach > hitboxSum)
             hitboxSum = SharedConst.DefaultPlayerCombatReach;
 
-        var minRange = _range.HasValue ? _range.Value.MinRange + hitboxSum : SharedConst.ContactDistance;
-        var minTarget = (_range.HasValue ? _range.Value.MinTolerance : 0.0f) + hitboxSum;
-        var maxRange = _range.HasValue ? _range.Value.MaxRange + hitboxSum : owner.GetMeleeRange(target); // melee range already includes hitboxes
-        var maxTarget = _range.HasValue ? _range.Value.MaxTolerance + hitboxSum : SharedConst.ContactDistance + hitboxSum;
+        var minRange = _range?.MinRange + hitboxSum ?? SharedConst.ContactDistance;
+        var minTarget = (_range?.MinTolerance ?? 0.0f) + hitboxSum;
+        var maxRange = _range?.MaxRange + hitboxSum ?? owner.GetMeleeRange(target); // melee range already includes hitboxes
+        var maxTarget = _range?.MaxTolerance + hitboxSum ?? SharedConst.ContactDistance + hitboxSum;
         var angle = mutualChase ? null : _angle;
 
         // periodically check if we're already in the expected range...

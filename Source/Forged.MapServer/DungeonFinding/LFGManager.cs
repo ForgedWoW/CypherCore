@@ -1350,7 +1350,7 @@ public class LFGManager
             player.RemoveAura(SharedConst.LFGSpellDungeonCooldown);
 
             var dungeonDone = GetLFGDungeon(dungeonId);
-            var mapId = dungeonDone != null ? dungeonDone.Map : 0;
+            var mapId = dungeonDone?.Map ?? 0;
 
             if (player.Location.MapId != mapId)
             {
@@ -2312,7 +2312,7 @@ public class LFGManager
     private List<uint> GetDungeonsByRandom(uint randomdungeon)
     {
         var dungeon = GetLFGDungeon(randomdungeon);
-        var group = (byte)(dungeon != null ? dungeon.Group : 0);
+        var group = (byte)(dungeon?.Group ?? 0);
 
         return _cachedDungeonMapStore.LookupByKey(group);
     }

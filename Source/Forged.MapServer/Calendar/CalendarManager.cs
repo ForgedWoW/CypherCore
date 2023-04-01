@@ -408,7 +408,7 @@ public class CalendarManager
 
         CalendarInviteAdded packet = new()
         {
-            EventID = calendarEvent != null ? calendarEvent.EventId : 0,
+            EventID = calendarEvent?.EventId ?? 0,
             InviteGuid = invitee,
             InviteID = calendarEvent != null ? invite.InviteId : 0,
             Level = (byte)level,

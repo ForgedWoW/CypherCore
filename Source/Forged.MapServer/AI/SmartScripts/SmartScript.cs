@@ -368,7 +368,7 @@ public class SmartScript
 
         _timedActionList.RemoveAll(script => { return script.EventId < startFromEventId; });
 
-        mTimedActionListInvoker = invoker != null ? invoker.GUID : ObjectGuid.Empty;
+        mTimedActionListInvoker = invoker?.GUID ?? ObjectGuid.Empty;
 
         for (var i = 0; i < _timedActionList.Count; ++i)
         {
@@ -3479,7 +3479,7 @@ public class SmartScript
                     break;
                 }
 
-                var target = FindCreatureNear(scriptTrigger != null ? scriptTrigger : baseObject, e.Target.unitGUID.dbGuid);
+                var target = FindCreatureNear(scriptTrigger ?? baseObject, e.Target.unitGUID.dbGuid);
 
                 if (target)
                     if (target != null && (e.Target.unitGUID.entry == 0 || target.Entry == e.Target.unitGUID.entry))
@@ -3496,7 +3496,7 @@ public class SmartScript
                     break;
                 }
 
-                var target = FindGameObjectNear(scriptTrigger != null ? scriptTrigger : baseObject, e.Target.goGUID.dbGuid);
+                var target = FindGameObjectNear(scriptTrigger ?? baseObject, e.Target.goGUID.dbGuid);
 
                 if (target)
                     if (target != null && (e.Target.goGUID.entry == 0 || target.Entry == e.Target.goGUID.entry))
@@ -4827,7 +4827,7 @@ public class SmartScript
             smart = false;
 
         if (!smart && !silent)
-            Log.Logger.Error("SmartScript: Action target Creature (GUID: {0} Entry: {1}) is not using SmartAI, action skipped to prevent crash.", creature != null ? creature.SpawnId : (_me != null ? _me.SpawnId : 0), creature != null ? creature.Entry : (_me != null ? _me.Entry : 0));
+            Log.Logger.Error("SmartScript: Action target Creature (GUID: {0} Entry: {1}) is not using SmartAI, action skipped to prevent crash.", creature?.SpawnId ?? (_me?.SpawnId ?? 0), creature?.Entry ?? (_me?.Entry ?? 0));
 
         return smart;
     }
@@ -4843,7 +4843,7 @@ public class SmartScript
             smart = false;
 
         if (!smart && !silent)
-            Log.Logger.Error("SmartScript: Action target GameObject (GUID: {0} Entry: {1}) is not using SmartGameObjectAI, action skipped to prevent crash.", gameObject != null ? gameObject.SpawnId : (_go != null ? _go.SpawnId : 0), gameObject != null ? gameObject.Entry : (_go != null ? _go.Entry : 0));
+            Log.Logger.Error("SmartScript: Action target GameObject (GUID: {0} Entry: {1}) is not using SmartGameObjectAI, action skipped to prevent crash.", gameObject?.SpawnId ?? (_go?.SpawnId ?? 0), gameObject?.Entry ?? (_go?.Entry ?? 0));
 
         return smart;
     }

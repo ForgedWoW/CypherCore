@@ -26,7 +26,7 @@ public class MoveUpdateTeleport : ServerPacket
     {
         MovementExtensions.WriteMovementInfo(_worldPacket, Status);
 
-        _worldPacket.WriteInt32(MovementForces != null ? MovementForces.Count : 0);
+        _worldPacket.WriteInt32(MovementForces?.Count ?? 0);
         _worldPacket.WriteBit(WalkSpeed.HasValue);
         _worldPacket.WriteBit(RunSpeed.HasValue);
         _worldPacket.WriteBit(RunBackSpeed.HasValue);

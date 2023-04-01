@@ -61,10 +61,6 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.Dynamic;
 using Serilog;
-using PlayerChoiceResponse = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponse;
-using PlayerChoiceResponseMawPower = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseMawPower;
-using PlayerChoiceResponseReward = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseReward;
-using PlayerChoiceResponseRewardEntry = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseRewardEntry;
 
 namespace Forged.MapServer.Entities.Players;
 
@@ -1446,14 +1442,14 @@ public partial class Player : Unit
         }
 
         for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
-            petSpells.ActionButtons[i] = charmInfo.GetActionBarEntry(i).packedData;
+            petSpells.ActionButtons[i] = charmInfo.GetActionBarEntry(i).PackedData;
 
         for (byte i = 0; i < SharedConst.MaxSpellCharm; ++i)
         {
             var cspell = charmInfo.GetCharmSpell(i);
 
             if (cspell.GetAction() != 0)
-                petSpells.Actions.Add(cspell.packedData);
+                petSpells.Actions.Add(cspell.PackedData);
         }
 
         // Cooldowns
@@ -1488,7 +1484,7 @@ public partial class Player : Unit
         f(byte i = 0;
         i < SharedConst.ActionBarIndexMax;
         ++i)
-        petSpellsPacket.ActionButtons[i] = charmInfo.GetActionBarEntry(i).packedData;
+        petSpellsPacket.ActionButtons[i] = charmInfo.GetActionBarEntry(i).PackedData;
 
         // Cooldowns
         charm.

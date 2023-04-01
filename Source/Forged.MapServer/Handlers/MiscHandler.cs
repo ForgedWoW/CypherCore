@@ -491,7 +491,7 @@ public class MiscHandler : IWorldSessionHandler
         }
 
         SplashScreenShowLatest splashScreenShowLatest = new();
-        splashScreenShowLatest.UISplashScreenID = splashScreen != null ? splashScreen.Id : 0;
+        splashScreenShowLatest.UISplashScreenID = splashScreen?.Id ?? 0;
         SendPacket(splashScreenShowLatest);
     }
 

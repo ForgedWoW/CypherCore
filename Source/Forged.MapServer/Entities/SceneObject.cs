@@ -73,7 +73,7 @@ public class SceneObject : WorldObject
 
         SceneObject sceneObject = new();
 
-        if (!sceneObject.Create(lowGuid, SceneType.Normal, sceneId, sceneTemplate != null ? sceneTemplate.ScenePackageId : 0, creator.Location.Map, creator, pos, privateObjectOwner))
+        if (!sceneObject.Create(lowGuid, SceneType.Normal, sceneId, sceneTemplate?.ScenePackageId ?? 0, creator.Location.Map, creator, pos, privateObjectOwner))
         {
             sceneObject.Dispose();
 

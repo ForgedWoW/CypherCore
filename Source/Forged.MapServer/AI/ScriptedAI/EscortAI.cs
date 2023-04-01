@@ -353,7 +353,7 @@ public class EscortAI : ScriptedAI
 
         if (_path.Nodes.Empty())
         {
-            Log.Logger.Error($"EscortAI::Start: (script: {Me.GetScriptName()} starts with 0 waypoints (possible missing entry in script_waypoint. Quest: {(quest != null ? quest.Id : 0)} ({Me.GUID})");
+            Log.Logger.Error($"EscortAI::Start: (script: {Me.GetScriptName()} starts with 0 waypoints (possible missing entry in script_waypoint. Quest: {quest?.Id ?? 0} ({Me.GUID})");
 
             return;
         }

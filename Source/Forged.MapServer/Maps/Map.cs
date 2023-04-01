@@ -2612,7 +2612,7 @@ public class Map : IDisposable
         {
             var respawnInfo = map.LookupByKey(spawnId);
 
-            return (respawnInfo == null) ? 0 : respawnInfo.RespawnTime;
+            return respawnInfo?.RespawnTime ?? 0;
         }
 
         return 0;
@@ -2710,7 +2710,7 @@ public class Map : IDisposable
 
         var foundCreature = bounds.Find(creature => creature.IsAlive);
 
-        return foundCreature != null ? foundCreature : bounds[0];
+        return foundCreature ?? bounds[0];
     }
 
     public GameObject GetGameObjectBySpawnId(ulong spawnId)
@@ -2722,7 +2722,7 @@ public class Map : IDisposable
 
         var foundGameObject = bounds.Find(gameobject => gameobject.IsSpawned);
 
-        return foundGameObject != null ? foundGameObject : bounds[0];
+        return foundGameObject ?? bounds[0];
     }
 
     public AreaTrigger GetAreaTriggerBySpawnId(ulong spawnId)
@@ -4282,8 +4282,8 @@ public class Map : IDisposable
             return;
 
         // prepare static data
-        var sourceGUID = source != null ? source.GUID : ObjectGuid.Empty; //some script commands doesn't have source
-        var targetGUID = target != null ? target.GUID : ObjectGuid.Empty;
+        var sourceGUID = source?.GUID ?? ObjectGuid.Empty; //some script commands doesn't have source
+        var targetGUID = target?.GUID ?? ObjectGuid.Empty;
         var ownerGUID = (source != null && source.IsTypeMask(TypeMask.Item)) ? ((Item)source).OwnerGUID : ObjectGuid.Empty;
 
         // Schedule script execution for all scripts in the script map
@@ -4318,8 +4318,8 @@ public class Map : IDisposable
         // NOTE: script record _must_ exist until command executed
 
         // prepare static data
-        var sourceGUID = source != null ? source.GUID : ObjectGuid.Empty;
-        var targetGUID = target != null ? target.GUID : ObjectGuid.Empty;
+        var sourceGUID = source?.GUID ?? ObjectGuid.Empty;
+        var targetGUID = target?.GUID ?? ObjectGuid.Empty;
         var ownerGUID = (source != null && source.IsTypeMask(TypeMask.Item)) ? ((Item)source).OwnerGUID : ObjectGuid.Empty;
 
         var sa = new ScriptAction
@@ -4448,8 +4448,8 @@ public class Map : IDisposable
 
             if (gameobject == null)
                 Log.Logger.Error($"{scriptInfo.GetDebugInfo()} neither source nor target are gameobjects " +
-                                 $"(source: TypeId: {(source != null ? source.TypeId : 0)}, Entry: {(source != null ? source.Entry : 0)}, {(source != null ? source.GUID : ObjectGuid.Empty)}; " +
-                                 $"target: TypeId: {(target != null ? target.TypeId : 0)}, Entry: {(target != null ? target.Entry : 0)}, {(target != null ? target.GUID : ObjectGuid.Empty)}), skipping.");
+                                 $"(source: TypeId: {source?.TypeId ?? 0}, Entry: {source?.Entry ?? 0}, {source?.GUID ?? ObjectGuid.Empty}; " +
+                                 $"target: TypeId: {target?.TypeId ?? 0}, Entry: {target?.Entry ?? 0}, {target?.GUID ?? ObjectGuid.Empty}), skipping.");
         }
 
         return gameobject;

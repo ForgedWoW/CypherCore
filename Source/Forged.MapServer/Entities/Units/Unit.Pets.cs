@@ -83,8 +83,7 @@ public partial class Unit
             RefreshAI();
             var ai = AI;
 
-            if (ai != null)
-                ai.OnCharmed(true);
+            ai?.OnCharmed(true);
         }
     }
 
@@ -189,9 +188,9 @@ public partial class Unit
                     minion.SetSpeedRate(i, SpeedRate[(int)i]);
 
             // Send infinity cooldown - client does that automatically but after relog cooldown needs to be set again
-            var spellInfo = Global.SpellMgr.GetSpellInfo(minion.UnitData.CreatedBySpell, Difficulty.None);
+            var spellInfo = SpellManager.GetSpellInfo(minion.UnitData.CreatedBySpell);
 
-            if (spellInfo != null && spellInfo.IsCooldownStartedOnEvent)
+            if (spellInfo is { IsCooldownStartedOnEvent: true })
                 SpellHistory.StartCooldown(spellInfo, 0, null, true);
         }
         else
@@ -217,7 +216,7 @@ public partial class Unit
             else if (minion.IsTotem)
             {
                 // All summoned by totem minions must disappear when it is removed.
-                var spInfo = Global.SpellMgr.GetSpellInfo(minion.ToTotem().GetSpell(), Difficulty.None);
+                var spInfo = SpellManager.GetSpellInfo(minion.ToTotem().GetSpell());
 
                 if (spInfo != null)
                     foreach (var spellEffectInfo in spInfo.Effects)
@@ -229,7 +228,7 @@ public partial class Unit
                     }
             }
 
-            var spellInfo = Global.SpellMgr.GetSpellInfo(minion.UnitData.CreatedBySpell, Difficulty.None);
+            var spellInfo = SpellManager.GetSpellInfo(minion.UnitData.CreatedBySpell);
 
             // Remove infinity cooldown
             if (spellInfo != null && spellInfo.IsCooldownStartedOnEvent)
@@ -419,7 +418,7 @@ public partial class Unit
 
                             // just to enable stat window
                             if (GetCharmInfo() != null)
-                                GetCharmInfo().SetPetNumber(Global.ObjectMgr.GeneratePetNumber(), true);
+                                GetCharmInfo().SetPetNumber(ObjectManager.GeneratePetNumber(), true);
 
                             // if charmed two demons the same session, the 2nd gets the 1st one's name
                             SetPetNameTimestamp((uint)GameTime.GetGameTime()); // cast can't be helped
@@ -438,8 +437,7 @@ public partial class Unit
 
         var creature = AsCreature;
 
-        if (creature != null)
-            creature.RefreshCanSwimFlag();
+        creature?.RefreshCanSwimFlag();
 
         if (!IsPlayer || !charmer.IsPlayer)
         {
@@ -455,18 +453,16 @@ public partial class Unit
         return true;
     }
 
-    public void RemoveCharmedBy(Unit charmer)
+    public void RemoveCharmedBy()
     {
         if (!IsCharmed)
             return;
-
-        charmer = Charmer;
-
+        
         CharmType type;
 
         if (HasUnitState(UnitState.Possessed))
             type = CharmType.Possess;
-        else if (charmer.IsOnVehicle(this))
+        else if (Charmer.IsOnVehicle(this))
             type = CharmType.Vehicle;
         else
             type = CharmType.Charm;
@@ -484,37 +480,37 @@ public partial class Unit
             RestoreFaction();
         }
 
-        ///@todo Handle SLOT_IDLE motion resume
+        //@todo Handle SLOT_IDLE motion resume
         MotionMaster.InitializeDefault();
 
         // Vehicle should not attack its passenger after he exists the seat
         if (type != CharmType.Vehicle)
-            LastCharmerGuid = charmer.GUID;
+            LastCharmerGuid = Charmer.GUID;
 
-        charmer.SetCharm(this, false);
+        Charmer.SetCharm(this, false);
         _combatManager.RevalidateCombat();
 
-        var playerCharmer = charmer.AsPlayer;
+        var playerCharmer = Charmer.AsPlayer;
 
         if (playerCharmer)
             switch (type)
             {
                 case CharmType.Vehicle:
                     playerCharmer.SetClientControl(this, false);
-                    playerCharmer.SetClientControl(charmer, true);
+                    playerCharmer.SetClientControl(Charmer, true);
                     RemoveUnitFlag(UnitFlags.Possessed);
 
                     break;
                 case CharmType.Possess:
                     ClearUnitState(UnitState.Possessed);
                     playerCharmer.SetClientControl(this, false);
-                    playerCharmer.SetClientControl(charmer, true);
-                    charmer.RemoveUnitFlag(UnitFlags.RemoveClientControl);
+                    playerCharmer.SetClientControl(Charmer, true);
+                    Charmer.RemoveUnitFlag(UnitFlags.RemoveClientControl);
                     RemoveUnitFlag(UnitFlags.Possessed);
 
                     break;
                 case CharmType.Charm:
-                    if (IsTypeId(TypeId.Unit) && charmer.Class == PlayerClass.Warlock)
+                    if (IsTypeId(TypeId.Unit) && Charmer.Class == PlayerClass.Warlock)
                     {
                         var cinfo = AsCreature.Template;
 
@@ -530,16 +526,13 @@ public partial class Unit
                     }
 
                     break;
-                case CharmType.Convert:
-                    break;
             }
 
         var player = AsPlayer;
 
-        if (player != null)
-            player.SetClientControl(this, true);
+        player?.SetClientControl(this, true);
 
-        if (playerCharmer && this != charmer.GetFirstControlled())
+        if (playerCharmer && this != Charmer.GetFirstControlled())
             playerCharmer.SendRemoveControlBar();
 
         // a guardian should always have charminfo
@@ -549,7 +542,7 @@ public partial class Unit
         // reset confused movement for example
         ApplyControlStatesIfNeeded();
 
-        if (!IsPlayer || charmer.IsCreature)
+        if (!IsPlayer || Charmer.IsCreature)
         {
             var charmedAI = AI;
 
@@ -560,14 +553,14 @@ public partial class Unit
         }
     }
 
-    public void GetAllMinionsByEntry(List<TempSummon> Minions, uint entry)
+    public void GetAllMinionsByEntry(List<TempSummon> minions, uint entry)
     {
         for (var i = 0; i < Controlled.Count; ++i)
         {
             var unit = Controlled[i];
 
             if (unit.Entry == entry && unit.IsSummon) // minion, actually
-                Minions.Add(unit.ToTempSummon());
+                minions.Add(unit.ToTempSummon());
         }
     }
 
@@ -669,7 +662,7 @@ public partial class Unit
             var guid = MinionGUID;
 
             if (!guid.IsEmpty)
-                unit = Global.ObjAccessor.GetUnit(this, guid);
+                unit = ObjectAccessor.GetUnit(this, guid);
         }
 
         return unit;
@@ -763,7 +756,7 @@ public partial class Unit
         owner.AsPlayer.SendPacket(packet);
     }
 
-    public Pet CreateTamedPetFrom(Creature creatureTarget, uint spell_id = 0)
+    public Pet CreateTamedPetFrom(Creature creatureTarget, uint spellID = 0)
     {
         if (!IsTypeId(TypeId.Player))
             return null;
@@ -775,7 +768,7 @@ public partial class Unit
 
         var level = creatureTarget.GetLevelForTarget(this) + 5 < Level ? (Level - 5) : creatureTarget.GetLevelForTarget(this);
 
-        if (!InitTamedPet(pet, level, spell_id))
+        if (!InitTamedPet(pet, level, spellID))
         {
             pet.Dispose();
 
@@ -785,19 +778,19 @@ public partial class Unit
         return pet;
     }
 
-    public Pet CreateTamedPetFrom(uint creatureEntry, uint spell_id = 0)
+    public Pet CreateTamedPetFrom(uint creatureEntry, uint spellID = 0)
     {
         if (!IsTypeId(TypeId.Player))
             return null;
 
-        var creatureInfo = Global.ObjectMgr.GetCreatureTemplate(creatureEntry);
+        var creatureInfo = ObjectManager.GetCreatureTemplate(creatureEntry);
 
         if (creatureInfo == null)
             return null;
 
         Pet pet = new(AsPlayer, PetType.Hunter);
 
-        if (!pet.CreateBaseAtCreatureInfo(creatureInfo, this) || !InitTamedPet(pet, Level, spell_id))
+        if (!pet.CreateBaseAtCreatureInfo(creatureInfo, this) || !InitTamedPet(pet, Level, spellID))
             return null;
 
         return pet;
@@ -830,7 +823,7 @@ public partial class Unit
         _charmInfo = null;
     }
 
-    private bool InitTamedPet(Pet pet, uint level, uint spell_id)
+    private bool InitTamedPet(Pet pet, uint level, uint spellID)
     {
         var player = AsPlayer;
         var petStable = player.PetStable;
@@ -842,7 +835,7 @@ public partial class Unit
 
         pet.SetCreatorGUID(GUID);
         pet.Faction = Faction;
-        pet.SetCreatedBySpell(spell_id);
+        pet.SetCreatedBySpell(spellID);
 
         if (IsTypeId(TypeId.Player))
             pet.SetUnitFlag(UnitFlags.PlayerControlled);
@@ -856,7 +849,7 @@ public partial class Unit
 
         PhasingHandler.InheritPhaseShift(pet, this);
 
-        pet.GetCharmInfo().SetPetNumber(Global.ObjectMgr.GeneratePetNumber(), true);
+        pet.GetCharmInfo().SetPetNumber(ObjectManager.GeneratePetNumber(), true);
         // this enables pet details window (Shift+P)
         pet.InitPetCreateSpells();
         pet.SetFullHealth();

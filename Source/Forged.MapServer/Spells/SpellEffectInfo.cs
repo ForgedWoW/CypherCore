@@ -462,7 +462,7 @@ public class SpellEffectInfo
         variance = 0.0f;
         var basePointsPerLevel = RealPointsPerLevel;
         var basePoints = CalcBaseValue(caster, target, castItemId, itemLevel);
-        var value = bp.HasValue ? bp.Value : basePoints;
+        var value = bp ?? basePoints;
         var comboDamage = PointsPerResource;
 
         Unit casterUnit = null;
@@ -638,7 +638,7 @@ public class SpellEffectInfo
     public double CalcValueMultiplier(WorldObject caster, Spell spell = null)
     {
         var multiplier = Amplitude;
-        var modOwner = (caster != null ? caster.SpellModOwner : null);
+        var modOwner = caster?.SpellModOwner;
 
         if (modOwner != null)
             modOwner.ApplySpellMod(_spellInfo, SpellModOp.Amplitude, ref multiplier, spell);
@@ -649,7 +649,7 @@ public class SpellEffectInfo
     public double CalcDamageMultiplier(WorldObject caster, Spell spell = null)
     {
         var multiplierPercent = ChainAmplitude * 100.0f;
-        var modOwner = (caster != null ? caster.SpellModOwner : null);
+        var modOwner = caster?.SpellModOwner;
 
         if (modOwner != null)
             modOwner.ApplySpellMod(_spellInfo, SpellModOp.ChainAmplitude, ref multiplierPercent, spell);

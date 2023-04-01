@@ -35,7 +35,7 @@ public partial class Unit
     private readonly ThreatManager _threatManager;
     private readonly Dictionary<ObjectGuid, uint> _extraAttacksTargets = new();
     private readonly List<Player> _sharedVision = new();
-    private readonly MultiMap<uint, uint>[] _spellImmune = new MultiMap<uint, uint>[(int)SpellImmunity.Max];
+    private readonly Dictionary<SpellImmunity, MultiMap<uint, uint>> _spellImmune = new();
 
     //Auras
     private readonly ConcurrentMultiMap<AuraType, AuraEffect> _modAuras = new();

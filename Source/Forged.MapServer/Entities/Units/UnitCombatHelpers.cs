@@ -644,7 +644,7 @@ namespace Forged.MapServer.Entities.Units
                 if (damagetype != DamageEffectType.NoDamage && damagetype != DamageEffectType.Self && victim.HasAuraType(AuraType.SchoolAbsorbOverkill))
                 {
                     var vAbsorbOverkill = victim.GetAuraEffectsByType(AuraType.SchoolAbsorbOverkill);
-                    DamageInfo damageInfo = new(attacker, victim, damageTaken, spellProto, damageSchoolMask, damagetype, cleanDamage != null ? cleanDamage.AttackType : WeaponAttackType.BaseAttack);
+                    DamageInfo damageInfo = new(attacker, victim, damageTaken, spellProto, damageSchoolMask, damagetype, cleanDamage?.AttackType ?? WeaponAttackType.BaseAttack);
 
                     foreach (var absorbAurEff in vAbsorbOverkill)
                     {
@@ -690,10 +690,10 @@ namespace Forged.MapServer.Entities.Units
                         {
                             SpellAbsorbLog absorbLog = new()
                             {
-                                Attacker = attacker != null ? attacker.GUID : ObjectGuid.Empty,
+                                Attacker = attacker?.GUID ?? ObjectGuid.Empty,
                                 Victim = victim.GUID,
                                 Caster = baseAura.CasterGuid,
-                                AbsorbedSpellID = spellProto != null ? spellProto.Id : 0,
+                                AbsorbedSpellID = spellProto?.Id ?? 0,
                                 AbsorbSpellID = baseAura.Id,
                                 Absorbed = (int)currentAbsorb,
                                 OriginalDamage = (uint)damageInfo.OriginalDamage
@@ -928,10 +928,10 @@ namespace Forged.MapServer.Entities.Units
                 {
                     SpellAbsorbLog absorbLog = new()
                     {
-                        Attacker = damageInfo.Attacker != null ? damageInfo.Attacker.GUID : ObjectGuid.Empty,
+                        Attacker = damageInfo.Attacker?.GUID ?? ObjectGuid.Empty,
                         Victim = damageInfo.Victim.GUID,
                         Caster = absorbAurEff.Base.CasterGuid,
-                        AbsorbedSpellID = damageInfo.SpellInfo != null ? damageInfo.SpellInfo.Id : 0,
+                        AbsorbedSpellID = damageInfo.SpellInfo?.Id ?? 0,
                         AbsorbSpellID = absorbAurEff.Id,
                         Absorbed = (int)currentAbsorb,
                         OriginalDamage = (uint)damageInfo.OriginalDamage
@@ -1017,10 +1017,10 @@ namespace Forged.MapServer.Entities.Units
                 {
                     SpellAbsorbLog absorbLog = new()
                     {
-                        Attacker = damageInfo.Attacker != null ? damageInfo.Attacker.GUID : ObjectGuid.Empty,
+                        Attacker = damageInfo.Attacker?.GUID ?? ObjectGuid.Empty,
                         Victim = damageInfo.Victim.GUID,
                         Caster = absorbAurEff.Base.CasterGuid,
-                        AbsorbedSpellID = damageInfo.SpellInfo != null ? damageInfo.SpellInfo.Id : 0,
+                        AbsorbedSpellID = damageInfo.SpellInfo?.Id ?? 0,
                         AbsorbSpellID = absorbAurEff.Id,
                         Absorbed = (int)currentAbsorb,
                         OriginalDamage = (uint)damageInfo.OriginalDamage
@@ -1161,7 +1161,7 @@ namespace Forged.MapServer.Entities.Units
                         Healer = healInfo.Healer ? healInfo.Healer.GUID : ObjectGuid.Empty,
                         Target = healInfo.Target.GUID,
                         AbsorbCaster = absorbAurEff.Base.CasterGuid,
-                        AbsorbedSpellID = (int)(healInfo.SpellInfo != null ? healInfo.SpellInfo.Id : 0),
+                        AbsorbedSpellID = (int)(healInfo.SpellInfo?.Id ?? 0),
                         AbsorbSpellID = (int)absorbAurEff.Id,
                         Absorbed = (int)currentAbsorb,
                         OriginalHeal = (int)healInfo.OriginalHeal
@@ -1515,7 +1515,7 @@ namespace Forged.MapServer.Entities.Units
 
         public void ProcSkillsAndAuras(Unit actor, Unit actionTarget, ProcFlagsInit typeMaskActor, ProcFlagsInit typeMaskActionTarget, ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
         {
-            var attType = damageInfo != null ? damageInfo.AttackType : WeaponAttackType.BaseAttack;
+            var attType = damageInfo?.AttackType ?? WeaponAttackType.BaseAttack;
 
             if (typeMaskActor && actor != null)
                 actor.ProcSkillsAndReactives(false, actionTarget, typeMaskActor, hitMask, attType);
@@ -1565,7 +1565,7 @@ namespace Forged.MapServer.Entities.Units
 
             victimAI?.HealReceived(healer, addhealth);
 
-            var healerAI = healer != null ? healer.AI : null;
+            var healerAI = healer?.AI;
 
             healerAI?.HealDone(victim, addhealth);
 

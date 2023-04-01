@@ -416,8 +416,8 @@ public class AreaTrigger : WorldObject
 
     public bool SetDestination(uint timeToTarget, Position targetPos = null, WorldObject startingObject = null)
     {
-        var path = new PathGenerator(startingObject != null ? startingObject : GetCaster());
-        var result = path.CalculatePath(targetPos != null ? targetPos : Location, true);
+        var path = new PathGenerator(startingObject ?? GetCaster());
+        var result = path.CalculatePath(targetPos ?? Location, true);
 
         if (!result || (path.GetPathType() & PathType.NoPath) != 0)
             return false;

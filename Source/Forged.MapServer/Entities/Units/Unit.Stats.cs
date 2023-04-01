@@ -44,8 +44,6 @@ public partial class Unit
                 AuraFlatModifiersGroup[(int)unitMod][(int)modifierType] += apply ? amount : -amount;
 
                 break;
-            default:
-                break;
         }
 
         UpdateUnitMod(unitMod);
@@ -69,8 +67,6 @@ public partial class Unit
             case UnitModifierPctType.Total:
                 MathFunctions.AddPct(ref AuraPctModifiersGroup[(int)unitMod][(int)modifierType], pct);
 
-                break;
-            default:
                 break;
         }
 
@@ -166,7 +162,6 @@ public partial class Unit
     {
         double modPos = 0.0f;
         double modNeg = 0.0f;
-        double factor = 0.0f;
 
         var unitMod = UnitMods.StatStart + (int)stat;
 
@@ -210,14 +205,14 @@ public partial class Unit
                                            return false;
                                        });
 
-        factor = GetTotalAuraMultiplier(AuraType.ModPercentStat,
-                                        aurEff =>
-                                        {
-                                            if (aurEff.MiscValue == -1 || aurEff.MiscValue == (int)stat)
-                                                return true;
+        var factor = GetTotalAuraMultiplier(AuraType.ModPercentStat,
+                                            aurEff =>
+                                            {
+                                                if (aurEff.MiscValue == -1 || aurEff.MiscValue == (int)stat)
+                                                    return true;
 
-                                            return false;
-                                        });
+                                                return false;
+                                            });
 
         factor *= GetTotalAuraMultiplier(AuraType.ModTotalStatPercentage,
                                          aurEff =>
@@ -394,7 +389,7 @@ public partial class Unit
         }
 
         // resist value will never be negative here
-        return resist.HasValue ? resist.Value : 0;
+        return resist ?? 0;
     }
 
     public void SetResistance(SpellSchools school, int val)
@@ -506,7 +501,7 @@ public partial class Unit
     {
         lock (_healthLock)
         {
-            if (DeathState == DeathState.JustDied || DeathState == DeathState.Corpse)
+            if (DeathState is DeathState.JustDied or DeathState.Corpse)
             {
                 val = 0;
             }
@@ -685,8 +680,6 @@ public partial class Unit
                 SetFullPower(powerType);
 
                 break;
-            default:
-                break;
         }
     }
 
@@ -699,10 +692,10 @@ public partial class Unit
     {
         var powerIndex = GetPowerIndex(powerType);
 
-        if (powerIndex == (int)PowerType.Max || powerIndex >= (int)PowerType.MaxPerClass)
+        if (powerIndex is (int)PowerType.Max or >= (int)PowerType.MaxPerClass)
             return;
 
-        var cur_power = GetPower(powerType);
+        var curPower = GetPower(powerType);
         SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.MaxPower, (int)powerIndex), (uint)val);
 
         // group update
@@ -716,7 +709,7 @@ public partial class Unit
                 pet.SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MAX_POWER);
         }*/
 
-        if (val < cur_power)
+        if (val < curPower)
             SetPower(powerType, val);
     }
 
@@ -729,7 +722,7 @@ public partial class Unit
     {
         var powerIndex = GetPowerIndex(powerType);
 
-        if (powerIndex == (int)PowerType.Max || powerIndex >= (int)PowerType.MaxPerClass)
+        if (powerIndex is (int)PowerType.Max or >= (int)PowerType.MaxPerClass)
             return;
 
         var maxPower = GetMaxPower(powerType);
@@ -740,11 +733,7 @@ public partial class Unit
         var oldPower = UnitData.Power[(int)powerIndex];
 
         if (TryGetAsPlayer(out var player))
-        {
-            var newVal = val;
-            Global.ScriptMgr.ForEach<IPlayerOnModifyPower>(player.Class, p => p.OnModifyPower(player, powerType, oldPower, ref val, isRegen));
-            val = newVal;
-        }
+            ScriptManager.ForEach<IPlayerOnModifyPower>(player.Class, p => p.OnModifyPower(player, powerType, oldPower, ref val, isRegen));
 
         SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.Power, (int)powerIndex), val);
 
@@ -773,7 +762,7 @@ public partial class Unit
         }*/
 
         if (IsPlayer)
-            Global.ScriptMgr.ForEach<IPlayerOnAfterModifyPower>(player.Class, p => p.OnAfterModifyPower(player, powerType, oldPower, val, isRegen));
+            ScriptManager.ForEach<IPlayerOnAfterModifyPower>(player.Class, p => p.OnAfterModifyPower(player, powerType, oldPower, val, isRegen));
     }
 
     public void SetFullPower(PowerType powerType)
@@ -785,7 +774,7 @@ public partial class Unit
     {
         var powerIndex = GetPowerIndex(powerType);
 
-        if (powerIndex == (int)PowerType.Max || powerIndex >= (int)PowerType.MaxPerClass)
+        if (powerIndex is (int)PowerType.Max or >= (int)PowerType.MaxPerClass)
             return 0;
 
         return UnitData.Power[(int)powerIndex];
@@ -795,10 +784,10 @@ public partial class Unit
     {
         var powerIndex = GetPowerIndex(powerType);
 
-        if (powerIndex == (int)PowerType.Max || powerIndex >= (int)PowerType.MaxPerClass)
+        if (powerIndex is (int)PowerType.Max or >= (int)PowerType.MaxPerClass)
             return 0;
 
-        return (int)(uint)UnitData.MaxPower[(int)powerIndex];
+        return (int)UnitData.MaxPower[(int)powerIndex];
     }
 
     public int GetCreatePowerValue(PowerType powerType)
@@ -806,12 +795,9 @@ public partial class Unit
         if (powerType == PowerType.Mana)
             return (int)GetCreateMana();
 
-        var powerTypeEntry = Global.DB2Mgr.GetPowerTypeEntry(powerType);
+        var powerTypeEntry = DB2Manager.GetPowerTypeEntry(powerType);
 
-        if (powerTypeEntry != null)
-            return powerTypeEntry.MaxBasePower;
-
-        return 0;
+        return powerTypeEntry?.MaxBasePower ?? 0;
     }
 
     public virtual uint GetPowerIndex(PowerType powerType)
@@ -829,7 +815,7 @@ public partial class Unit
         return !IsVehicle && OwnerGUID.IsPlayer;
     }
 
-    public double CalculateAOEAvoidance(double damage, uint schoolMask, ObjectGuid casterGuid)
+    public double CalculateAoeAvoidance(double damage, uint schoolMask, ObjectGuid casterGuid)
     {
         damage = (damage * GetTotalAuraMultiplierByMiscMask(AuraType.ModAoeDamageAvoidance, schoolMask));
 
@@ -895,7 +881,7 @@ public partial class Unit
     }
 
     //Chances
-    public override double MeleeSpellMissChance(Unit victim, WeaponAttackType attType, SpellInfo spellInfo)
+    public double MeleeSpellMissChance(Unit victim, WeaponAttackType attType, SpellInfo spellInfo)
     {
         if (spellInfo != null && spellInfo.HasAttribute(SpellAttr7.NoAttackMiss))
             return 0.0f;
@@ -914,8 +900,7 @@ public partial class Unit
         {
             var modOwner = SpellModOwner;
 
-            if (modOwner != null)
-                modOwner.ApplySpellMod(spellInfo, SpellModOp.HitChance, ref resistMissChance);
+            modOwner?.ApplySpellMod(spellInfo, SpellModOp.HitChance, ref resistMissChance);
         }
 
         missChance += resistMissChance - 100.0f;
@@ -955,11 +940,11 @@ public partial class Unit
             if (!spellEffectInfo.IsEffect())
                 break;
 
-            var effect_mech = (int)spellInfo.GetEffectMechanic(spellEffectInfo.EffectIndex);
+            var effectMech = (int)spellInfo.GetEffectMechanic(spellEffectInfo.EffectIndex);
 
-            if (effect_mech != 0)
+            if (effectMech != 0)
             {
-                var temp = GetTotalAuraModifierByMiscValue(AuraType.ModMechanicResistance, effect_mech);
+                var temp = GetTotalAuraModifierByMiscValue(AuraType.ModMechanicResistance, effectMech);
 
                 if (resistMech < temp)
                     resistMech = temp;
@@ -1052,8 +1037,6 @@ public partial class Unit
                 UpdateDamagePhysical(WeaponAttackType.RangedAttack);
 
                 break;
-            default:
-                break;
         }
     }
 
@@ -1083,8 +1066,6 @@ public partial class Unit
             case UnitMods.StatIntellect:
                 stat = Stats.Intellect;
 
-                break;
-            default:
                 break;
         }
 
@@ -1131,11 +1112,9 @@ public partial class Unit
                             continue;
 
                         break;
-                    default:
-                        break;
                 }
 
-                CastSpell(this, triggerSpell, new CastSpellExtraArgs(effect));
+                SpellFactory.CastSpell(this, triggerSpell, new CastSpellExtraArgs(effect));
             }
     }
 
@@ -1319,12 +1298,10 @@ public partial class Unit
 
     private float GetUnitMissChance()
     {
-        var miss_chance = 5.0f;
-
-        return miss_chance;
+        return 5.0f;
     }
 
-    private double GetUnitBlockChance(WeaponAttackType attType, Unit victim)
+    private double GetUnitBlockChance(Unit victim)
     {
         var levelDiff = (int)(victim.GetLevelForTarget(this) - GetLevelForTarget(victim));
 

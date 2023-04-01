@@ -103,14 +103,14 @@ public class Vehicle : ITransport
         seat.Value.Passenger.Reset();
 
         if (_me.IsTypeId(TypeId.Unit) && unit.IsTypeId(TypeId.Player) && seat.Value.SeatInfo.HasFlag(VehicleSeatFlags.CanControl))
-            _me.RemoveCharmedBy(unit);
+            _me.RemoveCharmedBy();
 
         if (_me.Location.IsInWorld)
             unit.MovementInfo.ResetTransport();
 
         // only for flyable vehicles
         if (unit.IsFlying)
-            _me.CastSpell(unit, SharedConst.VehicleSpellParachute, true);
+            _me.SpellFactory.CastSpell(unit, SharedConst.VehicleSpellParachute, true);
 
         if (_me.IsTypeId(TypeId.Unit) && _me.AsCreature.IsAIEnabled)
             _me.AsCreature.AI.PassengerBoarded(unit, seat.Key, false);

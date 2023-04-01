@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Forged.MapServer.Conditions;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.L;
 using Forged.MapServer.DataStorage.Structs.M;
 using Forged.MapServer.Entities.Creatures;
@@ -16,11 +14,11 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Movement;
 using Forged.MapServer.Movement.Generators;
-using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Networking.Packets.Movement;
 using Forged.MapServer.Networking.Packets.Vehicle;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Framework.Util;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Units;
@@ -45,10 +43,7 @@ public partial class Unit
             if (HasUnitFlag2((UnitFlags2)0x1000000))
                 return false;
 
-            if (HasUnitFlag(UnitFlags.PetInCombat))
-                return true;
-
-            return HasUnitFlag(UnitFlags.Rename | UnitFlags.CanSwim);
+            return HasUnitFlag(UnitFlags.PetInCombat) || HasUnitFlag(UnitFlags.Rename | UnitFlags.CanSwim);
         }
     }
 
@@ -72,7 +67,7 @@ public partial class Unit
 
     public MovementForces MovementForces { get; private set; }
 
-    public bool IsPlayingHoverAnim { get; private set; }
+    public bool IsPlayingHoverAnim { get; set; }
 
     public Unit UnitBeingMoved => UnitMovedByMe;
 
@@ -103,7 +98,7 @@ public partial class Unit
         PropagateSpeedChange();
 
         // Spline packets are for creatures and move_update are for players
-        var moveTypeToOpcode = new ServerOpcodes[(int)UnitMoveType.Max, 3]
+        var moveTypeToOpcode = new[,]
         {
             {
                 ServerOpcodes.MoveSplineSetWalkSpeed, ServerOpcodes.MoveSetWalkSpeed, ServerOpcodes.MoveUpdateWalkSpeed
@@ -151,7 +146,7 @@ public partial class Unit
 
         var playerMover = UnitBeingMoved?.AsPlayer; // unit controlled by a player.
 
-        if (playerMover)
+        if (playerMover != null)
         {
             // Send notification to self
             MoveSetSpeed selfpacket = new(moveTypeToOpcode[(int)mtype, 1])
@@ -217,8 +212,7 @@ public partial class Unit
 
         var movementGenerator = MotionMaster.GetCurrentMovementGenerator(slot);
 
-        if (movementGenerator != null)
-            movementGenerator.Pause(timer);
+        movementGenerator?.Pause(timer);
 
         if (forced && MotionMaster.GetCurrentSlot() == slot)
             StopMoving();
@@ -231,8 +225,7 @@ public partial class Unit
 
         var movementGenerator = MotionMaster.GetCurrentMovementGenerator(slot);
 
-        if (movementGenerator != null)
-            movementGenerator.Resume(timer);
+        movementGenerator?.Resume(timer);
     }
 
     public void SetInFront(WorldObject target)
@@ -266,7 +259,7 @@ public partial class Unit
         if (!force && (!IsStopped || !MoveSpline.Finalized()))
             return;
 
-        /// @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
+        // @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
         var init = new MoveSplineInit(this);
         init.MoveTo(Location.X, Location.Y, Location.Z, false);
 
@@ -297,16 +290,16 @@ public partial class Unit
 
     public void MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath = false, bool forceDestination = false)
     {
-        var initializer = (MoveSplineInit init) =>
+        void Initializer(MoveSplineInit init)
         {
             init.MoveTo(x, y, z, generatePath, forceDestination);
             init.SetVelocity(speed);
-        };
+        }
 
-        MotionMaster.LaunchMoveSpline(initializer, 0, MovementGeneratorPriority.Normal, MovementGeneratorType.Point);
+        MotionMaster.LaunchMoveSpline(Initializer, 0, MovementGeneratorPriority.Normal, MovementGeneratorType.Point);
     }
 
-    public void KnockbackFrom(Position origin, float speedXY, float speedZ, SpellEffectExtraData spellEffectExtraData = null)
+    public void KnockbackFrom(Position origin, float speedXy, float speedZ, SpellEffectExtraData spellEffectExtraData = null)
     {
         var player = AsPlayer;
 
@@ -325,21 +318,21 @@ public partial class Unit
 
         if (!player)
         {
-            MotionMaster.MoveKnockbackFrom(origin, speedXY, speedZ, spellEffectExtraData);
+            MotionMaster.MoveKnockbackFrom(origin, speedXy, speedZ, spellEffectExtraData);
         }
         else
         {
             var o = Location == origin ? Location.Orientation + MathF.PI : origin.GetRelativeAngle(Location);
 
-            if (speedXY < 0)
+            if (speedXy < 0)
             {
-                speedXY = -speedXY;
+                speedXy = -speedXy;
                 o = o - MathF.PI;
             }
 
             var vcos = MathF.Cos(o);
             var vsin = MathF.Sin(o);
-            SendMoveKnockBack(player, speedXY, -speedZ, vcos, vsin);
+            SendMoveKnockBack(player, speedXy, -speedZ, vcos, vsin);
         }
     }
 
@@ -358,7 +351,7 @@ public partial class Unit
 
         var playerMover = UnitBeingMoved?.AsPlayer;
 
-        if (playerMover)
+        if (playerMover != null)
         {
             MoveSetFlag packet = new(enable ? ServerOpcodes.MoveEnableTransitionBetweenSwimAndFly : ServerOpcodes.MoveDisableTransitionBetweenSwimAndFly)
             {
@@ -392,7 +385,7 @@ public partial class Unit
 
         var playerMover = UnitBeingMoved?.AsPlayer;
 
-        if (playerMover)
+        if (playerMover != null)
         {
             MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetCanTurnWhileFalling : ServerOpcodes.MoveUnsetCanTurnWhileFalling)
             {
@@ -425,7 +418,7 @@ public partial class Unit
 
         var playerMover = UnitBeingMoved?.AsPlayer;
 
-        if (playerMover)
+        if (playerMover != null)
         {
             MoveSetFlag packet = new(enable ? ServerOpcodes.MoveEnableDoubleJump : ServerOpcodes.MoveDisableDoubleJump)
             {
@@ -479,20 +472,20 @@ public partial class Unit
         return true;
     }
 
-    public void JumpTo(float speedXY, float speedZ, float angle, Position dest = null)
+    public void JumpTo(float speedXy, float speedZ, float angle, Position dest = null)
     {
         if (dest != null)
             angle += Location.GetRelativeAngle(dest);
 
         if (IsTypeId(TypeId.Unit))
         {
-            MotionMaster.MoveJumpTo(angle, speedXY, speedZ);
+            MotionMaster.MoveJumpTo(angle, speedXy, speedZ);
         }
         else
         {
             var vcos = (float)Math.Cos(angle + Location.Orientation);
             var vsin = (float)Math.Sin(angle + Location.Orientation);
-            SendMoveKnockBack(AsPlayer, speedXY, -speedZ, vcos, vsin);
+            SendMoveKnockBack(AsPlayer, speedXy, -speedZ, vcos, vsin);
         }
     }
 
@@ -500,16 +493,16 @@ public partial class Unit
     {
         var pos = new Position();
         obj.Location.GetContactPoint(this, pos);
-        var speedXY = Location.GetExactDist2d(pos.X, pos.Y) * 10.0f / speedZ;
+        var speedXy = Location.GetExactDist2d(pos.X, pos.Y) * 10.0f / speedZ;
         pos.Orientation = Location.GetAbsoluteAngle(obj.Location);
-        MotionMaster.MoveJump(pos, speedXY, speedZ, EventId.Jump, withOrientation);
+        MotionMaster.MoveJump(pos, speedXy, speedZ, EventId.Jump, withOrientation);
     }
 
     public void UpdateSpeed(UnitMoveType mtype)
     {
-        double main_speed_mod = 0;
-        double stack_bonus = 1.0f;
-        double non_stack_bonus = 1.0f;
+        double mainSpeedMod = 0;
+        double stackBonus = 1.0f;
+        double nonStackBonus = 1.0f;
 
         switch (mtype)
         {
@@ -524,22 +517,22 @@ public partial class Unit
             {
                 if (IsMounted) // Use on mount auras
                 {
-                    main_speed_mod = GetMaxPositiveAuraModifier(AuraType.ModIncreaseMountedSpeed);
-                    stack_bonus = GetTotalAuraMultiplier(AuraType.ModMountedSpeedAlways);
-                    non_stack_bonus += GetMaxPositiveAuraModifier(AuraType.ModMountedSpeedNotStack) / 100.0f;
+                    mainSpeedMod = GetMaxPositiveAuraModifier(AuraType.ModIncreaseMountedSpeed);
+                    stackBonus = GetTotalAuraMultiplier(AuraType.ModMountedSpeedAlways);
+                    nonStackBonus += GetMaxPositiveAuraModifier(AuraType.ModMountedSpeedNotStack) / 100.0f;
                 }
                 else
                 {
-                    main_speed_mod = GetMaxPositiveAuraModifier(AuraType.ModIncreaseSpeed);
-                    stack_bonus = GetTotalAuraMultiplier(AuraType.ModSpeedAlways);
-                    non_stack_bonus += GetMaxPositiveAuraModifier(AuraType.ModSpeedNotStack) / 100.0f;
+                    mainSpeedMod = GetMaxPositiveAuraModifier(AuraType.ModIncreaseSpeed);
+                    stackBonus = GetTotalAuraMultiplier(AuraType.ModSpeedAlways);
+                    nonStackBonus += GetMaxPositiveAuraModifier(AuraType.ModSpeedNotStack) / 100.0f;
                 }
 
                 break;
             }
             case UnitMoveType.Swim:
             {
-                main_speed_mod = GetMaxPositiveAuraModifier(AuraType.ModIncreaseSwimSpeed);
+                mainSpeedMod = GetMaxPositiveAuraModifier(AuraType.ModIncreaseSwimSpeed);
 
                 break;
             }
@@ -547,30 +540,30 @@ public partial class Unit
             {
                 if (IsTypeId(TypeId.Unit) && ControlledByPlayer) // not sure if good for pet
                 {
-                    main_speed_mod = GetMaxPositiveAuraModifier(AuraType.ModIncreaseVehicleFlightSpeed);
-                    stack_bonus = GetTotalAuraMultiplier(AuraType.ModVehicleSpeedAlways);
+                    mainSpeedMod = GetMaxPositiveAuraModifier(AuraType.ModIncreaseVehicleFlightSpeed);
+                    stackBonus = GetTotalAuraMultiplier(AuraType.ModVehicleSpeedAlways);
 
                     // for some spells this mod is applied on vehicle owner
-                    double owner_speed_mod = 0;
+                    double ownerSpeedMod = 0;
 
                     var owner = Charmer;
 
                     if (owner != null)
-                        owner_speed_mod = owner.GetMaxPositiveAuraModifier(AuraType.ModIncreaseVehicleFlightSpeed);
+                        ownerSpeedMod = owner.GetMaxPositiveAuraModifier(AuraType.ModIncreaseVehicleFlightSpeed);
 
-                    main_speed_mod = Math.Max(main_speed_mod, owner_speed_mod);
+                    mainSpeedMod = Math.Max(mainSpeedMod, ownerSpeedMod);
                 }
                 else if (IsMounted)
                 {
-                    main_speed_mod = GetMaxPositiveAuraModifier(AuraType.ModIncreaseMountedFlightSpeed);
-                    stack_bonus = GetTotalAuraMultiplier(AuraType.ModMountedFlightSpeedAlways);
+                    mainSpeedMod = GetMaxPositiveAuraModifier(AuraType.ModIncreaseMountedFlightSpeed);
+                    stackBonus = GetTotalAuraMultiplier(AuraType.ModMountedFlightSpeedAlways);
                 }
                 else // Use not mount (shapeshift for example) auras (should stack)
                 {
-                    main_speed_mod = GetTotalAuraModifier(AuraType.ModIncreaseFlightSpeed) + GetTotalAuraModifier(AuraType.ModIncreaseVehicleFlightSpeed);
+                    mainSpeedMod = GetTotalAuraModifier(AuraType.ModIncreaseFlightSpeed) + GetTotalAuraModifier(AuraType.ModIncreaseVehicleFlightSpeed);
                 }
 
-                non_stack_bonus += GetMaxPositiveAuraModifier(AuraType.ModFlightSpeedNotStack) / 100.0f;
+                nonStackBonus += GetMaxPositiveAuraModifier(AuraType.ModFlightSpeedNotStack) / 100.0f;
 
                 // Update speed for vehicle if available
                 if (IsTypeId(TypeId.Player) && Vehicle != null)
@@ -585,10 +578,10 @@ public partial class Unit
         }
 
         // now we ready for speed calculation
-        var speed = Math.Max(non_stack_bonus, stack_bonus);
+        var speed = Math.Max(nonStackBonus, stackBonus);
 
-        if (main_speed_mod != 0)
-            MathFunctions.AddPct(ref speed, main_speed_mod);
+        if (mainSpeedMod != 0)
+            MathFunctions.AddPct(ref speed, mainSpeedMod);
 
         switch (mtype)
         {
@@ -617,10 +610,10 @@ public partial class Unit
                     }
 
                     // Use speed from aura
-                    var max_speed = normalization / (ControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)mtype] : SharedConst.baseMoveSpeed[(int)mtype]);
+                    var maxSpeed = normalization / (ControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)mtype] : SharedConst.baseMoveSpeed[(int)mtype]);
 
-                    if (speed > max_speed)
-                        speed = max_speed;
+                    if (speed > maxSpeed)
+                        speed = maxSpeed;
                 }
 
                 if (mtype == UnitMoveType.Run)
@@ -639,8 +632,6 @@ public partial class Unit
 
                 break;
             }
-            default:
-                break;
         }
 
         var creature = AsCreature;
@@ -649,7 +640,7 @@ public partial class Unit
             if (creature.HasUnitTypeMask(UnitTypeMask.Minion) && !creature.IsInCombat)
                 if (MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Follow)
                 {
-                    var followed = (MotionMaster.GetCurrentMovementGenerator() as FollowMovementGenerator).GetTarget();
+                    var followed = (MotionMaster.GetCurrentMovementGenerator() as FollowMovementGenerator)?.GetTarget();
 
                     if (followed != null && followed.GUID == OwnerGUID && !followed.IsInCombat)
                     {
@@ -677,10 +668,10 @@ public partial class Unit
             if (!OwnerGUID.IsPlayer && !IsHunterPet && TypeId == TypeId.Unit)
                 baseMinSpeed = AsCreature.Template.SpeedRun;
 
-            var min_speed = MathFunctions.CalculatePct(baseMinSpeed, minSpeedMod);
+            var minSpeed = MathFunctions.CalculatePct(baseMinSpeed, minSpeedMod);
 
-            if (speed < min_speed)
-                speed = min_speed;
+            if (speed < minSpeed)
+                speed = minSpeed;
         }
 
         SetSpeedRate(mtype, (float)speed);
@@ -764,7 +755,7 @@ public partial class Unit
 
         var playerMover = UnitBeingMoved?.AsPlayer;
 
-        if (playerMover)
+        if (playerMover != null)
         {
             MoveSetFlag packet = new(disable ? ServerOpcodes.MoveDisableGravity : ServerOpcodes.MoveEnableGravity)
             {
@@ -809,7 +800,7 @@ public partial class Unit
         if (mountType == 0)
             return null;
 
-        var capabilities = Global.DB2Mgr.GetMountCapabilities(mountType);
+        var capabilities = DB2Manager.GetMountCapabilities(mountType);
 
         if (capabilities == null)
             return null;
@@ -817,8 +808,6 @@ public partial class Unit
         var areaId = Location.Area;
         uint ridingSkill = 5000;
         AreaMountFlags mountFlags = 0;
-        bool isSubmerged;
-        bool isInWater;
 
         if (IsTypeId(TypeId.Player))
             ridingSkill = AsPlayer.GetSkillValue(SkillType.Riding);
@@ -837,8 +826,8 @@ public partial class Unit
         }
 
         var liquidStatus = Location.Map.GetLiquidStatus(Location.PhaseShift, Location.X, Location.Y, Location.Z, LiquidHeaderTypeFlags.AllLiquids);
-        isSubmerged = liquidStatus.HasAnyFlag(ZLiquidStatus.UnderWater) || HasUnitMovementFlag(MovementFlag.Swimming);
-        isInWater = liquidStatus.HasAnyFlag(ZLiquidStatus.InWater | ZLiquidStatus.UnderWater);
+        var isSubmerged = liquidStatus.HasAnyFlag(ZLiquidStatus.UnderWater) || HasUnitMovementFlag(MovementFlag.Swimming);
+        var isInWater = liquidStatus.HasAnyFlag(ZLiquidStatus.InWater | ZLiquidStatus.UnderWater);
 
         foreach (var mountTypeXCapability in capabilities)
         {
@@ -895,7 +884,7 @@ public partial class Unit
                 Location.Map.Entry.ParentMapID != mountCapability.ReqMapID)
                 continue;
 
-            if (mountCapability.ReqAreaID != 0 && !Global.DB2Mgr.IsInArea(areaId, mountCapability.ReqAreaID))
+            if (mountCapability.ReqAreaID != 0 && !DB2Manager.IsInArea(areaId, mountCapability.ReqAreaID))
                 continue;
 
             if (mountCapability.ReqSpellAuraID != 0 && !HasAura(mountCapability.ReqSpellAuraID))
@@ -908,7 +897,7 @@ public partial class Unit
 
             if (thisPlayer != null)
             {
-                var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(mountCapability.PlayerConditionID);
+                var playerCondition = CliDB.PlayerConditionStorage.LookupByKey((uint)mountCapability.PlayerConditionID);
 
                 if (playerCondition != null)
                     if (!ConditionManager.IsPlayerMeetingCondition(thisPlayer, playerCondition))
@@ -935,7 +924,7 @@ public partial class Unit
             }
             else
             {
-                var capability = CliDB.MountCapabilityStorage.LookupByKey(aurEff.Amount);
+                var capability = CliDB.MountCapabilityStorage.LookupByKey((uint)aurEff.Amount);
 
                 if (capability != null) // aura may get removed by interrupt flag, reapply
                     if (!HasAura(capability.ModSpellAuraID))
@@ -1065,7 +1054,7 @@ public partial class Unit
 
         var playerMover = UnitBeingMoved?.AsPlayer;
 
-        if (playerMover)
+        if (playerMover != null)
         {
             MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetCanFly : ServerOpcodes.MoveUnsetCanFly)
             {
@@ -1108,7 +1097,7 @@ public partial class Unit
 
         var playerMover = UnitBeingMoved?.AsPlayer;
 
-        if (playerMover)
+        if (playerMover != null)
         {
             MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetWaterWalk : ServerOpcodes.MoveSetLandWalk)
             {
@@ -1152,7 +1141,7 @@ public partial class Unit
 
         var playerMover = UnitBeingMoved?.AsPlayer;
 
-        if (playerMover)
+        if (playerMover != null)
         {
             MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetFeatherFall : ServerOpcodes.MoveSetNormalFall)
             {
@@ -1212,7 +1201,7 @@ public partial class Unit
 
         var playerMover = UnitBeingMoved?.AsPlayer;
 
-        if (playerMover)
+        if (playerMover != null)
         {
             MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetHovering : ServerOpcodes.MoveUnsetHovering)
             {
@@ -1252,7 +1241,7 @@ public partial class Unit
         return true;
     }
 
-    public bool IsWithinCombatRange(Unit obj, float dist2compare)
+    public bool IsWithinCombatRange(Unit obj, float dist2Compare)
     {
         if (!obj || !Location.IsInMap(obj) || !Location.InSamePhase(obj))
             return false;
@@ -1263,7 +1252,7 @@ public partial class Unit
         var distsq = dx * dx + dy * dy + dz * dz;
 
         var sizefactor = CombatReach + obj.CombatReach;
-        var maxdist = dist2compare + sizefactor;
+        var maxdist = dist2Compare + sizefactor;
 
         return distsq < maxdist * maxdist;
     }
@@ -1365,8 +1354,6 @@ public partial class Unit
                     }
 
                     break;
-                default:
-                    break;
             }
         }
         else
@@ -1436,7 +1423,7 @@ public partial class Unit
 
         var playerMover = UnitBeingMoved?.AsPlayer; // unit controlled by a player.
 
-        if (playerMover)
+        if (playerMover != null)
         {
             MoveSetFlag packet = new(apply ? ServerOpcodes.MoveRoot : ServerOpcodes.MoveUnroot)
             {
@@ -1475,7 +1462,7 @@ public partial class Unit
                OwnerGUID.IsEmpty;
     }
 
-    public void Mount(uint mount, uint VehicleId = 0, uint creatureEntry = 0)
+    public void Mount(uint mount, uint vehicleId = 0, uint creatureEntry = 0)
     {
         RemoveAurasByType(AuraType.CosmeticMounted);
 
@@ -1489,8 +1476,8 @@ public partial class Unit
         if (player != null)
         {
             // mount as a vehicle
-            if (VehicleId != 0)
-                if (CreateVehicleKit(VehicleId, creatureEntry))
+            if (vehicleId != 0)
+                if (CreateVehicleKit(vehicleId, creatureEntry))
                 {
                     player.SendOnCancelExpectedVehicleRideAura();
 
@@ -1535,8 +1522,7 @@ public partial class Unit
 
         var thisPlayer = AsPlayer;
 
-        if (thisPlayer != null)
-            thisPlayer.SendMovementSetCollisionHeight(thisPlayer.CollisionHeight, UpdateCollisionHeightReason.Mount);
+        thisPlayer?.SendMovementSetCollisionHeight(thisPlayer.CollisionHeight, UpdateCollisionHeightReason.Mount);
 
         // dismount as a vehicle
         if (IsTypeId(TypeId.Player) && VehicleKit != null)
@@ -1793,14 +1779,13 @@ public partial class Unit
         // should this really be the unit _being_ moved? not the unit doing the moving?
         var playerMover = UnitBeingMoved?.AsPlayer;
 
-        if (playerMover)
+        if (playerMover != null)
         {
             var newPos = pos.Copy();
 
             var transportBase = DirectTransport;
 
-            if (transportBase != null)
-                transportBase.CalculatePassengerOffset(newPos);
+            transportBase?.CalculatePassengerOffset(newPos);
 
             MoveTeleport moveTeleport = new()
             {
@@ -1843,7 +1828,7 @@ public partial class Unit
         MotionMaster.PropagateSpeedChange();
     }
 
-    private void SendMoveKnockBack(Player player, float speedXY, float speedZ, float vcos, float vsin)
+    private void SendMoveKnockBack(Player player, float speedXy, float speedZ, float vcos, float vsin)
     {
         MoveKnockBack moveKnockBack = new()
         {
@@ -1851,53 +1836,12 @@ public partial class Unit
             SequenceIndex = MovementCounter++
         };
 
-        moveKnockBack.Speeds.HorzSpeed = speedXY;
+        moveKnockBack.Speeds.HorzSpeed = speedXy;
         moveKnockBack.Speeds.VertSpeed = speedZ;
         moveKnockBack.Direction = new Vector2(vcos, vsin);
         player.SendPacket(moveKnockBack);
     }
-
-    private bool SetCollision(bool disable)
-    {
-        if (disable == HasUnitMovementFlag(MovementFlag.DisableCollision))
-            return false;
-
-        if (disable)
-            AddUnitMovementFlag(MovementFlag.DisableCollision);
-        else
-            RemoveUnitMovementFlag(MovementFlag.DisableCollision);
-
-        var playerMover = UnitBeingMoved?.AsPlayer;
-
-        if (playerMover)
-        {
-            MoveSetFlag packet = new(disable ? ServerOpcodes.MoveSplineEnableCollision : ServerOpcodes.MoveEnableCollision)
-            {
-                MoverGUID = GUID,
-                SequenceIndex = MovementCounter++
-            };
-
-            playerMover.SendPacket(packet);
-
-            MoveUpdate moveUpdate = new()
-            {
-                Status = MovementInfo
-            };
-
-            SendMessageToSet(moveUpdate, playerMover);
-        }
-        else
-        {
-            MoveSplineSetFlag packet = new(disable ? ServerOpcodes.MoveSplineDisableCollision : ServerOpcodes.MoveDisableCollision)
-            {
-                MoverGUID = GUID
-            };
-
-            SendMessageToSet(packet, true);
-        }
-
-        return true;
-    }
+    
 
     private void UpdateOrientation(float orientation)
     {
@@ -1974,12 +1918,12 @@ public partial class Unit
             var fearAuras = GetAuraEffectsByType(AuraType.ModFear);
 
             if (!fearAuras.Empty())
-                caster = Global.ObjAccessor.GetUnit(this, fearAuras[0].CasterGuid);
+                caster = ObjectAccessor.GetUnit(this, fearAuras[0].CasterGuid);
 
             if (caster == null)
                 caster = GetAttackerForHelper();
 
-            MotionMaster.MoveFleeing(caster, (uint)(fearAuras.Empty() ? GetDefaultValue("CreatureFamilyFleeDelay", 7000) : 0)); // caster == NULL processed in MoveFleeing
+            MotionMaster.MoveFleeing(caster, (uint)(fearAuras.Empty() ? Configuration.GetDefaultValue("CreatureFamilyFleeDelay", 7000) : 0)); // caster == NULL processed in MoveFleeing
         }
         else
         {
@@ -2050,111 +1994,6 @@ public partial class Unit
         SendMessageToSet(setVehicleRec, true);
     }
 
-    private void ApplyMovementForce(ObjectGuid id, Vector3 origin, float magnitude, MovementForceType type, Vector3 direction, ObjectGuid transportGuid = default)
-    {
-        if (MovementForces == null)
-            MovementForces = new MovementForces();
-
-        MovementForce force = new()
-        {
-            ID = id,
-            Origin = origin,
-            Direction = direction
-        };
-
-        if (transportGuid.IsMOTransport)
-            force.TransportID = (uint)transportGuid.Counter;
-
-        force.Magnitude = magnitude;
-        force.Type = type;
-
-        if (MovementForces.Add(force))
-        {
-            var movingPlayer = PlayerMovingMe1;
-
-            if (movingPlayer != null)
-            {
-                MoveApplyMovementForce applyMovementForce = new()
-                {
-                    MoverGUID = GUID,
-                    SequenceIndex = (int)MovementCounter++,
-                    Force = force
-                };
-
-                movingPlayer.SendPacket(applyMovementForce);
-            }
-            else
-            {
-                MoveUpdateApplyMovementForce updateApplyMovementForce = new()
-                {
-                    Status = MovementInfo,
-                    Force = force
-                };
-
-                SendMessageToSet(updateApplyMovementForce, true);
-            }
-        }
-    }
-
-    private void RemoveMovementForce(ObjectGuid id)
-    {
-        if (MovementForces == null)
-            return;
-
-        if (MovementForces.Remove(id))
-        {
-            var movingPlayer = PlayerMovingMe1;
-
-            if (movingPlayer != null)
-            {
-                MoveRemoveMovementForce moveRemoveMovementForce = new()
-                {
-                    MoverGUID = GUID,
-                    SequenceIndex = (int)MovementCounter++,
-                    ID = id
-                };
-
-                movingPlayer.SendPacket(moveRemoveMovementForce);
-            }
-            else
-            {
-                MoveUpdateRemoveMovementForce updateRemoveMovementForce = new()
-                {
-                    Status = MovementInfo,
-                    TriggerGUID = id
-                };
-
-                SendMessageToSet(updateRemoveMovementForce, true);
-            }
-        }
-
-        if (MovementForces.IsEmpty)
-            MovementForces = new MovementForces();
-    }
-
-    private void SetPlayHoverAnim(bool enable)
-    {
-        IsPlayingHoverAnim = enable;
-
-        SetPlayHoverAnim data = new()
-        {
-            UnitGUID = GUID,
-            PlayHoverAnim = enable
-        };
-
-        SendMessageToSet(data, true);
-    }
-
-    private Player GetPlayerBeingMoved()
-    {
-        var mover = UnitBeingMoved;
-
-        if (mover)
-            return mover.AsPlayer;
-
-        return null;
-    }
-
     private void RemoveUnitMovementFlag2(MovementFlag2 f)
     {
         MovementInfo.RemoveMovementFlag2(f);
@@ -2179,7 +2018,7 @@ public partial class Unit
                 FlightSplineSync flightSplineSync = new()
                 {
                     Guid = GUID,
-                    SplineDist = MoveSpline.TimePassed / MoveSpline.Duration()
+                    SplineDist = (float)MoveSpline.TimePassed / MoveSpline.Duration()
                 };
 
                 SendMessageToSet(flightSplineSync, true);

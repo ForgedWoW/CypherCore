@@ -199,7 +199,7 @@ public partial class Spell : IDisposable
 
     public bool IsPositive => SpellInfo.IsPositive && (TriggeredByAuraSpell == null || TriggeredByAuraSpell.IsPositive);
 
-    public Unit UnitCasterForEffectHandlers => OriginalCaster != null ? OriginalCaster : Caster.AsUnit;
+    public Unit UnitCasterForEffectHandlers => OriginalCaster ?? Caster.AsUnit;
 
     public bool IsTriggered => _triggeredCastFlags.HasAnyFlag(TriggerCastFlags.FullMask);
 
@@ -921,7 +921,7 @@ public partial class Spell : IDisposable
                             if (_duration == 0)
                             {
                                 var aur = unit.GetAura(SpellInfo.Id, Caster.GUID);
-                                _duration = aur != null ? aur.Duration : -1;
+                                _duration = aur?.Duration ?? -1;
                             }
 
                             triggeredAur.SetDuration(_duration);
@@ -5673,7 +5673,7 @@ public partial class Spell : IDisposable
                             var caster1 = OriginalCaster ? OriginalCaster : Caster.AsUnit;
 
                             if (caster1 != null)
-                                if (target.HasStrongerAuraWithDR(SpellInfo, caster1))
+                                if (target.HasStrongerAuraWithDr(SpellInfo, caster1))
                                 {
                                     cleanupSpell(SpellCastResult.AuraBounced);
 
@@ -8693,7 +8693,7 @@ public partial class Spell : IDisposable
         if (OriginalCaster != null && DamageInEffects > 0)
             if (spellEffectInfo.IsTargetingArea || spellEffectInfo.IsAreaAuraEffect || spellEffectInfo.IsEffect(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
             {
-                DamageInEffects = unit.CalculateAOEAvoidance(DamageInEffects, (uint)SpellInfo.SchoolMask, OriginalCaster.GUID);
+                DamageInEffects = unit.CalculateAoeAvoidance(DamageInEffects, (uint)SpellInfo.SchoolMask, OriginalCaster.GUID);
 
                 if (OriginalCaster.IsPlayer)
                 {

@@ -6069,7 +6069,7 @@ public sealed class GameObjectManager
     {
         var data = GetSpawnMetadata(type, spawnId);
 
-        return data != null ? data.SpawnGroupData : null;
+        return data?.SpawnGroupData;
     }
 
     public SpawnGroupTemplateData GetDefaultSpawnGroup()

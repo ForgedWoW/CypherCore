@@ -616,7 +616,7 @@ public class TerrainInfo
         var dgroupId = 0;
 
         var hasVmapAreaInfo = Global.VMapMgr.GetAreaInfo(terrainMapId, x, y, ref vmap_z, out var vflags, out var vadtId, out var vrootId, out var vgroupId);
-        var hasDynamicAreaInfo = dynamicMapTree != null ? dynamicMapTree.GetAreaInfo(x, y, ref dynamic_z, phaseShift, out dflags, out dadtId, out drootId, out dgroupId) : false;
+        var hasDynamicAreaInfo = dynamicMapTree?.GetAreaInfo(x, y, ref dynamic_z, phaseShift, out dflags, out dadtId, out drootId, out dgroupId) ?? false;
 
         if (hasVmapAreaInfo)
         {

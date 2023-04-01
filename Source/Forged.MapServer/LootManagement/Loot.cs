@@ -64,8 +64,8 @@ public class Loot
         _guid = map ? ObjectGuid.Create(HighGuid.LootObject, map.Id, 0, map.GenerateLowGuid(HighGuid.LootObject)) : ObjectGuid.Empty;
         _owner = owner;
         _itemContext = ItemContext.None;
-        _lootMethod = group != null ? group.LootMethod : LootMethod.FreeForAll;
-        _lootMaster = group != null ? group.MasterLooterGuid : ObjectGuid.Empty;
+        _lootMethod = group?.LootMethod ?? LootMethod.FreeForAll;
+        _lootMaster = group?.MasterLooterGuid ?? ObjectGuid.Empty;
     }
 
     // Inserts the item into the loot (called by LootTemplate processors)

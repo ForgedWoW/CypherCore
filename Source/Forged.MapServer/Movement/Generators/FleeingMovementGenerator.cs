@@ -250,7 +250,7 @@ public class TimedFleeingMovementGenerator : FleeingMovementGenerator<Creature>
         if (movementInform)
         {
             var ownerCreature = owner.AsCreature;
-            var ai = ownerCreature != null ? ownerCreature.AI : null;
+            var ai = ownerCreature?.AI;
 
             if (ai != null)
                 ai.MovementInform(MovementGeneratorType.TimedFleeing, 0);

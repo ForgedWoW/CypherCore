@@ -749,7 +749,7 @@ public class ConditionSourceInfo
         mConditionTargets[0] = target0;
         mConditionTargets[1] = target1;
         mConditionTargets[2] = target2;
-        mConditionMap = target0 != null ? target0.Location.Map : null;
+        mConditionMap = target0?.Location.Map;
         mLastFailedCondition = null;
     }
 

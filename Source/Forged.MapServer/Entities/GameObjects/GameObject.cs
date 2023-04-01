@@ -652,7 +652,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                     AI.Reset();
 
                                 // respawn timer
-                                var poolid = GameObjectData != null ? GameObjectData.poolId : 0;
+                                var poolid = GameObjectData?.poolId ?? 0;
 
                                 if (poolid != 0)
                                     Global.PoolMgr.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
@@ -1055,7 +1055,7 @@ namespace Forged.MapServer.Entities.GameObjects
             if (goOverride != null)
                 ReplaceAllFlags(goOverride.Flags);
 
-            var poolid = GameObjectData != null ? GameObjectData.poolId : 0;
+            var poolid = GameObjectData?.poolId ?? 0;
 
             if (RespawnCompatibilityMode && poolid != 0)
                 Global.PoolMgr.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
@@ -1854,8 +1854,8 @@ namespace Forged.MapServer.Entities.GameObjects
                                                                                                  LootStoreBox.Gameobject,
                                                                                                  LootType.Chest,
                                                                                                  this,
-                                                                                                 addon != null ? addon.Mingold : 0,
-                                                                                                 addon != null ? addon.Maxgold : 0,
+                                                                                                 addon?.Mingold ?? 0,
+                                                                                                 addon?.Maxgold ?? 0,
                                                                                                  (ushort)LootMode,
                                                                                                  Location.Map.GetDifficultyLootItemContext(),
                                                                                                  tappers);
@@ -2939,7 +2939,7 @@ namespace Forged.MapServer.Entities.GameObjects
             SetGoAnimProgress(GoValueProtected.Building.Health * 255 / GoValueProtected.Building.MaxHealth);
 
             // dealing damage, send packet
-            var player = attackerOrHealer != null ? attackerOrHealer.CharmerOrOwnerPlayerOrPlayerItself : null;
+            var player = attackerOrHealer?.CharmerOrOwnerPlayerOrPlayerItself;
 
             if (player != null)
             {
@@ -3031,7 +3031,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                     AI.Destroyed(attackerOrHealer, GoInfoProtected.DestructibleBuilding.DestroyedEvent);
 
-                    var player = attackerOrHealer != null ? attackerOrHealer.CharmerOrOwnerPlayerOrPlayerItself : null;
+                    var player = attackerOrHealer?.CharmerOrOwnerPlayerOrPlayerItself;
 
                     if (player)
                     {

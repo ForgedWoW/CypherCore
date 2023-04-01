@@ -193,7 +193,7 @@ internal class GameObjectCommands
         handler.SendSysMessage(CypherStrings.GoinfoSize, gameObjectInfo.size);
 
         handler.SendSysMessage(CypherStrings.ObjectinfoAiInfo, gameObjectInfo.AIName, Global.ObjectMgr.GetScriptName(gameObjectInfo.ScriptId));
-        var ai = thisGO != null ? thisGO.AI : null;
+        var ai = thisGO?.AI;
 
         if (ai != null)
             handler.SendSysMessage(CypherStrings.ObjectinfoAiType, nameof(ai));

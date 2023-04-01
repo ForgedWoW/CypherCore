@@ -27,8 +27,8 @@ public class AuctionsBucketKey : IComparable<AuctionsBucketKey>
     {
         ItemId = key.ItemID;
         ItemLevel = key.ItemLevel;
-        BattlePetSpeciesId = (ushort)(key.BattlePetSpeciesID.HasValue ? key.BattlePetSpeciesID.Value : 0);
-        SuffixItemNameDescriptionId = (ushort)(key.SuffixItemNameDescriptionID.HasValue ? key.SuffixItemNameDescriptionID.Value : 0);
+        BattlePetSpeciesId = (ushort)(key.BattlePetSpeciesID ?? 0);
+        SuffixItemNameDescriptionId = (ushort)(key.SuffixItemNameDescriptionID ?? 0);
     }
 
     public int CompareTo(AuctionsBucketKey other)

@@ -1554,7 +1554,7 @@ public partial class Spell
             }
         }
 
-        ExecuteLogEffectOpenLock(EffectInfo.Effect, GameObjTarget != null ? GameObjTarget : (WorldObject)ItemTarget);
+        ExecuteLogEffectOpenLock(EffectInfo.Effect, GameObjTarget ?? (WorldObject)ItemTarget);
     }
 
     [SpellEffectHandler(SpellEffectName.SummonChangeItem)]
@@ -3540,7 +3540,7 @@ public partial class Spell
             currentDrunk += (byte)drunkMod;
         }
 
-        player.SetDrunkValue(currentDrunk, CastItem != null ? CastItem.Entry : 0);
+        player.SetDrunkValue(currentDrunk, CastItem?.Entry ?? 0);
     }
 
     [SpellEffectHandler(SpellEffectName.FeedPet)]
@@ -6163,7 +6163,7 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        var playerTarget = UnitTarget != null ? UnitTarget.AsPlayer : null;
+        var playerTarget = UnitTarget?.AsPlayer;
 
         if (!playerTarget)
             return;

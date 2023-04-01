@@ -32,10 +32,7 @@ public class ProcEventInfo
             if (DamageInfo != null)
                 return DamageInfo.SpellInfo;
 
-            if (HealInfo != null)
-                return HealInfo.SpellInfo;
-
-            return null;
+            return HealInfo?.SpellInfo;
         }
     }
 

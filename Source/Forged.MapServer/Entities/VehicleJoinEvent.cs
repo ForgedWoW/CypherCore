@@ -93,7 +93,7 @@ public class VehicleJoinEvent : BasicEvent
         if (veSeat.HasFlag(VehicleSeatFlags.DisableGravity))
             Passenger.SetDisableGravity(true);
 
-        var o = veSeatAddon != null ? veSeatAddon.SeatOrientationOffset : 0.0f;
+        var o = veSeatAddon?.SeatOrientationOffset ?? 0.0f;
         var x = veSeat.AttachmentOffset.X;
         var y = veSeat.AttachmentOffset.Y;
         var z = veSeat.AttachmentOffset.Z;

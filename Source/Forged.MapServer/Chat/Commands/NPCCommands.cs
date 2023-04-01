@@ -194,7 +194,7 @@ internal class NPCCommands
         if (!spawnId.HasValue && creature == null)
             return false;
 
-        var lowguid = spawnId.HasValue ? spawnId.Value : creature.SpawnId;
+        var lowguid = spawnId ?? creature.SpawnId;
 
         // Attempting creature load from DB data
         var data = ObjectManager.GetCreatureData(lowguid);

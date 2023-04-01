@@ -2874,7 +2874,7 @@ public class AuraEffect
         if (apply)
             target.SetCharmedBy(caster, CharmType.Possess, aurApp);
         else
-            target.RemoveCharmedBy(caster);
+            target.RemoveCharmedBy();
     }
 
     [AuraEffectHandler(AuraType.ModPossessPet)]
@@ -2904,7 +2904,7 @@ public class AuraEffect
         }
         else
         {
-            pet.RemoveCharmedBy(caster);
+            pet.RemoveCharmedBy();
 
             if (!pet.Location.IsWithinDistInMap(caster, pet.Location.Map.VisibilityRange))
             {
@@ -2936,7 +2936,7 @@ public class AuraEffect
         if (apply)
             target.SetCharmedBy(caster, CharmType.Charm, aurApp);
         else
-            target.RemoveCharmedBy(caster);
+            target.RemoveCharmedBy();
     }
 
     [AuraEffectHandler(AuraType.AoeCharm)]
@@ -2952,7 +2952,7 @@ public class AuraEffect
         if (apply)
             target.SetCharmedBy(caster, CharmType.Convert, aurApp);
         else
-            target.RemoveCharmedBy(caster);
+            target.RemoveCharmedBy();
     }
 
     /**
@@ -5619,7 +5619,7 @@ public class AuraEffect
 
         if (!SpellInfo.HasAttribute(SpellAttr4.IgnoreDamageTakenModifiers))
             if (GetSpellEffectInfo().IsTargetingArea || GetSpellEffectInfo().IsAreaAuraEffect || GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
-                damage = target.CalculateAOEAvoidance(damage, (uint)SpellInfo.SchoolMask, Base.CastItemGuid);
+                damage = target.CalculateAoeAvoidance(damage, (uint)SpellInfo.SchoolMask, Base.CastItemGuid);
 
         var dmg = damage;
 
@@ -5704,7 +5704,7 @@ public class AuraEffect
 
         if (!SpellInfo.HasAttribute(SpellAttr4.IgnoreDamageTakenModifiers))
             if (GetSpellEffectInfo().IsTargetingArea || GetSpellEffectInfo().IsAreaAuraEffect || GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
-                damage = target.CalculateAOEAvoidance(damage, (uint)SpellInfo.SchoolMask, Base.CastItemGuid);
+                damage = target.CalculateAoeAvoidance(damage, (uint)SpellInfo.SchoolMask, Base.CastItemGuid);
 
         var dmg = damage;
 

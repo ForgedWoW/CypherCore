@@ -459,7 +459,7 @@ public partial class Player
 
                 for (byte dependentRating = 0; dependentRating < (int)CombatRating.Max; ++dependentRating)
                     if ((aurEff.MiscValue & (1 << dependentRating)) != 0)
-                        highestRating = (short)Math.Max(highestRating.HasValue ? highestRating.Value : _baseRatingValue[dependentRating], _baseRatingValue[dependentRating]);
+                        highestRating = (short)Math.Max(highestRating ?? _baseRatingValue[dependentRating], _baseRatingValue[dependentRating]);
 
                 if (highestRating != 0)
                     amount += MathFunctions.CalculatePct(highestRating.Value, aurEff.Amount);

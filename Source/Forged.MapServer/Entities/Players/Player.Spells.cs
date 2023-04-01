@@ -194,7 +194,7 @@ public partial class Player
 
         // action bar loop
         for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
-            petSpellsPacket.ActionButtons[i] = charmInfo.GetActionBarEntry(i).packedData;
+            petSpellsPacket.ActionButtons[i] = charmInfo.GetActionBarEntry(i).PackedData;
 
         if (pet.IsPermanentPetFor(this))
             // spells loop
@@ -1783,7 +1783,7 @@ public partial class Player
 
         var disabled = spell is { Disabled: true };
         var active = !disabled || spell.Active;
-        var favorite = spell != null ? spell.Favorite : false;
+        var favorite = spell?.Favorite ?? false;
 
         var learning = AddSpell(spellId, active, true, dependent, false, false, fromSkill, favorite, traitDefinitionId);
 

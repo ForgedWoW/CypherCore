@@ -355,7 +355,7 @@ public partial class Player
                     missingQuest = ar.QuestH;
 
                 var leader = this;
-                var leaderGuid = Group != null ? Group.LeaderGUID : GUID;
+                var leaderGuid = Group?.LeaderGUID ?? GUID;
 
                 if (leaderGuid != GUID)
                     leader = Global.ObjAccessor.FindPlayer(leaderGuid);

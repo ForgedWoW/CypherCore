@@ -132,7 +132,7 @@ public class NPCHandler : IWorldSessionHandler
         vendor.HomePosition = vendor.Location;
 
         var vendorItems = vendor.VendorItems;
-        var rawItemCount = vendorItems != null ? vendorItems.GetItemCount() : 0;
+        var rawItemCount = vendorItems?.GetItemCount() ?? 0;
 
         VendorInventory packet = new();
         packet.Vendor = vendor.GUID;

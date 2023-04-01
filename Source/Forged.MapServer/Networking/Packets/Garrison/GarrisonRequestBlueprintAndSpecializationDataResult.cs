@@ -16,8 +16,8 @@ internal class GarrisonRequestBlueprintAndSpecializationDataResult : ServerPacke
     public override void Write()
     {
         _worldPacket.WriteUInt32((uint)GarrTypeID);
-        _worldPacket.WriteInt32(BlueprintsKnown != null ? BlueprintsKnown.Count : 0);
-        _worldPacket.WriteInt32(SpecializationsKnown != null ? SpecializationsKnown.Count : 0);
+        _worldPacket.WriteInt32(BlueprintsKnown?.Count ?? 0);
+        _worldPacket.WriteInt32(SpecializationsKnown?.Count ?? 0);
 
         if (BlueprintsKnown != null)
             foreach (var blueprint in BlueprintsKnown)

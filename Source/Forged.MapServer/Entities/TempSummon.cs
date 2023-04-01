@@ -32,7 +32,7 @@ public class TempSummon : Creature
         SummonPropertiesRecord = propertiesRecord;
         _summonType = TempSummonType.ManualDespawn;
 
-        _summonerGuid = owner != null ? owner.GUID : ObjectGuid.Empty;
+        _summonerGuid = owner?.GUID ?? ObjectGuid.Empty;
         UnitTypeMask |= UnitTypeMask.Summon;
         _canFollowOwner = true;
     }

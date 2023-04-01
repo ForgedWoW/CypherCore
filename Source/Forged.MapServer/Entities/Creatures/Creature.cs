@@ -308,7 +308,7 @@ public partial class Creature : Unit
         SetCanDualWield(cInfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.UseOffhandAttack));
 
         // checked at loading
-        DefaultMovementType = (MovementGeneratorType)(data != null ? data.MovementType : cInfo.MovementType);
+        DefaultMovementType = (MovementGeneratorType)(data?.MovementType ?? cInfo.MovementType);
 
         if (WanderDistance == 0 && DefaultMovementType == MovementGeneratorType.Random)
             DefaultMovementType = MovementGeneratorType.Idle;
@@ -745,7 +745,7 @@ public partial class Creature : Unit
     {
         InitializeMovementAI();
 
-        AI = ai != null ? ai : AISelector.SelectAI(this);
+        AI = ai ?? AISelector.SelectAI(this);
 
         Ai.InitializeAI();
 
@@ -1929,7 +1929,7 @@ public partial class Creature : Unit
 
                 _triggerJustAppeared = true;
 
-                var poolid = CreatureData != null ? CreatureData.poolId : 0;
+                var poolid = CreatureData?.poolId ?? 0;
 
                 if (poolid != 0)
                     Global.PoolMgr.UpdatePool<Creature>(Location.Map.PoolData, poolid, SpawnId);

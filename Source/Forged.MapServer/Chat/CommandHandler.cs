@@ -305,13 +305,13 @@ public class CommandHandler
             player = Global.ObjAccessor.FindPlayerByName(name);
             var guid = player == null ? Global.CharacterCacheStorage.GetCharacterGuidByName(name) : ObjectGuid.Empty;
 
-            playerGuid = player != null ? player.GUID : guid;
+            playerGuid = player?.GUID ?? guid;
             playerName = player != null || !guid.IsEmpty ? name : "";
         }
         else
         {
             player = SelectedPlayer;
-            playerGuid = player != null ? player.GUID : ObjectGuid.Empty;
+            playerGuid = player?.GUID ?? ObjectGuid.Empty;
             playerName = player != null ? player.GetName() : "";
         }
 

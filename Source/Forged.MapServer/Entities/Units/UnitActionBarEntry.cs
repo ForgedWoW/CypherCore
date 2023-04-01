@@ -5,43 +5,43 @@ namespace Forged.MapServer.Entities.Units;
 
 public class UnitActionBarEntry
 {
-    public uint packedData;
+    public uint PackedData;
 
     public UnitActionBarEntry()
     {
-        packedData = (uint)ActiveStates.Disabled << 24;
+        PackedData = (uint)ActiveStates.Disabled << 24;
     }
 
     public ActiveStates GetActiveState()
     {
-        return (ActiveStates)UNIT_ACTION_BUTTON_TYPE(packedData);
+        return (ActiveStates)UNIT_ACTION_BUTTON_TYPE(PackedData);
     }
 
     public uint GetAction()
     {
-        return UNIT_ACTION_BUTTON_ACTION(packedData);
+        return UNIT_ACTION_BUTTON_ACTION(PackedData);
     }
 
     public bool IsActionBarForSpell()
     {
-        var Type = GetActiveState();
+        var type = GetActiveState();
 
-        return Type == ActiveStates.Disabled || Type == ActiveStates.Enabled || Type == ActiveStates.Passive;
+        return type == ActiveStates.Disabled || type == ActiveStates.Enabled || type == ActiveStates.Passive;
     }
 
     public void SetActionAndType(uint action, ActiveStates type)
     {
-        packedData = MAKE_UNIT_ACTION_BUTTON(action, (uint)type);
+        PackedData = MAKE_UNIT_ACTION_BUTTON(action, (uint)type);
     }
 
     public void SetType(ActiveStates type)
     {
-        packedData = MAKE_UNIT_ACTION_BUTTON(UNIT_ACTION_BUTTON_ACTION(packedData), (uint)type);
+        PackedData = MAKE_UNIT_ACTION_BUTTON(UNIT_ACTION_BUTTON_ACTION(PackedData), (uint)type);
     }
 
     public void SetAction(uint action)
     {
-        packedData = (packedData & 0xFF000000) | UNIT_ACTION_BUTTON_ACTION(action);
+        PackedData = (PackedData & 0xFF000000) | UNIT_ACTION_BUTTON_ACTION(action);
     }
 
     public static uint MAKE_UNIT_ACTION_BUTTON(uint action, uint type)
