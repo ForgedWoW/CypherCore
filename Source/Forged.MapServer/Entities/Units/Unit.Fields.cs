@@ -39,7 +39,6 @@ public partial class Unit
 
     //Auras
     private readonly ConcurrentMultiMap<AuraType, AuraEffect> _modAuras = new();
-    private readonly List<Aura> _removedAuras = new();
     private readonly List<AuraApplication> _interruptableAuras = new();                // auras which have interrupt mask applied on unit
     private readonly MultiMap<AuraStateType, AuraApplication> _auraStateAuras = new(); // Used for improve performance of aura state checks on aura apply/remove
     private readonly SortedSet<AuraApplication> _visibleAuras = new(new VisibleAuraSlotCompare());

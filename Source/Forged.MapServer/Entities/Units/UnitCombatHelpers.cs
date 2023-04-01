@@ -162,7 +162,7 @@ namespace Forged.MapServer.Entities.Units
                             var group = !groups.Empty() ? groups.First() : null;
                             var looter = group ? _objectAccessor.GetPlayer(creature, group.LooterGuid) : tappers[0];
 
-                            Loot loot = _lootFactory.GenerateLoot(creature.Location.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
+                            var loot = _lootFactory.GenerateLoot(creature.Location.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
 
                             var lootid = creature.LootId;
 
@@ -188,7 +188,7 @@ namespace Forged.MapServer.Entities.Units
                     {
                         foreach (var tapper in tappers)
                         {
-                            Loot loot = _lootFactory.GenerateLoot(creature.Location.Map, creature.GUID, LootType.Corpse);
+                            var loot = _lootFactory.GenerateLoot(creature.Location.Map, creature.GUID, LootType.Corpse);
 
                             if (dungeonEncounter != null)
                                 loot.SetDungeonEncounterId(dungeonEncounter.Id);
@@ -1172,21 +1172,23 @@ namespace Forged.MapServer.Entities.Units
             }
 
             // Remove all expired absorb auras
-            if (existExpired)
-                for (var i = 0; i < vHealAbsorb.Count;)
-                {
-                    var auraEff = vHealAbsorb[i];
-                    ++i;
+            if (!existExpired)
+                return;
 
-                    if (auraEff.Amount <= 0)
-                    {
-                        var removedAuras = healInfo.Target.RemovedAurasCount;
-                        auraEff.Base.Remove(AuraRemoveMode.EnemySpell);
+            for (var i = 0; i < vHealAbsorb.Count;)
+            {
+                var auraEff = vHealAbsorb[i];
+                ++i;
 
-                        if (removedAuras + 1 < healInfo.Target.RemovedAurasCount)
-                            i = 0;
-                    }
-                }
+                if (!(auraEff.Amount <= 0))
+                    continue;
+
+                var removedAuras = healInfo.Target.RemovedAurasCount;
+                auraEff.Base.Remove(AuraRemoveMode.EnemySpell);
+
+                if (removedAuras + 1 < healInfo.Target.RemovedAurasCount)
+                    i = 0;
+            }
         }
 
         public double CalcArmorReducedDamage(Unit attacker, Unit victim, double damage, SpellInfo spellInfo, WeaponAttackType attackType = WeaponAttackType.Max, uint attackerLevel = 0)

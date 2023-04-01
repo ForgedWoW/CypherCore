@@ -573,13 +573,13 @@ public partial class Unit : WorldObject
     public override void Update(uint diff)
     {
         // WARNING! Order of execution here is important, do not change.
-        // Spells must be processed with event system BEFORE they go to _UpdateSpells.
+        // Spells must be processed with event system BEFORE they go to UpdateSpellsInternal.
         base.Update(diff);
 
         if (!Location.IsInWorld)
             return;
 
-        _UpdateSpells(diff);
+        UpdateSpellsInternal(diff);
 
         // If this is set during update SetCantProc(false) call is missing somewhere in the code
         // Having this would prevent spells from being proced, so let's crash
@@ -1776,31 +1776,36 @@ public partial class Unit : WorldObject
             RemoveAllAurasOnDeath();
         }
 
-        if (s == DeathState.JustDied)
+        switch (s)
         {
-            // remove aurastates allowing special moves
-            ClearAllReactives();
-            _diminishing.Clear();
+            case DeathState.JustDied:
+            {
+                // remove aurastates allowing special moves
+                ClearAllReactives();
+                _diminishing.Clear();
 
-            // Don't clear the movement if the Unit was on a vehicle as we are exiting now
-            if (!isOnVehicle)
-                if (MotionMaster.StopOnDeath())
-                    DisableSpline();
+                // Don't clear the movement if the Unit was on a vehicle as we are exiting now
+                if (!isOnVehicle)
+                    if (MotionMaster.StopOnDeath())
+                        DisableSpline();
 
-            // without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
-            // do not why since in IncreaseMaxHealth currenthealth is checked
-            SetHealth(0);
-            SetPower(DisplayPowerType, 0);
-            EmoteState = Emote.OneshotNone;
+                // without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
+                // do not why since in IncreaseMaxHealth currenthealth is checked
+                SetHealth(0);
+                SetPower(DisplayPowerType, 0);
+                EmoteState = Emote.OneshotNone;
 
-            // players in instance don't have ZoneScript, but they have InstanceScript
-            var zoneScript = ZoneScript ?? Location.InstanceScript;
+                // players in instance don't have ZoneScript, but they have InstanceScript
+                var zoneScript = ZoneScript ?? Location.InstanceScript;
 
-            zoneScript?.OnUnitDeath(this);
-        }
-        else if (s == DeathState.JustRespawned)
-        {
-            RemoveUnitFlag(UnitFlags.Skinnable); // clear skinnable for creature and player (at Battleground)
+                zoneScript?.OnUnitDeath(this);
+
+                break;
+            }
+            case DeathState.JustRespawned:
+                RemoveUnitFlag(UnitFlags.Skinnable); // clear skinnable for creature and player (at Battleground)
+
+                break;
         }
     }
 
@@ -3499,12 +3504,12 @@ public partial class Unit : WorldObject
         return Math.Max(sp, 0); //avoid negative spell power
     }
 
-    private void _UpdateSpells(uint diff)
+    private void UpdateSpellsInternal(uint diff)
     {
         SpellHistory.Update();
 
         if (GetCurrentSpell(CurrentSpellTypes.AutoRepeat) != null)
-            _UpdateAutoRepeatSpell();
+            UpdateAutoRepeatSpell();
 
         for (CurrentSpellTypes i = 0; i < CurrentSpellTypes.Max; ++i)
             if (GetCurrentSpell(i) != null && CurrentSpells[i].State == SpellState.Finished)
@@ -3627,7 +3632,7 @@ public partial class Unit : WorldObject
         return _interruptMask2.HasAnyFlag(flags);
     }
 
-    private void _UpdateAutoRepeatSpell()
+    private void UpdateAutoRepeatSpell()
     {
         var autoRepeatSpellInfo = CurrentSpells[CurrentSpellTypes.AutoRepeat].SpellInfo;
 
@@ -3663,7 +3668,7 @@ public partial class Unit : WorldObject
                 }
 
                 // we want to shoot
-                Spell spell = SpellFactory.NewSpell(autoRepeatSpellInfo, TriggerCastFlags.IgnoreGCD);
+                var spell = SpellFactory.NewSpell(autoRepeatSpellInfo, TriggerCastFlags.IgnoreGCD);
                 spell.Prepare(currentSpell.Targets);
             }
         }

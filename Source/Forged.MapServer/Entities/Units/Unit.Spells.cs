@@ -54,13 +54,7 @@ public partial class Unit
     {
         get
         {
-            ulong mask = 0;
-            var mechanicList = _spellImmune[SpellImmunity.Mechanic];
-
-            foreach (var pair in mechanicList.KeyValueList)
-                mask |= (1ul << (int)pair.Value);
-
-            return mask;
+            return _spellImmune[SpellImmunity.Mechanic].KeyValueList.Aggregate<KeyValuePair<uint, uint>, ulong>(0, (current, pair) => current | (1ul << (int)pair.Value));
         }
     }
 
@@ -1686,17 +1680,8 @@ public partial class Unit
         return false;
     }
 
-    public void _DeleteRemovedAuras()
+    public void DeleteRemovedAuras()
     {
-        lock (_removedAuras)
-        {
-            while (!_removedAuras.Empty())
-            {
-                _removedAuras.First().Dispose();
-                _removedAuras.RemoveAt(0);
-            }
-        }
-
         RemovedAurasCount = 0;
     }
 
@@ -1783,19 +1768,19 @@ public partial class Unit
                         damageInfo.HitInfo |= (int)SpellHitType.Crit;
 
                         // Calculate crit bonus
-                        var critBonus = (uint)damage;
+                        var critBonus = damage;
                         // Apply crit_damage bonus for melee spells
                         var modOwner = SpellModOwner;
 
                         modOwner?.ApplySpellMod(spellInfo, SpellModOp.CritDamageAndHealing, ref critBonus);
 
-                        damage += (int)critBonus;
+                        damage += critBonus;
 
                         // Increase crit damage from SPELL_AURA_MOD_CRIT_DAMAGE_BONUS
                         var critPctDamageMod = (GetTotalAuraMultiplierByMiscMask(AuraType.ModCritDamageBonus, (uint)spellInfo.GetSchoolMask()) - 1.0f) * 100;
 
                         if (critPctDamageMod != 0)
-                            MathFunctions.AddPct(ref damage, (int)critPctDamageMod);
+                            MathFunctions.AddPct(ref damage, critPctDamageMod);
                     }
 
                     // Spell weapon based damage CAN BE crit & blocked at same time
@@ -1807,15 +1792,15 @@ public partial class Unit
                         if (victim.IsBlockCritical())
                             value *= 2; // double blocked percent
 
-                        damageInfo.Blocked = (uint)MathFunctions.CalculatePct(damage, value);
+                        damageInfo.Blocked = MathFunctions.CalculatePct(damage, value);
 
                         if (damage <= damageInfo.Blocked)
                         {
-                            damageInfo.Blocked = (uint)damage;
+                            damageInfo.Blocked = damage;
                             damageInfo.FullBlock = true;
                         }
 
-                        damage -= (int)damageInfo.Blocked;
+                        damage -= damageInfo.Blocked;
                     }
 
                     if (CanApplyResilience())
@@ -1831,7 +1816,7 @@ public partial class Unit
                     if (crit)
                     {
                         damageInfo.HitInfo |= (int)SpellHitType.Crit;
-                        damage = (int)UnitCombatHelpers.SpellCriticalDamageBonus(this, spellInfo, (uint)damage, victim);
+                        damage = UnitCombatHelpers.SpellCriticalDamageBonus(this, spellInfo, damage, victim);
                     }
 
                     if (CanApplyResilience())
@@ -1849,8 +1834,8 @@ public partial class Unit
         if (damage < 0)
             damage = 0;
 
-        damageInfo.Damage = (uint)damage;
-        damageInfo.OriginalDamage = (uint)damage;
+        damageInfo.Damage = damage;
+        damageInfo.OriginalDamage = damage;
         DamageInfo dmgInfo = new(damageInfo, DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack, ProcFlagsHit.None);
         UnitCombatHelpers.CalcAbsorbResist(dmgInfo, spell);
         damageInfo.Absorb = dmgInfo.Absorb;
@@ -2679,14 +2664,14 @@ public partial class Unit
         {
             var aura = _interruptableAuras[i].Base;
 
-            if (aura.SpellInfo.HasAuraInterruptFlag(flag) && (source == null || aura.Id != source.Id) && !IsInterruptFlagIgnoredForSpell(flag, this, aura.SpellInfo, source))
-            {
-                var removedAuras = RemovedAurasCount;
-                RemoveAura(aura, AuraRemoveMode.Interrupt);
+            if (!aura.SpellInfo.HasAuraInterruptFlag(flag) || (source != null && aura.Id == source.Id) || IsInterruptFlagIgnoredForSpell(flag, this, aura.SpellInfo, source))
+                continue;
 
-                if (RemovedAurasCount > removedAuras + 1)
-                    i = 0;
-            }
+            var removedAuras = RemovedAurasCount;
+            RemoveAura(aura, AuraRemoveMode.Interrupt);
+
+            if (RemovedAurasCount > removedAuras + 1)
+                i = 0;
         }
 
         // interrupt channeled spell
@@ -2889,11 +2874,6 @@ public partial class Unit
         }
 
         _ownedAuras.Remove(aura);
-
-        lock (_removedAuras)
-        {
-            _removedAuras.Add(aura);
-        }
 
         // Unregister single target aura
         if (aura.IsSingleTarget)
