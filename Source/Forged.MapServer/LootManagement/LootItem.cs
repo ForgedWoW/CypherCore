@@ -140,13 +140,10 @@ public class LootItem
         {
             var ffaItems = loot.GetPlayerFFAItems().LookupByKey(player.GUID);
 
-            if (ffaItems != null)
-            {
-                var ffaItemItr = ffaItems.Find(ffaItem => ffaItem.LootListId == LootListId);
+            var ffaItemItr = ffaItems?.Find(ffaItem => ffaItem.LootListId == LootListId);
 
-                if (ffaItemItr is { IsLooted: false })
-                    return loot.GetLootMethod() == LootMethod.FreeForAll ? LootSlotType.Owner : LootSlotType.AllowLoot;
-            }
+            if (ffaItemItr is { IsLooted: false })
+                return loot.GetLootMethod() == LootMethod.FreeForAll ? LootSlotType.Owner : LootSlotType.AllowLoot;
 
             return null;
         }

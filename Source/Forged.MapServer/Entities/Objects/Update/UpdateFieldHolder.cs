@@ -30,8 +30,7 @@ public class UpdateFieldHolder
 
         var hasChangesMask = (IHasChangesMask)updateField.Value;
 
-        if (hasChangesMask != null)
-            hasChangesMask.ClearChangesMask();
+        hasChangesMask?.ClearChangesMask();
     }
 
     public uint GetChangedObjectTypeMask()

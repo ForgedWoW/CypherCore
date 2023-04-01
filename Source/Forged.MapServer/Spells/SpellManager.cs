@@ -5143,10 +5143,7 @@ public sealed class SpellManager
         foreach (var kvp in _spellInfoMap.Values)
             foreach (var spellInfo in kvp.Values)
             {
-                if (spellInfo == null)
-                    continue;
-
-                spellInfo._LoadSpellDiminishInfo();
+                spellInfo?._LoadSpellDiminishInfo();
             }
 
         Log.Logger.Information("Loaded SpellInfo diminishing infos in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
@@ -5159,10 +5156,7 @@ public sealed class SpellManager
         foreach (var kvp in _spellInfoMap.Values)
             foreach (var spellInfo in kvp.Values)
             {
-                if (spellInfo == null)
-                    continue;
-
-                spellInfo._LoadImmunityInfo();
+                spellInfo?._LoadImmunityInfo();
             }
 
         Log.Logger.Information("Loaded SpellInfo immunity infos in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));

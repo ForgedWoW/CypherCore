@@ -49,7 +49,6 @@ internal class SpellHealLog : CombatLogServerPacket
         if (CritRollNeeded.HasValue)
             _worldPacket.WriteFloat(CritRollNeeded.Value);
 
-        if (ContentTuning != null)
-            ContentTuning.Write(_worldPacket);
+        ContentTuning?.Write(_worldPacket);
     }
 }

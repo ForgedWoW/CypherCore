@@ -97,10 +97,7 @@ public class SpellCastTargets
     {
         get
         {
-            if (ObjectTarget != null)
-                return ObjectTarget.AsGameObject;
-
-            return null;
+            return ObjectTarget?.AsGameObject;
         }
 
         set
@@ -129,10 +126,7 @@ public class SpellCastTargets
     {
         get
         {
-            if (ObjectTarget != null)
-                return ObjectTarget.AsCorpse;
-
-            return null;
+            return ObjectTarget?.AsCorpse;
         }
     }
 

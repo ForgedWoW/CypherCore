@@ -505,8 +505,7 @@ public class Loot
         {
             var allowedLooter = _objectAccessor.GetPlayer(map, allowedLooterGuid);
 
-            if (allowedLooter != null)
-                allowedLooter.SendPacket(lootList);
+            allowedLooter?.SendPacket(lootList);
         }
     }
 

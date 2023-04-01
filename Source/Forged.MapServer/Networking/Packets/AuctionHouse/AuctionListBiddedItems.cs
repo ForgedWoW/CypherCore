@@ -31,8 +31,7 @@ internal class AuctionListBiddedItems : ClientPacket
         for (var i = 0; i < sortCount; ++i)
             Sorts[i] = new AuctionSortDef(_worldPacket);
 
-        if (TaintedBy.HasValue)
-            TaintedBy.Value.Read(_worldPacket);
+        TaintedBy?.Read(_worldPacket);
 
         for (var i = 0; i < auctionIDCount; ++i)
             AuctionItemIDs[i] = _worldPacket.ReadUInt32();

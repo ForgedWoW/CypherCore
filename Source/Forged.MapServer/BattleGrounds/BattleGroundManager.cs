@@ -479,8 +479,7 @@ public class BattlegroundManager
         {
             var bg = GetBattlegroundTemplate(i);
 
-            if (bg != null)
-                bg.SetHoliday(false);
+            bg?.SetHoliday(false);
         }
     }
 
@@ -488,8 +487,7 @@ public class BattlegroundManager
     {
         var bg = GetBattlegroundTemplate((BattlegroundTypeId)battlegroundId);
 
-        if (bg != null)
-            bg.SetHoliday(true);
+        bg?.SetHoliday(true);
     }
 
     public bool IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId)

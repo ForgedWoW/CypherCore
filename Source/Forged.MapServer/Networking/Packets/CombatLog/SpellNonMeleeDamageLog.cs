@@ -52,7 +52,6 @@ internal class SpellNonMeleeDamageLog : CombatLogServerPacket
         FlushBits();
         WriteLogData();
 
-        if (ContentTuning != null)
-            ContentTuning.Write(_worldPacket);
+        ContentTuning?.Write(_worldPacket);
     }
 }

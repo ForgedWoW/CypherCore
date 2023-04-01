@@ -297,10 +297,7 @@ public class QuestPoolManager
 
         questPool = _monthlyPools.Find(Lambda);
 
-        if (questPool != null)
-            return questPool;
-
-        return null;
+        return questPool;
     }
 
     public bool IsQuestActive(uint questId)

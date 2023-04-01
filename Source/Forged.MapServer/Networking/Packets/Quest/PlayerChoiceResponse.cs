@@ -50,8 +50,7 @@ internal class PlayerChoiceResponse
         data.WriteBit(MawPower.HasValue);
         data.FlushBits();
 
-        if (Reward != null)
-            Reward.Write(data);
+        Reward?.Write(data);
 
         data.WriteString(Answer);
         data.WriteString(Header);
@@ -63,7 +62,6 @@ internal class PlayerChoiceResponse
         if (RewardQuestID.HasValue)
             data.WriteUInt32(RewardQuestID.Value);
 
-        if (MawPower.HasValue)
-            MawPower.Value.Write(data);
+        MawPower?.Write(data);
     }
 }

@@ -109,7 +109,7 @@ public partial class Player
             return false;
 
         var victimGuid = ObjectGuid.Empty;
-        uint victim_rank = 0;
+        uint victimRank = 0;
 
         // need call before fields update to have chance move yesterday data to appropriate fields before today data change.
         UpdateHonorFields();
@@ -158,9 +158,9 @@ public partial class Player
                 if (victimTitle == 0)
                     victimGuid.Clear(); // Don't show HK: <rank> message, only log.
                 else if (victimTitle < 15)
-                    victim_rank = victimTitle + 4;
+                    victimRank = victimTitle + 4;
                 else if (victimTitle < 29)
-                    victim_rank = victimTitle - 14 + 4;
+                    victimRank = victimTitle - 14 + 4;
                 else
                     victimGuid.Clear(); // Don't show HK: <rank> message, only log.
 
@@ -183,7 +183,7 @@ public partial class Player
                     return false;
 
                 honorF = 100.0f;  // ??? need more info
-                victim_rank = 19; // HK: Leader
+                victimRank = 19; // HK: Leader
             }
         }
 
@@ -211,7 +211,7 @@ public partial class Player
             Honor = honor,
             OriginalHonor = honor,
             Target = victimGuid,
-            Rank = victim_rank
+            Rank = victimRank
         };
 
         SendPacket(data);
@@ -222,8 +222,7 @@ public partial class Player
         {
             var bg = Battleground;
 
-            if (bg != null)
-                bg.UpdatePlayerScore(this, ScoreType.BonusHonor, (uint)honor, false); //false: prevent looping
+            bg?.UpdatePlayerScore(this, ScoreType.BonusHonor, (uint)honor, false);     //false: prevent looping
         }
 
         if (GetDefaultValue("PvPToken.Enable", false) && pvptoken)
@@ -789,8 +788,7 @@ public partial class Player
         {
             var aura = GetAura(PlayerConst.SpellPvpRulesEnabled);
 
-            if (aura != null)
-                aura.SetDuration(aura.SpellInfo.MaxDuration);
+            aura?.SetDuration(aura.SpellInfo.MaxDuration);
         }
     }
 

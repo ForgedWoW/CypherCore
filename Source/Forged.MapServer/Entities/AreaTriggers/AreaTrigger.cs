@@ -589,8 +589,7 @@ public class AreaTrigger : WorldObject
         if (!Location.Map.AddToMap(this))
         {
             // Returning false will cause the object to be deleted - remove from transport
-            if (transport != null)
-                transport.RemovePassenger(this);
+            transport?.RemovePassenger(this);
 
             return false;
         }

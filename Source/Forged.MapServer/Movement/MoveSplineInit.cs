@@ -28,7 +28,7 @@ public class MoveSplineInit
         args.flags.SetUnsetFlag(SplineFlag.CanSwim, unit.CanSwim);
         args.walk = unit.HasUnitMovementFlag(MovementFlag.Walking);
         args.flags.SetUnsetFlag(SplineFlag.Flying, unit.HasUnitMovementFlag(MovementFlag.CanFly | MovementFlag.DisableGravity));
-        args.flags.SetUnsetFlag(SplineFlag.SmoothGroundPath, true); // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
+        args.flags.SetUnsetFlag(SplineFlag.SmoothGroundPath); // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
         args.flags.SetUnsetFlag(SplineFlag.Steering, unit.HasNpcFlag2(NPCFlags2.Steering));
     }
 
@@ -305,7 +305,7 @@ public class MoveSplineInit
 
     public void SetUnlimitedSpeed()
     {
-        args.flags.SetUnsetFlag(SplineFlag.UnlimitedSpeed, true);
+        args.flags.SetUnsetFlag(SplineFlag.UnlimitedSpeed);
     }
 
     public void MovebyPath(Vector3[] controls, int path_offset = 0)
@@ -429,8 +429,7 @@ public class TransportPathTransform
         {
             var transport = _owner.DirectTransport;
 
-            if (transport != null)
-                transport.CalculatePassengerOffset(pos);
+            transport?.CalculatePassengerOffset(pos);
         }
 
         return pos;

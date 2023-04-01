@@ -14,7 +14,7 @@ public class PlayerSocial
 {
     public Dictionary<ObjectGuid, FriendInfo> PlayerSocialMap = new();
     public List<ObjectGuid> IgnoredAccounts = new();
-    private ObjectGuid m_playerGUID;
+    private ObjectGuid _mPlayerGUID;
 
     public bool AddToSocialList(ObjectGuid friendGuid, ObjectGuid accountGuid, SocialFlag flag)
     {
@@ -157,7 +157,7 @@ public class PlayerSocial
 
     public void SetPlayerGUID(ObjectGuid guid)
     {
-        m_playerGUID = guid;
+        _mPlayerGUID = guid;
     }
 
     private uint GetNumberOfSocialsWithFlag(SocialFlag flag)
@@ -183,6 +183,6 @@ public class PlayerSocial
 
     private ObjectGuid GetPlayerGUID()
     {
-        return m_playerGUID;
+        return _mPlayerGUID;
     }
 }

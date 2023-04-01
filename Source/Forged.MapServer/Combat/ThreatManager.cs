@@ -455,10 +455,7 @@ public class ThreatManager
 
     public Unit GetFixateTarget()
     {
-        if (_fixateRef != null)
-            return _fixateRef.Victim;
-        else
-            return null;
+        return _fixateRef?.Victim;
     }
 
     public void ClearFixate()
@@ -491,8 +488,7 @@ public class ThreatManager
 
             var modOwner = victim.SpellModOwner;
 
-            if (modOwner != null)
-                modOwner.ApplySpellMod(spell, SpellModOp.Hate, ref threat);
+            modOwner?.ApplySpellMod(spell, SpellModOp.Hate, ref threat);
         }
 
         // modifiers by effect school
@@ -691,8 +687,7 @@ public class ThreatManager
     {
         var refe = _myThreatListEntries.LookupByKey(target.GUID);
 
-        if (refe != null)
-            refe.ScaleThreat(Math.Max(factor, 0.0f));
+        refe?.ScaleThreat(Math.Max(factor, 0.0f));
     }
 
     private void UpdateVictim()

@@ -49,8 +49,7 @@ public class BossAI : ScriptedAI
         Summons.DespawnAll();
         Scheduler.CancelAll();
 
-        if (Instance != null)
-            Instance.SetBossState(_bossId, EncounterState.Done);
+        Instance?.SetBossState(_bossId, EncounterState.Done);
     }
 
     public void _JustEngagedWith(Unit who)

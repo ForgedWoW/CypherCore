@@ -136,8 +136,7 @@ public class VehicleJoinEvent : BasicEvent
         {
             var ai = creature.AI;
 
-            if (ai != null)
-                ai.PassengerBoarded(Passenger, Seat.Key, true);
+            ai?.PassengerBoarded(Passenger, Seat.Key, true);
 
             Global.ScriptMgr.RunScript<IVehicleOnAddPassenger>(p => p.OnAddPassenger(Target, Passenger, Seat.Key), Target.GetBase().AsCreature.GetScriptId());
 

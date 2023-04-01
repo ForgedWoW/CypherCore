@@ -34,7 +34,6 @@ internal class AuctionListItemsByBucketKey : ClientPacket
 
         BucketKey = new AuctionBucketKey(_worldPacket);
 
-        if (TaintedBy.HasValue)
-            TaintedBy.Value.Read(_worldPacket);
+        TaintedBy?.Read(_worldPacket);
     }
 }

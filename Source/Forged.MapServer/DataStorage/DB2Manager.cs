@@ -830,8 +830,7 @@ public class DB2Manager
             {
                 var store = Storage.LookupByKey(itr.Key.tableHash);
 
-                if (store != null)
-                    store.EraseRecord((uint)itr.Key.recordId);
+                store?.EraseRecord((uint)itr.Key.recordId);
             }
 
         Log.Logger.Information("Loaded {0} hotfix info entries in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
@@ -1851,13 +1850,7 @@ public class DB2Manager
     {
         var dictionaryMapDiff = _mapDifficulties.LookupByKey(mapId);
 
-        if (dictionaryMapDiff == null)
-            return null;
-
-        var mapDifficulty = dictionaryMapDiff.LookupByKey((uint)difficulty);
-
-        if (mapDifficulty == null)
-            return null;
+        var mapDifficulty = dictionaryMapDiff?.LookupByKey((uint)difficulty);
 
         return mapDifficulty;
     }

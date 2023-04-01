@@ -104,15 +104,9 @@ internal class GroupCommands
         if (player == null)
             player = PlayerIdentifier.FromTargetOrSelf(handler);
 
-        if (player == null)
-            return false;
+        var target = player?.GetConnectedPlayer();
 
-        var target = player.GetConnectedPlayer();
-
-        if (target == null)
-            return false;
-
-        var groupTarget = target.Group;
+        var groupTarget = target?.Group;
 
         if (groupTarget == null)
             return false;
@@ -308,8 +302,7 @@ internal class GroupCommands
         {
             var target = it.Source;
 
-            if (target != null)
-                target.DurabilityRepairAll(false, 0, false);
+            target?.DurabilityRepairAll(false, 0, false);
         }
 
         return true;

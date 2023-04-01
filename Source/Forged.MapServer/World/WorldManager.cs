@@ -1278,8 +1278,7 @@ public class WorldManager
         {
             var player = itr.Value.Player;
 
-            if (player != null)
-                player.DailyReset();
+            player?.DailyReset();
         }
 
         // reselect pools
@@ -1309,8 +1308,7 @@ public class WorldManager
         {
             var player = itr.Value.Player;
 
-            if (player != null)
-                player.ResetWeeklyQuestStatus();
+            player?.ResetWeeklyQuestStatus();
         }
 
         // reselect pools
@@ -1337,8 +1335,7 @@ public class WorldManager
         {
             var player = itr.Value.Player;
 
-            if (player != null)
-                player.ResetMonthlyQuestStatus();
+            player?.ResetMonthlyQuestStatus();
         }
 
         // reselect pools
@@ -1890,8 +1887,9 @@ public class WorldManager
         _characterDatabase.Execute("UPDATE `character_currency` SET `WeeklyQuantity` = 0");
 
         foreach (var session in _sessions.Values)
-            if (session.Player != null)
-                session.Player.ResetCurrencyWeekCap();
+        {
+            session.Player?.ResetCurrencyWeekCap();
+        }
 
         _nextCurrencyReset += Time.Day * _configuration.GetDefaultValue("Currency.ResetInterval", 7);
         SetPersistentWorldVariable(NEXT_CURRENCY_RESET_TIME_VAR_ID, (int)_nextCurrencyReset);

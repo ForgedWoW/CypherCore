@@ -72,7 +72,6 @@ internal class PartyMemberStats
 
         DungeonScore.Write(data);
 
-        if (PetStats != null)
-            PetStats.Write(data);
+        PetStats?.Write(data);
     }
 }

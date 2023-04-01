@@ -50,10 +50,10 @@ internal class PartyMemberFullState : ServerPacket
         if (player.IsFFAPvP)
             MemberStats.Status |= GroupMemberOnlineStatus.PVPFFA;
 
-        if (player.IsAFK)
+        if (player.IsAfk)
             MemberStats.Status |= GroupMemberOnlineStatus.AFK;
 
-        if (player.IsDND)
+        if (player.IsDnd)
             MemberStats.Status |= GroupMemberOnlineStatus.DND;
 
         if (player.Vehicle)
@@ -87,13 +87,10 @@ internal class PartyMemberFullState : ServerPacket
         // Vehicle
         var vehicle = player.Vehicle;
 
-        if (vehicle != null)
-        {
-            var vehicleSeat = vehicle.GetSeatForPassenger(player);
+        var vehicleSeat = vehicle?.GetSeatForPassenger(player);
 
-            if (vehicleSeat != null)
-                MemberStats.VehicleSeat = (int)vehicleSeat.Id;
-        }
+        if (vehicleSeat != null)
+            MemberStats.VehicleSeat = (int)vehicleSeat.Id;
 
         // Auras
         foreach (var aurApp in player.VisibleAuras)

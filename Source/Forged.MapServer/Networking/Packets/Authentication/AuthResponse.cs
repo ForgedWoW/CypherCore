@@ -100,8 +100,7 @@ internal class AuthResponse : ServerPacket
             }
         }
 
-        if (WaitInfo.HasValue)
-            WaitInfo.Value.Write(_worldPacket);
+        WaitInfo?.Write(_worldPacket);
     }
 
     public class AuthSuccessInfo

@@ -16,7 +16,6 @@ internal class SetTransportAutoCycleBetweenStopFrames : GameObjectTypeBase.Custo
     {
         var transport = (Transport)type;
 
-        if (transport != null)
-            transport.SetAutoCycleBetweenStopFrames(_on);
+        transport?.SetAutoCycleBetweenStopFrames(_on);
     }
 }

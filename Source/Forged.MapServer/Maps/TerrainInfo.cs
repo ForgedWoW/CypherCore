@@ -832,7 +832,7 @@ public class TerrainInfo
         if (GetGrid(PhasingHandler.GetTerrainMapId(phaseShift, mapId, this, x, y), x, y) != null)
         {
             // we need ground level (including grid height version) for proper return water level in point
-            var ground_z = GetStaticHeight(phaseShift, mapId, x, y, z + MapConst.ZOffsetFindHeight, true, 50.0f);
+            var ground_z = GetStaticHeight(phaseShift, mapId, x, y, z + MapConst.ZOffsetFindHeight);
 
             if (dynamicMapTree != null)
                 ground_z = Math.Max(ground_z, dynamicMapTree.GetHeight(x, y, z + MapConst.ZOffsetFindHeight, 50.0f, phaseShift));

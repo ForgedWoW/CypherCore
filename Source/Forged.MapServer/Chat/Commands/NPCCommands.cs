@@ -228,8 +228,7 @@ internal class NPCCommands
         DB.World.Execute(stmt);
 
         // respawn selected creature at the new location
-        if (creature != null)
-            creature.DespawnOrUnsummon(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(1));
+        creature?.DespawnOrUnsummon(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(1));
 
         handler.SendSysMessage(CypherStrings.CommandCreaturemoved);
 
@@ -564,7 +563,7 @@ internal class NPCCommands
             return false;
         }
 
-        creature.Yell(text, Language.Universal);
+        creature.Yell(text);
 
         // make an emote
         creature.HandleEmoteCommand(Emote.OneshotShout);

@@ -290,7 +290,7 @@ public abstract class Warden
             }
         }
 
-        var penalty = ApplyPenalty(null);
+        var penalty = ApplyPenalty();
         Log.Logger.Warning($"{Session.GetPlayerInfo()} sent bogus Lua check response for Warden. Action: {penalty}");
 
         return true;

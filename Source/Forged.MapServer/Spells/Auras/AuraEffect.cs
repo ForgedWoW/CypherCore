@@ -85,7 +85,7 @@ public class AuraEffect
         _canBeRecalculated = true;
         _isPeriodic = false;
 
-        CalculatePeriodic(caster, true, false);
+        CalculatePeriodic(caster);
         Amount = CalculateAmount(caster);
         CalculateSpellMod();
     }
@@ -243,8 +243,7 @@ public class AuraEffect
         if (_period != 0)
         {
             // Apply periodic time mod
-            if (modOwner != null)
-                modOwner.ApplySpellMod(SpellInfo, SpellModOp.Period, ref _period);
+            modOwner?.ApplySpellMod(SpellInfo, SpellModOp.Period, ref _period);
 
             if (caster != null)
             {
@@ -958,11 +957,8 @@ public class AuraEffect
 
         var target = aurApp.Target.AsPlayer;
 
-        if (target == null)
-            return;
-
         // Recalculate bonus
-        target.UpdateSpellDamageAndHealingBonus();
+        target?.UpdateSpellDamageAndHealingBonus();
     }
 
     [AuraEffectHandler(AuraType.ModNextSpell)]
@@ -1096,8 +1092,7 @@ public class AuraEffect
 
     private void SendTickImmune(Unit target, Unit caster)
     {
-        if (caster != null)
-            caster.SendSpellDamageImmune(target, SpellInfo.Id, true);
+        caster?.SendSpellDamageImmune(target, SpellInfo.Id, true);
     }
 
     private void PeriodicTick(AuraApplication aurApp, Unit caster)
@@ -1248,8 +1243,7 @@ public class AuraEffect
             {
                 // if not have different invisibility auras.
                 // always remove glow vision
-                if (playerTarget != null)
-                    playerTarget.RemoveAuraVision(PlayerFieldByte2Flags.InvisibilityGlow);
+                playerTarget?.RemoveAuraVision(PlayerFieldByte2Flags.InvisibilityGlow);
 
                 target.Visibility.Invisibility.DelFlag(type);
             }
@@ -1334,8 +1328,7 @@ public class AuraEffect
             target.SetVisFlag(UnitVisFlags.Stealthed);
             var playerTarget = target.AsPlayer;
 
-            if (playerTarget != null)
-                playerTarget.AddAuraVision(PlayerFieldByte2Flags.Stealth);
+            playerTarget?.AddAuraVision(PlayerFieldByte2Flags.Stealth);
         }
         else
         {
@@ -1348,8 +1341,7 @@ public class AuraEffect
                 target.RemoveVisFlag(UnitVisFlags.Stealthed);
                 var playerTarget = target.AsPlayer;
 
-                if (playerTarget != null)
-                    playerTarget.RemoveAuraVision(PlayerFieldByte2Flags.Stealth);
+                playerTarget?.RemoveAuraVision(PlayerFieldByte2Flags.Stealth);
             }
         }
 
@@ -1396,8 +1388,7 @@ public class AuraEffect
         {
             var playerTarget = target.AsPlayer;
 
-            if (playerTarget != null)
-                playerTarget.AddAuraVision((PlayerFieldByte2Flags)(1 << (MiscValue - 1)));
+            playerTarget?.AddAuraVision((PlayerFieldByte2Flags)(1 << (MiscValue - 1)));
         }
         else
         {
@@ -1412,8 +1403,7 @@ public class AuraEffect
 
             var playerTarget = target.AsPlayer;
 
-            if (playerTarget != null)
-                playerTarget.RemoveAuraVision((PlayerFieldByte2Flags)(1 << (MiscValue - 1)));
+            playerTarget?.RemoveAuraVision((PlayerFieldByte2Flags)(1 << (MiscValue - 1)));
         }
     }
 
@@ -1649,8 +1639,7 @@ public class AuraEffect
             // Dash
             var aurEff = target.GetAuraEffect(AuraType.ModIncreaseSpeed, SpellFamilyNames.Druid, new FlagArray128(0, 0, 0x8));
 
-            if (aurEff != null)
-                aurEff.RecalculateAmount();
+            aurEff?.RecalculateAmount();
 
             // Disarm handling
             // If druid shifts while being disarmed we need to deal with that since forms aren't affected by disarm
@@ -1999,8 +1988,7 @@ public class AuraEffect
                 target.AttackStop();
                 var targetPlayer = target.AsPlayer;
 
-                if (targetPlayer != null)
-                    targetPlayer.SendAttackSwingCancelAttack();
+                targetPlayer?.SendAttackSwingCancelAttack();
             }
             else
             {
@@ -2036,8 +2024,7 @@ public class AuraEffect
 
             var creature = target.AsCreature;
 
-            if (creature != null)
-                creature.InitializeReactState();
+            creature?.InitializeReactState();
         }
     }
 
@@ -2066,8 +2053,7 @@ public class AuraEffect
                 target.AttackStop();
                 var targetPlayer = target.AsPlayer;
 
-                if (targetPlayer != null)
-                    targetPlayer.SendAttackSwingCancelAttack();
+                targetPlayer?.SendAttackSwingCancelAttack();
             }
             else
             {
@@ -3706,7 +3692,7 @@ public class AuraEffect
         if (!target)
             return;
 
-        target.ApplyModOverrideSpellPowerByAPPercent(AmountAsFloat, apply);
+        target.ApplyModOverrideSpellPowerByApPercent(AmountAsFloat, apply);
         target.UpdateSpellDamageAndHealingBonus();
     }
 
@@ -3721,7 +3707,7 @@ public class AuraEffect
         if (!target)
             return;
 
-        target.ApplyModOverrideAPBySpellPowerPercent(AmountAsFloat, apply);
+        target.ApplyModOverrideApBySpellPowerPercent(AmountAsFloat, apply);
         target.UpdateAttackPowerAndDamage();
         target.UpdateAttackPowerAndDamage(true);
     }
@@ -4551,8 +4537,7 @@ public class AuraEffect
 
         var player = aurApp.Target.AsPlayer;
 
-        if (player != null)
-            player.HandleBaseModFlatValue(BaseModGroup.ShieldBlockValue, Amount, apply);
+        player?.HandleBaseModFlatValue(BaseModGroup.ShieldBlockValue, Amount, apply);
     }
 
     [AuraEffectHandler(AuraType.ModShieldBlockvaluePct)]
@@ -5211,8 +5196,7 @@ public class AuraEffect
             // change the stack amount to be equal to stack amount of our aura
             var triggeredAura = target.GetAura(triggeredSpellId, casterGUID);
 
-            if (triggeredAura != null)
-                triggeredAura.ModStackAmount(Base.StackAmount - triggeredAura.StackAmount);
+            triggeredAura?.ModStackAmount(Base.StackAmount - triggeredAura.StackAmount);
         }
     }
 
@@ -5450,10 +5434,7 @@ public class AuraEffect
 
         var target = aurApp.Target.AsPlayer;
 
-        if (target == null)
-            return;
-
-        target.UpdateMastery();
+        target?.UpdateMastery();
     }
 
     private void HandlePeriodicTriggerSpellAuraTick(Unit target, Unit caster)
@@ -5534,7 +5515,7 @@ public class AuraEffect
         // Consecrate ticks can miss and will not show up in the combat log
         // dynobj auras must always have a caster
         if (GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) &&
-            caster.WorldObjectCombat.SpellHitResult(target, SpellInfo, false) != SpellMissInfo.None)
+            caster.WorldObjectCombat.SpellHitResult(target, SpellInfo) != SpellMissInfo.None)
             return;
 
         CleanDamage cleanDamage = new(0, 0, WeaponAttackType.BaseAttack, MeleeHitOutcome.Normal);
@@ -5654,7 +5635,7 @@ public class AuraEffect
 
         SpellPeriodicAuraLogInfo pInfo = new(this, damage, dmg, overkill, absorb, resist, 0.0f, crit);
 
-        UnitCombatHelpers.DealDamage(caster, target, damage, cleanDamage, DamageEffectType.DOT, SpellInfo.GetSchoolMask(), SpellInfo, true);
+        UnitCombatHelpers.DealDamage(caster, target, damage, cleanDamage, DamageEffectType.DOT, SpellInfo.GetSchoolMask(), SpellInfo);
 
         UnitCombatHelpers.ProcSkillsAndAuras(caster, target, procAttacker, procVictim, ProcFlagsSpellType.Damage, ProcFlagsSpellPhase.Hit, hitMask, null, damageInfo, null);
         target.SendPeriodicAuraLog(pInfo);
@@ -5674,7 +5655,7 @@ public class AuraEffect
 
         // dynobj auras must always have a caster
         if (GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) &&
-            caster.WorldObjectCombat.SpellHitResult(target, SpellInfo, false) != SpellMissInfo.None)
+            caster.WorldObjectCombat.SpellHitResult(target, SpellInfo) != SpellMissInfo.None)
             return;
 
         CleanDamage cleanDamage = new(0, 0, SpellInfo.GetAttackType(), MeleeHitOutcome.Normal);
@@ -5878,7 +5859,7 @@ public class AuraEffect
         }
 
         if (GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) &&
-            caster.WorldObjectCombat.SpellHitResult(target, SpellInfo, false) != SpellMissInfo.None)
+            caster.WorldObjectCombat.SpellHitResult(target, SpellInfo) != SpellMissInfo.None)
             return;
 
         // ignore negative values (can be result apply spellmods to aura damage
@@ -6428,15 +6409,9 @@ public class AuraEffect
 
         var target = aurApp.Target.AsPlayer;
 
-        if (target == null)
-            return;
+        var battlegroundMap = target?.Location.Map.ToBattlegroundMap;
 
-        var battlegroundMap = target.Location.Map.ToBattlegroundMap;
-
-        if (battlegroundMap == null)
-            return;
-
-        var bg = battlegroundMap.GetBG();
+        var bg = battlegroundMap?.GetBG();
 
         if (bg == null)
             return;
@@ -6504,10 +6479,7 @@ public class AuraEffect
 
         var playerTarget = aurApp.Target.AsPlayer;
 
-        if (playerTarget == null)
-            return;
-
-        playerTarget.SendMovementSetCollisionHeight(playerTarget.CollisionHeight, UpdateCollisionHeightReason.Force);
+        playerTarget?.SendMovementSetCollisionHeight(playerTarget.CollisionHeight, UpdateCollisionHeightReason.Force);
     }
 
     [AuraEffectHandler(AuraType.SuppressItemPassiveEffectBySpellLabel)]
@@ -6528,10 +6500,7 @@ public class AuraEffect
 
         var playerTarget = aurApp.Target.AsPlayer;
 
-        if (playerTarget == null)
-            return;
-
-        playerTarget.Location.UpdatePositionData();
+        playerTarget?.Location.UpdatePositionData();
     }
 
     #endregion

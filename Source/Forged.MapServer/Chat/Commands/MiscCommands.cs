@@ -301,7 +301,7 @@ internal class MiscCommands
         var player_ = target.AsPlayer;
 
         if (player_)
-            if (handler.HasLowerSecurity(player_, ObjectGuid.Empty, false))
+            if (handler.HasLowerSecurity(player_, ObjectGuid.Empty))
                 return false;
 
         if (!target.IsAlive)
@@ -425,7 +425,7 @@ internal class MiscCommands
         var player = target.AsPlayer;
 
         if (player)
-            if (handler.HasLowerSecurity(player, ObjectGuid.Empty, false))
+            if (handler.HasLowerSecurity(player, ObjectGuid.Empty))
                 return false;
 
         if (target.IsAlive)
@@ -2215,7 +2215,7 @@ internal class MiscCommands
 
             if (!result.IsEmpty())
             {
-                Player.SavePositionInDB(new WorldLocation(result.Read<ushort>(0), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), 0.0f), result.Read<ushort>(1), targetGUID);
+                Player.SavePositionInDB(new WorldLocation(result.Read<ushort>(0), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4)), result.Read<ushort>(1), targetGUID);
 
                 return true;
             }

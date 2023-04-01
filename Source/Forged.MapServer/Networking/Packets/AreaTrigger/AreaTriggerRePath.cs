@@ -24,13 +24,10 @@ internal class AreaTriggerRePath : ServerPacket
         _worldPacket.WriteBit(AreaTriggerMovementScript.HasValue);
         _worldPacket.FlushBits();
 
-        if (AreaTriggerSpline != null)
-            AreaTriggerSpline.Write(_worldPacket);
+        AreaTriggerSpline?.Write(_worldPacket);
 
-        if (AreaTriggerMovementScript.HasValue)
-            AreaTriggerMovementScript.Value.Write(_worldPacket);
+        AreaTriggerMovementScript?.Write(_worldPacket);
 
-        if (AreaTriggerOrbit != null)
-            AreaTriggerOrbit.Write(_worldPacket);
+        AreaTriggerOrbit?.Write(_worldPacket);
     }
 }

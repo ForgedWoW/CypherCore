@@ -57,8 +57,7 @@ public class InspectResult : ServerPacket
         foreach (var bracket in Bracket)
             bracket.Write(_worldPacket);
 
-        if (GuildData.HasValue)
-            GuildData.Value.Write(_worldPacket);
+        GuildData?.Write(_worldPacket);
 
         if (AzeriteLevel.HasValue)
             _worldPacket.WriteUInt32(AzeriteLevel.Value);

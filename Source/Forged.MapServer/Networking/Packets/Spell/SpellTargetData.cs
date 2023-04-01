@@ -37,11 +37,9 @@ public class SpellTargetData
         Unit = data.ReadPackedGuid();
         Item = data.ReadPackedGuid();
 
-        if (SrcLocation != null)
-            SrcLocation.Read(data);
+        SrcLocation?.Read(data);
 
-        if (DstLocation != null)
-            DstLocation.Read(data);
+        DstLocation?.Read(data);
 
         if (hasOrientation)
             Orientation = data.ReadFloat();
@@ -65,11 +63,9 @@ public class SpellTargetData
         data.WritePackedGuid(Unit);
         data.WritePackedGuid(Item);
 
-        if (SrcLocation != null)
-            SrcLocation.Write(data);
+        SrcLocation?.Write(data);
 
-        if (DstLocation != null)
-            DstLocation.Write(data);
+        DstLocation?.Write(data);
 
         if (Orientation.HasValue)
             data.WriteFloat(Orientation.Value);

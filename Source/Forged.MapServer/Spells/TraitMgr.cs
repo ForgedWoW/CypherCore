@@ -193,8 +193,7 @@ internal class TraitMgr
 
             var tree = _traitTrees.LookupByKey(traitNode.TraitTreeID);
 
-            if (tree != null)
-                tree.Nodes.Add(node);
+            tree?.Nodes.Add(node);
 
             foreach (var traitNodeEntry in nodeEntries.LookupByKey(traitNode.Id))
             {
@@ -634,10 +633,7 @@ internal class TraitMgr
     {
         var node = _traitNodes.LookupByKey(traitEntry.TraitNodeID);
 
-        if (node == null)
-            return false;
-
-        var entryItr = node.Entries.Find(entry => entry.Data.Id == traitEntry.TraitNodeEntryID);
+        var entryItr = node?.Entries.Find(entry => entry.Data.Id == traitEntry.TraitNodeEntryID);
 
         if (entryItr == null)
             return false;

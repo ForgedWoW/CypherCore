@@ -10,7 +10,7 @@ public enum FriendStatus
 {
     Offline = 0x00,
     Online = 0x01,
-    AFK = 0x02,
-    DND = 0x04,
-    RAF = 0x08
+    Afk = 0x02,
+    Dnd = 0x04,
+    Raf = 0x08
 }

@@ -73,8 +73,7 @@ public class HomeMovementGenerator<T> : MovementGeneratorMedium<T> where T : Cre
 
             var ai = owner.AI;
 
-            if (ai != null)
-                ai.JustReachedHome();
+            ai?.JustReachedHome();
         }
     }
 

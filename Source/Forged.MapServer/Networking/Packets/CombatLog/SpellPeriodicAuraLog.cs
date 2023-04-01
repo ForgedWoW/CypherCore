@@ -64,8 +64,7 @@ internal class SpellPeriodicAuraLog : CombatLogServerPacket
             data.WriteBit(ContentTuning != null);
             data.FlushBits();
 
-            if (ContentTuning != null)
-                ContentTuning.Write(data);
+            ContentTuning?.Write(data);
 
             if (DebugInfo.HasValue)
             {

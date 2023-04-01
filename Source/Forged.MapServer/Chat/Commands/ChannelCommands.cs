@@ -49,8 +49,7 @@ internal class ChannelCommands
 
             if (grantOwnership)
             {
-                if (channel != null)
-                    channel.SetOwnership(true);
+                channel?.SetOwnership(true);
 
                 var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHANNEL_OWNERSHIP);
                 stmt.AddValue(0, 1);
@@ -60,8 +59,7 @@ internal class ChannelCommands
             }
             else
             {
-                if (channel != null)
-                    channel.SetOwnership(false);
+                channel?.SetOwnership(false);
 
                 var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHANNEL_OWNERSHIP);
                 stmt.AddValue(0, 0);

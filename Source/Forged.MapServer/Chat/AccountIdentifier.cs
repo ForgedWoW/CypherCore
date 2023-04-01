@@ -73,18 +73,12 @@ internal class AccountIdentifier
     {
         var player = handler.Player;
 
-        if (player != null)
-        {
-            var target = player.SelectedPlayer;
+        var target = player?.SelectedPlayer;
 
-            if (target != null)
-            {
-                var session = target.Session;
+        var session = target?.Session;
 
-                if (session != null)
-                    return new AccountIdentifier(session);
-            }
-        }
+        if (session != null)
+            return new AccountIdentifier(session);
 
         return null;
     }

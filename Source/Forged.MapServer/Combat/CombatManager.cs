@@ -283,8 +283,7 @@ public class CombatManager
         {
             var ownerAI = Owner.AI;
 
-            if (ownerAI != null)
-                ownerAI.JustExitedCombat();
+            ownerAI?.JustExitedCombat();
         }
     }
 
@@ -325,8 +324,7 @@ public class CombatManager
     {
         var ai = me.AI;
 
-        if (ai != null)
-            ai.JustEnteredCombat(other);
+        ai?.JustEnteredCombat(other);
     }
 
     public void PurgeReference(ObjectGuid guid, bool pvp)
@@ -366,8 +364,7 @@ public class CombatManager
 
         var master = Owner.CharmerOrOwner;
 
-        if (master != null)
-            master.UpdatePetCombatState();
+        master?.UpdatePetCombatState();
 
         return true;
     }

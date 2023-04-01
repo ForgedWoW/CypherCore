@@ -62,8 +62,7 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
             {
                 var n = _nodes[x][y];
 
-                if (n != null)
-                    n.Balance();
+                n?.Balance();
             }
         }
     }
@@ -102,8 +101,7 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
         {
             var node = _nodes[cell.x][cell.y];
 
-            if (node != null)
-                node.IntersectRay(ray, intersectCallback, ref max_dist);
+            node?.IntersectRay(ray, intersectCallback, ref max_dist);
 
             return;
         }
@@ -148,8 +146,7 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
         {
             var node = _nodes[cell.x][cell.y];
 
-            if (node != null)
-                node.IntersectRay(ray, intersectCallback, ref max_dist);
+            node?.IntersectRay(ray, intersectCallback, ref max_dist);
 
             if (cell == last_cell)
                 break;
@@ -176,8 +173,7 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
 
         var node = _nodes[cell.x][cell.y];
 
-        if (node != null)
-            node.IntersectPoint(point, intersectCallback);
+        node?.IntersectPoint(point, intersectCallback);
     }
 
     // Optimized verson of intersectRay function for rays with vertical directions
@@ -190,8 +186,7 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
 
         var node = _nodes[cell.x][cell.y];
 
-        if (node != null)
-            node.IntersectRay(ray, intersectCallback, ref max_dist);
+        node?.IntersectRay(ray, intersectCallback, ref max_dist);
     }
 
     private Node GetGrid(int x, int y)

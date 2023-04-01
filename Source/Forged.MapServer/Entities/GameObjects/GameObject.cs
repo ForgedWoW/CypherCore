@@ -375,8 +375,7 @@ namespace Forged.MapServer.Entities.GameObjects
             //- Register the gameobject for guid lookup
             if (!Location.IsInWorld)
             {
-                if (ZoneScript != null)
-                    ZoneScript.OnGameObjectCreate(this);
+                ZoneScript?.OnGameObjectCreate(this);
 
                 Location.Map.ObjectsStore.TryAdd(GUID, this);
 
@@ -407,8 +406,7 @@ namespace Forged.MapServer.Entities.GameObjects
             if (Location.IsInWorld)
                 try
                 {
-                    if (ZoneScript != null)
-                        ZoneScript.OnGameObjectRemove(this);
+                    ZoneScript?.OnGameObjectRemove(this);
 
                     RemoveFromOwner();
 
@@ -419,8 +417,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     // If linked trap exists, despawn it
                     var linkedTrap = LinkedTrap;
 
-                    if (linkedTrap != null)
-                        linkedTrap.DespawnOrUnsummon();
+                    linkedTrap?.DespawnOrUnsummon();
 
                     base.RemoveFromWorld();
 
@@ -482,8 +479,7 @@ namespace Forged.MapServer.Entities.GameObjects
                 }
             }
 
-            if (_goTypeImpl != null)
-                _goTypeImpl.Update(diff);
+            _goTypeImpl?.Update(diff);
 
             if (_perPlayerState != null)
                 foreach (var (guid, playerState) in _perPlayerState.ToList())
@@ -648,8 +644,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                 }
 
                                 // Call AI Reset (required for example in SmartAI to clear one time events)
-                                if (AI != null)
-                                    AI.Reset();
+                                AI?.Reset();
 
                                 // respawn timer
                                 var poolid = GameObjectData?.poolId ?? 0;
@@ -739,17 +734,14 @@ namespace Forged.MapServer.Entities.GameObjects
                                         GoValueProtected.CapturePoint.State = BattlegroundCapturePointState.HordeCaptured;
                                         var map = Location.Map.ToBattlegroundMap;
 
-                                        if (map != null)
+                                        var bg = map?.GetBG();
+
+                                        if (bg != null)
                                         {
-                                            var bg = map.GetBG();
+                                            if (goInfo.CapturePoint.CaptureEventHorde != 0)
+                                                GameEvents.Trigger(goInfo.CapturePoint.CaptureEventHorde, this, this);
 
-                                            if (bg != null)
-                                            {
-                                                if (goInfo.CapturePoint.CaptureEventHorde != 0)
-                                                    GameEvents.Trigger(goInfo.CapturePoint.CaptureEventHorde, this, this);
-
-                                                bg.SendBroadcastText(Template.CapturePoint.CaptureBroadcastHorde, ChatMsg.BgSystemHorde);
-                                            }
+                                            bg.SendBroadcastText(Template.CapturePoint.CaptureBroadcastHorde, ChatMsg.BgSystemHorde);
                                         }
                                     }
                                     else
@@ -757,17 +749,14 @@ namespace Forged.MapServer.Entities.GameObjects
                                         GoValueProtected.CapturePoint.State = BattlegroundCapturePointState.AllianceCaptured;
                                         var map = Location.Map.ToBattlegroundMap;
 
-                                        if (map != null)
+                                        var bg = map?.GetBG();
+
+                                        if (bg != null)
                                         {
-                                            var bg = map.GetBG();
+                                            if (goInfo.CapturePoint.CaptureEventAlliance != 0)
+                                                GameEvents.Trigger(goInfo.CapturePoint.CaptureEventAlliance, this, this);
 
-                                            if (bg != null)
-                                            {
-                                                if (goInfo.CapturePoint.CaptureEventAlliance != 0)
-                                                    GameEvents.Trigger(goInfo.CapturePoint.CaptureEventAlliance, this, this);
-
-                                                bg.SendBroadcastText(Template.CapturePoint.CaptureBroadcastAlliance, ChatMsg.BgSystemAlliance);
-                                            }
+                                            bg.SendBroadcastText(Template.CapturePoint.CaptureBroadcastAlliance, ChatMsg.BgSystemAlliance);
                                         }
                                     }
 
@@ -1426,13 +1415,10 @@ namespace Forged.MapServer.Entities.GameObjects
             if (!IsSpawned)
                 return true;
 
-            if (_perPlayerState != null)
-            {
-                var state = _perPlayerState.LookupByKey(seer.GUID);
+            var state = _perPlayerState?.LookupByKey(seer.GUID);
 
-                if (state is { Despawned: true })
-                    return true;
-            }
+            if (state is { Despawned: true })
+                return true;
 
             return false;
         }
@@ -2297,8 +2283,7 @@ namespace Forged.MapServer.Entities.GameObjects
                             }
 
                         // finish owners spell
-                        if (owner != null)
-                            owner.FinishSpell(CurrentSpellTypes.Channeled);
+                        owner?.FinishSpell(CurrentSpellTypes.Channeled);
 
                         // can be deleted now, if
                         if (info.Ritual.ritualPersistent == 0)
@@ -2970,7 +2955,7 @@ namespace Forged.MapServer.Entities.GameObjects
             if (newState == DestructibleState)
                 return;
 
-            SetDestructibleState(newState, attackerOrHealer, false);
+            SetDestructibleState(newState, attackerOrHealer);
         }
 
         public void SetDestructibleState(GameObjectDestructibleState state, WorldObject attackerOrHealer = null, bool setHealth = false)
@@ -3037,8 +3022,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     {
                         var bg = player.Battleground;
 
-                        if (bg != null)
-                            bg.DestroyGate(player, this);
+                        bg?.DestroyGate(player, this);
                     }
 
                     RemoveFlag(GameObjectFlags.Damaged);
@@ -3159,11 +3143,9 @@ namespace Forged.MapServer.Entities.GameObjects
             var oldState = GoState;
             SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.State), (sbyte)state);
 
-            if (AI != null)
-                AI.OnStateChanged(state);
+            AI?.OnStateChanged(state);
 
-            if (_goTypeImpl != null)
-                _goTypeImpl.OnStateChanged(oldState, state);
+            _goTypeImpl?.OnStateChanged(oldState, state);
 
             if (Model != null && !IsTransport)
             {
@@ -3182,13 +3164,10 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public GameObjectState GetGoStateFor(ObjectGuid viewer)
         {
-            if (_perPlayerState != null)
-            {
-                var state = _perPlayerState.LookupByKey(viewer);
+            var state = _perPlayerState?.LookupByKey(viewer);
 
-                if (state is { State: { } })
-                    return state.State.Value;
-            }
+            if (state is { State: { } })
+                return state.State.Value;
 
             return GoState;
         }
@@ -3324,10 +3303,7 @@ namespace Forged.MapServer.Entities.GameObjects
         {
             var transport = _goTypeImpl as Transport;
 
-            if (transport != null)
-                return transport.GetPauseTimes();
-
-            return null;
+            return transport?.GetPauseTimes();
         }
 
         public void SetPathProgressForClient(float progress)
@@ -3376,8 +3352,7 @@ namespace Forged.MapServer.Entities.GameObjects
             UpdateModelPosition();
             Location.UpdatePositionData();
 
-            if (_goTypeImpl != null)
-                _goTypeImpl.OnRelocated();
+            _goTypeImpl?.OnRelocated();
 
             UpdateObjectVisibility(false);
         }
@@ -3486,13 +3461,10 @@ namespace Forged.MapServer.Entities.GameObjects
             Battleground battleground = null;
             var map = Location.Map.ToBattlegroundMap;
 
-            if (map != null)
-            {
-                var bg = map.GetBG();
+            var bg = map?.GetBG();
 
-                if (bg != null)
-                    battleground = bg;
-            }
+            if (bg != null)
+                battleground = bg;
 
             if (!battleground)
                 return;
@@ -3619,7 +3591,7 @@ namespace Forged.MapServer.Entities.GameObjects
             RespawnDelay = (uint)(respawn > 0 ? respawn : 0);
 
             if (respawn != 0 && !IsSpawnedByDefault)
-                UpdateObjectVisibility(true);
+                UpdateObjectVisibility();
         }
 
         public void SetSpawnedByDefault(bool b)
@@ -4102,10 +4074,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         private void EnableCollision(bool enable)
         {
-            if (Model == null)
-                return;
-
-            Model.EnableCollision(enable);
+            Model?.EnableCollision(enable);
         }
 
         private void UpdateModel()
@@ -4177,27 +4146,24 @@ namespace Forged.MapServer.Entities.GameObjects
 
             var map = Location.Map.ToBattlegroundMap;
 
-            if (map != null)
+            var bg = map?.GetBG();
+
+            if (bg != null)
             {
-                var bg = map.GetBG();
-
-                if (bg != null)
+                UpdateCapturePoint packet = new()
                 {
-                    UpdateCapturePoint packet = new()
+                    CapturePointInfo =
                     {
-                        CapturePointInfo =
-                        {
-                            State = GoValueProtected.CapturePoint.State,
-                            Pos = Location,
-                            Guid = GUID,
-                            CaptureTotalDuration = TimeSpan.FromMilliseconds(Template.CapturePoint.CaptureTime),
-                            CaptureTime = GoValueProtected.CapturePoint.AssaultTimer
-                        }
-                    };
+                        State = GoValueProtected.CapturePoint.State,
+                        Pos = Location,
+                        Guid = GUID,
+                        CaptureTotalDuration = TimeSpan.FromMilliseconds(Template.CapturePoint.CaptureTime),
+                        CaptureTime = GoValueProtected.CapturePoint.AssaultTimer
+                    }
+                };
 
-                    bg.SendPacketToAll(packet);
-                    bg.UpdateWorldState((int)Template.CapturePoint.worldState1, (byte)GoValueProtected.CapturePoint.State);
-                }
+                bg.SendPacketToAll(packet);
+                bg.UpdateWorldState((int)Template.CapturePoint.worldState1, (byte)GoValueProtected.CapturePoint.State);
             }
 
             Location.Map.UpdateSpawnGroupConditions();

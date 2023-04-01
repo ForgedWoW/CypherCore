@@ -794,18 +794,18 @@ public class BgStrandOfAncients : Battleground
                 // player.AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
 
                 if (RandomHelper.URand(0, 1) != 0)
-                    player.TeleportTo(607, 2682.936f, -830.368f, 15.0f, 2.895f, 0);
+                    player.TeleportTo(607, 2682.936f, -830.368f, 15.0f, 2.895f);
                 else
-                    player.TeleportTo(607, 2577.003f, 980.261f, 15.0f, 0.807f, 0);
+                    player.TeleportTo(607, 2577.003f, 980.261f, 15.0f, 0.807f);
             }
             else
             {
-                player.TeleportTo(607, 1600.381f, -106.263f, 8.8745f, 3.78f, 0);
+                player.TeleportTo(607, 1600.381f, -106.263f, 8.8745f, 3.78f);
             }
         }
         else
         {
-            player.TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
+            player.TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f);
         }
     }
 
@@ -1296,13 +1296,13 @@ internal struct SAMiscConst
 
     public static Position[] ObjSpawnlocs =
     {
-        new(1411.57f, 108.163f, 28.692f, 5.441f), new(1055.452f, -108.1f, 82.134f, 0.034f), new(1431.3413f, -219.437f, 30.893f, 0.9736f), new(1227.667f, -212.555f, 55.372f, 0.5023f), new(1214.681f, 81.21f, 53.413f, 5.745f), new(878.555f, -108.2f, 117.845f, 0.0f), new(836.5f, -108.8f, 120.219f, 0.0f),
+        new(1411.57f, 108.163f, 28.692f, 5.441f), new(1055.452f, -108.1f, 82.134f, 0.034f), new(1431.3413f, -219.437f, 30.893f, 0.9736f), new(1227.667f, -212.555f, 55.372f, 0.5023f), new(1214.681f, 81.21f, 53.413f, 5.745f), new(878.555f, -108.2f, 117.845f), new(836.5f, -108.8f, 120.219f),
         // Portal
-        new(1468.380005f, -225.798996f, 30.896200f, 0.0f), //blue
-        new(1394.270020f, 72.551399f, 31.054300f, 0.0f),   //green
-        new(1065.260010f, -89.79501f, 81.073402f, 0.0f),   //yellow
-        new(1216.069946f, 47.904301f, 54.278198f, 0.0f),   //purple
-        new(1255.569946f, -233.548996f, 56.43699f, 0.0f),  //red
+        new(1468.380005f, -225.798996f, 30.896200f), //blue
+        new(1394.270020f, 72.551399f, 31.054300f),   //green
+        new(1065.260010f, -89.79501f, 81.073402f),   //yellow
+        new(1216.069946f, 47.904301f, 54.278198f),   //purple
+        new(1255.569946f, -233.548996f, 56.43699f),  //red
         // Ships
         new(2679.696777f, -826.891235f, 3.712860f, 5.78367f), //rot2 1 rot3 0.0002f
         new(2574.003662f, 981.261475f, 2.603424f, 0.807696f),

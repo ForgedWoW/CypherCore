@@ -376,36 +376,29 @@ public class TargetInfo : TargetInfoBase
             //AI functions
             var cHitTarget = _spellHitTarget.AsCreature;
 
-            if (cHitTarget != null)
-            {
-                var hitTargetAI = cHitTarget.AI;
+            var hitTargetAI = cHitTarget?.AI;
 
-                if (hitTargetAI != null)
-                    hitTargetAI.SpellHit(spell.Caster, spell.SpellInfo);
-            }
+            hitTargetAI?.SpellHit(spell.Caster, spell.SpellInfo);
 
             if (spell.Caster.IsCreature && spell.Caster.AsCreature.IsAIEnabled)
                 spell.Caster.AsCreature.AI.SpellHitTarget(_spellHitTarget, spell.SpellInfo);
             else if (spell.Caster.IsGameObject && spell.Caster.AsGameObject.AI != null)
                 spell.Caster.AsGameObject.AI.SpellHitTarget(_spellHitTarget, spell.SpellInfo);
 
-            if (HitAura != null)
+            var aurApp = HitAura?.GetApplicationOfTarget(_spellHitTarget.GUID);
+
+            if (aurApp != null)
             {
-                var aurApp = HitAura.GetApplicationOfTarget(_spellHitTarget.GUID);
+                var effMask = Effects.ToHashSet();
+                // only apply unapplied effects (for reapply case)
+                effMask.IntersectWith(aurApp.EffectsToApply);
 
-                if (aurApp != null)
-                {
-                    var effMask = Effects.ToHashSet();
-                    // only apply unapplied effects (for reapply case)
-                    effMask.IntersectWith(aurApp.EffectsToApply);
+                for (var i = 0; i < spell.SpellInfo.Effects.Count; ++i)
+                    if (effMask.Contains(i) && aurApp.HasEffect(i))
+                        effMask.Remove(i);
 
-                    for (var i = 0; i < spell.SpellInfo.Effects.Count; ++i)
-                        if (effMask.Contains(i) && aurApp.HasEffect(i))
-                            effMask.Remove(i);
-
-                    if (effMask.Count != 0)
-                        _spellHitTarget._ApplyAura(aurApp, effMask);
-                }
+                if (effMask.Count != 0)
+                    _spellHitTarget._ApplyAura(aurApp, effMask);
             }
 
             // Needs to be called after dealing damage/healing to not remove breaking on damage auras

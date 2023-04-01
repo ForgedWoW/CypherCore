@@ -319,8 +319,7 @@ public class MapManager
             _maps.Clear();
         }
 
-        if (_updater != null)
-            _updater.Deactivate();
+        _updater?.Deactivate();
     }
 
     public uint GetNumInstances()

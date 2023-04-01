@@ -33,7 +33,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 
     public virtual bool Invoke(WorldObject target)
     {
-        if (SpellInfo.CheckTarget(Caster, target, true) != SpellCastResult.SpellCastOk)
+        if (SpellInfo.CheckTarget(Caster, target) != SpellCastResult.SpellCastOk)
             return false;
 
         var unitTarget = target.AsUnit;

@@ -45,8 +45,7 @@ public class AuraDataInfo
         data.WriteBits(EstimatedPoints.Count, 6);
         data.WriteBit(_contentTuning != null);
 
-        if (_contentTuning != null)
-            _contentTuning.Write(data);
+        _contentTuning?.Write(data);
 
         if (CastUnit.HasValue)
             data.WritePackedGuid(CastUnit.Value);

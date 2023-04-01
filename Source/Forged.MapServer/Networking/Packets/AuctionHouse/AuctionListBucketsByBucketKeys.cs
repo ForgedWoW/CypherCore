@@ -29,8 +29,7 @@ internal class AuctionListBucketsByBucketKeys : ClientPacket
         for (var i = 0; i < sortCount; ++i)
             Sorts[i] = new AuctionSortDef(_worldPacket);
 
-        if (TaintedBy.HasValue)
-            TaintedBy.Value.Read(_worldPacket);
+        TaintedBy?.Read(_worldPacket);
 
         for (var i = 0; i < bucketKeysCount; ++i)
             BucketKeys[i] = new AuctionBucketKey(_worldPacket);

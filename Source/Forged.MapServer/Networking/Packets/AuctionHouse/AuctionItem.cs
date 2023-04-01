@@ -103,7 +103,6 @@ public class AuctionItem
         foreach (var gem in Gems)
             gem.Write(data);
 
-        if (AuctionBucketKey != null)
-            AuctionBucketKey.Write(data);
+        AuctionBucketKey?.Write(data);
     }
 }

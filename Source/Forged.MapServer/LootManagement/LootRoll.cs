@@ -245,10 +245,7 @@ public class LootRoll
 
             var player = _objectAccessor.GetPlayer(_map, playerGuid);
 
-            if (player == null)
-                continue;
-
-            player.SendPacket(lootAllPassed);
+            player?.SendPacket(lootAllPassed);
         }
     }
 
@@ -278,10 +275,7 @@ public class LootRoll
 
             var player = _objectAccessor.GetPlayer(_map, playerGuid);
 
-            if (player == null)
-                continue;
-
-            player.SendPacket(lootRoll);
+            player?.SendPacket(lootRoll);
         }
 
         if (rollWinner.HasValue)
@@ -340,10 +334,7 @@ public class LootRoll
 
             var player1 = _objectAccessor.GetPlayer(_map, playerGuid);
 
-            if (player1 == null)
-                continue;
-
-            player1.SendPacket(lootRollWon);
+            player1?.SendPacket(lootRollWon);
         }
 
         var player = _objectAccessor.GetPlayer(_map, targetGuid);

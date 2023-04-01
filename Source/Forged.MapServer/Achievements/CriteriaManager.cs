@@ -75,8 +75,7 @@ public class CriteriaManager
         {
             var parentNode = _criteriaModifiers.LookupByKey(treeNode.Entry.Parent);
 
-            if (parentNode != null)
-                parentNode.Children.Add(treeNode);
+            parentNode?.Children.Add(treeNode);
         }
 
         Log.Logger.Information("Loaded {0} criteria modifiers in {1} ms", _criteriaModifiers.Count, Time.GetMSTimeDiffToNow(oldMSTime));
@@ -140,8 +139,7 @@ public class CriteriaManager
         {
             var parent = _criteriaTrees.LookupByKey(pair.Value.Entry.Parent);
 
-            if (parent != null)
-                parent.Children.Add(pair.Value);
+            parent?.Children.Add(pair.Value);
 
             if (_cliDB.CriteriaStorage.HasRecord(pair.Value.Entry.CriteriaID))
                 _criteriaTreeByCriteria.Add(pair.Value.Entry.CriteriaID, pair.Value);

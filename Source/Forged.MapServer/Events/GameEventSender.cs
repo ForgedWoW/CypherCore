@@ -19,19 +19,14 @@ internal class GameEvents
         if (zoneScript == null && refForMapAndZoneScript.IsPlayer)
             zoneScript = refForMapAndZoneScript.Location.FindZoneScript();
 
-        if (zoneScript != null)
-            zoneScript.ProcessEvent(target, gameEventId, source);
+        zoneScript?.ProcessEvent(target, gameEventId, source);
 
         var map = refForMapAndZoneScript.Location.Map;
         var goTarget = target?.AsGameObject;
 
-        if (goTarget != null)
-        {
-            var goAI = goTarget.AI;
+        var goAI = goTarget?.AI;
 
-            if (goAI != null)
-                goAI.EventInform(gameEventId);
-        }
+        goAI?.EventInform(gameEventId);
 
         var sourcePlayer = source?.AsPlayer;
 

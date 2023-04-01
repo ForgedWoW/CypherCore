@@ -72,8 +72,7 @@ public partial class Creature : Unit
             if (IsVehicle)
                 VehicleKit.Install();
 
-            if (ZoneScript != null)
-                ZoneScript.OnCreatureCreate(this);
+            ZoneScript?.OnCreatureCreate(this);
         }
     }
 
@@ -82,8 +81,7 @@ public partial class Creature : Unit
         if (Location.IsInWorld)
             try
             {
-                if (ZoneScript != null)
-                    ZoneScript.OnCreatureRemove(this);
+                ZoneScript?.OnCreatureRemove(this);
 
                 if (Formation != null)
                     FormationMgr.RemoveCreatureFromGroup(Formation, this);
@@ -103,7 +101,7 @@ public partial class Creature : Unit
 
     public void DisappearAndDie()
     {
-        ForcedDespawn(0);
+        ForcedDespawn();
     }
 
     public void SearchFormation()
@@ -148,8 +146,7 @@ public partial class Creature : Unit
             var respawnDelay = RespawnDelay;
             var ai = AI;
 
-            if (ai != null)
-                ai.CorpseRemoved(respawnDelay);
+            ai?.CorpseRemoved(respawnDelay);
 
             if (destroyForNearbyPlayers)
                 UpdateObjectVisibilityOnDestroy();
@@ -171,8 +168,7 @@ public partial class Creature : Unit
 
                 var transport = DirectTransport;
 
-                if (transport != null)
-                    transport.CalculatePassengerPosition(respawn);
+                transport?.CalculatePassengerPosition(respawn);
             }
 
             respawn.Z = Location.UpdateAllowedPositionZ(respawn.X, respawn.Y, respawn.Z);
@@ -183,8 +179,7 @@ public partial class Creature : Unit
         {
             var ai = AI;
 
-            if (ai != null)
-                ai.CorpseRemoved(RespawnDelay);
+            ai?.CorpseRemoved(RespawnDelay);
 
             // In case this is called directly and normal respawn timer not set
             // Since this timer will be longer than the already present time it
@@ -528,8 +523,9 @@ public partial class Creature : Unit
                 Loot?.Update();
 
                 foreach (var (playerOwner, loot) in PersonalLoot)
-                    if (loot != null)
-                        loot.Update();
+                {
+                    loot?.Update();
+                }
 
                 if (CorpseRemoveTime <= GameTime.GetGameTime())
                 {
@@ -650,8 +646,7 @@ public partial class Creature : Unit
                     {
                         var ai = AI;
 
-                        if (ai != null)
-                            ai.EnterEvadeMode(EvadeReason.NoPath);
+                        ai?.EnterEvadeMode(EvadeReason.NoPath);
                     }
                 }
 
@@ -750,8 +745,7 @@ public partial class Creature : Unit
         Ai.InitializeAI();
 
         // Initialize vehicle
-        if (VehicleKit != null)
-            VehicleKit.Reset();
+        VehicleKit?.Reset();
 
         return true;
     }
@@ -828,7 +822,7 @@ public partial class Creature : Unit
         {
             // area/zone id is needed immediately for ZoneScript::GetCreatureEntry hook before it is known which creature template to load (no model/scale available yet)
             PositionFullTerrainStatus positionData = new();
-            Location.Map.GetFullTerrainStatusForPosition(Location.PhaseShift, Location.X, Location.Y, Location.Z, positionData, LiquidHeaderTypeFlags.AllLiquids, MapConst.DefaultCollesionHeight);
+            Location.Map.GetFullTerrainStatusForPosition(Location.PhaseShift, Location.X, Location.Y, Location.Z, positionData, LiquidHeaderTypeFlags.AllLiquids);
             Location.ProcessPositionDataChanged(positionData);
         }
 
@@ -953,7 +947,7 @@ public partial class Creature : Unit
             foreach (var itr in iAuras)
                 if (itr.Base.IsPermanent)
                 {
-                    AI.EnterEvadeMode(EvadeReason.Other);
+                    AI.EnterEvadeMode();
 
                     break;
                 }
@@ -1054,8 +1048,7 @@ public partial class Creature : Unit
     {
         var groupList = _textRepeat[textGroup];
 
-        if (groupList != null)
-            groupList.Clear();
+        groupList?.Clear();
     }
 
     public override void AtEngage(Unit target)
@@ -1100,13 +1093,11 @@ public partial class Creature : Unit
 
         var ai = AI;
 
-        if (ai != null)
-            ai.JustEngagedWith(target);
+        ai?.JustEngagedWith(target);
 
         var formation = Formation;
 
-        if (formation != null)
-            formation.MemberEngagingTarget(this, target);
+        formation?.MemberEngagingTarget(this, target);
     }
 
     public override void AtDisengage()
@@ -1222,10 +1213,7 @@ public partial class Creature : Unit
 
         var loot = PersonalLoot.LookupByKey(player.GUID);
 
-        if (loot != null)
-            return loot;
-
-        return null;
+        return loot;
     }
 
     public bool IsSkinnedBy(Player player)
@@ -1924,8 +1912,7 @@ public partial class Creature : Unit
 
                 IUnitAI ai = AI;
 
-                if (ai != null) // reset the AI to be sure no dirty or uninitialized values will be used till next tick
-                    ai.Reset();
+                ai?.Reset();
 
                 _triggerJustAppeared = true;
 

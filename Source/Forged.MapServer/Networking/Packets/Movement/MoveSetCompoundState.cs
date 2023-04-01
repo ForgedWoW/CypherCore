@@ -78,8 +78,7 @@ internal class MoveSetCompoundState : ServerPacket
             data.WriteBit(MovementInertiaLifetimeMs.HasValue);
             data.FlushBits();
 
-            if (@MovementForce != null)
-                @MovementForce.Write(data);
+            @MovementForce?.Write(data);
 
             if (Speed.HasValue)
                 data.WriteFloat(Speed.Value);

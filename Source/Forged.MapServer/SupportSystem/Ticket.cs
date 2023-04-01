@@ -74,7 +74,7 @@ public class Ticket
 
     public void TeleportTo(Player player)
     {
-        player.TeleportTo(MapIdProtected, PosProtected.X, PosProtected.Y, PosProtected.Z, 0.0f, 0);
+        player.TeleportTo(MapIdProtected, PosProtected.X, PosProtected.Y, PosProtected.Z, 0.0f);
     }
 
     public virtual string FormatViewMessageString(CommandHandler handler, bool detailed = false)

@@ -509,20 +509,14 @@ public class SmartAIManager
     {
         var sch = list.Find(p => p.Link == eventId);
 
-        if (sch != null)
-            return sch;
-
-        return null;
+        return sch;
     }
 
     public SmartScriptHolder FindLinkedEvent(List<SmartScriptHolder> list, uint link)
     {
         var sch = list.Find(p => p.EventId == link && p.GetEventType() == SmartEvents.Link);
 
-        if (sch != null)
-            return sch;
-
-        return null;
+        return sch;
     }
 
     public static uint GetTypeMask(SmartScriptType smartScriptType) =>

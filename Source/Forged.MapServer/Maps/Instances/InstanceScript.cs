@@ -551,8 +551,7 @@ public class InstanceScript : ZoneScript
             {
                 var summon = Instance.GetCreature(summonGUID);
 
-                if (summon != null)
-                    summon.RemoveAura(spell);
+                summon?.RemoveAura(spell);
             }
         }
 

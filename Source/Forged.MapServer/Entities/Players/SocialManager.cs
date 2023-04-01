@@ -61,20 +61,20 @@ public class SocialManager
 
         if (target.IsVisibleGloballyFor(player))
         {
-            if (target.IsDND)
+            if (target.IsDnd)
             {
-                friendInfo.Status = FriendStatus.DND;
+                friendInfo.Status = FriendStatus.Dnd;
             }
-            else if (target.IsAFK)
+            else if (target.IsAfk)
             {
-                friendInfo.Status = FriendStatus.AFK;
+                friendInfo.Status = FriendStatus.Afk;
             }
             else
             {
                 friendInfo.Status = FriendStatus.Online;
 
                 if (target.Session.RecruiterId == player.Session.AccountId || target.Session.AccountId == player.Session.RecruiterId)
-                    friendInfo.Status |= FriendStatus.RAF;
+                    friendInfo.Status |= FriendStatus.Raf;
             }
 
             friendInfo.Area = target.Location.Zone;

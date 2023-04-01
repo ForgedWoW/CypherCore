@@ -254,8 +254,7 @@ public partial class Spell : IDisposable
 
         var modOwner = caster.SpellModOwner;
 
-        if (modOwner != null)
-            modOwner.ApplySpellMod(info, SpellModOp.Doses, ref SpellValue.AuraStackAmount, this);
+        modOwner?.ApplySpellMod(info, SpellModOp.Doses, ref SpellValue.AuraStackAmount, this);
 
 
         if (_originalCasterGuid == Caster.GUID)
@@ -1166,8 +1165,7 @@ public partial class Spell : IDisposable
                     {
                         var unit = Caster.GUID == ihit.TargetGuid ? Caster.AsUnit : Global.ObjAccessor.GetUnit(Caster, ihit.TargetGuid);
 
-                        if (unit != null)
-                            unit.RemoveOwnedAura(SpellInfo.Id, _originalCasterGuid, AuraRemoveMode.Cancel);
+                        unit?.RemoveOwnedAura(SpellInfo.Id, _originalCasterGuid, AuraRemoveMode.Cancel);
                     }
 
                 EndEmpoweredSpell();
@@ -1262,8 +1260,7 @@ public partial class Spell : IDisposable
 
         var modOwner = Caster.SpellModOwner;
 
-        if (modOwner != null)
-            modOwner.SetSpellModTakingSpell(this, true);
+        modOwner?.SetSpellModTakingSpell(this, true);
 
         PrepareTargetProcessing();
 
@@ -1516,8 +1513,7 @@ public partial class Spell : IDisposable
 
         var creatureCaster = unitCaster.AsCreature;
 
-        if (creatureCaster != null)
-            creatureCaster.ReleaseSpellFocus(this);
+        creatureCaster?.ReleaseSpellFocus(this);
 
         if (!SpellInfo.HasAttribute(SpellAttr3.SuppressCasterProcs))
             UnitCombatHelpers.ProcSkillsAndAuras(unitCaster, null, new ProcFlagsInit(ProcFlags.CastEnded), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, this, null, null);
@@ -1554,7 +1550,7 @@ public partial class Spell : IDisposable
         if (IsAutoActionResetSpell())
             if (!SpellInfo.HasAttribute(SpellAttr2.DoNotResetCombatTimers))
             {
-                unitCaster.ResetAttackTimer(WeaponAttackType.BaseAttack);
+                unitCaster.ResetAttackTimer();
 
                 if (unitCaster.HaveOffhandWeapon())
                     unitCaster.ResetAttackTimer(WeaponAttackType.OffAttack);
@@ -1698,10 +1694,7 @@ public partial class Spell : IDisposable
     {
         var spellEvent = (SpellEvent)basicEvent;
 
-        if (spellEvent != null)
-            return spellEvent.Spell;
-
-        return null;
+        return spellEvent?.Spell;
     }
 
     public SpellCastResult CheckCast(bool strict)
@@ -3121,8 +3114,7 @@ public partial class Spell : IDisposable
 
         var player = unitCaster.SpellModOwner;
 
-        if (player != null)
-            player.ApplySpellMod(SpellInfo, SpellModOp.ResistPushback, ref delayReduce, this);
+        player?.ApplySpellMod(SpellInfo, SpellModOp.ResistPushback, ref delayReduce, this);
 
         delayReduce += unitCaster.GetTotalAuraModifier(AuraType.ReducePushback) - 100;
 
@@ -3173,8 +3165,7 @@ public partial class Spell : IDisposable
 
         var player = unitCaster.SpellModOwner;
 
-        if (player != null)
-            player.ApplySpellMod(SpellInfo, SpellModOp.ResistPushback, ref delayReduce, this);
+        player?.ApplySpellMod(SpellInfo, SpellModOp.ResistPushback, ref delayReduce, this);
 
         delayReduce += unitCaster.GetTotalAuraModifier(AuraType.ReducePushback) - 100;
 
@@ -3198,15 +3189,13 @@ public partial class Spell : IDisposable
             {
                 var unit = (unitCaster.GUID == ihit.TargetGuid) ? unitCaster : Global.ObjAccessor.GetUnit(unitCaster, ihit.TargetGuid);
 
-                if (unit != null)
-                    unit.DelayOwnedAuras(SpellInfo.Id, _originalCasterGuid, delaytime);
+                unit?.DelayOwnedAuras(SpellInfo.Id, _originalCasterGuid, delaytime);
             }
 
         // partially interrupt persistent area auras
         var dynObj = unitCaster.GetDynObject(SpellInfo.Id);
 
-        if (dynObj != null)
-            dynObj.Delay(delaytime);
+        dynObj?.Delay(delaytime);
 
         SendChannelUpdate((uint)_timer);
     }
@@ -3220,10 +3209,7 @@ public partial class Spell : IDisposable
     {
         var powerCost = PowerCost.Find(cost => cost.Power == power);
 
-        if (powerCost == null)
-            return null;
-
-        return powerCost.Amount;
+        return powerCost?.Amount;
     }
 
 
@@ -4305,18 +4291,12 @@ public partial class Spell : IDisposable
             {
                 var unitCaster = Caster.AsUnit;
 
-                if (unitCaster != null)
-                {
-                    var casterSummon = unitCaster.ToTempSummon();
+                var casterSummon = unitCaster?.ToTempSummon();
 
-                    if (casterSummon != null)
-                    {
-                        var summoner = casterSummon.GetSummoner();
+                var summoner = casterSummon?.GetSummoner();
 
-                        if (summoner != null)
-                            dest = new SpellDestination(summoner);
-                    }
-                }
+                if (summoner != null)
+                    dest = new SpellDestination(summoner);
 
                 break;
             }
@@ -5483,8 +5463,7 @@ public partial class Spell : IDisposable
             range = SpellInfo.GetMaxRange(IsPositive);
             var modOwner = Caster.SpellModOwner;
 
-            if (modOwner != null)
-                modOwner.ApplySpellMod(SpellInfo, SpellModOp.Range, ref range, this);
+            modOwner?.ApplySpellMod(SpellInfo, SpellModOp.Range, ref range, this);
 
             // add little tolerance level
             range += Math.Min(3.0f, range * 0.1f); // 10% but no more than 3.0f
@@ -5499,8 +5478,7 @@ public partial class Spell : IDisposable
                 {
                     var unitCaster = Caster.AsUnit;
 
-                    if (unitCaster != null)
-                        unitCaster.RemoveChannelObject(targetInfo.TargetGuid);
+                    unitCaster?.RemoveChannelObject(targetInfo.TargetGuid);
 
                     continue;
                 }
@@ -5519,8 +5497,7 @@ public partial class Spell : IDisposable
                                 unit.RemoveAura(aurApp);
                                 var unitCaster = Caster.AsUnit;
 
-                                if (unitCaster != null)
-                                    unitCaster.RemoveChannelObject(targetInfo.TargetGuid);
+                                unitCaster?.RemoveChannelObject(targetInfo.TargetGuid);
 
                                 continue;
                             }
@@ -5529,8 +5506,7 @@ public partial class Spell : IDisposable
                         {
                             var unitCaster = Caster.AsUnit;
 
-                            if (unitCaster != null)
-                                unitCaster.RemoveChannelObject(targetInfo.TargetGuid);
+                            unitCaster?.RemoveChannelObject(targetInfo.TargetGuid);
 
                             continue;
                         }
@@ -5582,13 +5558,9 @@ public partial class Spell : IDisposable
                     {
                         var cControlled = controlled.AsCreature;
 
-                        if (cControlled != null)
-                        {
-                            var controlledAI = cControlled.AI;
+                        var controlledAI = cControlled?.AI;
 
-                            if (controlledAI != null)
-                                controlledAI.OwnerAttacked(target);
-                        }
+                        controlledAI?.OwnerAttacked(target);
                     }
             }
         }
@@ -5598,10 +5570,7 @@ public partial class Spell : IDisposable
         // Should this be done for original caster?
         var modOwner = Caster.SpellModOwner;
 
-        if (modOwner != null)
-            // Set spell which will drop charges for triggered cast spells
-            // if not successfully casted, will be remove in finish(false)
-            modOwner.SetSpellModTakingSpell(this, true);
+        modOwner?.SetSpellModTakingSpell(this, true);
 
         CallScriptBeforeCastHandlers();
 
@@ -5719,8 +5688,7 @@ public partial class Spell : IDisposable
             {
                 var pet = ObjectAccessor.GetCreature(Caster, unitCaster.PetGUID);
 
-                if (pet != null)
-                    pet.DespawnOrUnsummon();
+                pet?.DespawnOrUnsummon();
             }
 
         PrepareTriggersExecutedOnHit();
@@ -5773,8 +5741,9 @@ public partial class Spell : IDisposable
         SendSpellGo();
 
         if (!SpellInfo.IsChanneled)
-            if (creatureCaster != null)
-                creatureCaster.ReleaseSpellFocus(this);
+        {
+            creatureCaster?.ReleaseSpellFocus(this);
+        }
 
         // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
         if ((SpellInfo.HasHitDelay && !SpellInfo.IsChanneled) || SpellInfo.HasAttribute(SpellAttr4.NoHarmfulThreat))
@@ -5810,8 +5779,7 @@ public partial class Spell : IDisposable
                 {
                     unitCaster = Caster.AsUnit;
 
-                    if (unitCaster != null)
-                        unitCaster.RemoveAura((uint)-spellId);
+                    unitCaster?.RemoveAura((uint)-spellId);
                 }
                 else
                 {
@@ -5916,8 +5884,7 @@ public partial class Spell : IDisposable
                     // Apply duration mod
                     var modOwner = Caster.SpellModOwner;
 
-                    if (modOwner != null)
-                        modOwner.ApplySpellMod(SpellInfo, SpellModOp.Duration, ref duration);
+                    modOwner?.ApplySpellMod(SpellInfo, SpellModOp.Duration, ref duration);
 
                     duration = (int)(duration * SpellValue.DurationMul);
 
@@ -7115,8 +7082,7 @@ public partial class Spell : IDisposable
                             //lower spell cost on fail (by talent aura)
                             var modOwner = unitCaster.SpellModOwner;
 
-                            if (modOwner != null)
-                                modOwner.ApplySpellMod(SpellInfo, SpellModOp.PowerCostOnMiss, ref cost.Amount);
+                            modOwner?.ApplySpellMod(SpellInfo, SpellModOp.PowerCostOnMiss, ref cost.Amount);
                         }
                     }
                 }

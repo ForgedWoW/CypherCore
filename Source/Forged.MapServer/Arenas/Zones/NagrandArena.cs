@@ -63,10 +63,10 @@ public class NagrandArena : Arena
     public override bool SetupBattleground()
     {
         var result = true;
-        result &= AddObject(NagrandArenaObjectTypes.Door1, NagrandArenaObjects.Door1, 4031.854f, 2966.833f, 12.6462f, -2.648788f, 0, 0, 0.9697962f, -0.2439165f, BattlegroundConst.RespawnImmediately);
-        result &= AddObject(NagrandArenaObjectTypes.Door2, NagrandArenaObjects.Door2, 4081.179f, 2874.97f, 12.39171f, 0.4928045f, 0, 0, 0.2439165f, 0.9697962f, BattlegroundConst.RespawnImmediately);
-        result &= AddObject(NagrandArenaObjectTypes.Door3, NagrandArenaObjects.Door3, 4023.709f, 2981.777f, 10.70117f, -2.648788f, 0, 0, 0.9697962f, -0.2439165f, BattlegroundConst.RespawnImmediately);
-        result &= AddObject(NagrandArenaObjectTypes.Door4, NagrandArenaObjects.Door4, 4090.064f, 2858.438f, 10.23631f, 0.4928045f, 0, 0, 0.2439165f, 0.9697962f, BattlegroundConst.RespawnImmediately);
+        result &= AddObject(NagrandArenaObjectTypes.Door1, NagrandArenaObjects.Door1, 4031.854f, 2966.833f, 12.6462f, -2.648788f, 0, 0, 0.9697962f, -0.2439165f);
+        result &= AddObject(NagrandArenaObjectTypes.Door2, NagrandArenaObjects.Door2, 4081.179f, 2874.97f, 12.39171f, 0.4928045f, 0, 0, 0.2439165f, 0.9697962f);
+        result &= AddObject(NagrandArenaObjectTypes.Door3, NagrandArenaObjects.Door3, 4023.709f, 2981.777f, 10.70117f, -2.648788f, 0, 0, 0.9697962f, -0.2439165f);
+        result &= AddObject(NagrandArenaObjectTypes.Door4, NagrandArenaObjects.Door4, 4090.064f, 2858.438f, 10.23631f, 0.4928045f, 0, 0, 0.2439165f, 0.9697962f);
 
         if (!result)
         {

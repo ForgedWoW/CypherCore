@@ -11,8 +11,7 @@ public struct AuraInfo
         data.WriteBit(AuraData != null);
         data.FlushBits();
 
-        if (AuraData != null)
-            AuraData.Write(data);
+        AuraData?.Write(data);
     }
 
     public byte Slot;

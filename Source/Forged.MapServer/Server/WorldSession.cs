@@ -388,8 +388,7 @@ public class WorldSession : IDisposable
 
             var map = Player.Location.Map;
 
-            if (map != null)
-                map.RemovePlayerFromMap(Player, true);
+            map?.RemovePlayerFromMap(Player, true);
 
             Player = null;
 
@@ -1332,8 +1331,7 @@ public class WorldSession : IDisposable
         var transportInfo = player.MovementInfo.Transport;
         var transport = player.Transport;
 
-        if (transport != null)
-            transport.RemovePassenger(player);
+        transport?.RemovePassenger(player);
 
         if (player.Location.IsInWorld)
         {
@@ -1418,8 +1416,7 @@ public class WorldSession : IDisposable
             player.UpdateVisibilityForPlayer();
             var garrison = player.Garrison;
 
-            if (garrison != null)
-                garrison.SendRemoteInfo();
+            garrison?.SendRemoteInfo();
         }
 
         // flight fast teleport case

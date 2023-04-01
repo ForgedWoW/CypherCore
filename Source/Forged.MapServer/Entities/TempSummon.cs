@@ -51,10 +51,7 @@ public class TempSummon : Creature
     {
         var summoner = GetSummoner();
 
-        if (summoner != null)
-            return summoner.AsUnit;
-
-        return null;
+        return summoner?.AsUnit;
     }
 
     public Creature GetSummonerCreatureBase()
@@ -66,10 +63,7 @@ public class TempSummon : Creature
     {
         var summoner = GetSummoner();
 
-        if (summoner != null)
-            return summoner.AsGameObject;
-
-        return null;
+        return summoner?.AsGameObject;
     }
 
     public override float GetDamageMultiplierForTarget(WorldObject target)
@@ -239,7 +233,7 @@ public class TempSummon : Creature
                 if (summonedData.CreatureIdVisibleToSummoner.HasValue)
                 {
                     var creatureTemplateVisibleToSummoner = Global.ObjectMgr.GetCreatureTemplate(summonedData.CreatureIdVisibleToSummoner.Value);
-                    _displayIdVisibleToSummoner = GameObjectManager.ChooseDisplayId(creatureTemplateVisibleToSummoner, null).CreatureDisplayId;
+                    _displayIdVisibleToSummoner = GameObjectManager.ChooseDisplayId(creatureTemplateVisibleToSummoner).CreatureDisplayId;
                 }
             }
         }
@@ -303,17 +297,14 @@ public class TempSummon : Creature
 
         var smoothPhasing = Visibility.GetSmoothPhasing();
 
-        if (smoothPhasing != null)
+        var infoForSeer = smoothPhasing?.GetInfoForSeer(DemonCreatorGUID);
+
+        if (infoForSeer is { ReplaceObject: { } } && smoothPhasing.IsReplacing(infoForSeer.ReplaceObject.Value))
         {
-            var infoForSeer = smoothPhasing.GetInfoForSeer(DemonCreatorGUID);
+            var original = Global.ObjAccessor.GetWorldObject(this, infoForSeer.ReplaceObject.Value);
 
-            if (infoForSeer is { ReplaceObject: { } } && smoothPhasing.IsReplacing(infoForSeer.ReplaceObject.Value))
-            {
-                var original = Global.ObjAccessor.GetWorldObject(this, infoForSeer.ReplaceObject.Value);
-
-                if (original != null)
-                    objectsToUpdate.Add(original);
-            }
+            if (original != null)
+                objectsToUpdate.Add(original);
         }
 
         VisibleChangesNotifier notifier = new(objectsToUpdate, GridType.World);
@@ -342,8 +333,7 @@ public class TempSummon : Creature
                 // disable replacement without removing - it is still needed for next step (visibility update)
                 var originalSmoothPhasing = original.Visibility.GetSmoothPhasing();
 
-                if (originalSmoothPhasing != null)
-                    originalSmoothPhasing.DisableReplacementForSeer(DemonCreatorGUID);
+                originalSmoothPhasing?.DisableReplacementForSeer(DemonCreatorGUID);
             }
         }
 
@@ -354,8 +344,7 @@ public class TempSummon : Creature
         {
             var originalSmoothPhasing = original.Visibility.GetSmoothPhasing();
 
-            if (originalSmoothPhasing != null)
-                originalSmoothPhasing.ClearViewerDependentInfo(DemonCreatorGUID);
+            originalSmoothPhasing?.ClearViewerDependentInfo(DemonCreatorGUID);
         }
     }
 

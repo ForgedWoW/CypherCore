@@ -77,10 +77,7 @@ public abstract class WorldObject : IDisposable
 
             var go = AsGameObject;
 
-            if (go != null)
-                return go.OwnerUnit;
-
-            return null;
+            return go?.OwnerUnit;
         }
     }
 
@@ -1099,8 +1096,7 @@ public abstract class WorldObject : IDisposable
 
         var transport = Transport;
 
-        if (transport != null)
-            transport.RemovePassenger(this);
+        transport?.RemovePassenger(this);
 
         Events.KillAllEvents(false); // non-delatable (currently cast spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     }
@@ -1163,10 +1159,7 @@ public abstract class WorldObject : IDisposable
 
         var map = Location.Map;
 
-        if (map == null)
-            return null;
-
-        var summon = map.SummonCreature(entry, pos, null, (uint)despawnTime.TotalMilliseconds, this, spellId, vehId, privateObjectOwner);
+        var summon = map?.SummonCreature(entry, pos, null, (uint)despawnTime.TotalMilliseconds, this, spellId, vehId, privateObjectOwner);
 
         if (summon == null)
             return null;

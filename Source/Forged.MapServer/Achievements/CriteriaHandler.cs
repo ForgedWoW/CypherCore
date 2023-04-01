@@ -537,7 +537,7 @@ public class CriteriaHandler
                 continue;
 
             // and at client too
-            SetCriteriaProgress(criteria, 0, null, ProgressType.Set);
+            SetCriteriaProgress(criteria, 0, null);
         }
     }
 
@@ -2058,7 +2058,7 @@ public class CriteriaHandler
 
                 break;
             case ModifierTreeType.PlayerHasItemQuantity: // 105
-                if (referencePlayer.GetItemCount(reqValue, false) < secondaryAsset)
+                if (referencePlayer.GetItemCount(reqValue) < secondaryAsset)
                     return false;
 
                 break;
@@ -2192,10 +2192,7 @@ public class CriteriaHandler
                 break;
             case ModifierTreeType.TargetThreatListSizeLessThan: // 120
             {
-                if (refe == null)
-                    return false;
-
-                var unitRef = refe.AsUnit;
+                var unitRef = refe?.AsUnit;
 
                 if (unitRef == null || !unitRef.CanHaveThreatList)
                     return false;
@@ -2636,10 +2633,7 @@ public class CriteriaHandler
             {
                 var garrison = referencePlayer.Garrison;
 
-                if (garrison == null)
-                    return false;
-
-                var plot = garrison.GetPlot(reqValue);
+                var plot = garrison?.GetPlot(reqValue);
 
                 if (plot == null)
                     return false;
@@ -3183,7 +3177,7 @@ public class CriteriaHandler
                 break;
             }
             case ModifierTreeType.PlayerHasEmptyInventorySlotCountEqualOrGreaterThan: // 223
-                if (referencePlayer.GetFreeInventorySlotCount(ItemSearchLocation.Inventory) < reqValue)
+                if (referencePlayer.GetFreeInventorySlotCount() < reqValue)
                     return false;
 
                 break;
@@ -3553,15 +3547,12 @@ public class CriteriaHandler
             {
                 var heartOfAzeroth = referencePlayer.GetItemByEntry(PlayerConst.ItemIdHeartOfAzeroth, ItemSearchLocation.Everywhere);
 
-                if (heartOfAzeroth != null)
-                {
-                    var azeriteItem = heartOfAzeroth.AsAzeriteItem;
+                var azeriteItem = heartOfAzeroth?.AsAzeriteItem;
 
-                    if (azeriteItem != null)
-                        foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
-                            if (essence.AzeriteEssenceID == reqValue && essence.Rank < secondaryAsset)
-                                return true;
-                }
+                if (azeriteItem != null)
+                    foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
+                        if (essence.AzeriteEssenceID == reqValue && essence.Rank < secondaryAsset)
+                            return true;
 
                 return false;
             }
@@ -3569,15 +3560,12 @@ public class CriteriaHandler
             {
                 var heartOfAzeroth = referencePlayer.GetItemByEntry(PlayerConst.ItemIdHeartOfAzeroth, ItemSearchLocation.Everywhere);
 
-                if (heartOfAzeroth != null)
-                {
-                    var azeriteItem = heartOfAzeroth.AsAzeriteItem;
+                var azeriteItem = heartOfAzeroth?.AsAzeriteItem;
 
-                    if (azeriteItem != null)
-                        foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
-                            if (essence.AzeriteEssenceID == reqValue && essence.Rank == secondaryAsset)
-                                return true;
-                }
+                if (azeriteItem != null)
+                    foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
+                        if (essence.AzeriteEssenceID == reqValue && essence.Rank == secondaryAsset)
+                            return true;
 
                 return false;
             }
@@ -3585,15 +3573,12 @@ public class CriteriaHandler
             {
                 var heartOfAzeroth = referencePlayer.GetItemByEntry(PlayerConst.ItemIdHeartOfAzeroth, ItemSearchLocation.Everywhere);
 
-                if (heartOfAzeroth != null)
-                {
-                    var azeriteItem = heartOfAzeroth.AsAzeriteItem;
+                var azeriteItem = heartOfAzeroth?.AsAzeriteItem;
 
-                    if (azeriteItem != null)
-                        foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
-                            if (essence.AzeriteEssenceID == reqValue && essence.Rank > secondaryAsset)
-                                return true;
-                }
+                if (azeriteItem != null)
+                    foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
+                        if (essence.AzeriteEssenceID == reqValue && essence.Rank > secondaryAsset)
+                            return true;
 
                 return false;
             }
@@ -3632,20 +3617,14 @@ public class CriteriaHandler
             {
                 var heartOfAzeroth = referencePlayer.GetItemByEntry(PlayerConst.ItemIdHeartOfAzeroth, ItemSearchLocation.Everywhere);
 
-                if (heartOfAzeroth != null)
-                {
-                    var azeriteItem = heartOfAzeroth.AsAzeriteItem;
+                var azeriteItem = heartOfAzeroth?.AsAzeriteItem;
 
-                    if (azeriteItem != null)
-                    {
-                        var selectedEssences = azeriteItem.GetSelectedAzeriteEssences();
+                var selectedEssences = azeriteItem?.GetSelectedAzeriteEssences();
 
-                        if (selectedEssences != null)
-                            foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
-                                if (essence.AzeriteEssenceID == selectedEssences.AzeriteEssenceID[(int)reqValue] && essence.Rank < secondaryAsset)
-                                    return true;
-                    }
-                }
+                if (selectedEssences != null)
+                    foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
+                        if (essence.AzeriteEssenceID == selectedEssences.AzeriteEssenceID[(int)reqValue] && essence.Rank < secondaryAsset)
+                            return true;
 
                 return false;
             }
@@ -3653,20 +3632,14 @@ public class CriteriaHandler
             {
                 var heartOfAzeroth = referencePlayer.GetItemByEntry(PlayerConst.ItemIdHeartOfAzeroth, ItemSearchLocation.Everywhere);
 
-                if (heartOfAzeroth != null)
-                {
-                    var azeriteItem = heartOfAzeroth.AsAzeriteItem;
+                var azeriteItem = heartOfAzeroth?.AsAzeriteItem;
 
-                    if (azeriteItem != null)
-                    {
-                        var selectedEssences = azeriteItem.GetSelectedAzeriteEssences();
+                var selectedEssences = azeriteItem?.GetSelectedAzeriteEssences();
 
-                        if (selectedEssences != null)
-                            foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
-                                if (essence.AzeriteEssenceID == selectedEssences.AzeriteEssenceID[(int)reqValue] && essence.Rank > secondaryAsset)
-                                    return true;
-                    }
-                }
+                if (selectedEssences != null)
+                    foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
+                        if (essence.AzeriteEssenceID == selectedEssences.AzeriteEssenceID[(int)reqValue] && essence.Rank > secondaryAsset)
+                            return true;
 
                 return false;
             }

@@ -80,8 +80,7 @@ public class SpellCastData
         foreach (var power in RemainingPower)
             power.Write(data);
 
-        if (RemainingRunes != null)
-            RemainingRunes.Write(data);
+        RemainingRunes?.Write(data);
 
         foreach (var targetLoc in TargetPoints)
             targetLoc.Write(data);

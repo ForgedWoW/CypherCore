@@ -1110,7 +1110,7 @@ public class AuctionHouseObject
                 for (var i = 0; i < SharedConst.MaxMailItems && itemIndex < auction.Items.Count; ++i, ++itemIndex)
                     mail.AddItem(auction.Items[itemIndex]);
 
-                mail.SendMailTo(trans, new MailReceiver(owner, auction.Owner), new MailSender(this), MailCheckMask.Copied, 0);
+                mail.SendMailTo(trans, new MailReceiver(owner, auction.Owner), new MailSender(this), MailCheckMask.Copied);
             }
         }
         else

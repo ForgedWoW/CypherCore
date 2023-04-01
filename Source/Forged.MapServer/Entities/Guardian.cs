@@ -674,7 +674,6 @@ public class Guardian : Minion
         _bonusSpellDamage = damage;
         var playerOwner = OwnerUnit.AsPlayer;
 
-        if (playerOwner != null)
-            playerOwner.SetPetSpellPower((uint)damage);
+        playerOwner?.SetPetSpellPower((uint)damage);
     }
 }

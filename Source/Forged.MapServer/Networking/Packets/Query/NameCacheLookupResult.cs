@@ -20,10 +20,8 @@ public struct NameCacheLookupResult
         data.WriteBit(Unused920 != null);
         data.FlushBits();
 
-        if (Data != null)
-            Data.Write(data);
+        Data?.Write(data);
 
-        if (Unused920 != null)
-            Unused920.Write(data);
+        Unused920?.Write(data);
     }
 }

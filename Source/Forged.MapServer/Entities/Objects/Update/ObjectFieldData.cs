@@ -60,13 +60,10 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
         uint entryId = objectData.EntryId;
         var unit = obj.AsUnit;
 
-        if (unit != null)
-        {
-            var summon = unit.ToTempSummon();
+        var summon = unit?.ToTempSummon();
             
-            if (summon != null && summon.GetSummonerGUID() == receiver.GUID && summon.GetCreatureIdVisibleToSummoner().HasValue)
-                entryId = summon.GetCreatureIdVisibleToSummoner().Value;
-        }
+        if (summon != null && summon.GetSummonerGUID() == receiver.GUID && summon.GetCreatureIdVisibleToSummoner().HasValue)
+            entryId = summon.GetCreatureIdVisibleToSummoner().Value;
 
         return entryId;
     }

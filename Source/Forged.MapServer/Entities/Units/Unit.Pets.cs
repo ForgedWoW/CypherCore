@@ -360,8 +360,8 @@ public partial class Unit
 
         if (player)
         {
-            if (player.IsAFK)
-                player.ToggleAFK();
+            if (player.IsAfk)
+                player.ToggleAfk();
 
             player.SetClientControl(this, false);
         }

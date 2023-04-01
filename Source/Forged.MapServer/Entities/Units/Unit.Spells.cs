@@ -2963,11 +2963,6 @@ public partial class Unit
                    .ForEachResult(aura => aura.ModStackAmount(-num, removeMode));
     }
 
-    public void RemoveAura(uint spellId, AuraRemoveMode mode = AuraRemoveMode.Default)
-    {
-        _appliedAuras.Query().HasSpellId(spellId).Execute(RemoveAura);
-    }
-
     public void RemoveAuraApplicationCount(uint spellId, ushort count = 1)
     {
         _ownedAuras.Query().HasSpellId(spellId).ForEachResult(aura => aura.ModStackAmount(-count));
@@ -4243,37 +4238,16 @@ public partial class Unit
 
     private SpellSchools GetSpellSchoolByAuraGroup(UnitMods unitMod)
     {
-        var school = SpellSchools.Normal;
-
-        switch (unitMod)
+        return unitMod switch
         {
-            case UnitMods.ResistanceHoly:
-                school = SpellSchools.Holy;
-
-                break;
-            case UnitMods.ResistanceFire:
-                school = SpellSchools.Fire;
-
-                break;
-            case UnitMods.ResistanceNature:
-                school = SpellSchools.Nature;
-
-                break;
-            case UnitMods.ResistanceFrost:
-                school = SpellSchools.Frost;
-
-                break;
-            case UnitMods.ResistanceShadow:
-                school = SpellSchools.Shadow;
-
-                break;
-            case UnitMods.ResistanceArcane:
-                school = SpellSchools.Arcane;
-
-                break;
-        }
-
-        return school;
+            UnitMods.ResistanceHoly   => SpellSchools.Holy,
+            UnitMods.ResistanceFire   => SpellSchools.Fire,
+            UnitMods.ResistanceNature => SpellSchools.Nature,
+            UnitMods.ResistanceFrost  => SpellSchools.Frost,
+            UnitMods.ResistanceShadow => SpellSchools.Shadow,
+            UnitMods.ResistanceArcane => SpellSchools.Arcane,
+            _                         => SpellSchools.Normal
+        };
     }
 
     private void _RemoveNoStackAurasDueToAura(Aura aura)

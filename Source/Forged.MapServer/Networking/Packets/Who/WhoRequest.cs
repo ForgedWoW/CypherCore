@@ -54,7 +54,6 @@ public class WhoRequest
         Guild = data.ReadString(guildNameLength);
         GuildVirtualRealmName = data.ReadString(guildVirtualRealmNameLength);
 
-        if (ServerInfo.HasValue)
-            ServerInfo.Value.Read(data);
+        ServerInfo?.Read(data);
     }
 }

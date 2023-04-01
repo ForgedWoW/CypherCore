@@ -38,7 +38,6 @@ internal class PVPMatchInitialize : ServerPacket
         _worldPacket.WriteBit(DeserterPenalty != null);
         _worldPacket.FlushBits();
 
-        if (DeserterPenalty != null)
-            DeserterPenalty.Write(_worldPacket);
+        DeserterPenalty?.Write(_worldPacket);
     }
 }

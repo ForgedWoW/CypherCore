@@ -649,8 +649,7 @@ public class Channel
             // [] will re-add player after it possible removed
             var playerInfo = _playersStore.LookupByKey(_ownerGuid);
 
-            if (playerInfo != null)
-                playerInfo.SetOwner(false);
+            playerInfo?.SetOwner(false);
         }
 
         _ownerGuid = guid;

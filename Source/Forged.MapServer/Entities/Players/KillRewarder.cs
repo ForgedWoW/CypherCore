@@ -92,8 +92,7 @@ public class KillRewarder
             {
                 var instance = _victim.Location.InstanceScript;
 
-                if (instance != null)
-                    instance.UpdateEncounterStateForKilledCreature(_victim.Entry, _victim);
+                instance?.UpdateEncounterStateForKilledCreature(_victim.Entry, _victim);
             }
 
             if (!_killers.Empty())
@@ -106,8 +105,7 @@ public class KillRewarder
 
                 var scenario = victim.Scenario;
 
-                if (scenario != null)
-                    scenario.UpdateCriteria(CriteriaType.KillCreature, victim.Entry, 1, 0, victim, _killers.First());
+                scenario?.UpdateCriteria(CriteriaType.KillCreature, victim.Entry, 1, 0, victim, _killers.First());
             }
         }
     }

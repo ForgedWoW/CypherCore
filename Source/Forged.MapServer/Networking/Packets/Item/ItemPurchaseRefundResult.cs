@@ -20,7 +20,6 @@ internal class ItemPurchaseRefundResult : ServerPacket
         _worldPacket.WriteBit(Contents != null);
         _worldPacket.FlushBits();
 
-        if (Contents != null)
-            Contents.Write(_worldPacket);
+        Contents?.Write(_worldPacket);
     }
 }

@@ -136,7 +136,7 @@ internal class CharacterDatabaseCleaner
 
     private bool SpellCheck(uint spellID)
     {
-        var spellInfo = _spellManager.GetSpellInfo(spellID, Difficulty.None);
+        var spellInfo = _spellManager.GetSpellInfo(spellID);
 
         return spellInfo != null && !spellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
     }

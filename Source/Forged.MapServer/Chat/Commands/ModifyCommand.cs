@@ -680,7 +680,7 @@ internal class ModifyCommand
         // Change display ID
         target.InitDisplayIds();
 
-        target.RestoreDisplayId(false);
+        target.RestoreDisplayId();
         Global.CharacterCacheStorage.UpdateCharacterGender(target.GUID, (byte)gender);
 
         // Generate random customizations
@@ -755,7 +755,7 @@ internal class ModifyCommand
         if (amount == 0)
             return false;
 
-        target.ModifyCurrency(currencyId, (int)amount, CurrencyGainSource.Cheat, CurrencyDestroyReason.Cheat);
+        target.ModifyCurrency(currencyId, (int)amount);
 
         return true;
     }

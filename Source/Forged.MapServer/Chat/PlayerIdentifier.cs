@@ -47,13 +47,10 @@ internal class PlayerIdentifier
     {
         var player = handler.Player;
 
-        if (player != null)
-        {
-            var target = player.SelectedPlayer;
+        var target = player?.SelectedPlayer;
 
-            if (target != null)
-                return new PlayerIdentifier(target);
-        }
+        if (target != null)
+            return new PlayerIdentifier(target);
 
         return null;
     }

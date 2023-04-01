@@ -13,7 +13,7 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
-    private readonly float[] parry_cap =
+    private readonly float[] _parryCap =
     {
         65.631440f,  // Warrior
         65.631440f,  // Paladin
@@ -31,7 +31,7 @@ public partial class Player
         0.0f,        // Adventurer
     };
 
-    private readonly float[] dodge_cap =
+    private readonly float[] _dodgeCap =
     {
         65.631440f,  // Warrior            
         65.631440f,  // Paladin
@@ -92,8 +92,7 @@ public partial class Player
         {
             var pet = CurrentPet;
 
-            if (pet != null)
-                pet.UpdateStats(stat);
+            pet?.UpdateStats(stat);
         }
 
         switch (stat)
@@ -117,11 +116,11 @@ public partial class Player
 
         if (stat == Stats.Strength)
         {
-            UpdateAttackPowerAndDamage(false);
+            UpdateAttackPowerAndDamage();
         }
         else if (stat == Stats.Agility)
         {
-            UpdateAttackPowerAndDamage(false);
+            UpdateAttackPowerAndDamage();
             UpdateAttackPowerAndDamage(true);
         }
 
@@ -140,8 +139,7 @@ public partial class Player
 
             var pet = CurrentPet;
 
-            if (pet != null)
-                pet.UpdateResistances(school);
+            pet?.UpdateResistances(school);
         }
         else
         {
@@ -191,7 +189,7 @@ public partial class Player
         UpdateRating(combatRating);
     }
 
-    public override void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, out double min_damage, out double max_damage)
+    public override void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, out double minDamage, out double maxDamage)
     {
         UnitMods unitMod;
 
@@ -238,8 +236,8 @@ public partial class Player
             //cannot use ranged/off attack, set values to 0
             if (attType != WeaponAttackType.BaseAttack)
             {
-                min_damage = 0;
-                max_damage = 0;
+                minDamage = 0;
+                maxDamage = 0;
 
                 return;
             }
@@ -248,8 +246,8 @@ public partial class Player
             weaponMaxDamage = SharedConst.BaseMaxDamage;
         }
 
-        min_damage = ((baseValue + weaponMinDamage) * basePct + totalValue) * totalPct * versaDmgMod;
-        max_damage = ((baseValue + weaponMaxDamage) * basePct + totalValue) * totalPct * versaDmgMod;
+        minDamage = ((baseValue + weaponMinDamage) * basePct + totalValue) * totalPct * versaDmgMod;
+        maxDamage = ((baseValue + weaponMaxDamage) * basePct + totalValue) * totalPct * versaDmgMod;
     }
 
     public void UpdateAllCritPercentages()
@@ -274,18 +272,18 @@ public partial class Player
 
         // Get base of Mana Pool in sBaseMPGameTable
         Global.ObjectMgr.GetPlayerClassLevelInfo(Class, Level, out var basemana);
-        double base_regen = basemana / 100.0f;
+        double baseRegen = basemana / 100.0f;
 
-        base_regen += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)PowerType.Mana);
+        baseRegen += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)PowerType.Mana);
 
         // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT
-        base_regen *= GetTotalAuraMultiplierByMiscValue(AuraType.ModPowerRegenPercent, (int)PowerType.Mana);
+        baseRegen *= GetTotalAuraMultiplierByMiscValue(AuraType.ModPowerRegenPercent, (int)PowerType.Mana);
 
         // Apply PCT bonus from SPELL_AURA_MOD_MANA_REGEN_PCT
-        base_regen *= GetTotalAuraMultiplierByMiscValue(AuraType.ModManaRegenPct, (int)PowerType.Mana);
+        baseRegen *= GetTotalAuraMultiplierByMiscValue(AuraType.ModManaRegenPct, (int)PowerType.Mana);
 
-        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenFlatModifier, (int)manaIndex), (float)base_regen);
-        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenInterruptedFlatModifier, (int)manaIndex), (float)base_regen);
+        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenFlatModifier, (int)manaIndex), (float)baseRegen);
+        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenInterruptedFlatModifier, (int)manaIndex), (float)baseRegen);
     }
 
     public void UpdateSpellDamageAndHealingBonus()
@@ -365,19 +363,19 @@ public partial class Player
 
         SetStatFlatModifier(unitMod, UnitModifierFlatType.Base, val2);
 
-        var base_attPower = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) * GetPctModifierValue(unitMod, UnitModifierPctType.Base);
+        var baseAttPower = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) * GetPctModifierValue(unitMod, UnitModifierPctType.Base);
         var attPowerMod = GetFlatModifierValue(unitMod, UnitModifierFlatType.Total);
         var attPowerMultiplier = GetPctModifierValue(unitMod, UnitModifierPctType.Total) - 1.0f;
 
         if (ranged)
         {
-            SetRangedAttackPower((int)base_attPower);
+            SetRangedAttackPower((int)baseAttPower);
             SetRangedAttackPowerModPos((int)attPowerMod);
             SetRangedAttackPowerMultiplier((int)attPowerMultiplier);
         }
         else
         {
-            SetAttackPower((int)base_attPower);
+            SetAttackPower((int)baseAttPower);
             SetAttackPowerModPos((int)attPowerMod);
             SetAttackPowerMultiplier((int)attPowerMultiplier);
         }
@@ -661,7 +659,7 @@ public partial class Player
         double value = 0.0f;
         var pclass = (int)Class - 1;
 
-        if (CanParry && parry_cap[pclass] > 0.0f)
+        if (CanParry && _parryCap[pclass] > 0.0f)
         {
             double nondiminishing = 5.0f;
             // Parry from rating
@@ -670,7 +668,7 @@ public partial class Player
             nondiminishing += GetTotalAuraModifier(AuraType.ModParryPercent);
 
             // apply diminishing formula to diminishing parry chance
-            value = CalculateDiminishingReturns(parry_cap, Class, nondiminishing, diminishing);
+            value = CalculateDiminishingReturns(_parryCap, Class, nondiminishing, diminishing);
 
             if (GetDefaultValue("Stats.Limits.Enable", false))
                 value = value > GetDefaultValue("Stats.Limits.Parry", 95.0f) ? GetDefaultValue("Stats.Limits.Parry", 95.0f) : value;
@@ -688,7 +686,7 @@ public partial class Player
         // Dodge from rating
         diminishing += GetRatingBonusValue(CombatRating.Dodge);
         // apply diminishing formula to diminishing dodge chance
-        var value = CalculateDiminishingReturns(dodge_cap, Class, nondiminishing, diminishing);
+        var value = CalculateDiminishingReturns(_dodgeCap, Class, nondiminishing, diminishing);
 
         if (GetDefaultValue("Stats.Limits.Enable", false))
             value = value > GetDefaultValue("Stats.Limits.Dodge", 95.0f) ? GetDefaultValue("Stats.Limits.Dodge", 95.0f) : value;
@@ -719,7 +717,7 @@ public partial class Player
 
     public void UpdateCritPercentage(WeaponAttackType attType)
     {
-        static float applyCritLimit(double value)
+        static float ApplyCritLimit(double value)
         {
             if (GetDefaultValue("Stats.Limits.Enable", false))
                 value = value > GetDefaultValue("Stats.Limits.Crit", 95.0f) ? GetDefaultValue("Stats.Limits.Crit", 95.0f) : value;
@@ -731,18 +729,18 @@ public partial class Player
         {
             case WeaponAttackType.OffAttack:
                 SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.OffhandCritPercentage),
-                                        applyCritLimit(GetBaseModValue(BaseModGroup.OffhandCritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.OffhandCritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritMelee)));
+                                        ApplyCritLimit(GetBaseModValue(BaseModGroup.OffhandCritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.OffhandCritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritMelee)));
 
                 break;
             case WeaponAttackType.RangedAttack:
                 SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.RangedCritPercentage),
-                                        applyCritLimit(GetBaseModValue(BaseModGroup.RangedCritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.RangedCritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritRanged)));
+                                        ApplyCritLimit(GetBaseModValue(BaseModGroup.RangedCritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.RangedCritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritRanged)));
 
                 break;
             case WeaponAttackType.BaseAttack:
             default:
                 SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.CritPercentage),
-                                        applyCritLimit(GetBaseModValue(BaseModGroup.CritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.CritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritMelee)));
+                                        ApplyCritLimit(GetBaseModValue(BaseModGroup.CritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.CritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritMelee)));
 
                 break;
         }
@@ -942,7 +940,7 @@ public partial class Player
 
     private double CalculateDiminishingReturns(float[] capArray, PlayerClass playerClass, double nonDiminishValue, double diminishValue)
     {
-        float[] m_diminishing_k =
+        float[] mDiminishingK =
         {
             0.9560f, // Warrior
             0.9560f, // Paladin
@@ -972,7 +970,7 @@ public partial class Player
 
         var classIdx = (byte)playerClass - 1u;
 
-        var k = m_diminishing_k[classIdx];
+        var k = mDiminishingK[classIdx];
         var c = capArray[classIdx];
 
         var result = c * diminishValue / (diminishValue + c * k);

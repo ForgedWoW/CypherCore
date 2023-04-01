@@ -14,8 +14,7 @@ internal struct GarrisonTalent
         data.WriteBit(Socket.HasValue);
         data.FlushBits();
 
-        if (Socket.HasValue)
-            Socket.Value.Write(data);
+        Socket?.Write(data);
     }
 
     public int GarrTalentID;

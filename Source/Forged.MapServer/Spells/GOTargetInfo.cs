@@ -24,8 +24,7 @@ public class GOTargetInfo : TargetInfoBase
         spell.HandleEffects(null, null, go, null, spellEffectInfo, SpellEffectHandleMode.HitTarget);
 
         //AI functions
-        if (go.AI != null)
-            go.AI.SpellHit(spell.Caster, spell.SpellInfo);
+        go.AI?.SpellHit(spell.Caster, spell.SpellInfo);
 
         if (spell.Caster.IsCreature && spell.Caster.AsCreature.IsAIEnabled)
             spell.Caster.AsCreature.AI.SpellHitTarget(go, spell.SpellInfo);

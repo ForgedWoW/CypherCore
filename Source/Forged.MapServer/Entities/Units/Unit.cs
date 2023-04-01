@@ -869,7 +869,7 @@ public partial class Unit : WorldObject
         else
         {
             // ReSharper disable once RedundantArgumentDefaultValue
-            base.UpdateObjectVisibility(true);
+            base.UpdateObjectVisibility();
             // call MoveInLineOfSight for nearby creatures
             AIRelocationNotifier notifier = new(this, GridType.All);
             Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);

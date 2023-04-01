@@ -19,12 +19,12 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
-    public void RewardPlayerAndGroupAtEvent(uint creature_id, WorldObject pRewardSource)
+    public void RewardPlayerAndGroupAtEvent(uint creatureID, WorldObject pRewardSource)
     {
         if (pRewardSource == null)
             return;
 
-        var creature_guid = pRewardSource.IsTypeId(TypeId.Unit) ? pRewardSource.GUID : ObjectGuid.Empty;
+        var creatureGUID = pRewardSource.IsTypeId(TypeId.Unit) ? pRewardSource.GUID : ObjectGuid.Empty;
 
         // prepare data for near group iteration
         var group = Group;
@@ -42,10 +42,10 @@ public partial class Player
 
                 // quest objectives updated only for alive group member or dead but with not released body
                 if (player.IsAlive || !player.GetCorpse())
-                    player.KilledMonsterCredit(creature_id, creature_guid);
+                    player.KilledMonsterCredit(creatureID, creatureGUID);
             }
         else
-            KilledMonsterCredit(creature_id, creature_guid);
+            KilledMonsterCredit(creatureID, creatureGUID);
     }
 
     public void AddWeaponProficiency(uint newflag)
@@ -428,9 +428,9 @@ public partial class Player
         UpdatePvP(false);
     }
 
-    public void UpdatePvP(bool state, bool Override = false)
+    public void UpdatePvP(bool state, bool @override = false)
     {
-        if (!state || Override)
+        if (!state || @override)
         {
             SetPvP(state);
             PvpInfo.EndTimer = 0;

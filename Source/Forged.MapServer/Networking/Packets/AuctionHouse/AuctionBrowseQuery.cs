@@ -55,8 +55,7 @@ internal class AuctionBrowseQuery : ClientPacket
         for (var i = 0; i < sortSize; ++i)
             Sorts[i] = new AuctionSortDef(_worldPacket);
 
-        if (TaintedBy.HasValue)
-            TaintedBy.Value.Read(_worldPacket);
+        TaintedBy?.Read(_worldPacket);
 
         Name = _worldPacket.ReadString(nameLength);
 

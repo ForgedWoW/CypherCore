@@ -680,13 +680,9 @@ public class Aura
         var maxStackAmount = SpellInfo.StackAmount;
         var caster = Caster;
 
-        if (caster != null)
-        {
-            var modOwner = caster.SpellModOwner;
+        var modOwner = caster?.SpellModOwner;
 
-            if (modOwner != null)
-                modOwner.ApplySpellMod(SpellInfo, SpellModOp.MaxAuraStacks, ref maxStackAmount);
-        }
+        modOwner?.ApplySpellMod(SpellInfo, SpellModOp.MaxAuraStacks, ref maxStackAmount);
 
         return maxStackAmount;
     }
@@ -839,13 +835,9 @@ public class Aura
         // Apply dispel mod from aura caster
         var caster = Caster;
 
-        if (caster != null)
-        {
-            var modOwner = caster.SpellModOwner;
+        var modOwner = caster?.SpellModOwner;
 
-            if (modOwner != null)
-                modOwner.ApplySpellMod(SpellInfo, SpellModOp.DispelResistance, ref resistChance);
-        }
+        modOwner?.ApplySpellMod(SpellInfo, SpellModOp.DispelResistance, ref resistChance);
 
         resistChance = resistChance < 0 ? 0 : resistChance;
         resistChance = resistChance > 100 ? 100 : resistChance;
@@ -980,8 +972,10 @@ public class Aura
                     foreach (var spell in spellTriggered)
                         if (spell < 0)
                             target.ApplySpellImmune(Id, SpellImmunity.Id, (uint)-spell, true);
-                        else if (caster != null)
-                            caster.AddAura((uint)spell, target);
+                        else
+                        {
+                            caster?.AddAura((uint)spell, target);
+                        }
             }
             else
             {
@@ -1020,8 +1014,7 @@ public class Aura
                     {
                         var triggeredAura = target.GetAura((uint)id, CasterGuid);
 
-                        if (triggeredAura != null)
-                            triggeredAura.ModStackAmount(StackAmount - triggeredAura.StackAmount);
+                        triggeredAura?.ModStackAmount(StackAmount - triggeredAura.StackAmount);
                     }
         }
 
@@ -1131,7 +1124,7 @@ public class Aura
                 case SpellFamilyNames.Rogue:
                     // Remove Vanish on stealth remove
                     if (Id == 1784)
-                        target.RemoveAurasWithFamily(SpellFamilyNames.Rogue, new FlagArray128(0x0000800, 0, 0), target.GUID);
+                        target.RemoveAurasWithFamily(SpellFamilyNames.Rogue, new FlagArray128(0x0000800), target.GUID);
 
                     break;
             }
@@ -1372,13 +1365,9 @@ public class Aura
         var procCooldown = (int)procEntry.Cooldown;
         var caster = Caster;
 
-        if (caster != null)
-        {
-            var modOwner = caster.SpellModOwner;
+        var modOwner = caster?.SpellModOwner;
 
-            if (modOwner != null)
-                modOwner.ApplySpellMod(SpellInfo, SpellModOp.ProcCooldown, ref procCooldown);
-        }
+        modOwner?.ApplySpellMod(SpellInfo, SpellModOp.ProcCooldown, ref procCooldown);
 
         _procCooldown = now + TimeSpan.FromMilliseconds(procCooldown);
     }
@@ -1693,7 +1682,7 @@ public class Aura
     public void ApplyForTargets()
     {
         var caster = Caster;
-        UpdateTargetMap(caster, true);
+        UpdateTargetMap(caster);
     }
 
     public void SetMaxDuration(double duration)
@@ -1844,8 +1833,7 @@ public class Aura
             {
                 var aurApp = foundAura.GetApplicationOfTarget(unit.GUID);
 
-                if (aurApp != null)
-                    aurApp.UpdateApplyEffectMask(effMask, false);
+                aurApp?.UpdateApplyEffectMask(effMask, false);
             }
 
             return foundAura;
@@ -2030,7 +2018,7 @@ public class Aura
         var caster = Caster;
 
         foreach (var aurEff in AuraEffects)
-            aurEff.Value.CalculatePeriodic(caster, resetPeriodicTimer, false);
+            aurEff.Value.CalculatePeriodic(caster, resetPeriodicTimer);
     }
 
     private bool CanBeAppliedOn(Unit target)
@@ -2085,8 +2073,7 @@ public class Aura
             // apply chance modifer aura, applies also to ppm chance (see improved judgement of light spell)
             var modOwner = caster.SpellModOwner;
 
-            if (modOwner != null)
-                modOwner.ApplySpellMod(SpellInfo, SpellModOp.ProcChance, ref chance);
+            modOwner?.ApplySpellMod(SpellInfo, SpellModOp.ProcChance, ref chance);
         }
 
         // proc chance is reduced by an additional 3.333% per level past 60
@@ -2169,13 +2156,9 @@ public class Aura
         if (procEntry != null)
             maxProcCharges = procEntry.Charges;
 
-        if (caster != null)
-        {
-            var modOwner = caster.SpellModOwner;
+        var modOwner = caster?.SpellModOwner;
 
-            if (modOwner != null)
-                modOwner.ApplySpellMod(SpellInfo, SpellModOp.ProcCharges, ref maxProcCharges);
-        }
+        modOwner?.ApplySpellMod(SpellInfo, SpellModOp.ProcCharges, ref maxProcCharges);
 
         return (byte)maxProcCharges;
     }

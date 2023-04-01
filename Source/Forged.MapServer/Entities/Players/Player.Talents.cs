@@ -228,13 +228,13 @@ public partial class Player
     public void ResetTalentSpecialization()
     {
         // Reset only talents that have different spells for each spec
-        var class_ = Class;
+        var @class = Class;
 
         for (uint t = 0; t < PlayerConst.MaxTalentTiers; ++t)
         {
             for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
-                if (Global.DB2Mgr.GetTalentsByPosition(class_, t, c).Count > 1)
-                    foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(class_, t, c))
+                if (Global.DB2Mgr.GetTalentsByPosition(@class, t, c).Count > 1)
+                    foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(@class, t, c))
                         RemoveTalent(talent);
         }
 
@@ -248,7 +248,7 @@ public partial class Player
         LearnSpecializationSpells();
 
         SendTalentsInfoData();
-        UpdateItemSetAuras(false);
+        UpdateItemSetAuras();
     }
 
     public uint GetPrimarySpecialization()
@@ -429,7 +429,7 @@ public partial class Player
             SetPower(PowerType.Mana, 0); // Mana must be 0 even if it isn't the active power type.
 
         SetPower(pw, 0);
-        UpdateItemSetAuras(false);
+        UpdateItemSetAuras();
 
         // update visible transmog
         for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
@@ -459,28 +459,25 @@ public partial class Player
 
         var item = GetItemByEntry(PlayerConst.ItemIdHeartOfAzeroth, ItemSearchLocation.Everywhere);
 
-        if (item != null)
+        var azeriteItem = item?.AsAzeriteItem;
+
+        if (azeriteItem != null)
         {
-            var azeriteItem = item.AsAzeriteItem;
-
-            if (azeriteItem != null)
+            if (azeriteItem.IsEquipped)
             {
-                if (azeriteItem.IsEquipped)
-                {
-                    ApplyAllAzeriteEmpoweredItemMods(false);
-                    ApplyAzeritePowers(azeriteItem, false);
-                }
-
-                azeriteItem.SetSelectedAzeriteEssences(spec.Id);
-
-                if (azeriteItem.IsEquipped)
-                {
-                    ApplyAzeritePowers(azeriteItem, true);
-                    ApplyAllAzeriteEmpoweredItemMods(true);
-                }
-
-                azeriteItem.SetState(ItemUpdateState.Changed, this);
+                ApplyAllAzeriteEmpoweredItemMods(false);
+                ApplyAzeritePowers(azeriteItem, false);
             }
+
+            azeriteItem.SetSelectedAzeriteEssences(spec.Id);
+
+            if (azeriteItem.IsEquipped)
+            {
+                ApplyAzeritePowers(azeriteItem, true);
+                ApplyAllAzeriteEmpoweredItemMods(true);
+            }
+
+            azeriteItem.SetState(ItemUpdateState.Changed, this);
         }
 
         var shapeshiftAuras = GetAuraEffectsByType(AuraType.ModShapeshift);
@@ -526,21 +523,21 @@ public partial class Player
             if (months > 0)
             {
                 // This cost will be reduced by a rate of 5 gold per month
-                var new_cost = (uint)(GetTalentResetCost() - 5 * MoneyConstants.Gold * months);
+                var newCost = (uint)(GetTalentResetCost() - 5 * MoneyConstants.Gold * months);
 
                 // to a minimum of 10 gold.
-                return new_cost < 10 * MoneyConstants.Gold ? 10 * MoneyConstants.Gold : new_cost;
+                return newCost < 10 * MoneyConstants.Gold ? 10 * MoneyConstants.Gold : newCost;
             }
             else
             {
                 // After that it increases in increments of 5 gold
-                var new_cost = GetTalentResetCost() + 5 * MoneyConstants.Gold;
+                var newCost = GetTalentResetCost() + 5 * MoneyConstants.Gold;
 
                 // until it hits a cap of 50 gold.
-                if (new_cost > 50 * MoneyConstants.Gold)
-                    new_cost = 50 * MoneyConstants.Gold;
+                if (newCost > 50 * MoneyConstants.Gold)
+                    newCost = 50 * MoneyConstants.Gold;
 
-                return new_cost;
+                return newCost;
             }
         }
     }
@@ -804,12 +801,12 @@ public partial class Player
     {
         var configId = TraitMgr.GenerateNewTraitConfigId();
 
-        bool hasConfigId(int id)
+        bool HasConfigId(int id)
         {
             return ActivePlayerData.TraitConfigs.FindIndexIf(config => config.ID == id) >= 0;
         }
 
-        while (hasConfigId(configId))
+        while (HasConfigId(configId))
             configId = TraitMgr.GenerateNewTraitConfigId();
 
         traitConfig.ID = configId;
@@ -1013,9 +1010,9 @@ public partial class Player
         return _specializationInfo.ResetTalentsTime;
     }
 
-    private void SetTalentResetTime(long time_)
+    private void SetTalentResetTime(long time)
     {
-        _specializationInfo.ResetTalentsTime = time_;
+        _specializationInfo.ResetTalentsTime = time;
     }
 
     private void SetPrimarySpecialization(uint spec)
@@ -1063,8 +1060,7 @@ public partial class Player
                                  if (thisPlayer != null && thisPlayer.GUID == myGuid)
                                      thisPlayer.LoadActions(result);
 
-                                 if (callback != null)
-                                     callback();
+                                 callback?.Invoke();
                              }));
     }
 

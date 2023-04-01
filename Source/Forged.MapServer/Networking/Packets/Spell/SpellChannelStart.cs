@@ -28,10 +28,8 @@ public class SpellChannelStart : ServerPacket
         _worldPacket.WriteBit(HealPrediction.HasValue);
         _worldPacket.FlushBits();
 
-        if (InterruptImmunities.HasValue)
-            InterruptImmunities.Value.Write(_worldPacket);
+        InterruptImmunities?.Write(_worldPacket);
 
-        if (HealPrediction.HasValue)
-            HealPrediction.Value.Write(_worldPacket);
+        HealPrediction?.Write(_worldPacket);
     }
 }

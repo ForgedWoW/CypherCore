@@ -436,10 +436,10 @@ public class MiscHandler : IWorldSessionHandler
         }
 
         for (byte i = 0; i < packet.CUFProfiles.Count; ++i)
-            Player.SaveCUFProfile(i, packet.CUFProfiles[i]);
+            Player.SaveCufProfile(i, packet.CUFProfiles[i]);
 
         for (var i = (byte)packet.CUFProfiles.Count; i < PlayerConst.MaxCUFProfiles; ++i)
-            Player.SaveCUFProfile(i, null);
+            Player.SaveCufProfile(i, null);
     }
 
     [WorldPacketHandler(ClientOpcodes.SetAdvancedCombatLogging, Processing = PacketProcessing.Inplace)]

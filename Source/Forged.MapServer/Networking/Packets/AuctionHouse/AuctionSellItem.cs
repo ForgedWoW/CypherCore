@@ -30,8 +30,7 @@ internal class AuctionSellItem : ClientPacket
 
         var itemCount = _worldPacket.ReadBits<uint>(6);
 
-        if (TaintedBy.HasValue)
-            TaintedBy.Value.Read(_worldPacket);
+        TaintedBy?.Read(_worldPacket);
 
         for (var i = 0; i < itemCount; ++i)
             Items[i] = new AuctionItemForSale(_worldPacket);

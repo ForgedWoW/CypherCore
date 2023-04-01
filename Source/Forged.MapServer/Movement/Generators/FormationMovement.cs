@@ -102,17 +102,14 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
             {
                 var formation = target.AsCreature.Formation;
 
-                if (formation != null)
+                var leader = formation?.Leader;
+
+                if (leader != null)
                 {
-                    var leader = formation.Leader;
+                    var currentWaypoint = leader.CurrentWaypointInfo.nodeId;
 
-                    if (leader != null)
-                    {
-                        var currentWaypoint = leader.CurrentWaypointInfo.nodeId;
-
-                        if (currentWaypoint == _point1 || currentWaypoint == _point2)
-                            _angle = MathF.PI * 2 - _angle;
-                    }
+                    if (currentWaypoint == _point1 || currentWaypoint == _point2)
+                        _angle = MathF.PI * 2 - _angle;
                 }
             }
 
@@ -239,7 +236,6 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
 
     private void MovementInform(Creature owner)
     {
-        if (owner.AI != null)
-            owner.AI.MovementInform(MovementGeneratorType.Formation, 0);
+        owner.AI?.MovementInform(MovementGeneratorType.Formation, 0);
     }
 }

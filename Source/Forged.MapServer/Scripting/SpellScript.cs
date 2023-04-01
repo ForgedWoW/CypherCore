@@ -231,10 +231,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return null;
             }
 
-            if (Spell.UnitTarget != null)
-                return Spell.UnitTarget.AsCreature;
-            else
-                return null;
+            return Spell.UnitTarget?.AsCreature;
         }
     }
 
@@ -252,10 +249,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
                 return null;
             }
 
-            if (Spell.UnitTarget != null)
-                return Spell.UnitTarget.AsPlayer;
-            else
-                return null;
+            return Spell.UnitTarget?.AsPlayer;
         }
     }
 

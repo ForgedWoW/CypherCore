@@ -66,10 +66,10 @@ public class BladesEdgeArena : Arena
     public override bool SetupBattleground()
     {
         var result = true;
-        result &= AddObject(BladeEdgeObjectTypes.Door1, BladeEfgeGameObjects.Door1, 6287.277f, 282.1877f, 3.810925f, -2.260201f, 0, 0, 0.9044551f, -0.4265689f, BattlegroundConst.RespawnImmediately);
-        result &= AddObject(BladeEdgeObjectTypes.Door2, BladeEfgeGameObjects.Door2, 6189.546f, 241.7099f, 3.101481f, 0.8813917f, 0, 0, 0.4265689f, 0.9044551f, BattlegroundConst.RespawnImmediately);
-        result &= AddObject(BladeEdgeObjectTypes.Door3, BladeEfgeGameObjects.Door3, 6299.116f, 296.5494f, 3.308032f, 0.8813917f, 0, 0, 0.4265689f, 0.9044551f, BattlegroundConst.RespawnImmediately);
-        result &= AddObject(BladeEdgeObjectTypes.Door4, BladeEfgeGameObjects.Door4, 6177.708f, 227.3481f, 3.604374f, -2.260201f, 0, 0, 0.9044551f, -0.4265689f, BattlegroundConst.RespawnImmediately);
+        result &= AddObject(BladeEdgeObjectTypes.Door1, BladeEfgeGameObjects.Door1, 6287.277f, 282.1877f, 3.810925f, -2.260201f, 0, 0, 0.9044551f, -0.4265689f);
+        result &= AddObject(BladeEdgeObjectTypes.Door2, BladeEfgeGameObjects.Door2, 6189.546f, 241.7099f, 3.101481f, 0.8813917f, 0, 0, 0.4265689f, 0.9044551f);
+        result &= AddObject(BladeEdgeObjectTypes.Door3, BladeEfgeGameObjects.Door3, 6299.116f, 296.5494f, 3.308032f, 0.8813917f, 0, 0, 0.4265689f, 0.9044551f);
+        result &= AddObject(BladeEdgeObjectTypes.Door4, BladeEfgeGameObjects.Door4, 6177.708f, 227.3481f, 3.604374f, -2.260201f, 0, 0, 0.9044551f, -0.4265689f);
 
         if (!result)
         {

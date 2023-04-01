@@ -34,10 +34,8 @@ public class InstanceScenario : Scenario
     public override void SendPacket(ServerPacket data)
     {
         //Hack  todo fix me
-        if (_map == null)
-            return;
 
-        _map.SendToPlayers(data);
+        _map?.SendToPlayers(data);
     }
 
     private void LoadInstanceData()
@@ -83,7 +81,7 @@ public class InstanceScenario : Scenario
 
                     if (progress != 0)
                     {
-                        SetCriteriaProgress(criteria, progress, null, ProgressType.Set);
+                        SetCriteriaProgress(criteria, progress, null);
                         var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
 
                         if (trees != null)
@@ -99,7 +97,7 @@ public class InstanceScenario : Scenario
             if (!instanceScript.IsEncounterCompleted(criteria.Entry.Asset))
                 continue;
 
-            SetCriteriaProgress(criteria, 1, null, ProgressType.Set);
+            SetCriteriaProgress(criteria, 1, null);
             var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
 
             if (trees != null)

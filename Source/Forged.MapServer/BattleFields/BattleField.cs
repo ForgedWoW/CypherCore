@@ -338,8 +338,8 @@ public class BattleField : ZoneScript
             m_PlayersInWar[player.TeamId].Add(player.GUID);
             m_InvitedPlayers[player.TeamId].Remove(player.GUID);
 
-            if (player.IsAFK)
-                player.ToggleAFK();
+            if (player.IsAfk)
+                player.ToggleAfk();
 
             OnPlayerJoinWar(player); //for scripting
         }

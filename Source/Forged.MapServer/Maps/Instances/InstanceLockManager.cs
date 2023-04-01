@@ -143,10 +143,7 @@ public class InstanceLockManager
     {
         var playerLocks = locks.LookupByKey(playerGuid);
 
-        if (playerLocks == null)
-            return null;
-
-        return playerLocks.LookupByKey(entries.GetKey());
+        return playerLocks?.LookupByKey(entries.GetKey());
     }
 
     public InstanceLock FindActiveInstanceLock(ObjectGuid playerGuid, MapDb2Entries entries)
@@ -228,23 +225,20 @@ public class InstanceLockManager
                 // player can still change his mind, exit instance and reactivate old lock
                 var playerLocks = _temporaryInstanceLocksByPlayer.LookupByKey(playerGuid);
 
-                if (playerLocks != null)
+                var playerInstanceLock = playerLocks?.LookupByKey(entries.GetKey());
+
+                if (playerInstanceLock != null)
                 {
-                    var playerInstanceLock = playerLocks.LookupByKey(entries.GetKey());
+                    instanceLock = playerInstanceLock;
+                    _instanceLocksByPlayer[playerGuid][entries.GetKey()] = instanceLock;
 
-                    if (playerInstanceLock != null)
-                    {
-                        instanceLock = playerInstanceLock;
-                        _instanceLocksByPlayer[playerGuid][entries.GetKey()] = instanceLock;
+                    playerLocks.Remove(entries.GetKey());
 
-                        playerLocks.Remove(entries.GetKey());
+                    if (playerLocks.Empty())
+                        _temporaryInstanceLocksByPlayer.Remove(playerGuid);
 
-                        if (playerLocks.Empty())
-                            _temporaryInstanceLocksByPlayer.Remove(playerGuid);
-
-                        Log.Logger.Debug($"[{entries.Map.Id}-{entries.Map.MapName[_worldManager.DefaultDbcLocale]} | " +
-                                         $"{entries.MapDifficulty.DifficultyID}-{_cliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] Promoting temporary lock to permanent for {playerGuid} in instance {updateEvent.InstanceId}");
-                    }
+                    Log.Logger.Debug($"[{entries.Map.Id}-{entries.Map.MapName[_worldManager.DefaultDbcLocale]} | " +
+                                     $"{entries.MapDifficulty.DifficultyID}-{_cliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] Promoting temporary lock to permanent for {playerGuid} in instance {updateEvent.InstanceId}");
                 }
             }
 

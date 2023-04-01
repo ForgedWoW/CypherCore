@@ -257,8 +257,8 @@ internal class BgEyeofStorm : Battleground
     public override bool SetupBattleground()
     {
         // doors
-        if (!AddObject(EotSObjectTypes.DoorA, EotSObjectIds.ADoorEyEntry, 2527.59716796875f, 1596.90625f, 1238.4544677734375f, 3.159139871597290039f, 0.173641681671142578f, 0.001514434814453125f, -0.98476982116699218f, 0.008638577535748481f, BattlegroundConst.RespawnImmediately) ||
-            !AddObject(EotSObjectTypes.DoorH, EotSObjectIds.HDoorEyEntry, 1803.2066650390625f, 1539.486083984375f, 1238.4544677734375f, 3.13898324966430664f, 0.173647880554199218f, 0.0f, 0.984807014465332031f, 0.001244877814315259f, BattlegroundConst.RespawnImmediately)
+        if (!AddObject(EotSObjectTypes.DoorA, EotSObjectIds.ADoorEyEntry, 2527.59716796875f, 1596.90625f, 1238.4544677734375f, 3.159139871597290039f, 0.173641681671142578f, 0.001514434814453125f, -0.98476982116699218f, 0.008638577535748481f) ||
+            !AddObject(EotSObjectTypes.DoorH, EotSObjectIds.HDoorEyEntry, 1803.2066650390625f, 1539.486083984375f, 1238.4544677734375f, 3.13898324966430664f, 0.173647880554199218f, 0.0f, 0.984807014465332031f, 0.001244877814315259f)
             // banners (alliance)
             ||
             !AddObject(EotSObjectTypes.ABannerFelReaverCenter, EotSObjectIds.ABannerEyEntry, 2057.47265625f, 1735.109130859375f, 1188.065673828125f, 5.305802345275878906f, 0.0f, 0.0f, -0.46947097778320312f, 0.882947921752929687f, BattlegroundConst.RespawnOneDay) ||
@@ -428,9 +428,9 @@ internal class BgEyeofStorm : Battleground
         UpdateWorldState(EotSWorldStateIds.NetherstormFlagStateAlliance, (int)EotSFlagState.WaitRespawn);
 
         if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
-            SendBroadcastText(EotSBroadcastTexts.FlagDropped, ChatMsg.BgSystemAlliance, null);
+            SendBroadcastText(EotSBroadcastTexts.FlagDropped, ChatMsg.BgSystemAlliance);
         else
-            SendBroadcastText(EotSBroadcastTexts.FlagDropped, ChatMsg.BgSystemHorde, null);
+            SendBroadcastText(EotSBroadcastTexts.FlagDropped, ChatMsg.BgSystemHorde);
     }
 
     public override void EventPlayerClickedOnFlag(Player player, GameObject target_obj)

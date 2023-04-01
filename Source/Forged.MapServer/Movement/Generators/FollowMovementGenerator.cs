@@ -224,7 +224,6 @@ public class FollowMovementGenerator : MovementGenerator
 
         var ai = owner.AsCreature.AI;
 
-        if (ai != null)
-            ai.MovementInform(MovementGeneratorType.Follow, (uint)target.GUID.Counter);
+        ai?.MovementInform(MovementGeneratorType.Follow, (uint)target.GUID.Counter);
     }
 }

@@ -158,7 +158,7 @@ public partial class Player
 
     private ResurrectionData _resurrectionData;
 
-    private PlayerAchievementMgr _AchievementSys;
+    private PlayerAchievementMgr _achievementSys;
 
     private Runes _runes = new();
     private uint _hostileReferenceCheckTimer;

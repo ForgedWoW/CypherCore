@@ -422,7 +422,7 @@ public class ReputationMgr
 
                     // If the reputation is decreased by command, we will send CurrencyDestroyReason::Cheat
                     if (oldRenownLevel != newRenownLevel)
-                        _player.ModifyCurrency(currency.Id, newRenownLevel - oldRenownLevel, CurrencyGainSource.RenownRepGain, CurrencyDestroyReason.Cheat);
+                        _player.ModifyCurrency(currency.Id, newRenownLevel - oldRenownLevel, CurrencyGainSource.RenownRepGain);
                 }
             }
 

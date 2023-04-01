@@ -1146,7 +1146,7 @@ public class SmartAI : CreatureAI
         {
             if (_followArrivedTimer < diff)
             {
-                if (Me.Location.FindNearestCreature(_followArrivedEntry, SharedConst.InteractionDistance, true))
+                if (Me.Location.FindNearestCreature(_followArrivedEntry, SharedConst.InteractionDistance))
                 {
                     StopFollow(true);
 

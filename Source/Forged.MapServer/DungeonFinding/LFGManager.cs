@@ -769,10 +769,7 @@ public class LFGManager
     {
         var palyerData = _playersStore.LookupByKey(guid);
 
-        if (palyerData != null)
-            return palyerData.GetTicket();
-
-        return null;
+        return palyerData?.GetTicket();
     }
 
     public void UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid = default, LfgRoles roles = LfgRoles.None)
@@ -983,11 +980,8 @@ public class LFGManager
         // Check if the proposal exists
         var proposal = _proposalsStore.LookupByKey(proposalId);
 
-        if (proposal == null)
-            return;
-
         // Check if proposal have the current player
-        var player = proposal.Players.LookupByKey(guid);
+        var player = proposal?.Players.LookupByKey(guid);
 
         if (player == null)
             return;
@@ -1077,13 +1071,10 @@ public class LFGManager
             // Store the number of players that were present in group when joining RFD, used for achievement purposes
             var player = _objectAccessor.FindConnectedPlayer(pguid);
 
-            if (player != null)
-            {
-                var group = player.Group;
+            var group = player?.Group;
 
-                if (group != null)
-                    _playersStore[pguid].SetNumberOfPartyMembersAtJoin((byte)group.MembersCount);
-            }
+            if (group != null)
+                _playersStore[pguid].SetNumberOfPartyMembersAtJoin((byte)group.MembersCount);
 
             SetState(pguid, LfgState.Dungeon);
         }
@@ -1501,7 +1492,7 @@ public class LFGManager
         if (!_groupsStore.ContainsKey(guid))
             return 0;
 
-        var dungeonId = _groupsStore[guid].GetDungeon(true);
+        var dungeonId = _groupsStore[guid].GetDungeon();
         uint mapId = 0;
 
         if (dungeonId != 0)
@@ -1967,7 +1958,7 @@ public class LFGManager
         if (!guid.IsParty)
             guid = GetGroup(guid);
 
-        var dungeonId = GetDungeon(guid, true);
+        var dungeonId = GetDungeon(guid);
 
         if (dungeonId != 0)
         {

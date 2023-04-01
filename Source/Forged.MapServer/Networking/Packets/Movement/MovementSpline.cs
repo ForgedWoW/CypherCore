@@ -52,8 +52,7 @@ public class MovementSpline
         data.WriteBit(Unknown901 != null);
         data.FlushBits();
 
-        if (SplineFilter != null)
-            SplineFilter.Write(data);
+        SplineFilter?.Write(data);
 
         switch (Face)
         {
@@ -78,16 +77,12 @@ public class MovementSpline
         foreach (var pos in PackedDeltas)
             data.WritePackXYZ(pos);
 
-        if (SpellEffectExtraData.HasValue)
-            SpellEffectExtraData.Value.Write(data);
+        SpellEffectExtraData?.Write(data);
 
-        if (JumpExtraData.HasValue)
-            JumpExtraData.Value.Write(data);
+        JumpExtraData?.Write(data);
 
-        if (AnimTierTransition.HasValue)
-            AnimTierTransition.Value.Write(data);
+        AnimTierTransition?.Write(data);
 
-        if (Unknown901 != null)
-            Unknown901.Write(data);
+        Unknown901?.Write(data);
     }
 }

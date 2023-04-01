@@ -123,8 +123,8 @@ public class TradeHandler : IWorldSessionHandler
         {
             List<ItemPosCount> traderDst = new();
             List<ItemPosCount> playerDst = new();
-            var traderCanTrade = (myItems[i] == null || trader.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, traderDst, myItems[i], false) == InventoryResult.Ok);
-            var playerCanTrade = (hisItems[i] == null || Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, hisItems[i], false) == InventoryResult.Ok);
+            var traderCanTrade = (myItems[i] == null || trader.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, traderDst, myItems[i]) == InventoryResult.Ok);
+            var playerCanTrade = (hisItems[i] == null || Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, hisItems[i]) == InventoryResult.Ok);
 
             if (traderCanTrade && playerCanTrade)
             {
@@ -189,7 +189,7 @@ public class TradeHandler : IWorldSessionHandler
                     if (!traderCanTrade)
                         Log.Logger.Error("trader can't store item: {0}", myItems[i].GUID.ToString());
 
-                    if (Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, myItems[i], false) == InventoryResult.Ok)
+                    if (Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, myItems[i]) == InventoryResult.Ok)
                         Player.MoveItemToInventory(playerDst, myItems[i], true, true);
                     else
                         Log.Logger.Error("player can't take item back: {0}", myItems[i].GUID.ToString());
@@ -201,7 +201,7 @@ public class TradeHandler : IWorldSessionHandler
                     if (!playerCanTrade)
                         Log.Logger.Error("player can't store item: {0}", hisItems[i].GUID.ToString());
 
-                    if (trader.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, traderDst, hisItems[i], false) == InventoryResult.Ok)
+                    if (trader.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, traderDst, hisItems[i]) == InventoryResult.Ok)
                         trader.MoveItemToInventory(traderDst, hisItems[i], true, true);
                     else
                         Log.Logger.Error("trader can't take item back: {0}", hisItems[i].GUID.ToString());
@@ -591,10 +591,7 @@ public class TradeHandler : IWorldSessionHandler
     {
         var my_trade = Player.GetTradeData();
 
-        if (my_trade == null)
-            return;
-
-        my_trade.SetAccepted(false, true);
+        my_trade?.SetAccepted(false, true);
     }
 
     [WorldPacketHandler(ClientOpcodes.BeginTrade)]

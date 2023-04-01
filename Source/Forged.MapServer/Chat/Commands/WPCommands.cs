@@ -816,7 +816,7 @@ internal class WPCommands
             var chr = handler.Session.Player;
             var map = chr.Location.Map;
 
-            var creature = Creature.CreateCreature(1, map, new Position(x, y, z, 0));
+            var creature = Creature.CreateCreature(1, map, new Position(x, y, z));
 
             if (!creature)
             {

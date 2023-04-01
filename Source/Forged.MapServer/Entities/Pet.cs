@@ -126,8 +126,7 @@ public class Pet : Guardian
             InitializeAI();
             var zoneScript = ZoneScript ?? Location.InstanceScript;
 
-            if (zoneScript != null)
-                zoneScript.OnCreatureCreate(this);
+            zoneScript?.OnCreatureCreate(this);
         }
 
         // Prevent stuck pets when zoning. Pets default to "follow" when added to world

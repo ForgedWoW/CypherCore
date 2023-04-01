@@ -180,8 +180,7 @@ public class SplineChainMovementGenerator : MovementGenerator
         {
             var ai = owner.AsCreature.AI;
 
-            if (ai != null)
-                ai.MovementInform(MovementGeneratorType.SplineChain, _id);
+            ai?.MovementInform(MovementGeneratorType.SplineChain, _id);
         }
     }
 

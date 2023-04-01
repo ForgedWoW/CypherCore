@@ -29,7 +29,7 @@ public class CinematicManager : IDisposable
     {
         _player = playerref;
         ActiveCinematicCameraIndex = -1;
-        _remoteSightPosition = new Position(0.0f, 0.0f, 0.0f);
+        _remoteSightPosition = new Position();
     }
 
     public virtual void Dispose()

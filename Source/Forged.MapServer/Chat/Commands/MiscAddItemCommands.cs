@@ -418,8 +418,7 @@ internal class MiscAddItemCommands
             {
                 var item1 = player.GetItemByPos(itemPostCount.Pos);
 
-                if (item1 != null)
-                    item1.SetBinding(false);
+                item1?.SetBinding(false);
             }
 
         if (count > 0 && item)

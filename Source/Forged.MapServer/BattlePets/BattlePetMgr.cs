@@ -736,7 +736,7 @@ public class BattlePetMgr
         if (summonedBattlePet != null)
         {
             summonedBattlePet.DespawnOrUnsummon();
-            player.SetBattlePetData(null);
+            player.SetBattlePetData();
         }
     }
 

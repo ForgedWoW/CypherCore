@@ -468,7 +468,7 @@ public class Map : IDisposable
         //TODO: Needs clean up. An object should not be added to map twice.
         if (obj.Location.IsInWorld)
         {
-            obj.UpdateObjectVisibility(true);
+            obj.UpdateObjectVisibility();
 
             return true;
         }
@@ -1550,13 +1550,7 @@ public class Map : IDisposable
     {
         var map = GetRespawnMapForType(type);
 
-        if (map == null)
-            return null;
-
-        var respawnInfo = map.LookupByKey(spawnId);
-
-        if (respawnInfo == null)
-            return null;
+        var respawnInfo = map?.LookupByKey(spawnId);
 
         return respawnInfo;
     }

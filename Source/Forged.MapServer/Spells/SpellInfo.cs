@@ -1786,7 +1786,7 @@ public class SpellInfo
                     _spellSpecific = SpellSpecificType.Sting;
 
                 // only hunter aspects have this (but not all aspects in hunter family)
-                if (SpellFamilyFlags & new FlagArray128(0x00200000, 0x00000000, 0x00001010, 0x00000000))
+                if (SpellFamilyFlags & new FlagArray128(0x00200000, 0x00000000, 0x00001010))
                     _spellSpecific = SpellSpecificType.Aspect;
 
                 break;
@@ -2380,13 +2380,9 @@ public class SpellInfo
 
         var range = RangeEntry.RangeMax[positive ? 1 : 0];
 
-        if (caster != null)
-        {
-            var modOwner = caster.SpellModOwner;
+        var modOwner = caster?.SpellModOwner;
 
-            if (modOwner != null)
-                modOwner.ApplySpellMod(this, SpellModOp.Range, ref range, spell);
-        }
+        modOwner?.ApplySpellMod(this, SpellModOp.Range, ref range, spell);
 
         return range;
     }
@@ -2416,8 +2412,7 @@ public class SpellInfo
         if (castTime <= 0)
             return 0;
 
-        if (spell != null)
-            spell.Caster.WorldObjectCombat.ModSpellCastTime(this, ref castTime, spell);
+        spell?.Caster.WorldObjectCombat.ModSpellCastTime(this, ref castTime, spell);
 
         if (HasAttribute(SpellAttr0.UsesRangedSlot) && (!IsAutoRepeatRangedSpell) && !HasAttribute(SpellAttr9.AimedShot))
             castTime += 500;
@@ -2808,10 +2803,7 @@ public class SpellInfo
 
     public SpellInfo GetNextRankSpell()
     {
-        if (ChainEntry == null)
-            return null;
-
-        return ChainEntry.Next;
+        return ChainEntry?.Next;
     }
 
     public SpellInfo GetAuraRankForLevel(uint level)
@@ -2932,7 +2924,7 @@ public class SpellInfo
             var effectTargetMask = effectInfo.GetMissingTargetMask(srcSet, dstSet, targetMask);
 
             // don't add explicit object/dest flags when spell has no max range
-            if (GetMaxRange(true) == 0.0f && GetMaxRange(false) == 0.0f)
+            if (GetMaxRange(true) == 0.0f && GetMaxRange() == 0.0f)
                 effectTargetMask &= ~(SpellCastTargetFlags.UnitMask | SpellCastTargetFlags.Gameobject | SpellCastTargetFlags.CorpseMask | SpellCastTargetFlags.DestLocation);
 
             targetMask |= effectTargetMask;
@@ -3840,18 +3832,12 @@ public class SpellInfo
 
     private SpellInfo GetLastRankSpell()
     {
-        if (ChainEntry == null)
-            return null;
-
-        return ChainEntry.Last;
+        return ChainEntry?.Last;
     }
 
     private SpellInfo GetPrevRankSpell()
     {
-        if (ChainEntry == null)
-            return null;
-
-        return ChainEntry.Prev;
+        return ChainEntry?.Prev;
     }
 
     private bool IsPositiveEffectImpl(SpellInfo spellInfo, SpellEffectInfo effect, List<Tuple<SpellInfo, int>> visited)

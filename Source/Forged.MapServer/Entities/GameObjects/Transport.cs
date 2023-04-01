@@ -120,8 +120,7 @@ internal class Transport : GameObjectTypeBase, ITransport
 
             var plr = passenger.AsPlayer;
 
-            if (plr != null)
-                plr.SetFallInformation(0, plr.Location.Z);
+            plr?.SetFallInformation(0, plr.Location.Z);
         }
 
         return this;

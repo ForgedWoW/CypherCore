@@ -195,7 +195,7 @@ public class Weather
 
     public static void SendFineWeatherUpdateToPlayer(Player player)
     {
-        player.SendPacket(new WeatherPkt(WeatherState.Fine));
+        player.SendPacket(new WeatherPkt());
     }
 
     public bool UpdateWeather()

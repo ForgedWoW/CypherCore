@@ -46,13 +46,10 @@ internal class PartyUpdate : ServerPacket
         foreach (var playerInfo in PlayerList)
             playerInfo.Write(_worldPacket);
 
-        if (LootSettings.HasValue)
-            LootSettings.Value.Write(_worldPacket);
+        LootSettings?.Write(_worldPacket);
 
-        if (DifficultySettings.HasValue)
-            DifficultySettings.Value.Write(_worldPacket);
+        DifficultySettings?.Write(_worldPacket);
 
-        if (LfgInfos.HasValue)
-            LfgInfos.Value.Write(_worldPacket);
+        LfgInfos?.Write(_worldPacket);
     }
 }

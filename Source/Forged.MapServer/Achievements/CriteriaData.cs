@@ -487,10 +487,7 @@ public class CriteriaData
                 return source.HasAuraEffect(Aura.SpellId, (byte)Aura.EffectIndex);
             case CriteriaDataType.TAura:
             {
-                if (target == null)
-                    return false;
-
-                var unitTarget = target.AsUnit;
+                var unitTarget = target?.AsUnit;
 
                 if (unitTarget == null)
                     return false;
@@ -506,10 +503,7 @@ public class CriteriaData
                 return target.GetLevelForTarget(source) >= Level.Min;
             case CriteriaDataType.TGender:
             {
-                if (target == null)
-                    return false;
-
-                var unitTarget = target.AsUnit;
+                var unitTarget = target?.AsUnit;
 
                 if (unitTarget == null)
                     return false;

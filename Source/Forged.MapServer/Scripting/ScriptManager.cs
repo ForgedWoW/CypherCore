@@ -627,10 +627,7 @@ public class ScriptManager
         {
             var tmpscript = reg.GetScriptById<ISpellScriptLoaderGetSpellScript>(id);
 
-            if (tmpscript == null)
-                continue;
-
-            var script = tmpscript.GetSpellScript();
+            var script = tmpscript?.GetSpellScript();
 
             if (script == null)
                 continue;
@@ -660,10 +657,7 @@ public class ScriptManager
         {
             var tmpscript = reg.GetScriptById<IAuraScriptLoaderGetAuraScript>(id);
 
-            if (tmpscript == null)
-                continue;
-
-            var script = tmpscript.GetAuraScript();
+            var script = tmpscript?.GetAuraScript();
 
             if (script == null)
                 continue;
@@ -743,10 +737,7 @@ public class ScriptManager
         {
             var tmpscript = reg.GetScriptById<IAreaTriggerScriptLoaderGetTriggerScriptScript>(id);
 
-            if (tmpscript == null)
-                continue;
-
-            var script = tmpscript.GetAreaTriggerScript();
+            var script = tmpscript?.GetAreaTriggerScript();
 
             if (script == null)
                 continue;

@@ -708,7 +708,7 @@ public class ItemHandler : IWorldSessionHandler
         }
 
         List<ItemPosCount> dest = new();
-        msg = Player.CanStoreItem(packet.ContainerSlotB, ItemConst.NullSlot, dest, item, false);
+        msg = Player.CanStoreItem(packet.ContainerSlotB, ItemConst.NullSlot, dest, item);
 
         if (msg != InventoryResult.Ok)
         {

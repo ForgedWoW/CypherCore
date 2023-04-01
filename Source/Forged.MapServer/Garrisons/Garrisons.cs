@@ -134,10 +134,7 @@ public class Garrison
 
                     var garrisonFollower = _followers.LookupByKey(dbId);
 
-                    if (garrisonFollower == null)
-                        continue;
-
-                    garrisonFollower.PacketInfo.AbilityID.Add(ability);
+                    garrisonFollower?.PacketInfo.AbilityID.Add(ability);
                 } while (abilities.NextRow());
         }
 

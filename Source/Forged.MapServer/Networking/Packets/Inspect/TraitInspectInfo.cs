@@ -16,7 +16,6 @@ public struct TraitInspectInfo
         data.WriteInt32(Level);
         data.WriteInt32(ChrSpecializationID);
 
-        if (Config != null)
-            Config.Write(data);
+        Config?.Write(data);
     }
 }

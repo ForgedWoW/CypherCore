@@ -54,12 +54,9 @@ public class GuardAI : ScriptedAI.ScriptedAI
 
     public override void JustDied(Unit killer)
     {
-        if (killer != null)
-        {
-            var player = killer.CharmerOrOwnerPlayerOrPlayerItself;
+        var player = killer?.CharmerOrOwnerPlayerOrPlayerItself;
 
-            if (player != null)
-                Me.SendZoneUnderAttackMessage(player);
-        }
+        if (player != null)
+            Me.SendZoneUnderAttackMessage(player);
     }
 }

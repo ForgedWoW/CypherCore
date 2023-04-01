@@ -13,7 +13,7 @@ public class GridInfo
 
     public GridInfo()
     {
-        _timer = new TimeTracker(0);
+        _timer = new TimeTracker();
         _visUpdate = new PeriodicTimer(0, RandomHelper.IRand(0, 1000));
         _unloadActiveLockCount = 0;
         _unloadExplicitLock = false;

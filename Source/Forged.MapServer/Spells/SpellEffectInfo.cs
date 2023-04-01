@@ -640,8 +640,7 @@ public class SpellEffectInfo
         var multiplier = Amplitude;
         var modOwner = caster?.SpellModOwner;
 
-        if (modOwner != null)
-            modOwner.ApplySpellMod(_spellInfo, SpellModOp.Amplitude, ref multiplier, spell);
+        modOwner?.ApplySpellMod(_spellInfo, SpellModOp.Amplitude, ref multiplier, spell);
 
         return multiplier;
     }
@@ -651,8 +650,7 @@ public class SpellEffectInfo
         var multiplierPercent = ChainAmplitude * 100.0f;
         var modOwner = caster?.SpellModOwner;
 
-        if (modOwner != null)
-            modOwner.ApplySpellMod(_spellInfo, SpellModOp.ChainAmplitude, ref multiplierPercent, spell);
+        modOwner?.ApplySpellMod(_spellInfo, SpellModOp.ChainAmplitude, ref multiplierPercent, spell);
 
         return multiplierPercent / 100.0f;
     }
@@ -695,8 +693,7 @@ public class SpellEffectInfo
             radius = Math.Min(radius, entry.RadiusMax);
             var modOwner = caster.SpellModOwner;
 
-            if (modOwner != null)
-                modOwner.ApplySpellMod(_spellInfo, SpellModOp.Radius, ref radius, spell);
+            modOwner?.ApplySpellMod(_spellInfo, SpellModOp.Radius, ref radius, spell);
         }
 
         return radius;

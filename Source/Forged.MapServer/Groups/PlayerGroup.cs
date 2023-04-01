@@ -207,8 +207,7 @@ public class PlayerGroup
 
             var leaderInstance = leader.Location.Map.ToInstanceMap;
 
-            if (leaderInstance != null)
-                leaderInstance.TrySetOwningGroup(this);
+            leaderInstance?.TrySetOwningGroup(this);
 
             AddMember(leader); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
         }

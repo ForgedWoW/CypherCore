@@ -182,8 +182,7 @@ public class FeatureSystemStatus : ServerPacket
         _worldPacket.WritePackedGuid(Squelch.BnetAccountGuid);
         _worldPacket.WritePackedGuid(Squelch.GuildGuid);
 
-        if (EuropaTicketSystemStatus.HasValue)
-            EuropaTicketSystemStatus.Value.Write(_worldPacket);
+        EuropaTicketSystemStatus?.Write(_worldPacket);
     }
 
     public struct SessionAlertConfig

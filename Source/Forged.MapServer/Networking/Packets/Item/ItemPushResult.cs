@@ -76,7 +76,6 @@ internal class ItemPushResult : ServerPacket
         if (FirstCraftOperationID.HasValue)
             _worldPacket.WriteUInt32(FirstCraftOperationID.Value);
 
-        if (CraftingData != null)
-            CraftingData.Write(_worldPacket);
+        CraftingData?.Write(_worldPacket);
     }
 }

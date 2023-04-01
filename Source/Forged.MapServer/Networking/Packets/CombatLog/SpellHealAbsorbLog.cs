@@ -31,7 +31,6 @@ internal class SpellHealAbsorbLog : ServerPacket
         _worldPacket.WriteBit(ContentTuning != null);
         _worldPacket.FlushBits();
 
-        if (ContentTuning != null)
-            ContentTuning.Write(_worldPacket);
+        ContentTuning?.Write(_worldPacket);
     }
 }

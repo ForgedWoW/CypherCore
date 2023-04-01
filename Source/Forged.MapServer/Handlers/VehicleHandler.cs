@@ -67,7 +67,7 @@ public class VehicleHandler : IWorldSessionHandler
             return;
         }
 
-        Player.ChangeSeat(-1, true);
+        Player.ChangeSeat(-1);
     }
 
     [WorldPacketHandler(ClientOpcodes.MoveChangeVehicleSeats, Processing = PacketProcessing.ThreadSafe)]

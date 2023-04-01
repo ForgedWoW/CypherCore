@@ -207,13 +207,10 @@ public class TransportManager
         // SetZoneScript() is called after adding to map, so fetch the script using map
         var instanceMap = map.ToInstanceMap;
 
-        if (instanceMap != null)
-        {
-            var instance = instanceMap.InstanceScript;
+        var instance = instanceMap?.InstanceScript;
 
-            if (instance != null)
-                entry = instance.GetGameObjectEntry(0, entry);
-        }
+        if (instance != null)
+            entry = instance.GetGameObjectEntry(0, entry);
 
         if (entry == 0)
             return null;

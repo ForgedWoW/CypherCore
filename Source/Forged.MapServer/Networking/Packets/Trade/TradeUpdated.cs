@@ -82,8 +82,7 @@ public class TradeUpdated : ServerPacket
             data.WriteBit(Unwrapped != null);
             data.FlushBits();
 
-            if (Unwrapped != null)
-                Unwrapped.Write(data);
+            Unwrapped?.Write(data);
         }
     }
 }

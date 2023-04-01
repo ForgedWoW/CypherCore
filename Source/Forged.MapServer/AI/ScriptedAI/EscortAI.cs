@@ -10,6 +10,7 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Movement;
 using Framework.Constants;
+using Framework.Util;
 using Serilog;
 
 namespace Forged.MapServer.AI.ScriptedAI;
@@ -52,7 +53,7 @@ public class EscortAI : ScriptedAI
 
     public Player GetPlayerForEscort()
     {
-        return Global.ObjAccessor.GetPlayer(Me, _playerGUID);
+        return Me.ObjectAccessor.GetPlayer(Me, _playerGUID);
     }
 
     public override void MoveInLineOfSight(Unit who)
@@ -184,8 +185,7 @@ public class EscortAI : ScriptedAI
                         _resume = false;
                         var movementGenerator = Me.MotionMaster.GetCurrentMovementGenerator(MovementSlot.Default);
 
-                        if (movementGenerator != null)
-                            movementGenerator.Resume(0);
+                        movementGenerator?.Resume();
                     }
                 }
             }
@@ -209,7 +209,7 @@ public class EscortAI : ScriptedAI
                     var creatureData = Me.CreatureData;
 
                     if (creatureData != null)
-                        isEscort = (GetDefaultValue("Respawn.DynamicEscortNPC", false) && creatureData.SpawnGroupData.Flags.HasAnyFlag(SpawnGroupFlags.EscortQuestNpc));
+                        isEscort = (Me.Configuration.GetDefaultValue("Respawn.DynamicEscortNPC", false) && creatureData.SpawnGroupData.Flags.HasAnyFlag(SpawnGroupFlags.EscortQuestNpc));
 
                     if (_instantRespawn)
                     {
@@ -329,7 +329,7 @@ public class EscortAI : ScriptedAI
         var cdata = Me.CreatureData;
 
         if (cdata != null)
-            if (GetDefaultValue("Respawn.DynamicEscortNPC", false) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
+            if (Me.Configuration.GetDefaultValue("Respawn.DynamicEscortNPC", false) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
                 Me.SaveRespawnTime(Me.RespawnDelay);
 
         if (Me.IsEngaged)
@@ -400,8 +400,7 @@ public class EscortAI : ScriptedAI
             AddEscortState(EscortState.Paused);
             var movementGenerator = Me.MotionMaster.GetCurrentMovementGenerator(MovementSlot.Default);
 
-            if (movementGenerator != null)
-                movementGenerator.Pause(0);
+            movementGenerator?.Pause();
         }
         else
         {

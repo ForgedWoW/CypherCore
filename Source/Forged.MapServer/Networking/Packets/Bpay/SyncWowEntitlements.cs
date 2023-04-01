@@ -89,14 +89,12 @@ public class SyncWowEntitlements : ServerPacket
 
                 _worldPacket.FlushBits();
 
-                if (productItem.Display != null)
-                    productItem.Display.Write(_worldPacket);
+                productItem.Display?.Write(_worldPacket);
             }
 
             _worldPacket.WriteString(product.UnkString);
 
-            if (product.Display != null)
-                product.Display.Write(_worldPacket);
+            product.Display?.Write(_worldPacket);
         }
     }
 }

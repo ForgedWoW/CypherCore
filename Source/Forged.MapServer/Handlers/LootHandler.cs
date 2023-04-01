@@ -321,10 +321,7 @@ public class LootHandler : IWorldSessionHandler
     {
         var lootRoll = Player.GetLootRoll(packet.LootObj, packet.LootListID);
 
-        if (lootRoll == null)
-            return;
-
-        lootRoll.PlayerVote(Player, packet.RollType);
+        lootRoll?.PlayerVote(Player, packet.RollType);
     }
 
     [WorldPacketHandler(ClientOpcodes.SetLootSpecialization)]

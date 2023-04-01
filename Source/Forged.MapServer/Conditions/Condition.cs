@@ -117,18 +117,12 @@ public class Condition
             {
                 var instanceMap = map.ToInstanceMap;
 
-                if (instanceMap != null)
-                {
-                    Scenario scenario = instanceMap.InstanceScenario;
+                Scenario scenario = instanceMap?.InstanceScenario;
 
-                    if (scenario != null)
-                    {
-                        var step = scenario.GetStep();
+                var step = scenario?.GetStep();
 
-                        if (step != null)
-                            condMeets = step.Id == ConditionValue1;
-                    }
-                }
+                if (step != null)
+                    condMeets = step.Id == ConditionValue1;
 
                 break;
             }
@@ -299,39 +293,36 @@ public class Condition
             {
                 var toObject = sourceInfo.mConditionTargets[ConditionValue1];
 
-                if (toObject != null)
-                {
-                    var toUnit = toObject.AsUnit;
+                var toUnit = toObject?.AsUnit;
 
-                    if (toUnit != null && unit != null)
-                        switch ((RelationType)ConditionValue2)
-                        {
-                            case RelationType.Self:
-                                condMeets = unit == toUnit;
+                if (toUnit != null && unit != null)
+                    switch ((RelationType)ConditionValue2)
+                    {
+                        case RelationType.Self:
+                            condMeets = unit == toUnit;
 
-                                break;
-                            case RelationType.InParty:
-                                condMeets = unit.IsInPartyWith(toUnit);
+                            break;
+                        case RelationType.InParty:
+                            condMeets = unit.IsInPartyWith(toUnit);
 
-                                break;
-                            case RelationType.InRaidOrParty:
-                                condMeets = unit.IsInRaidWith(toUnit);
+                            break;
+                        case RelationType.InRaidOrParty:
+                            condMeets = unit.IsInRaidWith(toUnit);
 
-                                break;
-                            case RelationType.OwnedBy:
-                                condMeets = unit.OwnerGUID == toUnit.GUID;
+                            break;
+                        case RelationType.OwnedBy:
+                            condMeets = unit.OwnerGUID == toUnit.GUID;
 
-                                break;
-                            case RelationType.PassengerOf:
-                                condMeets = unit.IsOnVehicle(toUnit);
+                            break;
+                        case RelationType.PassengerOf:
+                            condMeets = unit.IsOnVehicle(toUnit);
 
-                                break;
-                            case RelationType.CreatedBy:
-                                condMeets = unit.CreatorGUID == toUnit.GUID;
+                            break;
+                        case RelationType.CreatedBy:
+                            condMeets = unit.CreatorGUID == toUnit.GUID;
 
-                                break;
-                        }
-                }
+                            break;
+                    }
 
                 break;
             }
@@ -339,13 +330,10 @@ public class Condition
             {
                 var toObject = sourceInfo.mConditionTargets[ConditionValue1];
 
-                if (toObject != null)
-                {
-                    var toUnit = toObject.AsUnit;
+                var toUnit = toObject?.AsUnit;
 
-                    if (toUnit != null && unit != null)
-                        condMeets = Convert.ToBoolean((1 << (int)unit.WorldObjectCombat.GetReactionTo(toUnit)) & ConditionValue2);
-                }
+                if (toUnit != null && unit != null)
+                    condMeets = Convert.ToBoolean((1 << (int)unit.WorldObjectCombat.GetReactionTo(toUnit)) & ConditionValue2);
 
                 break;
             }

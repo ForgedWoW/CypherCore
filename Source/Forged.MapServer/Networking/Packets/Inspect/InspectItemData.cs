@@ -55,32 +55,29 @@ public class InspectItemData
 
         var azeriteItem = item.AsAzeriteItem;
 
-        if (azeriteItem != null)
-        {
-            var essences = azeriteItem.GetSelectedAzeriteEssences();
+        var essences = azeriteItem?.GetSelectedAzeriteEssences();
 
-            if (essences != null)
-                for (byte slot = 0; slot < essences.AzeriteEssenceID.GetSize(); ++slot)
+        if (essences != null)
+            for (byte slot = 0; slot < essences.AzeriteEssenceID.GetSize(); ++slot)
+            {
+                AzeriteEssenceData essence = new()
                 {
-                    AzeriteEssenceData essence = new()
-                    {
-                        Index = slot,
-                        AzeriteEssenceID = essences.AzeriteEssenceID[slot]
-                    };
+                    Index = slot,
+                    AzeriteEssenceID = essences.AzeriteEssenceID[slot]
+                };
 
-                    if (essence.AzeriteEssenceID != 0)
-                    {
-                        essence.Rank = azeriteItem.GetEssenceRank(essence.AzeriteEssenceID);
-                        essence.SlotUnlocked = true;
-                    }
-                    else
-                    {
-                        essence.SlotUnlocked = azeriteItem.HasUnlockedEssenceSlot(slot);
-                    }
-
-                    AzeriteEssences.Add(essence);
+                if (essence.AzeriteEssenceID != 0)
+                {
+                    essence.Rank = azeriteItem.GetEssenceRank(essence.AzeriteEssenceID);
+                    essence.SlotUnlocked = true;
                 }
-        }
+                else
+                {
+                    essence.SlotUnlocked = azeriteItem.HasUnlockedEssenceSlot(slot);
+                }
+
+                AzeriteEssences.Add(essence);
+            }
     }
 
     public void Write(WorldPacket data)

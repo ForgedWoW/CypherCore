@@ -1996,8 +1996,7 @@ internal class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCre
             {
                 var ai = creature.AI;
 
-                if (ai != null)
-                    ai.OnGameEvent(_activate, _eventId);
+                ai?.OnGameEvent(_activate, _eventId);
             }
         }
     }
@@ -2012,8 +2011,7 @@ internal class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCre
             {
                 var ai = gameObject.AI;
 
-                if (ai != null)
-                    ai.OnGameEvent(_activate, _eventId);
+                ai?.OnGameEvent(_activate, _eventId);
             }
         }
     }
@@ -2028,8 +2026,7 @@ internal class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCre
             {
                 var ai = gameObject.AI;
 
-                if (ai != null)
-                    ai.OnGameEvent(_activate, _eventId);
+                ai?.OnGameEvent(_activate, _eventId);
             }
         }
     }

@@ -42,16 +42,14 @@ public class CombatReference
         {
             var firstAI = First.AI;
 
-            if (firstAI != null)
-                firstAI.JustExitedCombat();
+            firstAI?.JustExitedCombat();
         }
 
         if (needSecondAI)
         {
             var secondAI = Second.AI;
 
-            if (secondAI != null)
-                secondAI.JustExitedCombat();
+            secondAI?.JustExitedCombat();
         }
     }
 
@@ -86,8 +84,7 @@ public class CombatReference
         {
             var ai = who.AI;
 
-            if (ai != null)
-                ai.JustExitedCombat();
+            ai?.JustExitedCombat();
         }
     }
 

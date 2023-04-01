@@ -683,13 +683,7 @@ public sealed class GameObjectManager
     {
         var raceClassAvailability = _classExpansionRequirementStorage.Find(raceClass => { return raceClass.RaceID == (byte)raceId; });
 
-        if (raceClassAvailability == null)
-            return null;
-
-        var classAvailability = raceClassAvailability.Classes.Find(availability => { return availability.ClassID == (byte)classId; });
-
-        if (classAvailability == null)
-            return null;
+        var classAvailability = raceClassAvailability?.Classes.Find(availability => { return availability.ClassID == (byte)classId; });
 
         return classAvailability;
     }
@@ -3854,10 +3848,7 @@ public sealed class GameObjectManager
     {
         var guids = _mapPersonalObjectGuidsStore.LookupByKey((mapid, spawnMode, phaseId));
 
-        if (guids != null)
-            return guids.LookupByKey(cell_id);
-
-        return null;
+        return guids?.LookupByKey(cell_id);
     }
 
     public void AddCreatureToGrid(CreatureData data)
@@ -4035,13 +4026,10 @@ public sealed class GameObjectManager
                 // DisplayID changed
                 model.CreatureDisplayId = modelInfo.DisplayIdOtherGender;
 
-                if (creatureTemplate != null)
-                {
-                    var creatureModel = creatureTemplate.Models.Find(templateModel => { return templateModel.CreatureDisplayId == modelInfo.DisplayIdOtherGender; });
+                var creatureModel = creatureTemplate?.Models.Find(templateModel => { return templateModel.CreatureDisplayId == modelInfo.DisplayIdOtherGender; });
 
-                    if (creatureModel != null)
-                        model = creatureModel;
-                }
+                if (creatureModel != null)
+                    model = creatureModel;
 
                 return minfotmp;
             }
@@ -5212,8 +5200,7 @@ public sealed class GameObjectManager
                 else
                     Log.Logger.Error("Table `(gameevent)npcvendor` have data for not creature template (Entry: {0}) without vendor flag, ignore", vendorentry);
 
-                if (skipvendors != null)
-                    skipvendors.Add(vendorentry);
+                skipvendors?.Add(vendorentry);
             }
 
             return false;
@@ -6980,10 +6967,7 @@ public sealed class GameObjectManager
 
         var petinfo = _petInfoStore.LookupByKey(creatureid);
 
-        if (petinfo == null)
-            return null;
-
-        return petinfo[level - 1]; // data for level 1 stored in [0] array element, ...
+        return petinfo?[level - 1]; // data for level 1 stored in [0] array element, ...
     }
 
     public string GeneratePetName(uint entry)
@@ -7464,8 +7448,7 @@ public sealed class GameObjectManager
                 // Do not throw error here because error for non existing quest is thrown while loading quest objectives. we do not need duplication
                 var quest = _questTemplates.LookupByKey(questId);
 
-                if (quest != null)
-                    quest.LoadQuestObjectiveVisualEffect(result.GetFields());
+                quest?.LoadQuestObjectiveVisualEffect(result.GetFields());
             } while (result.NextRow());
 
         Dictionary<uint, uint> usedMailTemplates = new();
@@ -8258,8 +8241,7 @@ public sealed class GameObjectManager
         {
             var quest = GetQuestTemplate((uint)paragonReputation.QuestID);
 
-            if (quest != null)
-                quest.SetSpecialFlag(QuestSpecialFlags.Repeatable);
+            quest?.SetSpecialFlag(QuestSpecialFlags.Repeatable);
         }
 
         Log.Logger.Information("Loaded {0} quests definitions in {1} ms", _questTemplates.Count, Time.GetMSTimeDiffToNow(oldMSTime));
@@ -12651,8 +12633,7 @@ public sealed class GameObjectManager
 
             map.Add(id, quest);
 
-            if (reverseMap != null)
-                reverseMap.Add(quest, id);
+            reverseMap?.Add(quest, id);
 
             ++count;
         } while (result.NextRow());

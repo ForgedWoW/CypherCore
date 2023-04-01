@@ -70,8 +70,7 @@ internal class ChaseMovementGenerator : MovementGenerator
             _lastTargetPosition = null;
             var cOwner = owner.AsCreature;
 
-            if (cOwner != null)
-                cOwner.SetCannotReachTarget(false);
+            cOwner?.SetCannotReachTarget(false);
 
             return true;
         }
@@ -102,8 +101,7 @@ internal class ChaseMovementGenerator : MovementGenerator
 
                 var cOwner = owner.AsCreature;
 
-                if (cOwner != null)
-                    cOwner.SetCannotReachTarget(false);
+                cOwner?.SetCannotReachTarget(false);
 
                 owner.StopMoving();
                 owner.SetInFront(target);
@@ -122,8 +120,7 @@ internal class ChaseMovementGenerator : MovementGenerator
             _path = null;
             var cOwner = owner.AsCreature;
 
-            if (cOwner != null)
-                cOwner.SetCannotReachTarget(false);
+            cOwner?.SetCannotReachTarget(false);
 
             owner.ClearUnitState(UnitState.ChaseMove);
             owner.SetInFront(target);
@@ -236,8 +233,7 @@ internal class ChaseMovementGenerator : MovementGenerator
         owner.ClearUnitState(UnitState.ChaseMove);
         var cOwner = owner.AsCreature;
 
-        if (cOwner != null)
-            cOwner.SetCannotReachTarget(false);
+        cOwner?.SetCannotReachTarget(false);
     }
 
     public override void Finalize(Unit owner, bool active, bool movementInform)
@@ -249,8 +245,7 @@ internal class ChaseMovementGenerator : MovementGenerator
             owner.ClearUnitState(UnitState.ChaseMove);
             var cOwner = owner.AsCreature;
 
-            if (cOwner != null)
-                cOwner.SetCannotReachTarget(false);
+            cOwner?.SetCannotReachTarget(false);
         }
     }
 
@@ -313,7 +308,6 @@ internal class ChaseMovementGenerator : MovementGenerator
 
         var ai = owner.AsCreature.AI;
 
-        if (ai != null)
-            ai.MovementInform(MovementGeneratorType.Chase, (uint)target.GUID.Counter);
+        ai?.MovementInform(MovementGeneratorType.Chase, (uint)target.GUID.Counter);
     }
 }

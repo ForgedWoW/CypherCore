@@ -64,16 +64,14 @@ public class MultiPersonalPhaseTracker
     {
         var playerTracker = _playerData.LookupByKey(obj.Location.PhaseShift.PersonalGuid);
 
-        if (playerTracker != null)
-            playerTracker.UnregisterTrackedObject(obj);
+        playerTracker?.UnregisterTrackedObject(obj);
     }
 
     public void OnOwnerPhaseChanged(WorldObject phaseOwner, Grid grid, Map map, Cell cell)
     {
         var playerTracker = _playerData.LookupByKey(phaseOwner.GUID);
 
-        if (playerTracker != null)
-            playerTracker.OnOwnerPhasesChanged(phaseOwner);
+        playerTracker?.OnOwnerPhasesChanged(phaseOwner);
 
         if (grid != null)
             LoadGrid(phaseOwner.Location.PhaseShift, grid, map, cell);
@@ -83,8 +81,7 @@ public class MultiPersonalPhaseTracker
     {
         var playerTracker = _playerData.LookupByKey(phaseOwner);
 
-        if (playerTracker != null)
-            playerTracker.MarkAllPhasesForDeletion();
+        playerTracker?.MarkAllPhasesForDeletion();
     }
 
     public void Update(Map map, uint diff)

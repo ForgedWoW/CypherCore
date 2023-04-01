@@ -248,8 +248,7 @@ public class Guild
         roster.WelcomeText = m_motd;
         roster.InfoText = m_info;
 
-        if (session != null)
-            session.SendPacket(roster);
+        session?.SendPacket(roster);
     }
 
     public void SendQueryResponse(WorldSession session)
@@ -687,7 +686,7 @@ public class Guild
         }
         else
         {
-            DeleteMember(null, player.GUID, false, false);
+            DeleteMember(null, player.GUID);
 
             _LogEvent(GuildEventLogTypes.LeaveGuild, player.GUID.Counter);
             SendEventPlayerLeft(player);
@@ -1160,8 +1159,7 @@ public class Guild
     {
         var tab = GetBankTab(tabId);
 
-        if (tab != null)
-            tab.SendText(this, session);
+        tab?.SendText(this, session);
     }
 
     public void SendPermissions(WorldSession session)
@@ -1497,7 +1495,7 @@ public class Guild
         if (broken_ranks)
         {
             m_ranks.Clear();
-            _CreateDefaultGuildRanks(trans, SharedConst.DefaultLocale);
+            _CreateDefaultGuildRanks(trans);
         }
 
         // Validate members' data
@@ -1546,11 +1544,10 @@ public class Guild
             {
                 var player = member.FindPlayer();
 
-                if (player != null)
-                    if (player.Session != null &&
-                        _HasRankRight(player, officerOnly ? GuildRankRights.OffChatListen : GuildRankRights.GChatListen) &&
-                        !player.Social.HasIgnore(session.Player.GUID, session.AccountGUID))
-                        player.SendPacket(data);
+                if (player?.Session != null &&
+                    _HasRankRight(player, officerOnly ? GuildRankRights.OffChatListen : GuildRankRights.GChatListen) &&
+                    !player.Social.HasIgnore(session.Player.GUID, session.AccountGUID))
+                    player.SendPacket(data);
             }
         }
     }
@@ -1583,8 +1580,7 @@ public class Guild
             {
                 var player = member.FindPlayer();
 
-                if (player != null)
-                    player.SendPacket(packet);
+                player?.SendPacket(packet);
             }
     }
 
@@ -1594,8 +1590,7 @@ public class Guild
         {
             var player = member.FindPlayer();
 
-            if (player != null)
-                player.SendPacket(packet);
+            player?.SendPacket(packet);
         }
     }
 
@@ -1974,9 +1969,7 @@ public class Guild
             member.ResetValues(weekly);
             var player = member.FindPlayer();
 
-            if (player != null)
-                // tells the client to request bank withdrawal limit
-                player.SendPacket(new GuildMemberDailyReset());
+            player?.SendPacket(new GuildMemberDailyReset());
         }
     }
 
@@ -2263,7 +2256,7 @@ public class Guild
         ++tabId;
 
         foreach (var rank in m_ranks)
-            rank.CreateMissingTabsIfNeeded(tabId, trans, false);
+            rank.CreateMissingTabsIfNeeded(tabId, trans);
 
         DB.Characters.CommitTransaction(trans);
     }
@@ -2395,8 +2388,7 @@ public class Guild
     {
         var rankInfo = GetRankInfo(rankId);
 
-        if (rankInfo != null)
-            rankInfo.SetBankMoneyPerDay(moneyPerDay);
+        rankInfo?.SetBankMoneyPerDay(moneyPerDay);
     }
 
     private void _SetRankBankTabRightsAndSlots(GuildRankId rankId, GuildBankRightsAndSlots rightsAndSlots, bool saveToDB = true)
@@ -2406,8 +2398,7 @@ public class Guild
 
         var rankInfo = GetRankInfo(rankId);
 
-        if (rankInfo != null)
-            rankInfo.SetBankTabSlotsAndRights(rightsAndSlots, saveToDB);
+        rankInfo?.SetBankTabSlotsAndRights(rightsAndSlots, saveToDB);
     }
 
     private string _GetRankName(GuildRankId rankId)
@@ -2503,8 +2494,7 @@ public class Guild
     {
         var member = GetMember(guid);
 
-        if (member != null)
-            member.UpdateBankTabWithdrawValue(trans, tabId, 1);
+        member?.UpdateBankTabWithdrawValue(trans, tabId, 1);
     }
 
     private bool _MemberHasTabRights(ObjectGuid guid, byte tabId, GuildBankRights rights)
@@ -2559,18 +2549,14 @@ public class Guild
     {
         var tab = GetBankTab(tabId);
 
-        if (tab != null)
-            return tab.GetItem(slotId);
-
-        return null;
+        return tab?.GetItem(slotId);
     }
 
     private void _RemoveItem(SQLTransaction trans, byte tabId, byte slotId)
     {
         var pTab = GetBankTab(tabId);
 
-        if (pTab != null)
-            pTab.SetItem(trans, slotId, null);
+        pTab?.SetItem(trans, slotId, null);
     }
 
     private void _MoveItems(MoveItemData pSrc, MoveItemData pDest, uint splitedAmount)
@@ -2612,7 +2598,7 @@ public class Guild
                 // 6.2.1. Initialize destination item
                 if (!pDest.InitItem())
                 {
-                    pSrc.SendEquipError(mergeAttemptResult, pSrc.GetItem(false));
+                    pSrc.SendEquipError(mergeAttemptResult, pSrc.GetItem());
 
                     return;
                 }
@@ -2981,8 +2967,7 @@ public class Guild
             // Update rank information in player's field, if he is online.
             var player = FindConnectedPlayer();
 
-            if (player != null)
-                player.SetGuildRank((byte)newRank);
+            player?.SetGuildRank((byte)newRank);
 
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GUILD_MEMBER_RANK);
             stmt.AddValue(0, (byte)newRank);

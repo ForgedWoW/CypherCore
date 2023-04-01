@@ -33,7 +33,6 @@ internal class AuctionListItemsByItemID : ClientPacket
         for (var i = 0; i < sortCount; ++i)
             Sorts[i] = new AuctionSortDef(_worldPacket);
 
-        if (TaintedBy.HasValue)
-            TaintedBy.Value.Read(_worldPacket);
+        TaintedBy?.Read(_worldPacket);
     }
 }

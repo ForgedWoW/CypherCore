@@ -132,8 +132,7 @@ internal class CharacterCommands
                 target.SetName(newName);
                 session = target.Session;
 
-                if (session != null)
-                    session.KickPlayer("HandleCharacterRenameCommand GM Command renaming character");
+                session?.KickPlayer("HandleCharacterRenameCommand GM Command renaming character");
             }
             else
             {
@@ -300,8 +299,7 @@ internal class CharacterCommands
 
         var onlinePlayer = player.GetConnectedPlayer();
 
-        if (onlinePlayer != null)
-            onlinePlayer.Session.KickPlayer("HandleCharacterChangeAccountCommand GM Command transferring character to another account");
+        onlinePlayer?.Session.KickPlayer("HandleCharacterChangeAccountCommand GM Command transferring character to another account");
 
         var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ACCOUNT_BY_GUID);
         stmt.AddValue(0, newAccount.GetID());

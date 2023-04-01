@@ -64,8 +64,7 @@ public class WorldObjectCombat
         // called from caster
         var modOwner = _worldObject.SpellModOwner;
 
-        if (modOwner != null)
-            modOwner.ApplySpellMod(spellInfo, SpellModOp.ChangeCastTime, ref castTime, spell);
+        modOwner?.ApplySpellMod(spellInfo, SpellModOp.ChangeCastTime, ref castTime, spell);
 
         var unitCaster = _worldObject.AsUnit;
 
@@ -93,8 +92,7 @@ public class WorldObjectCombat
         // called from caster
         var modOwner = _worldObject.SpellModOwner;
 
-        if (modOwner != null)
-            modOwner.ApplySpellMod(spellInfo, SpellModOp.ChangeCastTime, ref duration, spell);
+        modOwner?.ApplySpellMod(spellInfo, SpellModOp.ChangeCastTime, ref duration, spell);
 
         var unitCaster = _worldObject.AsUnit;
 

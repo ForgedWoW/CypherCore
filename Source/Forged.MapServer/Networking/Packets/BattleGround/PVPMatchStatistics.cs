@@ -21,8 +21,7 @@ public class PVPMatchStatistics
         foreach (var count in PlayerCount)
             data.WriteInt8(count);
 
-        if (Ratings != null)
-            Ratings.Write(data);
+        Ratings?.Write(data);
 
         foreach (var player in Statistics)
             player.Write(data);
@@ -128,8 +127,7 @@ public class PVPMatchStatistics
             data.WriteBit(MmrChange.HasValue);
             data.FlushBits();
 
-            if (Honor.HasValue)
-                Honor.Value.Write(data);
+            Honor?.Write(data);
 
             if (PreMatchRating.HasValue)
                 data.WriteUInt32(PreMatchRating.Value);

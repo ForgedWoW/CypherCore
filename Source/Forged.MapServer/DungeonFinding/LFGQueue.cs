@@ -451,10 +451,7 @@ public class LFGQueue
     {
         var compatibilityData = CompatibleMapStore.LookupByKey(key);
 
-        if (compatibilityData != null)
-            return compatibilityData;
-
-        return null;
+        return compatibilityData;
     }
 
     private LfgCompatibility FindNewGroups(List<ObjectGuid> check, List<ObjectGuid> all)

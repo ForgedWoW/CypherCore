@@ -77,8 +77,7 @@ public class FeatureSystemStatusGlueScreen : ServerPacket
         _worldPacket.WriteBit(Unused1000);
         _worldPacket.FlushBits();
 
-        if (EuropaTicketSystemStatus.HasValue)
-            EuropaTicketSystemStatus.Value.Write(_worldPacket);
+        EuropaTicketSystemStatus?.Write(_worldPacket);
 
         _worldPacket.WriteUInt32(TokenPollTimeSeconds);
         _worldPacket.WriteUInt32(KioskSessionMinutes);

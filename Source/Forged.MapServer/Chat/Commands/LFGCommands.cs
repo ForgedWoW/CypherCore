@@ -19,10 +19,7 @@ internal class LFGCommands
         if (player == null)
             player = PlayerIdentifier.FromTargetOrSelf(handler);
 
-        if (player == null)
-            return false;
-
-        var target = player.GetConnectedPlayer();
+        var target = player?.GetConnectedPlayer();
 
         if (target != null)
         {

@@ -361,7 +361,7 @@ public class ScriptedAI : CreatureAI
     {
         if (loadDefault)
         {
-            Me.LoadEquipment(Me.OriginalEquipmentId, true);
+            Me.LoadEquipment(Me.OriginalEquipmentId);
 
             return;
         }

@@ -43,10 +43,8 @@ public class SpellEmpowerStart : ServerPacket
         _worldPacket.Write(Immunities.HasValue);
         _worldPacket.Write(HealPrediction.HasValue);
 
-        if (Immunities.HasValue)
-            Immunities.Value.Write(_worldPacket);
+        Immunities?.Write(_worldPacket);
 
-        if (HealPrediction.HasValue)
-            HealPrediction.Value.Write(_worldPacket);
+        HealPrediction?.Write(_worldPacket);
     }
 }

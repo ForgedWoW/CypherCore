@@ -79,8 +79,7 @@ public class LootManager : LootStoreBox
 
         var tab = store.GetLootFor(lootId);
 
-        if (tab != null)
-            tab.ProcessPersonalLoot(tempLoot, store.IsRatesAllowed(), lootMode);
+        tab?.ProcessPersonalLoot(tempLoot, store.IsRatesAllowed(), lootMode);
 
         Dictionary<ObjectGuid, Loot> personalLoot = new();
 

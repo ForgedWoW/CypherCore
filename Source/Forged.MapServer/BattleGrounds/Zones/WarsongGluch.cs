@@ -577,17 +577,17 @@ internal class BgWarsongGluch : Battleground
         }
 
         // alliance gates
-        result &= AddObject(WSGObjectTypes.DoorA1, WSGObjectEntry.DoorA1, 1503.335f, 1493.466f, 352.1888f, 3.115414f, 0, 0, 0.9999143f, 0.01308903f, BattlegroundConst.RespawnImmediately);
-        result &= AddObject(WSGObjectTypes.DoorA2, WSGObjectEntry.DoorA2, 1492.478f, 1457.912f, 342.9689f, 3.115414f, 0, 0, 0.9999143f, 0.01308903f, BattlegroundConst.RespawnImmediately);
-        result &= AddObject(WSGObjectTypes.DoorA3, WSGObjectEntry.DoorA3, 1468.503f, 1494.357f, 351.8618f, 3.115414f, 0, 0, 0.9999143f, 0.01308903f, BattlegroundConst.RespawnImmediately);
-        result &= AddObject(WSGObjectTypes.DoorA4, WSGObjectEntry.DoorA4, 1471.555f, 1458.778f, 362.6332f, 3.115414f, 0, 0, 0.9999143f, 0.01308903f, BattlegroundConst.RespawnImmediately);
-        result &= AddObject(WSGObjectTypes.DoorA5, WSGObjectEntry.DoorA5, 1492.347f, 1458.34f, 342.3712f, -0.03490669f, 0, 0, 0.01745246f, -0.9998477f, BattlegroundConst.RespawnImmediately);
-        result &= AddObject(WSGObjectTypes.DoorA6, WSGObjectEntry.DoorA6, 1503.466f, 1493.367f, 351.7352f, -0.03490669f, 0, 0, 0.01745246f, -0.9998477f, BattlegroundConst.RespawnImmediately);
+        result &= AddObject(WSGObjectTypes.DoorA1, WSGObjectEntry.DoorA1, 1503.335f, 1493.466f, 352.1888f, 3.115414f, 0, 0, 0.9999143f, 0.01308903f);
+        result &= AddObject(WSGObjectTypes.DoorA2, WSGObjectEntry.DoorA2, 1492.478f, 1457.912f, 342.9689f, 3.115414f, 0, 0, 0.9999143f, 0.01308903f);
+        result &= AddObject(WSGObjectTypes.DoorA3, WSGObjectEntry.DoorA3, 1468.503f, 1494.357f, 351.8618f, 3.115414f, 0, 0, 0.9999143f, 0.01308903f);
+        result &= AddObject(WSGObjectTypes.DoorA4, WSGObjectEntry.DoorA4, 1471.555f, 1458.778f, 362.6332f, 3.115414f, 0, 0, 0.9999143f, 0.01308903f);
+        result &= AddObject(WSGObjectTypes.DoorA5, WSGObjectEntry.DoorA5, 1492.347f, 1458.34f, 342.3712f, -0.03490669f, 0, 0, 0.01745246f, -0.9998477f);
+        result &= AddObject(WSGObjectTypes.DoorA6, WSGObjectEntry.DoorA6, 1503.466f, 1493.367f, 351.7352f, -0.03490669f, 0, 0, 0.01745246f, -0.9998477f);
         // horde gates
-        result &= AddObject(WSGObjectTypes.DoorH1, WSGObjectEntry.DoorH1, 949.1663f, 1423.772f, 345.6241f, -0.5756807f, -0.01673368f, -0.004956111f, -0.2839723f, 0.9586737f, BattlegroundConst.RespawnImmediately);
-        result &= AddObject(WSGObjectTypes.DoorH2, WSGObjectEntry.DoorH2, 953.0507f, 1459.842f, 340.6526f, -1.99662f, -0.1971825f, 0.1575096f, -0.8239487f, 0.5073641f, BattlegroundConst.RespawnImmediately);
-        result &= AddObject(WSGObjectTypes.DoorH3, WSGObjectEntry.DoorH3, 949.9523f, 1422.751f, 344.9273f, 0.0f, 0, 0, 0, 1, BattlegroundConst.RespawnImmediately);
-        result &= AddObject(WSGObjectTypes.DoorH4, WSGObjectEntry.DoorH4, 950.7952f, 1459.583f, 342.1523f, 0.05235988f, 0, 0, 0.02617695f, 0.9996573f, BattlegroundConst.RespawnImmediately);
+        result &= AddObject(WSGObjectTypes.DoorH1, WSGObjectEntry.DoorH1, 949.1663f, 1423.772f, 345.6241f, -0.5756807f, -0.01673368f, -0.004956111f, -0.2839723f, 0.9586737f);
+        result &= AddObject(WSGObjectTypes.DoorH2, WSGObjectEntry.DoorH2, 953.0507f, 1459.842f, 340.6526f, -1.99662f, -0.1971825f, 0.1575096f, -0.8239487f, 0.5073641f);
+        result &= AddObject(WSGObjectTypes.DoorH3, WSGObjectEntry.DoorH3, 949.9523f, 1422.751f, 344.9273f, 0.0f, 0, 0, 0, 1);
+        result &= AddObject(WSGObjectTypes.DoorH4, WSGObjectEntry.DoorH4, 950.7952f, 1459.583f, 342.1523f, 0.05235988f, 0, 0, 0.02617695f, 0.9996573f);
 
         if (!result)
         {
@@ -834,7 +834,7 @@ internal class BgWarsongGluch : Battleground
                 player.RemoveAura(WSGSpellId.BrutalAssault);
 
             if (GetTeamScore(TeamIds.Alliance) < WSGTimerOrScore.MaxTeamScore)
-                AddPoint(TeamFaction.Alliance, 1);
+                AddPoint(TeamFaction.Alliance);
 
             PlaySoundToAll(WSGSound.FlagCapturedAlliance);
             RewardReputationToTeam(890, m_ReputationCapture, TeamFaction.Alliance);
@@ -856,7 +856,7 @@ internal class BgWarsongGluch : Battleground
                 player.RemoveAura(WSGSpellId.BrutalAssault);
 
             if (GetTeamScore(TeamIds.Horde) < WSGTimerOrScore.MaxTeamScore)
-                AddPoint(TeamFaction.Horde, 1);
+                AddPoint(TeamFaction.Horde);
 
             PlaySoundToAll(WSGSound.FlagCapturedHorde);
             RewardReputationToTeam(889, m_ReputationCapture, TeamFaction.Horde);

@@ -42,10 +42,7 @@ public class AuraScript : BaseSpellScript, IAuraScript
         {
             WorldObject caster = Aura.Caster;
 
-            if (caster != null)
-                return caster.AsGameObject;
-
-            return null;
+            return caster?.AsGameObject;
         }
     }
 
@@ -157,7 +154,7 @@ public class AuraScript : BaseSpellScript, IAuraScript
     public bool _Load(Aura aura)
     {
         Aura = aura;
-        _PrepareScriptCall((AuraScriptHookType)SpellScriptState.Loading, null);
+        _PrepareScriptCall((AuraScriptHookType)SpellScriptState.Loading);
         var load = Load();
         _FinishScriptCall();
 

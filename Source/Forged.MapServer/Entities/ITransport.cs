@@ -76,13 +76,9 @@ public interface ITransport
 
         var unit = passenger.AsUnit;
 
-        if (unit != null)
-        {
-            var vehicle = unit.VehicleKit;
+        var vehicle = unit?.VehicleKit;
 
-            if (vehicle != null)
-                vehicle.RelocatePassengers();
-        }
+        vehicle?.RelocatePassengers();
     }
 
     static void CalculatePassengerPosition(Position pos, float transX, float transY, float transZ, float transO)

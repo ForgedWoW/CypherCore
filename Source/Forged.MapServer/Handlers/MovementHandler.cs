@@ -110,13 +110,9 @@ public class MovementHandler : IWorldSessionHandler
                 {
                     var go = plrMover.Location.Map.GetGameObject(movementInfo.Transport.Guid);
 
-                    if (go != null)
-                    {
-                        var transport = go.ToTransportBase();
+                    var transport = go?.ToTransportBase();
 
-                        if (transport != null)
-                            transport.AddPassenger(plrMover);
-                    }
+                    transport?.AddPassenger(plrMover);
                 }
                 else if (plrMover.Transport.GetTransportGUID() != movementInfo.Transport.Guid)
                 {
@@ -217,7 +213,7 @@ public class MovementHandler : IWorldSessionHandler
             if (opcode == ClientOpcodes.MoveJump)
             {
                 plrMover.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2.Jump); // Mind Control
-                UnitCombatHelpers.ProcSkillsAndAuras(plrMover, null, new ProcFlagsInit(ProcFlags.Jump), new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
+                UnitCombatHelpers.ProcSkillsAndAuras(plrMover, null, new ProcFlagsInit(ProcFlags.Jump), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
             }
         }
     }
@@ -492,7 +488,7 @@ public class MovementHandler : IWorldSessionHandler
 
             // in friendly area
             else if (plMover.IsPvP && !plMover.HasPlayerFlag(PlayerFlags.InPVP))
-                plMover.UpdatePvP(false, false);
+                plMover.UpdatePvP(false);
         }
 
         // resummon pet

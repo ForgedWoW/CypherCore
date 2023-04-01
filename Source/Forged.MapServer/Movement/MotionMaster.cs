@@ -163,7 +163,7 @@ public class MotionMaster
         List<MovementGeneratorInformation> list = new();
 
         if (_defaultGenerator != null)
-            list.Add(new MovementGeneratorInformation(_defaultGenerator.GetMovementGeneratorType(), ObjectGuid.Empty, ""));
+            list.Add(new MovementGeneratorInformation(_defaultGenerator.GetMovementGeneratorType(), ObjectGuid.Empty));
 
         lock (_generators)
         {
@@ -225,10 +225,7 @@ public class MotionMaster
                 return _generators.FirstOrDefault();
         }
 
-        if (_defaultGenerator != null)
-            return _defaultGenerator;
-
-        return null;
+        return _defaultGenerator;
     }
 
     public MovementGeneratorType GetCurrentMovementGeneratorType()
@@ -545,10 +542,7 @@ public class MotionMaster
 
         var movement = GetCurrentMovementGenerator();
 
-        if (movement == null)
-            return;
-
-        movement.UnitSpeedChanged();
+        movement?.UnitSpeedChanged();
     }
 
     public bool GetDestination(out float x, out float y, out float z)
@@ -932,7 +926,7 @@ public class MotionMaster
         var initializer = (MoveSplineInit init) =>
         {
             var step = 2 * MathFunctions.PI / stepCount * (clockwise ? -1.0f : 1.0f);
-            Position pos = new(x, y, z, 0.0f);
+            Position pos = new(x, y, z);
             var angle = pos.GetAbsoluteAngle(_owner.Location.X, _owner.Location.Y);
 
             // add the owner's current position as starting point as it gets removed after entering the cycle

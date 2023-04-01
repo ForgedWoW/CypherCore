@@ -21,7 +21,6 @@ internal class PVPMatchComplete : ServerPacket
         _worldPacket.WriteBits(SoloShuffleStatus, 2);
         _worldPacket.FlushBits();
 
-        if (LogData != null)
-            LogData.Write(_worldPacket);
+        LogData?.Write(_worldPacket);
     }
 }

@@ -31,7 +31,7 @@ public class SummonList : List<ObjectGuid>
             var summon = ObjectAccessor.GetCreature(_me, id);
 
             if (summon && summon.IsAIEnabled && (entry == 0 || summon.Entry == entry))
-                summon.AI.DoZoneInCombat(null);
+                summon.AI.DoZoneInCombat();
         }
     }
 

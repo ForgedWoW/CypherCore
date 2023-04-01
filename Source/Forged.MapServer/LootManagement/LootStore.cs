@@ -99,9 +99,6 @@ public class LootStore
     {
         var tab = _lootTemplates.LookupByKey(lootID);
 
-        if (tab == null)
-            return null;
-
         return tab;
     }
 
@@ -117,9 +114,6 @@ public class LootStore
     public LootTemplate GetLootForConditionFill(uint lootID)
     {
         var tab = _lootTemplates.LookupByKey(lootID);
-
-        if (tab == null)
-            return null;
 
         return tab;
     }

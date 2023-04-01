@@ -520,7 +520,7 @@ public class MailHandler : IWorldSessionHandler
         var it = player.GetMItem(takeItem.AttachID);
 
         List<ItemPosCount> dest = new();
-        var msg = Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, it, false);
+        var msg = Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, it);
 
         if (msg == InventoryResult.Ok)
         {
@@ -720,7 +720,7 @@ public class MailHandler : IWorldSessionHandler
         Log.Logger.Information("HandleMailCreateTextItem mailid={0}", createTextItem.MailID);
 
         List<ItemPosCount> dest = new();
-        var msg = Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, bodyItem, false);
+        var msg = Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, bodyItem);
 
         if (msg == InventoryResult.Ok)
         {

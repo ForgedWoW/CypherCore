@@ -75,7 +75,7 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
         {
             var path = new PathGenerator(owner);
 
-            var result = path.CalculatePath(_destination, false);
+            var result = path.CalculatePath(_destination);
 
             if (result && (path.GetPathType() & PathType.NoPath) == 0)
             {
@@ -127,8 +127,7 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
         // Call for creature group update
         var creature = owner.AsCreature;
 
-        if (creature != null)
-            creature.SignalFormationMovement();
+        creature?.SignalFormationMovement();
     }
 
     public override void DoReset(Unit owner)
@@ -180,8 +179,7 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
             // Call for creature group update
             var creature = owner.AsCreature;
 
-            if (creature != null)
-                creature.SignalFormationMovement();
+            creature?.SignalFormationMovement();
         }
 
         if (owner.MoveSpline.Finalized())
@@ -215,8 +213,9 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
     public void MovementInform(Unit owner)
     {
         if (owner.IsTypeId(TypeId.Unit))
-            if (owner.AsCreature.AI != null)
-                owner.AsCreature.AI.MovementInform(MovementGeneratorType.Point, _movementId);
+        {
+            owner.AsCreature.AI?.MovementInform(MovementGeneratorType.Point, _movementId);
+        }
     }
 
     public override MovementGeneratorType GetMovementGeneratorType()

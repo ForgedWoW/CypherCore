@@ -399,13 +399,10 @@ public class WorldObjectVisibility
             // Apply modifiers
             detectionValue += StealthDetect.GetValue((StealthType)i);
 
-            if (go != null)
-            {
-                var owner = go.OwnerUnit;
+            var owner = go?.OwnerUnit;
 
-                if (owner != null)
-                    detectionValue -= (int)(owner.GetLevelForTarget(_worldObject) - 1) * 5;
-            }
+            if (owner != null)
+                detectionValue -= (int)(owner.GetLevelForTarget(_worldObject) - 1) * 5;
 
             detectionValue -= obj.Visibility.Stealth.GetValue((StealthType)i);
 

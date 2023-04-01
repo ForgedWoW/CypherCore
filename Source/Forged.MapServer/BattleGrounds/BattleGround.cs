@@ -636,8 +636,8 @@ public class Battleground : ZoneScript, IDisposable
     public virtual void AddPlayer(Player player)
     {
         // remove afk from player
-        if (player.IsAFK)
-            player.ToggleAFK();
+        if (player.IsAfk)
+            player.ToggleAfk();
 
         // score struct must be created in inherited class
 

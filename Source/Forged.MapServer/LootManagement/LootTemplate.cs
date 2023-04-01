@@ -101,8 +101,9 @@ public class LootTemplate
 
         // Now processing groups
         foreach (var group in _groups.Values)
-            if (group != null)
-                group.Process(loot, lootMode, personalLooter);
+        {
+            group?.Process(loot, lootMode, personalLooter);
+        }
     }
 
     public void ProcessPersonalLoot(Dictionary<Player, Loot> personalLoot, bool rate, ushort lootMode)
@@ -312,8 +313,10 @@ public class LootTemplate
             {
                 if (_lootStorage.Reference.GetLootFor(item.Reference) == null)
                     _lootStorage.Reference.ReportNonExistingId(item.Reference, item.Itemid);
-                else if (refSet != null)
-                    refSet.Remove(item.Reference);
+                else
+                {
+                    refSet?.Remove(item.Reference);
+                }
             }
 
         foreach (var group in _groups.Values)
@@ -501,8 +504,10 @@ public class LootTemplate
                 {
                     if (_lootStorage.Reference.GetLootFor(item.Reference) == null)
                         _lootStorage.Reference.ReportNonExistingId(item.Reference, item.Itemid);
-                    else if (refSet != null)
-                        refSet.Remove(item.Reference);
+                    else
+                    {
+                        refSet?.Remove(item.Reference);
+                    }
                 }
 
             foreach (var item in _equalChanced)
@@ -510,8 +515,10 @@ public class LootTemplate
                 {
                     if (_lootStorage.Reference.GetLootFor(item.Reference) == null)
                         _lootStorage.Reference.ReportNonExistingId(item.Reference, item.Itemid);
-                    else if (refSet != null)
-                        refSet.Remove(item.Reference);
+                    else
+                    {
+                        refSet?.Remove(item.Reference);
+                    }
                 }
         }
 

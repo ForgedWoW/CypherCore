@@ -23,7 +23,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 
     public WaypointMovementGenerator(uint pathId = 0, bool repeating = true)
     {
-        _nextMoveTime = new TimeTracker(0);
+        _nextMoveTime = new TimeTracker();
         _pathId = pathId;
         _repeating = repeating;
         _loadedFromDB = true;
@@ -36,7 +36,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 
     public WaypointMovementGenerator(WaypointPath path, bool repeating = true)
     {
-        _nextMoveTime = new TimeTracker(0);
+        _nextMoveTime = new TimeTracker();
         _repeating = repeating;
         _path = path;
 
@@ -252,8 +252,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
     {
         var ai = owner.AI;
 
-        if (ai != null)
-            ai.MovementInform(MovementGeneratorType.Waypoint, (uint)_currentNode);
+        ai?.MovementInform(MovementGeneratorType.Waypoint, (uint)_currentNode);
     }
 
     private void OnArrived(Creature owner)
@@ -310,8 +309,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
                 // inform AI
                 var ai = owner.AI;
 
-                if (ai != null)
-                    ai.WaypointStarted(_path.Nodes[_currentNode].ID, _path.ID);
+                ai?.WaypointStarted(_path.Nodes[_currentNode].ID, _path.ID);
             }
             else
             {
@@ -342,8 +340,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
                 // inform AI
                 var ai = owner.AI;
 
-                if (ai != null)
-                    ai.WaypointPathEnded(currentWaypoint.ID, _path.ID);
+                ai?.WaypointPathEnded(currentWaypoint.ID, _path.ID);
 
                 return;
             }
@@ -355,8 +352,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
             // inform AI
             var ai = owner.AI;
 
-            if (ai != null)
-                ai.WaypointStarted(_path.Nodes[_currentNode].ID, _path.ID);
+            ai?.WaypointStarted(_path.Nodes[_currentNode].ID, _path.ID);
         }
 
         var waypoint = _path.Nodes[_currentNode];

@@ -166,11 +166,9 @@ public class InstanceMap : Map
         // this will acquire the same mutex so it cannot be in the previous block
         base.AddPlayerToMap(player, initPlayer);
 
-        if (InstanceScript != null)
-            InstanceScript.OnPlayerEnter(player);
+        InstanceScript?.OnPlayerEnter(player);
 
-        if (InstanceScenario != null)
-            InstanceScenario.OnPlayerEnter(player);
+        InstanceScenario?.OnPlayerEnter(player);
 
         return true;
     }
@@ -185,8 +183,7 @@ public class InstanceMap : Map
             InstanceScript.UpdateCombatResurrection(diff);
         }
 
-        if (InstanceScenario != null)
-            InstanceScenario.Update(diff);
+        InstanceScenario?.Update(diff);
 
         if (_instanceExpireEvent.HasValue && _instanceExpireEvent.Value < GameTime.GetSystemTime())
         {
@@ -199,15 +196,13 @@ public class InstanceMap : Map
     {
         Log.Logger.Information("MAP: Removing player '{0}' from instance '{1}' of map '{2}' before relocating to another map", player.GetName(), InstanceId, MapName);
 
-        if (InstanceScript != null)
-            InstanceScript.OnPlayerLeave(player);
+        InstanceScript?.OnPlayerLeave(player);
 
         // if last player set unload timer
         if (UnloadTimer == 0 && Players.Count == 1)
             UnloadTimer = (InstanceLock != null && InstanceLock.IsExpired()) ? 1 : (uint)Math.Max(GetDefaultValue("Instance.UnloadDelay", 30 * Time.Minute * Time.InMilliseconds), 1);
 
-        if (InstanceScenario != null)
-            InstanceScenario.OnPlayerExit(player);
+        InstanceScenario?.OnPlayerExit(player);
 
         base.RemovePlayerFromMap(player, remove);
     }
@@ -494,7 +489,6 @@ public class InstanceMap : Map
 
     ~InstanceMap()
     {
-        if (InstanceLock != null)
-            InstanceLock.SetInUse(false);
+        InstanceLock?.SetInUse(false);
     }
 }

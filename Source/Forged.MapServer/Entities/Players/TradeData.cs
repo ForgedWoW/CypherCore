@@ -91,14 +91,14 @@ public class TradeData
         return _spell;
     }
 
-    public void SetSpell(uint spell_id, Item castItem = null)
+    public void SetSpell(uint spellID, Item castItem = null)
     {
         var itemGuid = castItem ? castItem.GUID : ObjectGuid.Empty;
 
-        if (_spell == spell_id && _spellCastItem == itemGuid)
+        if (_spell == spellID && _spellCastItem == itemGuid)
             return;
 
-        _spell = spell_id;
+        _spell = spellID;
         _spellCastItem = itemGuid;
 
         SetAccepted(false);
@@ -106,7 +106,7 @@ public class TradeData
 
         UpdateServerStateIndex();
 
-        Update(true);  // send spell info to item owner
+        Update();  // send spell info to item owner
         Update(false); // send spell info to caster self
     }
 
@@ -135,7 +135,7 @@ public class TradeData
 
         UpdateServerStateIndex();
 
-        Update(true);
+        Update();
     }
 
     public void SetAccepted(bool state, bool crosssend = false)

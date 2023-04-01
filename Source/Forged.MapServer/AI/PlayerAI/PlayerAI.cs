@@ -134,10 +134,7 @@ public class PlayerAI : UnitAI
         {
             var aura = auraEff.Base;
 
-            if (aura == null)
-                continue;
-
-            var auraInfo = aura.SpellInfo;
+            var auraInfo = aura?.SpellInfo;
 
             if (auraInfo == null)
                 continue;
