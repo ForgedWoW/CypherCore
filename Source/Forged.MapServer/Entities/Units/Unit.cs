@@ -560,7 +560,7 @@ public partial class Unit : WorldObject
 
         Events.KillAllEvents(true);
 
-        _DeleteRemovedAuras();
+        DeleteRemovedAuras();
 
         //i_motionMaster = null;
         _charmInfo = null;
@@ -3548,7 +3548,7 @@ public partial class Unit : WorldObject
             _visibleAurasToUpdate.Clear();
         }
 
-        _DeleteRemovedAuras();
+        DeleteRemovedAuras();
 
         if (!GameObjects.Empty())
             for (var i = 0; i < GameObjects.Count; ++i)
