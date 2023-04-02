@@ -12,6 +12,6 @@ internal class CancelScene : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(SceneInstanceID);
+        WorldPacket.WriteUInt32(SceneInstanceID);
     }
 }

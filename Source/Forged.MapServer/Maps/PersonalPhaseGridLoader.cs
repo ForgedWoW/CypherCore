@@ -37,7 +37,7 @@ internal class PersonalPhaseGridLoader : ObjectGridLoaderBase, IGridNotifierCrea
             {
                 i_cell.Data.Celly = y;
 
-                //Load creatures and game objects
+                //Load creatures and GameInfo objects
                 i_grid.VisitGrid(x, y, this);
             }
         }

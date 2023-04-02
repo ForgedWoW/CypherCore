@@ -16,18 +16,18 @@ internal class CalendarSendCalendar : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedTime(ServerTime);
-        _worldPacket.WriteInt32(Invites.Count);
-        _worldPacket.WriteInt32(Events.Count);
-        _worldPacket.WriteInt32(RaidLockouts.Count);
+        WorldPacket.WritePackedTime(ServerTime);
+        WorldPacket.WriteInt32(Invites.Count);
+        WorldPacket.WriteInt32(Events.Count);
+        WorldPacket.WriteInt32(RaidLockouts.Count);
 
         foreach (var invite in Invites)
-            invite.Write(_worldPacket);
+            invite.Write(WorldPacket);
 
         foreach (var lockout in RaidLockouts)
-            lockout.Write(_worldPacket);
+            lockout.Write(WorldPacket);
 
         foreach (var Event in Events)
-            Event.Write(_worldPacket);
+            Event.Write(WorldPacket);
     }
 }

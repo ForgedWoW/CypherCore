@@ -68,6 +68,7 @@ public class PacketManager
             }
         }
     }
+
     public bool IsInstanceOnlyOpcode(ServerOpcodes opcode)
     {
         switch (opcode)

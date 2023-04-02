@@ -12,7 +12,7 @@ public class AllAchievementData : ServerPacket
 
     public override void Write()
     {
-        Data.Write(_worldPacket);
+        Data.Write(WorldPacket);
     }
 }
 

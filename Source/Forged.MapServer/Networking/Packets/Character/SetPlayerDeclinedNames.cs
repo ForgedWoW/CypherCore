@@ -18,14 +18,14 @@ internal class SetPlayerDeclinedNames : ClientPacket
 
     public override void Read()
     {
-        Player = _worldPacket.ReadPackedGuid();
+        Player = WorldPacket.ReadPackedGuid();
 
         var stringLengths = new byte[SharedConst.MaxDeclinedNameCases];
 
         for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-            stringLengths[i] = _worldPacket.ReadBits<byte>(7);
+            stringLengths[i] = WorldPacket.ReadBits<byte>(7);
 
         for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-            DeclinedNames.Name[i] = _worldPacket.ReadString(stringLengths[i]);
+            DeclinedNames.Name[i] = WorldPacket.ReadString(stringLengths[i]);
     }
 }

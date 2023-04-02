@@ -11,7 +11,7 @@ internal class CheckCharacterNameAvailability : ClientPacket
 
     public override void Read()
     {
-        SequenceIndex = _worldPacket.ReadUInt32();
-        Name = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(6));
+        SequenceIndex = WorldPacket.ReadUInt32();
+        Name = WorldPacket.ReadString(WorldPacket.ReadBits<uint>(6));
     }
 }

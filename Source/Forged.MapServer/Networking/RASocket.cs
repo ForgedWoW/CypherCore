@@ -20,6 +20,7 @@ public class RASocket : ISocket
     private readonly byte[] _receiveBuffer;
     private readonly IPAddress _remoteAddress;
     private readonly Socket _socket;
+
     public RASocket(Socket socket)
     {
         _socket = socket;
@@ -89,7 +90,7 @@ public class RASocket : ISocket
         // Read commands
         for (;;)
         {
-            Send("\r\nCypher>");
+            Send("\r\nForged>");
             var command = ReadString();
 
             if (!ProcessCommand(command))
@@ -124,6 +125,7 @@ public class RASocket : ISocket
     {
         return IsOpen();
     }
+
     private bool CheckAccessLevelAndPassword(string email, string password)
     {
         //"SELECT a.id, a.username FROM account a LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id WHERE ba.email = ?"

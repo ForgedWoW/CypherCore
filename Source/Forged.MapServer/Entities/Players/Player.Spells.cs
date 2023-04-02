@@ -1496,7 +1496,7 @@ public partial class Player
 
             if (!Location.IsInWorld) // will send in INITIAL_SPELLS in list anyway at map add
                 AddSpell(tspell, true, true, true, false);
-            else // but send in normal spell in game learn case
+            else // but send in normal spell in GameInfo learn case
                 LearnSpell(tspell, true);
         }
     }

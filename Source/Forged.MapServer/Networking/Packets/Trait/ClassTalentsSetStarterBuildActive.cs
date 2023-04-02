@@ -11,7 +11,7 @@ internal class ClassTalentsSetStarterBuildActive : ClientPacket
 
     public override void Read()
     {
-        ConfigID = _worldPacket.ReadInt32();
-        Active = _worldPacket.HasBit();
+        ConfigID = WorldPacket.ReadInt32();
+        Active = WorldPacket.HasBit();
     }
 }

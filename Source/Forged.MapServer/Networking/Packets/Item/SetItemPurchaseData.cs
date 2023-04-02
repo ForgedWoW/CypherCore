@@ -16,9 +16,9 @@ internal class SetItemPurchaseData : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ItemGUID);
-        Contents.Write(_worldPacket);
-        _worldPacket.WriteUInt32(Flags);
-        _worldPacket.WriteUInt32(PurchaseTime);
+        WorldPacket.WritePackedGuid(ItemGUID);
+        Contents.Write(WorldPacket);
+        WorldPacket.WriteUInt32(Flags);
+        WorldPacket.WriteUInt32(PurchaseTime);
     }
 }

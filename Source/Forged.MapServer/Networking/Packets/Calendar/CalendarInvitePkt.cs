@@ -15,14 +15,14 @@ internal class CalendarInvitePkt : ClientPacket
 
     public override void Read()
     {
-        EventID = _worldPacket.ReadUInt64();
-        ModeratorID = _worldPacket.ReadUInt64();
-        ClubID = _worldPacket.ReadUInt64();
+        EventID = WorldPacket.ReadUInt64();
+        ModeratorID = WorldPacket.ReadUInt64();
+        ClubID = WorldPacket.ReadUInt64();
 
-        var nameLen = _worldPacket.ReadBits<ushort>(9);
-        Creating = _worldPacket.HasBit();
-        IsSignUp = _worldPacket.HasBit();
+        var nameLen = WorldPacket.ReadBits<ushort>(9);
+        Creating = WorldPacket.HasBit();
+        IsSignUp = WorldPacket.HasBit();
 
-        Name = _worldPacket.ReadString(nameLen);
+        Name = WorldPacket.ReadString(nameLen);
     }
 }

@@ -25,27 +25,27 @@ internal class PartyUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt16((ushort)PartyFlags);
-        _worldPacket.WriteUInt8(PartyIndex);
-        _worldPacket.WriteUInt8((byte)PartyType);
-        _worldPacket.WriteInt32(MyIndex);
-        _worldPacket.WritePackedGuid(PartyGUID);
-        _worldPacket.WriteInt32(SequenceNum);
-        _worldPacket.WritePackedGuid(LeaderGUID);
-        _worldPacket.WriteUInt8(LeaderFactionGroup);
-        _worldPacket.WriteInt32(PlayerList.Count);
-        _worldPacket.WriteBit(LfgInfos.HasValue);
-        _worldPacket.WriteBit(LootSettings.HasValue);
-        _worldPacket.WriteBit(DifficultySettings.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt16((ushort)PartyFlags);
+        WorldPacket.WriteUInt8(PartyIndex);
+        WorldPacket.WriteUInt8((byte)PartyType);
+        WorldPacket.WriteInt32(MyIndex);
+        WorldPacket.WritePackedGuid(PartyGUID);
+        WorldPacket.WriteInt32(SequenceNum);
+        WorldPacket.WritePackedGuid(LeaderGUID);
+        WorldPacket.WriteUInt8(LeaderFactionGroup);
+        WorldPacket.WriteInt32(PlayerList.Count);
+        WorldPacket.WriteBit(LfgInfos.HasValue);
+        WorldPacket.WriteBit(LootSettings.HasValue);
+        WorldPacket.WriteBit(DifficultySettings.HasValue);
+        WorldPacket.FlushBits();
 
         foreach (var playerInfo in PlayerList)
-            playerInfo.Write(_worldPacket);
+            playerInfo.Write(WorldPacket);
 
-        LootSettings?.Write(_worldPacket);
+        LootSettings?.Write(WorldPacket);
 
-        DifficultySettings?.Write(_worldPacket);
+        DifficultySettings?.Write(WorldPacket);
 
-        LfgInfos?.Write(_worldPacket);
+        LfgInfos?.Write(WorldPacket);
     }
 }

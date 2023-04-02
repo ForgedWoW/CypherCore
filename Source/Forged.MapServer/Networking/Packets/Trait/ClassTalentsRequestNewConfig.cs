@@ -11,6 +11,6 @@ internal class ClassTalentsRequestNewConfig : ClientPacket
 
     public override void Read()
     {
-        Config.Read(_worldPacket);
+        Config.Read(WorldPacket);
     }
 }

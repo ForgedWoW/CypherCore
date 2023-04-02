@@ -10,6 +10,6 @@ public class AcceptTrade : ClientPacket
 
     public override void Read()
     {
-        StateIndex = _worldPacket.ReadUInt32();
+        StateIndex = WorldPacket.ReadUInt32();
     }
 }

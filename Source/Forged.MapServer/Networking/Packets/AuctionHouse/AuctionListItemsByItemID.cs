@@ -19,19 +19,19 @@ internal class AuctionListItemsByItemID : ClientPacket
 
     public override void Read()
     {
-        Auctioneer = _worldPacket.ReadPackedGuid();
-        ItemID = _worldPacket.ReadUInt32();
-        SuffixItemNameDescriptionID = _worldPacket.ReadInt32();
-        Offset = _worldPacket.ReadUInt32();
+        Auctioneer = WorldPacket.ReadPackedGuid();
+        ItemID = WorldPacket.ReadUInt32();
+        SuffixItemNameDescriptionID = WorldPacket.ReadInt32();
+        Offset = WorldPacket.ReadUInt32();
 
-        if (_worldPacket.HasBit())
+        if (WorldPacket.HasBit())
             TaintedBy = new AddOnInfo();
 
-        var sortCount = _worldPacket.ReadBits<uint>(2);
+        var sortCount = WorldPacket.ReadBits<uint>(2);
 
         for (var i = 0; i < sortCount; ++i)
-            Sorts[i] = new AuctionSortDef(_worldPacket);
+            Sorts[i] = new AuctionSortDef(WorldPacket);
 
-        TaintedBy?.Read(_worldPacket);
+        TaintedBy?.Read(WorldPacket);
     }
 }

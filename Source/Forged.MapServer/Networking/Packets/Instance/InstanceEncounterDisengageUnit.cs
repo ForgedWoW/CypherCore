@@ -13,6 +13,6 @@ internal class InstanceEncounterDisengageUnit : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Unit);
+        WorldPacket.WritePackedGuid(Unit);
     }
 }

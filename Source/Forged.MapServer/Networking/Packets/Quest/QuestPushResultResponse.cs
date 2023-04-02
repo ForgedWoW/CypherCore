@@ -16,12 +16,12 @@ internal class QuestPushResultResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(SenderGUID);
-        _worldPacket.WriteUInt8((byte)Result);
+        WorldPacket.WritePackedGuid(SenderGUID);
+        WorldPacket.WriteUInt8((byte)Result);
 
-        _worldPacket.WriteBits(QuestTitle.GetByteCount(), 9);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(QuestTitle.GetByteCount(), 9);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteString(QuestTitle);
+        WorldPacket.WriteString(QuestTitle);
     }
 }

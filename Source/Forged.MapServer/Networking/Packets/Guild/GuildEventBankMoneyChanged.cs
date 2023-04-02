@@ -12,6 +12,6 @@ public class GuildEventBankMoneyChanged : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt64(Money);
+        WorldPacket.WriteUInt64(Money);
     }
 }

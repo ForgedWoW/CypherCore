@@ -26,25 +26,25 @@ internal class CalendarSendEvent : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8((byte)EventType);
-        _worldPacket.WritePackedGuid(OwnerGuid);
-        _worldPacket.WriteUInt64(EventID);
-        _worldPacket.WriteUInt8((byte)GetEventType);
-        _worldPacket.WriteInt32(TextureID);
-        _worldPacket.WriteUInt32((uint)Flags);
-        _worldPacket.WritePackedTime(Date);
-        _worldPacket.WriteUInt32((uint)LockDate);
-        _worldPacket.WritePackedGuid(EventGuildID);
-        _worldPacket.WriteInt32(Invites.Count);
+        WorldPacket.WriteUInt8((byte)EventType);
+        WorldPacket.WritePackedGuid(OwnerGuid);
+        WorldPacket.WriteUInt64(EventID);
+        WorldPacket.WriteUInt8((byte)GetEventType);
+        WorldPacket.WriteInt32(TextureID);
+        WorldPacket.WriteUInt32((uint)Flags);
+        WorldPacket.WritePackedTime(Date);
+        WorldPacket.WriteUInt32((uint)LockDate);
+        WorldPacket.WritePackedGuid(EventGuildID);
+        WorldPacket.WriteInt32(Invites.Count);
 
-        _worldPacket.WriteBits(EventName.GetByteCount(), 8);
-        _worldPacket.WriteBits(Description.GetByteCount(), 11);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(EventName.GetByteCount(), 8);
+        WorldPacket.WriteBits(Description.GetByteCount(), 11);
+        WorldPacket.FlushBits();
 
         foreach (var invite in Invites)
-            invite.Write(_worldPacket);
+            invite.Write(WorldPacket);
 
-        _worldPacket.WriteString(EventName);
-        _worldPacket.WriteString(Description);
+        WorldPacket.WriteString(EventName);
+        WorldPacket.WriteString(Description);
     }
 }

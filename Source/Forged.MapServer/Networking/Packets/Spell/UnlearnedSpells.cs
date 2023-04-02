@@ -14,12 +14,12 @@ public class UnlearnedSpells : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(SpellID.Count);
+        WorldPacket.WriteInt32(SpellID.Count);
 
         foreach (var spellId in SpellID)
-            _worldPacket.WriteUInt32(spellId);
+            WorldPacket.WriteUInt32(spellId);
 
-        _worldPacket.WriteBit(SuppressMessaging);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(SuppressMessaging);
+        WorldPacket.FlushBits();
     }
 }

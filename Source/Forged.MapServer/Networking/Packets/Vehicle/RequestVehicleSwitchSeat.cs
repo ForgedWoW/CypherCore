@@ -13,7 +13,7 @@ public class RequestVehicleSwitchSeat : ClientPacket
 
     public override void Read()
     {
-        Vehicle = _worldPacket.ReadPackedGuid();
-        SeatIndex = _worldPacket.ReadUInt8();
+        Vehicle = WorldPacket.ReadPackedGuid();
+        SeatIndex = WorldPacket.ReadUInt8();
     }
 }

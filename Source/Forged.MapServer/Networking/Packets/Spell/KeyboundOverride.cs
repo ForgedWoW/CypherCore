@@ -10,6 +10,6 @@ internal class KeyboundOverride : ClientPacket
 
     public override void Read()
     {
-        OverrideID = _worldPacket.ReadUInt16();
+        OverrideID = WorldPacket.ReadUInt16();
     }
 }

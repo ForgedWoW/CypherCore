@@ -10,6 +10,6 @@ internal class AzeriteEssenceUnlockMilestone : ClientPacket
 
     public override void Read()
     {
-        AzeriteItemMilestonePowerID = _worldPacket.ReadInt32();
+        AzeriteItemMilestonePowerID = WorldPacket.ReadInt32();
     }
 }

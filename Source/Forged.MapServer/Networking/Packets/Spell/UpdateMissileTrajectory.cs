@@ -22,19 +22,19 @@ internal class UpdateMissileTrajectory : ClientPacket
 
     public override void Read()
     {
-        Guid = _worldPacket.ReadPackedGuid();
-        CastID = _worldPacket.ReadPackedGuid();
-        MoveMsgID = _worldPacket.ReadUInt16();
-        SpellID = _worldPacket.ReadUInt32();
-        Pitch = _worldPacket.ReadFloat();
-        Speed = _worldPacket.ReadFloat();
-        FirePos = _worldPacket.ReadVector3();
-        ImpactPos = _worldPacket.ReadVector3();
-        var hasStatus = _worldPacket.HasBit();
+        Guid = WorldPacket.ReadPackedGuid();
+        CastID = WorldPacket.ReadPackedGuid();
+        MoveMsgID = WorldPacket.ReadUInt16();
+        SpellID = WorldPacket.ReadUInt32();
+        Pitch = WorldPacket.ReadFloat();
+        Speed = WorldPacket.ReadFloat();
+        FirePos = WorldPacket.ReadVector3();
+        ImpactPos = WorldPacket.ReadVector3();
+        var hasStatus = WorldPacket.HasBit();
 
-        _worldPacket.ResetBitPos();
+        WorldPacket.ResetBitPos();
 
         if (hasStatus)
-            Status = MovementExtensions.ReadMovementInfo(_worldPacket);
+            Status = MovementExtensions.ReadMovementInfo(WorldPacket);
     }
 }

@@ -15,8 +15,8 @@ internal class CrossedInebriationThreshold : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Guid);
-        _worldPacket.WriteUInt32(Threshold);
-        _worldPacket.WriteUInt32(ItemID);
+        WorldPacket.WritePackedGuid(Guid);
+        WorldPacket.WriteUInt32(Threshold);
+        WorldPacket.WriteUInt32(ItemID);
     }
 }

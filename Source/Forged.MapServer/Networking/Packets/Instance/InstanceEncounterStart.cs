@@ -16,11 +16,11 @@ internal class InstanceEncounterStart : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(InCombatResCount);
-        _worldPacket.WriteUInt32(MaxInCombatResCount);
-        _worldPacket.WriteUInt32(CombatResChargeRecovery);
-        _worldPacket.WriteUInt32(NextCombatResChargeTime);
-        _worldPacket.WriteBit(InProgress);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(InCombatResCount);
+        WorldPacket.WriteUInt32(MaxInCombatResCount);
+        WorldPacket.WriteUInt32(CombatResChargeRecovery);
+        WorldPacket.WriteUInt32(NextCombatResChargeTime);
+        WorldPacket.WriteBit(InProgress);
+        WorldPacket.FlushBits();
     }
 }

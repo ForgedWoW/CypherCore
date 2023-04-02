@@ -13,16 +13,16 @@ internal class QuestCompletionNPCResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(QuestCompletionNPCs.Count);
+        WorldPacket.WriteInt32(QuestCompletionNPCs.Count);
 
         foreach (var quest in QuestCompletionNPCs)
         {
-            _worldPacket.WriteUInt32(quest.QuestID);
+            WorldPacket.WriteUInt32(quest.QuestID);
 
-            _worldPacket.WriteInt32(quest.NPCs.Count);
+            WorldPacket.WriteInt32(quest.NPCs.Count);
 
             foreach (var npc in quest.NPCs)
-                _worldPacket.WriteUInt32(npc);
+                WorldPacket.WriteUInt32(npc);
         }
     }
 }

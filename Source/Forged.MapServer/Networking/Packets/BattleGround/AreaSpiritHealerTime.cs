@@ -10,11 +10,14 @@ public class AreaSpiritHealerTime : ServerPacket
 {
     public ObjectGuid HealerGuid;
     public uint TimeLeft;
-    public AreaSpiritHealerTime() : base(ServerOpcodes.AreaSpiritHealerTime) { }
+
+    public AreaSpiritHealerTime() : base(ServerOpcodes.AreaSpiritHealerTime)
+    {
+    }
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(HealerGuid);
-        _worldPacket.WriteUInt32(TimeLeft);
+        WorldPacket.WritePackedGuid(HealerGuid);
+        WorldPacket.WriteUInt32(TimeLeft);
     }
 }

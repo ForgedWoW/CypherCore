@@ -98,7 +98,7 @@ internal class AttackerStateUpdate : CombatLogServerPacket
         FlushBits();
         WriteLogData();
 
-        _worldPacket.WriteUInt32(attackRoundInfo.GetSize());
-        _worldPacket.WriteBytes(attackRoundInfo);
+        WorldPacket.WriteUInt32(attackRoundInfo.GetSize());
+        WorldPacket.WriteBytes(attackRoundInfo);
     }
 }

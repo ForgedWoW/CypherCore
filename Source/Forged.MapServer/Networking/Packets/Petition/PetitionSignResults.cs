@@ -15,10 +15,10 @@ public class PetitionSignResults : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Item);
-        _worldPacket.WritePackedGuid(Player);
+        WorldPacket.WritePackedGuid(Item);
+        WorldPacket.WritePackedGuid(Player);
 
-        _worldPacket.WriteBits(Error, 4);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(Error, 4);
+        WorldPacket.FlushBits();
     }
 }

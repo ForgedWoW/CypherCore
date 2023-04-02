@@ -16,11 +16,11 @@ internal class PetAction : ClientPacket
 
     public override void Read()
     {
-        PetGUID = _worldPacket.ReadPackedGuid();
+        PetGUID = WorldPacket.ReadPackedGuid();
 
-        Action = _worldPacket.ReadUInt32();
-        TargetGUID = _worldPacket.ReadPackedGuid();
+        Action = WorldPacket.ReadUInt32();
+        TargetGUID = WorldPacket.ReadPackedGuid();
 
-        ActionPosition = _worldPacket.ReadVector3();
+        ActionPosition = WorldPacket.ReadVector3();
     }
 }

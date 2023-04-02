@@ -20,15 +20,15 @@ internal class StartLootRoll : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(LootObj);
-        _worldPacket.WriteInt32(MapID);
-        _worldPacket.WriteUInt32(RollTime);
-        _worldPacket.WriteUInt8((byte)ValidRolls);
+        WorldPacket.WritePackedGuid(LootObj);
+        WorldPacket.WriteInt32(MapID);
+        WorldPacket.WriteUInt32(RollTime);
+        WorldPacket.WriteUInt8((byte)ValidRolls);
 
         foreach (var reason in LootRollIneligibleReason)
-            _worldPacket.WriteUInt32((uint)reason);
+            WorldPacket.WriteUInt32((uint)reason);
 
-        _worldPacket.WriteUInt8((byte)Method);
-        Item.Write(_worldPacket);
+        WorldPacket.WriteUInt8((byte)Method);
+        Item.Write(WorldPacket);
     }
 }

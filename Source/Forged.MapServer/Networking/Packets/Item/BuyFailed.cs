@@ -15,8 +15,8 @@ public class BuyFailed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(VendorGUID);
-        _worldPacket.WriteUInt32(Muid);
-        _worldPacket.WriteUInt8((byte)Reason);
+        WorldPacket.WritePackedGuid(VendorGUID);
+        WorldPacket.WriteUInt32(Muid);
+        WorldPacket.WriteUInt8((byte)Reason);
     }
 }

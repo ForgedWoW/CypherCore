@@ -20,15 +20,15 @@ internal class SpellAbsorbLog : CombatLogServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Attacker);
-        _worldPacket.WritePackedGuid(Victim);
-        _worldPacket.WriteUInt32(AbsorbedSpellID);
-        _worldPacket.WriteUInt32(AbsorbSpellID);
-        _worldPacket.WritePackedGuid(Caster);
-        _worldPacket.WriteInt32(Absorbed);
-        _worldPacket.WriteUInt32(OriginalDamage);
+        WorldPacket.WritePackedGuid(Attacker);
+        WorldPacket.WritePackedGuid(Victim);
+        WorldPacket.WriteUInt32(AbsorbedSpellID);
+        WorldPacket.WriteUInt32(AbsorbSpellID);
+        WorldPacket.WritePackedGuid(Caster);
+        WorldPacket.WriteInt32(Absorbed);
+        WorldPacket.WriteUInt32(OriginalDamage);
 
-        _worldPacket.WriteBit(Unk);
+        WorldPacket.WriteBit(Unk);
         WriteLogDataBit();
         FlushBits();
 

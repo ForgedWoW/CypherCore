@@ -16,6 +16,6 @@ internal class ScenarioCompleted : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(ScenarioID);
+        WorldPacket.WriteUInt32(ScenarioID);
     }
 }

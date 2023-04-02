@@ -14,6 +14,6 @@ public class MoveSetActiveMover : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(MoverGUID);
+        WorldPacket.WritePackedGuid(MoverGUID);
     }
 }

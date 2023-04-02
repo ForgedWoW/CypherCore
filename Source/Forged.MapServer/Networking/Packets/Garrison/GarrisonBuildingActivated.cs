@@ -12,6 +12,6 @@ internal class GarrisonBuildingActivated : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(GarrPlotInstanceID);
+        WorldPacket.WriteUInt32(GarrPlotInstanceID);
     }
 }

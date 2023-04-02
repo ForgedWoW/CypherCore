@@ -13,6 +13,6 @@ internal class DestroyArenaUnit : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Guid);
+        WorldPacket.WritePackedGuid(Guid);
     }
 }

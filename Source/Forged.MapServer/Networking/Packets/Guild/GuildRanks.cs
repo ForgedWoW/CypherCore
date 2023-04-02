@@ -17,8 +17,8 @@ public class GuildRanks : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Ranks.Count);
+        WorldPacket.WriteInt32(Ranks.Count);
 
-        Ranks.ForEach(p => p.Write(_worldPacket));
+        Ranks.ForEach(p => p.Write(WorldPacket));
     }
 }

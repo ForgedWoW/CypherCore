@@ -11,7 +11,7 @@ public class LeaveChannel : ClientPacket
 
     public override void Read()
     {
-        ZoneChannelID = _worldPacket.ReadInt32();
-        ChannelName = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(7));
+        ZoneChannelID = WorldPacket.ReadInt32();
+        ChannelName = WorldPacket.ReadString(WorldPacket.ReadBits<uint>(7));
     }
 }

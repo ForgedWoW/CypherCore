@@ -16,11 +16,11 @@ internal class QueryItemTextResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(Valid);
-        _worldPacket.WriteBits(Text.GetByteCount(), 13);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(Valid);
+        WorldPacket.WriteBits(Text.GetByteCount(), 13);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteString(Text);
-        _worldPacket.WritePackedGuid(Id);
+        WorldPacket.WriteString(Text);
+        WorldPacket.WritePackedGuid(Id);
     }
 }

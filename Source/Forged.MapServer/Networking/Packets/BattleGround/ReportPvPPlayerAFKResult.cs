@@ -27,9 +27,9 @@ internal class ReportPvPPlayerAFKResult : ServerPacket
     }
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Offender);
-        _worldPacket.WriteUInt8((byte)Result);
-        _worldPacket.WriteUInt8(NumBlackMarksOnOffender);
-        _worldPacket.WriteUInt8(NumPlayersIHaveReported);
+        WorldPacket.WritePackedGuid(Offender);
+        WorldPacket.WriteUInt8((byte)Result);
+        WorldPacket.WriteUInt8(NumBlackMarksOnOffender);
+        WorldPacket.WriteUInt8(NumPlayersIHaveReported);
     }
 }

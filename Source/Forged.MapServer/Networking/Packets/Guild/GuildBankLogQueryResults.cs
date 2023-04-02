@@ -19,37 +19,37 @@ public class GuildBankLogQueryResults : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Tab);
-        _worldPacket.WriteInt32(Entry.Count);
-        _worldPacket.WriteBit(WeeklyBonusMoney.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(Tab);
+        WorldPacket.WriteInt32(Entry.Count);
+        WorldPacket.WriteBit(WeeklyBonusMoney.HasValue);
+        WorldPacket.FlushBits();
 
         foreach (var logEntry in Entry)
         {
-            _worldPacket.WritePackedGuid(logEntry.PlayerGUID);
-            _worldPacket.WriteUInt32(logEntry.TimeOffset);
-            _worldPacket.WriteInt8(logEntry.EntryType);
+            WorldPacket.WritePackedGuid(logEntry.PlayerGUID);
+            WorldPacket.WriteUInt32(logEntry.TimeOffset);
+            WorldPacket.WriteInt8(logEntry.EntryType);
 
-            _worldPacket.WriteBit(logEntry.Money.HasValue);
-            _worldPacket.WriteBit(logEntry.ItemID.HasValue);
-            _worldPacket.WriteBit(logEntry.Count.HasValue);
-            _worldPacket.WriteBit(logEntry.OtherTab.HasValue);
-            _worldPacket.FlushBits();
+            WorldPacket.WriteBit(logEntry.Money.HasValue);
+            WorldPacket.WriteBit(logEntry.ItemID.HasValue);
+            WorldPacket.WriteBit(logEntry.Count.HasValue);
+            WorldPacket.WriteBit(logEntry.OtherTab.HasValue);
+            WorldPacket.FlushBits();
 
             if (logEntry.Money.HasValue)
-                _worldPacket.WriteUInt64(logEntry.Money.Value);
+                WorldPacket.WriteUInt64(logEntry.Money.Value);
 
             if (logEntry.ItemID.HasValue)
-                _worldPacket.WriteInt32(logEntry.ItemID.Value);
+                WorldPacket.WriteInt32(logEntry.ItemID.Value);
 
             if (logEntry.Count.HasValue)
-                _worldPacket.WriteInt32(logEntry.Count.Value);
+                WorldPacket.WriteInt32(logEntry.Count.Value);
 
             if (logEntry.OtherTab.HasValue)
-                _worldPacket.WriteInt8(logEntry.OtherTab.Value);
+                WorldPacket.WriteInt8(logEntry.OtherTab.Value);
         }
 
         if (WeeklyBonusMoney.HasValue)
-            _worldPacket.WriteUInt64(WeeklyBonusMoney.Value);
+            WorldPacket.WriteUInt64(WeeklyBonusMoney.Value);
     }
 }

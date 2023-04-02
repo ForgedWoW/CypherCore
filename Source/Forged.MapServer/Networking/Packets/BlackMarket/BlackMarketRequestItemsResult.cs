@@ -14,10 +14,10 @@ public class BlackMarketRequestItemsResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt64(LastUpdateID);
-        _worldPacket.WriteInt32(Items.Count);
+        WorldPacket.WriteInt64(LastUpdateID);
+        WorldPacket.WriteInt32(Items.Count);
 
         foreach (var item in Items)
-            item.Write(_worldPacket);
+            item.Write(WorldPacket);
     }
 }

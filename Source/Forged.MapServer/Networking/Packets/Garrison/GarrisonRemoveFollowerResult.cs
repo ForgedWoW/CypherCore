@@ -15,9 +15,9 @@ internal class GarrisonRemoveFollowerResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt64(FollowerDBID);
-        _worldPacket.WriteInt32(GarrTypeID);
-        _worldPacket.WriteUInt32(Result);
-        _worldPacket.WriteUInt32(Destroyed);
+        WorldPacket.WriteUInt64(FollowerDBID);
+        WorldPacket.WriteInt32(GarrTypeID);
+        WorldPacket.WriteUInt32(Result);
+        WorldPacket.WriteUInt32(Destroyed);
     }
 }

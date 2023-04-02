@@ -11,7 +11,7 @@ public class GenerateRandomCharacterName : ClientPacket
 
     public override void Read()
     {
-        Race = _worldPacket.ReadUInt8();
-        Sex = _worldPacket.ReadUInt8();
+        Race = WorldPacket.ReadUInt8();
+        Sex = WorldPacket.ReadUInt8();
     }
 }

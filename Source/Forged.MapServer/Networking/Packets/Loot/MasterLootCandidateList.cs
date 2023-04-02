@@ -15,8 +15,8 @@ internal class MasterLootCandidateList : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(LootObj);
-        _worldPacket.WriteInt32(Players.Count);
-        Players.ForEach(guid => _worldPacket.WritePackedGuid(guid));
+        WorldPacket.WritePackedGuid(LootObj);
+        WorldPacket.WriteInt32(Players.Count);
+        Players.ForEach(guid => WorldPacket.WritePackedGuid(guid));
     }
 }

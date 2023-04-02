@@ -14,9 +14,9 @@ internal class SocketGems : ClientPacket
 
     public override void Read()
     {
-        ItemGuid = _worldPacket.ReadPackedGuid();
+        ItemGuid = WorldPacket.ReadPackedGuid();
 
         for (var i = 0; i < ItemConst.MaxGemSockets; ++i)
-            GemItem[i] = _worldPacket.ReadPackedGuid();
+            GemItem[i] = WorldPacket.ReadPackedGuid();
     }
 }

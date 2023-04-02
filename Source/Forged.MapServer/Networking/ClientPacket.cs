@@ -10,21 +10,21 @@ namespace Forged.MapServer.Networking;
 
 public abstract class ClientPacket : IDisposable
 {
-    protected WorldPacket _worldPacket;
+    protected WorldPacket WorldPacket;
 
     protected ClientPacket(WorldPacket worldPacket)
     {
-        _worldPacket = worldPacket;
+        WorldPacket = worldPacket;
     }
 
     public void Dispose()
     {
-        _worldPacket.Dispose();
+        WorldPacket.Dispose();
     }
 
     public ClientOpcodes GetOpcode()
     {
-        return (ClientOpcodes)_worldPacket.GetOpcode();
+        return (ClientOpcodes)WorldPacket.Opcode;
     }
 
     public void LogPacket(WorldSession session)

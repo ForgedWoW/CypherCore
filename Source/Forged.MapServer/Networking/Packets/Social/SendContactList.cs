@@ -12,7 +12,7 @@ public class SendContactList : ClientPacket
 
     public override void Read()
     {
-        Flags = (SocialFlag)_worldPacket.ReadUInt32();
+        Flags = (SocialFlag)WorldPacket.ReadUInt32();
     }
 }
 

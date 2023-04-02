@@ -14,10 +14,10 @@ internal class PartyUninvite : ClientPacket
 
     public override void Read()
     {
-        PartyIndex = _worldPacket.ReadUInt8();
-        TargetGUID = _worldPacket.ReadPackedGuid();
+        PartyIndex = WorldPacket.ReadUInt8();
+        TargetGUID = WorldPacket.ReadPackedGuid();
 
-        var reasonLen = _worldPacket.ReadBits<byte>(8);
-        Reason = _worldPacket.ReadString(reasonLen);
+        var reasonLen = WorldPacket.ReadBits<byte>(8);
+        Reason = WorldPacket.ReadString(reasonLen);
     }
 }

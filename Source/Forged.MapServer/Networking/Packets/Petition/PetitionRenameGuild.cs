@@ -13,11 +13,11 @@ public class PetitionRenameGuild : ClientPacket
 
     public override void Read()
     {
-        PetitionGuid = _worldPacket.ReadPackedGuid();
+        PetitionGuid = WorldPacket.ReadPackedGuid();
 
-        _worldPacket.ResetBitPos();
-        var nameLen = _worldPacket.ReadBits<uint>(7);
+        WorldPacket.ResetBitPos();
+        var nameLen = WorldPacket.ReadBits<uint>(7);
 
-        NewGuildName = _worldPacket.ReadString(nameLen);
+        NewGuildName = WorldPacket.ReadString(nameLen);
     }
 }

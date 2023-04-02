@@ -16,11 +16,11 @@ internal class CalendarModeratorStatus : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(InviteGuid);
-        _worldPacket.WriteUInt64(EventID);
-        _worldPacket.WriteUInt8((byte)Status);
+        WorldPacket.WritePackedGuid(InviteGuid);
+        WorldPacket.WriteUInt64(EventID);
+        WorldPacket.WriteUInt8((byte)Status);
 
-        _worldPacket.WriteBit(ClearPending);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(ClearPending);
+        WorldPacket.FlushBits();
     }
 }

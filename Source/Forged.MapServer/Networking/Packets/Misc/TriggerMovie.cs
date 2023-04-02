@@ -12,6 +12,6 @@ public class TriggerMovie : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(MovieID);
+        WorldPacket.WriteUInt32(MovieID);
     }
 }

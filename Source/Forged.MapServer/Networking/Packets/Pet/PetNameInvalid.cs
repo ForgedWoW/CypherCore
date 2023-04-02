@@ -14,23 +14,23 @@ internal class PetNameInvalid : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8((byte)Result);
-        _worldPacket.WritePackedGuid(RenameData.PetGUID);
-        _worldPacket.WriteInt32(RenameData.PetNumber);
+        WorldPacket.WriteUInt8((byte)Result);
+        WorldPacket.WritePackedGuid(RenameData.PetGUID);
+        WorldPacket.WriteInt32(RenameData.PetNumber);
 
-        _worldPacket.WriteUInt8((byte)RenameData.NewName.GetByteCount());
+        WorldPacket.WriteUInt8((byte)RenameData.NewName.GetByteCount());
 
-        _worldPacket.WriteBit(RenameData.HasDeclinedNames);
+        WorldPacket.WriteBit(RenameData.HasDeclinedNames);
 
         if (RenameData.HasDeclinedNames)
         {
             for (var i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-                _worldPacket.WriteBits(RenameData.DeclinedNames.Name[i].GetByteCount(), 7);
+                WorldPacket.WriteBits(RenameData.DeclinedNames.Name[i].GetByteCount(), 7);
 
             for (var i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-                _worldPacket.WriteString(RenameData.DeclinedNames.Name[i]);
+                WorldPacket.WriteString(RenameData.DeclinedNames.Name[i]);
         }
 
-        _worldPacket.WriteString(RenameData.NewName);
+        WorldPacket.WriteString(RenameData.NewName);
     }
 }

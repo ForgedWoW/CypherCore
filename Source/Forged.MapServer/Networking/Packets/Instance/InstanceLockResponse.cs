@@ -10,6 +10,6 @@ internal class InstanceLockResponse : ClientPacket
 
     public override void Read()
     {
-        AcceptLock = _worldPacket.HasBit();
+        AcceptLock = WorldPacket.HasBit();
     }
 }

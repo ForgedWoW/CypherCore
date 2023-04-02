@@ -14,7 +14,7 @@ public class MoveSplineSetSpeed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(MoverGUID);
-        _worldPacket.WriteFloat(Speed);
+        WorldPacket.WritePackedGuid(MoverGUID);
+        WorldPacket.WriteFloat(Speed);
     }
 }

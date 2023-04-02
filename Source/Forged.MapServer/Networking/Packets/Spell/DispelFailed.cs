@@ -17,11 +17,11 @@ internal class DispelFailed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(CasterGUID);
-        _worldPacket.WritePackedGuid(VictimGUID);
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteInt32(FailedSpells.Count);
+        WorldPacket.WritePackedGuid(CasterGUID);
+        WorldPacket.WritePackedGuid(VictimGUID);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteInt32(FailedSpells.Count);
 
-        FailedSpells.ForEach(FailedSpellID => _worldPacket.WriteUInt32(FailedSpellID));
+        FailedSpells.ForEach(FailedSpellID => WorldPacket.WriteUInt32(FailedSpellID));
     }
 }

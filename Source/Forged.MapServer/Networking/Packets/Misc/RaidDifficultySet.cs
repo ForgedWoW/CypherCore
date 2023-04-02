@@ -13,7 +13,7 @@ public class RaidDifficultySet : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(DifficultyID);
-        _worldPacket.WriteUInt8((byte)(Legacy ? 1 : 0));
+        WorldPacket.WriteInt32(DifficultyID);
+        WorldPacket.WriteUInt8((byte)(Legacy ? 1 : 0));
     }
 }

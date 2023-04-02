@@ -13,8 +13,8 @@ public class BuyBackItem : ClientPacket
 
     public override void Read()
     {
-        VendorGUID = _worldPacket.ReadPackedGuid();
-        Slot = _worldPacket.ReadUInt32();
+        VendorGUID = WorldPacket.ReadPackedGuid();
+        Slot = WorldPacket.ReadUInt32();
     }
 }
 

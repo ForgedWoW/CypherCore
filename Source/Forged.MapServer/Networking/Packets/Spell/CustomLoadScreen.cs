@@ -17,7 +17,7 @@ internal class CustomLoadScreen : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(TeleportSpellID);
-        _worldPacket.WriteUInt32(LoadingScreenID);
+        WorldPacket.WriteUInt32(TeleportSpellID);
+        WorldPacket.WriteUInt32(LoadingScreenID);
     }
 }

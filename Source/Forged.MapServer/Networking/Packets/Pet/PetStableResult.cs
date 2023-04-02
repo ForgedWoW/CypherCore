@@ -12,6 +12,6 @@ internal class PetStableResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8((byte)Result);
+        WorldPacket.WriteUInt8((byte)Result);
     }
 }

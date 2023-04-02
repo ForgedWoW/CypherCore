@@ -13,6 +13,6 @@ internal class GameObjectDespawn : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ObjectGUID);
+        WorldPacket.WritePackedGuid(ObjectGUID);
     }
 }

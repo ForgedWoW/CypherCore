@@ -20,16 +20,16 @@ public class QuestGiverQuestListMessage : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(QuestGiverGUID);
-        _worldPacket.WriteUInt32(GreetEmoteDelay);
-        _worldPacket.WriteUInt32(GreetEmoteType);
-        _worldPacket.WriteInt32(QuestDataText.Count);
-        _worldPacket.WriteBits(Greeting.GetByteCount(), 11);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(QuestGiverGUID);
+        WorldPacket.WriteUInt32(GreetEmoteDelay);
+        WorldPacket.WriteUInt32(GreetEmoteType);
+        WorldPacket.WriteInt32(QuestDataText.Count);
+        WorldPacket.WriteBits(Greeting.GetByteCount(), 11);
+        WorldPacket.FlushBits();
 
         foreach (var gossip in QuestDataText)
-            gossip.Write(_worldPacket);
+            gossip.Write(WorldPacket);
 
-        _worldPacket.WriteString(Greeting);
+        WorldPacket.WriteString(Greeting);
     }
 }

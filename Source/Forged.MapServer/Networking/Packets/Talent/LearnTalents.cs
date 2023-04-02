@@ -13,9 +13,9 @@ internal class LearnTalents : ClientPacket
 
     public override void Read()
     {
-        var count = _worldPacket.ReadBits<uint>(6);
+        var count = WorldPacket.ReadBits<uint>(6);
 
         for (var i = 0; i < count; ++i)
-            Talents[i] = _worldPacket.ReadUInt16();
+            Talents[i] = WorldPacket.ReadUInt16();
     }
 }

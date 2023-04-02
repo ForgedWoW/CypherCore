@@ -10,6 +10,6 @@ public class ClearTradeItem : ClientPacket
 
     public override void Read()
     {
-        TradeSlot = _worldPacket.ReadUInt8();
+        TradeSlot = WorldPacket.ReadUInt8();
     }
 }

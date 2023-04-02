@@ -16,6 +16,6 @@ public class CharacterLoginFailed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8((byte)Code);
+        WorldPacket.WriteUInt8((byte)Code);
     }
 }

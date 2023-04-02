@@ -18,18 +18,18 @@ internal class LFGQueueStatus : ServerPacket
 
     public override void Write()
     {
-        Ticket.Write(_worldPacket);
+        Ticket.Write(WorldPacket);
 
-        _worldPacket.WriteUInt32(Slot);
-        _worldPacket.WriteUInt32(AvgWaitTimeMe);
-        _worldPacket.WriteUInt32(AvgWaitTime);
+        WorldPacket.WriteUInt32(Slot);
+        WorldPacket.WriteUInt32(AvgWaitTimeMe);
+        WorldPacket.WriteUInt32(AvgWaitTime);
 
         for (var i = 0; i < 3; i++)
         {
-            _worldPacket.WriteUInt32(AvgWaitTimeByRole[i]);
-            _worldPacket.WriteUInt8(LastNeeded[i]);
+            WorldPacket.WriteUInt32(AvgWaitTimeByRole[i]);
+            WorldPacket.WriteUInt8(LastNeeded[i]);
         }
 
-        _worldPacket.WriteUInt32(QueuedTime);
+        WorldPacket.WriteUInt32(QueuedTime);
     }
 }

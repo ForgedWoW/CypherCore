@@ -16,8 +16,8 @@ internal class AuctionOwnerBidNotification : ServerPacket
 
     public override void Write()
     {
-        Info.Write(_worldPacket);
-        _worldPacket.WriteUInt64(MinIncrement);
-        _worldPacket.WritePackedGuid(Bidder);
+        Info.Write(WorldPacket);
+        WorldPacket.WriteUInt64(MinIncrement);
+        WorldPacket.WritePackedGuid(Bidder);
     }
 }

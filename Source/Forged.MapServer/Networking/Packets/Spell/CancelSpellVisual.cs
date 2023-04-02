@@ -14,7 +14,7 @@ public class CancelSpellVisual : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Source);
-        _worldPacket.WriteUInt32(SpellVisualID);
+        WorldPacket.WritePackedGuid(Source);
+        WorldPacket.WriteUInt32(SpellVisualID);
     }
 }

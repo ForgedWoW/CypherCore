@@ -21,10 +21,10 @@ public class WeatherPkt : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32((uint)WeatherID);
-        _worldPacket.WriteFloat(Intensity);
-        _worldPacket.WriteBit(Abrupt);
+        WorldPacket.WriteUInt32((uint)WeatherID);
+        WorldPacket.WriteFloat(Intensity);
+        WorldPacket.WriteBit(Abrupt);
 
-        _worldPacket.FlushBits();
+        WorldPacket.FlushBits();
     }
 }

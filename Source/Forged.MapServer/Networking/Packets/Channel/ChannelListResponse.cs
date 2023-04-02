@@ -23,17 +23,17 @@ public class ChannelListResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(Display);
-        _worldPacket.WriteBits(Channel.GetByteCount(), 7);
-        _worldPacket.WriteUInt32((uint)ChannelFlags);
-        _worldPacket.WriteInt32(Members.Count);
-        _worldPacket.WriteString(Channel);
+        WorldPacket.WriteBit(Display);
+        WorldPacket.WriteBits(Channel.GetByteCount(), 7);
+        WorldPacket.WriteUInt32((uint)ChannelFlags);
+        WorldPacket.WriteInt32(Members.Count);
+        WorldPacket.WriteString(Channel);
 
         foreach (var player in Members)
         {
-            _worldPacket.WritePackedGuid(player.Guid);
-            _worldPacket.WriteUInt32(player.VirtualRealmAddress);
-            _worldPacket.WriteUInt8((byte)player.Flags);
+            WorldPacket.WritePackedGuid(player.Guid);
+            WorldPacket.WriteUInt32(player.VirtualRealmAddress);
+            WorldPacket.WriteUInt8((byte)player.Flags);
         }
     }
 

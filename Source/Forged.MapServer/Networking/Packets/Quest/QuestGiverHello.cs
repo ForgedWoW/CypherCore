@@ -12,6 +12,6 @@ public class QuestGiverHello : ClientPacket
 
     public override void Read()
     {
-        QuestGiverGUID = _worldPacket.ReadPackedGuid();
+        QuestGiverGUID = WorldPacket.ReadPackedGuid();
     }
 }

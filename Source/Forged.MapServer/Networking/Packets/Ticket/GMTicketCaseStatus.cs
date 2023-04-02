@@ -14,22 +14,22 @@ public class GMTicketCaseStatus : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Cases.Count);
+        WorldPacket.WriteInt32(Cases.Count);
 
         foreach (var c in Cases)
         {
-            _worldPacket.WriteInt32(c.CaseID);
-            _worldPacket.WriteInt64(c.CaseOpened);
-            _worldPacket.WriteInt32(c.CaseStatus);
-            _worldPacket.WriteUInt16(c.CfgRealmID);
-            _worldPacket.WriteUInt64(c.CharacterID);
-            _worldPacket.WriteInt32(c.WaitTimeOverrideMinutes);
+            WorldPacket.WriteInt32(c.CaseID);
+            WorldPacket.WriteInt64(c.CaseOpened);
+            WorldPacket.WriteInt32(c.CaseStatus);
+            WorldPacket.WriteUInt16(c.CfgRealmID);
+            WorldPacket.WriteUInt64(c.CharacterID);
+            WorldPacket.WriteInt32(c.WaitTimeOverrideMinutes);
 
-            _worldPacket.WriteBits(c.Url.GetByteCount(), 11);
-            _worldPacket.WriteBits(c.WaitTimeOverrideMessage.GetByteCount(), 10);
+            WorldPacket.WriteBits(c.Url.GetByteCount(), 11);
+            WorldPacket.WriteBits(c.WaitTimeOverrideMessage.GetByteCount(), 10);
 
-            _worldPacket.WriteString(c.Url);
-            _worldPacket.WriteString(c.WaitTimeOverrideMessage);
+            WorldPacket.WriteString(c.Url);
+            WorldPacket.WriteString(c.WaitTimeOverrideMessage);
         }
     }
 

@@ -26,18 +26,18 @@ internal class PlaySpellVisual : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Source);
-        _worldPacket.WritePackedGuid(Target);
-        _worldPacket.WritePackedGuid(Transport);
-        _worldPacket.WriteVector3(TargetPosition);
-        _worldPacket.WriteUInt32(SpellVisualID);
-        _worldPacket.WriteFloat(TravelSpeed);
-        _worldPacket.WriteUInt16(HitReason);
-        _worldPacket.WriteUInt16(MissReason);
-        _worldPacket.WriteUInt16(ReflectStatus);
-        _worldPacket.WriteFloat(LaunchDelay);
-        _worldPacket.WriteFloat(MinDuration);
-        _worldPacket.WriteBit(SpeedAsTime);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Source);
+        WorldPacket.WritePackedGuid(Target);
+        WorldPacket.WritePackedGuid(Transport);
+        WorldPacket.WriteVector3(TargetPosition);
+        WorldPacket.WriteUInt32(SpellVisualID);
+        WorldPacket.WriteFloat(TravelSpeed);
+        WorldPacket.WriteUInt16(HitReason);
+        WorldPacket.WriteUInt16(MissReason);
+        WorldPacket.WriteUInt16(ReflectStatus);
+        WorldPacket.WriteFloat(LaunchDelay);
+        WorldPacket.WriteFloat(MinDuration);
+        WorldPacket.WriteBit(SpeedAsTime);
+        WorldPacket.FlushBits();
     }
 }

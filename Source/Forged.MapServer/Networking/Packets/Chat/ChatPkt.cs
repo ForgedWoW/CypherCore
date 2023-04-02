@@ -75,40 +75,40 @@ public class ChatPkt : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8((byte)SlashCmd);
-        _worldPacket.WriteUInt32((uint)_Language);
-        _worldPacket.WritePackedGuid(SenderGUID);
-        _worldPacket.WritePackedGuid(SenderGuildGUID);
-        _worldPacket.WritePackedGuid(SenderAccountGUID);
-        _worldPacket.WritePackedGuid(TargetGUID);
-        _worldPacket.WriteUInt32(TargetVirtualAddress);
-        _worldPacket.WriteUInt32(SenderVirtualAddress);
-        _worldPacket.WritePackedGuid(PartyGUID);
-        _worldPacket.WriteUInt32(AchievementID);
-        _worldPacket.WriteFloat(DisplayTime);
-        _worldPacket.WriteBits(SenderName.GetByteCount(), 11);
-        _worldPacket.WriteBits(TargetName.GetByteCount(), 11);
-        _worldPacket.WriteBits(Prefix.GetByteCount(), 5);
-        _worldPacket.WriteBits(Channel.GetByteCount(), 7);
-        _worldPacket.WriteBits(ChatText.GetByteCount(), 12);
-        _worldPacket.WriteBits((byte)_ChatFlags, 14);
-        _worldPacket.WriteBit(HideChatLog);
-        _worldPacket.WriteBit(FakeSenderName);
-        _worldPacket.WriteBit(Unused_801.HasValue);
-        _worldPacket.WriteBit(ChannelGUID.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt8((byte)SlashCmd);
+        WorldPacket.WriteUInt32((uint)_Language);
+        WorldPacket.WritePackedGuid(SenderGUID);
+        WorldPacket.WritePackedGuid(SenderGuildGUID);
+        WorldPacket.WritePackedGuid(SenderAccountGUID);
+        WorldPacket.WritePackedGuid(TargetGUID);
+        WorldPacket.WriteUInt32(TargetVirtualAddress);
+        WorldPacket.WriteUInt32(SenderVirtualAddress);
+        WorldPacket.WritePackedGuid(PartyGUID);
+        WorldPacket.WriteUInt32(AchievementID);
+        WorldPacket.WriteFloat(DisplayTime);
+        WorldPacket.WriteBits(SenderName.GetByteCount(), 11);
+        WorldPacket.WriteBits(TargetName.GetByteCount(), 11);
+        WorldPacket.WriteBits(Prefix.GetByteCount(), 5);
+        WorldPacket.WriteBits(Channel.GetByteCount(), 7);
+        WorldPacket.WriteBits(ChatText.GetByteCount(), 12);
+        WorldPacket.WriteBits((byte)_ChatFlags, 14);
+        WorldPacket.WriteBit(HideChatLog);
+        WorldPacket.WriteBit(FakeSenderName);
+        WorldPacket.WriteBit(Unused_801.HasValue);
+        WorldPacket.WriteBit(ChannelGUID.HasValue);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteString(SenderName);
-        _worldPacket.WriteString(TargetName);
-        _worldPacket.WriteString(Prefix);
-        _worldPacket.WriteString(Channel);
-        _worldPacket.WriteString(ChatText);
+        WorldPacket.WriteString(SenderName);
+        WorldPacket.WriteString(TargetName);
+        WorldPacket.WriteString(Prefix);
+        WorldPacket.WriteString(Channel);
+        WorldPacket.WriteString(ChatText);
 
         if (Unused_801.HasValue)
-            _worldPacket.WriteUInt32(Unused_801.Value);
+            WorldPacket.WriteUInt32(Unused_801.Value);
 
         if (ChannelGUID.HasValue)
-            _worldPacket.WritePackedGuid(ChannelGUID.Value);
+            WorldPacket.WritePackedGuid(ChannelGUID.Value);
     }
 
     private void SetSender(WorldObject sender, Locale locale)

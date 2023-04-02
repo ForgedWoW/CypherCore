@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking;
 
 internal class AccountInfo
 {
-    public BattleNet battleNet;
-    public Game game;
+    public BattleNet BNet;
+    public Game GameInfo;
 
     public AccountInfo(SQLFields fields)
     {
@@ -20,29 +20,29 @@ internal class AccountInfo
         // FROM account a LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID IN (-1, ?)
         // LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account_banned ab ON a.id = ab.id LEFT JOIN account r ON a.id = r.recruiter
         // WHERE a.username = ? ORDER BY aa.RealmID DESC LIMIT 1
-        game.Id = fields.Read<uint>(0);
-        game.SessionKey = fields.Read<byte[]>(1);
-        battleNet.LastIP = fields.Read<string>(2);
-        battleNet.IsLockedToIP = fields.Read<bool>(3);
-        battleNet.LockCountry = fields.Read<string>(4);
-        game.Expansion = fields.Read<byte>(5);
-        game.MuteTime = fields.Read<long>(6);
-        battleNet.Locale = (Locale)fields.Read<byte>(7);
-        game.Recruiter = fields.Read<uint>(8);
-        game.OS = fields.Read<string>(9);
-        battleNet.Id = fields.Read<uint>(10);
-        game.Security = (AccountTypes)fields.Read<byte>(11);
-        battleNet.IsBanned = fields.Read<uint>(12) != 0;
-        game.IsBanned = fields.Read<uint>(13) != 0;
-        game.IsRectuiter = fields.Read<uint>(14) != 0;
+        GameInfo.Id = fields.Read<uint>(0);
+        GameInfo.SessionKey = fields.Read<byte[]>(1);
+        BNet.LastIP = fields.Read<string>(2);
+        BNet.IsLockedToIP = fields.Read<bool>(3);
+        BNet.LockCountry = fields.Read<string>(4);
+        GameInfo.Expansion = fields.Read<byte>(5);
+        GameInfo.MuteTime = fields.Read<long>(6);
+        BNet.Locale = (Locale)fields.Read<byte>(7);
+        GameInfo.Recruiter = fields.Read<uint>(8);
+        GameInfo.OS = fields.Read<string>(9);
+        BNet.Id = fields.Read<uint>(10);
+        GameInfo.Security = (AccountTypes)fields.Read<byte>(11);
+        BNet.IsBanned = fields.Read<uint>(12) != 0;
+        GameInfo.IsBanned = fields.Read<uint>(13) != 0;
+        GameInfo.IsRectuiter = fields.Read<uint>(14) != 0;
 
-        if (battleNet.Locale >= Locale.Total)
-            battleNet.Locale = Locale.enUS;
+        if (BNet.Locale >= Locale.Total)
+            BNet.Locale = Locale.enUS;
     }
 
     public bool IsBanned()
     {
-        return battleNet.IsBanned || game.IsBanned;
+        return BNet.IsBanned || GameInfo.IsBanned;
     }
 
     public struct BattleNet

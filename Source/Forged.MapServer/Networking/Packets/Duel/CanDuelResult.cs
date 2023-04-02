@@ -14,8 +14,8 @@ public class CanDuelResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(TargetGUID);
-        _worldPacket.WriteBit(Result);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(TargetGUID);
+        WorldPacket.WriteBit(Result);
+        WorldPacket.FlushBits();
     }
 }

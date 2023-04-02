@@ -13,6 +13,6 @@ public class ClearTarget : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Guid);
+        WorldPacket.WritePackedGuid(Guid);
     }
 }

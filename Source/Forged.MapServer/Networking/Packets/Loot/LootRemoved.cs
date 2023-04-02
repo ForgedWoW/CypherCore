@@ -15,8 +15,8 @@ internal class LootRemoved : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Owner);
-        _worldPacket.WritePackedGuid(LootObj);
-        _worldPacket.WriteUInt8(LootListID);
+        WorldPacket.WritePackedGuid(Owner);
+        WorldPacket.WritePackedGuid(LootObj);
+        WorldPacket.WriteUInt8(LootListID);
     }
 }

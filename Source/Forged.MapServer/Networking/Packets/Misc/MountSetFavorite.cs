@@ -11,7 +11,7 @@ internal class MountSetFavorite : ClientPacket
 
     public override void Read()
     {
-        MountSpellID = _worldPacket.ReadUInt32();
-        IsFavorite = _worldPacket.HasBit();
+        MountSpellID = WorldPacket.ReadUInt32();
+        IsFavorite = WorldPacket.HasBit();
     }
 }

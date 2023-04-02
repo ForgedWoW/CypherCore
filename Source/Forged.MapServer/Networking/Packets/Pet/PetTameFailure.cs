@@ -12,6 +12,6 @@ internal class PetTameFailure : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8(Result);
+        WorldPacket.WriteUInt8(Result);
     }
 }

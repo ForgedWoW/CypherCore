@@ -9,58 +9,47 @@ namespace Forged.MapServer.Networking;
 
 public abstract class ServerPacket
 {
-    protected WorldPacket _worldPacket;
-    private readonly ConnectionType connectionType;
+    protected WorldPacket WorldPacket;
 
-    private byte[] buffer;
+    public byte[] BufferData { get; private set; }
+
+    public ConnectionType Connection { get; }
+
+    public ServerOpcodes Opcode => (ServerOpcodes)WorldPacket.Opcode;
 
     protected ServerPacket(ServerOpcodes opcode)
     {
-        connectionType = ConnectionType.Realm;
-        _worldPacket = new WorldPacket(opcode);
+        Connection = ConnectionType.Realm;
+        WorldPacket = new WorldPacket(opcode);
     }
 
     protected ServerPacket(ServerOpcodes opcode, ConnectionType type = ConnectionType.Realm)
     {
-        connectionType = type;
-        _worldPacket = new WorldPacket(opcode);
+        Connection = type;
+        WorldPacket = new WorldPacket(opcode);
     }
 
     public void Clear()
     {
-        _worldPacket.Clear();
-        buffer = null;
+        WorldPacket.Clear();
+        BufferData = null;
     }
 
-    public ConnectionType GetConnection()
-    {
-        return connectionType;
-    }
-
-    public byte[] GetData()
-    {
-        return buffer;
-    }
-
-    public ServerOpcodes GetOpcode()
-    {
-        return (ServerOpcodes)_worldPacket.GetOpcode();
-    }
     public void LogPacket(WorldSession session)
     {
-        Log.Logger.Debug("Sent ServerOpcode: {0} To: {1}", GetOpcode(), session != null ? session.GetPlayerInfo() : "");
+        Log.Logger.Debug("Sent ServerOpcode: {0} To: {1}", Opcode, session != null ? session.GetPlayerInfo() : "");
     }
 
     public abstract void Write();
 
     public void WritePacketData()
     {
-        if (buffer != null)
+        if (BufferData != null)
             return;
 
         Write();
 
-        buffer = _worldPacket.GetData();
-        _worldPacket.Dispose();
+        BufferData = WorldPacket.GetData();
+        WorldPacket.Dispose();
     }
 }

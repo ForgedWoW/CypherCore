@@ -19,28 +19,28 @@ public class TrainerList : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(TrainerGUID);
-        _worldPacket.WriteInt32(TrainerType);
-        _worldPacket.WriteInt32(TrainerID);
+        WorldPacket.WritePackedGuid(TrainerGUID);
+        WorldPacket.WriteInt32(TrainerType);
+        WorldPacket.WriteInt32(TrainerID);
 
-        _worldPacket.WriteInt32(Spells.Count);
+        WorldPacket.WriteInt32(Spells.Count);
 
         foreach (var spell in Spells)
         {
-            _worldPacket.WriteUInt32(spell.SpellID);
-            _worldPacket.WriteUInt32(spell.MoneyCost);
-            _worldPacket.WriteUInt32(spell.ReqSkillLine);
-            _worldPacket.WriteUInt32(spell.ReqSkillRank);
+            WorldPacket.WriteUInt32(spell.SpellID);
+            WorldPacket.WriteUInt32(spell.MoneyCost);
+            WorldPacket.WriteUInt32(spell.ReqSkillLine);
+            WorldPacket.WriteUInt32(spell.ReqSkillRank);
 
             for (uint i = 0; i < SharedConst.MaxTrainerspellAbilityReqs; ++i)
-                _worldPacket.WriteUInt32(spell.ReqAbility[i]);
+                WorldPacket.WriteUInt32(spell.ReqAbility[i]);
 
-            _worldPacket.WriteUInt8((byte)spell.Usable);
-            _worldPacket.WriteUInt8(spell.ReqLevel);
+            WorldPacket.WriteUInt8((byte)spell.Usable);
+            WorldPacket.WriteUInt8(spell.ReqLevel);
         }
 
-        _worldPacket.WriteBits(Greeting.GetByteCount(), 11);
-        _worldPacket.FlushBits();
-        _worldPacket.WriteString(Greeting);
+        WorldPacket.WriteBits(Greeting.GetByteCount(), 11);
+        WorldPacket.FlushBits();
+        WorldPacket.WriteString(Greeting);
     }
 }

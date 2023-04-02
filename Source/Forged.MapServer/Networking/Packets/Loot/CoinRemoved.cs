@@ -13,6 +13,6 @@ internal class CoinRemoved : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(LootObj);
+        WorldPacket.WritePackedGuid(LootObj);
     }
 }

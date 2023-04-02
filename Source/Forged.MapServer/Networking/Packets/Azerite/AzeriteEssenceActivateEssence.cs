@@ -11,7 +11,7 @@ internal class AzeriteEssenceActivateEssence : ClientPacket
 
     public override void Read()
     {
-        AzeriteEssenceID = _worldPacket.ReadUInt32();
-        Slot = _worldPacket.ReadUInt8();
+        AzeriteEssenceID = WorldPacket.ReadUInt32();
+        Slot = WorldPacket.ReadUInt8();
     }
 }

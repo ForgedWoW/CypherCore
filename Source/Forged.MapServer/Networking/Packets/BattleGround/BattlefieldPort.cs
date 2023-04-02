@@ -13,7 +13,7 @@ internal class BattlefieldPort : ClientPacket
 
     public override void Read()
     {
-        Ticket.Read(_worldPacket);
-        AcceptedInvite = _worldPacket.HasBit();
+        Ticket.Read(WorldPacket);
+        AcceptedInvite = WorldPacket.HasBit();
     }
 }

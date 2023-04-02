@@ -13,7 +13,7 @@ public class ConfirmPurchase : ServerPacket
     public uint ServerToken { get; set; } = 0;
     public override void Write()
     {
-        _worldPacket.Write(PurchaseID);
-        _worldPacket.Write(ServerToken);
+        WorldPacket.Write(PurchaseID);
+        WorldPacket.Write(ServerToken);
     }
 }

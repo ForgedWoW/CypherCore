@@ -16,14 +16,14 @@ public class HighestThreatUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(UnitGUID);
-        _worldPacket.WritePackedGuid(HighestThreatGUID);
-        _worldPacket.WriteInt32(ThreatList.Count);
+        WorldPacket.WritePackedGuid(UnitGUID);
+        WorldPacket.WritePackedGuid(HighestThreatGUID);
+        WorldPacket.WriteInt32(ThreatList.Count);
 
         foreach (var threatInfo in ThreatList)
         {
-            _worldPacket.WritePackedGuid(threatInfo.UnitGUID);
-            _worldPacket.WriteInt64(threatInfo.Threat);
+            WorldPacket.WritePackedGuid(threatInfo.UnitGUID);
+            WorldPacket.WriteInt64(threatInfo.Threat);
         }
     }
 }

@@ -15,17 +15,17 @@ internal class CommerceTokenGetLogResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(UnkInt);
-        _worldPacket.WriteUInt32((uint)Result);
-        _worldPacket.WriteInt32(AuctionableTokenAuctionableList.Count);
+        WorldPacket.WriteUInt32(UnkInt);
+        WorldPacket.WriteUInt32((uint)Result);
+        WorldPacket.WriteInt32(AuctionableTokenAuctionableList.Count);
 
         foreach (var auctionableTokenAuctionable in AuctionableTokenAuctionableList)
         {
-            _worldPacket.WriteUInt64(auctionableTokenAuctionable.UnkInt1);
-            _worldPacket.WriteInt64(auctionableTokenAuctionable.UnkInt2);
-            _worldPacket.WriteUInt64(auctionableTokenAuctionable.BuyoutPrice);
-            _worldPacket.WriteUInt32(auctionableTokenAuctionable.Owner);
-            _worldPacket.WriteUInt32(auctionableTokenAuctionable.DurationLeft);
+            WorldPacket.WriteUInt64(auctionableTokenAuctionable.UnkInt1);
+            WorldPacket.WriteInt64(auctionableTokenAuctionable.UnkInt2);
+            WorldPacket.WriteUInt64(auctionableTokenAuctionable.BuyoutPrice);
+            WorldPacket.WriteUInt32(auctionableTokenAuctionable.Owner);
+            WorldPacket.WriteUInt32(auctionableTokenAuctionable.DurationLeft);
         }
     }
 

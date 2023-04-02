@@ -26,27 +26,27 @@ internal class LFGUpdateStatus : ServerPacket
 
     public override void Write()
     {
-        Ticket.Write(_worldPacket);
+        Ticket.Write(WorldPacket);
 
-        _worldPacket.WriteUInt8(SubType);
-        _worldPacket.WriteUInt8(Reason);
-        _worldPacket.WriteInt32(Slots.Count);
-        _worldPacket.WriteUInt32(RequestedRoles);
-        _worldPacket.WriteInt32(SuspendedPlayers.Count);
-        _worldPacket.WriteUInt32(QueueMapID);
+        WorldPacket.WriteUInt8(SubType);
+        WorldPacket.WriteUInt8(Reason);
+        WorldPacket.WriteInt32(Slots.Count);
+        WorldPacket.WriteUInt32(RequestedRoles);
+        WorldPacket.WriteInt32(SuspendedPlayers.Count);
+        WorldPacket.WriteUInt32(QueueMapID);
 
         foreach (var slot in Slots)
-            _worldPacket.WriteUInt32(slot);
+            WorldPacket.WriteUInt32(slot);
 
         foreach (var player in SuspendedPlayers)
-            _worldPacket.WritePackedGuid(player);
+            WorldPacket.WritePackedGuid(player);
 
-        _worldPacket.WriteBit(IsParty);
-        _worldPacket.WriteBit(NotifyUI);
-        _worldPacket.WriteBit(Joined);
-        _worldPacket.WriteBit(LfgJoined);
-        _worldPacket.WriteBit(Queued);
-        _worldPacket.WriteBit(Unused);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(IsParty);
+        WorldPacket.WriteBit(NotifyUI);
+        WorldPacket.WriteBit(Joined);
+        WorldPacket.WriteBit(LfgJoined);
+        WorldPacket.WriteBit(Queued);
+        WorldPacket.WriteBit(Unused);
+        WorldPacket.FlushBits();
     }
 }

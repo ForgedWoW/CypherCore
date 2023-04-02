@@ -12,8 +12,8 @@ internal class ClassTalentsSetUsesSharedActionBars : ClientPacket
 
     public override void Read()
     {
-        ConfigID = _worldPacket.ReadInt32();
-        UsesShared = _worldPacket.HasBit();
-        IsLastSelectedSavedConfig = _worldPacket.HasBit();
+        ConfigID = WorldPacket.ReadInt32();
+        UsesShared = WorldPacket.HasBit();
+        IsLastSelectedSavedConfig = WorldPacket.HasBit();
     }
 }

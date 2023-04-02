@@ -13,8 +13,8 @@ public class LogoutResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(LogoutResult);
-        _worldPacket.WriteBit(Instant);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(LogoutResult);
+        WorldPacket.WriteBit(Instant);
+        WorldPacket.FlushBits();
     }
 }

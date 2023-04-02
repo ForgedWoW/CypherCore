@@ -14,9 +14,9 @@ public class QueryPlayerNamesResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Players.Count);
+        WorldPacket.WriteInt32(Players.Count);
 
         foreach (var lookupResult in Players)
-            lookupResult.Write(_worldPacket);
+            lookupResult.Write(WorldPacket);
     }
 }

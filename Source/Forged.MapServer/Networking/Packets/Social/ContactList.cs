@@ -19,11 +19,11 @@ public class ContactList : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32((uint)Flags);
-        _worldPacket.WriteBits(Contacts.Count, 8);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32((uint)Flags);
+        WorldPacket.WriteBits(Contacts.Count, 8);
+        WorldPacket.FlushBits();
 
         foreach (var contact in Contacts)
-            contact.Write(_worldPacket);
+            contact.Write(WorldPacket);
     }
 }

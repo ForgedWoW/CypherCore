@@ -12,11 +12,11 @@ public class SubmitUserFeedback : ClientPacket
 
     public override void Read()
     {
-        Header.Read(_worldPacket);
-        var noteLength = _worldPacket.ReadBits<uint>(24);
-        IsSuggestion = _worldPacket.HasBit();
+        Header.Read(WorldPacket);
+        var noteLength = WorldPacket.ReadBits<uint>(24);
+        IsSuggestion = WorldPacket.HasBit();
 
         if (noteLength != 0)
-            Note = _worldPacket.ReadString(noteLength - 1);
+            Note = WorldPacket.ReadString(noteLength - 1);
     }
 }

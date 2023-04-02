@@ -12,9 +12,9 @@ internal class QueryScenarioPOI : ClientPacket
 
     public override void Read()
     {
-        var count = _worldPacket.ReadUInt32();
+        var count = WorldPacket.ReadUInt32();
 
         for (var i = 0; i < count; ++i)
-            MissingScenarioPOIs[i] = _worldPacket.ReadInt32();
+            MissingScenarioPOIs[i] = WorldPacket.ReadInt32();
     }
 }

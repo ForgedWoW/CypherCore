@@ -13,6 +13,6 @@ internal class RatedPvpInfo : ServerPacket
     public override void Write()
     {
         foreach (var bracket in Bracket)
-            bracket.Write(_worldPacket);
+            bracket.Write(WorldPacket);
     }
 }

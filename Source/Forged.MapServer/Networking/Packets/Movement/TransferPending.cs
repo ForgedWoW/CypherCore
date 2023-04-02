@@ -16,21 +16,21 @@ public class TransferPending : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(MapID);
-        _worldPacket.WriteXYZ(OldMapPosition);
-        _worldPacket.WriteBit(Ship.HasValue);
-        _worldPacket.WriteBit(TransferSpellID.HasValue);
+        WorldPacket.WriteInt32(MapID);
+        WorldPacket.WriteXYZ(OldMapPosition);
+        WorldPacket.WriteBit(Ship.HasValue);
+        WorldPacket.WriteBit(TransferSpellID.HasValue);
 
         if (Ship.HasValue)
         {
-            _worldPacket.WriteUInt32(Ship.Value.Id);
-            _worldPacket.WriteInt32(Ship.Value.OriginMapID);
+            WorldPacket.WriteUInt32(Ship.Value.Id);
+            WorldPacket.WriteInt32(Ship.Value.OriginMapID);
         }
 
         if (TransferSpellID.HasValue)
-            _worldPacket.WriteInt32(TransferSpellID.Value);
+            WorldPacket.WriteInt32(TransferSpellID.Value);
 
-        _worldPacket.FlushBits();
+        WorldPacket.FlushBits();
     }
 
     public struct ShipTransferPending

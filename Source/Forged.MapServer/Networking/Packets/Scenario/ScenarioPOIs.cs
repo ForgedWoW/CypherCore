@@ -13,30 +13,30 @@ internal class ScenarioPOIs : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(ScenarioPOIDataStats.Count);
+        WorldPacket.WriteInt32(ScenarioPOIDataStats.Count);
 
         foreach (var scenarioPOIData in ScenarioPOIDataStats)
         {
-            _worldPacket.WriteInt32(scenarioPOIData.CriteriaTreeID);
-            _worldPacket.WriteInt32(scenarioPOIData.ScenarioPOIs.Count);
+            WorldPacket.WriteInt32(scenarioPOIData.CriteriaTreeID);
+            WorldPacket.WriteInt32(scenarioPOIData.ScenarioPOIs.Count);
 
             foreach (var scenarioPOI in scenarioPOIData.ScenarioPOIs)
             {
-                _worldPacket.WriteInt32(scenarioPOI.BlobIndex);
-                _worldPacket.WriteInt32(scenarioPOI.MapID);
-                _worldPacket.WriteInt32(scenarioPOI.UiMapID);
-                _worldPacket.WriteInt32(scenarioPOI.Priority);
-                _worldPacket.WriteInt32(scenarioPOI.Flags);
-                _worldPacket.WriteInt32(scenarioPOI.WorldEffectID);
-                _worldPacket.WriteInt32(scenarioPOI.PlayerConditionID);
-                _worldPacket.WriteInt32(scenarioPOI.NavigationPlayerConditionID);
-                _worldPacket.WriteInt32(scenarioPOI.Points.Count);
+                WorldPacket.WriteInt32(scenarioPOI.BlobIndex);
+                WorldPacket.WriteInt32(scenarioPOI.MapID);
+                WorldPacket.WriteInt32(scenarioPOI.UiMapID);
+                WorldPacket.WriteInt32(scenarioPOI.Priority);
+                WorldPacket.WriteInt32(scenarioPOI.Flags);
+                WorldPacket.WriteInt32(scenarioPOI.WorldEffectID);
+                WorldPacket.WriteInt32(scenarioPOI.PlayerConditionID);
+                WorldPacket.WriteInt32(scenarioPOI.NavigationPlayerConditionID);
+                WorldPacket.WriteInt32(scenarioPOI.Points.Count);
 
                 foreach (var scenarioPOIBlobPoint in scenarioPOI.Points)
                 {
-                    _worldPacket.WriteInt32((int)scenarioPOIBlobPoint.X);
-                    _worldPacket.WriteInt32((int)scenarioPOIBlobPoint.Y);
-                    _worldPacket.WriteInt32((int)scenarioPOIBlobPoint.Z);
+                    WorldPacket.WriteInt32((int)scenarioPOIBlobPoint.X);
+                    WorldPacket.WriteInt32((int)scenarioPOIBlobPoint.Y);
+                    WorldPacket.WriteInt32((int)scenarioPOIBlobPoint.Z);
                 }
             }
         }

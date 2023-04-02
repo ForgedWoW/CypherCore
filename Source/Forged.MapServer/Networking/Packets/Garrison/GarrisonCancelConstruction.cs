@@ -13,7 +13,7 @@ internal class GarrisonCancelConstruction : ClientPacket
 
     public override void Read()
     {
-        NpcGUID = _worldPacket.ReadPackedGuid();
-        PlotInstanceID = _worldPacket.ReadUInt32();
+        NpcGUID = WorldPacket.ReadPackedGuid();
+        PlotInstanceID = WorldPacket.ReadUInt32();
     }
 }

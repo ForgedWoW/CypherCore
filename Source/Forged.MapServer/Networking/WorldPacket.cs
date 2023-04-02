@@ -10,27 +10,18 @@ namespace Forged.MapServer.Networking;
 
 public class WorldPacket : ByteBuffer
 {
-    private readonly uint opcode;
-    private DateTime m_receivedTime; // only set for a specific set of opcodes, for performance reasons.
+    public uint Opcode { get; }
+
+    public DateTime ReceivedTime { get; private set; }
 
     public WorldPacket(ServerOpcodes opcode = ServerOpcodes.None)
     {
-        this.opcode = (uint)opcode;
+        Opcode = (uint)opcode;
     }
 
     public WorldPacket(byte[] data) : base(data)
     {
-        opcode = ReadUInt16();
-    }
-
-    public uint GetOpcode()
-    {
-        return opcode;
-    }
-
-    public DateTime GetReceivedTime()
-    {
-        return m_receivedTime;
+        Opcode = ReadUInt16();
     }
 
     public ObjectGuid ReadPackedGuid()
@@ -49,7 +40,7 @@ public class WorldPacket : ByteBuffer
 
     public void SetReceiveTime(DateTime receivedTime)
     {
-        m_receivedTime = receivedTime;
+        ReceivedTime = receivedTime;
     }
 
     public void Write(ObjectGuid guid)
@@ -73,7 +64,6 @@ public class WorldPacket : ByteBuffer
             return;
         }
 
-
         var loSize = PackUInt64(guid.LowValue, out var lowMask, out var lowPacked);
         var hiSize = PackUInt64(guid.HighValue, out var highMask, out var highPacked);
 
@@ -90,6 +80,7 @@ public class WorldPacket : ByteBuffer
         WriteUInt8(mask);
         WriteBytes(packed, packedSize);
     }
+
     public void WriteXYZ(Position pos)
     {
         if (pos == null)
@@ -107,6 +98,7 @@ public class WorldPacket : ByteBuffer
         WriteFloat(pos.Z);
         WriteFloat(pos.Orientation);
     }
+
     private uint PackUInt64(ulong value, out byte mask, out byte[] result)
     {
         uint resultSize = 0;

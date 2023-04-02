@@ -12,7 +12,7 @@ internal class PlayerAzeriteItemEquippedStatusChanged : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(IsHeartEquipped);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(IsHeartEquipped);
+        WorldPacket.FlushBits();
     }
 }

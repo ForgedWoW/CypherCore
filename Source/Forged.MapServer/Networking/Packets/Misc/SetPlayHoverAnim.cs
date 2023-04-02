@@ -14,8 +14,8 @@ internal class SetPlayHoverAnim : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(UnitGUID);
-        _worldPacket.WriteBit(PlayHoverAnim);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(UnitGUID);
+        WorldPacket.WriteBit(PlayHoverAnim);
+        WorldPacket.FlushBits();
     }
 }

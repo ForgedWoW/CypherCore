@@ -19,10 +19,10 @@ internal class CalendarInviteNotesAlert : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt64(EventID);
+        WorldPacket.WriteUInt64(EventID);
 
-        _worldPacket.WriteBits(Notes.GetByteCount(), 8);
-        _worldPacket.FlushBits();
-        _worldPacket.WriteString(Notes);
+        WorldPacket.WriteBits(Notes.GetByteCount(), 8);
+        WorldPacket.FlushBits();
+        WorldPacket.WriteString(Notes);
     }
 }

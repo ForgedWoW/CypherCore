@@ -11,7 +11,7 @@ public class GuildShiftRank : ClientPacket
 
     public override void Read()
     {
-        RankOrder = _worldPacket.ReadInt32();
-        ShiftUp = _worldPacket.HasBit();
+        RankOrder = WorldPacket.ReadInt32();
+        ShiftUp = WorldPacket.HasBit();
     }
 }

@@ -14,7 +14,7 @@ internal class PlayerAzeriteItemGains : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ItemGUID);
-        _worldPacket.WriteUInt64(XP);
+        WorldPacket.WritePackedGuid(ItemGUID);
+        WorldPacket.WriteUInt64(XP);
     }
 }

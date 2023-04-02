@@ -15,9 +15,9 @@ internal class GuildNameChanged : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(GuildGUID);
-        _worldPacket.WriteBits(GuildName.GetByteCount(), 7);
-        _worldPacket.FlushBits();
-        _worldPacket.WriteString(GuildName);
+        WorldPacket.WritePackedGuid(GuildGUID);
+        WorldPacket.WriteBits(GuildName.GetByteCount(), 7);
+        WorldPacket.FlushBits();
+        WorldPacket.WriteString(GuildName);
     }
 }

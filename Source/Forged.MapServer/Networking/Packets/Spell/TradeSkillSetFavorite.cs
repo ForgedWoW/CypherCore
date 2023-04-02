@@ -11,7 +11,7 @@ internal class TradeSkillSetFavorite : ClientPacket
 
     public override void Read()
     {
-        RecipeID = _worldPacket.ReadUInt32();
-        IsFavorite = _worldPacket.HasBit();
+        RecipeID = WorldPacket.ReadUInt32();
+        IsFavorite = WorldPacket.HasBit();
     }
 }

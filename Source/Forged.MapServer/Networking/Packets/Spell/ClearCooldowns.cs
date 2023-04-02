@@ -14,12 +14,12 @@ public class ClearCooldowns : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(SpellID.Count);
+        WorldPacket.WriteInt32(SpellID.Count);
 
         if (!SpellID.Empty())
-            SpellID.ForEach(p => _worldPacket.WriteUInt32(p));
+            SpellID.ForEach(p => WorldPacket.WriteUInt32(p));
 
-        _worldPacket.WriteBit(IsPet);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(IsPet);
+        WorldPacket.FlushBits();
     }
 }

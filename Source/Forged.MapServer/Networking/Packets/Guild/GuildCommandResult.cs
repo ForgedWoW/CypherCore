@@ -15,10 +15,10 @@ public class GuildCommandResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32((uint)Result);
-        _worldPacket.WriteUInt32((uint)Command);
+        WorldPacket.WriteUInt32((uint)Result);
+        WorldPacket.WriteUInt32((uint)Command);
 
-        _worldPacket.WriteBits(Name.GetByteCount(), 8);
-        _worldPacket.WriteString(Name);
+        WorldPacket.WriteBits(Name.GetByteCount(), 8);
+        WorldPacket.WriteString(Name);
     }
 }

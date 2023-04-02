@@ -10,6 +10,6 @@ internal class QueryRealmName : ClientPacket
 
     public override void Read()
     {
-        VirtualRealmAddress = _worldPacket.ReadUInt32();
+        VirtualRealmAddress = WorldPacket.ReadUInt32();
     }
 }

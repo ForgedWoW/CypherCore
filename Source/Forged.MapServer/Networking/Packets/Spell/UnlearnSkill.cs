@@ -10,6 +10,6 @@ internal class UnlearnSkill : ClientPacket
 
     public override void Read()
     {
-        SkillLine = _worldPacket.ReadUInt32();
+        SkillLine = WorldPacket.ReadUInt32();
     }
 }

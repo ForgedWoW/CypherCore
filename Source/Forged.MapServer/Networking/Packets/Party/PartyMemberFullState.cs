@@ -139,10 +139,10 @@ internal class PartyMemberFullState : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(ForEnemy);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(ForEnemy);
+        WorldPacket.FlushBits();
 
-        MemberStats.Write(_worldPacket);
-        _worldPacket.WritePackedGuid(MemberGuid);
+        MemberStats.Write(WorldPacket);
+        WorldPacket.WritePackedGuid(MemberGuid);
     }
 }

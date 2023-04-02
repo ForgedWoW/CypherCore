@@ -14,7 +14,7 @@ internal class SpellPrepare : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ClientCastID);
-        _worldPacket.WritePackedGuid(ServerCastID);
+        WorldPacket.WritePackedGuid(ClientCastID);
+        WorldPacket.WritePackedGuid(ServerCastID);
     }
 }

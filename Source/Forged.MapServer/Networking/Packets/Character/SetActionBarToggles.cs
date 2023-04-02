@@ -10,6 +10,6 @@ public class SetActionBarToggles : ClientPacket
 
     public override void Read()
     {
-        Mask = _worldPacket.ReadUInt8();
+        Mask = WorldPacket.ReadUInt8();
     }
 }

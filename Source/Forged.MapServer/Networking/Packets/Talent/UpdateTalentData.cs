@@ -13,21 +13,21 @@ internal class UpdateTalentData : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8(Info.ActiveGroup);
-        _worldPacket.WriteUInt32(Info.PrimarySpecialization);
-        _worldPacket.WriteInt32(Info.TalentGroups.Count);
+        WorldPacket.WriteUInt8(Info.ActiveGroup);
+        WorldPacket.WriteUInt32(Info.PrimarySpecialization);
+        WorldPacket.WriteInt32(Info.TalentGroups.Count);
 
         foreach (var talentGroupInfo in Info.TalentGroups)
         {
-            _worldPacket.WriteUInt32(talentGroupInfo.SpecID);
-            _worldPacket.WriteInt32(talentGroupInfo.TalentIDs.Count);
-            _worldPacket.WriteInt32(talentGroupInfo.PvPTalents.Count);
+            WorldPacket.WriteUInt32(talentGroupInfo.SpecID);
+            WorldPacket.WriteInt32(talentGroupInfo.TalentIDs.Count);
+            WorldPacket.WriteInt32(talentGroupInfo.PvPTalents.Count);
 
             foreach (var talentID in talentGroupInfo.TalentIDs)
-                _worldPacket.WriteUInt16(talentID);
+                WorldPacket.WriteUInt16(talentID);
 
             foreach (var talent in talentGroupInfo.PvPTalents)
-                talent.Write(_worldPacket);
+                talent.Write(WorldPacket);
         }
     }
 

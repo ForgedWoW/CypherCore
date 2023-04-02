@@ -16,11 +16,11 @@ internal class MoveSetCompoundState : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(MoverGUID);
-        _worldPacket.WriteInt32(StateChanges.Count);
+        WorldPacket.WritePackedGuid(MoverGUID);
+        WorldPacket.WriteInt32(StateChanges.Count);
 
         foreach (var stateChange in StateChanges)
-            stateChange.Write(_worldPacket);
+            stateChange.Write(WorldPacket);
     }
 
     public struct CollisionHeightInfo

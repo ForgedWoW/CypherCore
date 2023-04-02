@@ -15,10 +15,10 @@ public class TransferAborted : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(MapID);
-        _worldPacket.WriteUInt8(Arg);
-        _worldPacket.WriteUInt32(MapDifficultyXConditionID);
-        _worldPacket.WriteBits(TransfertAbort, 6);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(MapID);
+        WorldPacket.WriteUInt8(Arg);
+        WorldPacket.WriteUInt32(MapDifficultyXConditionID);
+        WorldPacket.WriteBits(TransfertAbort, 6);
+        WorldPacket.FlushBits();
     }
 }

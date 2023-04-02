@@ -24,24 +24,24 @@ public class ChannelNotify : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Type, 6);
-        _worldPacket.WriteBits(Channel.GetByteCount(), 7);
-        _worldPacket.WriteBits(Sender.GetByteCount(), 6);
+        WorldPacket.WriteBits(Type, 6);
+        WorldPacket.WriteBits(Channel.GetByteCount(), 7);
+        WorldPacket.WriteBits(Sender.GetByteCount(), 6);
 
-        _worldPacket.WritePackedGuid(SenderGuid);
-        _worldPacket.WritePackedGuid(SenderAccountID);
-        _worldPacket.WriteUInt32(SenderVirtualRealm);
-        _worldPacket.WritePackedGuid(TargetGuid);
-        _worldPacket.WriteUInt32(TargetVirtualRealm);
-        _worldPacket.WriteInt32(ChatChannelID);
+        WorldPacket.WritePackedGuid(SenderGuid);
+        WorldPacket.WritePackedGuid(SenderAccountID);
+        WorldPacket.WriteUInt32(SenderVirtualRealm);
+        WorldPacket.WritePackedGuid(TargetGuid);
+        WorldPacket.WriteUInt32(TargetVirtualRealm);
+        WorldPacket.WriteInt32(ChatChannelID);
 
         if (Type == ChatNotify.ModeChangeNotice)
         {
-            _worldPacket.WriteUInt8((byte)OldFlags);
-            _worldPacket.WriteUInt8((byte)NewFlags);
+            WorldPacket.WriteUInt8((byte)OldFlags);
+            WorldPacket.WriteUInt8((byte)NewFlags);
         }
 
-        _worldPacket.WriteString(Channel);
-        _worldPacket.WriteString(Sender);
+        WorldPacket.WriteString(Channel);
+        WorldPacket.WriteString(Sender);
     }
 }

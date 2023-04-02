@@ -14,14 +14,14 @@ internal class AdventureJournalDataResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(OnLevelUp);
-        _worldPacket.FlushBits();
-        _worldPacket.WriteInt32(AdventureJournalDatas.Count);
+        WorldPacket.WriteBit(OnLevelUp);
+        WorldPacket.FlushBits();
+        WorldPacket.WriteInt32(AdventureJournalDatas.Count);
 
         foreach (var adventureJournal in AdventureJournalDatas)
         {
-            _worldPacket.WriteInt32(adventureJournal.AdventureJournalID);
-            _worldPacket.WriteInt32(adventureJournal.Priority);
+            WorldPacket.WriteInt32(adventureJournal.AdventureJournalID);
+            WorldPacket.WriteInt32(adventureJournal.Priority);
         }
     }
 }

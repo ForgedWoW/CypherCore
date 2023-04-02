@@ -13,12 +13,12 @@ internal class CalendarCommunityInvite : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Invites.Count);
+        WorldPacket.WriteInt32(Invites.Count);
 
         foreach (var invite in Invites)
         {
-            _worldPacket.WritePackedGuid(invite.InviteGuid);
-            _worldPacket.WriteUInt8(invite.Level);
+            WorldPacket.WritePackedGuid(invite.InviteGuid);
+            WorldPacket.WriteUInt8(invite.Level);
         }
     }
 }

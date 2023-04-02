@@ -15,14 +15,14 @@ internal class VoidStorageTransferChanges : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(AddedItems.Count, 4);
-        _worldPacket.WriteBits(RemovedItems.Count, 4);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(AddedItems.Count, 4);
+        WorldPacket.WriteBits(RemovedItems.Count, 4);
+        WorldPacket.FlushBits();
 
         foreach (var addedItem in AddedItems)
-            addedItem.Write(_worldPacket);
+            addedItem.Write(WorldPacket);
 
         foreach (var removedItem in RemovedItems)
-            _worldPacket.WritePackedGuid(removedItem);
+            WorldPacket.WritePackedGuid(removedItem);
     }
 }

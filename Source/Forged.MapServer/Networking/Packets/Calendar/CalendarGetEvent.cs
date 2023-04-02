@@ -10,6 +10,6 @@ internal class CalendarGetEvent : ClientPacket
 
     public override void Read()
     {
-        EventID = _worldPacket.ReadUInt64();
+        EventID = WorldPacket.ReadUInt64();
     }
 }

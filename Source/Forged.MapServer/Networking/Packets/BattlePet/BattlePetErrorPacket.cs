@@ -13,7 +13,7 @@ internal class BattlePetErrorPacket : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Result, 4);
-        _worldPacket.WriteUInt32(CreatureID);
+        WorldPacket.WriteBits(Result, 4);
+        WorldPacket.WriteUInt32(CreatureID);
     }
 }

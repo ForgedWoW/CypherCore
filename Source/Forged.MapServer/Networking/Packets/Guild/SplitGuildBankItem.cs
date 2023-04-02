@@ -17,11 +17,11 @@ internal class SplitGuildBankItem : ClientPacket
 
     public override void Read()
     {
-        Banker = _worldPacket.ReadPackedGuid();
-        BankTab = _worldPacket.ReadUInt8();
-        BankSlot = _worldPacket.ReadUInt8();
-        BankTab1 = _worldPacket.ReadUInt8();
-        BankSlot1 = _worldPacket.ReadUInt8();
-        StackCount = _worldPacket.ReadUInt32();
+        Banker = WorldPacket.ReadPackedGuid();
+        BankTab = WorldPacket.ReadUInt8();
+        BankSlot = WorldPacket.ReadUInt8();
+        BankTab1 = WorldPacket.ReadUInt8();
+        BankSlot1 = WorldPacket.ReadUInt8();
+        StackCount = WorldPacket.ReadUInt32();
     }
 }

@@ -1543,7 +1543,7 @@ public partial class Player
                 if (res != InventoryResult.Ok)
                     return res;
 
-                // check this only in game
+                // check this only in GameInfo
                 if (notLoading)
                 {
                     // May be here should be more stronger checks; STUNNED checked

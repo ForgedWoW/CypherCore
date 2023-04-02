@@ -17,14 +17,14 @@ internal class AuctionGetCommodityQuote : ClientPacket
 
     public override void Read()
     {
-        Auctioneer = _worldPacket.ReadPackedGuid();
-        ItemID = _worldPacket.ReadInt32();
-        Quantity = _worldPacket.ReadUInt32();
+        Auctioneer = WorldPacket.ReadPackedGuid();
+        ItemID = WorldPacket.ReadInt32();
+        Quantity = WorldPacket.ReadUInt32();
 
-        if (_worldPacket.HasBit())
+        if (WorldPacket.HasBit())
         {
             TaintedBy = new AddOnInfo();
-            TaintedBy.Value.Read(_worldPacket);
+            TaintedBy.Value.Read(WorldPacket);
         }
     }
 }

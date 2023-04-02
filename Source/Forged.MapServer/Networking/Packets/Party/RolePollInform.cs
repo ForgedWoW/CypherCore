@@ -14,7 +14,7 @@ internal class RolePollInform : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt8(PartyIndex);
-        _worldPacket.WritePackedGuid(From);
+        WorldPacket.WriteInt8(PartyIndex);
+        WorldPacket.WritePackedGuid(From);
     }
 }

@@ -13,9 +13,9 @@ internal class CalendarCommunityInviteRequest : ClientPacket
 
     public override void Read()
     {
-        ClubId = _worldPacket.ReadUInt64();
-        MinLevel = _worldPacket.ReadUInt8();
-        MaxLevel = _worldPacket.ReadUInt8();
-        MaxRankOrder = _worldPacket.ReadUInt8();
+        ClubId = WorldPacket.ReadUInt64();
+        MinLevel = WorldPacket.ReadUInt8();
+        MaxLevel = WorldPacket.ReadUInt8();
+        MaxRankOrder = WorldPacket.ReadUInt8();
     }
 }

@@ -12,6 +12,6 @@ public class DungeonDifficultySet : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(DifficultyID);
+        WorldPacket.WriteInt32(DifficultyID);
     }
 }

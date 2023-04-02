@@ -14,15 +14,15 @@ internal class MasterLootItem : ClientPacket
 
     public override void Read()
     {
-        var Count = _worldPacket.ReadUInt32();
-        Target = _worldPacket.ReadPackedGuid();
+        var Count = WorldPacket.ReadUInt32();
+        Target = WorldPacket.ReadPackedGuid();
 
         for (var i = 0; i < Count; ++i)
         {
             LootRequest lootRequest = new()
             {
-                Object = _worldPacket.ReadPackedGuid(),
-                LootListID = _worldPacket.ReadUInt8()
+                Object = WorldPacket.ReadPackedGuid(),
+                LootListID = WorldPacket.ReadUInt8()
             };
 
             Loot[i] = lootRequest;

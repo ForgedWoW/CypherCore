@@ -17,13 +17,13 @@ internal class LFGPlayerReward : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(QueuedSlot);
-        _worldPacket.WriteUInt32(ActualSlot);
-        _worldPacket.WriteUInt32(RewardMoney);
-        _worldPacket.WriteUInt32(AddedXP);
-        _worldPacket.WriteInt32(Rewards.Count);
+        WorldPacket.WriteUInt32(QueuedSlot);
+        WorldPacket.WriteUInt32(ActualSlot);
+        WorldPacket.WriteUInt32(RewardMoney);
+        WorldPacket.WriteUInt32(AddedXP);
+        WorldPacket.WriteInt32(Rewards.Count);
 
         foreach (var reward in Rewards)
-            reward.Write(_worldPacket);
+            reward.Write(WorldPacket);
     }
 }

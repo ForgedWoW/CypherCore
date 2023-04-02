@@ -15,9 +15,9 @@ public class MoveSetCollisionHeightAck : ClientPacket
 
     public override void Read()
     {
-        Data.Read(_worldPacket);
-        Height = _worldPacket.ReadFloat();
-        MountDisplayID = _worldPacket.ReadUInt32();
-        Reason = (UpdateCollisionHeightReason)_worldPacket.ReadUInt8();
+        Data.Read(WorldPacket);
+        Height = WorldPacket.ReadFloat();
+        MountDisplayID = WorldPacket.ReadUInt32();
+        Reason = (UpdateCollisionHeightReason)WorldPacket.ReadUInt8();
     }
 }

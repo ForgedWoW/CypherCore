@@ -22,11 +22,11 @@ internal class CalendarCommandResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8(Command);
-        _worldPacket.WriteUInt8((byte)Result);
+        WorldPacket.WriteUInt8(Command);
+        WorldPacket.WriteUInt8((byte)Result);
 
-        _worldPacket.WriteBits(Name.GetByteCount(), 9);
-        _worldPacket.FlushBits();
-        _worldPacket.WriteString(Name);
+        WorldPacket.WriteBits(Name.GetByteCount(), 9);
+        WorldPacket.FlushBits();
+        WorldPacket.WriteString(Name);
     }
 }

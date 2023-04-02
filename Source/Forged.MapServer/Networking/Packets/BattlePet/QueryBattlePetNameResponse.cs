@@ -21,26 +21,26 @@ internal class QueryBattlePetNameResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(BattlePetID);
-        _worldPacket.WriteUInt32(CreatureID);
-        _worldPacket.WriteInt64(Timestamp);
+        WorldPacket.WritePackedGuid(BattlePetID);
+        WorldPacket.WriteUInt32(CreatureID);
+        WorldPacket.WriteInt64(Timestamp);
 
-        _worldPacket.WriteBit(Allow);
+        WorldPacket.WriteBit(Allow);
 
         if (Allow)
         {
-            _worldPacket.WriteBits(Name.GetByteCount(), 8);
-            _worldPacket.WriteBit(HasDeclined);
+            WorldPacket.WriteBits(Name.GetByteCount(), 8);
+            WorldPacket.WriteBit(HasDeclined);
 
             for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-                _worldPacket.WriteBits(DeclinedNames.Name[i].GetByteCount(), 7);
+                WorldPacket.WriteBits(DeclinedNames.Name[i].GetByteCount(), 7);
 
             for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-                _worldPacket.WriteString(DeclinedNames.Name[i]);
+                WorldPacket.WriteString(DeclinedNames.Name[i]);
 
-            _worldPacket.WriteString(Name);
+            WorldPacket.WriteString(Name);
         }
 
-        _worldPacket.FlushBits();
+        WorldPacket.FlushBits();
     }
 }

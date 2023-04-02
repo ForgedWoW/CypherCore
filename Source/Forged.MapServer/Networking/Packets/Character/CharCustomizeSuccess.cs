@@ -25,18 +25,18 @@ internal class CharCustomizeSuccess : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(CharGUID);
-        _worldPacket.WriteUInt8(SexID);
-        _worldPacket.WriteInt32(Customizations.Count);
+        WorldPacket.WritePackedGuid(CharGUID);
+        WorldPacket.WriteUInt8(SexID);
+        WorldPacket.WriteInt32(Customizations.Count);
 
         foreach (var customization in Customizations)
         {
-            _worldPacket.WriteUInt32(customization.ChrCustomizationOptionID);
-            _worldPacket.WriteUInt32(customization.ChrCustomizationChoiceID);
+            WorldPacket.WriteUInt32(customization.ChrCustomizationOptionID);
+            WorldPacket.WriteUInt32(customization.ChrCustomizationChoiceID);
         }
 
-        _worldPacket.WriteBits(CharName.GetByteCount(), 6);
-        _worldPacket.FlushBits();
-        _worldPacket.WriteString(CharName);
+        WorldPacket.WriteBits(CharName.GetByteCount(), 6);
+        WorldPacket.FlushBits();
+        WorldPacket.WriteString(CharName);
     }
 }

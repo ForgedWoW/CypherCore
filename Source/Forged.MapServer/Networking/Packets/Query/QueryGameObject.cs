@@ -13,7 +13,7 @@ public class QueryGameObject : ClientPacket
 
     public override void Read()
     {
-        GameObjectID = _worldPacket.ReadUInt32();
-        Guid = _worldPacket.ReadPackedGuid();
+        GameObjectID = WorldPacket.ReadUInt32();
+        Guid = WorldPacket.ReadPackedGuid();
     }
 }

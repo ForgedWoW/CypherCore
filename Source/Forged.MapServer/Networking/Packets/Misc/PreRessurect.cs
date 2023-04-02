@@ -13,6 +13,6 @@ public class PreRessurect : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(PlayerGUID);
+        WorldPacket.WritePackedGuid(PlayerGUID);
     }
 }

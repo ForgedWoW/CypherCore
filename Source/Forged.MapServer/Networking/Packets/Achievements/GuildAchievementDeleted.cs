@@ -15,8 +15,8 @@ public class GuildAchievementDeleted : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(GuildGUID);
-        _worldPacket.WriteUInt32(AchievementID);
-        _worldPacket.WritePackedTime(TimeDeleted);
+        WorldPacket.WritePackedGuid(GuildGUID);
+        WorldPacket.WriteUInt32(AchievementID);
+        WorldPacket.WritePackedTime(TimeDeleted);
     }
 }

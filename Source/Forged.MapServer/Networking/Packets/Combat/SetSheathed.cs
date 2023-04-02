@@ -11,7 +11,7 @@ public class SetSheathed : ClientPacket
 
     public override void Read()
     {
-        CurrentSheathState = _worldPacket.ReadInt32();
-        Animate = _worldPacket.HasBit();
+        CurrentSheathState = WorldPacket.ReadInt32();
+        Animate = WorldPacket.HasBit();
     }
 }

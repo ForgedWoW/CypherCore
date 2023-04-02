@@ -11,7 +11,7 @@ public class LoadingScreenNotify : ClientPacket
 
     public override void Read()
     {
-        MapID = _worldPacket.ReadInt32();
-        Showing = _worldPacket.HasBit();
+        MapID = WorldPacket.ReadInt32();
+        Showing = WorldPacket.HasBit();
     }
 }

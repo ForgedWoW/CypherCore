@@ -14,8 +14,8 @@ internal class GarrisonAddFollowerResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32((int)GarrTypeID);
-        _worldPacket.WriteUInt32((uint)Result);
-        Follower.Write(_worldPacket);
+        WorldPacket.WriteInt32((int)GarrTypeID);
+        WorldPacket.WriteUInt32((uint)Result);
+        Follower.Write(WorldPacket);
     }
 }

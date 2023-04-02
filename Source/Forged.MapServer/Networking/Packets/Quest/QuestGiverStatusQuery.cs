@@ -12,7 +12,7 @@ public class QuestGiverStatusQuery : ClientPacket
 
     public override void Read()
     {
-        QuestGiverGUID = _worldPacket.ReadPackedGuid();
+        QuestGiverGUID = WorldPacket.ReadPackedGuid();
     }
 }
 

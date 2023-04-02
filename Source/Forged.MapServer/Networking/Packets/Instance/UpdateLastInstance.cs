@@ -12,7 +12,7 @@ internal class UpdateLastInstance : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(MapID);
+        WorldPacket.WriteUInt32(MapID);
     }
 }
 

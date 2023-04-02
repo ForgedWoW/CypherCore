@@ -27,51 +27,51 @@ public class SetCurrency : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(Type);
-        _worldPacket.WriteInt32(Quantity);
-        _worldPacket.WriteUInt32((uint)Flags);
-        _worldPacket.WriteInt32(Toasts.Count);
+        WorldPacket.WriteUInt32(Type);
+        WorldPacket.WriteInt32(Quantity);
+        WorldPacket.WriteUInt32((uint)Flags);
+        WorldPacket.WriteInt32(Toasts.Count);
 
         foreach (var toast in Toasts)
-            toast.Write(_worldPacket);
+            toast.Write(WorldPacket);
 
-        _worldPacket.WriteBit(WeeklyQuantity.HasValue);
-        _worldPacket.WriteBit(TrackedQuantity.HasValue);
-        _worldPacket.WriteBit(MaxQuantity.HasValue);
-        _worldPacket.WriteBit(TotalEarned.HasValue);
-        _worldPacket.WriteBit(SuppressChatLog);
-        _worldPacket.WriteBit(QuantityChange.HasValue);
-        _worldPacket.WriteBit(QuantityGainSource.HasValue);
-        _worldPacket.WriteBit(QuantityLostSource.HasValue);
-        _worldPacket.WriteBit(FirstCraftOperationID.HasValue);
-        _worldPacket.WriteBit(LastSpendTime.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(WeeklyQuantity.HasValue);
+        WorldPacket.WriteBit(TrackedQuantity.HasValue);
+        WorldPacket.WriteBit(MaxQuantity.HasValue);
+        WorldPacket.WriteBit(TotalEarned.HasValue);
+        WorldPacket.WriteBit(SuppressChatLog);
+        WorldPacket.WriteBit(QuantityChange.HasValue);
+        WorldPacket.WriteBit(QuantityGainSource.HasValue);
+        WorldPacket.WriteBit(QuantityLostSource.HasValue);
+        WorldPacket.WriteBit(FirstCraftOperationID.HasValue);
+        WorldPacket.WriteBit(LastSpendTime.HasValue);
+        WorldPacket.FlushBits();
 
         if (WeeklyQuantity.HasValue)
-            _worldPacket.WriteInt32(WeeklyQuantity.Value);
+            WorldPacket.WriteInt32(WeeklyQuantity.Value);
 
         if (TrackedQuantity.HasValue)
-            _worldPacket.WriteInt32(TrackedQuantity.Value);
+            WorldPacket.WriteInt32(TrackedQuantity.Value);
 
         if (MaxQuantity.HasValue)
-            _worldPacket.WriteInt32(MaxQuantity.Value);
+            WorldPacket.WriteInt32(MaxQuantity.Value);
 
         if (TotalEarned.HasValue)
-            _worldPacket.WriteInt32(TotalEarned.Value);
+            WorldPacket.WriteInt32(TotalEarned.Value);
 
         if (QuantityChange.HasValue)
-            _worldPacket.WriteInt32(QuantityChange.Value);
+            WorldPacket.WriteInt32(QuantityChange.Value);
 
         if (QuantityGainSource.HasValue)
-            _worldPacket.WriteInt32((int)QuantityGainSource.Value);
+            WorldPacket.WriteInt32((int)QuantityGainSource.Value);
 
         if (QuantityLostSource.HasValue)
-            _worldPacket.WriteInt32((int)QuantityLostSource.Value);
+            WorldPacket.WriteInt32((int)QuantityLostSource.Value);
 
         if (FirstCraftOperationID.HasValue)
-            _worldPacket.WriteUInt32(FirstCraftOperationID.Value);
+            WorldPacket.WriteUInt32(FirstCraftOperationID.Value);
 
         if (LastSpendTime.HasValue)
-            _worldPacket.WriteInt64(LastSpendTime.Value);
+            WorldPacket.WriteInt64(LastSpendTime.Value);
     }
 }

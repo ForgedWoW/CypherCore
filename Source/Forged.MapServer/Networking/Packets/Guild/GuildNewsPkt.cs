@@ -17,9 +17,9 @@ public class GuildNewsPkt : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(NewsEvents.Count);
+        WorldPacket.WriteInt32(NewsEvents.Count);
 
         foreach (var newsEvent in NewsEvents)
-            newsEvent.Write(_worldPacket);
+            newsEvent.Write(WorldPacket);
     }
 }

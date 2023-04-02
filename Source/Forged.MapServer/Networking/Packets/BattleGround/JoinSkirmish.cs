@@ -16,9 +16,9 @@ public class JoinSkirmish : ClientPacket
 
     public override void Read()
     {
-        JoinAsGroup = _worldPacket.ReadBit() != 0;
-        UnkBool = _worldPacket.ReadBit() != 0;
-        Roles = _worldPacket.ReadBit();
-        Bracket = (BracketType)_worldPacket.ReadBit();
+        JoinAsGroup = WorldPacket.ReadBit() != 0;
+        UnkBool = WorldPacket.ReadBit() != 0;
+        Roles = WorldPacket.ReadBit();
+        Bracket = (BracketType)WorldPacket.ReadBit();
     }
 }

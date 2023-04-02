@@ -11,6 +11,6 @@ internal class ClassTalentsDeleteConfig : ClientPacket
 
     public override void Read()
     {
-        ConfigID = _worldPacket.ReadInt32();
+        ConfigID = WorldPacket.ReadInt32();
     }
 }

@@ -14,7 +14,7 @@ public class SpellChannelUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(CasterGUID);
-        _worldPacket.WriteInt32(TimeRemaining);
+        WorldPacket.WritePackedGuid(CasterGUID);
+        WorldPacket.WriteInt32(TimeRemaining);
     }
 }

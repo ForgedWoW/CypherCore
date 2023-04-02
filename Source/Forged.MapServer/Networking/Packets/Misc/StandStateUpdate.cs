@@ -18,7 +18,7 @@ public class StandStateUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(AnimKitID);
-        _worldPacket.WriteUInt8((byte)State);
+        WorldPacket.WriteUInt32(AnimKitID);
+        WorldPacket.WriteUInt8((byte)State);
     }
 }

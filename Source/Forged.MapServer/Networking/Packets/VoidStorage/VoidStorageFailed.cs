@@ -12,6 +12,6 @@ internal class VoidStorageFailed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8(Reason);
+        WorldPacket.WriteUInt8(Reason);
     }
 }

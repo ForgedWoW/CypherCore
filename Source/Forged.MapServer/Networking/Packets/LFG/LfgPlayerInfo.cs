@@ -14,10 +14,10 @@ internal class LfgPlayerInfo : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Dungeons.Count);
-        BlackList.Write(_worldPacket);
+        WorldPacket.WriteInt32(Dungeons.Count);
+        BlackList.Write(WorldPacket);
 
         foreach (var dungeonInfo in Dungeons)
-            dungeonInfo.Write(_worldPacket);
+            dungeonInfo.Write(WorldPacket);
     }
 }

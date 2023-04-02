@@ -10,6 +10,6 @@ public class MovementAckMessage : ClientPacket
 
     public override void Read()
     {
-        Ack.Read(_worldPacket);
+        Ack.Read(WorldPacket);
     }
 }

@@ -13,7 +13,7 @@ internal class RequestPartyMemberStats : ClientPacket
 
     public override void Read()
     {
-        PartyIndex = _worldPacket.ReadUInt8();
-        TargetGUID = _worldPacket.ReadPackedGuid();
+        PartyIndex = WorldPacket.ReadUInt8();
+        TargetGUID = WorldPacket.ReadPackedGuid();
     }
 }

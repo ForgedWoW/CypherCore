@@ -16,9 +16,9 @@ internal class AuctionHelloResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Guid);
-        _worldPacket.WriteUInt32(DeliveryDelay);
-        _worldPacket.WriteBit(OpenForBusiness);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Guid);
+        WorldPacket.WriteUInt32(DeliveryDelay);
+        WorldPacket.WriteBit(OpenForBusiness);
+        WorldPacket.FlushBits();
     }
 }

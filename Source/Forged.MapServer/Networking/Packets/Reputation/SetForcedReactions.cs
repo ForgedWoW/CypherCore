@@ -13,9 +13,9 @@ internal class SetForcedReactions : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Reactions.Count);
+        WorldPacket.WriteInt32(Reactions.Count);
 
         foreach (var reaction in Reactions)
-            reaction.Write(_worldPacket);
+            reaction.Write(WorldPacket);
     }
 }

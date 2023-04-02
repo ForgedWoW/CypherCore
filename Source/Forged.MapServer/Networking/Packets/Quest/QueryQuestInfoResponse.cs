@@ -15,153 +15,153 @@ public class QueryQuestInfoResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(QuestID);
-        _worldPacket.WriteBit(Allow);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(QuestID);
+        WorldPacket.WriteBit(Allow);
+        WorldPacket.FlushBits();
 
         if (Allow)
         {
-            _worldPacket.WriteUInt32(Info.QuestID);
-            _worldPacket.WriteInt32(Info.QuestType);
-            _worldPacket.WriteUInt32(Info.QuestPackageID);
-            _worldPacket.WriteUInt32(Info.ContentTuningID);
-            _worldPacket.WriteInt32(Info.QuestSortID);
-            _worldPacket.WriteUInt32(Info.QuestInfoID);
-            _worldPacket.WriteUInt32(Info.SuggestedGroupNum);
-            _worldPacket.WriteUInt32(Info.RewardNextQuest);
-            _worldPacket.WriteUInt32(Info.RewardXPDifficulty);
-            _worldPacket.WriteFloat(Info.RewardXPMultiplier);
-            _worldPacket.WriteInt32(Info.RewardMoney);
-            _worldPacket.WriteUInt32(Info.RewardMoneyDifficulty);
-            _worldPacket.WriteFloat(Info.RewardMoneyMultiplier);
-            _worldPacket.WriteUInt32(Info.RewardBonusMoney);
-            _worldPacket.WriteInt32(Info.RewardDisplaySpell.Count);
-            _worldPacket.WriteUInt32(Info.RewardSpell);
-            _worldPacket.WriteUInt32(Info.RewardHonor);
-            _worldPacket.WriteFloat(Info.RewardKillHonor);
-            _worldPacket.WriteInt32(Info.RewardArtifactXPDifficulty);
-            _worldPacket.WriteFloat(Info.RewardArtifactXPMultiplier);
-            _worldPacket.WriteInt32(Info.RewardArtifactCategoryID);
-            _worldPacket.WriteUInt32(Info.StartItem);
-            _worldPacket.WriteUInt32(Info.Flags);
-            _worldPacket.WriteUInt32(Info.FlagsEx);
-            _worldPacket.WriteUInt32(Info.FlagsEx2);
+            WorldPacket.WriteUInt32(Info.QuestID);
+            WorldPacket.WriteInt32(Info.QuestType);
+            WorldPacket.WriteUInt32(Info.QuestPackageID);
+            WorldPacket.WriteUInt32(Info.ContentTuningID);
+            WorldPacket.WriteInt32(Info.QuestSortID);
+            WorldPacket.WriteUInt32(Info.QuestInfoID);
+            WorldPacket.WriteUInt32(Info.SuggestedGroupNum);
+            WorldPacket.WriteUInt32(Info.RewardNextQuest);
+            WorldPacket.WriteUInt32(Info.RewardXPDifficulty);
+            WorldPacket.WriteFloat(Info.RewardXPMultiplier);
+            WorldPacket.WriteInt32(Info.RewardMoney);
+            WorldPacket.WriteUInt32(Info.RewardMoneyDifficulty);
+            WorldPacket.WriteFloat(Info.RewardMoneyMultiplier);
+            WorldPacket.WriteUInt32(Info.RewardBonusMoney);
+            WorldPacket.WriteInt32(Info.RewardDisplaySpell.Count);
+            WorldPacket.WriteUInt32(Info.RewardSpell);
+            WorldPacket.WriteUInt32(Info.RewardHonor);
+            WorldPacket.WriteFloat(Info.RewardKillHonor);
+            WorldPacket.WriteInt32(Info.RewardArtifactXPDifficulty);
+            WorldPacket.WriteFloat(Info.RewardArtifactXPMultiplier);
+            WorldPacket.WriteInt32(Info.RewardArtifactCategoryID);
+            WorldPacket.WriteUInt32(Info.StartItem);
+            WorldPacket.WriteUInt32(Info.Flags);
+            WorldPacket.WriteUInt32(Info.FlagsEx);
+            WorldPacket.WriteUInt32(Info.FlagsEx2);
 
             for (uint i = 0; i < SharedConst.QuestRewardItemCount; ++i)
             {
-                _worldPacket.WriteUInt32(Info.RewardItems[i]);
-                _worldPacket.WriteUInt32(Info.RewardAmount[i]);
-                _worldPacket.WriteInt32(Info.ItemDrop[i]);
-                _worldPacket.WriteInt32(Info.ItemDropQuantity[i]);
+                WorldPacket.WriteUInt32(Info.RewardItems[i]);
+                WorldPacket.WriteUInt32(Info.RewardAmount[i]);
+                WorldPacket.WriteInt32(Info.ItemDrop[i]);
+                WorldPacket.WriteInt32(Info.ItemDropQuantity[i]);
             }
 
             for (uint i = 0; i < SharedConst.QuestRewardChoicesCount; ++i)
             {
-                _worldPacket.WriteUInt32(Info.UnfilteredChoiceItems[i].ItemID);
-                _worldPacket.WriteUInt32(Info.UnfilteredChoiceItems[i].Quantity);
-                _worldPacket.WriteUInt32(Info.UnfilteredChoiceItems[i].DisplayID);
+                WorldPacket.WriteUInt32(Info.UnfilteredChoiceItems[i].ItemID);
+                WorldPacket.WriteUInt32(Info.UnfilteredChoiceItems[i].Quantity);
+                WorldPacket.WriteUInt32(Info.UnfilteredChoiceItems[i].DisplayID);
             }
 
-            _worldPacket.WriteUInt32(Info.POIContinent);
-            _worldPacket.WriteFloat(Info.POIx);
-            _worldPacket.WriteFloat(Info.POIy);
-            _worldPacket.WriteUInt32(Info.POIPriority);
+            WorldPacket.WriteUInt32(Info.POIContinent);
+            WorldPacket.WriteFloat(Info.POIx);
+            WorldPacket.WriteFloat(Info.POIy);
+            WorldPacket.WriteUInt32(Info.POIPriority);
 
-            _worldPacket.WriteUInt32(Info.RewardTitle);
-            _worldPacket.WriteInt32(Info.RewardArenaPoints);
-            _worldPacket.WriteUInt32(Info.RewardSkillLineID);
-            _worldPacket.WriteUInt32(Info.RewardNumSkillUps);
+            WorldPacket.WriteUInt32(Info.RewardTitle);
+            WorldPacket.WriteInt32(Info.RewardArenaPoints);
+            WorldPacket.WriteUInt32(Info.RewardSkillLineID);
+            WorldPacket.WriteUInt32(Info.RewardNumSkillUps);
 
-            _worldPacket.WriteUInt32(Info.PortraitGiver);
-            _worldPacket.WriteUInt32(Info.PortraitGiverMount);
-            _worldPacket.WriteInt32(Info.PortraitGiverModelSceneID);
-            _worldPacket.WriteUInt32(Info.PortraitTurnIn);
+            WorldPacket.WriteUInt32(Info.PortraitGiver);
+            WorldPacket.WriteUInt32(Info.PortraitGiverMount);
+            WorldPacket.WriteInt32(Info.PortraitGiverModelSceneID);
+            WorldPacket.WriteUInt32(Info.PortraitTurnIn);
 
             for (uint i = 0; i < SharedConst.QuestRewardReputationsCount; ++i)
             {
-                _worldPacket.WriteUInt32(Info.RewardFactionID[i]);
-                _worldPacket.WriteInt32(Info.RewardFactionValue[i]);
-                _worldPacket.WriteInt32(Info.RewardFactionOverride[i]);
-                _worldPacket.WriteInt32(Info.RewardFactionCapIn[i]);
+                WorldPacket.WriteUInt32(Info.RewardFactionID[i]);
+                WorldPacket.WriteInt32(Info.RewardFactionValue[i]);
+                WorldPacket.WriteInt32(Info.RewardFactionOverride[i]);
+                WorldPacket.WriteInt32(Info.RewardFactionCapIn[i]);
             }
 
-            _worldPacket.WriteUInt32(Info.RewardFactionFlags);
+            WorldPacket.WriteUInt32(Info.RewardFactionFlags);
 
             for (uint i = 0; i < SharedConst.QuestRewardCurrencyCount; ++i)
             {
-                _worldPacket.WriteUInt32(Info.RewardCurrencyID[i]);
-                _worldPacket.WriteUInt32(Info.RewardCurrencyQty[i]);
+                WorldPacket.WriteUInt32(Info.RewardCurrencyID[i]);
+                WorldPacket.WriteUInt32(Info.RewardCurrencyQty[i]);
             }
 
-            _worldPacket.WriteUInt32(Info.AcceptedSoundKitID);
-            _worldPacket.WriteUInt32(Info.CompleteSoundKitID);
+            WorldPacket.WriteUInt32(Info.AcceptedSoundKitID);
+            WorldPacket.WriteUInt32(Info.CompleteSoundKitID);
 
-            _worldPacket.WriteUInt32(Info.AreaGroupID);
-            _worldPacket.WriteUInt32(Info.TimeAllowed);
+            WorldPacket.WriteUInt32(Info.AreaGroupID);
+            WorldPacket.WriteUInt32(Info.TimeAllowed);
 
-            _worldPacket.WriteInt32(Info.Objectives.Count);
-            _worldPacket.WriteInt64(Info.AllowableRaces);
-            _worldPacket.WriteInt32(Info.TreasurePickerID);
-            _worldPacket.WriteInt32(Info.Expansion);
-            _worldPacket.WriteInt32(Info.ManagedWorldStateID);
-            _worldPacket.WriteInt32(Info.QuestSessionBonus);
-            _worldPacket.WriteInt32(Info.QuestGiverCreatureID);
+            WorldPacket.WriteInt32(Info.Objectives.Count);
+            WorldPacket.WriteInt64(Info.AllowableRaces);
+            WorldPacket.WriteInt32(Info.TreasurePickerID);
+            WorldPacket.WriteInt32(Info.Expansion);
+            WorldPacket.WriteInt32(Info.ManagedWorldStateID);
+            WorldPacket.WriteInt32(Info.QuestSessionBonus);
+            WorldPacket.WriteInt32(Info.QuestGiverCreatureID);
 
-            _worldPacket.WriteInt32(Info.ConditionalQuestDescription.Count);
-            _worldPacket.WriteInt32(Info.ConditionalQuestCompletionLog.Count);
+            WorldPacket.WriteInt32(Info.ConditionalQuestDescription.Count);
+            WorldPacket.WriteInt32(Info.ConditionalQuestCompletionLog.Count);
 
             foreach (var rewardDisplaySpell in Info.RewardDisplaySpell)
-                rewardDisplaySpell.Write(_worldPacket);
+                rewardDisplaySpell.Write(WorldPacket);
 
-            _worldPacket.WriteBits(Info.LogTitle.GetByteCount(), 9);
-            _worldPacket.WriteBits(Info.LogDescription.GetByteCount(), 12);
-            _worldPacket.WriteBits(Info.QuestDescription.GetByteCount(), 12);
-            _worldPacket.WriteBits(Info.AreaDescription.GetByteCount(), 9);
-            _worldPacket.WriteBits(Info.PortraitGiverText.GetByteCount(), 10);
-            _worldPacket.WriteBits(Info.PortraitGiverName.GetByteCount(), 8);
-            _worldPacket.WriteBits(Info.PortraitTurnInText.GetByteCount(), 10);
-            _worldPacket.WriteBits(Info.PortraitTurnInName.GetByteCount(), 8);
-            _worldPacket.WriteBits(Info.QuestCompletionLog.GetByteCount(), 11);
-            _worldPacket.WriteBit(Info.ReadyForTranslation);
-            _worldPacket.FlushBits();
+            WorldPacket.WriteBits(Info.LogTitle.GetByteCount(), 9);
+            WorldPacket.WriteBits(Info.LogDescription.GetByteCount(), 12);
+            WorldPacket.WriteBits(Info.QuestDescription.GetByteCount(), 12);
+            WorldPacket.WriteBits(Info.AreaDescription.GetByteCount(), 9);
+            WorldPacket.WriteBits(Info.PortraitGiverText.GetByteCount(), 10);
+            WorldPacket.WriteBits(Info.PortraitGiverName.GetByteCount(), 8);
+            WorldPacket.WriteBits(Info.PortraitTurnInText.GetByteCount(), 10);
+            WorldPacket.WriteBits(Info.PortraitTurnInName.GetByteCount(), 8);
+            WorldPacket.WriteBits(Info.QuestCompletionLog.GetByteCount(), 11);
+            WorldPacket.WriteBit(Info.ReadyForTranslation);
+            WorldPacket.FlushBits();
 
             foreach (var questObjective in Info.Objectives)
             {
-                _worldPacket.WriteUInt32(questObjective.Id);
-                _worldPacket.WriteUInt8((byte)questObjective.Type);
-                _worldPacket.WriteInt8(questObjective.StorageIndex);
-                _worldPacket.WriteInt32(questObjective.ObjectID);
-                _worldPacket.WriteInt32(questObjective.Amount);
-                _worldPacket.WriteUInt32((uint)questObjective.Flags);
-                _worldPacket.WriteUInt32(questObjective.Flags2);
-                _worldPacket.WriteFloat(questObjective.ProgressBarWeight);
+                WorldPacket.WriteUInt32(questObjective.Id);
+                WorldPacket.WriteUInt8((byte)questObjective.Type);
+                WorldPacket.WriteInt8(questObjective.StorageIndex);
+                WorldPacket.WriteInt32(questObjective.ObjectID);
+                WorldPacket.WriteInt32(questObjective.Amount);
+                WorldPacket.WriteUInt32((uint)questObjective.Flags);
+                WorldPacket.WriteUInt32(questObjective.Flags2);
+                WorldPacket.WriteFloat(questObjective.ProgressBarWeight);
 
-                _worldPacket.WriteInt32(questObjective.VisualEffects.Length);
+                WorldPacket.WriteInt32(questObjective.VisualEffects.Length);
 
                 foreach (var visualEffect in questObjective.VisualEffects)
-                    _worldPacket.WriteInt32(visualEffect);
+                    WorldPacket.WriteInt32(visualEffect);
 
-                _worldPacket.WriteBits(questObjective.Description.GetByteCount(), 8);
-                _worldPacket.FlushBits();
+                WorldPacket.WriteBits(questObjective.Description.GetByteCount(), 8);
+                WorldPacket.FlushBits();
 
-                _worldPacket.WriteString(questObjective.Description);
+                WorldPacket.WriteString(questObjective.Description);
             }
 
-            _worldPacket.WriteString(Info.LogTitle);
-            _worldPacket.WriteString(Info.LogDescription);
-            _worldPacket.WriteString(Info.QuestDescription);
-            _worldPacket.WriteString(Info.AreaDescription);
-            _worldPacket.WriteString(Info.PortraitGiverText);
-            _worldPacket.WriteString(Info.PortraitGiverName);
-            _worldPacket.WriteString(Info.PortraitTurnInText);
-            _worldPacket.WriteString(Info.PortraitTurnInName);
-            _worldPacket.WriteString(Info.QuestCompletionLog);
+            WorldPacket.WriteString(Info.LogTitle);
+            WorldPacket.WriteString(Info.LogDescription);
+            WorldPacket.WriteString(Info.QuestDescription);
+            WorldPacket.WriteString(Info.AreaDescription);
+            WorldPacket.WriteString(Info.PortraitGiverText);
+            WorldPacket.WriteString(Info.PortraitGiverName);
+            WorldPacket.WriteString(Info.PortraitTurnInText);
+            WorldPacket.WriteString(Info.PortraitTurnInName);
+            WorldPacket.WriteString(Info.QuestCompletionLog);
 
             foreach (var conditionalQuestText in Info.ConditionalQuestDescription)
-                conditionalQuestText.Write(_worldPacket);
+                conditionalQuestText.Write(WorldPacket);
 
             foreach (var conditionalQuestText in Info.ConditionalQuestCompletionLog)
-                conditionalQuestText.Write(_worldPacket);
+                conditionalQuestText.Write(WorldPacket);
         }
     }
 }

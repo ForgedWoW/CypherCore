@@ -10,6 +10,6 @@ public class WhoIsRequest : ClientPacket
 
     public override void Read()
     {
-        CharName = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(6));
+        CharName = WorldPacket.ReadString(WorldPacket.ReadBits<uint>(6));
     }
 }

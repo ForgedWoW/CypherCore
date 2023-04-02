@@ -16,6 +16,6 @@ internal class AELootTargets : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(Count);
+        WorldPacket.WriteUInt32(Count);
     }
 }

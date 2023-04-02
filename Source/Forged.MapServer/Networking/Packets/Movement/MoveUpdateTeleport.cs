@@ -24,49 +24,49 @@ public class MoveUpdateTeleport : ServerPacket
 
     public override void Write()
     {
-        MovementExtensions.WriteMovementInfo(_worldPacket, Status);
+        MovementExtensions.WriteMovementInfo(WorldPacket, Status);
 
-        _worldPacket.WriteInt32(MovementForces?.Count ?? 0);
-        _worldPacket.WriteBit(WalkSpeed.HasValue);
-        _worldPacket.WriteBit(RunSpeed.HasValue);
-        _worldPacket.WriteBit(RunBackSpeed.HasValue);
-        _worldPacket.WriteBit(SwimSpeed.HasValue);
-        _worldPacket.WriteBit(SwimBackSpeed.HasValue);
-        _worldPacket.WriteBit(FlightSpeed.HasValue);
-        _worldPacket.WriteBit(FlightBackSpeed.HasValue);
-        _worldPacket.WriteBit(TurnRate.HasValue);
-        _worldPacket.WriteBit(PitchRate.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(MovementForces?.Count ?? 0);
+        WorldPacket.WriteBit(WalkSpeed.HasValue);
+        WorldPacket.WriteBit(RunSpeed.HasValue);
+        WorldPacket.WriteBit(RunBackSpeed.HasValue);
+        WorldPacket.WriteBit(SwimSpeed.HasValue);
+        WorldPacket.WriteBit(SwimBackSpeed.HasValue);
+        WorldPacket.WriteBit(FlightSpeed.HasValue);
+        WorldPacket.WriteBit(FlightBackSpeed.HasValue);
+        WorldPacket.WriteBit(TurnRate.HasValue);
+        WorldPacket.WriteBit(PitchRate.HasValue);
+        WorldPacket.FlushBits();
 
         if (MovementForces != null)
             foreach (var force in MovementForces)
-                force.Write(_worldPacket);
+                force.Write(WorldPacket);
 
         if (WalkSpeed.HasValue)
-            _worldPacket.WriteFloat(WalkSpeed.Value);
+            WorldPacket.WriteFloat(WalkSpeed.Value);
 
         if (RunSpeed.HasValue)
-            _worldPacket.WriteFloat(RunSpeed.Value);
+            WorldPacket.WriteFloat(RunSpeed.Value);
 
         if (RunBackSpeed.HasValue)
-            _worldPacket.WriteFloat(RunBackSpeed.Value);
+            WorldPacket.WriteFloat(RunBackSpeed.Value);
 
         if (SwimSpeed.HasValue)
-            _worldPacket.WriteFloat(SwimSpeed.Value);
+            WorldPacket.WriteFloat(SwimSpeed.Value);
 
         if (SwimBackSpeed.HasValue)
-            _worldPacket.WriteFloat(SwimBackSpeed.Value);
+            WorldPacket.WriteFloat(SwimBackSpeed.Value);
 
         if (FlightSpeed.HasValue)
-            _worldPacket.WriteFloat(FlightSpeed.Value);
+            WorldPacket.WriteFloat(FlightSpeed.Value);
 
         if (FlightBackSpeed.HasValue)
-            _worldPacket.WriteFloat(FlightBackSpeed.Value);
+            WorldPacket.WriteFloat(FlightBackSpeed.Value);
 
         if (TurnRate.HasValue)
-            _worldPacket.WriteFloat(TurnRate.Value);
+            WorldPacket.WriteFloat(TurnRate.Value);
 
         if (PitchRate.HasValue)
-            _worldPacket.WriteFloat(PitchRate.Value);
+            WorldPacket.WriteFloat(PitchRate.Value);
     }
 }

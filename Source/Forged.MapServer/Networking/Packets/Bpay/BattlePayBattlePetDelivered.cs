@@ -39,7 +39,7 @@ public class BattlePayBattlePetDelivered : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.Write(DisplayID);
-        _worldPacket.Write(BattlePetGuid);
+        WorldPacket.Write(DisplayID);
+        WorldPacket.Write(BattlePetGuid);
     }
 }

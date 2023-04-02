@@ -18,12 +18,12 @@ internal class LootRollWon : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(LootObj);
-        _worldPacket.WritePackedGuid(Winner);
-        _worldPacket.WriteInt32(Roll);
-        _worldPacket.WriteUInt8((byte)RollType);
-        Item.Write(_worldPacket);
-        _worldPacket.WriteBit(MainSpec);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(LootObj);
+        WorldPacket.WritePackedGuid(Winner);
+        WorldPacket.WriteInt32(Roll);
+        WorldPacket.WriteUInt8((byte)RollType);
+        Item.Write(WorldPacket);
+        WorldPacket.WriteBit(MainSpec);
+        WorldPacket.FlushBits();
     }
 }

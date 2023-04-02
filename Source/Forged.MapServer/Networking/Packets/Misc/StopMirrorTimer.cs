@@ -16,6 +16,6 @@ public class StopMirrorTimer : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32((int)Timer);
+        WorldPacket.WriteInt32((int)Timer);
     }
 }

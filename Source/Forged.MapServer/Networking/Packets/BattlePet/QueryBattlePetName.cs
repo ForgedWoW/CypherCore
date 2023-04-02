@@ -13,7 +13,7 @@ internal class QueryBattlePetName : ClientPacket
 
     public override void Read()
     {
-        BattlePetID = _worldPacket.ReadPackedGuid();
-        UnitGUID = _worldPacket.ReadPackedGuid();
+        BattlePetID = WorldPacket.ReadPackedGuid();
+        UnitGUID = WorldPacket.ReadPackedGuid();
     }
 }

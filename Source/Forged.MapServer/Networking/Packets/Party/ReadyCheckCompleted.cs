@@ -14,7 +14,7 @@ internal class ReadyCheckCompleted : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt8(PartyIndex);
-        _worldPacket.WritePackedGuid(PartyGUID);
+        WorldPacket.WriteInt8(PartyIndex);
+        WorldPacket.WritePackedGuid(PartyGUID);
     }
 }

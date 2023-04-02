@@ -12,8 +12,8 @@ internal class CollectionItemSetFavorite : ClientPacket
 
     public override void Read()
     {
-        Type = (CollectionType)_worldPacket.ReadUInt32();
-        Id = _worldPacket.ReadUInt32();
-        IsFavorite = _worldPacket.HasBit();
+        Type = (CollectionType)WorldPacket.ReadUInt32();
+        Id = WorldPacket.ReadUInt32();
+        IsFavorite = WorldPacket.HasBit();
     }
 }

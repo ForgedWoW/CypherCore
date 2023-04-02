@@ -23,23 +23,23 @@ internal class MirrorImageComponentedData : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(UnitGUID);
-        _worldPacket.WriteInt32(DisplayID);
-        _worldPacket.WriteInt32(SpellVisualKitID);
-        _worldPacket.WriteUInt8(RaceID);
-        _worldPacket.WriteUInt8(Gender);
-        _worldPacket.WriteUInt8(ClassID);
-        _worldPacket.WriteInt32(Customizations.Count);
-        _worldPacket.WritePackedGuid(GuildGUID);
-        _worldPacket.WriteInt32(ItemDisplayID.Count);
+        WorldPacket.WritePackedGuid(UnitGUID);
+        WorldPacket.WriteInt32(DisplayID);
+        WorldPacket.WriteInt32(SpellVisualKitID);
+        WorldPacket.WriteUInt8(RaceID);
+        WorldPacket.WriteUInt8(Gender);
+        WorldPacket.WriteUInt8(ClassID);
+        WorldPacket.WriteInt32(Customizations.Count);
+        WorldPacket.WritePackedGuid(GuildGUID);
+        WorldPacket.WriteInt32(ItemDisplayID.Count);
 
         foreach (var customization in Customizations)
         {
-            _worldPacket.WriteUInt32(customization.ChrCustomizationOptionID);
-            _worldPacket.WriteUInt32(customization.ChrCustomizationChoiceID);
+            WorldPacket.WriteUInt32(customization.ChrCustomizationOptionID);
+            WorldPacket.WriteUInt32(customization.ChrCustomizationChoiceID);
         }
 
         foreach (var itemDisplayId in ItemDisplayID)
-            _worldPacket.WriteInt32(itemDisplayId);
+            WorldPacket.WriteInt32(itemDisplayId);
     }
 }

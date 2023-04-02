@@ -17,34 +17,34 @@ public class SaveEquipmentSet : ClientPacket
 
     public override void Read()
     {
-        Set.Type = (EquipmentSetInfo.EquipmentSetType)_worldPacket.ReadInt32();
-        Set.Guid = _worldPacket.ReadUInt64();
-        Set.SetId = _worldPacket.ReadUInt32();
-        Set.IgnoreMask = _worldPacket.ReadUInt32();
+        Set.Type = (EquipmentSetInfo.EquipmentSetType)WorldPacket.ReadInt32();
+        Set.Guid = WorldPacket.ReadUInt64();
+        Set.SetId = WorldPacket.ReadUInt32();
+        Set.IgnoreMask = WorldPacket.ReadUInt32();
 
         for (byte i = 0; i < EquipmentSlot.End; ++i)
         {
-            Set.Pieces[i] = _worldPacket.ReadPackedGuid();
-            Set.Appearances[i] = _worldPacket.ReadInt32();
+            Set.Pieces[i] = WorldPacket.ReadPackedGuid();
+            Set.Appearances[i] = WorldPacket.ReadInt32();
         }
 
-        Set.Enchants[0] = _worldPacket.ReadInt32();
-        Set.Enchants[1] = _worldPacket.ReadInt32();
+        Set.Enchants[0] = WorldPacket.ReadInt32();
+        Set.Enchants[1] = WorldPacket.ReadInt32();
 
-        Set.SecondaryShoulderApparanceId = _worldPacket.ReadInt32();
-        Set.SecondaryShoulderSlot = _worldPacket.ReadInt32();
-        Set.SecondaryWeaponAppearanceId = _worldPacket.ReadInt32();
-        Set.SecondaryWeaponSlot = _worldPacket.ReadInt32();
+        Set.SecondaryShoulderApparanceId = WorldPacket.ReadInt32();
+        Set.SecondaryShoulderSlot = WorldPacket.ReadInt32();
+        Set.SecondaryWeaponAppearanceId = WorldPacket.ReadInt32();
+        Set.SecondaryWeaponSlot = WorldPacket.ReadInt32();
 
-        var hasSpecIndex = _worldPacket.HasBit();
+        var hasSpecIndex = WorldPacket.HasBit();
 
-        var setNameLength = _worldPacket.ReadBits<uint>(8);
-        var setIconLength = _worldPacket.ReadBits<uint>(9);
+        var setNameLength = WorldPacket.ReadBits<uint>(8);
+        var setIconLength = WorldPacket.ReadBits<uint>(9);
 
         if (hasSpecIndex)
-            Set.AssignedSpecIndex = _worldPacket.ReadInt32();
+            Set.AssignedSpecIndex = WorldPacket.ReadInt32();
 
-        Set.SetName = _worldPacket.ReadString(setNameLength);
-        Set.SetIcon = _worldPacket.ReadString(setIconLength);
+        Set.SetName = WorldPacket.ReadString(setNameLength);
+        Set.SetIcon = WorldPacket.ReadString(setIconLength);
     }
 }

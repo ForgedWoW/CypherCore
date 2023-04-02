@@ -17,10 +17,10 @@ public class STextEmote : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(SourceGUID);
-        _worldPacket.WritePackedGuid(SourceAccountGUID);
-        _worldPacket.WriteInt32(EmoteID);
-        _worldPacket.WriteInt32(SoundIndex);
-        _worldPacket.WritePackedGuid(TargetGUID);
+        WorldPacket.WritePackedGuid(SourceGUID);
+        WorldPacket.WritePackedGuid(SourceAccountGUID);
+        WorldPacket.WriteInt32(EmoteID);
+        WorldPacket.WriteInt32(SoundIndex);
+        WorldPacket.WritePackedGuid(TargetGUID);
     }
 }

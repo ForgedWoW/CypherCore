@@ -15,10 +15,10 @@ public class AccountDataTimes : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(PlayerGuid);
-        _worldPacket.WriteInt64(ServerTime);
+        WorldPacket.WritePackedGuid(PlayerGuid);
+        WorldPacket.WriteInt64(ServerTime);
 
         foreach (var accounttime in AccountTimes)
-            _worldPacket.WriteInt64(accounttime);
+            WorldPacket.WriteInt64(accounttime);
     }
 }

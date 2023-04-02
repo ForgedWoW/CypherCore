@@ -12,8 +12,8 @@ internal class ClassTalentsRenameConfig : ClientPacket
 
     public override void Read()
     {
-        ConfigID = _worldPacket.ReadInt32();
-        var nameLength = _worldPacket.ReadBits<uint>(9);
-        Name = _worldPacket.ReadString(nameLength);
+        ConfigID = WorldPacket.ReadInt32();
+        var nameLength = WorldPacket.ReadBits<uint>(9);
+        Name = WorldPacket.ReadString(nameLength);
     }
 }

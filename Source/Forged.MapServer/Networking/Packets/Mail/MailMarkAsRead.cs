@@ -13,7 +13,7 @@ public class MailMarkAsRead : ClientPacket
 
     public override void Read()
     {
-        Mailbox = _worldPacket.ReadPackedGuid();
-        MailID = _worldPacket.ReadUInt64();
+        Mailbox = WorldPacket.ReadPackedGuid();
+        MailID = WorldPacket.ReadUInt64();
     }
 }

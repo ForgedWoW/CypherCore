@@ -11,8 +11,8 @@ internal class SceneTriggerEvent : ClientPacket
 
     public override void Read()
     {
-        var len = _worldPacket.ReadBits<uint>(6);
-        SceneInstanceID = _worldPacket.ReadUInt32();
-        _Event = _worldPacket.ReadString(len);
+        var len = WorldPacket.ReadBits<uint>(6);
+        SceneInstanceID = WorldPacket.ReadUInt32();
+        _Event = WorldPacket.ReadString(len);
     }
 }

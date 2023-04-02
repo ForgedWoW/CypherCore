@@ -12,6 +12,6 @@ public class ZoneUnderAttack : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(AreaID);
+        WorldPacket.WriteInt32(AreaID);
     }
 }

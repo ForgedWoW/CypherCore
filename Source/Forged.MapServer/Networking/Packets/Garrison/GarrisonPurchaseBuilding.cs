@@ -14,8 +14,8 @@ internal class GarrisonPurchaseBuilding : ClientPacket
 
     public override void Read()
     {
-        NpcGUID = _worldPacket.ReadPackedGuid();
-        PlotInstanceID = _worldPacket.ReadUInt32();
-        BuildingID = _worldPacket.ReadUInt32();
+        NpcGUID = WorldPacket.ReadPackedGuid();
+        PlotInstanceID = WorldPacket.ReadUInt32();
+        BuildingID = WorldPacket.ReadUInt32();
     }
 }

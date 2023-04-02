@@ -10,6 +10,6 @@ public class QueryCreature : ClientPacket
 
     public override void Read()
     {
-        CreatureID = _worldPacket.ReadUInt32();
+        CreatureID = WorldPacket.ReadUInt32();
     }
 }

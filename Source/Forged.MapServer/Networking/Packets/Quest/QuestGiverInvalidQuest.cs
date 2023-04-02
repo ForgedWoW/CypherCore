@@ -16,13 +16,13 @@ internal class QuestGiverInvalidQuest : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32((uint)Reason);
-        _worldPacket.WriteInt32(ContributionRewardID);
+        WorldPacket.WriteUInt32((uint)Reason);
+        WorldPacket.WriteInt32(ContributionRewardID);
 
-        _worldPacket.WriteBit(SendErrorMessage);
-        _worldPacket.WriteBits(ReasonText.GetByteCount(), 9);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(SendErrorMessage);
+        WorldPacket.WriteBits(ReasonText.GetByteCount(), 9);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteString(ReasonText);
+        WorldPacket.WriteString(ReasonText);
     }
 }

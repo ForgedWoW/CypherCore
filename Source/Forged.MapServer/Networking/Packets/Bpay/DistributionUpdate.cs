@@ -12,6 +12,6 @@ public class DistributionUpdate : ServerPacket
     public BpayDistributionObject DistributionObject { get; set; } = new();
     public override void Write()
     {
-        DistributionObject.Write(_worldPacket);
+        DistributionObject.Write(WorldPacket);
     }
 }

@@ -15,9 +15,9 @@ internal class SetPartyAssignment : ClientPacket
 
     public override void Read()
     {
-        PartyIndex = _worldPacket.ReadUInt8();
-        Assignment = _worldPacket.ReadUInt8();
-        Target = _worldPacket.ReadPackedGuid();
-        Set = _worldPacket.HasBit();
+        PartyIndex = WorldPacket.ReadUInt8();
+        Assignment = WorldPacket.ReadUInt8();
+        Target = WorldPacket.ReadPackedGuid();
+        Set = WorldPacket.HasBit();
     }
 }

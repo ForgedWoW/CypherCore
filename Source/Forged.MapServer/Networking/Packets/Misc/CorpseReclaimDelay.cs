@@ -12,6 +12,6 @@ public class CorpseReclaimDelay : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(Remaining);
+        WorldPacket.WriteUInt32(Remaining);
     }
 }

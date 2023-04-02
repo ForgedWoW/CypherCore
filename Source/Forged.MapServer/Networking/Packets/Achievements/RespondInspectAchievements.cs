@@ -14,7 +14,7 @@ public class RespondInspectAchievements : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Player);
-        Data.Write(_worldPacket);
+        WorldPacket.WritePackedGuid(Player);
+        Data.Write(WorldPacket);
     }
 }

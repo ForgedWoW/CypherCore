@@ -13,9 +13,9 @@ internal class ChangeRealmTicket : ClientPacket
 
     public override void Read()
     {
-        Token = _worldPacket.ReadUInt32();
+        Token = WorldPacket.ReadUInt32();
 
         for (var i = 0; i < Secret.GetLimit(); ++i)
-            Secret[i] = _worldPacket.ReadUInt8();
+            Secret[i] = WorldPacket.ReadUInt8();
     }
 }

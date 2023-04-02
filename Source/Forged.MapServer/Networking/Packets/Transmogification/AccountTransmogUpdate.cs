@@ -16,15 +16,15 @@ internal class AccountTransmogUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(IsFullUpdate);
-        _worldPacket.WriteBit(IsSetFavorite);
-        _worldPacket.WriteInt32(FavoriteAppearances.Count);
-        _worldPacket.WriteInt32(NewAppearances.Count);
+        WorldPacket.WriteBit(IsFullUpdate);
+        WorldPacket.WriteBit(IsSetFavorite);
+        WorldPacket.WriteInt32(FavoriteAppearances.Count);
+        WorldPacket.WriteInt32(NewAppearances.Count);
 
         foreach (var itemModifiedAppearanceId in FavoriteAppearances)
-            _worldPacket.WriteUInt32(itemModifiedAppearanceId);
+            WorldPacket.WriteUInt32(itemModifiedAppearanceId);
 
         foreach (var newAppearance in NewAppearances)
-            _worldPacket.WriteUInt32(newAppearance);
+            WorldPacket.WriteUInt32(newAppearance);
     }
 }

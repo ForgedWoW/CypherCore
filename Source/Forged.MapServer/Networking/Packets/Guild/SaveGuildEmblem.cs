@@ -17,11 +17,11 @@ public class SaveGuildEmblem : ClientPacket
 
     public override void Read()
     {
-        Vendor = _worldPacket.ReadPackedGuid();
-        EStyle = _worldPacket.ReadUInt32();
-        EColor = _worldPacket.ReadUInt32();
-        BStyle = _worldPacket.ReadUInt32();
-        BColor = _worldPacket.ReadUInt32();
-        Bg = _worldPacket.ReadUInt32();
+        Vendor = WorldPacket.ReadPackedGuid();
+        EStyle = WorldPacket.ReadUInt32();
+        EColor = WorldPacket.ReadUInt32();
+        BStyle = WorldPacket.ReadUInt32();
+        BColor = WorldPacket.ReadUInt32();
+        Bg = WorldPacket.ReadUInt32();
     }
 }

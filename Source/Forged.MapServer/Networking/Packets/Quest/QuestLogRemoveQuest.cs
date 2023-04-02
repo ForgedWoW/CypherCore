@@ -10,6 +10,6 @@ public class QuestLogRemoveQuest : ClientPacket
 
     public override void Read()
     {
-        Entry = _worldPacket.ReadUInt8();
+        Entry = WorldPacket.ReadUInt8();
     }
 }

@@ -16,16 +16,16 @@ public class AuctionListOwnedItemsResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Items.Count);
-        _worldPacket.WriteInt32(SoldItems.Count);
-        _worldPacket.WriteUInt32(DesiredDelay);
-        _worldPacket.WriteBit(HasMoreResults);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(Items.Count);
+        WorldPacket.WriteInt32(SoldItems.Count);
+        WorldPacket.WriteUInt32(DesiredDelay);
+        WorldPacket.WriteBit(HasMoreResults);
+        WorldPacket.FlushBits();
 
         foreach (var item in Items)
-            item.Write(_worldPacket);
+            item.Write(WorldPacket);
 
         foreach (var item in SoldItems)
-            item.Write(_worldPacket);
+            item.Write(WorldPacket);
     }
 }

@@ -16,22 +16,22 @@ internal class BattlePetModifyName : ClientPacket
 
     public override void Read()
     {
-        PetGuid = _worldPacket.ReadPackedGuid();
-        var nameLength = _worldPacket.ReadBits<uint>(7);
+        PetGuid = WorldPacket.ReadPackedGuid();
+        var nameLength = WorldPacket.ReadBits<uint>(7);
 
-        if (_worldPacket.HasBit())
+        if (WorldPacket.HasBit())
         {
             DeclinedNames = new DeclinedName();
 
             var declinedNameLengths = new byte[SharedConst.MaxDeclinedNameCases];
 
             for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-                declinedNameLengths[i] = _worldPacket.ReadBits<byte>(7);
+                declinedNameLengths[i] = WorldPacket.ReadBits<byte>(7);
 
             for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-                DeclinedNames.Name[i] = _worldPacket.ReadString(declinedNameLengths[i]);
+                DeclinedNames.Name[i] = WorldPacket.ReadString(declinedNameLengths[i]);
         }
 
-        Name = _worldPacket.ReadString(nameLength);
+        Name = WorldPacket.ReadString(nameLength);
     }
 }

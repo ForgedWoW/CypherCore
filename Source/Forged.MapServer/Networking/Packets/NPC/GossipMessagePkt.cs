@@ -20,25 +20,25 @@ public class GossipMessagePkt : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(GossipGUID);
-        _worldPacket.WriteUInt32(GossipID);
-        _worldPacket.WriteInt32(FriendshipFactionID);
-        _worldPacket.WriteInt32(GossipOptions.Count);
-        _worldPacket.WriteInt32(GossipText.Count);
-        _worldPacket.WriteBit(TextID.HasValue);
-        _worldPacket.WriteBit(TextID2.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(GossipGUID);
+        WorldPacket.WriteUInt32(GossipID);
+        WorldPacket.WriteInt32(FriendshipFactionID);
+        WorldPacket.WriteInt32(GossipOptions.Count);
+        WorldPacket.WriteInt32(GossipText.Count);
+        WorldPacket.WriteBit(TextID.HasValue);
+        WorldPacket.WriteBit(TextID2.HasValue);
+        WorldPacket.FlushBits();
 
         foreach (var options in GossipOptions)
-            options.Write(_worldPacket);
+            options.Write(WorldPacket);
 
         if (TextID.HasValue)
-            _worldPacket.WriteInt32(TextID.Value);
+            WorldPacket.WriteInt32(TextID.Value);
 
         if (TextID2.HasValue)
-            _worldPacket.WriteInt32(TextID2.Value);
+            WorldPacket.WriteInt32(TextID2.Value);
 
         foreach (var text in GossipText)
-            text.Write(_worldPacket);
+            text.Write(WorldPacket);
     }
 }

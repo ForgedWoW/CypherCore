@@ -13,6 +13,6 @@ public class PetitionAlreadySigned : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(SignerGUID);
+        WorldPacket.WritePackedGuid(SignerGUID);
     }
 }

@@ -16,8 +16,8 @@ public class CorpseTransportQuery : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Player);
-        _worldPacket.WriteVector3(Position);
-        _worldPacket.WriteFloat(Facing);
+        WorldPacket.WritePackedGuid(Player);
+        WorldPacket.WriteVector3(Position);
+        WorldPacket.WriteFloat(Facing);
     }
 }

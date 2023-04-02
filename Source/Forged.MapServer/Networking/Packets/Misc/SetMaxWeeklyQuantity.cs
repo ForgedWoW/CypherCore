@@ -13,7 +13,7 @@ public class SetMaxWeeklyQuantity : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(Type);
-        _worldPacket.WriteUInt32(MaxWeeklyQuantity);
+        WorldPacket.WriteUInt32(Type);
+        WorldPacket.WriteUInt32(MaxWeeklyQuantity);
     }
 }

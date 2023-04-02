@@ -13,7 +13,7 @@ public class MoveSetVehicleRecIdAck : ClientPacket
 
     public override void Read()
     {
-        Data.Read(_worldPacket);
-        VehicleRecID = _worldPacket.ReadInt32();
+        Data.Read(WorldPacket);
+        VehicleRecID = WorldPacket.ReadInt32();
     }
 }

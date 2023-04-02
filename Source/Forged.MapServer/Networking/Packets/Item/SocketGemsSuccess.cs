@@ -13,6 +13,6 @@ internal class SocketGemsSuccess : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Item);
+        WorldPacket.WritePackedGuid(Item);
     }
 }

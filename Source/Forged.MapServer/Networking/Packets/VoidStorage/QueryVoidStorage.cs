@@ -12,6 +12,6 @@ internal class QueryVoidStorage : ClientPacket
 
     public override void Read()
     {
-        Npc = _worldPacket.ReadPackedGuid();
+        Npc = WorldPacket.ReadPackedGuid();
     }
 }

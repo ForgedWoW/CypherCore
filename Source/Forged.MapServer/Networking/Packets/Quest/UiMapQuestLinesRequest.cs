@@ -11,6 +11,6 @@ public class UiMapQuestLinesRequest : ClientPacket
 
     public override void Read()
     {
-        UiMapID = _worldPacket.ReadInt32();
+        UiMapID = WorldPacket.ReadInt32();
     }
 }

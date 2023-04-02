@@ -13,9 +13,9 @@ internal class GarrisonMapDataResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Buildings.Count);
+        WorldPacket.WriteInt32(Buildings.Count);
 
         foreach (var landmark in Buildings)
-            landmark.Write(_worldPacket);
+            landmark.Write(WorldPacket);
     }
 }

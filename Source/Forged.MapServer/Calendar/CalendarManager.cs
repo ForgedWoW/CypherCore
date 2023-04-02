@@ -589,7 +589,7 @@ public class CalendarManager
             trans.Append(stmt);
 
             // guild events only? check invite status here?
-            // When an event is deleted, all invited (accepted/declined? - verify) guildies are notified via in-game mail. (wowwiki)
+            // When an event is deleted, all invited (accepted/declined? - verify) guildies are notified via in-GameInfo mail. (wowwiki)
             if (!remover.IsEmpty && invite.InviteeGuid != remover)
                 mail.SendMailTo(trans, new MailReceiver(invite.InviteeGuid.Counter), new MailSender(calendarEvent), MailCheckMask.Copied);
         }

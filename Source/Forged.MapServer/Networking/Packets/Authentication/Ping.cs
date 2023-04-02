@@ -11,8 +11,8 @@ internal class Ping : ClientPacket
 
     public override void Read()
     {
-        Serial = _worldPacket.ReadUInt32();
-        Latency = _worldPacket.ReadUInt32();
+        Serial = WorldPacket.ReadUInt32();
+        Latency = WorldPacket.ReadUInt32();
     }
 }
 

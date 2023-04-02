@@ -82,7 +82,7 @@ internal class RingofValorArena : Arena
             switch (eventId)
             {
                 case RingofValorEvents.OpenFences:
-                    // Open fire (only at game start)
+                    // Open fire (only at GameInfo start)
                     for (byte i = RingofValorObjectTypes.Fire1; i <= RingofValorObjectTypes.Firedoor2; ++i)
                         DoorOpen(i);
 

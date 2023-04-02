@@ -14,14 +14,14 @@ public class MOTD : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Text.Count, 4);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(Text.Count, 4);
+        WorldPacket.FlushBits();
 
         foreach (var line in Text)
         {
-            _worldPacket.WriteBits(line.GetByteCount(), 7);
-            _worldPacket.FlushBits();
-            _worldPacket.WriteString(line);
+            WorldPacket.WriteBits(line.GetByteCount(), 7);
+            WorldPacket.FlushBits();
+            WorldPacket.WriteString(line);
         }
     }
 }

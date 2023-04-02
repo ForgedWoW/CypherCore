@@ -27,15 +27,15 @@ internal class PlayOrphanSpellVisual : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteXYZ(SourceLocation);
-        _worldPacket.WriteVector3(SourceRotation);
-        _worldPacket.WriteVector3(TargetLocation);
-        _worldPacket.WritePackedGuid(Target);
-        _worldPacket.WriteUInt32(SpellVisualID);
-        _worldPacket.WriteFloat(TravelSpeed);
-        _worldPacket.WriteFloat(LaunchDelay);
-        _worldPacket.WriteFloat(MinDuration);
-        _worldPacket.WriteBit(SpeedAsTime);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteXYZ(SourceLocation);
+        WorldPacket.WriteVector3(SourceRotation);
+        WorldPacket.WriteVector3(TargetLocation);
+        WorldPacket.WritePackedGuid(Target);
+        WorldPacket.WriteUInt32(SpellVisualID);
+        WorldPacket.WriteFloat(TravelSpeed);
+        WorldPacket.WriteFloat(LaunchDelay);
+        WorldPacket.WriteFloat(MinDuration);
+        WorldPacket.WriteBit(SpeedAsTime);
+        WorldPacket.FlushBits();
     }
 }

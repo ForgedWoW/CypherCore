@@ -15,12 +15,12 @@ internal class PVPMatchComplete : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8(Winner);
-        _worldPacket.WriteInt32(Duration);
-        _worldPacket.WriteBit(LogData != null);
-        _worldPacket.WriteBits(SoloShuffleStatus, 2);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt8(Winner);
+        WorldPacket.WriteInt32(Duration);
+        WorldPacket.WriteBit(LogData != null);
+        WorldPacket.WriteBits(SoloShuffleStatus, 2);
+        WorldPacket.FlushBits();
 
-        LogData?.Write(_worldPacket);
+        LogData?.Write(WorldPacket);
     }
 }

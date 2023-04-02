@@ -14,8 +14,8 @@ internal class ArtifactSetAppearance : ClientPacket
 
     public override void Read()
     {
-        ArtifactGUID = _worldPacket.ReadPackedGuid();
-        ForgeGUID = _worldPacket.ReadPackedGuid();
-        ArtifactAppearanceID = _worldPacket.ReadInt32();
+        ArtifactGUID = WorldPacket.ReadPackedGuid();
+        ForgeGUID = WorldPacket.ReadPackedGuid();
+        ArtifactAppearanceID = WorldPacket.ReadInt32();
     }
 }

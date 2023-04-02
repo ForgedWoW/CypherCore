@@ -15,8 +15,8 @@ internal class MirrorImageCreatureData : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(UnitGUID);
-        _worldPacket.WriteInt32(DisplayID);
-        _worldPacket.WriteInt32(SpellVisualKitID);
+        WorldPacket.WritePackedGuid(UnitGUID);
+        WorldPacket.WriteInt32(DisplayID);
+        WorldPacket.WriteInt32(SpellVisualKitID);
     }
 }

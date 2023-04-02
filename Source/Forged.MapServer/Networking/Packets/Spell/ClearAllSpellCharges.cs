@@ -12,7 +12,7 @@ public class ClearAllSpellCharges : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(IsPet);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(IsPet);
+        WorldPacket.FlushBits();
     }
 }

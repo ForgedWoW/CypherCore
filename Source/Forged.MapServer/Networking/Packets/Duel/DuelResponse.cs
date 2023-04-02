@@ -14,8 +14,8 @@ public class DuelResponse : ClientPacket
 
     public override void Read()
     {
-        ArbiterGUID = _worldPacket.ReadPackedGuid();
-        Accepted = _worldPacket.HasBit();
-        Forfeited = _worldPacket.HasBit();
+        ArbiterGUID = WorldPacket.ReadPackedGuid();
+        Accepted = WorldPacket.HasBit();
+        Forfeited = WorldPacket.HasBit();
     }
 }

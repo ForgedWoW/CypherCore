@@ -13,9 +13,9 @@ internal class BattlegroundPlayerPositions : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(FlagCarriers.Count);
+        WorldPacket.WriteInt32(FlagCarriers.Count);
 
         foreach (var pos in FlagCarriers)
-            pos.Write(_worldPacket);
+            pos.Write(WorldPacket);
     }
 }

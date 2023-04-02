@@ -16,9 +16,9 @@ internal class SpellInterruptLog : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Caster);
-        _worldPacket.WritePackedGuid(Victim);
-        _worldPacket.WriteUInt32(InterruptedSpellID);
-        _worldPacket.WriteUInt32(SpellID);
+        WorldPacket.WritePackedGuid(Caster);
+        WorldPacket.WritePackedGuid(Victim);
+        WorldPacket.WriteUInt32(InterruptedSpellID);
+        WorldPacket.WriteUInt32(SpellID);
     }
 }

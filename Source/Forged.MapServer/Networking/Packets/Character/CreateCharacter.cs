@@ -14,26 +14,26 @@ public class CreateCharacter : ClientPacket
     public override void Read()
     {
         CreateInfo = new CharacterCreateInfo();
-        var nameLength = _worldPacket.ReadBits<uint>(6);
-        var hasTemplateSet = _worldPacket.HasBit();
-        CreateInfo.IsTrialBoost = _worldPacket.HasBit();
-        CreateInfo.UseNPE = _worldPacket.HasBit();
+        var nameLength = WorldPacket.ReadBits<uint>(6);
+        var hasTemplateSet = WorldPacket.HasBit();
+        CreateInfo.IsTrialBoost = WorldPacket.HasBit();
+        CreateInfo.UseNPE = WorldPacket.HasBit();
 
-        CreateInfo.RaceId = (Race)_worldPacket.ReadUInt8();
-        CreateInfo.ClassId = (PlayerClass)_worldPacket.ReadUInt8();
-        CreateInfo.Sex = (Gender)_worldPacket.ReadUInt8();
-        var customizationCount = _worldPacket.ReadUInt32();
+        CreateInfo.RaceId = (Race)WorldPacket.ReadUInt8();
+        CreateInfo.ClassId = (PlayerClass)WorldPacket.ReadUInt8();
+        CreateInfo.Sex = (Gender)WorldPacket.ReadUInt8();
+        var customizationCount = WorldPacket.ReadUInt32();
 
-        CreateInfo.Name = _worldPacket.ReadString(nameLength);
+        CreateInfo.Name = WorldPacket.ReadString(nameLength);
 
         if (CreateInfo.TemplateSet.HasValue)
-            CreateInfo.TemplateSet = _worldPacket.ReadUInt32();
+            CreateInfo.TemplateSet = WorldPacket.ReadUInt32();
 
         for (var i = 0; i < customizationCount; ++i)
             CreateInfo.Customizations[i] = new ChrCustomizationChoice()
             {
-                ChrCustomizationOptionID = _worldPacket.ReadUInt32(),
-                ChrCustomizationChoiceID = _worldPacket.ReadUInt32()
+                ChrCustomizationOptionID = WorldPacket.ReadUInt32(),
+                ChrCustomizationChoiceID = WorldPacket.ReadUInt32()
             };
 
         CreateInfo.Customizations.Sort();

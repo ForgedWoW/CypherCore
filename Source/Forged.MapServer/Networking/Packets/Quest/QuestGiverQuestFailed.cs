@@ -13,7 +13,7 @@ internal class QuestGiverQuestFailed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(QuestID);
-        _worldPacket.WriteUInt32((uint)Reason);
+        WorldPacket.WriteUInt32(QuestID);
+        WorldPacket.WriteUInt32((uint)Reason);
     }
 }

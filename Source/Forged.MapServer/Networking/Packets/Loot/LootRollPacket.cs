@@ -15,8 +15,8 @@ internal class LootRollPacket : ClientPacket
 
     public override void Read()
     {
-        LootObj = _worldPacket.ReadPackedGuid();
-        LootListID = _worldPacket.ReadUInt8();
-        RollType = (RollVote)_worldPacket.ReadUInt8();
+        LootObj = WorldPacket.ReadPackedGuid();
+        LootListID = WorldPacket.ReadUInt8();
+        RollType = (RollVote)WorldPacket.ReadUInt8();
     }
 }

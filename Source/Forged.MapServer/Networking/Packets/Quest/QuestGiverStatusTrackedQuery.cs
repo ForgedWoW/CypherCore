@@ -14,9 +14,9 @@ internal class QuestGiverStatusTrackedQuery : ClientPacket
 
     public override void Read()
     {
-        var guidCount = _worldPacket.ReadUInt32();
+        var guidCount = WorldPacket.ReadUInt32();
 
         for (uint i = 0; i < guidCount; ++i)
-            QuestGiverGUIDs.Add(_worldPacket.ReadPackedGuid());
+            QuestGiverGUIDs.Add(WorldPacket.ReadPackedGuid());
     }
 }

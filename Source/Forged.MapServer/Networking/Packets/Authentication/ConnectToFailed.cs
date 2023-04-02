@@ -13,7 +13,7 @@ internal class ConnectToFailed : ClientPacket
 
     public override void Read()
     {
-        Serial = (ConnectToSerial)_worldPacket.ReadUInt32();
-        Con = _worldPacket.ReadUInt8();
+        Serial = (ConnectToSerial)WorldPacket.ReadUInt32();
+        Con = WorldPacket.ReadUInt8();
     }
 }

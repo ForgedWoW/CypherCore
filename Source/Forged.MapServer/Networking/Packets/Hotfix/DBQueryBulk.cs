@@ -13,12 +13,12 @@ internal class DBQueryBulk : ClientPacket
 
     public override void Read()
     {
-        TableHash = _worldPacket.ReadUInt32();
+        TableHash = WorldPacket.ReadUInt32();
 
-        var count = _worldPacket.ReadBits<uint>(13);
+        var count = WorldPacket.ReadBits<uint>(13);
 
         for (uint i = 0; i < count; ++i)
-            Queries.Add(new DBQueryRecord(_worldPacket.ReadUInt32()));
+            Queries.Add(new DBQueryRecord(WorldPacket.ReadUInt32()));
     }
 
     public struct DBQueryRecord

@@ -1107,7 +1107,7 @@ public class BattlepayManager
             msg += "Remaining credits: " + GetBattlePayCredits() / 10000 + " .";
 
         if (bpaymessageID == 10)
-            msg += "You cannot purchase '" + name + "' . Contact a game master to find out more.";
+            msg += "You cannot purchase '" + name + "' . Contact a GameInfo master to find out more.";
 
         if (bpaymessageID == 11)
             msg += "Your bags are too full to add : " + name + " .";

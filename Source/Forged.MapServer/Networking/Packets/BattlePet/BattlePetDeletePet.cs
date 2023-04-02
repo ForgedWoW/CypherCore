@@ -12,6 +12,6 @@ internal class BattlePetDeletePet : ClientPacket
 
     public override void Read()
     {
-        PetGuid = _worldPacket.ReadPackedGuid();
+        PetGuid = WorldPacket.ReadPackedGuid();
     }
 }

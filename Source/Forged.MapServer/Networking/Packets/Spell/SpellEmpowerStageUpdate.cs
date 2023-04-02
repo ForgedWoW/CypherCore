@@ -18,13 +18,13 @@ public class SpellEmpowerStageUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(CastID);
-        _worldPacket.WritePackedGuid(Caster);
-        _worldPacket.Write(TimeRemaining);
-        _worldPacket.Write((uint)RemainingStageDurations.Count);
-        _worldPacket.Write(Unk);
+        WorldPacket.WritePackedGuid(CastID);
+        WorldPacket.WritePackedGuid(Caster);
+        WorldPacket.Write(TimeRemaining);
+        WorldPacket.Write((uint)RemainingStageDurations.Count);
+        WorldPacket.Write(Unk);
 
         foreach (var stageDuration in RemainingStageDurations)
-            _worldPacket.Write(stageDuration);
+            WorldPacket.Write(stageDuration);
     }
 }

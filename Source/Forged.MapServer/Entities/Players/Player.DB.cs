@@ -2052,7 +2052,7 @@ public partial class Player
         ReputationMgr.SaveToDB(characterTransaction);
         _questObjectiveCriteriaManager.SaveToDB(characterTransaction);
         _SaveEquipmentSets(characterTransaction);
-        Session.SaveTutorialsData(characterTransaction); // changed only while character in game
+        Session.SaveTutorialsData(characterTransaction); // changed only while character in GameInfo
         _SaveInstanceTimeRestrictions(characterTransaction);
         _SaveCurrency(characterTransaction);
         _SaveCUFProfiles(characterTransaction);

@@ -15,10 +15,10 @@ internal class GarrisonPlaceBuildingResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32((int)GarrTypeID);
-        _worldPacket.WriteUInt32((uint)Result);
-        BuildingInfo.Write(_worldPacket);
-        _worldPacket.WriteBit(PlayActivationCinematic);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32((int)GarrTypeID);
+        WorldPacket.WriteUInt32((uint)Result);
+        BuildingInfo.Write(WorldPacket);
+        WorldPacket.WriteBit(PlayActivationCinematic);
+        WorldPacket.FlushBits();
     }
 }

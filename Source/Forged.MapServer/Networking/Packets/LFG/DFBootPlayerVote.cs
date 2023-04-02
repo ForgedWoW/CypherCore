@@ -10,6 +10,6 @@ internal class DFBootPlayerVote : ClientPacket
 
     public override void Read()
     {
-        Vote = _worldPacket.HasBit();
+        Vote = WorldPacket.HasBit();
     }
 }

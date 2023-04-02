@@ -15,8 +15,8 @@ internal class RespecWipeConfirm : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt8((sbyte)RespecType);
-        _worldPacket.WriteUInt32(Cost);
-        _worldPacket.WritePackedGuid(RespecMaster);
+        WorldPacket.WriteInt8((sbyte)RespecType);
+        WorldPacket.WriteUInt32(Cost);
+        WorldPacket.WritePackedGuid(RespecMaster);
     }
 }

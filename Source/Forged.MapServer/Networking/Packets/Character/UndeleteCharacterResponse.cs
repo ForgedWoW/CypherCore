@@ -13,8 +13,8 @@ public class UndeleteCharacterResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(UndeleteInfo.ClientToken);
-        _worldPacket.WriteUInt32((uint)Result);
-        _worldPacket.WritePackedGuid(UndeleteInfo.CharacterGuid);
+        WorldPacket.WriteInt32(UndeleteInfo.ClientToken);
+        WorldPacket.WriteUInt32((uint)Result);
+        WorldPacket.WritePackedGuid(UndeleteInfo.CharacterGuid);
     }
 }

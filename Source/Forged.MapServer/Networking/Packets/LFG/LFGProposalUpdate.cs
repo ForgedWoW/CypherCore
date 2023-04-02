@@ -24,22 +24,22 @@ internal class LFGProposalUpdate : ServerPacket
 
     public override void Write()
     {
-        Ticket.Write(_worldPacket);
+        Ticket.Write(WorldPacket);
 
-        _worldPacket.WriteUInt64(InstanceID);
-        _worldPacket.WriteUInt32(ProposalID);
-        _worldPacket.WriteUInt32(Slot);
-        _worldPacket.WriteUInt8(State);
-        _worldPacket.WriteUInt32(CompletedMask);
-        _worldPacket.WriteUInt32(EncounterMask);
-        _worldPacket.WriteInt32(Players.Count);
-        _worldPacket.WriteUInt8(Unused);
-        _worldPacket.WriteBit(ValidCompletedMask);
-        _worldPacket.WriteBit(ProposalSilent);
-        _worldPacket.WriteBit(IsRequeue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt64(InstanceID);
+        WorldPacket.WriteUInt32(ProposalID);
+        WorldPacket.WriteUInt32(Slot);
+        WorldPacket.WriteUInt8(State);
+        WorldPacket.WriteUInt32(CompletedMask);
+        WorldPacket.WriteUInt32(EncounterMask);
+        WorldPacket.WriteInt32(Players.Count);
+        WorldPacket.WriteUInt8(Unused);
+        WorldPacket.WriteBit(ValidCompletedMask);
+        WorldPacket.WriteBit(ProposalSilent);
+        WorldPacket.WriteBit(IsRequeue);
+        WorldPacket.FlushBits();
 
         foreach (var player in Players)
-            player.Write(_worldPacket);
+            player.Write(WorldPacket);
     }
 }

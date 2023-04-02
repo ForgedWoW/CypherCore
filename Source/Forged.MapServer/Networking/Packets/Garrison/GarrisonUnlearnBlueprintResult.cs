@@ -14,8 +14,8 @@ internal class GarrisonUnlearnBlueprintResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32((int)GarrTypeID);
-        _worldPacket.WriteUInt32((uint)Result);
-        _worldPacket.WriteUInt32(BuildingID);
+        WorldPacket.WriteInt32((int)GarrTypeID);
+        WorldPacket.WriteUInt32((uint)Result);
+        WorldPacket.WriteUInt32(BuildingID);
     }
 }

@@ -12,6 +12,6 @@ public class QueryCorpseLocationFromClient : ClientPacket
 
     public override void Read()
     {
-        Player = _worldPacket.ReadPackedGuid();
+        Player = WorldPacket.ReadPackedGuid();
     }
 }

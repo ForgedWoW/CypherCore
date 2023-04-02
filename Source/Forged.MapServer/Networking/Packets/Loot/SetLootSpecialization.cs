@@ -10,6 +10,6 @@ internal class SetLootSpecialization : ClientPacket
 
     public override void Read()
     {
-        SpecID = _worldPacket.ReadUInt32();
+        SpecID = WorldPacket.ReadUInt32();
     }
 }

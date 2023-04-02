@@ -16,17 +16,17 @@ internal class RaidMarkersChanged : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt8(PartyIndex);
-        _worldPacket.WriteUInt32(ActiveMarkers);
+        WorldPacket.WriteInt8(PartyIndex);
+        WorldPacket.WriteUInt32(ActiveMarkers);
 
-        _worldPacket.WriteBits(RaidMarkers.Count, 4);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(RaidMarkers.Count, 4);
+        WorldPacket.FlushBits();
 
         foreach (var raidMarker in RaidMarkers)
         {
-            _worldPacket.WritePackedGuid(raidMarker.TransportGUID);
-            _worldPacket.WriteUInt32(raidMarker.Location.MapId);
-            _worldPacket.WriteXYZ(raidMarker.Location);
+            WorldPacket.WritePackedGuid(raidMarker.TransportGUID);
+            WorldPacket.WriteUInt32(raidMarker.Location.MapId);
+            WorldPacket.WriteXYZ(raidMarker.Location);
         }
     }
 }

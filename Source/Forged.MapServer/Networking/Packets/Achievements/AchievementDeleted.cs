@@ -13,7 +13,7 @@ public class AchievementDeleted : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(AchievementID);
-        _worldPacket.WriteUInt32(Immunities);
+        WorldPacket.WriteUInt32(AchievementID);
+        WorldPacket.WriteUInt32(Immunities);
     }
 }

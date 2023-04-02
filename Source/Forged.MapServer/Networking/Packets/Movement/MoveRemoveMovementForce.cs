@@ -15,8 +15,8 @@ internal class MoveRemoveMovementForce : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(MoverGUID);
-        _worldPacket.WriteInt32(SequenceIndex);
-        _worldPacket.WritePackedGuid(ID);
+        WorldPacket.WritePackedGuid(MoverGUID);
+        WorldPacket.WriteInt32(SequenceIndex);
+        WorldPacket.WritePackedGuid(ID);
     }
 }

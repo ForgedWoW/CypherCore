@@ -18,13 +18,13 @@ internal class UserlistUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(UpdatedUserGUID);
-        _worldPacket.WriteUInt8((byte)UserFlags);
-        _worldPacket.WriteUInt32((uint)ChannelFlags);
-        _worldPacket.WriteUInt32(ChannelID);
+        WorldPacket.WritePackedGuid(UpdatedUserGUID);
+        WorldPacket.WriteUInt8((byte)UserFlags);
+        WorldPacket.WriteUInt32((uint)ChannelFlags);
+        WorldPacket.WriteUInt32(ChannelID);
 
-        _worldPacket.WriteBits(ChannelName.GetByteCount(), 7);
-        _worldPacket.FlushBits();
-        _worldPacket.WriteString(ChannelName);
+        WorldPacket.WriteBits(ChannelName.GetByteCount(), 7);
+        WorldPacket.FlushBits();
+        WorldPacket.WriteString(ChannelName);
     }
 }

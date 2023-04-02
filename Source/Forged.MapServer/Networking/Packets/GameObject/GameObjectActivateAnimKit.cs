@@ -15,9 +15,9 @@ internal class GameObjectActivateAnimKit : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ObjectGUID);
-        _worldPacket.WriteInt32(AnimKitID);
-        _worldPacket.WriteBit(Maintain);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(ObjectGUID);
+        WorldPacket.WriteInt32(AnimKitID);
+        WorldPacket.WriteBit(Maintain);
+        WorldPacket.FlushBits();
     }
 }

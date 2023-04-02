@@ -10,6 +10,6 @@ public class GuildBankLogQuery : ClientPacket
 
     public override void Read()
     {
-        Tab = _worldPacket.ReadInt32();
+        Tab = WorldPacket.ReadInt32();
     }
 }

@@ -13,7 +13,7 @@ public class GuildEventMotd : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(MotdText.GetByteCount(), 11);
-        _worldPacket.WriteString(MotdText);
+        WorldPacket.WriteBits(MotdText.GetByteCount(), 11);
+        WorldPacket.WriteString(MotdText);
     }
 }

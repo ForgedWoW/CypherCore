@@ -20,24 +20,24 @@ internal class LFGRoleCheckUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8(PartyIndex);
-        _worldPacket.WriteUInt8(RoleCheckStatus);
-        _worldPacket.WriteInt32(JoinSlots.Count);
-        _worldPacket.WriteInt32(BgQueueIDs.Count);
-        _worldPacket.WriteInt32(GroupFinderActivityID);
-        _worldPacket.WriteInt32(Members.Count);
+        WorldPacket.WriteUInt8(PartyIndex);
+        WorldPacket.WriteUInt8(RoleCheckStatus);
+        WorldPacket.WriteInt32(JoinSlots.Count);
+        WorldPacket.WriteInt32(BgQueueIDs.Count);
+        WorldPacket.WriteInt32(GroupFinderActivityID);
+        WorldPacket.WriteInt32(Members.Count);
 
         foreach (var slot in JoinSlots)
-            _worldPacket.WriteUInt32(slot);
+            WorldPacket.WriteUInt32(slot);
 
         foreach (var bgQueueID in BgQueueIDs)
-            _worldPacket.WriteUInt64(bgQueueID);
+            WorldPacket.WriteUInt64(bgQueueID);
 
-        _worldPacket.WriteBit(IsBeginning);
-        _worldPacket.WriteBit(IsRequeue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(IsBeginning);
+        WorldPacket.WriteBit(IsRequeue);
+        WorldPacket.FlushBits();
 
         foreach (var member in Members)
-            member.Write(_worldPacket);
+            member.Write(WorldPacket);
     }
 }

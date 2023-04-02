@@ -13,6 +13,6 @@ public class MoveSplineSetFlag : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(MoverGUID);
+        WorldPacket.WritePackedGuid(MoverGUID);
     }
 }

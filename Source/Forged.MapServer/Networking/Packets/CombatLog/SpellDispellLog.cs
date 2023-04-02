@@ -19,28 +19,28 @@ internal class SpellDispellLog : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(IsSteal);
-        _worldPacket.WriteBit(IsBreak);
-        _worldPacket.WritePackedGuid(TargetGUID);
-        _worldPacket.WritePackedGuid(CasterGUID);
-        _worldPacket.WriteUInt32(DispelledBySpellID);
+        WorldPacket.WriteBit(IsSteal);
+        WorldPacket.WriteBit(IsBreak);
+        WorldPacket.WritePackedGuid(TargetGUID);
+        WorldPacket.WritePackedGuid(CasterGUID);
+        WorldPacket.WriteUInt32(DispelledBySpellID);
 
-        _worldPacket.WriteInt32(DispellData.Count);
+        WorldPacket.WriteInt32(DispellData.Count);
 
         foreach (var data in DispellData)
         {
-            _worldPacket.WriteUInt32(data.SpellID);
-            _worldPacket.WriteBit(data.Harmful);
-            _worldPacket.WriteBit(data.Rolled.HasValue);
-            _worldPacket.WriteBit(data.Needed.HasValue);
+            WorldPacket.WriteUInt32(data.SpellID);
+            WorldPacket.WriteBit(data.Harmful);
+            WorldPacket.WriteBit(data.Rolled.HasValue);
+            WorldPacket.WriteBit(data.Needed.HasValue);
 
             if (data.Rolled.HasValue)
-                _worldPacket.WriteInt32(data.Rolled.Value);
+                WorldPacket.WriteInt32(data.Rolled.Value);
 
             if (data.Needed.HasValue)
-                _worldPacket.WriteInt32(data.Needed.Value);
+                WorldPacket.WriteInt32(data.Needed.Value);
 
-            _worldPacket.FlushBits();
+            WorldPacket.FlushBits();
         }
     }
 }

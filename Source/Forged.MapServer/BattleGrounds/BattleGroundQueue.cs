@@ -383,7 +383,7 @@ public class BattlegroundQueue
                 m_SelectionPools[TeamIds.Horde].Init();
             }
 
-        // now check if there are in queues enough players to start new game of (normal Battleground, or non-rated arena)
+        // now check if there are in queues enough players to start new GameInfo of (normal Battleground, or non-rated arena)
         if (!m_queueId.Rated)
         {
             // if there are enough players in pools, start new Battleground or non rated arena
@@ -450,7 +450,7 @@ public class BattlegroundQueue
             // else leave the discard time on 0, this way all ratings will be discarded
             var discardTime = (int)(GameTime.CurrentTimeMS - Global.BattlegroundMgr.GetRatingDiscardTimer());
 
-            // we need to find 2 teams which will play next game
+            // we need to find 2 teams which will play next GameInfo
             var queueArray = new GroupQueueInfo[SharedConst.PvpTeamsCount];
             byte found = 0;
             byte team = 0;

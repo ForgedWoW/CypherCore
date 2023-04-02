@@ -14,7 +14,7 @@ internal class FlightSplineSync : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Guid);
-        _worldPacket.WriteFloat(SplineDist);
+        WorldPacket.WritePackedGuid(Guid);
+        WorldPacket.WriteFloat(SplineDist);
     }
 }

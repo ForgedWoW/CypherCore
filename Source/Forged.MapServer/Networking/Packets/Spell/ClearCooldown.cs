@@ -14,9 +14,9 @@ public class ClearCooldown : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteBit(ClearOnHold);
-        _worldPacket.WriteBit(IsPet);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteBit(ClearOnHold);
+        WorldPacket.WriteBit(IsPet);
+        WorldPacket.FlushBits();
     }
 }

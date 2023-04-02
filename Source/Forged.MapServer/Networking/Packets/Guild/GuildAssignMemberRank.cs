@@ -13,7 +13,7 @@ public class GuildAssignMemberRank : ClientPacket
 
     public override void Read()
     {
-        Member = _worldPacket.ReadPackedGuid();
-        RankOrder = _worldPacket.ReadInt32();
+        Member = WorldPacket.ReadPackedGuid();
+        RankOrder = WorldPacket.ReadInt32();
     }
 }

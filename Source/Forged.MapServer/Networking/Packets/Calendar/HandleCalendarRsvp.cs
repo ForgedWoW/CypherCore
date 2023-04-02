@@ -14,8 +14,8 @@ internal class HandleCalendarRsvp : ClientPacket
 
     public override void Read()
     {
-        EventID = _worldPacket.ReadUInt64();
-        InviteID = _worldPacket.ReadUInt64();
-        Status = (CalendarInviteStatus)_worldPacket.ReadUInt8();
+        EventID = WorldPacket.ReadUInt64();
+        InviteID = WorldPacket.ReadUInt64();
+        Status = (CalendarInviteStatus)WorldPacket.ReadUInt8();
     }
 }

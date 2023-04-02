@@ -13,7 +13,7 @@ internal class PetCancelAura : ClientPacket
 
     public override void Read()
     {
-        PetGUID = _worldPacket.ReadPackedGuid();
-        SpellID = _worldPacket.ReadUInt32();
+        PetGUID = WorldPacket.ReadPackedGuid();
+        SpellID = WorldPacket.ReadUInt32();
     }
 }

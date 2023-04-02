@@ -10,6 +10,6 @@ internal class SelfRes : ClientPacket
 
     public override void Read()
     {
-        SpellId = _worldPacket.ReadUInt32();
+        SpellId = WorldPacket.ReadUInt32();
     }
 }

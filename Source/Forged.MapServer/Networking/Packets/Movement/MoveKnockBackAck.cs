@@ -11,12 +11,12 @@ internal class MoveKnockBackAck : ClientPacket
 
     public override void Read()
     {
-        Ack.Read(_worldPacket);
+        Ack.Read(WorldPacket);
 
-        if (_worldPacket.HasBit())
+        if (WorldPacket.HasBit())
         {
             Speeds = new MoveKnockBackSpeeds();
-            Speeds.Value.Read(_worldPacket);
+            Speeds.Value.Read(WorldPacket);
         }
     }
 }

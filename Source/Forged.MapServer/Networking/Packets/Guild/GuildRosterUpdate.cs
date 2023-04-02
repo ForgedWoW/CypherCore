@@ -17,8 +17,8 @@ public class GuildRosterUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(MemberData.Count);
+        WorldPacket.WriteInt32(MemberData.Count);
 
-        MemberData.ForEach(p => p.Write(_worldPacket));
+        MemberData.ForEach(p => p.Write(WorldPacket));
     }
 }

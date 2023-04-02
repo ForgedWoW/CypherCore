@@ -13,9 +13,9 @@ public class SetSpellModifier : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Modifiers.Count);
+        WorldPacket.WriteInt32(Modifiers.Count);
 
         foreach (var spellMod in Modifiers)
-            spellMod.Write(_worldPacket);
+            spellMod.Write(WorldPacket);
     }
 }

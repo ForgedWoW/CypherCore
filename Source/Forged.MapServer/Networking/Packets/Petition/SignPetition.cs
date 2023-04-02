@@ -13,7 +13,7 @@ public class SignPetition : ClientPacket
 
     public override void Read()
     {
-        PetitionGUID = _worldPacket.ReadPackedGuid();
-        Choice = _worldPacket.ReadUInt8();
+        PetitionGUID = WorldPacket.ReadPackedGuid();
+        Choice = WorldPacket.ReadUInt8();
     }
 }

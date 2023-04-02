@@ -13,9 +13,9 @@ internal class DFProposalResponse : ClientPacket
 
     public override void Read()
     {
-        Ticket.Read(_worldPacket);
-        InstanceID = _worldPacket.ReadUInt64();
-        ProposalID = _worldPacket.ReadUInt32();
-        Accepted = _worldPacket.HasBit();
+        Ticket.Read(WorldPacket);
+        InstanceID = WorldPacket.ReadUInt64();
+        ProposalID = WorldPacket.ReadUInt32();
+        Accepted = WorldPacket.HasBit();
     }
 }

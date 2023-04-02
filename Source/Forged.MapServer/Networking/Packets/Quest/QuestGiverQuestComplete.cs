@@ -22,17 +22,17 @@ public class QuestGiverQuestComplete : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(QuestID);
-        _worldPacket.WriteUInt32(XPReward);
-        _worldPacket.WriteInt64(MoneyReward);
-        _worldPacket.WriteUInt32(SkillLineIDReward);
-        _worldPacket.WriteUInt32(NumSkillUpsReward);
+        WorldPacket.WriteUInt32(QuestID);
+        WorldPacket.WriteUInt32(XPReward);
+        WorldPacket.WriteInt64(MoneyReward);
+        WorldPacket.WriteUInt32(SkillLineIDReward);
+        WorldPacket.WriteUInt32(NumSkillUpsReward);
 
-        _worldPacket.WriteBit(UseQuestReward);
-        _worldPacket.WriteBit(LaunchGossip);
-        _worldPacket.WriteBit(LaunchQuest);
-        _worldPacket.WriteBit(HideChatMessage);
+        WorldPacket.WriteBit(UseQuestReward);
+        WorldPacket.WriteBit(LaunchGossip);
+        WorldPacket.WriteBit(LaunchQuest);
+        WorldPacket.WriteBit(HideChatMessage);
 
-        ItemReward.Write(_worldPacket);
+        ItemReward.Write(WorldPacket);
     }
 }

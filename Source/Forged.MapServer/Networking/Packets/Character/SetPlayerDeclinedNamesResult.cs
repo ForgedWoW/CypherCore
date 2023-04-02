@@ -14,7 +14,7 @@ internal class SetPlayerDeclinedNamesResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32((int)ResultCode);
-        _worldPacket.WritePackedGuid(Player);
+        WorldPacket.WriteInt32((int)ResultCode);
+        WorldPacket.WritePackedGuid(Player);
     }
 }

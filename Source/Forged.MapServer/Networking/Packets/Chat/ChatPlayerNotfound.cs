@@ -17,7 +17,7 @@ internal class ChatPlayerNotfound : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Name.GetByteCount(), 9);
-        _worldPacket.WriteString(Name);
+        WorldPacket.WriteBits(Name.GetByteCount(), 9);
+        WorldPacket.WriteString(Name);
     }
 }

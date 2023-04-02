@@ -10,6 +10,6 @@ internal class SetFactionAtWar : ClientPacket
 
     public override void Read()
     {
-        FactionIndex = _worldPacket.ReadUInt8();
+        FactionIndex = WorldPacket.ReadUInt8();
     }
 }

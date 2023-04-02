@@ -14,7 +14,7 @@ internal class ArtifactXpGain : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ArtifactGUID);
-        _worldPacket.WriteUInt64(Amount);
+        WorldPacket.WritePackedGuid(ArtifactGUID);
+        WorldPacket.WriteUInt64(Amount);
     }
 }

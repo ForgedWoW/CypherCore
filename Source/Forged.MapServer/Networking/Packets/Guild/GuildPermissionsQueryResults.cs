@@ -20,16 +20,16 @@ public class GuildPermissionsQueryResults : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(RankID);
-        _worldPacket.WriteInt32(WithdrawGoldLimit);
-        _worldPacket.WriteInt32(Flags);
-        _worldPacket.WriteInt32(NumTabs);
-        _worldPacket.WriteInt32(Tab.Count);
+        WorldPacket.WriteUInt32(RankID);
+        WorldPacket.WriteInt32(WithdrawGoldLimit);
+        WorldPacket.WriteInt32(Flags);
+        WorldPacket.WriteInt32(NumTabs);
+        WorldPacket.WriteInt32(Tab.Count);
 
         foreach (var tab in Tab)
         {
-            _worldPacket.WriteInt32(tab.Flags);
-            _worldPacket.WriteInt32(tab.WithdrawItemLimit);
+            WorldPacket.WriteInt32(tab.Flags);
+            WorldPacket.WriteInt32(tab.WithdrawItemLimit);
         }
     }
 

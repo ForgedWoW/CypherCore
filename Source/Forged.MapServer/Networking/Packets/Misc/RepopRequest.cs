@@ -10,6 +10,6 @@ public class RepopRequest : ClientPacket
 
     public override void Read()
     {
-        CheckInstance = _worldPacket.HasBit();
+        CheckInstance = WorldPacket.HasBit();
     }
 }

@@ -11,7 +11,7 @@ public class MovementSpeedAck : ClientPacket
 
     public override void Read()
     {
-        Ack.Read(_worldPacket);
-        Speed = _worldPacket.ReadFloat();
+        Ack.Read(WorldPacket);
+        Speed = WorldPacket.ReadFloat();
     }
 }

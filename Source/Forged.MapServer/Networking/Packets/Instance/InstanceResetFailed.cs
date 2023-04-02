@@ -13,8 +13,8 @@ internal class InstanceResetFailed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(MapID);
-        _worldPacket.WriteBits(ResetFailedReason, 2);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(MapID);
+        WorldPacket.WriteBits(ResetFailedReason, 2);
+        WorldPacket.FlushBits();
     }
 }

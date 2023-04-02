@@ -17,16 +17,16 @@ internal class UseEquipmentSet : ClientPacket
 
     public override void Read()
     {
-        Inv = new InvUpdate(_worldPacket);
+        Inv = new InvUpdate(WorldPacket);
 
         for (byte i = 0; i < EquipmentSlot.End; ++i)
         {
-            Items[i].Item = _worldPacket.ReadPackedGuid();
-            Items[i].ContainerSlot = _worldPacket.ReadUInt8();
-            Items[i].Slot = _worldPacket.ReadUInt8();
+            Items[i].Item = WorldPacket.ReadPackedGuid();
+            Items[i].ContainerSlot = WorldPacket.ReadUInt8();
+            Items[i].Slot = WorldPacket.ReadUInt8();
         }
 
-        GUID = _worldPacket.ReadUInt64();
+        GUID = WorldPacket.ReadUInt64();
     }
 
     public struct EquipmentSetItem

@@ -12,6 +12,6 @@ public class PetitionShowSignatures : ClientPacket
 
     public override void Read()
     {
-        Item = _worldPacket.ReadPackedGuid();
+        Item = WorldPacket.ReadPackedGuid();
     }
 }

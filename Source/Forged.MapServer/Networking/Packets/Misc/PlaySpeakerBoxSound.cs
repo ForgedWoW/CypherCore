@@ -18,7 +18,7 @@ internal class PlaySpeakerBoxSound : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(SourceObjectGUID);
-        _worldPacket.WriteUInt32(SoundKitID);
+        WorldPacket.WritePackedGuid(SourceObjectGUID);
+        WorldPacket.WriteUInt32(SoundKitID);
     }
 }

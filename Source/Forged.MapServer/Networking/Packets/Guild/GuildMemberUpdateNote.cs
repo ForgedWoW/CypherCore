@@ -17,12 +17,12 @@ public class GuildMemberUpdateNote : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Member);
+        WorldPacket.WritePackedGuid(Member);
 
-        _worldPacket.WriteBits(Note.GetByteCount(), 8);
-        _worldPacket.WriteBit(IsPublic);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(Note.GetByteCount(), 8);
+        WorldPacket.WriteBit(IsPublic);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteString(Note);
+        WorldPacket.WriteString(Note);
     }
 }

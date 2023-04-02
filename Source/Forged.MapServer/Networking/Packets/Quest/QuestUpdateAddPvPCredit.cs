@@ -13,7 +13,7 @@ internal class QuestUpdateAddPvPCredit : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(QuestID);
-        _worldPacket.WriteUInt16(Count);
+        WorldPacket.WriteUInt32(QuestID);
+        WorldPacket.WriteUInt16(Count);
     }
 }

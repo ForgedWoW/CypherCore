@@ -10,6 +10,6 @@ internal class AdventureJournalOpenQuest : ClientPacket
 
     public override void Read()
     {
-        AdventureJournalID = _worldPacket.ReadUInt32();
+        AdventureJournalID = WorldPacket.ReadUInt32();
     }
 }

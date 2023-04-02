@@ -15,8 +15,8 @@ internal class MinimapPing : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Sender);
-        _worldPacket.WriteFloat(PositionX);
-        _worldPacket.WriteFloat(PositionY);
+        WorldPacket.WritePackedGuid(Sender);
+        WorldPacket.WriteFloat(PositionX);
+        WorldPacket.WriteFloat(PositionY);
     }
 }

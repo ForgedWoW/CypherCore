@@ -11,10 +11,10 @@ internal class MountSpecial : ClientPacket
 
     public override void Read()
     {
-        SpellVisualKitIDs = new int[_worldPacket.ReadUInt32()];
-        SequenceVariation = _worldPacket.ReadInt32();
+        SpellVisualKitIDs = new int[WorldPacket.ReadUInt32()];
+        SequenceVariation = WorldPacket.ReadInt32();
 
         for (var i = 0; i < SpellVisualKitIDs.Length; ++i)
-            SpellVisualKitIDs[i] = _worldPacket.ReadInt32();
+            SpellVisualKitIDs[i] = WorldPacket.ReadInt32();
     }
 }

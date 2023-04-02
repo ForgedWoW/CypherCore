@@ -10,6 +10,6 @@ public class DelIgnore : ClientPacket
 
     public override void Read()
     {
-        Player.Read(_worldPacket);
+        Player.Read(WorldPacket);
     }
 }

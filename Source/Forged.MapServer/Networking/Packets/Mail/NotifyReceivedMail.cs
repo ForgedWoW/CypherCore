@@ -12,6 +12,6 @@ public class NotifyReceivedMail : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteFloat(Delay);
+        WorldPacket.WriteFloat(Delay);
     }
 }

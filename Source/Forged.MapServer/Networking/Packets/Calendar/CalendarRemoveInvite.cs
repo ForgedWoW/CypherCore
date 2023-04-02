@@ -15,9 +15,9 @@ internal class CalendarRemoveInvite : ClientPacket
 
     public override void Read()
     {
-        Guid = _worldPacket.ReadPackedGuid();
-        InviteID = _worldPacket.ReadUInt64();
-        ModeratorID = _worldPacket.ReadUInt64();
-        EventID = _worldPacket.ReadUInt64();
+        Guid = WorldPacket.ReadPackedGuid();
+        InviteID = WorldPacket.ReadUInt64();
+        ModeratorID = WorldPacket.ReadUInt64();
+        EventID = WorldPacket.ReadUInt64();
     }
 }

@@ -12,6 +12,6 @@ internal class ObjectUpdateRescued : ClientPacket
 
     public override void Read()
     {
-        ObjectGUID = _worldPacket.ReadPackedGuid();
+        ObjectGUID = WorldPacket.ReadPackedGuid();
     }
 }

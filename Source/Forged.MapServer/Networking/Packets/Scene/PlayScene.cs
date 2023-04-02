@@ -19,13 +19,13 @@ internal class PlayScene : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(SceneID);
-        _worldPacket.WriteUInt32(PlaybackFlags);
-        _worldPacket.WriteUInt32(SceneInstanceID);
-        _worldPacket.WriteUInt32(SceneScriptPackageID);
-        _worldPacket.WritePackedGuid(TransportGUID);
-        _worldPacket.WriteXYZO(Location);
-        _worldPacket.WriteBit(Encrypted);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(SceneID);
+        WorldPacket.WriteUInt32(PlaybackFlags);
+        WorldPacket.WriteUInt32(SceneInstanceID);
+        WorldPacket.WriteUInt32(SceneScriptPackageID);
+        WorldPacket.WritePackedGuid(TransportGUID);
+        WorldPacket.WriteXYZO(Location);
+        WorldPacket.WriteBit(Encrypted);
+        WorldPacket.FlushBits();
     }
 }

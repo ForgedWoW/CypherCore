@@ -13,9 +13,9 @@ public class TutorialSetFlag : ClientPacket
 
     public override void Read()
     {
-        Action = (TutorialAction)_worldPacket.ReadBits<byte>(2);
+        Action = (TutorialAction)WorldPacket.ReadBits<byte>(2);
 
         if (Action == TutorialAction.Update)
-            TutorialBit = _worldPacket.ReadUInt32();
+            TutorialBit = WorldPacket.ReadUInt32();
     }
 }

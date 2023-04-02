@@ -17,12 +17,12 @@ public class DuelWinner : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(BeatenName.GetByteCount(), 6);
-        _worldPacket.WriteBits(WinnerName.GetByteCount(), 6);
-        _worldPacket.WriteBit(Fled);
-        _worldPacket.WriteUInt32(BeatenVirtualRealmAddress);
-        _worldPacket.WriteUInt32(WinnerVirtualRealmAddress);
-        _worldPacket.WriteString(BeatenName);
-        _worldPacket.WriteString(WinnerName);
+        WorldPacket.WriteBits(BeatenName.GetByteCount(), 6);
+        WorldPacket.WriteBits(WinnerName.GetByteCount(), 6);
+        WorldPacket.WriteBit(Fled);
+        WorldPacket.WriteUInt32(BeatenVirtualRealmAddress);
+        WorldPacket.WriteUInt32(WinnerVirtualRealmAddress);
+        WorldPacket.WriteString(BeatenName);
+        WorldPacket.WriteString(WinnerName);
     }
 }

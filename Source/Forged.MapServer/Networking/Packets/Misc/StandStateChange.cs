@@ -12,6 +12,6 @@ public class StandStateChange : ClientPacket
 
     public override void Read()
     {
-        StandState = (UnitStandStateType)_worldPacket.ReadUInt32();
+        StandState = (UnitStandStateType)WorldPacket.ReadUInt32();
     }
 }

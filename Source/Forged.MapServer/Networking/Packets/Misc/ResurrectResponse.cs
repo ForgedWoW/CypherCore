@@ -13,7 +13,7 @@ public class ResurrectResponse : ClientPacket
 
     public override void Read()
     {
-        Resurrecter = _worldPacket.ReadPackedGuid();
-        Response = _worldPacket.ReadUInt32();
+        Resurrecter = WorldPacket.ReadPackedGuid();
+        Response = WorldPacket.ReadUInt32();
     }
 }

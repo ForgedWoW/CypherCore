@@ -12,7 +12,7 @@ internal class DismissCritter : ClientPacket
 
     public override void Read()
     {
-        CritterGUID = _worldPacket.ReadPackedGuid();
+        CritterGUID = WorldPacket.ReadPackedGuid();
     }
 }
 

@@ -12,6 +12,6 @@ public class BattlePayDeliveryStarted : ServerPacket
     public ulong DistributionID { get; set; } = 0;
     public override void Write()
     {
-        _worldPacket.Write(DistributionID);
+        WorldPacket.Write(DistributionID);
     }
 }

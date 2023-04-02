@@ -16,11 +16,11 @@ internal class RaidInstanceMessage : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8((byte)Type);
-        _worldPacket.WriteUInt32(MapID);
-        _worldPacket.WriteUInt32((uint)DifficultyID);
-        _worldPacket.WriteBit(Locked);
-        _worldPacket.WriteBit(Extended);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt8((byte)Type);
+        WorldPacket.WriteUInt32(MapID);
+        WorldPacket.WriteUInt32((uint)DifficultyID);
+        WorldPacket.WriteBit(Locked);
+        WorldPacket.WriteBit(Extended);
+        WorldPacket.FlushBits();
     }
 }

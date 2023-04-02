@@ -17,15 +17,15 @@ public class GuildEventLogQueryResults : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Entry.Count);
+        WorldPacket.WriteInt32(Entry.Count);
 
         foreach (var entry in Entry)
         {
-            _worldPacket.WritePackedGuid(entry.PlayerGUID);
-            _worldPacket.WritePackedGuid(entry.OtherGUID);
-            _worldPacket.WriteUInt8(entry.TransactionType);
-            _worldPacket.WriteUInt8(entry.RankID);
-            _worldPacket.WriteUInt32(entry.TransactionDate);
+            WorldPacket.WritePackedGuid(entry.PlayerGUID);
+            WorldPacket.WritePackedGuid(entry.OtherGUID);
+            WorldPacket.WriteUInt8(entry.TransactionType);
+            WorldPacket.WriteUInt8(entry.RankID);
+            WorldPacket.WriteUInt32(entry.TransactionDate);
         }
     }
 }

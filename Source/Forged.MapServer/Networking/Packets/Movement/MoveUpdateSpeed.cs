@@ -14,7 +14,7 @@ public class MoveUpdateSpeed : ServerPacket
 
     public override void Write()
     {
-        MovementExtensions.WriteMovementInfo(_worldPacket, Status);
-        _worldPacket.WriteFloat(Speed);
+        MovementExtensions.WriteMovementInfo(WorldPacket, Status);
+        WorldPacket.WriteFloat(Speed);
     }
 }

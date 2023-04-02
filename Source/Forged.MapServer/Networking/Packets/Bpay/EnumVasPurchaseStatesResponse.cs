@@ -52,6 +52,6 @@ public class EnumVasPurchaseStatesResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Result, 2);
+        WorldPacket.WriteBits(Result, 2);
     }
 }

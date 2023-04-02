@@ -13,15 +13,15 @@ internal class WorldQuestUpdateResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(WorldQuestUpdates.Count);
+        WorldPacket.WriteInt32(WorldQuestUpdates.Count);
 
         foreach (var worldQuestUpdate in WorldQuestUpdates)
         {
-            _worldPacket.WriteInt64(worldQuestUpdate.LastUpdate);
-            _worldPacket.WriteUInt32(worldQuestUpdate.QuestID);
-            _worldPacket.WriteUInt32(worldQuestUpdate.Timer);
-            _worldPacket.WriteInt32(worldQuestUpdate.VariableID);
-            _worldPacket.WriteInt32(worldQuestUpdate.Value);
+            WorldPacket.WriteInt64(worldQuestUpdate.LastUpdate);
+            WorldPacket.WriteUInt32(worldQuestUpdate.QuestID);
+            WorldPacket.WriteUInt32(worldQuestUpdate.Timer);
+            WorldPacket.WriteInt32(worldQuestUpdate.VariableID);
+            WorldPacket.WriteInt32(worldQuestUpdate.Value);
         }
     }
 }

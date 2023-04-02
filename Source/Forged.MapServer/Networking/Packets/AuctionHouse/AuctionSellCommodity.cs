@@ -18,18 +18,18 @@ internal class AuctionSellCommodity : ClientPacket
 
     public override void Read()
     {
-        Auctioneer = _worldPacket.ReadPackedGuid();
-        UnitPrice = _worldPacket.ReadUInt64();
-        RunTime = _worldPacket.ReadUInt32();
+        Auctioneer = WorldPacket.ReadPackedGuid();
+        UnitPrice = WorldPacket.ReadUInt64();
+        RunTime = WorldPacket.ReadUInt32();
 
-        if (_worldPacket.HasBit())
+        if (WorldPacket.HasBit())
             TaintedBy = new AddOnInfo();
 
-        var itemCount = _worldPacket.ReadBits<uint>(6);
+        var itemCount = WorldPacket.ReadBits<uint>(6);
 
-        TaintedBy?.Read(_worldPacket);
+        TaintedBy?.Read(WorldPacket);
 
         for (var i = 0; i < itemCount; ++i)
-            Items[i] = new AuctionItemForSale(_worldPacket);
+            Items[i] = new AuctionItemForSale(WorldPacket);
     }
 }

@@ -10,6 +10,6 @@ internal class InitiateRolePoll : ClientPacket
 
     public override void Read()
     {
-        PartyIndex = _worldPacket.ReadInt8();
+        PartyIndex = WorldPacket.ReadInt8();
     }
 }

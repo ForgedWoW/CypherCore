@@ -13,39 +13,39 @@ public class SetupCurrency : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Data.Count);
+        WorldPacket.WriteInt32(Data.Count);
 
         foreach (var data in Data)
         {
-            _worldPacket.WriteUInt32(data.Type);
-            _worldPacket.WriteUInt32(data.Quantity);
+            WorldPacket.WriteUInt32(data.Type);
+            WorldPacket.WriteUInt32(data.Quantity);
 
-            _worldPacket.WriteBit(data.WeeklyQuantity.HasValue);
-            _worldPacket.WriteBit(data.MaxWeeklyQuantity.HasValue);
-            _worldPacket.WriteBit(data.TrackedQuantity.HasValue);
-            _worldPacket.WriteBit(data.MaxQuantity.HasValue);
-            _worldPacket.WriteBit(data.TotalEarned.HasValue);
-            _worldPacket.WriteBit(data.LastSpendTime.HasValue);
-            _worldPacket.WriteBits(data.Flags, 5);
-            _worldPacket.FlushBits();
+            WorldPacket.WriteBit(data.WeeklyQuantity.HasValue);
+            WorldPacket.WriteBit(data.MaxWeeklyQuantity.HasValue);
+            WorldPacket.WriteBit(data.TrackedQuantity.HasValue);
+            WorldPacket.WriteBit(data.MaxQuantity.HasValue);
+            WorldPacket.WriteBit(data.TotalEarned.HasValue);
+            WorldPacket.WriteBit(data.LastSpendTime.HasValue);
+            WorldPacket.WriteBits(data.Flags, 5);
+            WorldPacket.FlushBits();
 
             if (data.WeeklyQuantity.HasValue)
-                _worldPacket.WriteUInt32(data.WeeklyQuantity.Value);
+                WorldPacket.WriteUInt32(data.WeeklyQuantity.Value);
 
             if (data.MaxWeeklyQuantity.HasValue)
-                _worldPacket.WriteUInt32(data.MaxWeeklyQuantity.Value);
+                WorldPacket.WriteUInt32(data.MaxWeeklyQuantity.Value);
 
             if (data.TrackedQuantity.HasValue)
-                _worldPacket.WriteUInt32(data.TrackedQuantity.Value);
+                WorldPacket.WriteUInt32(data.TrackedQuantity.Value);
 
             if (data.MaxQuantity.HasValue)
-                _worldPacket.WriteInt32(data.MaxQuantity.Value);
+                WorldPacket.WriteInt32(data.MaxQuantity.Value);
 
             if (data.TotalEarned.HasValue)
-                _worldPacket.WriteInt32(data.TotalEarned.Value);
+                WorldPacket.WriteInt32(data.TotalEarned.Value);
 
             if (data.LastSpendTime.HasValue)
-                _worldPacket.WriteInt64(data.LastSpendTime.Value);
+                WorldPacket.WriteInt64(data.LastSpendTime.Value);
         }
     }
 

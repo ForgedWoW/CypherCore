@@ -12,6 +12,6 @@ public class ServerTimeOffset : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt64(Time);
+        WorldPacket.WriteInt64(Time);
     }
 }

@@ -11,7 +11,7 @@ internal class BattlemasterJoinArena : ClientPacket
 
     public override void Read()
     {
-        TeamSizeIndex = _worldPacket.ReadUInt8();
-        Roles = _worldPacket.ReadUInt8();
+        TeamSizeIndex = WorldPacket.ReadUInt8();
+        Roles = WorldPacket.ReadUInt8();
     }
 }

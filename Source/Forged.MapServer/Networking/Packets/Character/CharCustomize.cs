@@ -15,21 +15,21 @@ public class CharCustomize : ClientPacket
     {
         CustomizeInfo = new CharCustomizeInfo
         {
-            CharGUID = _worldPacket.ReadPackedGuid(),
-            SexID = (Gender)_worldPacket.ReadUInt8()
+            CharGUID = WorldPacket.ReadPackedGuid(),
+            SexID = (Gender)WorldPacket.ReadUInt8()
         };
 
-        var customizationCount = _worldPacket.ReadUInt32();
+        var customizationCount = WorldPacket.ReadUInt32();
 
         for (var i = 0; i < customizationCount; ++i)
             CustomizeInfo.Customizations[i] = new ChrCustomizationChoice()
             {
-                ChrCustomizationOptionID = _worldPacket.ReadUInt32(),
-                ChrCustomizationChoiceID = _worldPacket.ReadUInt32()
+                ChrCustomizationOptionID = WorldPacket.ReadUInt32(),
+                ChrCustomizationChoiceID = WorldPacket.ReadUInt32()
             };
 
         CustomizeInfo.Customizations.Sort();
 
-        CustomizeInfo.CharName = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(6));
+        CustomizeInfo.CharName = WorldPacket.ReadString(WorldPacket.ReadBits<uint>(6));
     }
 }

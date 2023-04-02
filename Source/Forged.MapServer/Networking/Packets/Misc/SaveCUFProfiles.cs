@@ -14,34 +14,34 @@ internal class SaveCUFProfiles : ClientPacket
 
     public override void Read()
     {
-        var count = _worldPacket.ReadUInt32();
+        var count = WorldPacket.ReadUInt32();
 
         for (byte i = 0; i < count && i < PlayerConst.MaxCUFProfiles; i++)
         {
             CufProfile cufProfile = new();
 
-            var strLen = _worldPacket.ReadBits<byte>(7);
+            var strLen = WorldPacket.ReadBits<byte>(7);
 
             // Bool Options
             for (byte option = 0; option < (int)CUFBoolOptions.BoolOptionsCount; option++)
-                cufProfile.BoolOptions.Set(option, _worldPacket.HasBit());
+                cufProfile.BoolOptions.Set(option, WorldPacket.HasBit());
 
             // Other Options
-            cufProfile.FrameHeight = _worldPacket.ReadUInt16();
-            cufProfile.FrameWidth = _worldPacket.ReadUInt16();
+            cufProfile.FrameHeight = WorldPacket.ReadUInt16();
+            cufProfile.FrameWidth = WorldPacket.ReadUInt16();
 
-            cufProfile.SortBy = _worldPacket.ReadUInt8();
-            cufProfile.HealthText = _worldPacket.ReadUInt8();
+            cufProfile.SortBy = WorldPacket.ReadUInt8();
+            cufProfile.HealthText = WorldPacket.ReadUInt8();
 
-            cufProfile.TopPoint = _worldPacket.ReadUInt8();
-            cufProfile.BottomPoint = _worldPacket.ReadUInt8();
-            cufProfile.LeftPoint = _worldPacket.ReadUInt8();
+            cufProfile.TopPoint = WorldPacket.ReadUInt8();
+            cufProfile.BottomPoint = WorldPacket.ReadUInt8();
+            cufProfile.LeftPoint = WorldPacket.ReadUInt8();
 
-            cufProfile.TopOffset = _worldPacket.ReadUInt16();
-            cufProfile.BottomOffset = _worldPacket.ReadUInt16();
-            cufProfile.LeftOffset = _worldPacket.ReadUInt16();
+            cufProfile.TopOffset = WorldPacket.ReadUInt16();
+            cufProfile.BottomOffset = WorldPacket.ReadUInt16();
+            cufProfile.LeftOffset = WorldPacket.ReadUInt16();
 
-            cufProfile.ProfileName = _worldPacket.ReadString(strLen);
+            cufProfile.ProfileName = WorldPacket.ReadString(strLen);
 
             CUFProfiles.Add(cufProfile);
         }

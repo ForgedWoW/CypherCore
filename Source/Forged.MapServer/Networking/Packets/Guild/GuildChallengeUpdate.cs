@@ -16,15 +16,15 @@ public class GuildChallengeUpdate : ServerPacket
     public override void Write()
     {
         for (var i = 0; i < GuildConst.ChallengesTypes; ++i)
-            _worldPacket.WriteInt32(CurrentCount[i]);
+            WorldPacket.WriteInt32(CurrentCount[i]);
 
         for (var i = 0; i < GuildConst.ChallengesTypes; ++i)
-            _worldPacket.WriteInt32(MaxCount[i]);
+            WorldPacket.WriteInt32(MaxCount[i]);
 
         for (var i = 0; i < GuildConst.ChallengesTypes; ++i)
-            _worldPacket.WriteInt32(MaxLevelGold[i]);
+            WorldPacket.WriteInt32(MaxLevelGold[i]);
 
         for (var i = 0; i < GuildConst.ChallengesTypes; ++i)
-            _worldPacket.WriteInt32(Gold[i]);
+            WorldPacket.WriteInt32(Gold[i]);
     }
 }

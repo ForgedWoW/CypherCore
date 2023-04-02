@@ -14,7 +14,7 @@ public class PlayerLogin : ClientPacket
 
     public override void Read()
     {
-        Guid = _worldPacket.ReadPackedGuid();
-        FarClip = _worldPacket.ReadFloat();
+        Guid = WorldPacket.ReadPackedGuid();
+        FarClip = WorldPacket.ReadFloat();
     }
 }

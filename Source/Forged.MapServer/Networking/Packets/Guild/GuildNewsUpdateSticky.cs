@@ -14,9 +14,9 @@ public class GuildNewsUpdateSticky : ClientPacket
 
     public override void Read()
     {
-        GuildGUID = _worldPacket.ReadPackedGuid();
-        NewsID = _worldPacket.ReadInt32();
+        GuildGUID = WorldPacket.ReadPackedGuid();
+        NewsID = WorldPacket.ReadInt32();
 
-        Sticky = _worldPacket.HasBit();
+        Sticky = WorldPacket.HasBit();
     }
 }

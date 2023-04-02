@@ -17,10 +17,10 @@ internal class RoleChangedInform : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt8(PartyIndex);
-        _worldPacket.WritePackedGuid(From);
-        _worldPacket.WritePackedGuid(ChangedUnit);
-        _worldPacket.WriteInt32(OldRole);
-        _worldPacket.WriteInt32(NewRole);
+        WorldPacket.WriteInt8(PartyIndex);
+        WorldPacket.WritePackedGuid(From);
+        WorldPacket.WritePackedGuid(ChangedUnit);
+        WorldPacket.WriteInt32(OldRole);
+        WorldPacket.WriteInt32(NewRole);
     }
 }

@@ -13,8 +13,8 @@ internal class GarrisonCreateResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(Result);
-        _worldPacket.WriteUInt32(GarrSiteLevelID);
+        WorldPacket.WriteUInt32(Result);
+        WorldPacket.WriteUInt32(GarrSiteLevelID);
     }
 }
 

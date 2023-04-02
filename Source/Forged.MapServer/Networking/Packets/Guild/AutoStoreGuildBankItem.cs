@@ -14,8 +14,8 @@ internal class AutoStoreGuildBankItem : ClientPacket
 
     public override void Read()
     {
-        Banker = _worldPacket.ReadPackedGuid();
-        BankTab = _worldPacket.ReadUInt8();
-        BankSlot = _worldPacket.ReadUInt8();
+        Banker = WorldPacket.ReadPackedGuid();
+        BankTab = WorldPacket.ReadUInt8();
+        BankSlot = WorldPacket.ReadUInt8();
     }
 }

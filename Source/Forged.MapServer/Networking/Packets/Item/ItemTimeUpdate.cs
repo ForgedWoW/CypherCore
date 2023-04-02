@@ -14,7 +14,7 @@ public class ItemTimeUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ItemGuid);
-        _worldPacket.WriteUInt32(DurationLeft);
+        WorldPacket.WritePackedGuid(ItemGuid);
+        WorldPacket.WriteUInt32(DurationLeft);
     }
 }

@@ -86,7 +86,7 @@ public partial class Player
 
     public bool CheckInstanceValidity(bool isLogin)
     {
-        // game masters' instances are always valid
+        // GameInfo masters' instances are always valid
         if (IsGameMaster)
             return true;
 

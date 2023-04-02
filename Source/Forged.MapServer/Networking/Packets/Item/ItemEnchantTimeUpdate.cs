@@ -16,9 +16,9 @@ internal class ItemEnchantTimeUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ItemGuid);
-        _worldPacket.WriteUInt32(DurationLeft);
-        _worldPacket.WriteUInt32(Slot);
-        _worldPacket.WritePackedGuid(OwnerGuid);
+        WorldPacket.WritePackedGuid(ItemGuid);
+        WorldPacket.WriteUInt32(DurationLeft);
+        WorldPacket.WriteUInt32(Slot);
+        WorldPacket.WritePackedGuid(OwnerGuid);
     }
 }

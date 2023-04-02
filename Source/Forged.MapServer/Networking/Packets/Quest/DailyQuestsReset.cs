@@ -12,6 +12,6 @@ internal class DailyQuestsReset : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Count);
+        WorldPacket.WriteInt32(Count);
     }
 }

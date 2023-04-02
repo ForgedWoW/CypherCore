@@ -17,20 +17,20 @@ internal class AuctionListBucketsByBucketKeys : ClientPacket
 
     public override void Read()
     {
-        Auctioneer = _worldPacket.ReadPackedGuid();
+        Auctioneer = WorldPacket.ReadPackedGuid();
 
-        if (_worldPacket.HasBit())
+        if (WorldPacket.HasBit())
             TaintedBy = new AddOnInfo();
 
-        var bucketKeysCount = _worldPacket.ReadBits<uint>(7);
-        var sortCount = _worldPacket.ReadBits<uint>(2);
+        var bucketKeysCount = WorldPacket.ReadBits<uint>(7);
+        var sortCount = WorldPacket.ReadBits<uint>(2);
 
         for (var i = 0; i < sortCount; ++i)
-            Sorts[i] = new AuctionSortDef(_worldPacket);
+            Sorts[i] = new AuctionSortDef(WorldPacket);
 
-        TaintedBy?.Read(_worldPacket);
+        TaintedBy?.Read(WorldPacket);
 
         for (var i = 0; i < bucketKeysCount; ++i)
-            BucketKeys[i] = new AuctionBucketKey(_worldPacket);
+            BucketKeys[i] = new AuctionBucketKey(WorldPacket);
     }
 }

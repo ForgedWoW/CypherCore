@@ -10,6 +10,6 @@ public class BattlePayAckFailedResponse : ClientPacket
     public uint ServerToken { get; set; } = 0;
     public override void Read()
     {
-        ServerToken = _worldPacket.ReadUInt32();
+        ServerToken = WorldPacket.ReadUInt32();
     }
 }

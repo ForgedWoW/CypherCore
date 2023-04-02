@@ -24,27 +24,27 @@ public class SpellEmpowerStart : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(CastID);
-        _worldPacket.WritePackedGuid(Caster);
-        _worldPacket.WriteUInt32((uint)Targets.Count);
-        _worldPacket.Write(SpellID);
-        Visual.Write(_worldPacket);
-        _worldPacket.Write(Duration);
-        _worldPacket.Write(FirstStageDuration);
-        _worldPacket.Write(FinalStageDuration);
-        _worldPacket.WriteUInt32((uint)StageDurations.Count);
+        WorldPacket.WritePackedGuid(CastID);
+        WorldPacket.WritePackedGuid(Caster);
+        WorldPacket.WriteUInt32((uint)Targets.Count);
+        WorldPacket.Write(SpellID);
+        Visual.Write(WorldPacket);
+        WorldPacket.Write(Duration);
+        WorldPacket.Write(FirstStageDuration);
+        WorldPacket.Write(FinalStageDuration);
+        WorldPacket.WriteUInt32((uint)StageDurations.Count);
 
         foreach (var target in Targets)
-            _worldPacket.Write(target);
+            WorldPacket.Write(target);
 
         foreach (var val in StageDurations.Values)
-            _worldPacket.Write(val);
+            WorldPacket.Write(val);
 
-        _worldPacket.Write(Immunities.HasValue);
-        _worldPacket.Write(HealPrediction.HasValue);
+        WorldPacket.Write(Immunities.HasValue);
+        WorldPacket.Write(HealPrediction.HasValue);
 
-        Immunities?.Write(_worldPacket);
+        Immunities?.Write(WorldPacket);
 
-        HealPrediction?.Write(_worldPacket);
+        HealPrediction?.Write(WorldPacket);
     }
 }

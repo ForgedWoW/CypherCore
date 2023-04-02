@@ -14,7 +14,7 @@ internal class CharCustomizeFailure : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8(Result);
-        _worldPacket.WritePackedGuid(CharGUID);
+        WorldPacket.WriteUInt8(Result);
+        WorldPacket.WritePackedGuid(CharGUID);
     }
 }

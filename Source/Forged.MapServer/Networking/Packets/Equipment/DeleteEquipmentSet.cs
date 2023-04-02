@@ -10,6 +10,6 @@ internal class DeleteEquipmentSet : ClientPacket
 
     public override void Read()
     {
-        ID = _worldPacket.ReadUInt64();
+        ID = WorldPacket.ReadUInt64();
     }
 }

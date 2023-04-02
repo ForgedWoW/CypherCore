@@ -17,14 +17,14 @@ internal class AuctionRemoveItem : ClientPacket
 
     public override void Read()
     {
-        Auctioneer = _worldPacket.ReadPackedGuid();
-        AuctionID = _worldPacket.ReadUInt32();
-        ItemID = _worldPacket.ReadInt32();
+        Auctioneer = WorldPacket.ReadPackedGuid();
+        AuctionID = WorldPacket.ReadUInt32();
+        ItemID = WorldPacket.ReadInt32();
 
-        if (_worldPacket.HasBit())
+        if (WorldPacket.HasBit())
         {
             TaintedBy = new AddOnInfo();
-            TaintedBy.Value.Read(_worldPacket);
+            TaintedBy.Value.Read(WorldPacket);
         }
     }
 }

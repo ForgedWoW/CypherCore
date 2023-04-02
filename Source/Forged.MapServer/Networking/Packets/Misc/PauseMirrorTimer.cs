@@ -18,8 +18,8 @@ public class PauseMirrorTimer : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32((int)Timer);
-        _worldPacket.WriteBit(Paused);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32((int)Timer);
+        WorldPacket.WriteBit(Paused);
+        WorldPacket.FlushBits();
     }
 }

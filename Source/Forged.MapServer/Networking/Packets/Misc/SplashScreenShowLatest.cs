@@ -12,6 +12,6 @@ internal class SplashScreenShowLatest : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(UISplashScreenID);
+        WorldPacket.WriteUInt32(UISplashScreenID);
     }
 }

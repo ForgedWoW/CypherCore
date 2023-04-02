@@ -14,8 +14,8 @@ public class MailTakeItem : ClientPacket
 
     public override void Read()
     {
-        Mailbox = _worldPacket.ReadPackedGuid();
-        MailID = _worldPacket.ReadUInt64();
-        AttachID = _worldPacket.ReadUInt64();
+        Mailbox = WorldPacket.ReadPackedGuid();
+        MailID = WorldPacket.ReadUInt64();
+        AttachID = WorldPacket.ReadUInt64();
     }
 }

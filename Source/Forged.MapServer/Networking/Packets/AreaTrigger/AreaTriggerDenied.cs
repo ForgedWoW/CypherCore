@@ -13,8 +13,8 @@ internal class AreaTriggerDenied : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(AreaTriggerID);
-        _worldPacket.WriteBit(Entered);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(AreaTriggerID);
+        WorldPacket.WriteBit(Entered);
+        WorldPacket.FlushBits();
     }
 }

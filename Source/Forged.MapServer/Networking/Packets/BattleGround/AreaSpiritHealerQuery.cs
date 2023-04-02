@@ -12,6 +12,6 @@ public class AreaSpiritHealerQuery : ClientPacket
 
     public override void Read()
     {
-        HealerGuid = _worldPacket.ReadPackedGuid();
+        HealerGuid = WorldPacket.ReadPackedGuid();
     }
 }

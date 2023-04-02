@@ -27,25 +27,25 @@ internal class DisplayPlayerChoice : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(ChoiceID);
-        _worldPacket.WriteInt32(Responses.Count);
-        _worldPacket.WritePackedGuid(SenderGUID);
-        _worldPacket.WriteInt32(UiTextureKitID);
-        _worldPacket.WriteUInt32(SoundKitID);
-        _worldPacket.WriteUInt32(CloseUISoundKitID);
-        _worldPacket.WriteUInt8(NumRerolls);
-        _worldPacket.WriteInt64(Duration);
-        _worldPacket.WriteBits(Question.GetByteCount(), 8);
-        _worldPacket.WriteBits(PendingChoiceText.GetByteCount(), 8);
-        _worldPacket.WriteBit(CloseChoiceFrame);
-        _worldPacket.WriteBit(HideWarboardHeader);
-        _worldPacket.WriteBit(KeepOpenAfterChoice);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(ChoiceID);
+        WorldPacket.WriteInt32(Responses.Count);
+        WorldPacket.WritePackedGuid(SenderGUID);
+        WorldPacket.WriteInt32(UiTextureKitID);
+        WorldPacket.WriteUInt32(SoundKitID);
+        WorldPacket.WriteUInt32(CloseUISoundKitID);
+        WorldPacket.WriteUInt8(NumRerolls);
+        WorldPacket.WriteInt64(Duration);
+        WorldPacket.WriteBits(Question.GetByteCount(), 8);
+        WorldPacket.WriteBits(PendingChoiceText.GetByteCount(), 8);
+        WorldPacket.WriteBit(CloseChoiceFrame);
+        WorldPacket.WriteBit(HideWarboardHeader);
+        WorldPacket.WriteBit(KeepOpenAfterChoice);
+        WorldPacket.FlushBits();
 
         foreach (var response in Responses)
-            response.Write(_worldPacket);
+            response.Write(WorldPacket);
 
-        _worldPacket.WriteString(Question);
-        _worldPacket.WriteString(PendingChoiceText);
+        WorldPacket.WriteString(Question);
+        WorldPacket.WriteString(PendingChoiceText);
     }
 }

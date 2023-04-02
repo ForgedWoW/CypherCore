@@ -10,6 +10,6 @@ internal class BattlefieldListRequest : ClientPacket
 
     public override void Read()
     {
-        ListID = _worldPacket.ReadInt32();
+        ListID = WorldPacket.ReadInt32();
     }
 }

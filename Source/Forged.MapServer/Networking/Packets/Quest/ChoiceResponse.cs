@@ -12,8 +12,8 @@ internal class ChoiceResponse : ClientPacket
 
     public override void Read()
     {
-        ChoiceID = _worldPacket.ReadInt32();
-        ResponseIdentifier = _worldPacket.ReadInt32();
-        IsReroll = _worldPacket.HasBit();
+        ChoiceID = WorldPacket.ReadInt32();
+        ResponseIdentifier = WorldPacket.ReadInt32();
+        IsReroll = WorldPacket.HasBit();
     }
 }

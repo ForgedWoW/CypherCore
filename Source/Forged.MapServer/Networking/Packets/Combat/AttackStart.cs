@@ -14,7 +14,7 @@ public class AttackStart : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Attacker);
-        _worldPacket.WritePackedGuid(Victim);
+        WorldPacket.WritePackedGuid(Attacker);
+        WorldPacket.WritePackedGuid(Victim);
     }
 }

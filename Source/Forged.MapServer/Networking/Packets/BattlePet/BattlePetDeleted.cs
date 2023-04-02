@@ -13,6 +13,6 @@ internal class BattlePetDeleted : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(PetGuid);
+        WorldPacket.WritePackedGuid(PetGuid);
     }
 }

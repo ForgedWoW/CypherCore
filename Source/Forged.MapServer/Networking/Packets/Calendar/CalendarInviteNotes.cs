@@ -17,12 +17,12 @@ internal class CalendarInviteNotes : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(InviteGuid);
-        _worldPacket.WriteUInt64(EventID);
+        WorldPacket.WritePackedGuid(InviteGuid);
+        WorldPacket.WriteUInt64(EventID);
 
-        _worldPacket.WriteBits(Notes.GetByteCount(), 8);
-        _worldPacket.WriteBit(ClearPending);
-        _worldPacket.FlushBits();
-        _worldPacket.WriteString(Notes);
+        WorldPacket.WriteBits(Notes.GetByteCount(), 8);
+        WorldPacket.WriteBit(ClearPending);
+        WorldPacket.FlushBits();
+        WorldPacket.WriteString(Notes);
     }
 }

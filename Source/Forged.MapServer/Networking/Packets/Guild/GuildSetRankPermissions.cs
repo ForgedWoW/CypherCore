@@ -19,22 +19,22 @@ public class GuildSetRankPermissions : ClientPacket
 
     public override void Read()
     {
-        RankID = _worldPacket.ReadUInt8();
-        RankOrder = _worldPacket.ReadInt32();
-        Flags = _worldPacket.ReadUInt32();
-        WithdrawGoldLimit = _worldPacket.ReadUInt32();
+        RankID = WorldPacket.ReadUInt8();
+        RankOrder = WorldPacket.ReadInt32();
+        Flags = WorldPacket.ReadUInt32();
+        WithdrawGoldLimit = WorldPacket.ReadUInt32();
 
         for (byte i = 0; i < GuildConst.MaxBankTabs; i++)
         {
-            TabFlags[i] = _worldPacket.ReadUInt32();
-            TabWithdrawItemLimit[i] = _worldPacket.ReadUInt32();
+            TabFlags[i] = WorldPacket.ReadUInt32();
+            TabWithdrawItemLimit[i] = WorldPacket.ReadUInt32();
         }
 
-        _worldPacket.ResetBitPos();
-        var rankNameLen = _worldPacket.ReadBits<uint>(7);
+        WorldPacket.ResetBitPos();
+        var rankNameLen = WorldPacket.ReadBits<uint>(7);
 
-        RankName = _worldPacket.ReadString(rankNameLen);
+        RankName = WorldPacket.ReadString(rankNameLen);
 
-        OldFlags = _worldPacket.ReadUInt32();
+        OldFlags = WorldPacket.ReadUInt32();
     }
 }

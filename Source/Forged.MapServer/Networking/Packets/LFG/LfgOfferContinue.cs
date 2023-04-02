@@ -16,6 +16,6 @@ internal class LfgOfferContinue : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(Slot);
+        WorldPacket.WriteUInt32(Slot);
     }
 }

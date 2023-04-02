@@ -11,10 +11,10 @@ internal class PetCastFailed : CastFailedBase
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(CastID);
-        _worldPacket.WriteInt32(SpellID);
-        _worldPacket.WriteInt32((int)Reason);
-        _worldPacket.WriteInt32(FailedArg1);
-        _worldPacket.WriteInt32(FailedArg2);
+        WorldPacket.WritePackedGuid(CastID);
+        WorldPacket.WriteInt32(SpellID);
+        WorldPacket.WriteInt32((int)Reason);
+        WorldPacket.WriteInt32(FailedArg1);
+        WorldPacket.WriteInt32(FailedArg2);
     }
 }

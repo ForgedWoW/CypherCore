@@ -14,10 +14,10 @@ internal class CalendarEventRemovedAlert : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt64(EventID);
-        _worldPacket.WritePackedTime(Date);
+        WorldPacket.WriteUInt64(EventID);
+        WorldPacket.WritePackedTime(Date);
 
-        _worldPacket.WriteBit(ClearPending);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(ClearPending);
+        WorldPacket.FlushBits();
     }
 }

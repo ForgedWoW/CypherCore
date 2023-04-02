@@ -13,6 +13,6 @@ internal class ItemExpirePurchaseRefund : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ItemGUID);
+        WorldPacket.WritePackedGuid(ItemGUID);
     }
 }

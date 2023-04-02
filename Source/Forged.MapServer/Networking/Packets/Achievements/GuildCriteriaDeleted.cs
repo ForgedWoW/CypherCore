@@ -14,7 +14,7 @@ public class GuildCriteriaDeleted : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(GuildGUID);
-        _worldPacket.WriteUInt32(CriteriaID);
+        WorldPacket.WritePackedGuid(GuildGUID);
+        WorldPacket.WriteUInt32(CriteriaID);
     }
 }

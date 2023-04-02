@@ -17,27 +17,27 @@ public class SendMail : ClientPacket
 
     public override void Read()
     {
-        Info.Mailbox = _worldPacket.ReadPackedGuid();
-        Info.StationeryID = _worldPacket.ReadInt32();
-        Info.SendMoney = _worldPacket.ReadInt64();
-        Info.Cod = _worldPacket.ReadInt64();
+        Info.Mailbox = WorldPacket.ReadPackedGuid();
+        Info.StationeryID = WorldPacket.ReadInt32();
+        Info.SendMoney = WorldPacket.ReadInt64();
+        Info.Cod = WorldPacket.ReadInt64();
 
-        var targetLength = _worldPacket.ReadBits<uint>(9);
-        var subjectLength = _worldPacket.ReadBits<uint>(9);
-        var bodyLength = _worldPacket.ReadBits<uint>(11);
+        var targetLength = WorldPacket.ReadBits<uint>(9);
+        var subjectLength = WorldPacket.ReadBits<uint>(9);
+        var bodyLength = WorldPacket.ReadBits<uint>(11);
 
-        var count = _worldPacket.ReadBits<uint>(5);
+        var count = WorldPacket.ReadBits<uint>(5);
 
-        Info.Target = _worldPacket.ReadString(targetLength);
-        Info.Subject = _worldPacket.ReadString(subjectLength);
-        Info.Body = _worldPacket.ReadString(bodyLength);
+        Info.Target = WorldPacket.ReadString(targetLength);
+        Info.Subject = WorldPacket.ReadString(subjectLength);
+        Info.Body = WorldPacket.ReadString(bodyLength);
 
         for (var i = 0; i < count; ++i)
         {
             var att = new StructSendMail.MailAttachment()
             {
-                AttachPosition = _worldPacket.ReadUInt8(),
-                ItemGUID = _worldPacket.ReadPackedGuid()
+                AttachPosition = WorldPacket.ReadUInt8(),
+                ItemGUID = WorldPacket.ReadPackedGuid()
             };
 
             Info.Attachments.Add(att);

@@ -13,10 +13,10 @@ internal class VoidStorageContents : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Items.Count, 8);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(Items.Count, 8);
+        WorldPacket.FlushBits();
 
         foreach (var voidItem in Items)
-            voidItem.Write(_worldPacket);
+            voidItem.Write(WorldPacket);
     }
 }

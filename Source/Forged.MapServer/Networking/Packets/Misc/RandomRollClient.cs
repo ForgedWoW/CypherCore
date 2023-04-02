@@ -12,8 +12,8 @@ public class RandomRollClient : ClientPacket
 
     public override void Read()
     {
-        Min = _worldPacket.ReadUInt32();
-        Max = _worldPacket.ReadUInt32();
-        PartyIndex = _worldPacket.ReadUInt8();
+        Min = WorldPacket.ReadUInt32();
+        Max = WorldPacket.ReadUInt32();
+        PartyIndex = WorldPacket.ReadUInt8();
     }
 }

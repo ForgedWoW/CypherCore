@@ -15,8 +15,8 @@ public class MoveSetVehicleRecID : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(MoverGUID);
-        _worldPacket.WriteUInt32(SequenceIndex);
-        _worldPacket.WriteUInt32(VehicleRecID);
+        WorldPacket.WritePackedGuid(MoverGUID);
+        WorldPacket.WriteUInt32(SequenceIndex);
+        WorldPacket.WriteUInt32(VehicleRecID);
     }
 }

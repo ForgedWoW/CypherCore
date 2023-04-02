@@ -11,10 +11,10 @@ public class GuildAddRank : ClientPacket
 
     public override void Read()
     {
-        var nameLen = _worldPacket.ReadBits<uint>(7);
-        _worldPacket.ResetBitPos();
+        var nameLen = WorldPacket.ReadBits<uint>(7);
+        WorldPacket.ResetBitPos();
 
-        RankOrder = _worldPacket.ReadInt32();
-        Name = _worldPacket.ReadString(nameLen);
+        RankOrder = WorldPacket.ReadInt32();
+        Name = WorldPacket.ReadString(nameLen);
     }
 }

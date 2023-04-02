@@ -15,9 +15,9 @@ internal class CancelSpellVisualKit : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Source);
-        _worldPacket.WriteUInt32(SpellVisualKitID);
-        _worldPacket.WriteBit(MountedVisual);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Source);
+        WorldPacket.WriteUInt32(SpellVisualKitID);
+        WorldPacket.WriteBit(MountedVisual);
+        WorldPacket.FlushBits();
     }
 }

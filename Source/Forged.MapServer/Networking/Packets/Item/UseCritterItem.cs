@@ -12,6 +12,6 @@ internal class UseCritterItem : ClientPacket
 
     public override void Read()
     {
-        ItemGuid = _worldPacket.ReadPackedGuid();
+        ItemGuid = WorldPacket.ReadPackedGuid();
     }
 }

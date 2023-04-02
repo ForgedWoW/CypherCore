@@ -20,15 +20,15 @@ internal class CalendarInviteAdded : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(InviteGuid);
-        _worldPacket.WriteUInt64(EventID);
-        _worldPacket.WriteUInt64(InviteID);
-        _worldPacket.WriteUInt8(Level);
-        _worldPacket.WriteUInt8((byte)Status);
-        _worldPacket.WriteUInt8(Type);
-        _worldPacket.WritePackedTime(ResponseTime);
+        WorldPacket.WritePackedGuid(InviteGuid);
+        WorldPacket.WriteUInt64(EventID);
+        WorldPacket.WriteUInt64(InviteID);
+        WorldPacket.WriteUInt8(Level);
+        WorldPacket.WriteUInt8((byte)Status);
+        WorldPacket.WriteUInt8(Type);
+        WorldPacket.WritePackedTime(ResponseTime);
 
-        _worldPacket.WriteBit(ClearPending);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(ClearPending);
+        WorldPacket.FlushBits();
     }
 }

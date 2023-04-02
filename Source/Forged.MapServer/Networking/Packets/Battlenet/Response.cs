@@ -15,9 +15,9 @@ internal class Response : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32((uint)BnetStatus);
-        Method.Write(_worldPacket);
-        _worldPacket.WriteUInt32(Data.GetSize());
-        _worldPacket.WriteBytes(Data);
+        WorldPacket.WriteUInt32((uint)BnetStatus);
+        Method.Write(WorldPacket);
+        WorldPacket.WriteUInt32(Data.GetSize());
+        WorldPacket.WriteBytes(Data);
     }
 }

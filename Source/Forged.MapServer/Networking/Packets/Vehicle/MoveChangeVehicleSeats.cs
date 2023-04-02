@@ -15,8 +15,8 @@ public class MoveChangeVehicleSeats : ClientPacket
 
     public override void Read()
     {
-        Status = MovementExtensions.ReadMovementInfo(_worldPacket);
-        DstVehicle = _worldPacket.ReadPackedGuid();
-        DstSeatIndex = _worldPacket.ReadUInt8();
+        Status = MovementExtensions.ReadMovementInfo(WorldPacket);
+        DstVehicle = WorldPacket.ReadPackedGuid();
+        DstSeatIndex = WorldPacket.ReadUInt8();
     }
 }

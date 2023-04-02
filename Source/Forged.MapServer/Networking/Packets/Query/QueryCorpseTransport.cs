@@ -13,7 +13,7 @@ public class QueryCorpseTransport : ClientPacket
 
     public override void Read()
     {
-        Player = _worldPacket.ReadPackedGuid();
-        Transport = _worldPacket.ReadPackedGuid();
+        Player = WorldPacket.ReadPackedGuid();
+        Transport = WorldPacket.ReadPackedGuid();
     }
 }

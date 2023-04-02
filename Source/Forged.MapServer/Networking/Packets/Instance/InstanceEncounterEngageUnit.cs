@@ -15,7 +15,7 @@ internal class InstanceEncounterEngageUnit : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Unit);
-        _worldPacket.WriteUInt8(TargetFramePriority);
+        WorldPacket.WritePackedGuid(Unit);
+        WorldPacket.WriteUInt8(TargetFramePriority);
     }
 }

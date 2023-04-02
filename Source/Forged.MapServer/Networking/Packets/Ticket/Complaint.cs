@@ -18,22 +18,22 @@ internal class Complaint : ClientPacket
 
     public override void Read()
     {
-        ComplaintType = (SupportSpamType)_worldPacket.ReadUInt8();
-        Offender.Read(_worldPacket);
+        ComplaintType = (SupportSpamType)WorldPacket.ReadUInt8();
+        Offender.Read(WorldPacket);
 
         switch (ComplaintType)
         {
             case SupportSpamType.Mail:
-                MailID = _worldPacket.ReadUInt64();
+                MailID = WorldPacket.ReadUInt64();
 
                 break;
             case SupportSpamType.Chat:
-                Chat.Read(_worldPacket);
+                Chat.Read(WorldPacket);
 
                 break;
             case SupportSpamType.Calendar:
-                EventGuid = _worldPacket.ReadUInt64();
-                InviteGuid = _worldPacket.ReadUInt64();
+                EventGuid = WorldPacket.ReadUInt64();
+                InviteGuid = WorldPacket.ReadUInt64();
 
                 break;
         }

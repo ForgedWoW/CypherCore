@@ -12,6 +12,6 @@ internal class DurabilityDamageDeath : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(Percent);
+        WorldPacket.WriteUInt32(Percent);
     }
 }

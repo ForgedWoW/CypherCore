@@ -14,7 +14,7 @@ internal class ConversationLineStarted : ClientPacket
 
     public override void Read()
     {
-        ConversationGUID = _worldPacket.ReadPackedGuid();
-        LineID = _worldPacket.ReadUInt32();
+        ConversationGUID = WorldPacket.ReadPackedGuid();
+        LineID = WorldPacket.ReadUInt32();
     }
 }

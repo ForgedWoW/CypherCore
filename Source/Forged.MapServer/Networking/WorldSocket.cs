@@ -23,6 +23,7 @@ public class WorldSocket : SocketBase
     private const string ClientConnectionInitialize = "WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER - V2";
     private const int HeaderSize = 16;
     private const string ServerConnectionInitialize = "WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT - V2";
+
     private static readonly byte[] AuthCheckSeed =
     {
         0xC5, 0xC6, 0x98, 0x95, 0x76, 0x3F, 0x1D, 0xCD, 0xB6, 0xA1, 0x37, 0x28, 0xB3, 0x12, 0xFF, 0x8A
@@ -39,9 +40,10 @@ public class WorldSocket : SocketBase
     };
 
     private static readonly byte[] SessionKeySeed =
-            {
+    {
         0x58, 0xCB, 0xCF, 0x40, 0xFE, 0x2E, 0xCE, 0xA6, 0x5A, 0x90, 0xB8, 0x01, 0x68, 0x6C, 0x28, 0x0B
     };
+
     private readonly ClassFactory _classFactory;
     private readonly IConfiguration _configuration;
     private readonly byte[] _encryptKey;
@@ -63,6 +65,7 @@ public class WorldSocket : SocketBase
     private byte[] _serverChallenge;
     private byte[] _sessionKey;
     private WorldSession _worldSession;
+
     public WorldSocket(Socket socket, LoginDatabase loginDatabase, PacketManager packetManager,
                        Realm realm, RealmManager realmManager, IConfiguration configuration, WorldManager worldManager, ClassFactory classFactory) : base(socket)
     {
@@ -130,6 +133,7 @@ public class WorldSocket : SocketBase
 
         base.Dispose();
     }
+
     public override void OnClose()
     {
         lock (_worldSessionLock)
@@ -220,10 +224,10 @@ public class WorldSocket : SocketBase
             {
                 packet.LogPacket(_worldSession);
                 packet.WritePacketData();
-                Log.Logger.Verbose("Received opcode: {0} ({1})", packet.GetOpcode(), (uint)packet.GetOpcode());
+                Log.Logger.Verbose("Received opcode: {0} ({1})", packet.Opcode, (uint)packet.Opcode);
 
-                var data = packet.GetData();
-                var opcode = packet.GetOpcode();
+                var data = packet.BufferData;
+                var opcode = packet.Opcode;
                 PacketLog.Write(data, (uint)opcode, GetRemoteIpAddress(), ConnectionType.Instance, false);
 
                 ByteBuffer buffer = new();
@@ -271,6 +275,7 @@ public class WorldSocket : SocketBase
             }
         }
     }
+
     public override bool Update()
     {
         if (!base.Update())
@@ -280,6 +285,7 @@ public class WorldSocket : SocketBase
 
         return true;
     }
+
     private void CheckIpCallback(SQLResult result)
     {
         if (!result.IsEmpty())
@@ -317,7 +323,6 @@ public class WorldSocket : SocketBase
     {
         ConnectToKey key = new();
         key.Raw = authSession.Key;
-
 
         var accountId = key.AccountId;
         var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_CONTINUED_SESSION);
@@ -407,19 +412,19 @@ public class WorldSocket : SocketBase
         var address = GetRemoteIpAddress();
 
         Sha256 digestKeyHash = new();
-        digestKeyHash.Process(account.game.SessionKey, account.game.SessionKey.Length);
+        digestKeyHash.Process(account.GameInfo.SessionKey, account.GameInfo.SessionKey.Length);
 
-        if (account.game.OS == "Wn64")
+        if (account.GameInfo.OS == "Wn64")
         {
             digestKeyHash.Finish(buildInfo.Win64AuthSeed);
         }
-        else if (account.game.OS == "Mc64")
+        else if (account.GameInfo.OS == "Mc64")
         {
             digestKeyHash.Finish(buildInfo.Mac64AuthSeed);
         }
         else
         {
-            Log.Logger.Error("WorldSocket.HandleAuthSession: Authentication failed for account: {0} ('{1}') address: {2}", account.game.Id, authSession.RealmJoinTicket, address);
+            Log.Logger.Error("WorldSocket.HandleAuthSession: Authentication failed for account: {0} ('{1}') address: {2}", account.GameInfo.Id, authSession.RealmJoinTicket, address);
             CloseSocket();
 
             return;
@@ -433,14 +438,14 @@ public class WorldSocket : SocketBase
         // Check that Key and account name are the same on client and server
         if (!hmac.Digest.Compare(authSession.Digest))
         {
-            Log.Logger.Error("WorldSocket.HandleAuthSession: Authentication failed for account: {0} ('{1}') address: {2}", account.game.Id, authSession.RealmJoinTicket, address);
+            Log.Logger.Error("WorldSocket.HandleAuthSession: Authentication failed for account: {0} ('{1}') address: {2}", account.GameInfo.Id, authSession.RealmJoinTicket, address);
             CloseSocket();
 
             return;
         }
 
         Sha256 keyData = new();
-        keyData.Finish(account.game.SessionKey);
+        keyData.Finish(account.GameInfo.SessionKey);
 
         HmacSha256 sessionKeyHmac = new(keyData.Digest);
         sessionKeyHmac.Process(_serverChallenge, 16);
@@ -473,7 +478,7 @@ public class WorldSocket : SocketBase
 
         stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_INFO_CONTINUED_SESSION);
         stmt.AddValue(0, _sessionKey);
-        stmt.AddValue(1, account.game.Id);
+        stmt.AddValue(1, account.GameInfo.Id);
         _loginDatabase.Execute(stmt);
 
         // First reject the connection if packet contains invalid data or realm state doesn't allow logging in
@@ -503,19 +508,19 @@ public class WorldSocket : SocketBase
         // Must be done before WorldSession is created
         var wardenActive = _configuration.GetDefaultValue("Warden.Enabled", false);
 
-        if (wardenActive && account.game.OS != "Win" && account.game.OS != "Wn64" && account.game.OS != "Mc64")
+        if (wardenActive && account.GameInfo.OS != "Win" && account.GameInfo.OS != "Wn64" && account.GameInfo.OS != "Mc64")
         {
             SendAuthResponseError(BattlenetRpcErrorCode.Denied);
-            Log.Logger.Error("WorldSocket.HandleAuthSession: Client {0} attempted to log in using invalid client OS ({1}).", address, account.game.OS);
+            Log.Logger.Error("WorldSocket.HandleAuthSession: Client {0} attempted to log in using invalid client OS ({1}).", address, account.GameInfo.OS);
             CloseSocket();
 
             return;
         }
 
         //Re-check ip locking (same check as in auth).
-        if (account.battleNet.IsLockedToIP) // if ip is locked
+        if (account.BNet.IsLockedToIP) // if ip is locked
         {
-            if (account.battleNet.LastIP != address.Address.ToString())
+            if (account.BNet.LastIP != address.Address.ToString())
             {
                 SendAuthResponseError(BattlenetRpcErrorCode.RiskAccountLocked);
                 Log.Logger.Debug("HandleAuthSession: Sent Auth Response (Account IP differs).");
@@ -524,19 +529,19 @@ public class WorldSocket : SocketBase
                 return;
             }
         }
-        else if (!account.battleNet.LockCountry.IsEmpty() && account.battleNet.LockCountry != "00" && !_ipCountry.IsEmpty())
+        else if (!account.BNet.LockCountry.IsEmpty() && account.BNet.LockCountry != "00" && !_ipCountry.IsEmpty())
         {
-            if (account.battleNet.LockCountry != _ipCountry)
+            if (account.BNet.LockCountry != _ipCountry)
             {
                 SendAuthResponseError(BattlenetRpcErrorCode.RiskAccountLocked);
-                Log.Logger.Debug("WorldSocket.HandleAuthSession: Sent Auth Response (Account country differs. Original country: {0}, new country: {1}).", account.battleNet.LockCountry, _ipCountry);
+                Log.Logger.Debug("WorldSocket.HandleAuthSession: Sent Auth Response (Account country differs. Original country: {0}, new country: {1}).", account.BNet.LockCountry, _ipCountry);
                 CloseSocket();
 
                 return;
             }
         }
 
-        var mutetime = account.game.MuteTime;
+        var mutetime = account.GameInfo.MuteTime;
 
         //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
         if (mutetime < 0)
@@ -545,7 +550,7 @@ public class WorldSocket : SocketBase
 
             stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME_LOGIN);
             stmt.AddValue(0, mutetime);
-            stmt.AddValue(1, account.game.Id);
+            stmt.AddValue(1, account.GameInfo.Id);
             _loginDatabase.Execute(stmt);
         }
 
@@ -561,7 +566,7 @@ public class WorldSocket : SocketBase
         // Check locked state for server
         var allowedAccountType = _worldManager.PlayerSecurityLimit;
 
-        if (allowedAccountType > AccountTypes.Player && account.game.Security < allowedAccountType)
+        if (allowedAccountType > AccountTypes.Player && account.GameInfo.Security < allowedAccountType)
         {
             SendAuthResponseError(BattlenetRpcErrorCode.ServerIsPrivate);
             Log.Logger.Information("WorldSocket:HandleAuthSession: User tries to login but his security level is not enough");
@@ -581,17 +586,17 @@ public class WorldSocket : SocketBase
             _loginDatabase.Execute(stmt);
         }
 
-        _worldSession = new WorldSession(account.game.Id,
+        _worldSession = new WorldSession(account.GameInfo.Id,
                                          authSession.RealmJoinTicket,
-                                         account.battleNet.Id,
+                                         account.BNet.Id,
                                          this,
-                                         account.game.Security,
-                                         (Expansion)account.game.Expansion,
+                                         account.GameInfo.Security,
+                                         (Expansion)account.GameInfo.Expansion,
                                          mutetime,
-                                         account.game.OS,
-                                         account.battleNet.Locale,
-                                         account.game.Recruiter,
-                                         account.game.IsRectuiter,
+                                         account.GameInfo.OS,
+                                         account.BNet.Locale,
+                                         account.GameInfo.Recruiter,
+                                         account.GameInfo.IsRectuiter,
                                          _classFactory);
 
         // Initialize Warden system only if it is enabled by config
@@ -604,36 +609,42 @@ public class WorldSocket : SocketBase
 
     private void HandleConnectToFailed(ConnectToFailed connectToFailed)
     {
-        if (_worldSession != null)
-            if (_worldSession.PlayerLoading)
-                switch (connectToFailed.Serial)
-                {
-                    case ConnectToSerial.WorldAttempt1:
-                        _worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt2);
+        if (_worldSession is not { PlayerLoading: true })
+            return;
 
-                        break;
-                    case ConnectToSerial.WorldAttempt2:
-                        _worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt3);
+        switch (connectToFailed.Serial)
+        {
+            case ConnectToSerial.WorldAttempt1:
+                _worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt2);
 
-                        break;
-                    case ConnectToSerial.WorldAttempt3:
-                        _worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt4);
+                break;
 
-                        break;
-                    case ConnectToSerial.WorldAttempt4:
-                        _worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt5);
+            case ConnectToSerial.WorldAttempt2:
+                _worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt3);
+                a
 
-                        break;
-                    case ConnectToSerial.WorldAttempt5:
-                    {
-                        Log.Logger.Error("{0} failed to connect 5 times to world socket, aborting login", _worldSession.GetPlayerInfo());
-                        _worldSession.AbortLogin(LoginFailureReason.NoWorld);
+                break;
 
-                        break;
-                    }
-                    default:
-                        return;
-                }
+            case ConnectToSerial.WorldAttempt3:
+                _worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt4);
+
+                break;
+
+            case ConnectToSerial.WorldAttempt4:
+                _worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt5);
+
+                break;
+
+            case ConnectToSerial.WorldAttempt5:
+            {
+                Log.Logger.Error("{0} failed to connect 5 times to world socket, aborting login", _worldSession.GetPlayerInfo());
+                _worldSession.AbortLogin(LoginFailureReason.NoWorld);
+
+                break;
+            }
+            default:
+                return;
+        }
     }
 
     private void HandleEnterEncryptedModeAck()
@@ -801,17 +812,17 @@ public class WorldSocket : SocketBase
         WorldPacket packet = new(_packetBuffer.GetData());
         _packetBuffer.Reset();
 
-        if (packet.GetOpcode() >= (int)ClientOpcodes.Max)
+        if (packet.Opcode >= (int)ClientOpcodes.Max)
         {
-            Log.Logger.Error($"WorldSocket.ReadData(): client {GetRemoteIpAddress()} sent wrong opcode (opcode: {packet.GetOpcode()})");
+            Log.Logger.Error($"WorldSocket.ReadData(): client {GetRemoteIpAddress()} sent wrong opcode (opcode: {packet.Opcode})");
             Log.Logger.Error($"Header: {_headerBuffer.GetData().ToHexString()} Data: {_packetBuffer.GetData().ToHexString()}");
 
             return ReadDataHandlerResult.Error;
         }
 
-        PacketLog.Write(packet.GetData(), packet.GetOpcode(), GetRemoteIpAddress(), ConnectionType.Instance, true);
+        PacketLog.Write(packet.GetData(), packet.Opcode, GetRemoteIpAddress(), ConnectionType.Instance, true);
 
-        var opcode = (ClientOpcodes)packet.GetOpcode();
+        var opcode = (ClientOpcodes)packet.Opcode;
 
         if (opcode != ClientOpcodes.HotfixRequest && !header.IsValidSize())
         {
@@ -830,6 +841,7 @@ public class WorldSocket : SocketBase
                     return ReadDataHandlerResult.Error;
 
                 break;
+
             case ClientOpcodes.AuthSession:
                 if (_worldSession != null)
                 {
@@ -843,6 +855,7 @@ public class WorldSocket : SocketBase
                 HandleAuthSession(authSession);
 
                 return ReadDataHandlerResult.WaitingForQuery;
+
             case ClientOpcodes.AuthContinuedSession:
                 if (_worldSession != null)
                 {
@@ -856,6 +869,7 @@ public class WorldSocket : SocketBase
                 HandleAuthContinuedSession(authContinuedSession);
 
                 return ReadDataHandlerResult.WaitingForQuery;
+
             case ClientOpcodes.KeepAlive:
                 if (_worldSession != null)
                 {
@@ -867,22 +881,27 @@ public class WorldSocket : SocketBase
                 Log.Logger.Error($"WorldSocket::ReadDataHandler: client {GetRemoteIpAddress()} sent CMSG_KEEP_ALIVE without being authenticated");
 
                 return ReadDataHandlerResult.Error;
+
             case ClientOpcodes.LogDisconnect:
                 break;
+
             case ClientOpcodes.EnableNagle:
                 SetNoDelay(false);
 
                 break;
+
             case ClientOpcodes.ConnectToFailed:
                 ConnectToFailed connectToFailed = new(packet);
                 connectToFailed.Read();
                 HandleConnectToFailed(connectToFailed);
 
                 break;
+
             case ClientOpcodes.EnterEncryptedModeAck:
                 HandleEnterEncryptedModeAck();
 
                 break;
+
             default:
                 lock (_worldSessionLock)
                 {
@@ -893,11 +912,11 @@ public class WorldSocket : SocketBase
                         return ReadDataHandlerResult.Error;
                     }
 
-                    Log.Logger.Verbose("Received opcode: {0} ({1})", (ClientOpcodes)packet.GetOpcode(), packet.GetOpcode());
+                    Log.Logger.Verbose("Received opcode: {0} ({1})", (ClientOpcodes)packet.Opcode, packet.Opcode);
 
                     if (!_packetManager.ContainsHandler(opcode))
                     {
-                        Log.Logger.Error($"No defined handler for opcode {opcode} ({packet.GetOpcode()}) sent by {_worldSession.GetPlayerInfo()}");
+                        Log.Logger.Error($"No defined handler for opcode {opcode} ({packet.Opcode}) sent by {_worldSession.GetPlayerInfo()}");
 
                         break;
                     }

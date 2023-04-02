@@ -14,10 +14,10 @@ internal class SwapGuildBankItemWithGuildBankItem : ClientPacket
 
     public override void Read()
     {
-        Banker = _worldPacket.ReadPackedGuid();
-        BankTab[0] = _worldPacket.ReadUInt8();
-        BankSlot[0] = _worldPacket.ReadUInt8();
-        BankTab[1] = _worldPacket.ReadUInt8();
-        BankSlot[1] = _worldPacket.ReadUInt8();
+        Banker = WorldPacket.ReadPackedGuid();
+        BankTab[0] = WorldPacket.ReadUInt8();
+        BankSlot[0] = WorldPacket.ReadUInt8();
+        BankTab[1] = WorldPacket.ReadUInt8();
+        BankSlot[1] = WorldPacket.ReadUInt8();
     }
 }

@@ -28,22 +28,22 @@ public class WorldServerInfo : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(DifficultyID);
-        _worldPacket.WriteBit(IsTournamentRealm);
-        _worldPacket.WriteBit(XRealmPvpAlert);
-        _worldPacket.WriteBit(BlockExitingLoadingScreen);
-        _worldPacket.WriteBit(RestrictedAccountMaxLevel.HasValue);
-        _worldPacket.WriteBit(RestrictedAccountMaxMoney.HasValue);
-        _worldPacket.WriteBit(InstanceGroupSize.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(DifficultyID);
+        WorldPacket.WriteBit(IsTournamentRealm);
+        WorldPacket.WriteBit(XRealmPvpAlert);
+        WorldPacket.WriteBit(BlockExitingLoadingScreen);
+        WorldPacket.WriteBit(RestrictedAccountMaxLevel.HasValue);
+        WorldPacket.WriteBit(RestrictedAccountMaxMoney.HasValue);
+        WorldPacket.WriteBit(InstanceGroupSize.HasValue);
+        WorldPacket.FlushBits();
 
         if (RestrictedAccountMaxLevel.HasValue)
-            _worldPacket.WriteUInt32(RestrictedAccountMaxLevel.Value);
+            WorldPacket.WriteUInt32(RestrictedAccountMaxLevel.Value);
 
         if (RestrictedAccountMaxMoney.HasValue)
-            _worldPacket.WriteUInt64(RestrictedAccountMaxMoney.Value);
+            WorldPacket.WriteUInt64(RestrictedAccountMaxMoney.Value);
 
         if (InstanceGroupSize.HasValue)
-            _worldPacket.WriteUInt32(InstanceGroupSize.Value);
+            WorldPacket.WriteUInt32(InstanceGroupSize.Value);
     }
 }

@@ -12,6 +12,6 @@ public class BuyBankSlot : ClientPacket
 
     public override void Read()
     {
-        Guid = _worldPacket.ReadPackedGuid();
+        Guid = WorldPacket.ReadPackedGuid();
     }
 }

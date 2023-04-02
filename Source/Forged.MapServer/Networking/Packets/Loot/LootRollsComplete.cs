@@ -14,7 +14,7 @@ internal class LootRollsComplete : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(LootObj);
-        _worldPacket.WriteUInt8(LootListID);
+        WorldPacket.WritePackedGuid(LootObj);
+        WorldPacket.WriteUInt8(LootListID);
     }
 }

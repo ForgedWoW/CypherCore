@@ -15,16 +15,16 @@ internal class ArtifactAddPower : ClientPacket
 
     public override void Read()
     {
-        ArtifactGUID = _worldPacket.ReadPackedGuid();
-        ForgeGUID = _worldPacket.ReadPackedGuid();
+        ArtifactGUID = WorldPacket.ReadPackedGuid();
+        ForgeGUID = WorldPacket.ReadPackedGuid();
 
-        var powerCount = _worldPacket.ReadUInt32();
+        var powerCount = WorldPacket.ReadUInt32();
 
         for (var i = 0; i < powerCount; ++i)
         {
             ArtifactPowerChoice artifactPowerChoice;
-            artifactPowerChoice.ArtifactPowerID = _worldPacket.ReadUInt32();
-            artifactPowerChoice.Rank = _worldPacket.ReadUInt8();
+            artifactPowerChoice.ArtifactPowerID = WorldPacket.ReadUInt32();
+            artifactPowerChoice.Rank = WorldPacket.ReadUInt8();
             PowerChoices[i] = artifactPowerChoice;
         }
     }

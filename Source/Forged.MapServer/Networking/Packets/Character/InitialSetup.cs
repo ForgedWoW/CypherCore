@@ -13,7 +13,7 @@ public class InitialSetup : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8(ServerExpansionLevel);
-        _worldPacket.WriteUInt8(ServerExpansionTier);
+        WorldPacket.WriteUInt8(ServerExpansionLevel);
+        WorldPacket.WriteUInt8(ServerExpansionTier);
     }
 }

@@ -29,47 +29,47 @@ public class QuestGiverRequestItems : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(QuestGiverGUID);
-        _worldPacket.WriteUInt32(QuestGiverCreatureID);
-        _worldPacket.WriteUInt32(QuestID);
-        _worldPacket.WriteUInt32(CompEmoteDelay);
-        _worldPacket.WriteUInt32(CompEmoteType);
-        _worldPacket.WriteUInt32(QuestFlags[0]);
-        _worldPacket.WriteUInt32(QuestFlags[1]);
-        _worldPacket.WriteUInt32(QuestFlags[2]);
-        _worldPacket.WriteUInt32(SuggestPartyMembers);
-        _worldPacket.WriteInt32(MoneyToGet);
-        _worldPacket.WriteInt32(Collect.Count);
-        _worldPacket.WriteInt32(Currency.Count);
-        _worldPacket.WriteInt32(StatusFlags);
+        WorldPacket.WritePackedGuid(QuestGiverGUID);
+        WorldPacket.WriteUInt32(QuestGiverCreatureID);
+        WorldPacket.WriteUInt32(QuestID);
+        WorldPacket.WriteUInt32(CompEmoteDelay);
+        WorldPacket.WriteUInt32(CompEmoteType);
+        WorldPacket.WriteUInt32(QuestFlags[0]);
+        WorldPacket.WriteUInt32(QuestFlags[1]);
+        WorldPacket.WriteUInt32(QuestFlags[2]);
+        WorldPacket.WriteUInt32(SuggestPartyMembers);
+        WorldPacket.WriteInt32(MoneyToGet);
+        WorldPacket.WriteInt32(Collect.Count);
+        WorldPacket.WriteInt32(Currency.Count);
+        WorldPacket.WriteInt32(StatusFlags);
 
         foreach (var obj in Collect)
         {
-            _worldPacket.WriteUInt32(obj.ObjectID);
-            _worldPacket.WriteInt32(obj.Amount);
-            _worldPacket.WriteUInt32(obj.Flags);
+            WorldPacket.WriteUInt32(obj.ObjectID);
+            WorldPacket.WriteInt32(obj.Amount);
+            WorldPacket.WriteUInt32(obj.Flags);
         }
 
         foreach (var cur in Currency)
         {
-            _worldPacket.WriteUInt32(cur.CurrencyID);
-            _worldPacket.WriteInt32(cur.Amount);
+            WorldPacket.WriteUInt32(cur.CurrencyID);
+            WorldPacket.WriteInt32(cur.Amount);
         }
 
-        _worldPacket.WriteBit(AutoLaunched);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(AutoLaunched);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteUInt32(QuestGiverCreatureID);
-        _worldPacket.WriteInt32(ConditionalCompletionText.Count);
+        WorldPacket.WriteUInt32(QuestGiverCreatureID);
+        WorldPacket.WriteInt32(ConditionalCompletionText.Count);
 
-        _worldPacket.WriteBits(QuestTitle.GetByteCount(), 9);
-        _worldPacket.WriteBits(CompletionText.GetByteCount(), 12);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(QuestTitle.GetByteCount(), 9);
+        WorldPacket.WriteBits(CompletionText.GetByteCount(), 12);
+        WorldPacket.FlushBits();
 
         foreach (var conditionalQuestText in ConditionalCompletionText)
-            conditionalQuestText.Write(_worldPacket);
+            conditionalQuestText.Write(WorldPacket);
 
-        _worldPacket.WriteString(QuestTitle);
-        _worldPacket.WriteString(CompletionText);
+        WorldPacket.WriteString(QuestTitle);
+        WorldPacket.WriteString(CompletionText);
     }
 }

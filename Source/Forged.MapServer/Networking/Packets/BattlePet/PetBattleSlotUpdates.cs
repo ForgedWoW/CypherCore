@@ -15,12 +15,12 @@ internal class PetBattleSlotUpdates : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Slots.Count);
-        _worldPacket.WriteBit(NewSlot);
-        _worldPacket.WriteBit(AutoSlotted);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(Slots.Count);
+        WorldPacket.WriteBit(NewSlot);
+        WorldPacket.WriteBit(AutoSlotted);
+        WorldPacket.FlushBits();
 
         foreach (var slot in Slots)
-            slot.Write(_worldPacket);
+            slot.Write(WorldPacket);
     }
 }

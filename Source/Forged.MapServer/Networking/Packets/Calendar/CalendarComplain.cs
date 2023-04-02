@@ -14,8 +14,8 @@ internal class CalendarComplain : ClientPacket
 
     public override void Read()
     {
-        InvitedByGUID = _worldPacket.ReadPackedGuid();
-        EventID = _worldPacket.ReadUInt64();
-        InviteID = _worldPacket.ReadUInt64();
+        InvitedByGUID = WorldPacket.ReadPackedGuid();
+        EventID = WorldPacket.ReadUInt64();
+        InviteID = WorldPacket.ReadUInt64();
     }
 }

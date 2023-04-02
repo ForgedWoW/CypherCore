@@ -14,7 +14,7 @@ public class TriggerCinematic : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(CinematicID);
-        _worldPacket.WritePackedGuid(ConversationGuid);
+        WorldPacket.WriteUInt32(CinematicID);
+        WorldPacket.WritePackedGuid(ConversationGuid);
     }
 }

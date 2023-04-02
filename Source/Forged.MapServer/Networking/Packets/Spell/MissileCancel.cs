@@ -15,9 +15,9 @@ internal class MissileCancel : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(OwnerGUID);
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteBit(Reverse);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(OwnerGUID);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteBit(Reverse);
+        WorldPacket.FlushBits();
     }
 }

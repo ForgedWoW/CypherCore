@@ -15,8 +15,8 @@ public class SellResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(VendorGUID);
-        _worldPacket.WritePackedGuid(ItemGUID);
-        _worldPacket.WriteUInt8((byte)Reason);
+        WorldPacket.WritePackedGuid(VendorGUID);
+        WorldPacket.WritePackedGuid(ItemGUID);
+        WorldPacket.WriteUInt8((byte)Reason);
     }
 }

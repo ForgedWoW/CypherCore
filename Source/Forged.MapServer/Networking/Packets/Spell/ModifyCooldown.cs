@@ -15,10 +15,10 @@ public class ModifyCooldown : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteInt32(DeltaTime);
-        _worldPacket.WriteBit(IsPet);
-        _worldPacket.WriteBit(WithoutCategoryCooldown);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteInt32(DeltaTime);
+        WorldPacket.WriteBit(IsPet);
+        WorldPacket.WriteBit(WithoutCategoryCooldown);
+        WorldPacket.FlushBits();
     }
 }

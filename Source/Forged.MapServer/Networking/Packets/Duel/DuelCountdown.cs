@@ -16,6 +16,6 @@ public class DuelCountdown : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(Countdown);
+        WorldPacket.WriteUInt32(Countdown);
     }
 }

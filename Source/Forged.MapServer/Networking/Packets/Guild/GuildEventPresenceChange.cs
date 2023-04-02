@@ -18,13 +18,13 @@ public class GuildEventPresenceChange : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Guid);
-        _worldPacket.WriteUInt32(VirtualRealmAddress);
+        WorldPacket.WritePackedGuid(Guid);
+        WorldPacket.WriteUInt32(VirtualRealmAddress);
 
-        _worldPacket.WriteBits(Name.GetByteCount(), 6);
-        _worldPacket.WriteBit(LoggedOn);
-        _worldPacket.WriteBit(Mobile);
+        WorldPacket.WriteBits(Name.GetByteCount(), 6);
+        WorldPacket.WriteBit(LoggedOn);
+        WorldPacket.WriteBit(Mobile);
 
-        _worldPacket.WriteString(Name);
+        WorldPacket.WriteString(Name);
     }
 }

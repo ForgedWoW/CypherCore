@@ -20,14 +20,14 @@ internal class SpellDamageShield : CombatLogServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Attacker);
-        _worldPacket.WritePackedGuid(Defender);
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteUInt32(TotalDamage);
-        _worldPacket.WriteInt32(OriginalDamage);
-        _worldPacket.WriteUInt32(OverKill);
-        _worldPacket.WriteUInt32(SchoolMask);
-        _worldPacket.WriteUInt32(LogAbsorbed);
+        WorldPacket.WritePackedGuid(Attacker);
+        WorldPacket.WritePackedGuid(Defender);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteUInt32(TotalDamage);
+        WorldPacket.WriteInt32(OriginalDamage);
+        WorldPacket.WriteUInt32(OverKill);
+        WorldPacket.WriteUInt32(SchoolMask);
+        WorldPacket.WriteUInt32(LogAbsorbed);
 
         WriteLogDataBit();
         FlushBits();

@@ -16,7 +16,7 @@ public class PetCastSpell : ClientPacket
 
     public override void Read()
     {
-        PetGUID = _worldPacket.ReadPackedGuid();
-        Cast.Read(_worldPacket);
+        PetGUID = WorldPacket.ReadPackedGuid();
+        Cast.Read(WorldPacket);
     }
 }

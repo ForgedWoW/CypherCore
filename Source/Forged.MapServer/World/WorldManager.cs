@@ -1177,7 +1177,7 @@ public class WorldManager
     }
     public void Update(uint diff)
     {
-        //- Update the game time and check for shutdown time
+        //- Update the GameInfo time and check for shutdown time
         UpdateGameTime();
         var currentGameTime = GameTime.CurrentTime;
 
@@ -1627,7 +1627,7 @@ public class WorldManager
         long currencytime = GetPersistentWorldVariable(NEXT_CURRENCY_RESET_TIME_VAR_ID);
 
         if (currencytime == 0)
-            _nextCurrencyReset = GameTime.CurrentTime; // game time not yet init
+            _nextCurrencyReset = GameTime.CurrentTime; // GameInfo time not yet init
 
         // generate time by config
         var curTime = GameTime.CurrentTime;
@@ -1650,7 +1650,7 @@ public class WorldManager
         long gtime = GetPersistentWorldVariable(NEXT_GUILD_DAILY_RESET_TIME_VAR_ID);
 
         if (gtime == 0)
-            _nextGuildReset = GameTime.CurrentTime; // game time not yet init
+            _nextGuildReset = GameTime.CurrentTime; // GameInfo time not yet init
 
         var curTime = GameTime.CurrentTime;
         var nextDayResetTime = Time.GetNextResetUnixTime(_configuration.GetDefaultValue("Guild.ResetHour", 6));
@@ -1677,7 +1677,7 @@ public class WorldManager
         long bgtime = GetPersistentWorldVariable(NEXT_BG_RANDOM_DAILY_RESET_TIME_VAR_ID);
 
         if (bgtime == 0)
-            _nextRandomBgReset = GameTime.CurrentTime; // game time not yet init
+            _nextRandomBgReset = GameTime.CurrentTime; // GameInfo time not yet init
 
         // generate time by config
         var curTime = GameTime.CurrentTime;

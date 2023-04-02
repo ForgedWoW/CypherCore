@@ -16,11 +16,11 @@ internal class SpellMissLog : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WritePackedGuid(Caster);
-        _worldPacket.WriteInt32(Entries.Count);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WritePackedGuid(Caster);
+        WorldPacket.WriteInt32(Entries.Count);
 
         foreach (var missEntry in Entries)
-            missEntry.Write(_worldPacket);
+            missEntry.Write(WorldPacket);
     }
 }

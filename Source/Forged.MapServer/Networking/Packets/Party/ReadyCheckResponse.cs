@@ -15,10 +15,10 @@ internal class ReadyCheckResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(PartyGUID);
-        _worldPacket.WritePackedGuid(Player);
+        WorldPacket.WritePackedGuid(PartyGUID);
+        WorldPacket.WritePackedGuid(Player);
 
-        _worldPacket.WriteBit(IsReady);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(IsReady);
+        WorldPacket.FlushBits();
     }
 }

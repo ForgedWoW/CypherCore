@@ -24,31 +24,31 @@ internal class SpellHealLog : CombatLogServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(TargetGUID);
-        _worldPacket.WritePackedGuid(CasterGUID);
+        WorldPacket.WritePackedGuid(TargetGUID);
+        WorldPacket.WritePackedGuid(CasterGUID);
 
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteUInt32(Health);
-        _worldPacket.WriteInt32(OriginalHeal);
-        _worldPacket.WriteUInt32(OverHeal);
-        _worldPacket.WriteUInt32(Absorbed);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteUInt32(Health);
+        WorldPacket.WriteInt32(OriginalHeal);
+        WorldPacket.WriteUInt32(OverHeal);
+        WorldPacket.WriteUInt32(Absorbed);
 
-        _worldPacket.WriteBit(Crit);
+        WorldPacket.WriteBit(Crit);
 
-        _worldPacket.WriteBit(CritRollMade.HasValue);
-        _worldPacket.WriteBit(CritRollNeeded.HasValue);
+        WorldPacket.WriteBit(CritRollMade.HasValue);
+        WorldPacket.WriteBit(CritRollNeeded.HasValue);
         WriteLogDataBit();
-        _worldPacket.WriteBit(ContentTuning != null);
+        WorldPacket.WriteBit(ContentTuning != null);
         FlushBits();
 
         WriteLogData();
 
         if (CritRollMade.HasValue)
-            _worldPacket.WriteFloat(CritRollMade.Value);
+            WorldPacket.WriteFloat(CritRollMade.Value);
 
         if (CritRollNeeded.HasValue)
-            _worldPacket.WriteFloat(CritRollNeeded.Value);
+            WorldPacket.WriteFloat(CritRollNeeded.Value);
 
-        ContentTuning?.Write(_worldPacket);
+        ContentTuning?.Write(WorldPacket);
     }
 }

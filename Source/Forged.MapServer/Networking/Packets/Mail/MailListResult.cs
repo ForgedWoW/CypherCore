@@ -14,9 +14,9 @@ public class MailListResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Mails.Count);
-        _worldPacket.WriteInt32(TotalNumRecords);
+        WorldPacket.WriteInt32(Mails.Count);
+        WorldPacket.WriteInt32(TotalNumRecords);
 
-        Mails.ForEach(p => p.Write(_worldPacket));
+        Mails.ForEach(p => p.Write(WorldPacket));
     }
 }

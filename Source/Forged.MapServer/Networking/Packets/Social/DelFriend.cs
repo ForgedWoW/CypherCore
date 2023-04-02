@@ -10,6 +10,6 @@ public class DelFriend : ClientPacket
 
     public override void Read()
     {
-        Player.Read(_worldPacket);
+        Player.Read(WorldPacket);
     }
 }

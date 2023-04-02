@@ -15,8 +15,8 @@ internal class BattlePetSetFlags : ClientPacket
 
     public override void Read()
     {
-        PetGuid = _worldPacket.ReadPackedGuid();
-        Flags = _worldPacket.ReadUInt32();
-        ControlType = (FlagsControlType)_worldPacket.ReadBits<byte>(2);
+        PetGuid = WorldPacket.ReadPackedGuid();
+        Flags = WorldPacket.ReadUInt32();
+        ControlType = (FlagsControlType)WorldPacket.ReadBits<byte>(2);
     }
 }

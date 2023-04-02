@@ -16,10 +16,10 @@ internal class SpellOrDamageImmune : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(CasterGUID);
-        _worldPacket.WritePackedGuid(VictimGUID);
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteBit(IsPeriodic);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(CasterGUID);
+        WorldPacket.WritePackedGuid(VictimGUID);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteBit(IsPeriodic);
+        WorldPacket.FlushBits();
     }
 }

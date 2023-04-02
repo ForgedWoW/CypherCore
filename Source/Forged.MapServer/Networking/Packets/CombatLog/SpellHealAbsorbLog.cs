@@ -21,16 +21,16 @@ internal class SpellHealAbsorbLog : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Target);
-        _worldPacket.WritePackedGuid(AbsorbCaster);
-        _worldPacket.WritePackedGuid(Healer);
-        _worldPacket.WriteInt32(AbsorbSpellID);
-        _worldPacket.WriteInt32(AbsorbedSpellID);
-        _worldPacket.WriteInt32(Absorbed);
-        _worldPacket.WriteInt32(OriginalHeal);
-        _worldPacket.WriteBit(ContentTuning != null);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Target);
+        WorldPacket.WritePackedGuid(AbsorbCaster);
+        WorldPacket.WritePackedGuid(Healer);
+        WorldPacket.WriteInt32(AbsorbSpellID);
+        WorldPacket.WriteInt32(AbsorbedSpellID);
+        WorldPacket.WriteInt32(Absorbed);
+        WorldPacket.WriteInt32(OriginalHeal);
+        WorldPacket.WriteBit(ContentTuning != null);
+        WorldPacket.FlushBits();
 
-        ContentTuning?.Write(_worldPacket);
+        ContentTuning?.Write(WorldPacket);
     }
 }

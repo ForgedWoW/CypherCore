@@ -17,9 +17,9 @@ public class BattlefieldStatusFailed : ServerPacket
 
     public override void Write()
     {
-        Ticket.Write(_worldPacket);
-        _worldPacket.WriteUInt64(QueueID);
-        _worldPacket.WriteInt32(Reason);
-        _worldPacket.WritePackedGuid(ClientID);
+        Ticket.Write(WorldPacket);
+        WorldPacket.WriteUInt64(QueueID);
+        WorldPacket.WriteInt32(Reason);
+        WorldPacket.WritePackedGuid(ClientID);
     }
 }

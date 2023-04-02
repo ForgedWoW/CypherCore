@@ -13,8 +13,8 @@ public class AddIgnore : ClientPacket
 
     public override void Read()
     {
-        var nameLength = _worldPacket.ReadBits<uint>(9);
-        AccountGUID = _worldPacket.ReadPackedGuid();
-        Name = _worldPacket.ReadString(nameLength);
+        var nameLength = WorldPacket.ReadBits<uint>(9);
+        AccountGUID = WorldPacket.ReadPackedGuid();
+        Name = WorldPacket.ReadString(nameLength);
     }
 }

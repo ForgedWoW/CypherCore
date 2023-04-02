@@ -12,6 +12,6 @@ public class GetItemPurchaseData : ClientPacket
 
     public override void Read()
     {
-        ItemGUID = _worldPacket.ReadPackedGuid();
+        ItemGUID = WorldPacket.ReadPackedGuid();
     }
 }

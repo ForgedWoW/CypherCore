@@ -17,16 +17,16 @@ public class LevelUpInfo : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(Level);
-        _worldPacket.WriteUInt32(HealthDelta);
+        WorldPacket.WriteUInt32(Level);
+        WorldPacket.WriteUInt32(HealthDelta);
 
         foreach (var power in PowerDelta)
-            _worldPacket.WriteInt32(power);
+            WorldPacket.WriteInt32(power);
 
         foreach (var stat in StatDelta)
-            _worldPacket.WriteInt32(stat);
+            WorldPacket.WriteInt32(stat);
 
-        _worldPacket.WriteInt32(NumNewTalents);
-        _worldPacket.WriteInt32(NumNewPvpTalentSlots);
+        WorldPacket.WriteInt32(NumNewTalents);
+        WorldPacket.WriteInt32(NumNewPvpTalentSlots);
     }
 }

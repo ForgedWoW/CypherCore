@@ -15,11 +15,11 @@ public class SplitItem : ClientPacket
 
     public override void Read()
     {
-        Inv = new InvUpdate(_worldPacket);
-        FromPackSlot = _worldPacket.ReadUInt8();
-        FromSlot = _worldPacket.ReadUInt8();
-        ToPackSlot = _worldPacket.ReadUInt8();
-        ToSlot = _worldPacket.ReadUInt8();
-        Quantity = _worldPacket.ReadInt32();
+        Inv = new InvUpdate(WorldPacket);
+        FromPackSlot = WorldPacket.ReadUInt8();
+        FromSlot = WorldPacket.ReadUInt8();
+        ToPackSlot = WorldPacket.ReadUInt8();
+        ToSlot = WorldPacket.ReadUInt8();
+        Quantity = WorldPacket.ReadInt32();
     }
 }

@@ -11,7 +11,7 @@ public class OpenItem : ClientPacket
 
     public override void Read()
     {
-        Slot = _worldPacket.ReadUInt8();
-        PackSlot = _worldPacket.ReadUInt8();
+        Slot = WorldPacket.ReadUInt8();
+        PackSlot = WorldPacket.ReadUInt8();
     }
 }

@@ -13,7 +13,7 @@ internal class GarrisonDeleteResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32((uint)Result);
-        _worldPacket.WriteUInt32(GarrSiteID);
+        WorldPacket.WriteUInt32((uint)Result);
+        WorldPacket.WriteUInt32(GarrSiteID);
     }
 }

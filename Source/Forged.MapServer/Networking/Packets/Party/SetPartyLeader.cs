@@ -13,7 +13,7 @@ internal class SetPartyLeader : ClientPacket
 
     public override void Read()
     {
-        PartyIndex = _worldPacket.ReadInt8();
-        TargetGUID = _worldPacket.ReadPackedGuid();
+        PartyIndex = WorldPacket.ReadInt8();
+        TargetGUID = WorldPacket.ReadPackedGuid();
     }
 }

@@ -15,8 +15,8 @@ internal class GameObjectPlaySpellVisual : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ObjectGUID);
-        _worldPacket.WritePackedGuid(ActivatorGUID);
-        _worldPacket.WriteUInt32(SpellVisualID);
+        WorldPacket.WritePackedGuid(ObjectGUID);
+        WorldPacket.WritePackedGuid(ActivatorGUID);
+        WorldPacket.WriteUInt32(SpellVisualID);
     }
 }

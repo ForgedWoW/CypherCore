@@ -17,10 +17,10 @@ internal class LogXPGain : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Victim);
-        _worldPacket.WriteInt32(Original);
-        _worldPacket.WriteUInt8((byte)Reason);
-        _worldPacket.WriteInt32(Amount);
-        _worldPacket.WriteFloat(GroupBonus);
+        WorldPacket.WritePackedGuid(Victim);
+        WorldPacket.WriteInt32(Original);
+        WorldPacket.WriteUInt8((byte)Reason);
+        WorldPacket.WriteInt32(Amount);
+        WorldPacket.WriteFloat(GroupBonus);
     }
 }

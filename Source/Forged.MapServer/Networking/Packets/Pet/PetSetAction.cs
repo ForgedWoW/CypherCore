@@ -14,9 +14,9 @@ internal class PetSetAction : ClientPacket
 
     public override void Read()
     {
-        PetGUID = _worldPacket.ReadPackedGuid();
+        PetGUID = WorldPacket.ReadPackedGuid();
 
-        Index = _worldPacket.ReadUInt32();
-        Action = _worldPacket.ReadUInt32();
+        Index = WorldPacket.ReadUInt32();
+        Action = WorldPacket.ReadUInt32();
     }
 }

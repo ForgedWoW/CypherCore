@@ -14,12 +14,12 @@ internal class BattlemasterJoin : ClientPacket
 
     public override void Read()
     {
-        var queueCount = _worldPacket.ReadUInt32();
-        Roles = _worldPacket.ReadUInt8();
-        BlacklistMap[0] = _worldPacket.ReadInt32();
-        BlacklistMap[1] = _worldPacket.ReadInt32();
+        var queueCount = WorldPacket.ReadUInt32();
+        Roles = WorldPacket.ReadUInt8();
+        BlacklistMap[0] = WorldPacket.ReadInt32();
+        BlacklistMap[1] = WorldPacket.ReadInt32();
 
         for (var i = 0; i < queueCount; ++i)
-            QueueIDs[i] = _worldPacket.ReadUInt64();
+            QueueIDs[i] = WorldPacket.ReadUInt64();
     }
 }

@@ -16,10 +16,10 @@ public class DistributionAssignToTarget : ClientPacket
     public ObjectGuid TargetCharacter { get; set; } = new();
     public override void Read()
     {
-        ProductID = _worldPacket.ReadUInt32();
-        DistributionID = _worldPacket.ReadUInt64();
-        TargetCharacter = _worldPacket.ReadPackedGuid();
-        SpecializationID = _worldPacket.ReadUInt16();
-        ChoiceID = _worldPacket.ReadUInt16();
+        ProductID = WorldPacket.ReadUInt32();
+        DistributionID = WorldPacket.ReadUInt64();
+        TargetCharacter = WorldPacket.ReadPackedGuid();
+        SpecializationID = WorldPacket.ReadUInt16();
+        ChoiceID = WorldPacket.ReadUInt16();
     }
 }

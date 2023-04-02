@@ -14,7 +14,7 @@ internal class PetActionSound : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(UnitGUID);
-        _worldPacket.WriteUInt32((uint)Action);
+        WorldPacket.WritePackedGuid(UnitGUID);
+        WorldPacket.WriteUInt32((uint)Action);
     }
 }

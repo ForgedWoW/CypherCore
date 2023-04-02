@@ -15,13 +15,13 @@ public class SetTimeZoneInformation : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(ServerTimeTZ.GetByteCount(), 7);
-        _worldPacket.WriteBits(GameTimeTZ.GetByteCount(), 7);
-        _worldPacket.WriteBits(ServerRegionalTZ.GetByteCount(), 7);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(ServerTimeTZ.GetByteCount(), 7);
+        WorldPacket.WriteBits(GameTimeTZ.GetByteCount(), 7);
+        WorldPacket.WriteBits(ServerRegionalTZ.GetByteCount(), 7);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteString(ServerTimeTZ);
-        _worldPacket.WriteString(GameTimeTZ);
-        _worldPacket.WriteString(ServerRegionalTZ);
+        WorldPacket.WriteString(ServerTimeTZ);
+        WorldPacket.WriteString(GameTimeTZ);
+        WorldPacket.WriteString(ServerRegionalTZ);
     }
 }

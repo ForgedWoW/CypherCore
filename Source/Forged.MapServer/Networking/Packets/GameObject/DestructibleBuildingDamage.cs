@@ -17,10 +17,10 @@ internal class DestructibleBuildingDamage : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Target);
-        _worldPacket.WritePackedGuid(Owner);
-        _worldPacket.WritePackedGuid(Caster);
-        _worldPacket.WriteInt32(Damage);
-        _worldPacket.WriteUInt32(SpellID);
+        WorldPacket.WritePackedGuid(Target);
+        WorldPacket.WritePackedGuid(Owner);
+        WorldPacket.WritePackedGuid(Caster);
+        WorldPacket.WriteInt32(Damage);
+        WorldPacket.WriteUInt32(SpellID);
     }
 }

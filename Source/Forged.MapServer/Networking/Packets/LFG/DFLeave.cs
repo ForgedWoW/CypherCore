@@ -10,6 +10,6 @@ internal class DFLeave : ClientPacket
 
     public override void Read()
     {
-        Ticket.Read(_worldPacket);
+        Ticket.Read(WorldPacket);
     }
 }

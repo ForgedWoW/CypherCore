@@ -27,31 +27,31 @@ public class QuestGiverOfferRewardMessage : ServerPacket
 
     public override void Write()
     {
-        QuestData.Write(_worldPacket);
-        _worldPacket.WriteUInt32(QuestPackageID);
-        _worldPacket.WriteUInt32(PortraitGiver);
-        _worldPacket.WriteUInt32(PortraitGiverMount);
-        _worldPacket.WriteInt32(PortraitGiverModelSceneID);
-        _worldPacket.WriteUInt32(PortraitTurnIn);
-        _worldPacket.WriteUInt32(QuestGiverCreatureID);
-        _worldPacket.WriteInt32(ConditionalRewardText.Count);
+        QuestData.Write(WorldPacket);
+        WorldPacket.WriteUInt32(QuestPackageID);
+        WorldPacket.WriteUInt32(PortraitGiver);
+        WorldPacket.WriteUInt32(PortraitGiverMount);
+        WorldPacket.WriteInt32(PortraitGiverModelSceneID);
+        WorldPacket.WriteUInt32(PortraitTurnIn);
+        WorldPacket.WriteUInt32(QuestGiverCreatureID);
+        WorldPacket.WriteInt32(ConditionalRewardText.Count);
 
-        _worldPacket.WriteBits(QuestTitle.GetByteCount(), 9);
-        _worldPacket.WriteBits(RewardText.GetByteCount(), 12);
-        _worldPacket.WriteBits(PortraitGiverText.GetByteCount(), 10);
-        _worldPacket.WriteBits(PortraitGiverName.GetByteCount(), 8);
-        _worldPacket.WriteBits(PortraitTurnInText.GetByteCount(), 10);
-        _worldPacket.WriteBits(PortraitTurnInName.GetByteCount(), 8);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(QuestTitle.GetByteCount(), 9);
+        WorldPacket.WriteBits(RewardText.GetByteCount(), 12);
+        WorldPacket.WriteBits(PortraitGiverText.GetByteCount(), 10);
+        WorldPacket.WriteBits(PortraitGiverName.GetByteCount(), 8);
+        WorldPacket.WriteBits(PortraitTurnInText.GetByteCount(), 10);
+        WorldPacket.WriteBits(PortraitTurnInName.GetByteCount(), 8);
+        WorldPacket.FlushBits();
 
         foreach (var conditionalQuestText in ConditionalRewardText)
-            conditionalQuestText.Write(_worldPacket);
+            conditionalQuestText.Write(WorldPacket);
 
-        _worldPacket.WriteString(QuestTitle);
-        _worldPacket.WriteString(RewardText);
-        _worldPacket.WriteString(PortraitGiverText);
-        _worldPacket.WriteString(PortraitGiverName);
-        _worldPacket.WriteString(PortraitTurnInText);
-        _worldPacket.WriteString(PortraitTurnInName);
+        WorldPacket.WriteString(QuestTitle);
+        WorldPacket.WriteString(RewardText);
+        WorldPacket.WriteString(PortraitGiverText);
+        WorldPacket.WriteString(PortraitGiverName);
+        WorldPacket.WriteString(PortraitTurnInText);
+        WorldPacket.WriteString(PortraitTurnInName);
     }
 }

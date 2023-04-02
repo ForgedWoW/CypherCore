@@ -10,6 +10,6 @@ internal class ScenePlaybackComplete : ClientPacket
 
     public override void Read()
     {
-        SceneInstanceID = _worldPacket.ReadUInt32();
+        SceneInstanceID = WorldPacket.ReadUInt32();
     }
 }

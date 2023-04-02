@@ -18,21 +18,21 @@ internal class PhaseShiftChange : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Client);
-        Phaseshift.Write(_worldPacket);
-        _worldPacket.WriteInt32(VisibleMapIDs.Count * 2); // size in bytes
+        WorldPacket.WritePackedGuid(Client);
+        Phaseshift.Write(WorldPacket);
+        WorldPacket.WriteInt32(VisibleMapIDs.Count * 2); // size in bytes
 
         foreach (var visibleMapId in VisibleMapIDs)
-            _worldPacket.WriteUInt16(visibleMapId); // Active terrain swap map id
+            WorldPacket.WriteUInt16(visibleMapId); // Active terrain swap map id
 
-        _worldPacket.WriteInt32(PreloadMapIDs.Count * 2); // size in bytes
+        WorldPacket.WriteInt32(PreloadMapIDs.Count * 2); // size in bytes
 
         foreach (var preloadMapId in PreloadMapIDs)
-            _worldPacket.WriteUInt16(preloadMapId); // Inactive terrain swap map id
+            WorldPacket.WriteUInt16(preloadMapId); // Inactive terrain swap map id
 
-        _worldPacket.WriteInt32(UiMapPhaseIDs.Count * 2); // size in bytes
+        WorldPacket.WriteInt32(UiMapPhaseIDs.Count * 2); // size in bytes
 
         foreach (var uiMapPhaseId in UiMapPhaseIDs)
-            _worldPacket.WriteUInt16(uiMapPhaseId); // UI map id, WorldMapArea.db2, controls map display
+            WorldPacket.WriteUInt16(uiMapPhaseId); // UI map id, WorldMapArea.db2, controls map display
     }
 }

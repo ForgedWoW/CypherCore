@@ -13,7 +13,7 @@ public class ComplaintResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32((uint)ComplaintType);
-        _worldPacket.WriteUInt8(Result);
+        WorldPacket.WriteUInt32((uint)ComplaintType);
+        WorldPacket.WriteUInt8(Result);
     }
 }

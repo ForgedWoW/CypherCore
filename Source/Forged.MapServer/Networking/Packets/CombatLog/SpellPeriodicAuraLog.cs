@@ -18,14 +18,14 @@ internal class SpellPeriodicAuraLog : CombatLogServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(TargetGUID);
-        _worldPacket.WritePackedGuid(CasterGUID);
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteInt32(Effects.Count);
+        WorldPacket.WritePackedGuid(TargetGUID);
+        WorldPacket.WritePackedGuid(CasterGUID);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteInt32(Effects.Count);
         WriteLogDataBit();
         FlushBits();
 
-        Effects.ForEach(p => p.Write(_worldPacket));
+        Effects.ForEach(p => p.Write(WorldPacket));
 
         WriteLogData();
     }

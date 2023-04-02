@@ -13,9 +13,9 @@ internal class CalendarRemoveEvent : ClientPacket
 
     public override void Read()
     {
-        EventID = _worldPacket.ReadUInt64();
-        ModeratorID = _worldPacket.ReadUInt64();
-        ClubID = _worldPacket.ReadUInt64();
-        Flags = _worldPacket.ReadUInt32();
+        EventID = WorldPacket.ReadUInt64();
+        ModeratorID = WorldPacket.ReadUInt64();
+        ClubID = WorldPacket.ReadUInt64();
+        Flags = WorldPacket.ReadUInt32();
     }
 }

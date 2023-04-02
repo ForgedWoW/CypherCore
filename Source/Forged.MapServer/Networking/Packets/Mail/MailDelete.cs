@@ -11,7 +11,7 @@ public class MailDelete : ClientPacket
 
     public override void Read()
     {
-        MailID = _worldPacket.ReadUInt64();
-        DeleteReason = _worldPacket.ReadInt32();
+        MailID = WorldPacket.ReadUInt64();
+        DeleteReason = WorldPacket.ReadInt32();
     }
 }

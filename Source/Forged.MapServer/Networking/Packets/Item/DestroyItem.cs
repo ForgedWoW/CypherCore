@@ -12,8 +12,8 @@ public class DestroyItem : ClientPacket
 
     public override void Read()
     {
-        Count = _worldPacket.ReadUInt32();
-        ContainerId = _worldPacket.ReadUInt8();
-        SlotNum = _worldPacket.ReadUInt8();
+        Count = WorldPacket.ReadUInt32();
+        ContainerId = WorldPacket.ReadUInt8();
+        SlotNum = WorldPacket.ReadUInt8();
     }
 }

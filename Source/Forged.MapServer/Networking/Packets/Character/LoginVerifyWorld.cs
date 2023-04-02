@@ -15,11 +15,11 @@ public class LoginVerifyWorld : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(MapID);
-        _worldPacket.WriteFloat(Pos.X);
-        _worldPacket.WriteFloat(Pos.Y);
-        _worldPacket.WriteFloat(Pos.Z);
-        _worldPacket.WriteFloat(Pos.Orientation);
-        _worldPacket.WriteUInt32(Reason);
+        WorldPacket.WriteInt32(MapID);
+        WorldPacket.WriteFloat(Pos.X);
+        WorldPacket.WriteFloat(Pos.Y);
+        WorldPacket.WriteFloat(Pos.Z);
+        WorldPacket.WriteFloat(Pos.Orientation);
+        WorldPacket.WriteUInt32(Reason);
     }
 }

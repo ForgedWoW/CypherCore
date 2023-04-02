@@ -19,14 +19,14 @@ public class UserClientUpdateAccountData : ClientPacket
 
     public override void Read()
     {
-        PlayerGuid = _worldPacket.ReadPackedGuid();
-        Time = _worldPacket.ReadInt64();
-        Size = _worldPacket.ReadUInt32();
-        DataType = (AccountDataTypes)_worldPacket.ReadBits<uint>(4);
+        PlayerGuid = WorldPacket.ReadPackedGuid();
+        Time = WorldPacket.ReadInt64();
+        Size = WorldPacket.ReadUInt32();
+        DataType = (AccountDataTypes)WorldPacket.ReadBits<uint>(4);
 
-        var compressedSize = _worldPacket.ReadUInt32();
+        var compressedSize = WorldPacket.ReadUInt32();
 
         if (compressedSize != 0)
-            CompressedData = new ByteBuffer(_worldPacket.ReadBytes(compressedSize));
+            CompressedData = new ByteBuffer(WorldPacket.ReadBytes(compressedSize));
     }
 }

@@ -22,12 +22,12 @@ public class BuyItem : ClientPacket
 
     public override void Read()
     {
-        VendorGUID = _worldPacket.ReadPackedGuid();
-        ContainerGUID = _worldPacket.ReadPackedGuid();
-        Quantity = _worldPacket.ReadInt32();
-        Muid = _worldPacket.ReadUInt32();
-        Slot = _worldPacket.ReadUInt32();
-        Item.Read(_worldPacket);
-        ItemType = (ItemVendorType)_worldPacket.ReadBits<int>(3);
+        VendorGUID = WorldPacket.ReadPackedGuid();
+        ContainerGUID = WorldPacket.ReadPackedGuid();
+        Quantity = WorldPacket.ReadInt32();
+        Muid = WorldPacket.ReadUInt32();
+        Slot = WorldPacket.ReadUInt32();
+        Item.Read(WorldPacket);
+        ItemType = (ItemVendorType)WorldPacket.ReadBits<int>(3);
     }
 }

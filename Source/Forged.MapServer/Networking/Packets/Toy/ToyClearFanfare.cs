@@ -10,6 +10,6 @@ internal class ToyClearFanfare : ClientPacket
 
     public override void Read()
     {
-        ItemID = _worldPacket.ReadUInt32();
+        ItemID = WorldPacket.ReadUInt32();
     }
 }

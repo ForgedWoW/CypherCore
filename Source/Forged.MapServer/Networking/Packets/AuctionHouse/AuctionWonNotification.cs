@@ -13,6 +13,6 @@ internal class AuctionWonNotification : ServerPacket
 
     public override void Write()
     {
-        Info.Write(_worldPacket);
+        Info.Write(WorldPacket);
     }
 }

@@ -13,18 +13,18 @@ public class GuildCriteriaUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Progress.Count);
+        WorldPacket.WriteInt32(Progress.Count);
 
         foreach (var progress in Progress)
         {
-            _worldPacket.WriteUInt32(progress.CriteriaID);
-            _worldPacket.WriteInt64(progress.DateCreated);
-            _worldPacket.WriteInt64(progress.DateStarted);
-            _worldPacket.WritePackedTime(progress.DateUpdated);
-            _worldPacket.WriteUInt32(0); // this is a hack. this is a packed time written as int64 (progress.DateUpdated)
-            _worldPacket.WriteUInt64(progress.Quantity);
-            _worldPacket.WritePackedGuid(progress.PlayerGUID);
-            _worldPacket.WriteInt32(progress.Flags);
+            WorldPacket.WriteUInt32(progress.CriteriaID);
+            WorldPacket.WriteInt64(progress.DateCreated);
+            WorldPacket.WriteInt64(progress.DateStarted);
+            WorldPacket.WritePackedTime(progress.DateUpdated);
+            WorldPacket.WriteUInt32(0); // this is a hack. this is a packed time written as int64 (progress.DateUpdated)
+            WorldPacket.WriteUInt64(progress.Quantity);
+            WorldPacket.WritePackedGuid(progress.PlayerGUID);
+            WorldPacket.WriteInt32(progress.Flags);
         }
     }
 }

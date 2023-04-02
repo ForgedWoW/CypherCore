@@ -15,9 +15,9 @@ internal class CalendarInviteStatusAlert : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt64(EventID);
-        _worldPacket.WritePackedTime(Date);
-        _worldPacket.WriteUInt32(Flags);
-        _worldPacket.WriteUInt8(Status);
+        WorldPacket.WriteUInt64(EventID);
+        WorldPacket.WritePackedTime(Date);
+        WorldPacket.WriteUInt32(Flags);
+        WorldPacket.WriteUInt8(Status);
     }
 }

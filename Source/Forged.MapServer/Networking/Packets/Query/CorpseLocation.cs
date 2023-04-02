@@ -19,13 +19,13 @@ public class CorpseLocation : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(Valid);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(Valid);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WritePackedGuid(Player);
-        _worldPacket.WriteInt32(ActualMapID);
-        _worldPacket.WriteVector3(Position);
-        _worldPacket.WriteInt32(MapID);
-        _worldPacket.WritePackedGuid(Transport);
+        WorldPacket.WritePackedGuid(Player);
+        WorldPacket.WriteInt32(ActualMapID);
+        WorldPacket.WriteVector3(Position);
+        WorldPacket.WriteInt32(MapID);
+        WorldPacket.WritePackedGuid(Transport);
     }
 }

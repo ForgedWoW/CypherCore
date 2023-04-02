@@ -35,17 +35,17 @@ internal class PVPMatchInitialize : ServerPacket
     }
     public override void Write()
     {
-        _worldPacket.WriteUInt32(MapID);
-        _worldPacket.WriteUInt8((byte)State);
-        _worldPacket.WriteInt64(StartTime);
-        _worldPacket.WriteInt32(Duration);
-        _worldPacket.WriteUInt8(ArenaFaction);
-        _worldPacket.WriteUInt32(BattlemasterListID);
-        _worldPacket.WriteBit(Registered);
-        _worldPacket.WriteBit(AffectsRating);
-        _worldPacket.WriteBit(DeserterPenalty != null);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(MapID);
+        WorldPacket.WriteUInt8((byte)State);
+        WorldPacket.WriteInt64(StartTime);
+        WorldPacket.WriteInt32(Duration);
+        WorldPacket.WriteUInt8(ArenaFaction);
+        WorldPacket.WriteUInt32(BattlemasterListID);
+        WorldPacket.WriteBit(Registered);
+        WorldPacket.WriteBit(AffectsRating);
+        WorldPacket.WriteBit(DeserterPenalty != null);
+        WorldPacket.FlushBits();
 
-        DeserterPenalty?.Write(_worldPacket);
+        DeserterPenalty?.Write(WorldPacket);
     }
 }

@@ -22,21 +22,21 @@ internal class CalendarEventUpdatedAlert : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt64(EventID);
+        WorldPacket.WriteUInt64(EventID);
 
-        _worldPacket.WritePackedTime(OriginalDate);
-        _worldPacket.WritePackedTime(Date);
-        _worldPacket.WriteUInt32((uint)LockDate);
-        _worldPacket.WriteUInt32((uint)Flags);
-        _worldPacket.WriteInt32(TextureID);
-        _worldPacket.WriteUInt8((byte)EventType);
+        WorldPacket.WritePackedTime(OriginalDate);
+        WorldPacket.WritePackedTime(Date);
+        WorldPacket.WriteUInt32((uint)LockDate);
+        WorldPacket.WriteUInt32((uint)Flags);
+        WorldPacket.WriteInt32(TextureID);
+        WorldPacket.WriteUInt8((byte)EventType);
 
-        _worldPacket.WriteBits(EventName.GetByteCount(), 8);
-        _worldPacket.WriteBits(Description.GetByteCount(), 11);
-        _worldPacket.WriteBit(ClearPending);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(EventName.GetByteCount(), 8);
+        WorldPacket.WriteBits(Description.GetByteCount(), 11);
+        WorldPacket.WriteBit(ClearPending);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteString(EventName);
-        _worldPacket.WriteString(Description);
+        WorldPacket.WriteString(EventName);
+        WorldPacket.WriteString(Description);
     }
 }

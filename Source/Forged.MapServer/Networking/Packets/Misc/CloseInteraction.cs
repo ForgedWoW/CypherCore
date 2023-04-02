@@ -12,6 +12,6 @@ internal class CloseInteraction : ClientPacket
 
     public override void Read()
     {
-        SourceGuid = _worldPacket.ReadPackedGuid();
+        SourceGuid = WorldPacket.ReadPackedGuid();
     }
 }

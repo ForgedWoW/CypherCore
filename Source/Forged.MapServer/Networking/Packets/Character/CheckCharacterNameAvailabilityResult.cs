@@ -17,7 +17,7 @@ internal class CheckCharacterNameAvailabilityResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(SequenceIndex);
-        _worldPacket.WriteUInt32((uint)Result);
+        WorldPacket.WriteUInt32(SequenceIndex);
+        WorldPacket.WriteUInt32((uint)Result);
     }
 }

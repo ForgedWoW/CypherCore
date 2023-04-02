@@ -18,23 +18,23 @@ public class ProductListResponse : ServerPacket
     public List<BpayShop> Shops { get; set; } = new();
     public override void Write()
     {
-        _worldPacket.Write(Result);
-        _worldPacket.Write(CurrencyID);
-        _worldPacket.WriteUInt32((uint)ProductInfos.Count);
-        _worldPacket.WriteUInt32((uint)Products.Count);
-        _worldPacket.WriteUInt32((uint)ProductGroups.Count);
-        _worldPacket.WriteUInt32((uint)Shops.Count);
+        WorldPacket.Write(Result);
+        WorldPacket.Write(CurrencyID);
+        WorldPacket.WriteUInt32((uint)ProductInfos.Count);
+        WorldPacket.WriteUInt32((uint)Products.Count);
+        WorldPacket.WriteUInt32((uint)ProductGroups.Count);
+        WorldPacket.WriteUInt32((uint)Shops.Count);
 
         foreach (var p in ProductInfos)
-            p.Write(_worldPacket);
+            p.Write(WorldPacket);
 
         foreach (var p in Products)
-            p.Write(_worldPacket);
+            p.Write(WorldPacket);
 
         foreach (var p in ProductGroups)
-            p.Write(_worldPacket);
+            p.Write(WorldPacket);
 
         foreach (var p in Shops)
-            p.Write(_worldPacket);
+            p.Write(WorldPacket);
     }
 }

@@ -12,8 +12,8 @@ public class SwapInvItem : ClientPacket
 
     public override void Read()
     {
-        Inv = new InvUpdate(_worldPacket);
-        Slot2 = _worldPacket.ReadUInt8();
-        Slot1 = _worldPacket.ReadUInt8();
+        Inv = new InvUpdate(WorldPacket);
+        Slot2 = WorldPacket.ReadUInt8();
+        Slot1 = WorldPacket.ReadUInt8();
     }
 }

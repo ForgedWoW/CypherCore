@@ -16,17 +16,17 @@ internal class LootList : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Owner);
-        _worldPacket.WritePackedGuid(LootObj);
+        WorldPacket.WritePackedGuid(Owner);
+        WorldPacket.WritePackedGuid(LootObj);
 
-        _worldPacket.WriteBit(Master.HasValue);
-        _worldPacket.WriteBit(RoundRobinWinner.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(Master.HasValue);
+        WorldPacket.WriteBit(RoundRobinWinner.HasValue);
+        WorldPacket.FlushBits();
 
         if (Master.HasValue)
-            _worldPacket.WritePackedGuid(Master.Value);
+            WorldPacket.WritePackedGuid(Master.Value);
 
         if (RoundRobinWinner.HasValue)
-            _worldPacket.WritePackedGuid(RoundRobinWinner.Value);
+            WorldPacket.WritePackedGuid(RoundRobinWinner.Value);
     }
 }

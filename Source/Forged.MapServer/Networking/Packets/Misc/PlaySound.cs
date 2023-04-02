@@ -20,8 +20,8 @@ internal class PlaySound : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(SoundKitID);
-        _worldPacket.WritePackedGuid(SourceObjectGuid);
-        _worldPacket.WriteUInt32(BroadcastTextID);
+        WorldPacket.WriteUInt32(SoundKitID);
+        WorldPacket.WritePackedGuid(SourceObjectGuid);
+        WorldPacket.WriteUInt32(BroadcastTextID);
     }
 }

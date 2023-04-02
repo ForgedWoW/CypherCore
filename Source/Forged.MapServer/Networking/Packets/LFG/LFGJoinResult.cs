@@ -18,21 +18,21 @@ internal class LFGJoinResult : ServerPacket
 
     public override void Write()
     {
-        Ticket.Write(_worldPacket);
+        Ticket.Write(WorldPacket);
 
-        _worldPacket.WriteUInt8(Result);
-        _worldPacket.WriteUInt8(ResultDetail);
-        _worldPacket.WriteInt32(BlackList.Count);
-        _worldPacket.WriteInt32(BlackListNames.Count);
+        WorldPacket.WriteUInt8(Result);
+        WorldPacket.WriteUInt8(ResultDetail);
+        WorldPacket.WriteInt32(BlackList.Count);
+        WorldPacket.WriteInt32(BlackListNames.Count);
 
         foreach (var blackList in BlackList)
-            blackList.Write(_worldPacket);
+            blackList.Write(WorldPacket);
 
         foreach (var str in BlackListNames)
-            _worldPacket.WriteBits(str.GetByteCount() + 1, 24);
+            WorldPacket.WriteBits(str.GetByteCount() + 1, 24);
 
         foreach (var str in BlackListNames)
             if (!str.IsEmpty())
-                _worldPacket.WriteCString(str);
+                WorldPacket.WriteCString(str);
     }
 }

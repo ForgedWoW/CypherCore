@@ -13,8 +13,8 @@ public class ClearSpellCharges : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(Category);
-        _worldPacket.WriteBit(IsPet);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(Category);
+        WorldPacket.WriteBit(IsPet);
+        WorldPacket.FlushBits();
     }
 }

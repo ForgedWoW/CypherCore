@@ -12,8 +12,8 @@ internal class CalendarEventSignUp : ClientPacket
 
     public override void Read()
     {
-        EventID = _worldPacket.ReadUInt64();
-        ClubID = _worldPacket.ReadUInt64();
-        Tentative = _worldPacket.HasBit();
+        EventID = WorldPacket.ReadUInt64();
+        ClubID = WorldPacket.ReadUInt64();
+        Tentative = WorldPacket.HasBit();
     }
 }

@@ -26,13 +26,13 @@ internal class AuctionBrowseQuery : ClientPacket
 
     public override void Read()
     {
-        Auctioneer = _worldPacket.ReadPackedGuid();
-        Offset = _worldPacket.ReadUInt32();
-        MinLevel = _worldPacket.ReadUInt8();
-        MaxLevel = _worldPacket.ReadUInt8();
-        Filters = (AuctionHouseFilterMask)_worldPacket.ReadUInt32();
-        var knownPetSize = _worldPacket.ReadUInt32();
-        MaxPetLevel = _worldPacket.ReadInt8();
+        Auctioneer = WorldPacket.ReadPackedGuid();
+        Offset = WorldPacket.ReadUInt32();
+        MinLevel = WorldPacket.ReadUInt8();
+        MaxLevel = WorldPacket.ReadUInt8();
+        Filters = (AuctionHouseFilterMask)WorldPacket.ReadUInt32();
+        var knownPetSize = WorldPacket.ReadUInt32();
+        MaxPetLevel = WorldPacket.ReadInt8();
 
         var sizeLimit = CliDB.BattlePetSpeciesStorage.GetNumRows() / 8 + 1;
 
@@ -42,24 +42,24 @@ internal class AuctionBrowseQuery : ClientPacket
         KnownPets = new byte[knownPetSize];
 
         for (var i = 0; i < knownPetSize; ++i)
-            KnownPets[i] = _worldPacket.ReadUInt8();
+            KnownPets[i] = WorldPacket.ReadUInt8();
 
-        if (_worldPacket.HasBit())
+        if (WorldPacket.HasBit())
             TaintedBy = new AddOnInfo();
 
-        var nameLength = _worldPacket.ReadBits<uint>(8);
-        var itemClassFilterCount = _worldPacket.ReadBits<uint>(3);
-        var sortSize = _worldPacket.ReadBits<uint>(2);
+        var nameLength = WorldPacket.ReadBits<uint>(8);
+        var itemClassFilterCount = WorldPacket.ReadBits<uint>(3);
+        var sortSize = WorldPacket.ReadBits<uint>(2);
 
         for (var i = 0; i < sortSize; ++i)
-            Sorts[i] = new AuctionSortDef(_worldPacket);
+            Sorts[i] = new AuctionSortDef(WorldPacket);
 
-        TaintedBy?.Read(_worldPacket);
+        TaintedBy?.Read(WorldPacket);
 
-        Name = _worldPacket.ReadString(nameLength);
+        Name = WorldPacket.ReadString(nameLength);
 
         for (var i = 0; i < itemClassFilterCount; ++i) // AuctionListFilterClass filterClass in ItemClassFilters)
-            ItemClassFilters[i] = new AuctionListFilterClass(_worldPacket);
+            ItemClassFilters[i] = new AuctionListFilterClass(WorldPacket);
     }
 }
 

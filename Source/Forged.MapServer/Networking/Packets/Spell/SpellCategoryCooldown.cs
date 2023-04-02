@@ -14,12 +14,12 @@ public class SpellCategoryCooldown : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(CategoryCooldowns.Count);
+        WorldPacket.WriteInt32(CategoryCooldowns.Count);
 
         foreach (var cooldown in CategoryCooldowns)
         {
-            _worldPacket.WriteUInt32(cooldown.Category);
-            _worldPacket.WriteInt32(cooldown.ModCooldown);
+            WorldPacket.WriteUInt32(cooldown.Category);
+            WorldPacket.WriteInt32(cooldown.ModCooldown);
         }
     }
 

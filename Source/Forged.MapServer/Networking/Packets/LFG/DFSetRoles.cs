@@ -13,7 +13,7 @@ internal class DFSetRoles : ClientPacket
 
     public override void Read()
     {
-        RolesDesired = (LfgRoles)_worldPacket.ReadUInt32();
-        PartyIndex = _worldPacket.ReadUInt8();
+        RolesDesired = (LfgRoles)WorldPacket.ReadUInt32();
+        PartyIndex = WorldPacket.ReadUInt8();
     }
 }

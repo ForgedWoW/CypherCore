@@ -412,7 +412,7 @@ public class UnitAI : IUnitAI
     public virtual void OnDespawn() { }
 
     /// <summary>
-    ///     Called when a game event starts or ends
+    ///     Called when a GameInfo event starts or ends
     /// </summary>
     public virtual void OnGameEvent(bool start, ushort eventId) { }
 

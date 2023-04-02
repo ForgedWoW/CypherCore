@@ -13,7 +13,7 @@ internal class ConfirmArtifactRespec : ClientPacket
 
     public override void Read()
     {
-        ArtifactGUID = _worldPacket.ReadPackedGuid();
-        NpcGUID = _worldPacket.ReadPackedGuid();
+        ArtifactGUID = WorldPacket.ReadPackedGuid();
+        NpcGUID = WorldPacket.ReadPackedGuid();
     }
 }

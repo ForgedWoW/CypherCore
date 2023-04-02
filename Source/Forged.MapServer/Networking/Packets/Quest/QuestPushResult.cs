@@ -15,8 +15,8 @@ internal class QuestPushResult : ClientPacket
 
     public override void Read()
     {
-        SenderGUID = _worldPacket.ReadPackedGuid();
-        QuestID = _worldPacket.ReadUInt32();
-        Result = (QuestPushReason)_worldPacket.ReadUInt8();
+        SenderGUID = WorldPacket.ReadPackedGuid();
+        QuestID = WorldPacket.ReadUInt32();
+        Result = (QuestPushReason)WorldPacket.ReadUInt8();
     }
 }

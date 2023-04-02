@@ -15,10 +15,10 @@ internal class PendingRaidLock : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(TimeUntilLock);
-        _worldPacket.WriteUInt32(CompletedMask);
-        _worldPacket.WriteBit(Extending);
-        _worldPacket.WriteBit(WarningOnly);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(TimeUntilLock);
+        WorldPacket.WriteUInt32(CompletedMask);
+        WorldPacket.WriteBit(Extending);
+        WorldPacket.WriteBit(WarningOnly);
+        WorldPacket.FlushBits();
     }
 }

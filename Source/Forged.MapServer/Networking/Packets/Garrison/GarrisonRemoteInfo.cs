@@ -13,9 +13,9 @@ internal class GarrisonRemoteInfo : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Sites.Count);
+        WorldPacket.WriteInt32(Sites.Count);
 
         foreach (var site in Sites)
-            site.Write(_worldPacket);
+            site.Write(WorldPacket);
     }
 }

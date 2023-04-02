@@ -21,8 +21,8 @@ public class BattlePayStartDistributionAssignToTargetResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.Write(DistributionID);
-        _worldPacket.Write(unkint1);
-        _worldPacket.Write(unkint2);
+        WorldPacket.Write(DistributionID);
+        WorldPacket.Write(unkint1);
+        WorldPacket.Write(unkint2);
     }
 }

@@ -12,6 +12,6 @@ public class QueryInspectAchievements : ClientPacket
 
     public override void Read()
     {
-        Guid = _worldPacket.ReadPackedGuid();
+        Guid = WorldPacket.ReadPackedGuid();
     }
 }

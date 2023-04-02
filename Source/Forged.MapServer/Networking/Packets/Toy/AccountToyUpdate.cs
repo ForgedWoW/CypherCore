@@ -15,23 +15,23 @@ internal class AccountToyUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(IsFullUpdate);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(IsFullUpdate);
+        WorldPacket.FlushBits();
 
         // all lists have to have the same size
-        _worldPacket.WriteInt32(Toys.Count);
-        _worldPacket.WriteInt32(Toys.Count);
-        _worldPacket.WriteInt32(Toys.Count);
+        WorldPacket.WriteInt32(Toys.Count);
+        WorldPacket.WriteInt32(Toys.Count);
+        WorldPacket.WriteInt32(Toys.Count);
 
         foreach (var pair in Toys)
-            _worldPacket.WriteUInt32(pair.Key);
+            WorldPacket.WriteUInt32(pair.Key);
 
         foreach (var pair in Toys)
-            _worldPacket.WriteBit(pair.Value.HasAnyFlag(ToyFlags.Favorite));
+            WorldPacket.WriteBit(pair.Value.HasAnyFlag(ToyFlags.Favorite));
 
         foreach (var pair in Toys)
-            _worldPacket.WriteBit(pair.Value.HasAnyFlag(ToyFlags.HasFanfare));
+            WorldPacket.WriteBit(pair.Value.HasAnyFlag(ToyFlags.HasFanfare));
 
-        _worldPacket.FlushBits();
+        WorldPacket.FlushBits();
     }
 }

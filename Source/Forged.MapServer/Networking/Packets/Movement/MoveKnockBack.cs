@@ -17,9 +17,9 @@ internal class MoveKnockBack : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(MoverGUID);
-        _worldPacket.WriteUInt32(SequenceIndex);
-        _worldPacket.WriteVector2(Direction);
-        Speeds.Write(_worldPacket);
+        WorldPacket.WritePackedGuid(MoverGUID);
+        WorldPacket.WriteUInt32(SequenceIndex);
+        WorldPacket.WriteVector2(Direction);
+        Speeds.Write(WorldPacket);
     }
 }

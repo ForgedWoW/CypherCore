@@ -15,9 +15,9 @@ internal class AuctionClosedNotification : ServerPacket
 
     public override void Write()
     {
-        Info.Write(_worldPacket);
-        _worldPacket.WriteFloat(ProceedsMailDelay);
-        _worldPacket.WriteBit(Sold);
-        _worldPacket.FlushBits();
+        Info.Write(WorldPacket);
+        WorldPacket.WriteFloat(ProceedsMailDelay);
+        WorldPacket.WriteBit(Sold);
+        WorldPacket.FlushBits();
     }
 }

@@ -16,14 +16,14 @@ public class SendKnownSpells : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(InitialLogin);
-        _worldPacket.WriteInt32(KnownSpells.Count);
-        _worldPacket.WriteInt32(FavoriteSpells.Count);
+        WorldPacket.WriteBit(InitialLogin);
+        WorldPacket.WriteInt32(KnownSpells.Count);
+        WorldPacket.WriteInt32(FavoriteSpells.Count);
 
         foreach (var spellId in KnownSpells)
-            _worldPacket.WriteUInt32(spellId);
+            WorldPacket.WriteUInt32(spellId);
 
         foreach (var spellId in FavoriteSpells)
-            _worldPacket.WriteUInt32(spellId);
+            WorldPacket.WriteUInt32(spellId);
     }
 }

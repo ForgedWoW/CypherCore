@@ -16,7 +16,7 @@ public class AttackSwingError : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits((uint)Reason, 3);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits((uint)Reason, 3);
+        WorldPacket.FlushBits();
     }
 }

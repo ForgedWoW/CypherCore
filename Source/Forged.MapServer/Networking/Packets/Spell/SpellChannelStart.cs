@@ -18,18 +18,18 @@ public class SpellChannelStart : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(CasterGUID);
-        _worldPacket.WriteInt32(SpellID);
+        WorldPacket.WritePackedGuid(CasterGUID);
+        WorldPacket.WriteInt32(SpellID);
 
-        Visual.Write(_worldPacket);
+        Visual.Write(WorldPacket);
 
-        _worldPacket.WriteUInt32(ChannelDuration);
-        _worldPacket.WriteBit(InterruptImmunities.HasValue);
-        _worldPacket.WriteBit(HealPrediction.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(ChannelDuration);
+        WorldPacket.WriteBit(InterruptImmunities.HasValue);
+        WorldPacket.WriteBit(HealPrediction.HasValue);
+        WorldPacket.FlushBits();
 
-        InterruptImmunities?.Write(_worldPacket);
+        InterruptImmunities?.Write(WorldPacket);
 
-        HealPrediction?.Write(_worldPacket);
+        HealPrediction?.Write(WorldPacket);
     }
 }

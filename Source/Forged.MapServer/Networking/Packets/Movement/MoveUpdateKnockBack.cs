@@ -13,6 +13,6 @@ public class MoveUpdateKnockBack : ServerPacket
 
     public override void Write()
     {
-        MovementExtensions.WriteMovementInfo(_worldPacket, Status);
+        MovementExtensions.WriteMovementInfo(WorldPacket, Status);
     }
 }

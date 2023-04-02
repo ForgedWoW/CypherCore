@@ -16,14 +16,14 @@ public class CTextEmote : ClientPacket
 
     public override void Read()
     {
-        Target = _worldPacket.ReadPackedGuid();
-        EmoteID = _worldPacket.ReadInt32();
-        SoundIndex = _worldPacket.ReadInt32();
+        Target = WorldPacket.ReadPackedGuid();
+        EmoteID = WorldPacket.ReadInt32();
+        SoundIndex = WorldPacket.ReadInt32();
 
-        SpellVisualKitIDs = new uint[_worldPacket.ReadUInt32()];
-        SequenceVariation = _worldPacket.ReadInt32();
+        SpellVisualKitIDs = new uint[WorldPacket.ReadUInt32()];
+        SequenceVariation = WorldPacket.ReadInt32();
 
         for (var i = 0; i < SpellVisualKitIDs.Length; ++i)
-            SpellVisualKitIDs[i] = _worldPacket.ReadUInt32();
+            SpellVisualKitIDs[i] = WorldPacket.ReadUInt32();
     }
 }

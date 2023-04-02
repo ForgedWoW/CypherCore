@@ -84,7 +84,7 @@ public class MailDraft
         // auction mail without any items and money
         if (sender.GetMailMessageType() == MailMessageType.Auction && m_items.Empty() && m_money == 0)
             expire_delay = GetDefaultValue("MailDeliveryDelay", Time.HOUR);
-        // default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a game master)
+        // default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a GameInfo master)
         else if (m_COD != 0)
             expire_delay = 3 * Time.DAY;
         else
@@ -120,7 +120,7 @@ public class MailDraft
             trans.Append(stmt);
         }
 
-        // For online receiver update in game mail status and data
+        // For online receiver update in GameInfo mail status and data
         if (pReceiver != null)
         {
             pReceiver.AddNewMailDeliverTime(deliver_time);

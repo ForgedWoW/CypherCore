@@ -17,8 +17,8 @@ internal class GroupDecline : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Name.GetByteCount(), 9);
-        _worldPacket.FlushBits();
-        _worldPacket.WriteString(Name);
+        WorldPacket.WriteBits(Name.GetByteCount(), 9);
+        WorldPacket.FlushBits();
+        WorldPacket.WriteString(Name);
     }
 }

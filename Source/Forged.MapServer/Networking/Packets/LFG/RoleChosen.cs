@@ -15,9 +15,9 @@ internal class RoleChosen : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Player);
-        _worldPacket.WriteUInt32((uint)RoleMask);
-        _worldPacket.WriteBit(Accepted);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Player);
+        WorldPacket.WriteUInt32((uint)RoleMask);
+        WorldPacket.WriteBit(Accepted);
+        WorldPacket.FlushBits();
     }
 }

@@ -14,12 +14,12 @@ public class RequestCemeteryListResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(IsGossipTriggered);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(IsGossipTriggered);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteInt32(CemeteryID.Count);
+        WorldPacket.WriteInt32(CemeteryID.Count);
 
         foreach (var cemetery in CemeteryID)
-            _worldPacket.WriteUInt32(cemetery);
+            WorldPacket.WriteUInt32(cemetery);
     }
 }

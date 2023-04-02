@@ -20,24 +20,24 @@ internal class QueryPetNameResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(UnitGUID);
-        _worldPacket.WriteBit(Allow);
+        WorldPacket.WritePackedGuid(UnitGUID);
+        WorldPacket.WriteBit(Allow);
 
         if (Allow)
         {
-            _worldPacket.WriteBits(Name.GetByteCount(), 8);
-            _worldPacket.WriteBit(HasDeclined);
+            WorldPacket.WriteBits(Name.GetByteCount(), 8);
+            WorldPacket.WriteBit(HasDeclined);
 
             for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-                _worldPacket.WriteBits(DeclinedNames.Name[i].GetByteCount(), 7);
+                WorldPacket.WriteBits(DeclinedNames.Name[i].GetByteCount(), 7);
 
             for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-                _worldPacket.WriteString(DeclinedNames.Name[i]);
+                WorldPacket.WriteString(DeclinedNames.Name[i]);
 
-            _worldPacket.WriteInt64(Timestamp);
-            _worldPacket.WriteString(Name);
+            WorldPacket.WriteInt64(Timestamp);
+            WorldPacket.WriteString(Name);
         }
 
-        _worldPacket.FlushBits();
+        WorldPacket.FlushBits();
     }
 }

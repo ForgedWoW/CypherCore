@@ -14,7 +14,7 @@ public class AIReaction : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(UnitGUID);
-        _worldPacket.WriteUInt32((uint)Reaction);
+        WorldPacket.WritePackedGuid(UnitGUID);
+        WorldPacket.WriteUInt32((uint)Reaction);
     }
 }

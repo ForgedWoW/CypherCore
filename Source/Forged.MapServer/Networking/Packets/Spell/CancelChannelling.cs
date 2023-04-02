@@ -11,8 +11,8 @@ internal class CancelChannelling : ClientPacket
 
     public override void Read()
     {
-        ChannelSpell = _worldPacket.ReadInt32();
-        Reason = _worldPacket.ReadInt32();
+        ChannelSpell = WorldPacket.ReadInt32();
+        Reason = WorldPacket.ReadInt32();
     }
     // does not match SpellCastResult enum
 }

@@ -12,6 +12,6 @@ internal class ResyncRunes : ServerPacket
 
     public override void Write()
     {
-        Runes.Write(_worldPacket);
+        Runes.Write(WorldPacket);
     }
 }

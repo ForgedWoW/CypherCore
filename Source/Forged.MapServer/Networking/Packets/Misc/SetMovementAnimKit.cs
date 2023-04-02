@@ -14,7 +14,7 @@ internal class SetMovementAnimKit : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Unit);
-        _worldPacket.WriteUInt16(AnimKitID);
+        WorldPacket.WritePackedGuid(Unit);
+        WorldPacket.WriteUInt16(AnimKitID);
     }
 }

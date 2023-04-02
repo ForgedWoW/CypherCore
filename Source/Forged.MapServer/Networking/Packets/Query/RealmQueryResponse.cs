@@ -15,10 +15,10 @@ internal class RealmQueryResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(VirtualRealmAddress);
-        _worldPacket.WriteUInt8(LookupState);
+        WorldPacket.WriteUInt32(VirtualRealmAddress);
+        WorldPacket.WriteUInt8(LookupState);
 
         if (LookupState == 0)
-            NameInfo.Write(_worldPacket);
+            NameInfo.Write(WorldPacket);
     }
 }

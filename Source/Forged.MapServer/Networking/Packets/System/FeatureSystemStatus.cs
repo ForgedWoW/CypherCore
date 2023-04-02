@@ -75,119 +75,119 @@ public class FeatureSystemStatus : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8(ComplaintStatus);
+        WorldPacket.WriteUInt8(ComplaintStatus);
 
-        _worldPacket.WriteUInt32(CfgRealmID);
-        _worldPacket.WriteInt32(CfgRealmRecID);
+        WorldPacket.WriteUInt32(CfgRealmID);
+        WorldPacket.WriteInt32(CfgRealmRecID);
 
-        _worldPacket.WriteUInt32(RAFSystem.MaxRecruits);
-        _worldPacket.WriteUInt32(RAFSystem.MaxRecruitMonths);
-        _worldPacket.WriteUInt32(RAFSystem.MaxRecruitmentUses);
-        _worldPacket.WriteUInt32(RAFSystem.DaysInCycle);
+        WorldPacket.WriteUInt32(RAFSystem.MaxRecruits);
+        WorldPacket.WriteUInt32(RAFSystem.MaxRecruitMonths);
+        WorldPacket.WriteUInt32(RAFSystem.MaxRecruitmentUses);
+        WorldPacket.WriteUInt32(RAFSystem.DaysInCycle);
 
-        _worldPacket.WriteUInt32(TwitterPostThrottleLimit);
-        _worldPacket.WriteUInt32(TwitterPostThrottleCooldown);
+        WorldPacket.WriteUInt32(TwitterPostThrottleLimit);
+        WorldPacket.WriteUInt32(TwitterPostThrottleCooldown);
 
-        _worldPacket.WriteUInt32(TokenPollTimeSeconds);
-        _worldPacket.WriteUInt32(KioskSessionMinutes);
-        _worldPacket.WriteInt64(TokenBalanceAmount);
+        WorldPacket.WriteUInt32(TokenPollTimeSeconds);
+        WorldPacket.WriteUInt32(KioskSessionMinutes);
+        WorldPacket.WriteInt64(TokenBalanceAmount);
 
-        _worldPacket.WriteUInt32(BpayStoreProductDeliveryDelay);
-        _worldPacket.WriteUInt32(ClubsPresenceUpdateTimer);
-        _worldPacket.WriteUInt32(HiddenUIClubsPresenceUpdateTimer);
+        WorldPacket.WriteUInt32(BpayStoreProductDeliveryDelay);
+        WorldPacket.WriteUInt32(ClubsPresenceUpdateTimer);
+        WorldPacket.WriteUInt32(HiddenUIClubsPresenceUpdateTimer);
 
-        _worldPacket.WriteInt32(ActiveSeason);
-        _worldPacket.WriteInt32(GameRuleValues.Count);
+        WorldPacket.WriteInt32(ActiveSeason);
+        WorldPacket.WriteInt32(GameRuleValues.Count);
 
-        _worldPacket.WriteInt16(MaxPlayerNameQueriesPerPacket);
-        _worldPacket.WriteInt16(PlayerNameQueryTelemetryInterval);
-        _worldPacket.WriteUInt32((uint)PlayerNameQueryInterval.TotalSeconds);
+        WorldPacket.WriteInt16(MaxPlayerNameQueriesPerPacket);
+        WorldPacket.WriteInt16(PlayerNameQueryTelemetryInterval);
+        WorldPacket.WriteUInt32((uint)PlayerNameQueryInterval.TotalSeconds);
 
         foreach (var gameRuleValue in GameRuleValues)
-            gameRuleValue.Write(_worldPacket);
+            gameRuleValue.Write(WorldPacket);
 
-        _worldPacket.WriteBit(VoiceEnabled);
-        _worldPacket.WriteBit(EuropaTicketSystemStatus.HasValue);
-        _worldPacket.WriteBit(BpayStoreEnabled);
-        _worldPacket.WriteBit(BpayStoreAvailable);
-        _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
-        _worldPacket.WriteBit(ItemRestorationButtonEnabled);
-        _worldPacket.WriteBit(BrowserEnabled);
+        WorldPacket.WriteBit(VoiceEnabled);
+        WorldPacket.WriteBit(EuropaTicketSystemStatus.HasValue);
+        WorldPacket.WriteBit(BpayStoreEnabled);
+        WorldPacket.WriteBit(BpayStoreAvailable);
+        WorldPacket.WriteBit(BpayStoreDisabledByParentalControls);
+        WorldPacket.WriteBit(ItemRestorationButtonEnabled);
+        WorldPacket.WriteBit(BrowserEnabled);
 
-        _worldPacket.WriteBit(SessionAlert.HasValue);
-        _worldPacket.WriteBit(RAFSystem.Enabled);
-        _worldPacket.WriteBit(RAFSystem.RecruitingEnabled);
-        _worldPacket.WriteBit(CharUndeleteEnabled);
-        _worldPacket.WriteBit(RestrictedAccount);
-        _worldPacket.WriteBit(CommerceSystemEnabled);
-        _worldPacket.WriteBit(TutorialsEnabled);
-        _worldPacket.WriteBit(TwitterEnabled);
+        WorldPacket.WriteBit(SessionAlert.HasValue);
+        WorldPacket.WriteBit(RAFSystem.Enabled);
+        WorldPacket.WriteBit(RAFSystem.RecruitingEnabled);
+        WorldPacket.WriteBit(CharUndeleteEnabled);
+        WorldPacket.WriteBit(RestrictedAccount);
+        WorldPacket.WriteBit(CommerceSystemEnabled);
+        WorldPacket.WriteBit(TutorialsEnabled);
+        WorldPacket.WriteBit(TwitterEnabled);
 
-        _worldPacket.WriteBit(Unk67);
-        _worldPacket.WriteBit(WillKickFromWorld);
-        _worldPacket.WriteBit(KioskModeEnabled);
-        _worldPacket.WriteBit(CompetitiveModeEnabled);
-        _worldPacket.WriteBit(TokenBalanceEnabled);
-        _worldPacket.WriteBit(WarModeFeatureEnabled);
-        _worldPacket.WriteBit(ClubsEnabled);
-        _worldPacket.WriteBit(ClubsBattleNetClubTypeAllowed);
+        WorldPacket.WriteBit(Unk67);
+        WorldPacket.WriteBit(WillKickFromWorld);
+        WorldPacket.WriteBit(KioskModeEnabled);
+        WorldPacket.WriteBit(CompetitiveModeEnabled);
+        WorldPacket.WriteBit(TokenBalanceEnabled);
+        WorldPacket.WriteBit(WarModeFeatureEnabled);
+        WorldPacket.WriteBit(ClubsEnabled);
+        WorldPacket.WriteBit(ClubsBattleNetClubTypeAllowed);
 
-        _worldPacket.WriteBit(ClubsCharacterClubTypeAllowed);
-        _worldPacket.WriteBit(ClubsPresenceUpdateEnabled);
-        _worldPacket.WriteBit(VoiceChatDisabledByParentalControl);
-        _worldPacket.WriteBit(VoiceChatMutedByParentalControl);
-        _worldPacket.WriteBit(QuestSessionEnabled);
-        _worldPacket.WriteBit(IsMuted);
-        _worldPacket.WriteBit(ClubFinderEnabled);
-        _worldPacket.WriteBit(Unknown901CheckoutRelated);
+        WorldPacket.WriteBit(ClubsCharacterClubTypeAllowed);
+        WorldPacket.WriteBit(ClubsPresenceUpdateEnabled);
+        WorldPacket.WriteBit(VoiceChatDisabledByParentalControl);
+        WorldPacket.WriteBit(VoiceChatMutedByParentalControl);
+        WorldPacket.WriteBit(QuestSessionEnabled);
+        WorldPacket.WriteBit(IsMuted);
+        WorldPacket.WriteBit(ClubFinderEnabled);
+        WorldPacket.WriteBit(Unknown901CheckoutRelated);
 
-        _worldPacket.WriteBit(TextToSpeechFeatureEnabled);
-        _worldPacket.WriteBit(ChatDisabledByDefault);
-        _worldPacket.WriteBit(ChatDisabledByPlayer);
-        _worldPacket.WriteBit(LFGListCustomRequiresAuthenticator);
-        _worldPacket.WriteBit(AddonsDisabled);
-        _worldPacket.WriteBit(Unused1000);
+        WorldPacket.WriteBit(TextToSpeechFeatureEnabled);
+        WorldPacket.WriteBit(ChatDisabledByDefault);
+        WorldPacket.WriteBit(ChatDisabledByPlayer);
+        WorldPacket.WriteBit(LFGListCustomRequiresAuthenticator);
+        WorldPacket.WriteBit(AddonsDisabled);
+        WorldPacket.WriteBit(Unused1000);
 
-        _worldPacket.FlushBits();
+        WorldPacket.FlushBits();
 
         {
-            _worldPacket.WriteBit(QuickJoinConfig.ToastsDisabled);
-            _worldPacket.WriteFloat(QuickJoinConfig.ToastDuration);
-            _worldPacket.WriteFloat(QuickJoinConfig.DelayDuration);
-            _worldPacket.WriteFloat(QuickJoinConfig.QueueMultiplier);
-            _worldPacket.WriteFloat(QuickJoinConfig.PlayerMultiplier);
-            _worldPacket.WriteFloat(QuickJoinConfig.PlayerFriendValue);
-            _worldPacket.WriteFloat(QuickJoinConfig.PlayerGuildValue);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottleInitialThreshold);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottleDecayTime);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottlePrioritySpike);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottleMinThreshold);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottlePvPPriorityNormal);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottlePvPPriorityLow);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottlePvPHonorThreshold);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottleLfgListPriorityDefault);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottleLfgListPriorityAbove);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottleLfgListPriorityBelow);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottleLfgListIlvlScalingAbove);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottleLfgListIlvlScalingBelow);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottleRfPriorityAbove);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottleRfIlvlScalingAbove);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottleDfMaxItemLevel);
-            _worldPacket.WriteFloat(QuickJoinConfig.ThrottleDfBestPriority);
+            WorldPacket.WriteBit(QuickJoinConfig.ToastsDisabled);
+            WorldPacket.WriteFloat(QuickJoinConfig.ToastDuration);
+            WorldPacket.WriteFloat(QuickJoinConfig.DelayDuration);
+            WorldPacket.WriteFloat(QuickJoinConfig.QueueMultiplier);
+            WorldPacket.WriteFloat(QuickJoinConfig.PlayerMultiplier);
+            WorldPacket.WriteFloat(QuickJoinConfig.PlayerFriendValue);
+            WorldPacket.WriteFloat(QuickJoinConfig.PlayerGuildValue);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottleInitialThreshold);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottleDecayTime);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottlePrioritySpike);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottleMinThreshold);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottlePvPPriorityNormal);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottlePvPPriorityLow);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottlePvPHonorThreshold);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottleLfgListPriorityDefault);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottleLfgListPriorityAbove);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottleLfgListPriorityBelow);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottleLfgListIlvlScalingAbove);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottleLfgListIlvlScalingBelow);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottleRfPriorityAbove);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottleRfIlvlScalingAbove);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottleDfMaxItemLevel);
+            WorldPacket.WriteFloat(QuickJoinConfig.ThrottleDfBestPriority);
         }
 
         if (SessionAlert.HasValue)
         {
-            _worldPacket.WriteInt32(SessionAlert.Value.Delay);
-            _worldPacket.WriteInt32(SessionAlert.Value.Period);
-            _worldPacket.WriteInt32(SessionAlert.Value.DisplayTime);
+            WorldPacket.WriteInt32(SessionAlert.Value.Delay);
+            WorldPacket.WriteInt32(SessionAlert.Value.Period);
+            WorldPacket.WriteInt32(SessionAlert.Value.DisplayTime);
         }
 
-        _worldPacket.WriteBit(Squelch.IsSquelched);
-        _worldPacket.WritePackedGuid(Squelch.BnetAccountGuid);
-        _worldPacket.WritePackedGuid(Squelch.GuildGuid);
+        WorldPacket.WriteBit(Squelch.IsSquelched);
+        WorldPacket.WritePackedGuid(Squelch.BnetAccountGuid);
+        WorldPacket.WritePackedGuid(Squelch.GuildGuid);
 
-        EuropaTicketSystemStatus?.Write(_worldPacket);
+        EuropaTicketSystemStatus?.Write(WorldPacket);
     }
 
     public struct RafSystemFeatureInfo

@@ -17,14 +17,14 @@ internal class SplitGuildBankItemToInventory : ClientPacket
 
     public override void Read()
     {
-        Banker = _worldPacket.ReadPackedGuid();
-        BankTab = _worldPacket.ReadUInt8();
-        BankSlot = _worldPacket.ReadUInt8();
+        Banker = WorldPacket.ReadPackedGuid();
+        BankTab = WorldPacket.ReadUInt8();
+        BankSlot = WorldPacket.ReadUInt8();
         ;
-        ContainerItemSlot = _worldPacket.ReadUInt8();
-        StackCount = _worldPacket.ReadUInt32();
+        ContainerItemSlot = WorldPacket.ReadUInt8();
+        StackCount = WorldPacket.ReadUInt32();
 
-        if (_worldPacket.HasBit())
-            ContainerSlot = _worldPacket.ReadUInt8();
+        if (WorldPacket.HasBit())
+            ContainerSlot = WorldPacket.ReadUInt8();
     }
 }

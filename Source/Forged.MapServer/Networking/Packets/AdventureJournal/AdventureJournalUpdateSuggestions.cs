@@ -10,6 +10,6 @@ internal class AdventureJournalUpdateSuggestions : ClientPacket
 
     public override void Read()
     {
-        OnLevelUp = _worldPacket.HasBit();
+        OnLevelUp = WorldPacket.HasBit();
     }
 }

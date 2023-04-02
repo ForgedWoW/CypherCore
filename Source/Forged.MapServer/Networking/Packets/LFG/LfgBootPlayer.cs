@@ -12,6 +12,6 @@ internal class LfgBootPlayer : ServerPacket
 
     public override void Write()
     {
-        Info.Write(_worldPacket);
+        Info.Write(WorldPacket);
     }
 }

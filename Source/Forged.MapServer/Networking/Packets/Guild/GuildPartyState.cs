@@ -15,11 +15,11 @@ public class GuildPartyState : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(InGuildParty);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(InGuildParty);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteInt32(NumMembers);
-        _worldPacket.WriteInt32(NumRequired);
-        _worldPacket.WriteFloat(GuildXPEarnedMult);
+        WorldPacket.WriteInt32(NumMembers);
+        WorldPacket.WriteInt32(NumRequired);
+        WorldPacket.WriteFloat(GuildXPEarnedMult);
     }
 }

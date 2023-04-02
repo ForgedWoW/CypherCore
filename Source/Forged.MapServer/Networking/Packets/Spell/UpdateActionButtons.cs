@@ -15,8 +15,8 @@ public class UpdateActionButtons : ServerPacket
     public override void Write()
     {
         for (var i = 0; i < PlayerConst.MaxActionButtons; ++i)
-            _worldPacket.WriteUInt64(ActionButtons[i]);
+            WorldPacket.WriteUInt64(ActionButtons[i]);
 
-        _worldPacket.WriteUInt8(Reason);
+        WorldPacket.WriteUInt8(Reason);
     }
 }

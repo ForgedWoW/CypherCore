@@ -14,12 +14,12 @@ internal class HotfixRequest : ClientPacket
 
     public override void Read()
     {
-        ClientBuild = _worldPacket.ReadUInt32();
-        DataBuild = _worldPacket.ReadUInt32();
+        ClientBuild = WorldPacket.ReadUInt32();
+        DataBuild = WorldPacket.ReadUInt32();
 
-        var hotfixCount = _worldPacket.ReadUInt32();
+        var hotfixCount = WorldPacket.ReadUInt32();
 
         for (var i = 0; i < hotfixCount; ++i)
-            Hotfixes.Add(_worldPacket.ReadInt32());
+            Hotfixes.Add(WorldPacket.ReadInt32());
     }
 }

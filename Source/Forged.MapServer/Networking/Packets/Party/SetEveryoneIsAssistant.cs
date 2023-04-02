@@ -11,7 +11,7 @@ internal class SetEveryoneIsAssistant : ClientPacket
 
     public override void Read()
     {
-        PartyIndex = _worldPacket.ReadUInt8();
-        EveryoneIsAssistant = _worldPacket.HasBit();
+        PartyIndex = WorldPacket.ReadUInt8();
+        EveryoneIsAssistant = WorldPacket.HasBit();
     }
 }

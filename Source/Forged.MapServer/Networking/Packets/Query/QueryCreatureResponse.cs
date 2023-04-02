@@ -15,76 +15,76 @@ public class QueryCreatureResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(CreatureID);
-        _worldPacket.WriteBit(Allow);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(CreatureID);
+        WorldPacket.WriteBit(Allow);
+        WorldPacket.FlushBits();
 
         if (Allow)
         {
-            _worldPacket.WriteBits(Stats.Title.IsEmpty() ? 0 : Stats.Title.GetByteCount() + 1, 11);
-            _worldPacket.WriteBits(Stats.TitleAlt.IsEmpty() ? 0 : Stats.TitleAlt.GetByteCount() + 1, 11);
-            _worldPacket.WriteBits(Stats.CursorName.IsEmpty() ? 0 : Stats.CursorName.GetByteCount() + 1, 6);
-            _worldPacket.WriteBit(Stats.Leader);
+            WorldPacket.WriteBits(Stats.Title.IsEmpty() ? 0 : Stats.Title.GetByteCount() + 1, 11);
+            WorldPacket.WriteBits(Stats.TitleAlt.IsEmpty() ? 0 : Stats.TitleAlt.GetByteCount() + 1, 11);
+            WorldPacket.WriteBits(Stats.CursorName.IsEmpty() ? 0 : Stats.CursorName.GetByteCount() + 1, 6);
+            WorldPacket.WriteBit(Stats.Leader);
 
             for (var i = 0; i < SharedConst.MaxCreatureNames; ++i)
             {
-                _worldPacket.WriteBits(Stats.Name[i].GetByteCount() + 1, 11);
-                _worldPacket.WriteBits(Stats.NameAlt[i].GetByteCount() + 1, 11);
+                WorldPacket.WriteBits(Stats.Name[i].GetByteCount() + 1, 11);
+                WorldPacket.WriteBits(Stats.NameAlt[i].GetByteCount() + 1, 11);
             }
 
             for (var i = 0; i < SharedConst.MaxCreatureNames; ++i)
             {
                 if (!string.IsNullOrEmpty(Stats.Name[i]))
-                    _worldPacket.WriteCString(Stats.Name[i]);
+                    WorldPacket.WriteCString(Stats.Name[i]);
 
                 if (!string.IsNullOrEmpty(Stats.NameAlt[i]))
-                    _worldPacket.WriteCString(Stats.NameAlt[i]);
+                    WorldPacket.WriteCString(Stats.NameAlt[i]);
             }
 
             for (var i = 0; i < 2; ++i)
-                _worldPacket.WriteUInt32(Stats.Flags[i]);
+                WorldPacket.WriteUInt32(Stats.Flags[i]);
 
-            _worldPacket.WriteInt32(Stats.CreatureType);
-            _worldPacket.WriteInt32(Stats.CreatureFamily);
-            _worldPacket.WriteInt32(Stats.Classification);
+            WorldPacket.WriteInt32(Stats.CreatureType);
+            WorldPacket.WriteInt32(Stats.CreatureFamily);
+            WorldPacket.WriteInt32(Stats.Classification);
 
             for (var i = 0; i < SharedConst.MaxCreatureKillCredit; ++i)
-                _worldPacket.WriteUInt32(Stats.ProxyCreatureID[i]);
+                WorldPacket.WriteUInt32(Stats.ProxyCreatureID[i]);
 
-            _worldPacket.WriteInt32(Stats.Display.CreatureDisplay.Count);
-            _worldPacket.WriteFloat(Stats.Display.TotalProbability);
+            WorldPacket.WriteInt32(Stats.Display.CreatureDisplay.Count);
+            WorldPacket.WriteFloat(Stats.Display.TotalProbability);
 
             foreach (var display in Stats.Display.CreatureDisplay)
             {
-                _worldPacket.WriteUInt32(display.CreatureDisplayID);
-                _worldPacket.WriteFloat(display.Scale);
-                _worldPacket.WriteFloat(display.Probability);
+                WorldPacket.WriteUInt32(display.CreatureDisplayID);
+                WorldPacket.WriteFloat(display.Scale);
+                WorldPacket.WriteFloat(display.Probability);
             }
 
-            _worldPacket.WriteFloat(Stats.HpMulti);
-            _worldPacket.WriteFloat(Stats.EnergyMulti);
+            WorldPacket.WriteFloat(Stats.HpMulti);
+            WorldPacket.WriteFloat(Stats.EnergyMulti);
 
-            _worldPacket.WriteInt32(Stats.QuestItems.Count);
-            _worldPacket.WriteUInt32(Stats.CreatureMovementInfoID);
-            _worldPacket.WriteInt32(Stats.HealthScalingExpansion);
-            _worldPacket.WriteUInt32(Stats.RequiredExpansion);
-            _worldPacket.WriteUInt32(Stats.VignetteID);
-            _worldPacket.WriteInt32(Stats.Class);
-            _worldPacket.WriteInt32(Stats.CreatureDifficultyID);
-            _worldPacket.WriteInt32(Stats.WidgetSetID);
-            _worldPacket.WriteInt32(Stats.WidgetSetUnitConditionID);
+            WorldPacket.WriteInt32(Stats.QuestItems.Count);
+            WorldPacket.WriteUInt32(Stats.CreatureMovementInfoID);
+            WorldPacket.WriteInt32(Stats.HealthScalingExpansion);
+            WorldPacket.WriteUInt32(Stats.RequiredExpansion);
+            WorldPacket.WriteUInt32(Stats.VignetteID);
+            WorldPacket.WriteInt32(Stats.Class);
+            WorldPacket.WriteInt32(Stats.CreatureDifficultyID);
+            WorldPacket.WriteInt32(Stats.WidgetSetID);
+            WorldPacket.WriteInt32(Stats.WidgetSetUnitConditionID);
 
             if (!Stats.Title.IsEmpty())
-                _worldPacket.WriteCString(Stats.Title);
+                WorldPacket.WriteCString(Stats.Title);
 
             if (!Stats.TitleAlt.IsEmpty())
-                _worldPacket.WriteCString(Stats.TitleAlt);
+                WorldPacket.WriteCString(Stats.TitleAlt);
 
             if (!Stats.CursorName.IsEmpty())
-                _worldPacket.WriteCString(Stats.CursorName);
+                WorldPacket.WriteCString(Stats.CursorName);
 
             foreach (var questItem in Stats.QuestItems)
-                _worldPacket.WriteUInt32(questItem);
+                WorldPacket.WriteUInt32(questItem);
         }
     }
 }

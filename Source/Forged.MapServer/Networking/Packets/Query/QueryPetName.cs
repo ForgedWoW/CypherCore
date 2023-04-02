@@ -12,6 +12,6 @@ internal class QueryPetName : ClientPacket
 
     public override void Read()
     {
-        UnitGUID = _worldPacket.ReadPackedGuid();
+        UnitGUID = WorldPacket.ReadPackedGuid();
     }
 }

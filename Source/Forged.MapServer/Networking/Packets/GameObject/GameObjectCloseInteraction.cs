@@ -13,6 +13,6 @@ internal class GameObjectCloseInteraction : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32((int)InteractionType);
+        WorldPacket.WriteInt32((int)InteractionType);
     }
 }

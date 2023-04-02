@@ -19,6 +19,6 @@ internal class CapturePointRemoved : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(CapturePointGUID);
+        WorldPacket.WritePackedGuid(CapturePointGUID);
     }
 }

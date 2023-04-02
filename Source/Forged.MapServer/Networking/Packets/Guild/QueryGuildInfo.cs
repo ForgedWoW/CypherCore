@@ -13,8 +13,8 @@ public class QueryGuildInfo : ClientPacket
 
     public override void Read()
     {
-        GuildGuid = _worldPacket.ReadPackedGuid();
-        PlayerGuid = _worldPacket.ReadPackedGuid();
+        GuildGuid = WorldPacket.ReadPackedGuid();
+        PlayerGuid = WorldPacket.ReadPackedGuid();
     }
 }
 

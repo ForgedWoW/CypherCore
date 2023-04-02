@@ -12,6 +12,6 @@ internal class AddToy : ClientPacket
 
     public override void Read()
     {
-        Guid = _worldPacket.ReadPackedGuid();
+        Guid = WorldPacket.ReadPackedGuid();
     }
 }

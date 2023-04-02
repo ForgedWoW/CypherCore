@@ -15,8 +15,8 @@ public class MoveUpdateCollisionHeight : ServerPacket
 
     public override void Write()
     {
-        MovementExtensions.WriteMovementInfo(_worldPacket, Status);
-        _worldPacket.WriteFloat(Height);
-        _worldPacket.WriteFloat(Scale);
+        MovementExtensions.WriteMovementInfo(WorldPacket, Status);
+        WorldPacket.WriteFloat(Height);
+        WorldPacket.WriteFloat(Scale);
     }
 }

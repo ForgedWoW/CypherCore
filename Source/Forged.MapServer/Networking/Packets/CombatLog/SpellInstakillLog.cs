@@ -15,8 +15,8 @@ public class SpellInstakillLog : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Target);
-        _worldPacket.WritePackedGuid(Caster);
-        _worldPacket.WriteUInt32(SpellID);
+        WorldPacket.WritePackedGuid(Target);
+        WorldPacket.WritePackedGuid(Caster);
+        WorldPacket.WriteUInt32(SpellID);
     }
 }

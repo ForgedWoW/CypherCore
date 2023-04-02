@@ -12,6 +12,6 @@ internal class ReagentBank : ClientPacket
 
     public override void Read()
     {
-        Banker = _worldPacket.ReadPackedGuid();
+        Banker = WorldPacket.ReadPackedGuid();
     }
 }

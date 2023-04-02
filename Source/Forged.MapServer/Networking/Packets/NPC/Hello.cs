@@ -19,7 +19,7 @@ public class Hello : ClientPacket
 
     public override void Read()
     {
-        Unit = _worldPacket.ReadPackedGuid();
+        Unit = WorldPacket.ReadPackedGuid();
     }
 }
 

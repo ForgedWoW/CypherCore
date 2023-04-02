@@ -15,11 +15,11 @@ internal class AuctionFavoriteList : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(DesiredDelay);
-        _worldPacket.WriteBits(Items.Count, 7);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(DesiredDelay);
+        WorldPacket.WriteBits(Items.Count, 7);
+        WorldPacket.FlushBits();
 
         foreach (var favoriteInfo in Items)
-            favoriteInfo.Write(_worldPacket);
+            favoriteInfo.Write(WorldPacket);
     }
 }

@@ -17,12 +17,12 @@ public class SpellFailedOther : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(CasterUnit);
-        _worldPacket.WritePackedGuid(CastID);
-        _worldPacket.WriteUInt32(SpellID);
+        WorldPacket.WritePackedGuid(CasterUnit);
+        WorldPacket.WritePackedGuid(CastID);
+        WorldPacket.WriteUInt32(SpellID);
 
-        Visual.Write(_worldPacket);
+        Visual.Write(WorldPacket);
 
-        _worldPacket.WriteUInt16(Reason);
+        WorldPacket.WriteUInt16(Reason);
     }
 }

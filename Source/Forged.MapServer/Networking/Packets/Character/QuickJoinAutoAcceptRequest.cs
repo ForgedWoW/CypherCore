@@ -11,6 +11,6 @@ public class QuickJoinAutoAcceptRequest : ClientPacket
 
     public override void Read()
     {
-        AutoAccept = _worldPacket.ReadBit() == 1;
+        AutoAccept = WorldPacket.ReadBit() == 1;
     }
 }

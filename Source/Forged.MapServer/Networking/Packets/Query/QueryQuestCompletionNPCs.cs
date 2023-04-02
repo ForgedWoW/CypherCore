@@ -10,10 +10,10 @@ internal class QueryQuestCompletionNPCs : ClientPacket
 
     public override void Read()
     {
-        var questCount = _worldPacket.ReadUInt32();
+        var questCount = WorldPacket.ReadUInt32();
         QuestCompletionNPCs = new uint[questCount];
 
         for (uint i = 0; i < questCount; ++i)
-            QuestCompletionNPCs[i] = _worldPacket.ReadUInt32();
+            QuestCompletionNPCs[i] = WorldPacket.ReadUInt32();
     }
 }

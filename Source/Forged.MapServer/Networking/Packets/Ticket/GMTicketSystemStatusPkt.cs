@@ -12,6 +12,6 @@ public class GMTicketSystemStatusPkt : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Status);
+        WorldPacket.WriteInt32(Status);
     }
 }

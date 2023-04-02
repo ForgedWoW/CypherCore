@@ -19,20 +19,20 @@ internal class AuthSession : ClientPacket
 
     public override void Read()
     {
-        DosResponse = _worldPacket.ReadUInt64();
-        RegionID = _worldPacket.ReadUInt32();
-        BattlegroupID = _worldPacket.ReadUInt32();
-        RealmID = _worldPacket.ReadUInt32();
+        DosResponse = WorldPacket.ReadUInt64();
+        RegionID = WorldPacket.ReadUInt32();
+        BattlegroupID = WorldPacket.ReadUInt32();
+        RealmID = WorldPacket.ReadUInt32();
 
         for (var i = 0; i < LocalChallenge.GetLimit(); ++i)
-            LocalChallenge[i] = _worldPacket.ReadUInt8();
+            LocalChallenge[i] = WorldPacket.ReadUInt8();
 
-        Digest = _worldPacket.ReadBytes(24);
+        Digest = WorldPacket.ReadBytes(24);
 
-        UseIPv6 = _worldPacket.HasBit();
-        var realmJoinTicketSize = _worldPacket.ReadUInt32();
+        UseIPv6 = WorldPacket.HasBit();
+        var realmJoinTicketSize = WorldPacket.ReadUInt32();
 
         if (realmJoinTicketSize != 0)
-            RealmJoinTicket = _worldPacket.ReadString(realmJoinTicketSize);
+            RealmJoinTicket = WorldPacket.ReadString(realmJoinTicketSize);
     }
 }

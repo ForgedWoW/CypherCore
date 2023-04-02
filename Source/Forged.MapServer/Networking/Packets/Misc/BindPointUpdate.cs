@@ -15,9 +15,9 @@ public class BindPointUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteVector3(BindPosition);
-        _worldPacket.WriteUInt32(BindMapID);
-        _worldPacket.WriteUInt32(BindAreaID);
+        WorldPacket.WriteVector3(BindPosition);
+        WorldPacket.WriteUInt32(BindMapID);
+        WorldPacket.WriteUInt32(BindAreaID);
     }
 }
 

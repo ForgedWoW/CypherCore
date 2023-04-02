@@ -14,8 +14,8 @@ internal class CalendarRaidLockoutRemoved : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt64(InstanceID);
-        _worldPacket.WriteInt32(MapID);
-        _worldPacket.WriteUInt32((uint)DifficultyID);
+        WorldPacket.WriteUInt64(InstanceID);
+        WorldPacket.WriteInt32(MapID);
+        WorldPacket.WriteUInt32((uint)DifficultyID);
     }
 }

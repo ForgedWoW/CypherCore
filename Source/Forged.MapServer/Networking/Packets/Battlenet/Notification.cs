@@ -14,8 +14,8 @@ internal class Notification : ServerPacket
 
     public override void Write()
     {
-        Method.Write(_worldPacket);
-        _worldPacket.WriteUInt32(Data.GetSize());
-        _worldPacket.WriteBytes(Data);
+        Method.Write(WorldPacket);
+        WorldPacket.WriteUInt32(Data.GetSize());
+        WorldPacket.WriteBytes(Data);
     }
 }

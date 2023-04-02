@@ -13,6 +13,6 @@ internal class Warden3DataServer : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBytes(Data);
+        WorldPacket.WriteBytes(Data);
     }
 }

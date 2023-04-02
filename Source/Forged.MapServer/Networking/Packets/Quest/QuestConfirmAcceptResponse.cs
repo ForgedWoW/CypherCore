@@ -16,10 +16,10 @@ internal class QuestConfirmAcceptResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(QuestID);
-        _worldPacket.WritePackedGuid(InitiatedBy);
+        WorldPacket.WriteUInt32(QuestID);
+        WorldPacket.WritePackedGuid(InitiatedBy);
 
-        _worldPacket.WriteBits(QuestTitle.GetByteCount(), 10);
-        _worldPacket.WriteString(QuestTitle);
+        WorldPacket.WriteBits(QuestTitle.GetByteCount(), 10);
+        WorldPacket.WriteString(QuestTitle);
     }
 }

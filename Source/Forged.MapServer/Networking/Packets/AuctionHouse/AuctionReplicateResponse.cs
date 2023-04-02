@@ -18,14 +18,14 @@ public class AuctionReplicateResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(Result);
-        _worldPacket.WriteUInt32(DesiredDelay);
-        _worldPacket.WriteUInt32(ChangeNumberGlobal);
-        _worldPacket.WriteUInt32(ChangeNumberCursor);
-        _worldPacket.WriteUInt32(ChangeNumberTombstone);
-        _worldPacket.WriteInt32(Items.Count);
+        WorldPacket.WriteUInt32(Result);
+        WorldPacket.WriteUInt32(DesiredDelay);
+        WorldPacket.WriteUInt32(ChangeNumberGlobal);
+        WorldPacket.WriteUInt32(ChangeNumberCursor);
+        WorldPacket.WriteUInt32(ChangeNumberTombstone);
+        WorldPacket.WriteInt32(Items.Count);
 
         foreach (var item in Items)
-            item.Write(_worldPacket);
+            item.Write(WorldPacket);
     }
 }

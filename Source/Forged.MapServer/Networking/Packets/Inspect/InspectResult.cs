@@ -29,38 +29,38 @@ public class InspectResult : ServerPacket
 
     public override void Write()
     {
-        DisplayInfo.Write(_worldPacket);
-        _worldPacket.WriteInt32(Glyphs.Count);
-        _worldPacket.WriteInt32(Talents.Count);
-        _worldPacket.WriteInt32(PvpTalents.Count);
-        _worldPacket.WriteInt32(ItemLevel);
-        _worldPacket.WriteUInt8(LifetimeMaxRank);
-        _worldPacket.WriteUInt16(TodayHK);
-        _worldPacket.WriteUInt16(YesterdayHK);
-        _worldPacket.WriteUInt32(LifetimeHK);
-        _worldPacket.WriteUInt32(HonorLevel);
+        DisplayInfo.Write(WorldPacket);
+        WorldPacket.WriteInt32(Glyphs.Count);
+        WorldPacket.WriteInt32(Talents.Count);
+        WorldPacket.WriteInt32(PvpTalents.Count);
+        WorldPacket.WriteInt32(ItemLevel);
+        WorldPacket.WriteUInt8(LifetimeMaxRank);
+        WorldPacket.WriteUInt16(TodayHK);
+        WorldPacket.WriteUInt16(YesterdayHK);
+        WorldPacket.WriteUInt32(LifetimeHK);
+        WorldPacket.WriteUInt32(HonorLevel);
 
         for (var i = 0; i < Glyphs.Count; ++i)
-            _worldPacket.WriteUInt16(Glyphs[i]);
+            WorldPacket.WriteUInt16(Glyphs[i]);
 
         for (var i = 0; i < Talents.Count; ++i)
-            _worldPacket.WriteUInt16(Talents[i]);
+            WorldPacket.WriteUInt16(Talents[i]);
 
         for (var i = 0; i < PvpTalents.Count; ++i)
-            _worldPacket.WriteUInt16(PvpTalents[i]);
+            WorldPacket.WriteUInt16(PvpTalents[i]);
 
-        _worldPacket.WriteBit(GuildData.HasValue);
-        _worldPacket.WriteBit(AzeriteLevel.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(GuildData.HasValue);
+        WorldPacket.WriteBit(AzeriteLevel.HasValue);
+        WorldPacket.FlushBits();
 
         foreach (var bracket in Bracket)
-            bracket.Write(_worldPacket);
+            bracket.Write(WorldPacket);
 
-        GuildData?.Write(_worldPacket);
+        GuildData?.Write(WorldPacket);
 
         if (AzeriteLevel.HasValue)
-            _worldPacket.WriteUInt32(AzeriteLevel.Value);
+            WorldPacket.WriteUInt32(AzeriteLevel.Value);
 
-        TalentTraits.Write(_worldPacket);
+        TalentTraits.Write(WorldPacket);
     }
 }

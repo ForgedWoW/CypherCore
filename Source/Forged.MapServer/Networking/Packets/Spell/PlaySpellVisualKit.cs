@@ -17,11 +17,11 @@ internal class PlaySpellVisualKit : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Unit);
-        _worldPacket.WriteUInt32(KitRecID);
-        _worldPacket.WriteUInt32(KitType);
-        _worldPacket.WriteUInt32(Duration);
-        _worldPacket.WriteBit(MountedVisual);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Unit);
+        WorldPacket.WriteUInt32(KitRecID);
+        WorldPacket.WriteUInt32(KitType);
+        WorldPacket.WriteUInt32(Duration);
+        WorldPacket.WriteBit(MountedVisual);
+        WorldPacket.FlushBits();
     }
 }

@@ -15,8 +15,8 @@ public class GuildAchievementEarned : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(GuildGUID);
-        _worldPacket.WriteUInt32(AchievementID);
-        _worldPacket.WritePackedTime(TimeEarned);
+        WorldPacket.WritePackedGuid(GuildGUID);
+        WorldPacket.WriteUInt32(AchievementID);
+        WorldPacket.WritePackedTime(TimeEarned);
     }
 }

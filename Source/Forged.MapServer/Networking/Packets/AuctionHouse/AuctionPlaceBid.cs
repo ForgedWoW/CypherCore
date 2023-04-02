@@ -17,14 +17,14 @@ internal class AuctionPlaceBid : ClientPacket
 
     public override void Read()
     {
-        Auctioneer = _worldPacket.ReadPackedGuid();
-        AuctionID = _worldPacket.ReadUInt32();
-        BidAmount = _worldPacket.ReadUInt64();
+        Auctioneer = WorldPacket.ReadPackedGuid();
+        AuctionID = WorldPacket.ReadUInt32();
+        BidAmount = WorldPacket.ReadUInt64();
 
-        if (_worldPacket.HasBit())
+        if (WorldPacket.HasBit())
         {
             TaintedBy = new AddOnInfo();
-            TaintedBy.Value.Read(_worldPacket);
+            TaintedBy.Value.Read(WorldPacket);
         }
     }
 }

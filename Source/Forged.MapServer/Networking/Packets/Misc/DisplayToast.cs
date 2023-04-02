@@ -23,31 +23,31 @@ internal class DisplayToast : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt64(Quantity);
-        _worldPacket.WriteUInt8((byte)DisplayToastMethod);
-        _worldPacket.WriteUInt32(QuestID);
+        WorldPacket.WriteUInt64(Quantity);
+        WorldPacket.WriteUInt8((byte)DisplayToastMethod);
+        WorldPacket.WriteUInt32(QuestID);
 
-        _worldPacket.WriteBit(Mailed);
-        _worldPacket.WriteBits((byte)Type, 2);
-        _worldPacket.WriteBit(IsSecondaryResult);
+        WorldPacket.WriteBit(Mailed);
+        WorldPacket.WriteBits((byte)Type, 2);
+        WorldPacket.WriteBit(IsSecondaryResult);
 
         switch (Type)
         {
             case DisplayToastType.NewItem:
-                _worldPacket.WriteBit(BonusRoll);
-                Item.Write(_worldPacket);
-                _worldPacket.WriteInt32(LootSpec);
-                _worldPacket.WriteInt32((int)Gender);
+                WorldPacket.WriteBit(BonusRoll);
+                Item.Write(WorldPacket);
+                WorldPacket.WriteInt32(LootSpec);
+                WorldPacket.WriteInt32((int)Gender);
 
                 break;
             case DisplayToastType.NewCurrency:
-                _worldPacket.WriteUInt32(CurrencyID);
+                WorldPacket.WriteUInt32(CurrencyID);
 
                 break;
             default:
                 break;
         }
 
-        _worldPacket.FlushBits();
+        WorldPacket.FlushBits();
     }
 }

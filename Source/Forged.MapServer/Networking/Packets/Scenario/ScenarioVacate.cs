@@ -14,9 +14,9 @@ internal class ScenarioVacate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(ScenarioID);
-        _worldPacket.WriteInt32(Unk1);
-        _worldPacket.WriteBits(Unk2, 2);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(ScenarioID);
+        WorldPacket.WriteInt32(Unk1);
+        WorldPacket.WriteBits(Unk2, 2);
+        WorldPacket.FlushBits();
     }
 }

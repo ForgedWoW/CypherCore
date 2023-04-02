@@ -16,10 +16,10 @@ internal class CalendarStatus : ClientPacket
 
     public override void Read()
     {
-        Guid = _worldPacket.ReadPackedGuid();
-        EventID = _worldPacket.ReadUInt64();
-        InviteID = _worldPacket.ReadUInt64();
-        ModeratorID = _worldPacket.ReadUInt64();
-        Status = _worldPacket.ReadUInt8();
+        Guid = WorldPacket.ReadPackedGuid();
+        EventID = WorldPacket.ReadUInt64();
+        InviteID = WorldPacket.ReadUInt64();
+        ModeratorID = WorldPacket.ReadUInt64();
+        Status = WorldPacket.ReadUInt8();
     }
 }

@@ -41,16 +41,16 @@ public class InitWorldStates : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(MapID);
-        _worldPacket.WriteUInt32(AreaID);
-        _worldPacket.WriteUInt32(SubareaID);
+        WorldPacket.WriteUInt32(MapID);
+        WorldPacket.WriteUInt32(AreaID);
+        WorldPacket.WriteUInt32(SubareaID);
 
-        _worldPacket.WriteInt32(Worldstates.Count);
+        WorldPacket.WriteInt32(Worldstates.Count);
 
         foreach (var wsi in Worldstates)
         {
-            _worldPacket.WriteUInt32(wsi.VariableID);
-            _worldPacket.WriteInt32(wsi.Value);
+            WorldPacket.WriteUInt32(wsi.VariableID);
+            WorldPacket.WriteInt32(wsi.Value);
         }
     }
     private struct WorldStateInfo

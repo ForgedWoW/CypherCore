@@ -14,8 +14,8 @@ internal class GroupNewLeader : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt8(PartyIndex);
-        _worldPacket.WriteBits(Name.GetByteCount(), 9);
-        _worldPacket.WriteString(Name);
+        WorldPacket.WriteInt8(PartyIndex);
+        WorldPacket.WriteBits(Name.GetByteCount(), 9);
+        WorldPacket.WriteString(Name);
     }
 }

@@ -18,14 +18,14 @@ public class SeasonInfo : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(MythicPlusDisplaySeasonID);
-        _worldPacket.WriteInt32(MythicPlusMilestoneSeasonID);
-        _worldPacket.WriteInt32(CurrentArenaSeason);
-        _worldPacket.WriteInt32(PreviousArenaSeason);
-        _worldPacket.WriteInt32(ConquestWeeklyProgressCurrencyID);
-        _worldPacket.WriteInt32(PvpSeasonID);
-        _worldPacket.WriteBit(WeeklyRewardChestsEnabled);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(MythicPlusDisplaySeasonID);
+        WorldPacket.WriteInt32(MythicPlusMilestoneSeasonID);
+        WorldPacket.WriteInt32(CurrentArenaSeason);
+        WorldPacket.WriteInt32(PreviousArenaSeason);
+        WorldPacket.WriteInt32(ConquestWeeklyProgressCurrencyID);
+        WorldPacket.WriteInt32(PvpSeasonID);
+        WorldPacket.WriteBit(WeeklyRewardChestsEnabled);
+        WorldPacket.FlushBits();
     }
 }
 

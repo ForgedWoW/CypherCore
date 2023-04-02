@@ -30,27 +30,27 @@ internal class SpellNonMeleeDamageLog : CombatLogServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Me);
-        _worldPacket.WritePackedGuid(CasterGUID);
-        _worldPacket.WritePackedGuid(CastID);
-        _worldPacket.WriteInt32(SpellID);
-        Visual.Write(_worldPacket);
-        _worldPacket.WriteInt32(Damage);
-        _worldPacket.WriteInt32(OriginalDamage);
-        _worldPacket.WriteInt32(Overkill);
-        _worldPacket.WriteUInt8(SchoolMask);
-        _worldPacket.WriteInt32(Absorbed);
-        _worldPacket.WriteInt32(Resisted);
-        _worldPacket.WriteInt32(ShieldBlock);
+        WorldPacket.WritePackedGuid(Me);
+        WorldPacket.WritePackedGuid(CasterGUID);
+        WorldPacket.WritePackedGuid(CastID);
+        WorldPacket.WriteInt32(SpellID);
+        Visual.Write(WorldPacket);
+        WorldPacket.WriteInt32(Damage);
+        WorldPacket.WriteInt32(OriginalDamage);
+        WorldPacket.WriteInt32(Overkill);
+        WorldPacket.WriteUInt8(SchoolMask);
+        WorldPacket.WriteInt32(Absorbed);
+        WorldPacket.WriteInt32(Resisted);
+        WorldPacket.WriteInt32(ShieldBlock);
 
-        _worldPacket.WriteBit(Periodic);
-        _worldPacket.WriteBits(Flags, 7);
-        _worldPacket.WriteBit(false); // Debug info
+        WorldPacket.WriteBit(Periodic);
+        WorldPacket.WriteBits(Flags, 7);
+        WorldPacket.WriteBit(false); // Debug info
         WriteLogDataBit();
-        _worldPacket.WriteBit(ContentTuning != null);
+        WorldPacket.WriteBit(ContentTuning != null);
         FlushBits();
         WriteLogData();
 
-        ContentTuning?.Write(_worldPacket);
+        ContentTuning?.Write(WorldPacket);
     }
 }

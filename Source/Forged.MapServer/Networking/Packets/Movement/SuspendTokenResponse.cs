@@ -10,6 +10,6 @@ internal class SuspendTokenResponse : ClientPacket
 
     public override void Read()
     {
-        SequenceIndex = _worldPacket.ReadUInt32();
+        SequenceIndex = WorldPacket.ReadUInt32();
     }
 }

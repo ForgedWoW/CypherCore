@@ -15,9 +15,9 @@ internal class ActivateTaxi : ClientPacket
 
     public override void Read()
     {
-        Vendor = _worldPacket.ReadPackedGuid();
-        Node = _worldPacket.ReadUInt32();
-        GroundMountID = _worldPacket.ReadUInt32();
-        FlyingMountID = _worldPacket.ReadUInt32();
+        Vendor = WorldPacket.ReadPackedGuid();
+        Node = WorldPacket.ReadUInt32();
+        GroundMountID = WorldPacket.ReadUInt32();
+        FlyingMountID = WorldPacket.ReadUInt32();
     }
 }

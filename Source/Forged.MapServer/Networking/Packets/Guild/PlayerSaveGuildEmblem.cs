@@ -12,6 +12,6 @@ public class PlayerSaveGuildEmblem : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32((uint)Error);
+        WorldPacket.WriteUInt32((uint)Error);
     }
 }

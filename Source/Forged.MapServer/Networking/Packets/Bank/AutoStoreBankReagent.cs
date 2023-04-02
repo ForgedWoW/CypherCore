@@ -14,8 +14,8 @@ internal class AutoStoreBankReagent : ClientPacket
 
     public override void Read()
     {
-        Inv = new InvUpdate(_worldPacket);
-        Slot = _worldPacket.ReadUInt8();
-        PackSlot = _worldPacket.ReadUInt8();
+        Inv = new InvUpdate(WorldPacket);
+        Slot = WorldPacket.ReadUInt8();
+        PackSlot = WorldPacket.ReadUInt8();
     }
 }

@@ -19,13 +19,13 @@ public class InitializeFactions : ServerPacket
     {
         for (ushort i = 0; i < FactionCount; ++i)
         {
-            _worldPacket.WriteUInt16((ushort)((ushort)FactionFlags[i] & 0xFF));
-            _worldPacket.WriteInt32(FactionStandings[i]);
+            WorldPacket.WriteUInt16((ushort)((ushort)FactionFlags[i] & 0xFF));
+            WorldPacket.WriteInt32(FactionStandings[i]);
         }
 
         for (ushort i = 0; i < FactionCount; ++i)
-            _worldPacket.WriteBit(FactionHasBonus[i]);
+            WorldPacket.WriteBit(FactionHasBonus[i]);
 
-        _worldPacket.FlushBits();
+        WorldPacket.FlushBits();
     }
 }

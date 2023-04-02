@@ -14,10 +14,10 @@ public class WhoResponsePkt : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(RequestID);
-        _worldPacket.WriteBits(Response.Count, 6);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(RequestID);
+        WorldPacket.WriteBits(Response.Count, 6);
+        WorldPacket.FlushBits();
 
-        Response.ForEach(p => p.Write(_worldPacket));
+        Response.ForEach(p => p.Write(WorldPacket));
     }
 }

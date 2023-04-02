@@ -12,6 +12,6 @@ public class SetSelection : ClientPacket
 
     public override void Read()
     {
-        Selection = _worldPacket.ReadPackedGuid();
+        Selection = WorldPacket.ReadPackedGuid();
     }
 }

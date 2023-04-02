@@ -14,8 +14,8 @@ internal class SetRole : ClientPacket
 
     public override void Read()
     {
-        PartyIndex = _worldPacket.ReadInt8();
-        TargetGUID = _worldPacket.ReadPackedGuid();
-        Role = _worldPacket.ReadInt32();
+        PartyIndex = WorldPacket.ReadInt8();
+        TargetGUID = WorldPacket.ReadPackedGuid();
+        Role = WorldPacket.ReadInt32();
     }
 }

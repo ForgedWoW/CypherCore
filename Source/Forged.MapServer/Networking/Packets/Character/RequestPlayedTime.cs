@@ -10,6 +10,6 @@ public class RequestPlayedTime : ClientPacket
 
     public override void Read()
     {
-        TriggerScriptEvent = _worldPacket.HasBit();
+        TriggerScriptEvent = WorldPacket.HasBit();
     }
 }

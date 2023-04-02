@@ -18,11 +18,11 @@ public class DBReply : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(TableHash);
-        _worldPacket.WriteUInt32(RecordID);
-        _worldPacket.WriteUInt32(Timestamp);
-        _worldPacket.WriteBits((byte)Status, 3);
-        _worldPacket.WriteUInt32(Data.GetSize());
-        _worldPacket.WriteBytes(Data.GetData());
+        WorldPacket.WriteUInt32(TableHash);
+        WorldPacket.WriteUInt32(RecordID);
+        WorldPacket.WriteUInt32(Timestamp);
+        WorldPacket.WriteBits((byte)Status, 3);
+        WorldPacket.WriteUInt32(Data.GetSize());
+        WorldPacket.WriteBytes(Data.GetData());
     }
 }

@@ -19,20 +19,20 @@ public class UpdateAccountData : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Player);
-        _worldPacket.WriteInt64(Time);
-        _worldPacket.WriteUInt32(Size);
-        _worldPacket.WriteBits(DataType, 4);
+        WorldPacket.WritePackedGuid(Player);
+        WorldPacket.WriteInt64(Time);
+        WorldPacket.WriteUInt32(Size);
+        WorldPacket.WriteBits(DataType, 4);
 
         if (CompressedData == null)
         {
-            _worldPacket.WriteUInt32(0);
+            WorldPacket.WriteUInt32(0);
         }
         else
         {
             var bytes = CompressedData.GetData();
-            _worldPacket.WriteInt32(bytes.Length);
-            _worldPacket.WriteBytes(bytes);
+            WorldPacket.WriteInt32(bytes.Length);
+            WorldPacket.WriteBytes(bytes);
         }
     }
 }

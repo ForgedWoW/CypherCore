@@ -12,6 +12,6 @@ public class PetitionShowList : ClientPacket
 
     public override void Read()
     {
-        PetitionUnit = _worldPacket.ReadPackedGuid();
+        PetitionUnit = WorldPacket.ReadPackedGuid();
     }
 }

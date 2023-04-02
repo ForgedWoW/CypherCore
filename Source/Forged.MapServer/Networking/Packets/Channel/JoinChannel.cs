@@ -14,12 +14,12 @@ public class JoinChannel : ClientPacket
 
     public override void Read()
     {
-        ChatChannelId = _worldPacket.ReadInt32();
-        CreateVoiceSession = _worldPacket.HasBit();
-        Internal = _worldPacket.HasBit();
-        var channelLength = _worldPacket.ReadBits<uint>(7);
-        var passwordLength = _worldPacket.ReadBits<uint>(7);
-        ChannelName = _worldPacket.ReadString(channelLength);
-        Password = _worldPacket.ReadString(passwordLength);
+        ChatChannelId = WorldPacket.ReadInt32();
+        CreateVoiceSession = WorldPacket.HasBit();
+        Internal = WorldPacket.HasBit();
+        var channelLength = WorldPacket.ReadBits<uint>(7);
+        var passwordLength = WorldPacket.ReadBits<uint>(7);
+        ChannelName = WorldPacket.ReadString(channelLength);
+        Password = WorldPacket.ReadString(passwordLength);
     }
 }

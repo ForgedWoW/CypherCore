@@ -10,6 +10,6 @@ internal class SpellEmpowerRelease : ClientPacket
 
     public override void Read()
     {
-        SpellID = _worldPacket.ReadUInt32();
+        SpellID = WorldPacket.ReadUInt32();
     }
 }

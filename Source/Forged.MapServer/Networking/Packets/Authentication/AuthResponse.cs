@@ -19,89 +19,89 @@ internal class AuthResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32((uint)Result);
-        _worldPacket.WriteBit(SuccessInfo != null);
-        _worldPacket.WriteBit(WaitInfo.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32((uint)Result);
+        WorldPacket.WriteBit(SuccessInfo != null);
+        WorldPacket.WriteBit(WaitInfo.HasValue);
+        WorldPacket.FlushBits();
 
         if (SuccessInfo != null)
         {
-            _worldPacket.WriteUInt32(SuccessInfo.VirtualRealmAddress);
-            _worldPacket.WriteInt32(SuccessInfo.VirtualRealms.Count);
-            _worldPacket.WriteUInt32(SuccessInfo.TimeRested);
-            _worldPacket.WriteUInt8(SuccessInfo.ActiveExpansionLevel);
-            _worldPacket.WriteUInt8(SuccessInfo.AccountExpansionLevel);
-            _worldPacket.WriteUInt32(SuccessInfo.TimeSecondsUntilPCKick);
-            _worldPacket.WriteInt32(SuccessInfo.AvailableClasses.Count);
-            _worldPacket.WriteInt32(SuccessInfo.Templates.Count);
-            _worldPacket.WriteUInt32(SuccessInfo.CurrencyID);
-            _worldPacket.WriteInt64(SuccessInfo.Time);
+            WorldPacket.WriteUInt32(SuccessInfo.VirtualRealmAddress);
+            WorldPacket.WriteInt32(SuccessInfo.VirtualRealms.Count);
+            WorldPacket.WriteUInt32(SuccessInfo.TimeRested);
+            WorldPacket.WriteUInt8(SuccessInfo.ActiveExpansionLevel);
+            WorldPacket.WriteUInt8(SuccessInfo.AccountExpansionLevel);
+            WorldPacket.WriteUInt32(SuccessInfo.TimeSecondsUntilPCKick);
+            WorldPacket.WriteInt32(SuccessInfo.AvailableClasses.Count);
+            WorldPacket.WriteInt32(SuccessInfo.Templates.Count);
+            WorldPacket.WriteUInt32(SuccessInfo.CurrencyID);
+            WorldPacket.WriteInt64(SuccessInfo.Time);
 
             foreach (var raceClassAvailability in SuccessInfo.AvailableClasses)
             {
-                _worldPacket.WriteUInt8(raceClassAvailability.RaceID);
-                _worldPacket.WriteInt32(raceClassAvailability.Classes.Count);
+                WorldPacket.WriteUInt8(raceClassAvailability.RaceID);
+                WorldPacket.WriteInt32(raceClassAvailability.Classes.Count);
 
                 foreach (var classAvailability in raceClassAvailability.Classes)
                 {
-                    _worldPacket.WriteUInt8(classAvailability.ClassID);
-                    _worldPacket.WriteUInt8(classAvailability.ActiveExpansionLevel);
-                    _worldPacket.WriteUInt8(classAvailability.AccountExpansionLevel);
-                    _worldPacket.WriteUInt8(classAvailability.MinActiveExpansionLevel);
+                    WorldPacket.WriteUInt8(classAvailability.ClassID);
+                    WorldPacket.WriteUInt8(classAvailability.ActiveExpansionLevel);
+                    WorldPacket.WriteUInt8(classAvailability.AccountExpansionLevel);
+                    WorldPacket.WriteUInt8(classAvailability.MinActiveExpansionLevel);
                 }
             }
 
-            _worldPacket.WriteBit(SuccessInfo.IsExpansionTrial);
-            _worldPacket.WriteBit(SuccessInfo.ForceCharacterTemplate);
-            _worldPacket.WriteBit(SuccessInfo.NumPlayersHorde.HasValue);
-            _worldPacket.WriteBit(SuccessInfo.NumPlayersAlliance.HasValue);
-            _worldPacket.WriteBit(SuccessInfo.ExpansionTrialExpiration.HasValue);
-            _worldPacket.FlushBits();
+            WorldPacket.WriteBit(SuccessInfo.IsExpansionTrial);
+            WorldPacket.WriteBit(SuccessInfo.ForceCharacterTemplate);
+            WorldPacket.WriteBit(SuccessInfo.NumPlayersHorde.HasValue);
+            WorldPacket.WriteBit(SuccessInfo.NumPlayersAlliance.HasValue);
+            WorldPacket.WriteBit(SuccessInfo.ExpansionTrialExpiration.HasValue);
+            WorldPacket.FlushBits();
 
             {
-                _worldPacket.WriteUInt32(SuccessInfo.GameTimeInfo.BillingPlan);
-                _worldPacket.WriteUInt32(SuccessInfo.GameTimeInfo.TimeRemain);
-                _worldPacket.WriteUInt32(SuccessInfo.GameTimeInfo.Unknown735);
+                WorldPacket.WriteUInt32(SuccessInfo.GameTimeInfo.BillingPlan);
+                WorldPacket.WriteUInt32(SuccessInfo.GameTimeInfo.TimeRemain);
+                WorldPacket.WriteUInt32(SuccessInfo.GameTimeInfo.Unknown735);
                 // 3x same bit is not a mistake - preserves legacy client behavior of BillingPlanFlags::SESSION_IGR
-                _worldPacket.WriteBit(SuccessInfo.GameTimeInfo.InGameRoom); // inGameRoom check in function checking which lua event to fire when remaining time is near end - BILLING_NAG_DIALOG vs IGR_BILLING_NAG_DIALOG
-                _worldPacket.WriteBit(SuccessInfo.GameTimeInfo.InGameRoom); // inGameRoom lua return from Script_GetBillingPlan
-                _worldPacket.WriteBit(SuccessInfo.GameTimeInfo.InGameRoom); // not used anywhere in the client
-                _worldPacket.FlushBits();
+                WorldPacket.WriteBit(SuccessInfo.GameTimeInfo.InGameRoom); // inGameRoom check in function checking which lua event to fire when remaining time is near end - BILLING_NAG_DIALOG vs IGR_BILLING_NAG_DIALOG
+                WorldPacket.WriteBit(SuccessInfo.GameTimeInfo.InGameRoom); // inGameRoom lua return from Script_GetBillingPlan
+                WorldPacket.WriteBit(SuccessInfo.GameTimeInfo.InGameRoom); // not used anywhere in the client
+                WorldPacket.FlushBits();
             }
 
             if (SuccessInfo.NumPlayersHorde.HasValue)
-                _worldPacket.WriteUInt16(SuccessInfo.NumPlayersHorde.Value);
+                WorldPacket.WriteUInt16(SuccessInfo.NumPlayersHorde.Value);
 
             if (SuccessInfo.NumPlayersAlliance.HasValue)
-                _worldPacket.WriteUInt16(SuccessInfo.NumPlayersAlliance.Value);
+                WorldPacket.WriteUInt16(SuccessInfo.NumPlayersAlliance.Value);
 
             if (SuccessInfo.ExpansionTrialExpiration.HasValue)
-                _worldPacket.WriteInt64(SuccessInfo.ExpansionTrialExpiration.Value);
+                WorldPacket.WriteInt64(SuccessInfo.ExpansionTrialExpiration.Value);
 
             foreach (var virtualRealm in SuccessInfo.VirtualRealms)
-                virtualRealm.Write(_worldPacket);
+                virtualRealm.Write(WorldPacket);
 
             foreach (var templat in SuccessInfo.Templates)
             {
-                _worldPacket.WriteUInt32(templat.TemplateSetId);
-                _worldPacket.WriteInt32(templat.Classes.Count);
+                WorldPacket.WriteUInt32(templat.TemplateSetId);
+                WorldPacket.WriteInt32(templat.Classes.Count);
 
                 foreach (var templateClass in templat.Classes)
                 {
-                    _worldPacket.WriteUInt8(templateClass.ClassID);
-                    _worldPacket.WriteUInt8((byte)templateClass.FactionGroup);
+                    WorldPacket.WriteUInt8(templateClass.ClassID);
+                    WorldPacket.WriteUInt8((byte)templateClass.FactionGroup);
                 }
 
-                _worldPacket.WriteBits(templat.Name.GetByteCount(), 7);
-                _worldPacket.WriteBits(templat.Description.GetByteCount(), 10);
-                _worldPacket.FlushBits();
+                WorldPacket.WriteBits(templat.Name.GetByteCount(), 7);
+                WorldPacket.WriteBits(templat.Description.GetByteCount(), 10);
+                WorldPacket.FlushBits();
 
-                _worldPacket.WriteString(templat.Name);
-                _worldPacket.WriteString(templat.Description);
+                WorldPacket.WriteString(templat.Name);
+                WorldPacket.WriteString(templat.Description);
             }
         }
 
-        WaitInfo?.Write(_worldPacket);
+        WaitInfo?.Write(WorldPacket);
     }
 
     public class AuthSuccessInfo

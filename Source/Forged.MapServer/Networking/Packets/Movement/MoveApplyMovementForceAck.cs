@@ -13,7 +13,7 @@ internal class MoveApplyMovementForceAck : ClientPacket
 
     public override void Read()
     {
-        Ack.Read(_worldPacket);
-        Force.Read(_worldPacket);
+        Ack.Read(WorldPacket);
+        Force.Read(WorldPacket);
     }
 }

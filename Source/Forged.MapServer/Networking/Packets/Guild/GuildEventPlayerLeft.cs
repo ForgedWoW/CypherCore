@@ -20,19 +20,19 @@ public class GuildEventPlayerLeft : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(Removed);
-        _worldPacket.WriteBits(LeaverName.GetByteCount(), 6);
+        WorldPacket.WriteBit(Removed);
+        WorldPacket.WriteBits(LeaverName.GetByteCount(), 6);
 
         if (Removed)
         {
-            _worldPacket.WriteBits(RemoverName.GetByteCount(), 6);
-            _worldPacket.WritePackedGuid(RemoverGUID);
-            _worldPacket.WriteUInt32(RemoverVirtualRealmAddress);
-            _worldPacket.WriteString(RemoverName);
+            WorldPacket.WriteBits(RemoverName.GetByteCount(), 6);
+            WorldPacket.WritePackedGuid(RemoverGUID);
+            WorldPacket.WriteUInt32(RemoverVirtualRealmAddress);
+            WorldPacket.WriteString(RemoverName);
         }
 
-        _worldPacket.WritePackedGuid(LeaverGUID);
-        _worldPacket.WriteUInt32(LeaverVirtualRealmAddress);
-        _worldPacket.WriteString(LeaverName);
+        WorldPacket.WritePackedGuid(LeaverGUID);
+        WorldPacket.WriteUInt32(LeaverVirtualRealmAddress);
+        WorldPacket.WriteString(LeaverName);
     }
 }

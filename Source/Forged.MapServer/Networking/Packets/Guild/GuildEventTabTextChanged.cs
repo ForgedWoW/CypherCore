@@ -12,6 +12,6 @@ public class GuildEventTabTextChanged : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Tab);
+        WorldPacket.WriteInt32(Tab);
     }
 }

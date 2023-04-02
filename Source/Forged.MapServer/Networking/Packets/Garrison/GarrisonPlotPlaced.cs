@@ -13,7 +13,7 @@ internal class GarrisonPlotPlaced : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32((int)GarrTypeID);
-        PlotInfo.Write(_worldPacket);
+        WorldPacket.WriteInt32((int)GarrTypeID);
+        PlotInfo.Write(WorldPacket);
     }
 }

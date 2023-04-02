@@ -15,8 +15,8 @@ internal class BlackMarketWon : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(MarketID);
-        _worldPacket.WriteInt32(RandomPropertiesID);
-        Item.Write(_worldPacket);
+        WorldPacket.WriteUInt32(MarketID);
+        WorldPacket.WriteInt32(RandomPropertiesID);
+        Item.Write(WorldPacket);
     }
 }

@@ -64,37 +64,37 @@ internal class ItemPushResult : ServerPacket
     }
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(PlayerGUID);
-        _worldPacket.WriteUInt8(Slot);
-        _worldPacket.WriteInt32(SlotInBag);
-        _worldPacket.WriteInt32(QuestLogItemID);
-        _worldPacket.WriteUInt32(Quantity);
-        _worldPacket.WriteUInt32(QuantityInInventory);
-        _worldPacket.WriteInt32(DungeonEncounterID);
-        _worldPacket.WriteInt32(BattlePetSpeciesID);
-        _worldPacket.WriteInt32(BattlePetBreedID);
-        _worldPacket.WriteUInt32(BattlePetBreedQuality);
-        _worldPacket.WriteInt32(BattlePetLevel);
-        _worldPacket.WritePackedGuid(ItemGUID);
-        _worldPacket.WriteInt32(Toasts.Count);
+        WorldPacket.WritePackedGuid(PlayerGUID);
+        WorldPacket.WriteUInt8(Slot);
+        WorldPacket.WriteInt32(SlotInBag);
+        WorldPacket.WriteInt32(QuestLogItemID);
+        WorldPacket.WriteUInt32(Quantity);
+        WorldPacket.WriteUInt32(QuantityInInventory);
+        WorldPacket.WriteInt32(DungeonEncounterID);
+        WorldPacket.WriteInt32(BattlePetSpeciesID);
+        WorldPacket.WriteInt32(BattlePetBreedID);
+        WorldPacket.WriteUInt32(BattlePetBreedQuality);
+        WorldPacket.WriteInt32(BattlePetLevel);
+        WorldPacket.WritePackedGuid(ItemGUID);
+        WorldPacket.WriteInt32(Toasts.Count);
 
         foreach (var uiEventToast in Toasts)
-            uiEventToast.Write(_worldPacket);
+            uiEventToast.Write(WorldPacket);
 
-        _worldPacket.WriteBit(Pushed);
-        _worldPacket.WriteBit(Created);
-        _worldPacket.WriteBits((uint)DisplayText, 3);
-        _worldPacket.WriteBit(IsBonusRoll);
-        _worldPacket.WriteBit(IsEncounterLoot);
-        _worldPacket.WriteBit(CraftingData != null);
-        _worldPacket.WriteBit(FirstCraftOperationID.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(Pushed);
+        WorldPacket.WriteBit(Created);
+        WorldPacket.WriteBits((uint)DisplayText, 3);
+        WorldPacket.WriteBit(IsBonusRoll);
+        WorldPacket.WriteBit(IsEncounterLoot);
+        WorldPacket.WriteBit(CraftingData != null);
+        WorldPacket.WriteBit(FirstCraftOperationID.HasValue);
+        WorldPacket.FlushBits();
 
-        Item.Write(_worldPacket);
+        Item.Write(WorldPacket);
 
         if (FirstCraftOperationID.HasValue)
-            _worldPacket.WriteUInt32(FirstCraftOperationID.Value);
+            WorldPacket.WriteUInt32(FirstCraftOperationID.Value);
 
-        CraftingData?.Write(_worldPacket);
+        CraftingData?.Write(WorldPacket);
     }
 }

@@ -13,9 +13,9 @@ internal class AzeriteEmpoweredItemSelectPower : ClientPacket
 
     public override void Read()
     {
-        Tier = _worldPacket.ReadInt32();
-        AzeritePowerID = _worldPacket.ReadInt32();
-        ContainerSlot = _worldPacket.ReadUInt8();
-        Slot = _worldPacket.ReadUInt8();
+        Tier = WorldPacket.ReadInt32();
+        AzeritePowerID = WorldPacket.ReadInt32();
+        ContainerSlot = WorldPacket.ReadUInt8();
+        Slot = WorldPacket.ReadUInt8();
     }
 }

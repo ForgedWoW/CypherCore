@@ -15,38 +15,38 @@ public class LoadEquipmentSet : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(SetData.Count);
+        WorldPacket.WriteInt32(SetData.Count);
 
         foreach (var equipSet in SetData)
         {
-            _worldPacket.WriteInt32((int)equipSet.Type);
-            _worldPacket.WriteUInt64(equipSet.Guid);
-            _worldPacket.WriteUInt32(equipSet.SetId);
-            _worldPacket.WriteUInt32(equipSet.IgnoreMask);
+            WorldPacket.WriteInt32((int)equipSet.Type);
+            WorldPacket.WriteUInt64(equipSet.Guid);
+            WorldPacket.WriteUInt32(equipSet.SetId);
+            WorldPacket.WriteUInt32(equipSet.IgnoreMask);
 
             for (var i = 0; i < EquipmentSlot.End; ++i)
             {
-                _worldPacket.WritePackedGuid(equipSet.Pieces[i]);
-                _worldPacket.WriteInt32(equipSet.Appearances[i]);
+                WorldPacket.WritePackedGuid(equipSet.Pieces[i]);
+                WorldPacket.WriteInt32(equipSet.Appearances[i]);
             }
 
             foreach (var id in equipSet.Enchants)
-                _worldPacket.WriteInt32(id);
+                WorldPacket.WriteInt32(id);
 
-            _worldPacket.WriteInt32(equipSet.SecondaryShoulderApparanceId);
-            _worldPacket.WriteInt32(equipSet.SecondaryShoulderSlot);
-            _worldPacket.WriteInt32(equipSet.SecondaryWeaponAppearanceId);
-            _worldPacket.WriteInt32(equipSet.SecondaryWeaponSlot);
+            WorldPacket.WriteInt32(equipSet.SecondaryShoulderApparanceId);
+            WorldPacket.WriteInt32(equipSet.SecondaryShoulderSlot);
+            WorldPacket.WriteInt32(equipSet.SecondaryWeaponAppearanceId);
+            WorldPacket.WriteInt32(equipSet.SecondaryWeaponSlot);
 
-            _worldPacket.WriteBit(equipSet.AssignedSpecIndex != -1);
-            _worldPacket.WriteBits(equipSet.SetName.GetByteCount(), 8);
-            _worldPacket.WriteBits(equipSet.SetIcon.GetByteCount(), 9);
+            WorldPacket.WriteBit(equipSet.AssignedSpecIndex != -1);
+            WorldPacket.WriteBits(equipSet.SetName.GetByteCount(), 8);
+            WorldPacket.WriteBits(equipSet.SetIcon.GetByteCount(), 9);
 
             if (equipSet.AssignedSpecIndex != -1)
-                _worldPacket.WriteInt32(equipSet.AssignedSpecIndex);
+                WorldPacket.WriteInt32(equipSet.AssignedSpecIndex);
 
-            _worldPacket.WriteString(equipSet.SetName);
-            _worldPacket.WriteString(equipSet.SetIcon);
+            WorldPacket.WriteString(equipSet.SetName);
+            WorldPacket.WriteString(equipSet.SetIcon);
         }
     }
 }

@@ -19,13 +19,13 @@ public class ChannelNotifyJoined : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Channel.GetByteCount(), 7);
-        _worldPacket.WriteBits(ChannelWelcomeMsg.GetByteCount(), 11);
-        _worldPacket.WriteUInt32((uint)ChannelFlags);
-        _worldPacket.WriteInt32(ChatChannelID);
-        _worldPacket.WriteUInt64(InstanceID);
-        _worldPacket.WritePackedGuid(ChannelGUID);
-        _worldPacket.WriteString(Channel);
-        _worldPacket.WriteString(ChannelWelcomeMsg);
+        WorldPacket.WriteBits(Channel.GetByteCount(), 7);
+        WorldPacket.WriteBits(ChannelWelcomeMsg.GetByteCount(), 11);
+        WorldPacket.WriteUInt32((uint)ChannelFlags);
+        WorldPacket.WriteInt32(ChatChannelID);
+        WorldPacket.WriteUInt64(InstanceID);
+        WorldPacket.WritePackedGuid(ChannelGUID);
+        WorldPacket.WriteString(Channel);
+        WorldPacket.WriteString(ChannelWelcomeMsg);
     }
 }

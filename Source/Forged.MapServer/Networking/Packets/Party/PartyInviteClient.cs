@@ -16,15 +16,15 @@ internal class PartyInviteClient : ClientPacket
 
     public override void Read()
     {
-        PartyIndex = _worldPacket.ReadUInt8();
+        PartyIndex = WorldPacket.ReadUInt8();
 
-        var targetNameLen = _worldPacket.ReadBits<uint>(9);
-        var targetRealmLen = _worldPacket.ReadBits<uint>(9);
+        var targetNameLen = WorldPacket.ReadBits<uint>(9);
+        var targetRealmLen = WorldPacket.ReadBits<uint>(9);
 
-        ProposedRoles = _worldPacket.ReadUInt32();
-        TargetGUID = _worldPacket.ReadPackedGuid();
+        ProposedRoles = WorldPacket.ReadUInt32();
+        TargetGUID = WorldPacket.ReadPackedGuid();
 
-        TargetName = _worldPacket.ReadString(targetNameLen);
-        TargetRealm = _worldPacket.ReadString(targetRealmLen);
+        TargetName = WorldPacket.ReadString(targetNameLen);
+        TargetRealm = WorldPacket.ReadString(targetRealmLen);
     }
 }

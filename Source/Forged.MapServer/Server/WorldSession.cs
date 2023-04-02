@@ -893,25 +893,25 @@ public class WorldSession : IDisposable
         if (packet == null)
             return;
 
-        if (packet.GetOpcode() == ServerOpcodes.Unknown || packet.GetOpcode() == ServerOpcodes.Max)
+        if (packet.Opcode == ServerOpcodes.Unknown || packet.Opcode == ServerOpcodes.Max)
         {
             Log.Logger.Error("Prevented sending of UnknownOpcode to {0}", GetPlayerInfo());
 
             return;
         }
 
-        var conIdx = packet.GetConnection();
+        var conIdx = packet.Connection;
 
-        if (conIdx != ConnectionType.Instance && _packetManager.IsInstanceOnlyOpcode(packet.GetOpcode()))
+        if (conIdx != ConnectionType.Instance && _packetManager.IsInstanceOnlyOpcode(packet.Opcode))
         {
-            Log.Logger.Error("Prevented sending of instance only opcode {0} with connection type {1} to {2}", packet.GetOpcode(), packet.GetConnection(), GetPlayerInfo());
+            Log.Logger.Error("Prevented sending of instance only opcode {0} with connection type {1} to {2}", packet.Opcode, packet.Connection, GetPlayerInfo());
 
             return;
         }
 
         if (Socket == null)
         {
-            Log.Logger.Verbose("Prevented sending of {0} to non existent socket {1} to {2}", packet.GetOpcode(), conIdx, GetPlayerInfo());
+            Log.Logger.Verbose("Prevented sending of {0} to non existent socket {1} to {2}", packet.Opcode, conIdx, GetPlayerInfo());
 
             return;
         }
@@ -1029,7 +1029,7 @@ public class WorldSession : IDisposable
         {
             try
             {
-                var handler = _packetManager.GetHandler((ClientOpcodes)packet.GetOpcode());
+                var handler = _packetManager.GetHandler((ClientOpcodes)packet.Opcode);
 
                 switch (handler.SessionStatus)
                 {
@@ -1042,7 +1042,7 @@ public class WorldSession : IDisposable
                                     firstDelayedPacket = packet;
 
                                 QueuePacket(packet);
-                                Log.Logger.Debug("Re-enqueueing packet with opcode {0} with with status OpcodeStatus.Loggedin. Player is currently not in world yet.", (ClientOpcodes)packet.GetOpcode());
+                                Log.Logger.Debug("Re-enqueueing packet with opcode {0} with with status OpcodeStatus.Loggedin. Player is currently not in world yet.", (ClientOpcodes)packet.Opcode);
                             }
 
                             break;
@@ -1077,7 +1077,7 @@ public class WorldSession : IDisposable
                             break;
                         }
 
-                        if ((ClientOpcodes)packet.GetOpcode() == ClientOpcodes.EnumCharacters)
+                        if ((ClientOpcodes)packet.Opcode == ClientOpcodes.EnumCharacters)
                             PlayerRecentlyLoggedOut = false;
 
                         if (_antiDos.EvaluateOpcode(packet, currentTime))
@@ -1085,19 +1085,19 @@ public class WorldSession : IDisposable
 
                         break;
                     default:
-                        Log.Logger.Error("Received not handled opcode {0} from {1}", (ClientOpcodes)packet.GetOpcode(), GetPlayerInfo());
+                        Log.Logger.Error("Received not handled opcode {0} from {1}", (ClientOpcodes)packet.Opcode, GetPlayerInfo());
 
                         break;
                 }
             }
             catch (InternalBufferOverflowException ex)
             {
-                Log.Logger.Error("InternalBufferOverflowException: {0} while parsing {1} from {2}.", ex.Message, (ClientOpcodes)packet.GetOpcode(), GetPlayerInfo());
+                Log.Logger.Error("InternalBufferOverflowException: {0} while parsing {1} from {2}.", ex.Message, (ClientOpcodes)packet.Opcode, GetPlayerInfo());
             }
             catch (EndOfStreamException)
             {
                 Log.Logger.Error("WorldSession:Update EndOfStreamException occured while parsing a packet (opcode: {0}) from client {1}, accountid={2}. Skipped packet.",
-                                 (ClientOpcodes)packet.GetOpcode(),
+                                 (ClientOpcodes)packet.Opcode,
                                  RemoteAddress,
                                  AccountId);
             }
@@ -1403,7 +1403,7 @@ public class WorldSession : IDisposable
 
     private void LogUnexpectedOpcode(WorldPacket packet, SessionStatus status, string reason)
     {
-        Log.Logger.Error("Received unexpected opcode {0} Status: {1} Reason: {2} from {3}", (ClientOpcodes)packet.GetOpcode(), status, reason, GetPlayerInfo());
+        Log.Logger.Error("Received unexpected opcode {0} Status: {1} Reason: {2} from {3}", (ClientOpcodes)packet.Opcode, status, reason, GetPlayerInfo());
     }
 
     private void ProcessInPlace()
@@ -1424,7 +1424,7 @@ public class WorldSession : IDisposable
 
     private void ProcessQueue(WorldPacket packet)
     {
-        var handler = _packetManager.GetHandler((ClientOpcodes)packet.GetOpcode());
+        var handler = _packetManager.GetHandler((ClientOpcodes)packet.Opcode);
 
         if (handler != null)
         {

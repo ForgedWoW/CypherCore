@@ -20,17 +20,17 @@ public class CriteriaUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(CriteriaID);
-        _worldPacket.WriteUInt64(Quantity);
-        _worldPacket.WritePackedGuid(PlayerGUID);
-        _worldPacket.WriteUInt32(Flags);
-        _worldPacket.WritePackedTime(CurrentTime);
-        _worldPacket.WriteInt64(ElapsedTime);
-        _worldPacket.WriteInt64(CreationTime);
-        _worldPacket.WriteBit(RafAcceptanceID.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(CriteriaID);
+        WorldPacket.WriteUInt64(Quantity);
+        WorldPacket.WritePackedGuid(PlayerGUID);
+        WorldPacket.WriteUInt32(Flags);
+        WorldPacket.WritePackedTime(CurrentTime);
+        WorldPacket.WriteInt64(ElapsedTime);
+        WorldPacket.WriteInt64(CreationTime);
+        WorldPacket.WriteBit(RafAcceptanceID.HasValue);
+        WorldPacket.FlushBits();
 
         if (RafAcceptanceID.HasValue)
-            _worldPacket.WriteUInt64(RafAcceptanceID.Value);
+            WorldPacket.WriteUInt64(RafAcceptanceID.Value);
     }
 }

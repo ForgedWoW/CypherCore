@@ -15,23 +15,23 @@ public class CharRaceOrFactionChange : ClientPacket
     {
         RaceOrFactionChangeInfo = new CharRaceOrFactionChangeInfo
         {
-            FactionChange = _worldPacket.HasBit()
+            FactionChange = WorldPacket.HasBit()
         };
 
-        var nameLength = _worldPacket.ReadBits<uint>(6);
+        var nameLength = WorldPacket.ReadBits<uint>(6);
 
-        RaceOrFactionChangeInfo.Guid = _worldPacket.ReadPackedGuid();
-        RaceOrFactionChangeInfo.SexID = (Gender)_worldPacket.ReadUInt8();
-        RaceOrFactionChangeInfo.RaceID = (Race)_worldPacket.ReadUInt8();
-        RaceOrFactionChangeInfo.InitialRaceID = (Race)_worldPacket.ReadUInt8();
-        var customizationCount = _worldPacket.ReadUInt32();
-        RaceOrFactionChangeInfo.Name = _worldPacket.ReadString(nameLength);
+        RaceOrFactionChangeInfo.Guid = WorldPacket.ReadPackedGuid();
+        RaceOrFactionChangeInfo.SexID = (Gender)WorldPacket.ReadUInt8();
+        RaceOrFactionChangeInfo.RaceID = (Race)WorldPacket.ReadUInt8();
+        RaceOrFactionChangeInfo.InitialRaceID = (Race)WorldPacket.ReadUInt8();
+        var customizationCount = WorldPacket.ReadUInt32();
+        RaceOrFactionChangeInfo.Name = WorldPacket.ReadString(nameLength);
 
         for (var i = 0; i < customizationCount; ++i)
             RaceOrFactionChangeInfo.Customizations[i] = new ChrCustomizationChoice()
             {
-                ChrCustomizationOptionID = _worldPacket.ReadUInt32(),
-                ChrCustomizationChoiceID = _worldPacket.ReadUInt32()
+                ChrCustomizationOptionID = WorldPacket.ReadUInt32(),
+                ChrCustomizationChoiceID = WorldPacket.ReadUInt32()
             };
 
         RaceOrFactionChangeInfo.Customizations.Sort();

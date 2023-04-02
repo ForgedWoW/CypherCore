@@ -14,7 +14,7 @@ public class SpellDelayed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Caster);
-        _worldPacket.WriteInt32(ActualDelay);
+        WorldPacket.WritePackedGuid(Caster);
+        WorldPacket.WriteInt32(ActualDelay);
     }
 }

@@ -15,9 +15,9 @@ internal class GameObjectCustomAnim : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ObjectGUID);
-        _worldPacket.WriteUInt32(CustomAnim);
-        _worldPacket.WriteBit(PlayAsDespawn);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(ObjectGUID);
+        WorldPacket.WriteUInt32(CustomAnim);
+        WorldPacket.WriteBit(PlayAsDespawn);
+        WorldPacket.FlushBits();
     }
 }

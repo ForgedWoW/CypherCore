@@ -15,9 +15,9 @@ public class ChannelNotifyLeft : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Channel.GetByteCount(), 7);
-        _worldPacket.WriteBit(Suspended);
-        _worldPacket.WriteUInt32(ChatChannelID);
-        _worldPacket.WriteString(Channel);
+        WorldPacket.WriteBits(Channel.GetByteCount(), 7);
+        WorldPacket.WriteBit(Suspended);
+        WorldPacket.WriteUInt32(ChatChannelID);
+        WorldPacket.WriteString(Channel);
     }
 }

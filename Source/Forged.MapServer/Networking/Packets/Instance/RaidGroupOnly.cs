@@ -13,7 +13,7 @@ internal class RaidGroupOnly : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Delay);
-        _worldPacket.WriteUInt32((uint)Reason);
+        WorldPacket.WriteInt32(Delay);
+        WorldPacket.WriteUInt32((uint)Reason);
     }
 }

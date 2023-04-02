@@ -10,6 +10,6 @@ internal class WrapItem : ClientPacket
 
     public override void Read()
     {
-        Inv = new InvUpdate(_worldPacket);
+        Inv = new InvUpdate(WorldPacket);
     }
 }

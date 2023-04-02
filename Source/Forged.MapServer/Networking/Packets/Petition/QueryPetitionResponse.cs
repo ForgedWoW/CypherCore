@@ -14,11 +14,11 @@ public class QueryPetitionResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(PetitionID);
-        _worldPacket.WriteBit(Allow);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(PetitionID);
+        WorldPacket.WriteBit(Allow);
+        WorldPacket.FlushBits();
 
         if (Allow)
-            Info.Write(_worldPacket);
+            Info.Write(WorldPacket);
     }
 }

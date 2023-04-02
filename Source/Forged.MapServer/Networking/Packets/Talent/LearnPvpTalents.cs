@@ -12,9 +12,9 @@ internal class LearnPvpTalents : ClientPacket
 
     public override void Read()
     {
-        var size = _worldPacket.ReadUInt32();
+        var size = WorldPacket.ReadUInt32();
 
         for (var i = 0; i < size; ++i)
-            Talents[i] = new PvPTalent(_worldPacket);
+            Talents[i] = new PvPTalent(WorldPacket);
     }
 }

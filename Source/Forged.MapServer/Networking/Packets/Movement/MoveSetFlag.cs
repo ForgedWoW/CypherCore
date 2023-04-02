@@ -14,7 +14,7 @@ public class MoveSetFlag : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(MoverGUID);
-        _worldPacket.WriteUInt32(SequenceIndex);
+        WorldPacket.WritePackedGuid(MoverGUID);
+        WorldPacket.WriteUInt32(SequenceIndex);
     }
 }

@@ -12,6 +12,6 @@ public class CanDuel : ClientPacket
 
     public override void Read()
     {
-        TargetGUID = _worldPacket.ReadPackedGuid();
+        TargetGUID = WorldPacket.ReadPackedGuid();
     }
 }

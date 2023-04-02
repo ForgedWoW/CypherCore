@@ -17,15 +17,15 @@ internal class DFJoin : ClientPacket
 
     public override void Read()
     {
-        QueueAsGroup = _worldPacket.HasBit();
-        Unknown = _worldPacket.HasBit();
-        PartyIndex = _worldPacket.ReadUInt8();
-        Roles = (LfgRoles)_worldPacket.ReadUInt32();
+        QueueAsGroup = WorldPacket.HasBit();
+        Unknown = WorldPacket.HasBit();
+        PartyIndex = WorldPacket.ReadUInt8();
+        Roles = (LfgRoles)WorldPacket.ReadUInt32();
 
-        var slotsCount = _worldPacket.ReadInt32();
+        var slotsCount = WorldPacket.ReadInt32();
 
         for (var i = 0; i < slotsCount; ++i) // Slots
-            Slots.Add(_worldPacket.ReadUInt32());
+            Slots.Add(WorldPacket.ReadUInt32());
     }
 }
 

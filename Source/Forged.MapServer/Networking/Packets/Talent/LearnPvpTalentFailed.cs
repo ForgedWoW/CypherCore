@@ -15,11 +15,11 @@ internal class LearnPvpTalentFailed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Reason, 4);
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteInt32(Talents.Count);
+        WorldPacket.WriteBits(Reason, 4);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteInt32(Talents.Count);
 
         foreach (var pvpTalent in Talents)
-            pvpTalent.Write(_worldPacket);
+            pvpTalent.Write(WorldPacket);
     }
 }

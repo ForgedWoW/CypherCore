@@ -12,8 +12,8 @@ public class ConfirmPurchaseResponse : ClientPacket
     public uint ServerToken { get; set; } = 0;
     public override void Read()
     {
-        ConfirmPurchase = _worldPacket.ReadBool();
-        ServerToken = _worldPacket.ReadUInt32();
-        ClientCurrentPriceFixedPoint = _worldPacket.ReadUInt64();
+        ConfirmPurchase = WorldPacket.ReadBool();
+        ServerToken = WorldPacket.ReadUInt32();
+        ClientCurrentPriceFixedPoint = WorldPacket.ReadUInt64();
     }
 }

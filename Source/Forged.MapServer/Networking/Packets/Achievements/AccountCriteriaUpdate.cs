@@ -12,6 +12,6 @@ internal class AccountCriteriaUpdate : ServerPacket
 
     public override void Write()
     {
-        Progress.Write(_worldPacket);
+        Progress.Write(WorldPacket);
     }
 }

@@ -14,10 +14,10 @@ public class DistributionListResponse : ServerPacket
     public uint Result { get; set; } = 0;
     public override void Write()
     {
-        _worldPacket.Write(Result);
-        _worldPacket.WriteBits((uint)DistributionObject.Count, 11);
+        WorldPacket.Write(Result);
+        WorldPacket.WriteBits((uint)DistributionObject.Count, 11);
 
         foreach (var objectData in DistributionObject)
-            objectData.Write(_worldPacket);
+            objectData.Write(WorldPacket);
     }
 }

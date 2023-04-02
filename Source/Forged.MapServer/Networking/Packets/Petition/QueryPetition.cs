@@ -13,7 +13,7 @@ public class QueryPetition : ClientPacket
 
     public override void Read()
     {
-        PetitionID = _worldPacket.ReadUInt32();
-        ItemGUID = _worldPacket.ReadPackedGuid();
+        PetitionID = WorldPacket.ReadUInt32();
+        ItemGUID = WorldPacket.ReadPackedGuid();
     }
 }

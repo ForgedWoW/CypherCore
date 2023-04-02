@@ -14,10 +14,10 @@ public class UiMapQuestLinesResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.Write(UiMapID);
-        _worldPacket.WriteUInt32((uint)QuestLineXQuestIDs.Count);
+        WorldPacket.Write(UiMapID);
+        WorldPacket.WriteUInt32((uint)QuestLineXQuestIDs.Count);
 
         foreach (var item in QuestLineXQuestIDs)
-            _worldPacket.Write(item);
+            WorldPacket.Write(item);
     }
 }

@@ -11,7 +11,7 @@ internal class CalendarUpdateEvent : ClientPacket
 
     public override void Read()
     {
-        EventInfo.Read(_worldPacket);
-        MaxSize = _worldPacket.ReadUInt32();
+        EventInfo.Read(WorldPacket);
+        MaxSize = WorldPacket.ReadUInt32();
     }
 }

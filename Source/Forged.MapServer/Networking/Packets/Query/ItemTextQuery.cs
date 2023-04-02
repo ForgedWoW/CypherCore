@@ -12,6 +12,6 @@ internal class ItemTextQuery : ClientPacket
 
     public override void Read()
     {
-        Id = _worldPacket.ReadPackedGuid();
+        Id = WorldPacket.ReadPackedGuid();
     }
 }

@@ -18,13 +18,13 @@ internal class PartyCommandResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Name.GetByteCount(), 9);
-        _worldPacket.WriteBits(Command, 4);
-        _worldPacket.WriteBits(Result, 6);
+        WorldPacket.WriteBits(Name.GetByteCount(), 9);
+        WorldPacket.WriteBits(Command, 4);
+        WorldPacket.WriteBits(Result, 6);
 
-        _worldPacket.WriteUInt32(ResultData);
-        _worldPacket.WritePackedGuid(ResultGUID);
-        _worldPacket.WriteString(Name);
+        WorldPacket.WriteUInt32(ResultData);
+        WorldPacket.WritePackedGuid(ResultGUID);
+        WorldPacket.WriteString(Name);
     }
 }
 

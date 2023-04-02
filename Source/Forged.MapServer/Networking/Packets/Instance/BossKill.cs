@@ -12,6 +12,6 @@ internal class BossKill : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(DungeonEncounterID);
+        WorldPacket.WriteUInt32(DungeonEncounterID);
     }
 }

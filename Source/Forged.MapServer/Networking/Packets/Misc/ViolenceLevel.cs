@@ -10,6 +10,6 @@ public class ViolenceLevel : ClientPacket
 
     public override void Read()
     {
-        Level = _worldPacket.ReadInt8();
+        Level = WorldPacket.ReadInt8();
     }
 }

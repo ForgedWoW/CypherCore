@@ -13,9 +13,9 @@ internal class CalendarCopyEvent : ClientPacket
 
     public override void Read()
     {
-        EventID = _worldPacket.ReadUInt64();
-        ModeratorID = _worldPacket.ReadUInt64();
-        EventClubID = _worldPacket.ReadUInt64();
-        Date = _worldPacket.ReadPackedTime();
+        EventID = WorldPacket.ReadUInt64();
+        ModeratorID = WorldPacket.ReadUInt64();
+        EventClubID = WorldPacket.ReadUInt64();
+        Date = WorldPacket.ReadPackedTime();
     }
 }

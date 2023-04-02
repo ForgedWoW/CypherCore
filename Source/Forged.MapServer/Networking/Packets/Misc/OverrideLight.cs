@@ -14,8 +14,8 @@ internal class OverrideLight : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(AreaLightID);
-        _worldPacket.WriteUInt32(OverrideLightID);
-        _worldPacket.WriteUInt32(TransitionMilliseconds);
+        WorldPacket.WriteUInt32(AreaLightID);
+        WorldPacket.WriteUInt32(OverrideLightID);
+        WorldPacket.WriteUInt32(TransitionMilliseconds);
     }
 }

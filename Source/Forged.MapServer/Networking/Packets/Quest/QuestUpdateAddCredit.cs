@@ -18,11 +18,11 @@ public class QuestUpdateAddCredit : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(VictimGUID);
-        _worldPacket.WriteUInt32(QuestID);
-        _worldPacket.WriteInt32(ObjectID);
-        _worldPacket.WriteUInt16(Count);
-        _worldPacket.WriteUInt16(Required);
-        _worldPacket.WriteUInt8(ObjectiveType);
+        WorldPacket.WritePackedGuid(VictimGUID);
+        WorldPacket.WriteUInt32(QuestID);
+        WorldPacket.WriteInt32(ObjectID);
+        WorldPacket.WriteUInt16(Count);
+        WorldPacket.WriteUInt16(Required);
+        WorldPacket.WriteUInt8(ObjectiveType);
     }
 }

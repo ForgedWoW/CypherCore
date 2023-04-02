@@ -10,6 +10,6 @@ public class GuildSetFocusedAchievement : ClientPacket
 
     public override void Read()
     {
-        AchievementID = _worldPacket.ReadUInt32();
+        AchievementID = WorldPacket.ReadUInt32();
     }
 }

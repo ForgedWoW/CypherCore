@@ -17,22 +17,22 @@ public class ShowTaxiNodes : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(WindowInfo.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(WindowInfo.HasValue);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteInt32(CanLandNodes.Length);
-        _worldPacket.WriteInt32(CanUseNodes.Length);
+        WorldPacket.WriteInt32(CanLandNodes.Length);
+        WorldPacket.WriteInt32(CanUseNodes.Length);
 
         if (WindowInfo.HasValue)
         {
-            _worldPacket.WritePackedGuid(WindowInfo.Value.UnitGUID);
-            _worldPacket.WriteInt32(WindowInfo.Value.CurrentNode);
+            WorldPacket.WritePackedGuid(WindowInfo.Value.UnitGUID);
+            WorldPacket.WriteInt32(WindowInfo.Value.CurrentNode);
         }
 
         foreach (var node in CanLandNodes)
-            _worldPacket.WriteUInt8(node);
+            WorldPacket.WriteUInt8(node);
 
         foreach (var node in CanUseNodes)
-            _worldPacket.WriteUInt8(node);
+            WorldPacket.WriteUInt8(node);
     }
 }

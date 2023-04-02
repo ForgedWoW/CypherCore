@@ -20,7 +20,7 @@ public class PlayerBound : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(BinderID);
-        _worldPacket.WriteUInt32(AreaID);
+        WorldPacket.WritePackedGuid(BinderID);
+        WorldPacket.WriteUInt32(AreaID);
     }
 }

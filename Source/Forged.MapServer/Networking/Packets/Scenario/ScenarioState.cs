@@ -26,31 +26,31 @@ internal class ScenarioState : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(ScenarioID);
-        _worldPacket.WriteInt32(CurrentStep);
-        _worldPacket.WriteUInt32(DifficultyID);
-        _worldPacket.WriteUInt32(WaveCurrent);
-        _worldPacket.WriteUInt32(WaveMax);
-        _worldPacket.WriteUInt32(TimerDuration);
-        _worldPacket.WriteInt32(CriteriaProgress.Count);
-        _worldPacket.WriteInt32(BonusObjectives.Count);
-        _worldPacket.WriteInt32(PickedSteps.Count);
-        _worldPacket.WriteInt32(Spells.Count);
-        _worldPacket.WritePackedGuid(PlayerGUID);
+        WorldPacket.WriteInt32(ScenarioID);
+        WorldPacket.WriteInt32(CurrentStep);
+        WorldPacket.WriteUInt32(DifficultyID);
+        WorldPacket.WriteUInt32(WaveCurrent);
+        WorldPacket.WriteUInt32(WaveMax);
+        WorldPacket.WriteUInt32(TimerDuration);
+        WorldPacket.WriteInt32(CriteriaProgress.Count);
+        WorldPacket.WriteInt32(BonusObjectives.Count);
+        WorldPacket.WriteInt32(PickedSteps.Count);
+        WorldPacket.WriteInt32(Spells.Count);
+        WorldPacket.WritePackedGuid(PlayerGUID);
 
         for (var i = 0; i < PickedSteps.Count; ++i)
-            _worldPacket.WriteUInt32(PickedSteps[i]);
+            WorldPacket.WriteUInt32(PickedSteps[i]);
 
-        _worldPacket.WriteBit(ScenarioComplete);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(ScenarioComplete);
+        WorldPacket.FlushBits();
 
         foreach (var progress in CriteriaProgress)
-            progress.Write(_worldPacket);
+            progress.Write(WorldPacket);
 
         foreach (var bonusObjective in BonusObjectives)
-            bonusObjective.Write(_worldPacket);
+            bonusObjective.Write(WorldPacket);
 
         foreach (var spell in Spells)
-            spell.Write(_worldPacket);
+            spell.Write(WorldPacket);
     }
 }

@@ -30,87 +30,87 @@ public class SupportTicketSubmitComplaint : ClientPacket
 
     public override void Read()
     {
-        Header.Read(_worldPacket);
-        TargetCharacterGUID = _worldPacket.ReadPackedGuid();
-        ReportType = _worldPacket.ReadInt32();
-        MajorCategory = _worldPacket.ReadInt32();
-        MinorCategoryFlags = _worldPacket.ReadInt32();
-        ChatLog.Read(_worldPacket);
+        Header.Read(WorldPacket);
+        TargetCharacterGUID = WorldPacket.ReadPackedGuid();
+        ReportType = WorldPacket.ReadInt32();
+        MajorCategory = WorldPacket.ReadInt32();
+        MinorCategoryFlags = WorldPacket.ReadInt32();
+        ChatLog.Read(WorldPacket);
 
-        var noteLength = _worldPacket.ReadBits<uint>(10);
-        var hasMailInfo = _worldPacket.HasBit();
-        var hasCalendarInfo = _worldPacket.HasBit();
-        var hasPetInfo = _worldPacket.HasBit();
-        var hasGuildInfo = _worldPacket.HasBit();
-        var hasLFGListSearchResult = _worldPacket.HasBit();
-        var hasLFGListApplicant = _worldPacket.HasBit();
-        var hasClubMessage = _worldPacket.HasBit();
-        var hasClubFinderResult = _worldPacket.HasBit();
-        var hasUnk910 = _worldPacket.HasBit();
+        var noteLength = WorldPacket.ReadBits<uint>(10);
+        var hasMailInfo = WorldPacket.HasBit();
+        var hasCalendarInfo = WorldPacket.HasBit();
+        var hasPetInfo = WorldPacket.HasBit();
+        var hasGuildInfo = WorldPacket.HasBit();
+        var hasLFGListSearchResult = WorldPacket.HasBit();
+        var hasLFGListApplicant = WorldPacket.HasBit();
+        var hasClubMessage = WorldPacket.HasBit();
+        var hasClubFinderResult = WorldPacket.HasBit();
+        var hasUnk910 = WorldPacket.HasBit();
 
-        _worldPacket.ResetBitPos();
+        WorldPacket.ResetBitPos();
 
         if (hasClubMessage)
         {
             SupportTicketCommunityMessage communityMessage = new()
             {
-                IsPlayerUsingVoice = _worldPacket.HasBit()
+                IsPlayerUsingVoice = WorldPacket.HasBit()
             };
 
             CommunityMessage = communityMessage;
-            _worldPacket.ResetBitPos();
+            WorldPacket.ResetBitPos();
         }
 
-        HorusChatLog.Read(_worldPacket);
+        HorusChatLog.Read(WorldPacket);
 
-        Note = _worldPacket.ReadString(noteLength);
+        Note = WorldPacket.ReadString(noteLength);
 
         if (hasMailInfo)
         {
             MailInfo = new SupportTicketMailInfo();
-            MailInfo.Value.Read(_worldPacket);
+            MailInfo.Value.Read(WorldPacket);
         }
 
         if (hasCalendarInfo)
         {
             CalenderInfo = new SupportTicketCalendarEventInfo();
-            CalenderInfo.Value.Read(_worldPacket);
+            CalenderInfo.Value.Read(WorldPacket);
         }
 
         if (hasPetInfo)
         {
             PetInfo = new SupportTicketPetInfo();
-            PetInfo.Value.Read(_worldPacket);
+            PetInfo.Value.Read(WorldPacket);
         }
 
         if (hasGuildInfo)
         {
             GuildInfo = new SupportTicketGuildInfo();
-            GuildInfo.Value.Read(_worldPacket);
+            GuildInfo.Value.Read(WorldPacket);
         }
 
         if (hasLFGListSearchResult)
         {
             LFGListSearchResult = new SupportTicketLFGListSearchResult();
-            LFGListSearchResult.Value.Read(_worldPacket);
+            LFGListSearchResult.Value.Read(WorldPacket);
         }
 
         if (hasLFGListApplicant)
         {
             LFGListApplicant = new SupportTicketLFGListApplicant();
-            LFGListApplicant.Value.Read(_worldPacket);
+            LFGListApplicant.Value.Read(WorldPacket);
         }
 
         if (hasClubFinderResult)
         {
             ClubFinderResult = new SupportTicketClubFinderResult();
-            ClubFinderResult.Value.Read(_worldPacket);
+            ClubFinderResult.Value.Read(WorldPacket);
         }
 
         if (hasUnk910)
         {
             Unused910 = new SupportTicketUnused910();
-            Unused910.Value.Read(_worldPacket);
+            Unused910.Value.Read(WorldPacket);
         }
     }
 

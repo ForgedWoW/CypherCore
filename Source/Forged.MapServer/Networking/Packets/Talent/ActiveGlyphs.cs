@@ -14,12 +14,12 @@ internal class ActiveGlyphs : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Glyphs.Count);
+        WorldPacket.WriteInt32(Glyphs.Count);
 
         foreach (var glyph in Glyphs)
-            glyph.Write(_worldPacket);
+            glyph.Write(WorldPacket);
 
-        _worldPacket.WriteBit(IsFullUpdate);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(IsFullUpdate);
+        WorldPacket.FlushBits();
     }
 }

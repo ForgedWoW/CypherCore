@@ -15,9 +15,9 @@ public class BattlefieldStatusNeedConfirmation : ServerPacket
 
     public override void Write()
     {
-        Hdr.Write(_worldPacket);
-        _worldPacket.WriteUInt32(Mapid);
-        _worldPacket.WriteUInt32(Timeout);
-        _worldPacket.WriteUInt8(Role);
+        Hdr.Write(WorldPacket);
+        WorldPacket.WriteUInt32(Mapid);
+        WorldPacket.WriteUInt32(Timeout);
+        WorldPacket.WriteUInt8(Role);
     }
 }

@@ -15,12 +15,12 @@ internal class GossipOptionNPCInteraction : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(GossipGUID);
-        _worldPacket.WriteInt32(GossipNpcOptionID);
-        _worldPacket.WriteBit(FriendshipFactionID.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(GossipGUID);
+        WorldPacket.WriteInt32(GossipNpcOptionID);
+        WorldPacket.WriteBit(FriendshipFactionID.HasValue);
+        WorldPacket.FlushBits();
 
         if (FriendshipFactionID.HasValue)
-            _worldPacket.WriteInt32(FriendshipFactionID.Value);
+            WorldPacket.WriteInt32(FriendshipFactionID.Value);
     }
 }

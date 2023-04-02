@@ -12,6 +12,6 @@ public class QueryTimeResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt64(CurrentTime);
+        WorldPacket.WriteInt64(CurrentTime);
     }
 }

@@ -14,15 +14,15 @@ internal class AccountMountUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(IsFullUpdate);
-        _worldPacket.WriteInt32(Mounts.Count);
+        WorldPacket.WriteBit(IsFullUpdate);
+        WorldPacket.WriteInt32(Mounts.Count);
 
         foreach (var spell in Mounts)
         {
-            _worldPacket.WriteUInt32(spell.Key);
-            _worldPacket.WriteBits(spell.Value, 2);
+            WorldPacket.WriteUInt32(spell.Key);
+            WorldPacket.WriteBits(spell.Value, 2);
         }
 
-        _worldPacket.FlushBits();
+        WorldPacket.FlushBits();
     }
 }

@@ -15,8 +15,8 @@ internal class TrainerBuyFailed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(TrainerGUID);
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteUInt32((uint)TrainerFailedReason);
+        WorldPacket.WritePackedGuid(TrainerGUID);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteUInt32((uint)TrainerFailedReason);
     }
 }

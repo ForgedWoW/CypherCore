@@ -13,13 +13,13 @@ internal class CastFailed : CastFailedBase
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(CastID);
-        _worldPacket.WriteInt32(SpellID);
+        WorldPacket.WritePackedGuid(CastID);
+        WorldPacket.WriteInt32(SpellID);
 
-        Visual.Write(_worldPacket);
+        Visual.Write(WorldPacket);
 
-        _worldPacket.WriteInt32((int)Reason);
-        _worldPacket.WriteInt32(FailedArg1);
-        _worldPacket.WriteInt32(FailedArg2);
+        WorldPacket.WriteInt32((int)Reason);
+        WorldPacket.WriteInt32(FailedArg1);
+        WorldPacket.WriteInt32(FailedArg2);
     }
 }

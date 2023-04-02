@@ -12,6 +12,6 @@ internal class AddRunePower : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(AddedRunesMask);
+        WorldPacket.WriteUInt32(AddedRunesMask);
     }
 }

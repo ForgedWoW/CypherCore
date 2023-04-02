@@ -13,6 +13,6 @@ internal class PageTextPkt : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(GameObjectGUID);
+        WorldPacket.WritePackedGuid(GameObjectGUID);
     }
 }

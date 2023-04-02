@@ -16,7 +16,7 @@ internal class LfgTeleportDenied : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Reason, 4);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(Reason, 4);
+        WorldPacket.FlushBits();
     }
 }

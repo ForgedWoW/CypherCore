@@ -15,14 +15,14 @@ internal class SetFactionStanding : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteFloat(BonusFromAchievementSystem);
+        WorldPacket.WriteFloat(BonusFromAchievementSystem);
 
-        _worldPacket.WriteInt32(Faction.Count);
+        WorldPacket.WriteInt32(Faction.Count);
 
         foreach (var factionStanding in Faction)
-            factionStanding.Write(_worldPacket);
+            factionStanding.Write(WorldPacket);
 
-        _worldPacket.WriteBit(ShowVisual);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(ShowVisual);
+        WorldPacket.FlushBits();
     }
 }

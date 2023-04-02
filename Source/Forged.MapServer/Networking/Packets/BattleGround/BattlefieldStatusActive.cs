@@ -17,12 +17,12 @@ public class BattlefieldStatusActive : ServerPacket
 
     public override void Write()
     {
-        Hdr.Write(_worldPacket);
-        _worldPacket.WriteUInt32(Mapid);
-        _worldPacket.WriteUInt32(ShutdownTimer);
-        _worldPacket.WriteUInt32(StartTimer);
-        _worldPacket.WriteBit(ArenaFaction != 0);
-        _worldPacket.WriteBit(LeftEarly);
-        _worldPacket.FlushBits();
+        Hdr.Write(WorldPacket);
+        WorldPacket.WriteUInt32(Mapid);
+        WorldPacket.WriteUInt32(ShutdownTimer);
+        WorldPacket.WriteUInt32(StartTimer);
+        WorldPacket.WriteBit(ArenaFaction != 0);
+        WorldPacket.WriteBit(LeftEarly);
+        WorldPacket.FlushBits();
     }
 }

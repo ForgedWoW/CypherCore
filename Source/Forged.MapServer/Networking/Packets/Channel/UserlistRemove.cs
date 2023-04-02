@@ -17,12 +17,12 @@ internal class UserlistRemove : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(RemovedUserGUID);
-        _worldPacket.WriteUInt32((uint)ChannelFlags);
-        _worldPacket.WriteUInt32(ChannelID);
+        WorldPacket.WritePackedGuid(RemovedUserGUID);
+        WorldPacket.WriteUInt32((uint)ChannelFlags);
+        WorldPacket.WriteUInt32(ChannelID);
 
-        _worldPacket.WriteBits(ChannelName.GetByteCount(), 7);
-        _worldPacket.FlushBits();
-        _worldPacket.WriteString(ChannelName);
+        WorldPacket.WriteBits(ChannelName.GetByteCount(), 7);
+        WorldPacket.FlushBits();
+        WorldPacket.WriteString(ChannelName);
     }
 }

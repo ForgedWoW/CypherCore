@@ -12,6 +12,6 @@ internal class SetPetSpecialization : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt16(SpecID);
+        WorldPacket.WriteUInt16(SpecID);
     }
 }

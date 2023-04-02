@@ -13,9 +13,9 @@ public class AllGuildAchievements : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Earned.Count);
+        WorldPacket.WriteInt32(Earned.Count);
 
         foreach (var earned in Earned)
-            earned.Write(_worldPacket);
+            earned.Write(WorldPacket);
     }
 }

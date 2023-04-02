@@ -16,19 +16,19 @@ internal class AuctionGetCommodityQuoteResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(TotalPrice.HasValue);
-        _worldPacket.WriteBit(Quantity.HasValue);
-        _worldPacket.WriteBit(QuoteDuration.HasValue);
-        _worldPacket.WriteInt32(ItemID);
-        _worldPacket.WriteUInt32(DesiredDelay);
+        WorldPacket.WriteBit(TotalPrice.HasValue);
+        WorldPacket.WriteBit(Quantity.HasValue);
+        WorldPacket.WriteBit(QuoteDuration.HasValue);
+        WorldPacket.WriteInt32(ItemID);
+        WorldPacket.WriteUInt32(DesiredDelay);
 
         if (TotalPrice.HasValue)
-            _worldPacket.WriteUInt64(TotalPrice.Value);
+            WorldPacket.WriteUInt64(TotalPrice.Value);
 
         if (Quantity.HasValue)
-            _worldPacket.WriteUInt32(Quantity.Value);
+            WorldPacket.WriteUInt32(Quantity.Value);
 
         if (QuoteDuration.HasValue)
-            _worldPacket.WriteInt32(QuoteDuration.Value);
+            WorldPacket.WriteInt32(QuoteDuration.Value);
     }
 }

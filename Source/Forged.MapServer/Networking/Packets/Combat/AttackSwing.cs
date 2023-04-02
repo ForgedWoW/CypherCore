@@ -12,7 +12,7 @@ public class AttackSwing : ClientPacket
 
     public override void Read()
     {
-        Victim = _worldPacket.ReadPackedGuid();
+        Victim = WorldPacket.ReadPackedGuid();
     }
 }
 

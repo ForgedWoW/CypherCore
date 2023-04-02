@@ -18,10 +18,10 @@ public class GuildRewardList : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt64(Version);
-        _worldPacket.WriteInt32(RewardItems.Count);
+        WorldPacket.WriteInt64(Version);
+        WorldPacket.WriteInt32(RewardItems.Count);
 
         foreach (var item in RewardItems)
-            item.Write(_worldPacket);
+            item.Write(WorldPacket);
     }
 }

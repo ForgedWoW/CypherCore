@@ -15,12 +15,12 @@ internal class ActivateEssenceFailed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits((int)Reason, 4);
-        _worldPacket.WriteBit(Slot.HasValue);
-        _worldPacket.WriteUInt32(Arg);
-        _worldPacket.WriteUInt32(AzeriteEssenceID);
+        WorldPacket.WriteBits((int)Reason, 4);
+        WorldPacket.WriteBit(Slot.HasValue);
+        WorldPacket.WriteUInt32(Arg);
+        WorldPacket.WriteUInt32(AzeriteEssenceID);
 
         if (Slot.HasValue)
-            _worldPacket.WriteUInt8(Slot.Value);
+            WorldPacket.WriteUInt8(Slot.Value);
     }
 }

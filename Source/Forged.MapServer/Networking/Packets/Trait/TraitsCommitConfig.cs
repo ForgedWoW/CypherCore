@@ -13,8 +13,8 @@ internal class TraitsCommitConfig : ClientPacket
 
     public override void Read()
     {
-        Config.Read(_worldPacket);
-        SavedConfigID = _worldPacket.ReadInt32();
-        SavedLocalIdentifier = _worldPacket.ReadInt32();
+        Config.Read(WorldPacket);
+        SavedConfigID = WorldPacket.ReadInt32();
+        SavedLocalIdentifier = WorldPacket.ReadInt32();
     }
 }

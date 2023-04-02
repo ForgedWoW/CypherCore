@@ -16,9 +16,9 @@ internal class BlackMarketBidOnItem : ClientPacket
 
     public override void Read()
     {
-        Guid = _worldPacket.ReadPackedGuid();
-        MarketID = _worldPacket.ReadUInt32();
-        BidAmount = _worldPacket.ReadUInt64();
-        Item.Read(_worldPacket);
+        Guid = WorldPacket.ReadPackedGuid();
+        MarketID = WorldPacket.ReadUInt32();
+        BidAmount = WorldPacket.ReadUInt64();
+        Item.Read(WorldPacket);
     }
 }

@@ -14,8 +14,8 @@ public class QuestGiverChooseReward : ClientPacket
 
     public override void Read()
     {
-        QuestGiverGUID = _worldPacket.ReadPackedGuid();
-        QuestID = _worldPacket.ReadUInt32();
-        Choice.Read(_worldPacket);
+        QuestGiverGUID = WorldPacket.ReadPackedGuid();
+        QuestID = WorldPacket.ReadUInt32();
+        Choice.Read(WorldPacket);
     }
 }

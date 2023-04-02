@@ -13,7 +13,7 @@ internal class PetActionFeedbackPacket : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteUInt8((byte)Response);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteUInt8((byte)Response);
     }
 }

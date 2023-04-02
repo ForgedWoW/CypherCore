@@ -13,12 +13,12 @@ public class TimeSyncResponse : ClientPacket
 
     public DateTime GetReceivedTime()
     {
-        return _worldPacket.GetReceivedTime();
+        return WorldPacket.ReceivedTime;
     }
 
     public override void Read()
     {
-        SequenceIndex = _worldPacket.ReadUInt32();
-        ClientTime = _worldPacket.ReadUInt32();
+        SequenceIndex = WorldPacket.ReadUInt32();
+        ClientTime = WorldPacket.ReadUInt32();
     }
 }

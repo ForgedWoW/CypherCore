@@ -14,7 +14,7 @@ internal class GameObjectInteraction : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ObjectGUID);
-        _worldPacket.WriteInt32((int)InteractionType);
+        WorldPacket.WritePackedGuid(ObjectGUID);
+        WorldPacket.WriteInt32((int)InteractionType);
     }
 }

@@ -22,17 +22,17 @@ public class GuildRoster : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(NumAccounts);
-        _worldPacket.WritePackedTime(CreateDate);
-        _worldPacket.WriteInt32(GuildFlags);
-        _worldPacket.WriteInt32(MemberData.Count);
-        _worldPacket.WriteBits(WelcomeText.GetByteCount(), 11);
-        _worldPacket.WriteBits(InfoText.GetByteCount(), 10);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(NumAccounts);
+        WorldPacket.WritePackedTime(CreateDate);
+        WorldPacket.WriteInt32(GuildFlags);
+        WorldPacket.WriteInt32(MemberData.Count);
+        WorldPacket.WriteBits(WelcomeText.GetByteCount(), 11);
+        WorldPacket.WriteBits(InfoText.GetByteCount(), 10);
+        WorldPacket.FlushBits();
 
-        MemberData.ForEach(p => p.Write(_worldPacket));
+        MemberData.ForEach(p => p.Write(WorldPacket));
 
-        _worldPacket.WriteString(WelcomeText);
-        _worldPacket.WriteString(InfoText);
+        WorldPacket.WriteString(WelcomeText);
+        WorldPacket.WriteString(InfoText);
     }
 }

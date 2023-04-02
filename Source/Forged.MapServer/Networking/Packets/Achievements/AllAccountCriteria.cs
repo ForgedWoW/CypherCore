@@ -13,9 +13,9 @@ internal class AllAccountCriteria : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Progress.Count);
+        WorldPacket.WriteInt32(Progress.Count);
 
         foreach (var progress in Progress)
-            progress.Write(_worldPacket);
+            progress.Write(WorldPacket);
     }
 }

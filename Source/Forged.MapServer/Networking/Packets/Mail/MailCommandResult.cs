@@ -17,11 +17,11 @@ public class MailCommandResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt64(MailID);
-        _worldPacket.WriteInt32(Command);
-        _worldPacket.WriteInt32(ErrorCode);
-        _worldPacket.WriteInt32(BagResult);
-        _worldPacket.WriteUInt64(AttachID);
-        _worldPacket.WriteInt32(QtyInInventory);
+        WorldPacket.WriteUInt64(MailID);
+        WorldPacket.WriteInt32(Command);
+        WorldPacket.WriteInt32(ErrorCode);
+        WorldPacket.WriteInt32(BagResult);
+        WorldPacket.WriteUInt64(AttachID);
+        WorldPacket.WriteInt32(QtyInInventory);
     }
 }

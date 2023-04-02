@@ -19,16 +19,16 @@ internal class AuctionReplicateItems : ClientPacket
 
     public override void Read()
     {
-        Auctioneer = _worldPacket.ReadPackedGuid();
-        ChangeNumberGlobal = _worldPacket.ReadUInt32();
-        ChangeNumberCursor = _worldPacket.ReadUInt32();
-        ChangeNumberTombstone = _worldPacket.ReadUInt32();
-        Count = _worldPacket.ReadUInt32();
+        Auctioneer = WorldPacket.ReadPackedGuid();
+        ChangeNumberGlobal = WorldPacket.ReadUInt32();
+        ChangeNumberCursor = WorldPacket.ReadUInt32();
+        ChangeNumberTombstone = WorldPacket.ReadUInt32();
+        Count = WorldPacket.ReadUInt32();
 
-        if (_worldPacket.HasBit())
+        if (WorldPacket.HasBit())
         {
             TaintedBy = new AddOnInfo();
-            TaintedBy.Value.Read(_worldPacket);
+            TaintedBy.Value.Read(WorldPacket);
         }
     }
 }

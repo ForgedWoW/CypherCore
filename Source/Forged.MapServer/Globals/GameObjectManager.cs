@@ -3383,7 +3383,7 @@ public sealed class GameObjectManager
                 _worldDatabase.Execute(stmt);
             }
 
-            // Add to grid if not managed by the game event
+            // Add to grid if not managed by the GameInfo event
             if (gameEvent == 0)
                 AddCreatureToGrid(data);
 
@@ -5022,7 +5022,7 @@ public sealed class GameObjectManager
                 _gameObjectTemplateStorage[entry] = got;
             } while (result.NextRow());
 
-            Log.Logger.Information("Loaded {0} game object templates in {1} ms", _gameObjectTemplateStorage.Count, Time.GetMSTimeDiffToNow(time));
+            Log.Logger.Information("Loaded {0} GameInfo object templates in {1} ms", _gameObjectTemplateStorage.Count, Time.GetMSTimeDiffToNow(time));
         }
     }
 
@@ -5117,7 +5117,7 @@ public sealed class GameObjectManager
             ++count;
         } while (result.NextRow());
 
-        Log.Logger.Information("Loaded {0} game object template addons in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+        Log.Logger.Information("Loaded {0} GameInfo object template addons in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public void LoadGameTele()

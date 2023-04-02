@@ -21,17 +21,17 @@ internal class BattlefieldList : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(BattlemasterGuid);
-        _worldPacket.WriteInt32(BattlemasterListID);
-        _worldPacket.WriteUInt8(MinLevel);
-        _worldPacket.WriteUInt8(MaxLevel);
-        _worldPacket.WriteInt32(Battlefields.Count);
+        WorldPacket.WritePackedGuid(BattlemasterGuid);
+        WorldPacket.WriteInt32(BattlemasterListID);
+        WorldPacket.WriteUInt8(MinLevel);
+        WorldPacket.WriteUInt8(MaxLevel);
+        WorldPacket.WriteInt32(Battlefields.Count);
 
         foreach (var field in Battlefields)
-            _worldPacket.WriteInt32(field);
+            WorldPacket.WriteInt32(field);
 
-        _worldPacket.WriteBit(PvpAnywhere);
-        _worldPacket.WriteBit(HasRandomWinToday);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(PvpAnywhere);
+        WorldPacket.WriteBit(HasRandomWinToday);
+        WorldPacket.FlushBits();
     }
 }

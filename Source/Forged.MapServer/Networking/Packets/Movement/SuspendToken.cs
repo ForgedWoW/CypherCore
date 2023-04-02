@@ -13,8 +13,8 @@ internal class SuspendToken : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(SequenceIndex);
-        _worldPacket.WriteBits(Reason, 2);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(SequenceIndex);
+        WorldPacket.WriteBits(Reason, 2);
+        WorldPacket.FlushBits();
     }
 }

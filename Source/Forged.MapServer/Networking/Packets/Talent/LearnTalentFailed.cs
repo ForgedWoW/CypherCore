@@ -15,11 +15,11 @@ internal class LearnTalentFailed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Reason, 4);
-        _worldPacket.WriteInt32(SpellID);
-        _worldPacket.WriteInt32(Talents.Count);
+        WorldPacket.WriteBits(Reason, 4);
+        WorldPacket.WriteInt32(SpellID);
+        WorldPacket.WriteInt32(Talents.Count);
 
         foreach (var talent in Talents)
-            _worldPacket.WriteUInt16(talent);
+            WorldPacket.WriteUInt16(talent);
     }
 }

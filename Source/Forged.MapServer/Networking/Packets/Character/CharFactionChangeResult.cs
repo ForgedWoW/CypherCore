@@ -18,23 +18,23 @@ public class CharFactionChangeResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8((byte)Result);
-        _worldPacket.WritePackedGuid(Guid);
-        _worldPacket.WriteBit(Display != null);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt8((byte)Result);
+        WorldPacket.WritePackedGuid(Guid);
+        WorldPacket.WriteBit(Display != null);
+        WorldPacket.FlushBits();
 
         if (Display != null)
         {
-            _worldPacket.WriteBits(Display.Name.GetByteCount(), 6);
-            _worldPacket.WriteUInt8(Display.SexID);
-            _worldPacket.WriteUInt8(Display.RaceID);
-            _worldPacket.WriteInt32(Display.Customizations.Count);
-            _worldPacket.WriteString(Display.Name);
+            WorldPacket.WriteBits(Display.Name.GetByteCount(), 6);
+            WorldPacket.WriteUInt8(Display.SexID);
+            WorldPacket.WriteUInt8(Display.RaceID);
+            WorldPacket.WriteInt32(Display.Customizations.Count);
+            WorldPacket.WriteString(Display.Name);
 
             foreach (var customization in Display.Customizations)
             {
-                _worldPacket.WriteUInt32(customization.ChrCustomizationOptionID);
-                _worldPacket.WriteUInt32(customization.ChrCustomizationChoiceID);
+                WorldPacket.WriteUInt32(customization.ChrCustomizationOptionID);
+                WorldPacket.WriteUInt32(customization.ChrCustomizationChoiceID);
             }
         }
     }

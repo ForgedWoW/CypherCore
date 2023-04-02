@@ -19,16 +19,16 @@ public class MailQueryNextTimeResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteFloat(NextMailTime);
-        _worldPacket.WriteInt32(Next.Count);
+        WorldPacket.WriteFloat(NextMailTime);
+        WorldPacket.WriteInt32(Next.Count);
 
         foreach (var entry in Next)
         {
-            _worldPacket.WritePackedGuid(entry.SenderGuid);
-            _worldPacket.WriteFloat(entry.TimeLeft);
-            _worldPacket.WriteInt32(entry.AltSenderID);
-            _worldPacket.WriteInt8(entry.AltSenderType);
-            _worldPacket.WriteInt32(entry.StationeryID);
+            WorldPacket.WritePackedGuid(entry.SenderGuid);
+            WorldPacket.WriteFloat(entry.TimeLeft);
+            WorldPacket.WriteInt32(entry.AltSenderID);
+            WorldPacket.WriteInt8(entry.AltSenderType);
+            WorldPacket.WriteInt32(entry.StationeryID);
         }
     }
 

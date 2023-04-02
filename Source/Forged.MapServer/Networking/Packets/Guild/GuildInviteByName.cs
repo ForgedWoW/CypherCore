@@ -11,12 +11,12 @@ public class GuildInviteByName : ClientPacket
 
     public override void Read()
     {
-        var nameLen = _worldPacket.ReadBits<uint>(9);
-        var hasUnused910 = _worldPacket.HasBit();
+        var nameLen = WorldPacket.ReadBits<uint>(9);
+        var hasUnused910 = WorldPacket.HasBit();
 
-        Name = _worldPacket.ReadString(nameLen);
+        Name = WorldPacket.ReadString(nameLen);
 
         if (hasUnused910)
-            Unused910 = _worldPacket.ReadInt32();
+            Unused910 = WorldPacket.ReadInt32();
     }
 }

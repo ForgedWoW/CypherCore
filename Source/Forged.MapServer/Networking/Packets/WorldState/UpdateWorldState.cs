@@ -15,9 +15,9 @@ public class UpdateWorldState : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(VariableID);
-        _worldPacket.WriteInt32(Value);
-        _worldPacket.WriteBit(Hidden);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(VariableID);
+        WorldPacket.WriteInt32(Value);
+        WorldPacket.WriteBit(Hidden);
+        WorldPacket.FlushBits();
     }
 }

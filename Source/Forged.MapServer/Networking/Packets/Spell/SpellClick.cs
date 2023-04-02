@@ -14,8 +14,8 @@ internal class SpellClick : ClientPacket
 
     public override void Read()
     {
-        SpellClickUnitGuid = _worldPacket.ReadPackedGuid();
-        TryAutoDismount = _worldPacket.HasBit();
-        IsSoftInteract = _worldPacket.HasBit();
+        SpellClickUnitGuid = WorldPacket.ReadPackedGuid();
+        TryAutoDismount = WorldPacket.HasBit();
+        IsSoftInteract = WorldPacket.HasBit();
     }
 }

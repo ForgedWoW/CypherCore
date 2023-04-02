@@ -15,11 +15,11 @@ public class PetitionRenameGuildResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(PetitionGuid);
+        WorldPacket.WritePackedGuid(PetitionGuid);
 
-        _worldPacket.WriteBits(NewGuildName.GetByteCount(), 7);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(NewGuildName.GetByteCount(), 7);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteString(NewGuildName);
+        WorldPacket.WriteString(NewGuildName);
     }
 }

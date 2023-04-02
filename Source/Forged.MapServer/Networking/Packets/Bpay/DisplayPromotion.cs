@@ -29,6 +29,6 @@ public class DisplayPromotion : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.Write(PromotionID);
+        WorldPacket.Write(PromotionID);
     }
 }

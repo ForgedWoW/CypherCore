@@ -16,11 +16,11 @@ internal class SpecialMountAnim : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(UnitGUID);
-        _worldPacket.WriteInt32(SpellVisualKitIDs.Count);
-        _worldPacket.WriteInt32(SequenceVariation);
+        WorldPacket.WritePackedGuid(UnitGUID);
+        WorldPacket.WriteInt32(SpellVisualKitIDs.Count);
+        WorldPacket.WriteInt32(SequenceVariation);
 
         foreach (var id in SpellVisualKitIDs)
-            _worldPacket.WriteInt32(id);
+            WorldPacket.WriteInt32(id);
     }
 }

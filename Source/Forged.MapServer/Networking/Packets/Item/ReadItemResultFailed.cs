@@ -15,9 +15,9 @@ internal class ReadItemResultFailed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Item);
-        _worldPacket.WriteUInt32(Delay);
-        _worldPacket.WriteBits(Subcode, 2);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Item);
+        WorldPacket.WriteUInt32(Delay);
+        WorldPacket.WriteBits(Subcode, 2);
+        WorldPacket.FlushBits();
     }
 }

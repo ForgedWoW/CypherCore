@@ -28,15 +28,15 @@ internal class DisplayGameError : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32((uint)Error);
-        _worldPacket.WriteBit(Arg.HasValue);
-        _worldPacket.WriteBit(Arg2.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32((uint)Error);
+        WorldPacket.WriteBit(Arg.HasValue);
+        WorldPacket.WriteBit(Arg2.HasValue);
+        WorldPacket.FlushBits();
 
         if (Arg.HasValue)
-            _worldPacket.WriteInt32(Arg.Value);
+            WorldPacket.WriteInt32(Arg.Value);
 
         if (Arg2.HasValue)
-            _worldPacket.WriteInt32(Arg2.Value);
+            WorldPacket.WriteInt32(Arg2.Value);
     }
 }

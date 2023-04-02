@@ -45,7 +45,7 @@ public class GameEventData
     public long Start;     // occurs after this time
                            // time between end and start
                            // length of the event (Time.Minutes) after finishing all conditions
-    public GameEventState State;                                          // state of the game event, these are saved into the game_event table on change!
+    public GameEventState State;                                          // state of the GameInfo event, these are saved into the game_event table on change!
                                                                           // events that must be completed before starting this event
                                                                           // if 0 dont announce, if 1 announce, if 2 take config value
 
@@ -274,7 +274,7 @@ public class GameEventManager
             if (result.IsEmpty())
             {
                 _gameEvent.Clear();
-                Log.Logger.Information("Loaded 0 game events. DB table `game_event` is empty.");
+                Log.Logger.Information("Loaded 0 GameInfo events. DB table `game_event` is empty.");
 
                 return;
             }
@@ -287,7 +287,7 @@ public class GameEventManager
 
                 if (eventID == 0)
                 {
-                    Log.Logger.Error("`game_event` game event entry 0 is reserved and can't be used.");
+                    Log.Logger.Error("`game_event` GameInfo event entry 0 is reserved and can't be used.");
 
                     continue;
                 }
@@ -311,7 +311,7 @@ public class GameEventManager
 
                 if (pGameEvent.Length == 0 && pGameEvent.State == GameEventState.Normal) // length>0 is validity check
                 {
-                    Log.Logger.Error($"`game_event` game event id ({eventID}) isn't a world event and has length = 0, thus it can't be used.");
+                    Log.Logger.Error($"`game_event` GameInfo event id ({eventID}) isn't a world event and has length = 0, thus it can't be used.");
 
                     continue;
                 }
@@ -320,7 +320,7 @@ public class GameEventManager
                 {
                     if (!_cliDB.HolidaysStorage.ContainsKey((uint)pGameEvent.HolidayID))
                     {
-                        Log.Logger.Error($"`game_event` game event id ({eventID}) contains nonexisting holiday id {pGameEvent.HolidayID}.");
+                        Log.Logger.Error($"`game_event` GameInfo event id ({eventID}) contains nonexisting holiday id {pGameEvent.HolidayID}.");
                         pGameEvent.HolidayID = HolidayIds.None;
 
                         continue;
@@ -328,7 +328,7 @@ public class GameEventManager
 
                     if (pGameEvent.HolidayStage > SharedConst.MaxHolidayDurations)
                     {
-                        Log.Logger.Error($"`game_event` game event id ({eventID}) has out of range holidayStage {pGameEvent.HolidayStage}.");
+                        Log.Logger.Error($"`game_event` GameInfo event id ({eventID}) has out of range holidayStage {pGameEvent.HolidayStage}.");
                         pGameEvent.HolidayStage = 0;
 
                         continue;
@@ -340,7 +340,7 @@ public class GameEventManager
                 _gameEvent[eventID] = pGameEvent;
             } while (result.NextRow());
 
-            Log.Logger.Information("Loaded {0} game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+            Log.Logger.Information("Loaded {0} GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
         }
 
         Log.Logger.Information("Loading Game Event Saves Data...");
@@ -353,7 +353,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 game event saves in game events. DB table `game_event_save` is empty.");
+                Log.Logger.Information("Loaded 0 GameInfo event saves in GameInfo events. DB table `game_event_save` is empty.");
             }
             else
             {
@@ -365,7 +365,7 @@ public class GameEventManager
 
                     if (eventID >= _gameEvent.Length)
                     {
-                        Log.Logger.Error("`game_event_save` game event entry ({0}) not exist in `game_event`", eventID);
+                        Log.Logger.Error("`game_event_save` GameInfo event entry ({0}) not exist in `game_event`", eventID);
 
                         continue;
                     }
@@ -385,7 +385,7 @@ public class GameEventManager
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} game event saves in game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} GameInfo event saves in GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
 
@@ -399,7 +399,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 game event prerequisites in game events. DB table `game_event_prerequisite` is empty.");
+                Log.Logger.Information("Loaded 0 GameInfo event prerequisites in GameInfo events. DB table `game_event_prerequisite` is empty.");
             }
             else
             {
@@ -411,7 +411,7 @@ public class GameEventManager
 
                     if (eventID >= _gameEvent.Length)
                     {
-                        Log.Logger.Error("`game_event_prerequisite` game event id ({0}) is out of range compared to max event id in `game_event`", eventID);
+                        Log.Logger.Error("`game_event_prerequisite` GameInfo event id ({0}) is out of range compared to max event id in `game_event`", eventID);
 
                         continue;
                     }
@@ -422,7 +422,7 @@ public class GameEventManager
 
                         if (prerequisiteEvent >= _gameEvent.Length)
                         {
-                            Log.Logger.Error("`game_event_prerequisite` game event prerequisite id ({0}) not exist in `game_event`", prerequisiteEvent);
+                            Log.Logger.Error("`game_event_prerequisite` GameInfo event prerequisite id ({0}) not exist in `game_event`", prerequisiteEvent);
 
                             continue;
                         }
@@ -439,7 +439,7 @@ public class GameEventManager
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} game event prerequisites in game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} GameInfo event prerequisites in GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
 
@@ -453,7 +453,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 creatures in game events. DB table `game_event_creature` is empty");
+                Log.Logger.Information("Loaded 0 creatures in GameInfo events. DB table `game_event_creature` is empty");
             }
             else
             {
@@ -479,21 +479,21 @@ public class GameEventManager
 
                     if (internalEventID < 0 || internalEventID >= GameEventCreatureGuids.Length)
                     {
-                        Log.Logger.Error("`game_event_creature` game event id ({0}) not exist in `game_event`", eventID);
+                        Log.Logger.Error("`game_event_creature` GameInfo event id ({0}) not exist in `game_event`", eventID);
 
                         continue;
                     }
 
                     // Log error for pooled object, but still spawn it
                     if (data.poolId != 0)
-                        Log.Logger.Error($"`game_event_creature`: game event id ({eventID}) contains creature ({guid}) which is part of a pool ({data.poolId}). This should be spawned in game_event_pool");
+                        Log.Logger.Error($"`game_event_creature`: GameInfo event id ({eventID}) contains creature ({guid}) which is part of a pool ({data.poolId}). This should be spawned in game_event_pool");
 
                     GameEventCreatureGuids[internalEventID].Add(guid);
 
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} creatures in game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} creatures in GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
 
@@ -507,7 +507,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 gameobjects in game events. DB table `game_event_gameobject` is empty.");
+                Log.Logger.Information("Loaded 0 gameobjects in GameInfo events. DB table `game_event_gameobject` is empty.");
             }
             else
             {
@@ -530,21 +530,21 @@ public class GameEventManager
 
                     if (internalEventID < 0 || internalEventID >= GameEventGameobjectGuids.Length)
                     {
-                        Log.Logger.Error("`game_event_gameobject` game event id ({0}) not exist in `game_event`", eventID);
+                        Log.Logger.Error("`game_event_gameobject` GameInfo event id ({0}) not exist in `game_event`", eventID);
 
                         continue;
                     }
 
                     // Log error for pooled object, but still spawn it
                     if (data.poolId != 0)
-                        Log.Logger.Error($"`game_event_gameobject`: game event id ({eventID}) contains game object ({guid}) which is part of a pool ({data.poolId}). This should be spawned in game_event_pool");
+                        Log.Logger.Error($"`game_event_gameobject`: GameInfo event id ({eventID}) contains GameInfo object ({guid}) which is part of a pool ({data.poolId}). This should be spawned in game_event_pool");
 
                     GameEventGameobjectGuids[internalEventID].Add(guid);
 
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} gameobjects in game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} gameobjects in GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
 
@@ -559,7 +559,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 model/equipment changes in game events. DB table `game_event_model_equip` is empty.");
+                Log.Logger.Information("Loaded 0 model/equipment changes in GameInfo events. DB table `game_event_model_equip` is empty.");
             }
             else
             {
@@ -573,7 +573,7 @@ public class GameEventManager
 
                     if (eventID >= _gameEventModelEquip.Length)
                     {
-                        Log.Logger.Error("`game_event_model_equip` game event id ({0}) is out of range compared to max event id in `game_event`", eventID);
+                        Log.Logger.Error("`game_event_model_equip` GameInfo event id ({0}) is out of range compared to max event id in `game_event`", eventID);
 
                         continue;
                     }
@@ -606,7 +606,7 @@ public class GameEventManager
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} model/equipment changes in game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} model/equipment changes in GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
 
@@ -620,7 +620,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 quests additions in game events. DB table `game_event_creature_quest` is empty.");
+                Log.Logger.Information("Loaded 0 quests additions in GameInfo events. DB table `game_event_creature_quest` is empty.");
             }
             else
             {
@@ -634,7 +634,7 @@ public class GameEventManager
 
                     if (eventID >= _gameEventCreatureQuests.Length)
                     {
-                        Log.Logger.Error("`game_event_creature_quest` game event id ({0}) not exist in `game_event`", eventID);
+                        Log.Logger.Error("`game_event_creature_quest` GameInfo event id ({0}) not exist in `game_event`", eventID);
 
                         continue;
                     }
@@ -644,7 +644,7 @@ public class GameEventManager
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} quests additions in game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} quests additions in GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
 
@@ -658,7 +658,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 go quests additions in game events. DB table `game_event_gameobject_quest` is empty.");
+                Log.Logger.Information("Loaded 0 go quests additions in GameInfo events. DB table `game_event_gameobject_quest` is empty.");
             }
             else
             {
@@ -672,7 +672,7 @@ public class GameEventManager
 
                     if (eventID >= _gameEventGameObjectQuests.Length)
                     {
-                        Log.Logger.Error("`game_event_gameobject_quest` game event id ({0}) not exist in `game_event`", eventID);
+                        Log.Logger.Error("`game_event_gameobject_quest` GameInfo event id ({0}) not exist in `game_event`", eventID);
 
                         continue;
                     }
@@ -682,7 +682,7 @@ public class GameEventManager
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} quests additions in game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} quests additions in GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
 
@@ -696,7 +696,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 quest event conditions in game events. DB table `game_event_quest_condition` is empty.");
+                Log.Logger.Information("Loaded 0 quest event conditions in GameInfo events. DB table `game_event_quest_condition` is empty.");
             }
             else
             {
@@ -711,7 +711,7 @@ public class GameEventManager
 
                     if (eventID >= _gameEvent.Length)
                     {
-                        Log.Logger.Error("`game_event_quest_condition` game event id ({0}) is out of range compared to max event id in `game_event`", eventID);
+                        Log.Logger.Error("`game_event_quest_condition` GameInfo event id ({0}) is out of range compared to max event id in `game_event`", eventID);
 
                         continue;
                     }
@@ -726,7 +726,7 @@ public class GameEventManager
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} quest event conditions in game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} quest event conditions in GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
 
@@ -740,7 +740,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 conditions in game events. DB table `game_event_condition` is empty.");
+                Log.Logger.Information("Loaded 0 conditions in GameInfo events. DB table `game_event_condition` is empty.");
             }
             else
             {
@@ -753,7 +753,7 @@ public class GameEventManager
 
                     if (eventID >= _gameEvent.Length)
                     {
-                        Log.Logger.Error("`game_event_condition` game event id ({0}) is out of range compared to max event id in `game_event`", eventID);
+                        Log.Logger.Error("`game_event_condition` GameInfo event id ({0}) is out of range compared to max event id in `game_event`", eventID);
 
                         continue;
                     }
@@ -766,7 +766,7 @@ public class GameEventManager
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} conditions in game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} conditions in GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
 
@@ -780,7 +780,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 condition saves in game events. DB table `game_event_condition_save` is empty.");
+                Log.Logger.Information("Loaded 0 condition saves in GameInfo events. DB table `game_event_condition_save` is empty.");
             }
             else
             {
@@ -793,7 +793,7 @@ public class GameEventManager
 
                     if (eventID >= _gameEvent.Length)
                     {
-                        Log.Logger.Error("`game_event_condition_save` game event id ({0}) is out of range compared to max event id in `game_event`", eventID);
+                        Log.Logger.Error("`game_event_condition_save` GameInfo event id ({0}) is out of range compared to max event id in `game_event`", eventID);
 
                         continue;
                     }
@@ -812,7 +812,7 @@ public class GameEventManager
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} condition saves in game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} condition saves in GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
 
@@ -826,7 +826,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 npcflags in game events. DB table `game_event_npcflag` is empty.");
+                Log.Logger.Information("Loaded 0 npcflags in GameInfo events. DB table `game_event_npcflag` is empty.");
             }
             else
             {
@@ -840,7 +840,7 @@ public class GameEventManager
 
                     if (eventID >= _gameEvent.Length)
                     {
-                        Log.Logger.Error("`game_event_npcflag` game event id ({0}) is out of range compared to max event id in `game_event`", eventID);
+                        Log.Logger.Error("`game_event_npcflag` GameInfo event id ({0}) is out of range compared to max event id in `game_event`", eventID);
 
                         continue;
                     }
@@ -850,7 +850,7 @@ public class GameEventManager
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} npcflags in game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} npcflags in GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
 
@@ -864,7 +864,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 seasonal quests additions in game events. DB table `game_event_seasonal_questrelation` is empty.");
+                Log.Logger.Information("Loaded 0 seasonal quests additions in GameInfo events. DB table `game_event_seasonal_questrelation` is empty.");
             }
             else
             {
@@ -895,7 +895,7 @@ public class GameEventManager
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} quests additions in game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} quests additions in GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
 
@@ -909,7 +909,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 vendor additions in game events. DB table `game_event_npc_vendor` is empty.");
+                Log.Logger.Information("Loaded 0 vendor additions in GameInfo events. DB table `game_event_npc_vendor` is empty.");
             }
             else
             {
@@ -922,7 +922,7 @@ public class GameEventManager
 
                     if (eventID >= _gameEventVendors.Length)
                     {
-                        Log.Logger.Error("`game_event_npc_vendor` game event id ({0}) not exist in `game_event`", eventID);
+                        Log.Logger.Error("`game_event_npc_vendor` GameInfo event id ({0}) not exist in `game_event`", eventID);
 
                         continue;
                     }
@@ -972,7 +972,7 @@ public class GameEventManager
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} vendor additions in game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} vendor additions in GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
 
@@ -986,7 +986,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 Battlegroundholidays in game events. DB table `game_event_battleground_holiday` is empty.");
+                Log.Logger.Information("Loaded 0 Battlegroundholidays in GameInfo events. DB table `game_event_battleground_holiday` is empty.");
             }
             else
             {
@@ -998,7 +998,7 @@ public class GameEventManager
 
                     if (eventId >= _gameEvent.Length)
                     {
-                        Log.Logger.Error("`game_event_battleground_holiday` game event id ({0}) not exist in `game_event`", eventId);
+                        Log.Logger.Error("`game_event_battleground_holiday` GameInfo event id ({0}) not exist in `game_event`", eventId);
 
                         continue;
                     }
@@ -1008,7 +1008,7 @@ public class GameEventManager
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} Battlegroundholidays in game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} Battlegroundholidays in GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
 
@@ -1023,7 +1023,7 @@ public class GameEventManager
 
             if (result.IsEmpty())
             {
-                Log.Logger.Information("Loaded 0 pools for game events. DB table `game_event_pool` is empty.");
+                Log.Logger.Information("Loaded 0 pools for GameInfo events. DB table `game_event_pool` is empty.");
             }
             else
             {
@@ -1037,7 +1037,7 @@ public class GameEventManager
 
                     if (internalEventID < 0 || internalEventID >= _gameEventPoolIds.Length)
                     {
-                        Log.Logger.Error("`game_event_pool` game event id ({0}) not exist in `game_event`", eventID);
+                        Log.Logger.Error("`game_event_pool` GameInfo event id ({0}) not exist in `game_event`", eventID);
 
                         continue;
                     }
@@ -1055,7 +1055,7 @@ public class GameEventManager
                     ++count;
                 } while (result.NextRow());
 
-                Log.Logger.Information("Loaded {0} pools for game events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+                Log.Logger.Information("Loaded {0} pools for GameInfo events in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
             }
         }
     }
@@ -1161,7 +1161,7 @@ public class GameEventManager
             // save to db
             SaveWorldEventStateToDB(eventID);
 
-            // force game event update to set the update timer if conditions were met from a command
+            // force GameInfo event update to set the update timer if conditions were met from a command
             // this update is needed to possibly start events dependent on the started one
             // or to scedule another update where the next event will be started
             if (overwrite && conditionsMet)
@@ -1300,7 +1300,7 @@ public class GameEventManager
         foreach (var eventId in deactivate)
             StopEvent(eventId);
 
-        Log.Logger.Information("Next game event check in {0} seconds.", nextEventDelay + 1);
+        Log.Logger.Information("Next GameInfo event check in {0} seconds.", nextEventDelay + 1);
 
         return (nextEventDelay + 1) * Time.IN_MILLISECONDS; // Add 1 second to be sure event has started/stopped at next call
     }
@@ -2039,7 +2039,7 @@ internal class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCre
 
 public enum GameEventState
 {
-    Normal = 0,          // standard game events
+    Normal = 0,          // standard GameInfo events
     WorldInactive = 1,   // not yet started
     WorldConditions = 2, // condition matching phase
     WorldNextPhase = 3,  // conditions are met, now 'length' timer to start next event

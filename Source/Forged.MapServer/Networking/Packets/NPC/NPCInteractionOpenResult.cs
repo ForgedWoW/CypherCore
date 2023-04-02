@@ -15,9 +15,9 @@ public class NPCInteractionOpenResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Npc);
-        _worldPacket.WriteInt32((int)InteractionType);
-        _worldPacket.WriteBit(Success);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Npc);
+        WorldPacket.WriteInt32((int)InteractionType);
+        WorldPacket.WriteBit(Success);
+        WorldPacket.FlushBits();
     }
 }

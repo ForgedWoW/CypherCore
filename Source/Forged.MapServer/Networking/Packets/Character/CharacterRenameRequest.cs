@@ -12,8 +12,8 @@ public class CharacterRenameRequest : ClientPacket
     {
         RenameInfo = new CharacterRenameInfo
         {
-            Guid = _worldPacket.ReadPackedGuid(),
-            NewName = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(6))
+            Guid = WorldPacket.ReadPackedGuid(),
+            NewName = WorldPacket.ReadString(WorldPacket.ReadBits<uint>(6))
         };
     }
 }

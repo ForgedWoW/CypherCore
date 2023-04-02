@@ -12,6 +12,6 @@ public class GuildFlaggedForRename : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(FlagSet);
+        WorldPacket.WriteBit(FlagSet);
     }
 }

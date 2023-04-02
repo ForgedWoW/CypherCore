@@ -15,10 +15,10 @@ public class QueryQuestItemUsability : ClientPacket
 
     public override void Read()
     {
-        CreatureGUID = _worldPacket.ReadPackedGuid();
-        var itemGuidCount = _worldPacket.ReadUInt32();
+        CreatureGUID = WorldPacket.ReadPackedGuid();
+        var itemGuidCount = WorldPacket.ReadUInt32();
 
         for (var i = 0; i < itemGuidCount; ++i)
-            ItemGUIDs.Add(_worldPacket.ReadPackedGuid());
+            ItemGUIDs.Add(WorldPacket.ReadPackedGuid());
     }
 }

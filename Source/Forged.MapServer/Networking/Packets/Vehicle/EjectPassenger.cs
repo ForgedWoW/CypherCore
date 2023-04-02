@@ -12,6 +12,6 @@ public class EjectPassenger : ClientPacket
 
     public override void Read()
     {
-        Passenger = _worldPacket.ReadPackedGuid();
+        Passenger = WorldPacket.ReadPackedGuid();
     }
 }

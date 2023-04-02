@@ -12,6 +12,6 @@ public class CancelOrphanSpellVisual : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(SpellVisualID);
+        WorldPacket.WriteUInt32(SpellVisualID);
     }
 }

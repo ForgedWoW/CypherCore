@@ -11,7 +11,7 @@ public class SetContactNotes : ClientPacket
 
     public override void Read()
     {
-        Player.Read(_worldPacket);
-        Notes = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(10));
+        Player.Read(WorldPacket);
+        Notes = WorldPacket.ReadString(WorldPacket.ReadBits<uint>(10));
     }
 }

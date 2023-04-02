@@ -13,12 +13,12 @@ internal class PetRename : ClientPacket
 
     public override void Read()
     {
-        RenameData.PetGUID = _worldPacket.ReadPackedGuid();
-        RenameData.PetNumber = _worldPacket.ReadInt32();
+        RenameData.PetGUID = WorldPacket.ReadPackedGuid();
+        RenameData.PetNumber = WorldPacket.ReadInt32();
 
-        var nameLen = _worldPacket.ReadBits<uint>(8);
+        var nameLen = WorldPacket.ReadBits<uint>(8);
 
-        RenameData.HasDeclinedNames = _worldPacket.HasBit();
+        RenameData.HasDeclinedNames = WorldPacket.HasBit();
 
         if (RenameData.HasDeclinedNames)
         {
@@ -26,12 +26,12 @@ internal class PetRename : ClientPacket
             var count = new uint[SharedConst.MaxDeclinedNameCases];
 
             for (var i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-                count[i] = _worldPacket.ReadBits<uint>(7);
+                count[i] = WorldPacket.ReadBits<uint>(7);
 
             for (var i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-                RenameData.DeclinedNames.Name[i] = _worldPacket.ReadString(count[i]);
+                RenameData.DeclinedNames.Name[i] = WorldPacket.ReadString(count[i]);
         }
 
-        RenameData.NewName = _worldPacket.ReadString(nameLen);
+        RenameData.NewName = WorldPacket.ReadString(nameLen);
     }
 }

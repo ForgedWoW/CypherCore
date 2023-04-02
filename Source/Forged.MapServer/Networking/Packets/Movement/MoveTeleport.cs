@@ -19,25 +19,25 @@ public class MoveTeleport : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(MoverGUID);
-        _worldPacket.WriteUInt32(SequenceIndex);
-        _worldPacket.WriteXYZ(Pos);
-        _worldPacket.WriteFloat(Facing);
-        _worldPacket.WriteUInt8(PreloadWorld);
+        WorldPacket.WritePackedGuid(MoverGUID);
+        WorldPacket.WriteUInt32(SequenceIndex);
+        WorldPacket.WriteXYZ(Pos);
+        WorldPacket.WriteFloat(Facing);
+        WorldPacket.WriteUInt8(PreloadWorld);
 
-        _worldPacket.WriteBit(TransportGUID.HasValue);
-        _worldPacket.WriteBit(Vehicle.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(TransportGUID.HasValue);
+        WorldPacket.WriteBit(Vehicle.HasValue);
+        WorldPacket.FlushBits();
 
         if (Vehicle.HasValue)
         {
-            _worldPacket.WriteUInt8(Vehicle.Value.VehicleSeatIndex);
-            _worldPacket.WriteBit(Vehicle.Value.VehicleExitVoluntary);
-            _worldPacket.WriteBit(Vehicle.Value.VehicleExitTeleport);
-            _worldPacket.FlushBits();
+            WorldPacket.WriteUInt8(Vehicle.Value.VehicleSeatIndex);
+            WorldPacket.WriteBit(Vehicle.Value.VehicleExitVoluntary);
+            WorldPacket.WriteBit(Vehicle.Value.VehicleExitTeleport);
+            WorldPacket.FlushBits();
         }
 
         if (TransportGUID.HasValue)
-            _worldPacket.WritePackedGuid(TransportGUID.Value);
+            WorldPacket.WritePackedGuid(TransportGUID.Value);
     }
 }

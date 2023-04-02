@@ -12,6 +12,6 @@ internal class LootRelease : ClientPacket
 
     public override void Read()
     {
-        Unit = _worldPacket.ReadPackedGuid();
+        Unit = WorldPacket.ReadPackedGuid();
     }
 }

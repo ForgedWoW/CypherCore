@@ -13,7 +13,7 @@ internal class SocialContractRequestResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(ShowSocialContract);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(ShowSocialContract);
+        WorldPacket.FlushBits();
     }
 }

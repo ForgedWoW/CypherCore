@@ -13,7 +13,7 @@ public class GossipComplete : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(SuppressSound);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(SuppressSound);
+        WorldPacket.FlushBits();
     }
 }

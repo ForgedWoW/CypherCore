@@ -13,7 +13,7 @@ internal class BattlePetSetBattleSlot : ClientPacket
 
     public override void Read()
     {
-        PetGuid = _worldPacket.ReadPackedGuid();
-        Slot = _worldPacket.ReadUInt8();
+        PetGuid = WorldPacket.ReadPackedGuid();
+        Slot = WorldPacket.ReadUInt8();
     }
 }

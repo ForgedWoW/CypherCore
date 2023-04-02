@@ -13,8 +13,8 @@ internal class LootUnit : ClientPacket
 
     public override void Read()
     {
-        Unit = _worldPacket.ReadPackedGuid();
-        IsSoftInteract = _worldPacket.HasBit();
+        Unit = WorldPacket.ReadPackedGuid();
+        IsSoftInteract = WorldPacket.HasBit();
     }
 }
 

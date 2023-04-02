@@ -13,6 +13,6 @@ internal class CancelModSpeedNoControlAuras : ClientPacket
 
     public override void Read()
     {
-        TargetGUID = _worldPacket.ReadPackedGuid();
+        TargetGUID = WorldPacket.ReadPackedGuid();
     }
 }

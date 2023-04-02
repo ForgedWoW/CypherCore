@@ -73,59 +73,59 @@ public class FeatureSystemStatusGlueScreen : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(BpayStoreEnabled);
-        _worldPacket.WriteBit(BpayStoreAvailable);
-        _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
-        _worldPacket.WriteBit(CharUndeleteEnabled);
-        _worldPacket.WriteBit(CommerceSystemEnabled);
-        _worldPacket.WriteBit(Unk14);
-        _worldPacket.WriteBit(WillKickFromWorld);
-        _worldPacket.WriteBit(IsExpansionPreorderInStore);
+        WorldPacket.WriteBit(BpayStoreEnabled);
+        WorldPacket.WriteBit(BpayStoreAvailable);
+        WorldPacket.WriteBit(BpayStoreDisabledByParentalControls);
+        WorldPacket.WriteBit(CharUndeleteEnabled);
+        WorldPacket.WriteBit(CommerceSystemEnabled);
+        WorldPacket.WriteBit(Unk14);
+        WorldPacket.WriteBit(WillKickFromWorld);
+        WorldPacket.WriteBit(IsExpansionPreorderInStore);
 
-        _worldPacket.WriteBit(KioskModeEnabled);
-        _worldPacket.WriteBit(CompetitiveModeEnabled);
-        _worldPacket.WriteBit(false); // unused, 10.0.2
-        _worldPacket.WriteBit(TrialBoostEnabled);
-        _worldPacket.WriteBit(TokenBalanceEnabled);
-        _worldPacket.WriteBit(LiveRegionCharacterListEnabled);
-        _worldPacket.WriteBit(LiveRegionCharacterCopyEnabled);
-        _worldPacket.WriteBit(LiveRegionAccountCopyEnabled);
+        WorldPacket.WriteBit(KioskModeEnabled);
+        WorldPacket.WriteBit(CompetitiveModeEnabled);
+        WorldPacket.WriteBit(false); // unused, 10.0.2
+        WorldPacket.WriteBit(TrialBoostEnabled);
+        WorldPacket.WriteBit(TokenBalanceEnabled);
+        WorldPacket.WriteBit(LiveRegionCharacterListEnabled);
+        WorldPacket.WriteBit(LiveRegionCharacterCopyEnabled);
+        WorldPacket.WriteBit(LiveRegionAccountCopyEnabled);
 
-        _worldPacket.WriteBit(LiveRegionKeyBindingsCopyEnabled);
-        _worldPacket.WriteBit(Unknown901CheckoutRelated);
-        _worldPacket.WriteBit(false); // unused, 10.0.2
-        _worldPacket.WriteBit(EuropaTicketSystemStatus.HasValue);
-        _worldPacket.WriteBit(false); // unused, 10.0.2
-        _worldPacket.WriteBit(LaunchETA.HasValue);
-        _worldPacket.WriteBit(AddonsDisabled);
-        _worldPacket.WriteBit(Unused1000);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(LiveRegionKeyBindingsCopyEnabled);
+        WorldPacket.WriteBit(Unknown901CheckoutRelated);
+        WorldPacket.WriteBit(false); // unused, 10.0.2
+        WorldPacket.WriteBit(EuropaTicketSystemStatus.HasValue);
+        WorldPacket.WriteBit(false); // unused, 10.0.2
+        WorldPacket.WriteBit(LaunchETA.HasValue);
+        WorldPacket.WriteBit(AddonsDisabled);
+        WorldPacket.WriteBit(Unused1000);
+        WorldPacket.FlushBits();
 
-        EuropaTicketSystemStatus?.Write(_worldPacket);
+        EuropaTicketSystemStatus?.Write(WorldPacket);
 
-        _worldPacket.WriteUInt32(TokenPollTimeSeconds);
-        _worldPacket.WriteUInt32(KioskSessionMinutes);
-        _worldPacket.WriteInt64(TokenBalanceAmount);
-        _worldPacket.WriteInt32(MaxCharactersPerRealm);
-        _worldPacket.WriteInt32(LiveRegionCharacterCopySourceRegions.Count);
-        _worldPacket.WriteUInt32(BpayStoreProductDeliveryDelay);
-        _worldPacket.WriteInt32(ActiveCharacterUpgradeBoostType);
-        _worldPacket.WriteInt32(ActiveClassTrialBoostType);
-        _worldPacket.WriteInt32(MinimumExpansionLevel);
-        _worldPacket.WriteInt32(MaximumExpansionLevel);
-        _worldPacket.WriteInt32(ActiveSeason);
-        _worldPacket.WriteInt32(GameRuleValues.Count);
-        _worldPacket.WriteInt16(MaxPlayerNameQueriesPerPacket);
-        _worldPacket.WriteInt16(PlayerNameQueryTelemetryInterval);
-        _worldPacket.WriteUInt32((uint)PlayerNameQueryInterval.TotalSeconds);
+        WorldPacket.WriteUInt32(TokenPollTimeSeconds);
+        WorldPacket.WriteUInt32(KioskSessionMinutes);
+        WorldPacket.WriteInt64(TokenBalanceAmount);
+        WorldPacket.WriteInt32(MaxCharactersPerRealm);
+        WorldPacket.WriteInt32(LiveRegionCharacterCopySourceRegions.Count);
+        WorldPacket.WriteUInt32(BpayStoreProductDeliveryDelay);
+        WorldPacket.WriteInt32(ActiveCharacterUpgradeBoostType);
+        WorldPacket.WriteInt32(ActiveClassTrialBoostType);
+        WorldPacket.WriteInt32(MinimumExpansionLevel);
+        WorldPacket.WriteInt32(MaximumExpansionLevel);
+        WorldPacket.WriteInt32(ActiveSeason);
+        WorldPacket.WriteInt32(GameRuleValues.Count);
+        WorldPacket.WriteInt16(MaxPlayerNameQueriesPerPacket);
+        WorldPacket.WriteInt16(PlayerNameQueryTelemetryInterval);
+        WorldPacket.WriteUInt32((uint)PlayerNameQueryInterval.TotalSeconds);
 
         if (LaunchETA.HasValue)
-            _worldPacket.WriteInt32(LaunchETA.Value);
+            WorldPacket.WriteInt32(LaunchETA.Value);
 
         foreach (var sourceRegion in LiveRegionCharacterCopySourceRegions)
-            _worldPacket.WriteInt32(sourceRegion);
+            WorldPacket.WriteInt32(sourceRegion);
 
         foreach (var gameRuleValue in GameRuleValues)
-            gameRuleValue.Write(_worldPacket);
+            gameRuleValue.Write(WorldPacket);
     }
 }

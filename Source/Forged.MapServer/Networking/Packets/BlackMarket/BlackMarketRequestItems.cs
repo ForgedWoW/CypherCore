@@ -13,7 +13,7 @@ internal class BlackMarketRequestItems : ClientPacket
 
     public override void Read()
     {
-        Guid = _worldPacket.ReadPackedGuid();
-        LastUpdateID = _worldPacket.ReadInt64();
+        Guid = WorldPacket.ReadPackedGuid();
+        LastUpdateID = WorldPacket.ReadInt64();
     }
 }

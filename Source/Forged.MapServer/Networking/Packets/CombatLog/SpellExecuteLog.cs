@@ -17,51 +17,51 @@ internal class SpellExecuteLog : CombatLogServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Caster);
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteInt32(Effects.Count);
+        WorldPacket.WritePackedGuid(Caster);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteInt32(Effects.Count);
 
         foreach (var effect in Effects)
         {
-            _worldPacket.WriteInt32(effect.Effect);
+            WorldPacket.WriteInt32(effect.Effect);
 
-            _worldPacket.WriteInt32(effect.PowerDrainTargets.Count);
-            _worldPacket.WriteInt32(effect.ExtraAttacksTargets.Count);
-            _worldPacket.WriteInt32(effect.DurabilityDamageTargets.Count);
-            _worldPacket.WriteInt32(effect.GenericVictimTargets.Count);
-            _worldPacket.WriteInt32(effect.TradeSkillTargets.Count);
-            _worldPacket.WriteInt32(effect.FeedPetTargets.Count);
+            WorldPacket.WriteInt32(effect.PowerDrainTargets.Count);
+            WorldPacket.WriteInt32(effect.ExtraAttacksTargets.Count);
+            WorldPacket.WriteInt32(effect.DurabilityDamageTargets.Count);
+            WorldPacket.WriteInt32(effect.GenericVictimTargets.Count);
+            WorldPacket.WriteInt32(effect.TradeSkillTargets.Count);
+            WorldPacket.WriteInt32(effect.FeedPetTargets.Count);
 
             foreach (var powerDrainTarget in effect.PowerDrainTargets)
             {
-                _worldPacket.WritePackedGuid(powerDrainTarget.Victim);
-                _worldPacket.WriteUInt32(powerDrainTarget.Points);
-                _worldPacket.WriteUInt32(powerDrainTarget.PowerType);
-                _worldPacket.WriteFloat(powerDrainTarget.Amplitude);
+                WorldPacket.WritePackedGuid(powerDrainTarget.Victim);
+                WorldPacket.WriteUInt32(powerDrainTarget.Points);
+                WorldPacket.WriteUInt32(powerDrainTarget.PowerType);
+                WorldPacket.WriteFloat(powerDrainTarget.Amplitude);
             }
 
             foreach (var extraAttacksTarget in effect.ExtraAttacksTargets)
             {
-                _worldPacket.WritePackedGuid(extraAttacksTarget.Victim);
-                _worldPacket.WriteUInt32(extraAttacksTarget.NumAttacks);
+                WorldPacket.WritePackedGuid(extraAttacksTarget.Victim);
+                WorldPacket.WriteUInt32(extraAttacksTarget.NumAttacks);
             }
 
             foreach (var durabilityDamageTarget in effect.DurabilityDamageTargets)
             {
-                _worldPacket.WritePackedGuid(durabilityDamageTarget.Victim);
-                _worldPacket.WriteInt32(durabilityDamageTarget.ItemID);
-                _worldPacket.WriteInt32(durabilityDamageTarget.Amount);
+                WorldPacket.WritePackedGuid(durabilityDamageTarget.Victim);
+                WorldPacket.WriteInt32(durabilityDamageTarget.ItemID);
+                WorldPacket.WriteInt32(durabilityDamageTarget.Amount);
             }
 
             foreach (var genericVictimTarget in effect.GenericVictimTargets)
-                _worldPacket.WritePackedGuid(genericVictimTarget.Victim);
+                WorldPacket.WritePackedGuid(genericVictimTarget.Victim);
 
             foreach (var tradeSkillTarget in effect.TradeSkillTargets)
-                _worldPacket.WriteInt32(tradeSkillTarget.ItemID);
+                WorldPacket.WriteInt32(tradeSkillTarget.ItemID);
 
 
             foreach (var feedPetTarget in effect.FeedPetTargets)
-                _worldPacket.WriteInt32(feedPetTarget.ItemID);
+                WorldPacket.WriteInt32(feedPetTarget.ItemID);
         }
 
         WriteLogDataBit();

@@ -16,9 +16,9 @@ internal class CommerceTokenGetMarketPriceResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt64(CurrentMarketPrice);
-        _worldPacket.WriteUInt32(UnkInt);
-        _worldPacket.WriteUInt32((uint)Result);
-        _worldPacket.WriteUInt32(AuctionDuration);
+        WorldPacket.WriteUInt64(CurrentMarketPrice);
+        WorldPacket.WriteUInt32(UnkInt);
+        WorldPacket.WriteUInt32((uint)Result);
+        WorldPacket.WriteUInt32(AuctionDuration);
     }
 }

@@ -17,17 +17,17 @@ internal class AuctionListOwnedItems : ClientPacket
 
     public override void Read()
     {
-        Auctioneer = _worldPacket.ReadPackedGuid();
-        Offset = _worldPacket.ReadUInt32();
+        Auctioneer = WorldPacket.ReadPackedGuid();
+        Offset = WorldPacket.ReadUInt32();
 
-        if (_worldPacket.HasBit())
+        if (WorldPacket.HasBit())
             TaintedBy = new AddOnInfo();
 
-        var sortCount = _worldPacket.ReadBits<uint>(2);
+        var sortCount = WorldPacket.ReadBits<uint>(2);
 
         for (var i = 0; i < sortCount; ++i)
-            Sorts[i] = new AuctionSortDef(_worldPacket);
+            Sorts[i] = new AuctionSortDef(WorldPacket);
 
-        TaintedBy?.Read(_worldPacket);
+        TaintedBy?.Read(WorldPacket);
     }
 }

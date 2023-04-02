@@ -45,8 +45,8 @@ internal class EnterEncryptedMode : ServerPacket
         toSign.Process(BitConverter.GetBytes(Enabled), 1);
         toSign.Finish(EnableEncryptionSeed, 16);
 
-        _worldPacket.WriteBytes(Ed25519.Sign(toSign.Digest, expandedPrivateKey, 0, EnableEncryptionContext));
-        _worldPacket.WriteBit(Enabled);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBytes(Ed25519.Sign(toSign.Digest, expandedPrivateKey, 0, EnableEncryptionContext));
+        WorldPacket.WriteBit(Enabled);
+        WorldPacket.FlushBits();
     }
 }

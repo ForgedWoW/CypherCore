@@ -17,17 +17,17 @@ internal class AreaTriggerRePath : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(TriggerGUID);
+        WorldPacket.WritePackedGuid(TriggerGUID);
 
-        _worldPacket.WriteBit(AreaTriggerSpline != null);
-        _worldPacket.WriteBit(AreaTriggerOrbit != null);
-        _worldPacket.WriteBit(AreaTriggerMovementScript.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(AreaTriggerSpline != null);
+        WorldPacket.WriteBit(AreaTriggerOrbit != null);
+        WorldPacket.WriteBit(AreaTriggerMovementScript.HasValue);
+        WorldPacket.FlushBits();
 
-        AreaTriggerSpline?.Write(_worldPacket);
+        AreaTriggerSpline?.Write(WorldPacket);
 
-        AreaTriggerMovementScript?.Write(_worldPacket);
+        AreaTriggerMovementScript?.Write(WorldPacket);
 
-        AreaTriggerOrbit?.Write(_worldPacket);
+        AreaTriggerOrbit?.Write(WorldPacket);
     }
 }

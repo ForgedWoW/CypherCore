@@ -14,9 +14,9 @@ public class SendUnlearnSpells : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Spells.Count);
+        WorldPacket.WriteInt32(Spells.Count);
 
         foreach (var spell in Spells)
-            _worldPacket.WriteUInt32(spell);
+            WorldPacket.WriteUInt32(spell);
     }
 }

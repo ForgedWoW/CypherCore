@@ -16,8 +16,8 @@ internal class NotifyMissileTrajectoryCollision : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Caster);
-        _worldPacket.WritePackedGuid(CastID);
-        _worldPacket.WriteVector3(CollisionPos);
+        WorldPacket.WritePackedGuid(Caster);
+        WorldPacket.WritePackedGuid(CastID);
+        WorldPacket.WriteVector3(CollisionPos);
     }
 }

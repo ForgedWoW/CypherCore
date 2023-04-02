@@ -17,9 +17,9 @@ public class NewWorld : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(MapID);
-        Loc.Write(_worldPacket);
-        _worldPacket.WriteUInt32(Reason);
-        _worldPacket.WriteXYZ(MovementOffset);
+        WorldPacket.WriteUInt32(MapID);
+        Loc.Write(WorldPacket);
+        WorldPacket.WriteUInt32(Reason);
+        WorldPacket.WriteXYZ(MovementOffset);
     }
 }

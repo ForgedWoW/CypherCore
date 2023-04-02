@@ -18,9 +18,9 @@ public class UseItem : ClientPacket
 
     public override void Read()
     {
-        PackSlot = _worldPacket.ReadUInt8();
-        Slot = _worldPacket.ReadUInt8();
-        CastItem = _worldPacket.ReadPackedGuid();
-        Cast.Read(_worldPacket);
+        PackSlot = WorldPacket.ReadUInt8();
+        Slot = WorldPacket.ReadUInt8();
+        CastItem = WorldPacket.ReadPackedGuid();
+        Cast.Read(WorldPacket);
     }
 }

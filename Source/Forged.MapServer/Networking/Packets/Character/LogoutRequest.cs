@@ -10,6 +10,6 @@ public class LogoutRequest : ClientPacket
 
     public override void Read()
     {
-        IdleLogout = _worldPacket.HasBit();
+        IdleLogout = WorldPacket.HasBit();
     }
 }

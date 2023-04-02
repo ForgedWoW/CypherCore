@@ -16,11 +16,11 @@ public class GuildSetMemberNote : ClientPacket
 
     public override void Read()
     {
-        NoteeGUID = _worldPacket.ReadPackedGuid();
+        NoteeGUID = WorldPacket.ReadPackedGuid();
 
-        var noteLen = _worldPacket.ReadBits<uint>(8);
-        IsPublic = _worldPacket.HasBit();
+        var noteLen = WorldPacket.ReadBits<uint>(8);
+        IsPublic = WorldPacket.HasBit();
 
-        Note = _worldPacket.ReadString(noteLen);
+        Note = WorldPacket.ReadString(noteLen);
     }
 }

@@ -10,6 +10,6 @@ internal class CancelTempEnchantment : ClientPacket
 
     public override void Read()
     {
-        Slot = _worldPacket.ReadInt32();
+        Slot = WorldPacket.ReadInt32();
     }
 }

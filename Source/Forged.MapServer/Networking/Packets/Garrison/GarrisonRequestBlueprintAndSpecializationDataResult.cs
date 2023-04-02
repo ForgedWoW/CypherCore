@@ -15,16 +15,16 @@ internal class GarrisonRequestBlueprintAndSpecializationDataResult : ServerPacke
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32((uint)GarrTypeID);
-        _worldPacket.WriteInt32(BlueprintsKnown?.Count ?? 0);
-        _worldPacket.WriteInt32(SpecializationsKnown?.Count ?? 0);
+        WorldPacket.WriteUInt32((uint)GarrTypeID);
+        WorldPacket.WriteInt32(BlueprintsKnown?.Count ?? 0);
+        WorldPacket.WriteInt32(SpecializationsKnown?.Count ?? 0);
 
         if (BlueprintsKnown != null)
             foreach (var blueprint in BlueprintsKnown)
-                _worldPacket.WriteUInt32(blueprint);
+                WorldPacket.WriteUInt32(blueprint);
 
         if (SpecializationsKnown != null)
             foreach (var specialization in SpecializationsKnown)
-                _worldPacket.WriteUInt32(specialization);
+                WorldPacket.WriteUInt32(specialization);
     }
 }

@@ -14,7 +14,7 @@ internal class LootAllPassed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(LootObj);
-        Item.Write(_worldPacket);
+        WorldPacket.WritePackedGuid(LootObj);
+        Item.Write(WorldPacket);
     }
 }

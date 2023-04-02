@@ -14,7 +14,7 @@ public class SetVehicleRecID : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(VehicleGUID);
-        _worldPacket.WriteUInt32(VehicleRecID);
+        WorldPacket.WritePackedGuid(VehicleGUID);
+        WorldPacket.WriteUInt32(VehicleRecID);
     }
 }

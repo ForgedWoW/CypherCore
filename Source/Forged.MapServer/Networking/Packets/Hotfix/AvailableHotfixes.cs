@@ -19,10 +19,10 @@ internal class AvailableHotfixes : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(VirtualRealmAddress);
-        _worldPacket.WriteInt32(Hotfixes.Keys.Count);
+        WorldPacket.WriteUInt32(VirtualRealmAddress);
+        WorldPacket.WriteInt32(Hotfixes.Keys.Count);
 
         foreach (var key in Hotfixes.Keys)
-            Hotfixes[key][0].ID.Write(_worldPacket);
+            Hotfixes[key][0].ID.Write(WorldPacket);
     }
 }

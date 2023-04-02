@@ -25,9 +25,9 @@ public class SAttackStop : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Attacker);
-        _worldPacket.WritePackedGuid(Victim);
-        _worldPacket.WriteBit(NowDead);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Attacker);
+        WorldPacket.WritePackedGuid(Victim);
+        WorldPacket.WriteBit(NowDead);
+        WorldPacket.FlushBits();
     }
 }

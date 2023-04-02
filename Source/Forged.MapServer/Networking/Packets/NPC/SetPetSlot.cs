@@ -14,8 +14,8 @@ internal class SetPetSlot : ClientPacket
 
     public override void Read()
     {
-        PetNumber = _worldPacket.ReadUInt32();
-        DestSlot = _worldPacket.ReadUInt8();
-        StableMaster = _worldPacket.ReadPackedGuid();
+        PetNumber = WorldPacket.ReadUInt32();
+        DestSlot = WorldPacket.ReadUInt8();
+        StableMaster = WorldPacket.ReadPackedGuid();
     }
 }

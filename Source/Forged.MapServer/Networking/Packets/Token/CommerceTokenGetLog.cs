@@ -10,6 +10,6 @@ internal class CommerceTokenGetLog : ClientPacket
 
     public override void Read()
     {
-        UnkInt = _worldPacket.ReadUInt32();
+        UnkInt = WorldPacket.ReadUInt32();
     }
 }

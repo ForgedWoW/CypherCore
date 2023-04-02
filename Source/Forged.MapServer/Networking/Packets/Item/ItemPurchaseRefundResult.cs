@@ -15,11 +15,11 @@ internal class ItemPurchaseRefundResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ItemGUID);
-        _worldPacket.WriteUInt8(Result);
-        _worldPacket.WriteBit(Contents != null);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(ItemGUID);
+        WorldPacket.WriteUInt8(Result);
+        WorldPacket.WriteBit(Contents != null);
+        WorldPacket.FlushBits();
 
-        Contents?.Write(_worldPacket);
+        Contents?.Write(WorldPacket);
     }
 }

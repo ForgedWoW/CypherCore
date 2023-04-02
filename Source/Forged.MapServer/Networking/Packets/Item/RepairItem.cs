@@ -14,8 +14,8 @@ public class RepairItem : ClientPacket
 
     public override void Read()
     {
-        NpcGUID = _worldPacket.ReadPackedGuid();
-        ItemGUID = _worldPacket.ReadPackedGuid();
-        UseGuildBank = _worldPacket.HasBit();
+        NpcGUID = WorldPacket.ReadPackedGuid();
+        ItemGUID = WorldPacket.ReadPackedGuid();
+        UseGuildBank = WorldPacket.HasBit();
     }
 }

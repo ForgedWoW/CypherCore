@@ -14,11 +14,11 @@ internal class BattlePetUpdates : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Pets.Count);
-        _worldPacket.WriteBit(PetAdded);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(Pets.Count);
+        WorldPacket.WriteBit(PetAdded);
+        WorldPacket.FlushBits();
 
         foreach (var pet in Pets)
-            pet.Write(_worldPacket);
+            pet.Write(WorldPacket);
     }
 }

@@ -16,11 +16,11 @@ internal class CalendarInviteRemoved : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(InviteGuid);
-        _worldPacket.WriteUInt64(EventID);
-        _worldPacket.WriteUInt32(Flags);
+        WorldPacket.WritePackedGuid(InviteGuid);
+        WorldPacket.WriteUInt64(EventID);
+        WorldPacket.WriteUInt32(Flags);
 
-        _worldPacket.WriteBit(ClearPending);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(ClearPending);
+        WorldPacket.FlushBits();
     }
 }

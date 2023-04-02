@@ -12,6 +12,6 @@ internal class SpiritHealerActivate : ClientPacket
 
     public override void Read()
     {
-        Healer = _worldPacket.ReadPackedGuid();
+        Healer = WorldPacket.ReadPackedGuid();
     }
 }

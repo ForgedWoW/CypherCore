@@ -12,8 +12,8 @@ internal class SetSavedInstanceExtend : ClientPacket
 
     public override void Read()
     {
-        MapID = _worldPacket.ReadInt32();
-        DifficultyID = _worldPacket.ReadUInt32();
-        Extend = _worldPacket.HasBit();
+        MapID = WorldPacket.ReadInt32();
+        DifficultyID = WorldPacket.ReadUInt32();
+        Extend = WorldPacket.HasBit();
     }
 }

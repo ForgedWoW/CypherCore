@@ -37,7 +37,7 @@ internal class BNetAccountCommands
                                            handler.Session.Player.GetName(),
                                            handler.Session.Player.GUID.ToString(),
                                            accountName,
-                                           createGameAccount.Value ? " with game account " : "",
+                                           createGameAccount.Value ? " with GameInfo account " : "",
                                            createGameAccount.Value ? gameAccountName : "");
 
                 break;

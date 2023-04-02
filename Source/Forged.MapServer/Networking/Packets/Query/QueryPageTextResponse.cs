@@ -16,16 +16,16 @@ public class QueryPageTextResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(PageTextID);
-        _worldPacket.WriteBit(Allow);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(PageTextID);
+        WorldPacket.WriteBit(Allow);
+        WorldPacket.FlushBits();
 
         if (Allow)
         {
-            _worldPacket.WriteInt32(Pages.Count);
+            WorldPacket.WriteInt32(Pages.Count);
 
             foreach (var pageText in Pages)
-                pageText.Write(_worldPacket);
+                pageText.Write(WorldPacket);
         }
     }
 

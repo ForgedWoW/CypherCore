@@ -13,6 +13,6 @@ public class BattlefieldStatusNone : ServerPacket
 
     public override void Write()
     {
-        Ticket.Write(_worldPacket);
+        Ticket.Write(WorldPacket);
     }
 }

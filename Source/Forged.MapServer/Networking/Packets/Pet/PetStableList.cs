@@ -16,20 +16,20 @@ internal class PetStableList : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(StableMaster);
+        WorldPacket.WritePackedGuid(StableMaster);
 
-        _worldPacket.WriteInt32(Pets.Count);
+        WorldPacket.WriteInt32(Pets.Count);
 
         foreach (var pet in Pets)
         {
-            _worldPacket.WriteUInt32(pet.PetSlot);
-            _worldPacket.WriteUInt32(pet.PetNumber);
-            _worldPacket.WriteUInt32(pet.CreatureID);
-            _worldPacket.WriteUInt32(pet.DisplayID);
-            _worldPacket.WriteUInt32(pet.ExperienceLevel);
-            _worldPacket.WriteUInt8((byte)pet.PetFlags);
-            _worldPacket.WriteBits(pet.PetName.GetByteCount(), 8);
-            _worldPacket.WriteString(pet.PetName);
+            WorldPacket.WriteUInt32(pet.PetSlot);
+            WorldPacket.WriteUInt32(pet.PetNumber);
+            WorldPacket.WriteUInt32(pet.CreatureID);
+            WorldPacket.WriteUInt32(pet.DisplayID);
+            WorldPacket.WriteUInt32(pet.ExperienceLevel);
+            WorldPacket.WriteUInt8((byte)pet.PetFlags);
+            WorldPacket.WriteBits(pet.PetName.GetByteCount(), 8);
+            WorldPacket.WriteString(pet.PetName);
         }
     }
 }

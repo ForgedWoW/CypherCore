@@ -10,6 +10,6 @@ public class RequestGuildRewardsList : ClientPacket
 
     public override void Read()
     {
-        CurrentVersion = _worldPacket.ReadInt64();
+        CurrentVersion = WorldPacket.ReadInt64();
     }
 }

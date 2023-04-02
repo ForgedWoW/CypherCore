@@ -16,11 +16,11 @@ internal class GuildAchievementMembers : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(GuildGUID);
-        _worldPacket.WriteUInt32(AchievementID);
-        _worldPacket.WriteInt32(Member.Count);
+        WorldPacket.WritePackedGuid(GuildGUID);
+        WorldPacket.WriteUInt32(AchievementID);
+        WorldPacket.WriteInt32(Member.Count);
 
         foreach (var guid in Member)
-            _worldPacket.WritePackedGuid(guid);
+            WorldPacket.WritePackedGuid(guid);
     }
 }

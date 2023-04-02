@@ -61,12 +61,12 @@ internal class ConnectTo : ServerPacket
 
         Payload.Signature = RsaCrypt.RSA.SignHash(hash.Digest, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1).Reverse().ToArray();
 
-        _worldPacket.WriteBytes(Payload.Signature, (uint)Payload.Signature.Length);
-        _worldPacket.WriteBytes(whereBuffer);
-        _worldPacket.WriteUInt16(Payload.Port);
-        _worldPacket.WriteUInt32((uint)Serial);
-        _worldPacket.WriteUInt8(Con);
-        _worldPacket.WriteUInt64(Key);
+        WorldPacket.WriteBytes(Payload.Signature, (uint)Payload.Signature.Length);
+        WorldPacket.WriteBytes(whereBuffer);
+        WorldPacket.WriteUInt16(Payload.Port);
+        WorldPacket.WriteUInt32((uint)Serial);
+        WorldPacket.WriteUInt8(Con);
+        WorldPacket.WriteUInt64(Key);
     }
 
     public struct SocketAddress

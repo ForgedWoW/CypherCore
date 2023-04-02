@@ -15,8 +15,8 @@ public class EquipmentSetID : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt64(GUID);
-        _worldPacket.WriteInt32(Type);
-        _worldPacket.WriteUInt32(SetID);
+        WorldPacket.WriteUInt64(GUID);
+        WorldPacket.WriteInt32(Type);
+        WorldPacket.WriteUInt32(SetID);
     }
 }

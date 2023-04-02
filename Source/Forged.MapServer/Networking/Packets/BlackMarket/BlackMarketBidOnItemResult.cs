@@ -15,8 +15,8 @@ internal class BlackMarketBidOnItemResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(MarketID);
-        _worldPacket.WriteUInt32((uint)Result);
-        Item.Write(_worldPacket);
+        WorldPacket.WriteUInt32(MarketID);
+        WorldPacket.WriteUInt32((uint)Result);
+        Item.Write(WorldPacket);
     }
 }

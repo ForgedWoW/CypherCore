@@ -19,12 +19,12 @@ internal class LootRollBroadcast : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(LootObj);
-        _worldPacket.WritePackedGuid(Player);
-        _worldPacket.WriteInt32(Roll);
-        _worldPacket.WriteUInt8((byte)RollType);
-        Item.Write(_worldPacket);
-        _worldPacket.WriteBit(Autopassed);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(LootObj);
+        WorldPacket.WritePackedGuid(Player);
+        WorldPacket.WriteInt32(Roll);
+        WorldPacket.WriteUInt8((byte)RollType);
+        Item.Write(WorldPacket);
+        WorldPacket.WriteBit(Autopassed);
+        WorldPacket.FlushBits();
     }
 }

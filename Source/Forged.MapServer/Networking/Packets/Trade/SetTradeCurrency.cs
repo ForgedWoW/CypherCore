@@ -11,7 +11,7 @@ public class SetTradeCurrency : ClientPacket
 
     public override void Read()
     {
-        Type = _worldPacket.ReadUInt32();
-        Quantity = _worldPacket.ReadUInt32();
+        Type = WorldPacket.ReadUInt32();
+        Quantity = WorldPacket.ReadUInt32();
     }
 }

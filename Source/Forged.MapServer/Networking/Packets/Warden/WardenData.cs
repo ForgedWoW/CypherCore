@@ -12,9 +12,9 @@ internal class WardenData : ClientPacket
 
     public override void Read()
     {
-        var size = _worldPacket.ReadUInt32();
+        var size = WorldPacket.ReadUInt32();
 
         if (size != 0)
-            Data = new ByteBuffer(_worldPacket.ReadBytes(size));
+            Data = new ByteBuffer(WorldPacket.ReadBytes(size));
     }
 }

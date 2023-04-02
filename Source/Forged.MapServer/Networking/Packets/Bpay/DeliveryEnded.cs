@@ -15,11 +15,11 @@ public class DeliveryEnded : ServerPacket
     public List<ItemInstance> Item { get; set; } = new();
     public override void Write()
     {
-        _worldPacket.Write(DistributionID);
+        WorldPacket.Write(DistributionID);
 
-        _worldPacket.Write(Item.Count);
+        WorldPacket.Write(Item.Count);
 
         foreach (var itemData in Item)
-            itemData.Write(_worldPacket);
+            itemData.Write(WorldPacket);
     }
 }

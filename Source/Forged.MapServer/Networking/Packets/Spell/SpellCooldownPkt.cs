@@ -16,9 +16,9 @@ public class SpellCooldownPkt : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Caster);
-        _worldPacket.WriteUInt8((byte)Flags);
-        _worldPacket.WriteInt32(SpellCooldowns.Count);
-        SpellCooldowns.ForEach(p => p.Write(_worldPacket));
+        WorldPacket.WritePackedGuid(Caster);
+        WorldPacket.WriteUInt8((byte)Flags);
+        WorldPacket.WriteInt32(SpellCooldowns.Count);
+        SpellCooldowns.ForEach(p => p.Write(WorldPacket));
     }
 }

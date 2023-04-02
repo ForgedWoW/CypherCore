@@ -13,6 +13,6 @@ public class TutorialFlags : ServerPacket
     public override void Write()
     {
         for (byte i = 0; i < (int)Tutorials.Max; ++i)
-            _worldPacket.WriteUInt32(TutorialData[i]);
+            WorldPacket.WriteUInt32(TutorialData[i]);
     }
 }

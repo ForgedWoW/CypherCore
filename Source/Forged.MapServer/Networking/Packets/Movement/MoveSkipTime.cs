@@ -14,7 +14,7 @@ internal class MoveSkipTime : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(MoverGUID);
-        _worldPacket.WriteUInt32(TimeSkipped);
+        WorldPacket.WritePackedGuid(MoverGUID);
+        WorldPacket.WriteUInt32(TimeSkipped);
     }
 }

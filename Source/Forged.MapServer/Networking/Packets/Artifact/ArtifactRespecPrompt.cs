@@ -14,7 +14,7 @@ internal class ArtifactRespecPrompt : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ArtifactGUID);
-        _worldPacket.WritePackedGuid(NpcGUID);
+        WorldPacket.WritePackedGuid(ArtifactGUID);
+        WorldPacket.WritePackedGuid(NpcGUID);
     }
 }

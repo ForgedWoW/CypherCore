@@ -17,7 +17,7 @@ internal class SpellVisualLoadScreen : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(SpellVisualKitID);
-        _worldPacket.WriteInt32(Delay);
+        WorldPacket.WriteInt32(SpellVisualKitID);
+        WorldPacket.WriteInt32(Delay);
     }
 }

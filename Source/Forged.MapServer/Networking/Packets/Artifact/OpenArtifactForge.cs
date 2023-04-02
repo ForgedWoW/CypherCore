@@ -14,7 +14,7 @@ internal class OpenArtifactForge : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ArtifactGUID);
-        _worldPacket.WritePackedGuid(ForgeGUID);
+        WorldPacket.WritePackedGuid(ArtifactGUID);
+        WorldPacket.WritePackedGuid(ForgeGUID);
     }
 }

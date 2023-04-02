@@ -15,12 +15,12 @@ public class LearnedSpells : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(ClientLearnedSpellData.Count);
-        _worldPacket.WriteUInt32(SpecializationID);
-        _worldPacket.WriteBit(SuppressMessaging);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(ClientLearnedSpellData.Count);
+        WorldPacket.WriteUInt32(SpecializationID);
+        WorldPacket.WriteBit(SuppressMessaging);
+        WorldPacket.FlushBits();
 
         foreach (var spell in ClientLearnedSpellData)
-            spell.Write(_worldPacket);
+            spell.Write(WorldPacket);
     }
 }

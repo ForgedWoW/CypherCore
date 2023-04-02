@@ -40,34 +40,34 @@ public class EnumCharactersResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(Success);
-        _worldPacket.WriteBit(IsDeletedCharacters);
-        _worldPacket.WriteBit(IsNewPlayerRestrictionSkipped);
-        _worldPacket.WriteBit(IsNewPlayerRestricted);
-        _worldPacket.WriteBit(IsNewPlayer);
-        _worldPacket.WriteBit(IsTrialAccountRestricted);
-        _worldPacket.WriteBit(DisabledClassesMask.HasValue);
-        _worldPacket.WriteBit(IsAlliedRacesCreationAllowed);
-        _worldPacket.WriteInt32(Characters.Count);
-        _worldPacket.WriteInt32(MaxCharacterLevel);
-        _worldPacket.WriteInt32(RaceUnlockData.Count);
-        _worldPacket.WriteInt32(UnlockedConditionalAppearances.Count);
-        _worldPacket.WriteInt32(RaceLimitDisables.Count);
+        WorldPacket.WriteBit(Success);
+        WorldPacket.WriteBit(IsDeletedCharacters);
+        WorldPacket.WriteBit(IsNewPlayerRestrictionSkipped);
+        WorldPacket.WriteBit(IsNewPlayerRestricted);
+        WorldPacket.WriteBit(IsNewPlayer);
+        WorldPacket.WriteBit(IsTrialAccountRestricted);
+        WorldPacket.WriteBit(DisabledClassesMask.HasValue);
+        WorldPacket.WriteBit(IsAlliedRacesCreationAllowed);
+        WorldPacket.WriteInt32(Characters.Count);
+        WorldPacket.WriteInt32(MaxCharacterLevel);
+        WorldPacket.WriteInt32(RaceUnlockData.Count);
+        WorldPacket.WriteInt32(UnlockedConditionalAppearances.Count);
+        WorldPacket.WriteInt32(RaceLimitDisables.Count);
 
         if (DisabledClassesMask.HasValue)
-            _worldPacket.WriteUInt32(DisabledClassesMask.Value);
+            WorldPacket.WriteUInt32(DisabledClassesMask.Value);
 
         foreach (var unlockedConditionalAppearance in UnlockedConditionalAppearances)
-            unlockedConditionalAppearance.Write(_worldPacket);
+            unlockedConditionalAppearance.Write(WorldPacket);
 
         foreach (var raceLimitDisableInfo in RaceLimitDisables)
-            raceLimitDisableInfo.Write(_worldPacket);
+            raceLimitDisableInfo.Write(WorldPacket);
 
         foreach (var charInfo in Characters)
-            charInfo.Write(_worldPacket);
+            charInfo.Write(WorldPacket);
 
         foreach (var raceUnlock in RaceUnlockData)
-            raceUnlock.Write(_worldPacket);
+            raceUnlock.Write(WorldPacket);
     }
 
     public struct RaceLimitDisableInfo

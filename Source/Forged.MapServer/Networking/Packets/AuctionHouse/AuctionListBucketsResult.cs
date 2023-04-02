@@ -18,15 +18,15 @@ public class AuctionListBucketsResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Buckets.Count);
-        _worldPacket.WriteUInt32(DesiredDelay);
-        _worldPacket.WriteInt32(Unknown830_0);
-        _worldPacket.WriteInt32(Unknown830_1);
-        _worldPacket.WriteBits((int)BrowseMode, 1);
-        _worldPacket.WriteBit(HasMoreResults);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(Buckets.Count);
+        WorldPacket.WriteUInt32(DesiredDelay);
+        WorldPacket.WriteInt32(Unknown830_0);
+        WorldPacket.WriteInt32(Unknown830_1);
+        WorldPacket.WriteBits((int)BrowseMode, 1);
+        WorldPacket.WriteBit(HasMoreResults);
+        WorldPacket.FlushBits();
 
         foreach (var bucketInfo in Buckets)
-            bucketInfo.Write(_worldPacket);
+            bucketInfo.Write(WorldPacket);
     }
 }

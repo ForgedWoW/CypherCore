@@ -14,10 +14,10 @@ public class PurchaseListResponse : ServerPacket
     public uint Result { get; set; } = 0;
     public override void Write()
     {
-        _worldPacket.Write(Result);
-        _worldPacket.WriteUInt32((uint)Purchase.Count);
+        WorldPacket.Write(Result);
+        WorldPacket.WriteUInt32((uint)Purchase.Count);
 
         foreach (var purchaseData in Purchase)
-            purchaseData.Write(_worldPacket);
+            purchaseData.Write(WorldPacket);
     }
 }

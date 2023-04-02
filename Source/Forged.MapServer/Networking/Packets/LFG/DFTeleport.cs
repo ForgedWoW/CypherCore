@@ -10,6 +10,6 @@ internal class DFTeleport : ClientPacket
 
     public override void Read()
     {
-        TeleportOut = _worldPacket.HasBit();
+        TeleportOut = WorldPacket.HasBit();
     }
 }

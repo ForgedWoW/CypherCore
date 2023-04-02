@@ -19,13 +19,13 @@ public class PowerUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Guid);
-        _worldPacket.WriteInt32(Powers.Count);
+        WorldPacket.WritePackedGuid(Guid);
+        WorldPacket.WriteInt32(Powers.Count);
 
         foreach (var power in Powers)
         {
-            _worldPacket.WriteInt32(power.Power);
-            _worldPacket.WriteUInt8(power.PowerType);
+            WorldPacket.WriteInt32(power.Power);
+            WorldPacket.WriteUInt8(power.PowerType);
         }
     }
 }

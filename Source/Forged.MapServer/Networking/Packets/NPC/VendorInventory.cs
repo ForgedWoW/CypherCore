@@ -16,11 +16,11 @@ public class VendorInventory : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Vendor);
-        _worldPacket.WriteUInt8(Reason);
-        _worldPacket.WriteInt32(Items.Count);
+        WorldPacket.WritePackedGuid(Vendor);
+        WorldPacket.WriteUInt8(Reason);
+        WorldPacket.WriteInt32(Items.Count);
 
         foreach (var item in Items)
-            item.Write(_worldPacket);
+            item.Write(WorldPacket);
     }
 }

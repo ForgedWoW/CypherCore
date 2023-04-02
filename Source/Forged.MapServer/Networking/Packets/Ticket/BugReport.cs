@@ -12,10 +12,10 @@ internal class BugReport : ClientPacket
 
     public override void Read()
     {
-        Type = _worldPacket.ReadBit();
-        var diagLen = _worldPacket.ReadBits<uint>(12);
-        var textLen = _worldPacket.ReadBits<uint>(10);
-        DiagInfo = _worldPacket.ReadString(diagLen);
-        Text = _worldPacket.ReadString(textLen);
+        Type = WorldPacket.ReadBit();
+        var diagLen = WorldPacket.ReadBits<uint>(12);
+        var textLen = WorldPacket.ReadBits<uint>(10);
+        DiagInfo = WorldPacket.ReadString(diagLen);
+        Text = WorldPacket.ReadString(textLen);
     }
 }

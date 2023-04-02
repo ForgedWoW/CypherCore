@@ -18,13 +18,13 @@ internal class SpellEnergizeLog : CombatLogServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(TargetGUID);
-        _worldPacket.WritePackedGuid(CasterGUID);
+        WorldPacket.WritePackedGuid(TargetGUID);
+        WorldPacket.WritePackedGuid(CasterGUID);
 
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteUInt32((uint)Type);
-        _worldPacket.WriteInt32(Amount);
-        _worldPacket.WriteInt32(OverEnergize);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteUInt32((uint)Type);
+        WorldPacket.WriteInt32(Amount);
+        WorldPacket.WriteInt32(OverEnergize);
 
         WriteLogDataBit();
         FlushBits();

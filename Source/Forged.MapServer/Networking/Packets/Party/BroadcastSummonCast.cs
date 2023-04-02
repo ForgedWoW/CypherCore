@@ -14,6 +14,6 @@ internal class BroadcastSummonCast : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Target);
+        WorldPacket.WritePackedGuid(Target);
     }
 }

@@ -26,29 +26,29 @@ public class LootResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Owner);
-        _worldPacket.WritePackedGuid(LootObj);
-        _worldPacket.WriteUInt8((byte)FailureReason);
-        _worldPacket.WriteUInt8(AcquireReason);
-        _worldPacket.WriteUInt8((byte)LootMethod);
-        _worldPacket.WriteUInt8(Threshold);
-        _worldPacket.WriteUInt32(Coins);
-        _worldPacket.WriteInt32(Items.Count);
-        _worldPacket.WriteInt32(Currencies.Count);
-        _worldPacket.WriteBit(Acquired);
-        _worldPacket.WriteBit(AELooting);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Owner);
+        WorldPacket.WritePackedGuid(LootObj);
+        WorldPacket.WriteUInt8((byte)FailureReason);
+        WorldPacket.WriteUInt8(AcquireReason);
+        WorldPacket.WriteUInt8((byte)LootMethod);
+        WorldPacket.WriteUInt8(Threshold);
+        WorldPacket.WriteUInt32(Coins);
+        WorldPacket.WriteInt32(Items.Count);
+        WorldPacket.WriteInt32(Currencies.Count);
+        WorldPacket.WriteBit(Acquired);
+        WorldPacket.WriteBit(AELooting);
+        WorldPacket.FlushBits();
 
         foreach (var item in Items)
-            item.Write(_worldPacket);
+            item.Write(WorldPacket);
 
         foreach (var currency in Currencies)
         {
-            _worldPacket.WriteUInt32(currency.CurrencyID);
-            _worldPacket.WriteUInt32(currency.Quantity);
-            _worldPacket.WriteUInt8(currency.LootListID);
-            _worldPacket.WriteBits(currency.UIType, 3);
-            _worldPacket.FlushBits();
+            WorldPacket.WriteUInt32(currency.CurrencyID);
+            WorldPacket.WriteUInt32(currency.Quantity);
+            WorldPacket.WriteUInt8(currency.LootListID);
+            WorldPacket.WriteBits(currency.UIType, 3);
+            WorldPacket.FlushBits();
         }
     }
 }

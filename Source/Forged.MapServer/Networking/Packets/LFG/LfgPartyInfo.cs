@@ -13,9 +13,9 @@ internal class LfgPartyInfo : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Player.Count);
+        WorldPacket.WriteInt32(Player.Count);
 
         foreach (var blackList in Player)
-            blackList.Write(_worldPacket);
+            blackList.Write(WorldPacket);
     }
 }

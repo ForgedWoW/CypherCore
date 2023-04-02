@@ -16,8 +16,8 @@ public class UndeleteCooldownStatusResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(OnCooldown);
-        _worldPacket.WriteUInt32(MaxCooldown);
-        _worldPacket.WriteUInt32(CurrentCooldown);
+        WorldPacket.WriteBit(OnCooldown);
+        WorldPacket.WriteUInt32(MaxCooldown);
+        WorldPacket.WriteUInt32(CurrentCooldown);
     }
 }

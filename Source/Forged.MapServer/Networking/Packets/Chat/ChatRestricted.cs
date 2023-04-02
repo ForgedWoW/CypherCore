@@ -16,6 +16,6 @@ internal class ChatRestricted : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8((byte)Reason);
+        WorldPacket.WriteUInt8((byte)Reason);
     }
 }

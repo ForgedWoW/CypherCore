@@ -14,10 +14,10 @@ public class RecruitAFriendFailure : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32((int)Reason);
+        WorldPacket.WriteInt32((int)Reason);
         // Client uses this string only if Reason == ERR_REFER_A_FRIEND_NOT_IN_GROUP || Reason == ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S
         // but always reads it from packet
-        _worldPacket.WriteBits(Str.GetByteCount(), 6);
-        _worldPacket.WriteString(Str);
+        WorldPacket.WriteBits(Str.GetByteCount(), 6);
+        WorldPacket.WriteString(Str);
     }
 }

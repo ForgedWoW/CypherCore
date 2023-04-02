@@ -17,17 +17,17 @@ internal class ProcResist : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Caster);
-        _worldPacket.WritePackedGuid(Target);
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteBit(Rolled.HasValue);
-        _worldPacket.WriteBit(Needed.HasValue);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Caster);
+        WorldPacket.WritePackedGuid(Target);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteBit(Rolled.HasValue);
+        WorldPacket.WriteBit(Needed.HasValue);
+        WorldPacket.FlushBits();
 
         if (Rolled.HasValue)
-            _worldPacket.WriteFloat(Rolled.Value);
+            WorldPacket.WriteFloat(Rolled.Value);
 
         if (Needed.HasValue)
-            _worldPacket.WriteFloat(Needed.Value);
+            WorldPacket.WriteFloat(Needed.Value);
     }
 }

@@ -12,6 +12,6 @@ public class RideVehicleInteract : ClientPacket
 
     public override void Read()
     {
-        Vehicle = _worldPacket.ReadPackedGuid();
+        Vehicle = WorldPacket.ReadPackedGuid();
     }
 }

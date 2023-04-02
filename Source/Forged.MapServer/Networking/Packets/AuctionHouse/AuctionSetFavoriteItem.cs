@@ -11,7 +11,7 @@ internal class AuctionSetFavoriteItem : ClientPacket
 
     public override void Read()
     {
-        IsNotFavorite = _worldPacket.HasBit();
-        Item = new AuctionFavoriteInfo(_worldPacket);
+        IsNotFavorite = WorldPacket.HasBit();
+        Item = new AuctionFavoriteInfo(WorldPacket);
     }
 }

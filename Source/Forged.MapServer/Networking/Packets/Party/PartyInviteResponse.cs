@@ -12,13 +12,13 @@ internal class PartyInviteResponse : ClientPacket
 
     public override void Read()
     {
-        PartyIndex = _worldPacket.ReadUInt8();
+        PartyIndex = WorldPacket.ReadUInt8();
 
-        Accept = _worldPacket.HasBit();
+        Accept = WorldPacket.HasBit();
 
-        var hasRolesDesired = _worldPacket.HasBit();
+        var hasRolesDesired = WorldPacket.HasBit();
 
         if (hasRolesDesired)
-            RolesDesired = _worldPacket.ReadUInt32();
+            RolesDesired = WorldPacket.ReadUInt32();
     }
 }

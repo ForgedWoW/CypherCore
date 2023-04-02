@@ -15,14 +15,14 @@ public class GuildBankUpdateTab : ClientPacket
 
     public override void Read()
     {
-        Banker = _worldPacket.ReadPackedGuid();
-        BankTab = _worldPacket.ReadUInt8();
+        Banker = WorldPacket.ReadPackedGuid();
+        BankTab = WorldPacket.ReadUInt8();
 
-        _worldPacket.ResetBitPos();
-        var nameLen = _worldPacket.ReadBits<uint>(7);
-        var iconLen = _worldPacket.ReadBits<uint>(9);
+        WorldPacket.ResetBitPos();
+        var nameLen = WorldPacket.ReadBits<uint>(7);
+        var iconLen = WorldPacket.ReadBits<uint>(9);
 
-        Name = _worldPacket.ReadString(nameLen);
-        Icon = _worldPacket.ReadString(iconLen);
+        Name = WorldPacket.ReadString(nameLen);
+        Icon = WorldPacket.ReadString(iconLen);
     }
 }

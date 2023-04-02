@@ -13,6 +13,6 @@ public class UpgradeStarted : ServerPacket
     public ObjectGuid CharacterGUID { get; set; } = new();
     public override void Write()
     {
-        _worldPacket.Write(CharacterGUID);
+        WorldPacket.Write(CharacterGUID);
     }
 }

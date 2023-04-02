@@ -15,8 +15,8 @@ public class MoveSetSpeed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(MoverGUID);
-        _worldPacket.WriteUInt32(SequenceIndex);
-        _worldPacket.WriteFloat(Speed);
+        WorldPacket.WritePackedGuid(MoverGUID);
+        WorldPacket.WriteUInt32(SequenceIndex);
+        WorldPacket.WriteFloat(Speed);
     }
 }

@@ -13,7 +13,7 @@ internal class MoveTimeSkipped : ClientPacket
 
     public override void Read()
     {
-        MoverGUID = _worldPacket.ReadPackedGuid();
-        TimeSkipped = _worldPacket.ReadUInt32();
+        MoverGUID = WorldPacket.ReadPackedGuid();
+        TimeSkipped = WorldPacket.ReadUInt32();
     }
 }

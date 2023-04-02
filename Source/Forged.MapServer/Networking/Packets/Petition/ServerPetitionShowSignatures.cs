@@ -22,17 +22,17 @@ public class ServerPetitionShowSignatures : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Item);
-        _worldPacket.WritePackedGuid(Owner);
-        _worldPacket.WritePackedGuid(OwnerAccountID);
-        _worldPacket.WriteInt32(PetitionID);
+        WorldPacket.WritePackedGuid(Item);
+        WorldPacket.WritePackedGuid(Owner);
+        WorldPacket.WritePackedGuid(OwnerAccountID);
+        WorldPacket.WriteInt32(PetitionID);
 
-        _worldPacket.WriteInt32(Signatures.Count);
+        WorldPacket.WriteInt32(Signatures.Count);
 
         foreach (var signature in Signatures)
         {
-            _worldPacket.WritePackedGuid(signature.Signer);
-            _worldPacket.WriteInt32(signature.Choice);
+            WorldPacket.WritePackedGuid(signature.Signer);
+            WorldPacket.WriteInt32(signature.Choice);
         }
     }
 

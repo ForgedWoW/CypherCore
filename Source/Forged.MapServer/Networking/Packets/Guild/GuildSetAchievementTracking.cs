@@ -12,9 +12,9 @@ internal class GuildSetAchievementTracking : ClientPacket
 
     public override void Read()
     {
-        var count = _worldPacket.ReadUInt32();
+        var count = WorldPacket.ReadUInt32();
 
         for (uint i = 0; i < count; ++i)
-            AchievementIDs.Add(_worldPacket.ReadUInt32());
+            AchievementIDs.Add(WorldPacket.ReadUInt32());
     }
 }

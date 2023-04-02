@@ -17,10 +17,10 @@ public class BroadcastAchievement : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Name.GetByteCount(), 7);
-        _worldPacket.WriteBit(GuildAchievement);
-        _worldPacket.WritePackedGuid(PlayerGUID);
-        _worldPacket.WriteUInt32(AchievementID);
-        _worldPacket.WriteString(Name);
+        WorldPacket.WriteBits(Name.GetByteCount(), 7);
+        WorldPacket.WriteBit(GuildAchievement);
+        WorldPacket.WritePackedGuid(PlayerGUID);
+        WorldPacket.WriteUInt32(AchievementID);
+        WorldPacket.WriteString(Name);
     }
 }

@@ -10,6 +10,6 @@ public class SetDungeonDifficulty : ClientPacket
 
     public override void Read()
     {
-        DifficultyID = _worldPacket.ReadUInt32();
+        DifficultyID = WorldPacket.ReadUInt32();
     }
 }

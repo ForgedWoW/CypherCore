@@ -240,7 +240,7 @@ public class PlayerMenu
         quest.BuildQuestRewards(offer.Rewards, _session.Player);
         offer.QuestGiverGUID = npcGUID;
 
-        // Is there a better way? what about game objects?
+        // Is there a better way? what about GameInfo objects?
         var creature = ObjectAccessor.GetCreature(_session.Player, npcGUID);
 
         if (creature)
@@ -327,7 +327,7 @@ public class PlayerMenu
         packet.QuestFlags[2] = (uint)quest.FlagsEx2;
         packet.SuggestedPartyMembers = quest.SuggestedPlayers;
 
-        // Is there a better way? what about game objects?
+        // Is there a better way? what about GameInfo objects?
         var creature = ObjectAccessor.GetCreature(_session.Player, npcGUID);
 
         if (creature != null)
@@ -473,7 +473,7 @@ public class PlayerMenu
 
         packet.QuestGiverGUID = npcGUID;
 
-        // Is there a better way? what about game objects?
+        // Is there a better way? what about GameInfo objects?
         var creature = ObjectAccessor.GetCreature(_session.Player, npcGUID);
 
         if (creature)

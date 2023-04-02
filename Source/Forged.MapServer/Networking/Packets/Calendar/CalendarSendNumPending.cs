@@ -16,6 +16,6 @@ internal class CalendarSendNumPending : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(NumPending);
+        WorldPacket.WriteUInt32(NumPending);
     }
 }

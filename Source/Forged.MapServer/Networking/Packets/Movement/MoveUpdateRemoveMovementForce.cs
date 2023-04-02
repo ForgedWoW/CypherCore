@@ -14,7 +14,7 @@ internal class MoveUpdateRemoveMovementForce : ServerPacket
 
     public override void Write()
     {
-        MovementExtensions.WriteMovementInfo(_worldPacket, Status);
-        _worldPacket.WritePackedGuid(TriggerGUID);
+        MovementExtensions.WriteMovementInfo(WorldPacket, Status);
+        WorldPacket.WritePackedGuid(TriggerGUID);
     }
 }

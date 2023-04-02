@@ -11,6 +11,6 @@ public class SetTitle : ClientPacket
 
     public override void Read()
     {
-        TitleID = _worldPacket.ReadInt32();
+        TitleID = WorldPacket.ReadInt32();
     }
 }

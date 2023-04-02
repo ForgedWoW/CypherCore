@@ -14,7 +14,7 @@ public class RequestAccountData : ClientPacket
 
     public override void Read()
     {
-        PlayerGuid = _worldPacket.ReadPackedGuid();
-        DataType = (AccountDataTypes)_worldPacket.ReadBits<uint>(4);
+        PlayerGuid = WorldPacket.ReadPackedGuid();
+        DataType = (AccountDataTypes)WorldPacket.ReadBits<uint>(4);
     }
 }

@@ -13,6 +13,6 @@ public class ThreatClear : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(UnitGUID);
+        WorldPacket.WritePackedGuid(UnitGUID);
     }
 }

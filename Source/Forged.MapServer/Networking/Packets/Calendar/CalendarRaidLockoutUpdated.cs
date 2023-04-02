@@ -16,10 +16,10 @@ internal class CalendarRaidLockoutUpdated : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedTime(ServerTime);
-        _worldPacket.WriteInt32(MapID);
-        _worldPacket.WriteUInt32(DifficultyID);
-        _worldPacket.WriteInt32(OldTimeRemaining);
-        _worldPacket.WriteInt32(NewTimeRemaining);
+        WorldPacket.WritePackedTime(ServerTime);
+        WorldPacket.WriteInt32(MapID);
+        WorldPacket.WriteUInt32(DifficultyID);
+        WorldPacket.WriteInt32(OldTimeRemaining);
+        WorldPacket.WriteInt32(NewTimeRemaining);
     }
 }

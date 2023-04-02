@@ -20,14 +20,14 @@ internal class GossipPOI : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(Id);
-        _worldPacket.WriteVector3(Pos);
-        _worldPacket.WriteUInt32(Icon);
-        _worldPacket.WriteUInt32(Importance);
-        _worldPacket.WriteUInt32(WMOGroupID);
-        _worldPacket.WriteBits(Flags, 14);
-        _worldPacket.WriteBits(Name.GetByteCount(), 6);
-        _worldPacket.FlushBits();
-        _worldPacket.WriteString(Name);
+        WorldPacket.WriteUInt32(Id);
+        WorldPacket.WriteVector3(Pos);
+        WorldPacket.WriteUInt32(Icon);
+        WorldPacket.WriteUInt32(Importance);
+        WorldPacket.WriteUInt32(WMOGroupID);
+        WorldPacket.WriteBits(Flags, 14);
+        WorldPacket.WriteBits(Name.GetByteCount(), 6);
+        WorldPacket.FlushBits();
+        WorldPacket.WriteString(Name);
     }
 }

@@ -1571,7 +1571,7 @@ public class Pet : Guardian
                 else
                     LearnSpell(pair.Value); // will unlearn prev rank if any
 
-        // default spells (can be not learned if pet level (as owner level decrease result for example) less first possible in normal game)
+        // default spells (can be not learned if pet level (as owner level decrease result for example) less first possible in normal GameInfo)
         var defSpells = Global.SpellMgr.GetPetDefaultSpellsEntry((int)Entry);
 
         if (defSpells != null)

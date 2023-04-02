@@ -12,6 +12,6 @@ internal class TitleEarned : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(Index);
+        WorldPacket.WriteUInt32(Index);
     }
 }

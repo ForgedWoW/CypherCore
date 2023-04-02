@@ -13,7 +13,7 @@ public class QueryQuestInfo : ClientPacket
 
     public override void Read()
     {
-        QuestID = _worldPacket.ReadUInt32();
-        QuestGiver = _worldPacket.ReadPackedGuid();
+        QuestID = WorldPacket.ReadUInt32();
+        QuestGiver = WorldPacket.ReadPackedGuid();
     }
 }

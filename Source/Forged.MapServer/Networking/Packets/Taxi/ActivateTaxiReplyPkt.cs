@@ -12,7 +12,7 @@ internal class ActivateTaxiReplyPkt : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Reply, 4);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(Reply, 4);
+        WorldPacket.FlushBits();
     }
 }

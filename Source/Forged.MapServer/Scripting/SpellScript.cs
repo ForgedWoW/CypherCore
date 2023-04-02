@@ -203,7 +203,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
     // methods useable after spell is prepared
     // accessors to the explicit targets of the spell
-    // explicit Target - Target selected by caster (player, game client, or script - DoCast(explicitTarget, ...), required for spell to be cast
+    // explicit Target - Target selected by caster (player, GameInfo client, or script - DoCast(explicitTarget, ...), required for spell to be cast
     // examples:
     // -shadowstep - explicit Target is the unit you want to go behind of
     // -chain heal - explicit Target is the unit to be healed first

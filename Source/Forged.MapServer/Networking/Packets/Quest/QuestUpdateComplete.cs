@@ -12,6 +12,6 @@ internal class QuestUpdateComplete : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(QuestID);
+        WorldPacket.WriteUInt32(QuestID);
     }
 }

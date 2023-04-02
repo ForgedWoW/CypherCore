@@ -14,8 +14,8 @@ public class SetAnimTier : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Unit);
-        _worldPacket.WriteBits(Tier, 3);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Unit);
+        WorldPacket.WriteBits(Tier, 3);
+        WorldPacket.FlushBits();
     }
 }

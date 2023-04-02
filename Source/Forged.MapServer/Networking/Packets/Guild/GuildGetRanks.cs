@@ -12,6 +12,6 @@ public class GuildGetRanks : ClientPacket
 
     public override void Read()
     {
-        GuildGUID = _worldPacket.ReadPackedGuid();
+        GuildGUID = WorldPacket.ReadPackedGuid();
     }
 }

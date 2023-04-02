@@ -14,7 +14,7 @@ public class CreateChar : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8((byte)Code);
-        _worldPacket.WritePackedGuid(Guid);
+        WorldPacket.WriteUInt8((byte)Code);
+        WorldPacket.WritePackedGuid(Guid);
     }
 }

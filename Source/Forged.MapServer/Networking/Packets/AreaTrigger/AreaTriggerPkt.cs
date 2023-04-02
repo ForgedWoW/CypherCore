@@ -12,9 +12,9 @@ internal class AreaTriggerPkt : ClientPacket
 
     public override void Read()
     {
-        AreaTriggerID = _worldPacket.ReadUInt32();
-        Entered = _worldPacket.HasBit();
-        FromClient = _worldPacket.HasBit();
+        AreaTriggerID = WorldPacket.ReadUInt32();
+        Entered = WorldPacket.HasBit();
+        FromClient = WorldPacket.HasBit();
     }
 }
 

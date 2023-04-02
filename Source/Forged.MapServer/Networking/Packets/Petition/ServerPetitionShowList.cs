@@ -14,7 +14,7 @@ public class ServerPetitionShowList : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Unit);
-        _worldPacket.WriteUInt32(Price);
+        WorldPacket.WritePackedGuid(Unit);
+        WorldPacket.WriteUInt32(Price);
     }
 }

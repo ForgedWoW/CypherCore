@@ -14,10 +14,10 @@ public class ChatMessageWhisper : ClientPacket
 
     public override void Read()
     {
-        Language = (Language)_worldPacket.ReadInt32();
-        var targetLen = _worldPacket.ReadBits<uint>(9);
-        var textLen = _worldPacket.ReadBits<uint>(11);
-        Target = _worldPacket.ReadString(targetLen);
-        Text = _worldPacket.ReadString(textLen);
+        Language = (Language)WorldPacket.ReadInt32();
+        var targetLen = WorldPacket.ReadBits<uint>(9);
+        var textLen = WorldPacket.ReadBits<uint>(11);
+        Target = WorldPacket.ReadString(targetLen);
+        Text = WorldPacket.ReadString(textLen);
     }
 }

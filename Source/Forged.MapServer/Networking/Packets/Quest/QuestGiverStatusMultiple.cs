@@ -13,12 +13,12 @@ public class QuestGiverStatusMultiple : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(QuestGiver.Count);
+        WorldPacket.WriteInt32(QuestGiver.Count);
 
         foreach (var questGiver in QuestGiver)
         {
-            _worldPacket.WritePackedGuid(questGiver.Guid);
-            _worldPacket.WriteUInt32((uint)questGiver.Status);
+            WorldPacket.WritePackedGuid(questGiver.Guid);
+            WorldPacket.WriteUInt32((uint)questGiver.Status);
         }
     }
 }

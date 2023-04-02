@@ -12,6 +12,6 @@ public class ClientPlayerMovement : ClientPacket
 
     public override void Read()
     {
-        Status = MovementExtensions.ReadMovementInfo(_worldPacket);
+        Status = MovementExtensions.ReadMovementInfo(WorldPacket);
     }
 }

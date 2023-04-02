@@ -118,8 +118,8 @@ public class MonsterMove : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(MoverGUID);
-        _worldPacket.WriteVector3(Pos);
-        SplineData.Write(_worldPacket);
+        WorldPacket.WritePackedGuid(MoverGUID);
+        WorldPacket.WriteVector3(Pos);
+        SplineData.Write(WorldPacket);
     }
 }

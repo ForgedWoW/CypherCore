@@ -24,38 +24,38 @@ public class PetSpells : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(PetGUID);
-        _worldPacket.WriteUInt16(CreatureFamily);
-        _worldPacket.WriteUInt16(Specialization);
-        _worldPacket.WriteUInt32(TimeLimit);
-        _worldPacket.WriteUInt16((ushort)((byte)CommandState | (Flag << 16)));
-        _worldPacket.WriteUInt8((byte)ReactState);
+        WorldPacket.WritePackedGuid(PetGUID);
+        WorldPacket.WriteUInt16(CreatureFamily);
+        WorldPacket.WriteUInt16(Specialization);
+        WorldPacket.WriteUInt32(TimeLimit);
+        WorldPacket.WriteUInt16((ushort)((byte)CommandState | (Flag << 16)));
+        WorldPacket.WriteUInt8((byte)ReactState);
 
         foreach (var actionButton in ActionButtons)
-            _worldPacket.WriteUInt32(actionButton);
+            WorldPacket.WriteUInt32(actionButton);
 
-        _worldPacket.WriteInt32(Actions.Count);
-        _worldPacket.WriteInt32(Cooldowns.Count);
-        _worldPacket.WriteInt32(SpellHistory.Count);
+        WorldPacket.WriteInt32(Actions.Count);
+        WorldPacket.WriteInt32(Cooldowns.Count);
+        WorldPacket.WriteInt32(SpellHistory.Count);
 
         foreach (var action in Actions)
-            _worldPacket.WriteUInt32(action);
+            WorldPacket.WriteUInt32(action);
 
         foreach (var cooldown in Cooldowns)
         {
-            _worldPacket.WriteUInt32(cooldown.SpellID);
-            _worldPacket.WriteUInt32(cooldown.Duration);
-            _worldPacket.WriteUInt32(cooldown.CategoryDuration);
-            _worldPacket.WriteFloat(cooldown.ModRate);
-            _worldPacket.WriteUInt16(cooldown.Category);
+            WorldPacket.WriteUInt32(cooldown.SpellID);
+            WorldPacket.WriteUInt32(cooldown.Duration);
+            WorldPacket.WriteUInt32(cooldown.CategoryDuration);
+            WorldPacket.WriteFloat(cooldown.ModRate);
+            WorldPacket.WriteUInt16(cooldown.Category);
         }
 
         foreach (var history in SpellHistory)
         {
-            _worldPacket.WriteUInt32(history.CategoryID);
-            _worldPacket.WriteUInt32(history.RecoveryTime);
-            _worldPacket.WriteFloat(history.ChargeModRate);
-            _worldPacket.WriteInt8(history.ConsumedCharges);
+            WorldPacket.WriteUInt32(history.CategoryID);
+            WorldPacket.WriteUInt32(history.RecoveryTime);
+            WorldPacket.WriteFloat(history.ChargeModRate);
+            WorldPacket.WriteInt8(history.ConsumedCharges);
         }
     }
 }

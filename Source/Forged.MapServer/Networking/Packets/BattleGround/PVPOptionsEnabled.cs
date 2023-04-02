@@ -17,12 +17,12 @@ internal class PVPOptionsEnabled : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(RatedBattlegrounds);
-        _worldPacket.WriteBit(PugBattlegrounds);
-        _worldPacket.WriteBit(WargameBattlegrounds);
-        _worldPacket.WriteBit(WargameArenas);
-        _worldPacket.WriteBit(RatedArenas);
-        _worldPacket.WriteBit(ArenaSkirmish);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(RatedBattlegrounds);
+        WorldPacket.WriteBit(PugBattlegrounds);
+        WorldPacket.WriteBit(WargameBattlegrounds);
+        WorldPacket.WriteBit(WargameArenas);
+        WorldPacket.WriteBit(RatedArenas);
+        WorldPacket.WriteBit(ArenaSkirmish);
+        WorldPacket.FlushBits();
     }
 }

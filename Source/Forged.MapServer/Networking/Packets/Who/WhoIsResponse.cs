@@ -13,7 +13,7 @@ public class WhoIsResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(AccountName.GetByteCount(), 11);
-        _worldPacket.WriteString(AccountName);
+        WorldPacket.WriteBits(AccountName.GetByteCount(), 11);
+        WorldPacket.WriteString(AccountName);
     }
 }

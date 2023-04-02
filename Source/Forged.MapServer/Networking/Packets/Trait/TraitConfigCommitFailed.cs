@@ -19,9 +19,9 @@ internal class TraitConfigCommitFailed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(ConfigID);
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteBits(Reason, 4);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32(ConfigID);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteBits(Reason, 4);
+        WorldPacket.FlushBits();
     }
 }

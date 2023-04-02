@@ -12,10 +12,10 @@ public class QueryPlayerNames : ClientPacket
 
     public override void Read()
     {
-        Players = new ObjectGuid[_worldPacket.ReadInt32()];
+        Players = new ObjectGuid[WorldPacket.ReadInt32()];
 
         for (var i = 0; i < Players.Length; ++i)
-            Players[i] = _worldPacket.ReadPackedGuid();
+            Players[i] = WorldPacket.ReadPackedGuid();
     }
 }
 

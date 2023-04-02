@@ -15,14 +15,14 @@ internal class GetGarrisonInfoResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(FactionIndex);
-        _worldPacket.WriteInt32(Garrisons.Count);
-        _worldPacket.WriteInt32(FollowerSoftCaps.Count);
+        WorldPacket.WriteUInt32(FactionIndex);
+        WorldPacket.WriteInt32(Garrisons.Count);
+        WorldPacket.WriteInt32(FollowerSoftCaps.Count);
 
         foreach (var followerSoftCapInfo in FollowerSoftCaps)
-            followerSoftCapInfo.Write(_worldPacket);
+            followerSoftCapInfo.Write(WorldPacket);
 
         foreach (var garrison in Garrisons)
-            garrison.Write(_worldPacket);
+            garrison.Write(WorldPacket);
     }
 }

@@ -13,7 +13,7 @@ internal class MoveRemoveMovementForceAck : ClientPacket
 
     public override void Read()
     {
-        Ack.Read(_worldPacket);
-        ID = _worldPacket.ReadPackedGuid();
+        Ack.Read(WorldPacket);
+        ID = WorldPacket.ReadPackedGuid();
     }
 }

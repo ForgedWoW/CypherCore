@@ -10,7 +10,7 @@ public class GuildUpdateMotdText : ClientPacket
 
     public override void Read()
     {
-        var textLen = _worldPacket.ReadBits<uint>(11);
-        MotdText = _worldPacket.ReadString(textLen);
+        var textLen = WorldPacket.ReadBits<uint>(11);
+        MotdText = WorldPacket.ReadString(textLen);
     }
 }

@@ -23,41 +23,41 @@ public class GuildBankQueryResults : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt64(Money);
-        _worldPacket.WriteInt32(Tab);
-        _worldPacket.WriteInt32(WithdrawalsRemaining);
-        _worldPacket.WriteInt32(TabInfo.Count);
-        _worldPacket.WriteInt32(ItemInfo.Count);
-        _worldPacket.WriteBit(FullUpdate);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt64(Money);
+        WorldPacket.WriteInt32(Tab);
+        WorldPacket.WriteInt32(WithdrawalsRemaining);
+        WorldPacket.WriteInt32(TabInfo.Count);
+        WorldPacket.WriteInt32(ItemInfo.Count);
+        WorldPacket.WriteBit(FullUpdate);
+        WorldPacket.FlushBits();
 
         foreach (var tab in TabInfo)
         {
-            _worldPacket.WriteInt32(tab.TabIndex);
-            _worldPacket.WriteBits(tab.Name.GetByteCount(), 7);
-            _worldPacket.WriteBits(tab.Icon.GetByteCount(), 9);
+            WorldPacket.WriteInt32(tab.TabIndex);
+            WorldPacket.WriteBits(tab.Name.GetByteCount(), 7);
+            WorldPacket.WriteBits(tab.Icon.GetByteCount(), 9);
 
-            _worldPacket.WriteString(tab.Name);
-            _worldPacket.WriteString(tab.Icon);
+            WorldPacket.WriteString(tab.Name);
+            WorldPacket.WriteString(tab.Icon);
         }
 
         foreach (var item in ItemInfo)
         {
-            _worldPacket.WriteInt32(item.Slot);
-            _worldPacket.WriteInt32(item.Count);
-            _worldPacket.WriteInt32(item.EnchantmentID);
-            _worldPacket.WriteInt32(item.Charges);
-            _worldPacket.WriteInt32(item.OnUseEnchantmentID);
-            _worldPacket.WriteUInt32(item.Flags);
+            WorldPacket.WriteInt32(item.Slot);
+            WorldPacket.WriteInt32(item.Count);
+            WorldPacket.WriteInt32(item.EnchantmentID);
+            WorldPacket.WriteInt32(item.Charges);
+            WorldPacket.WriteInt32(item.OnUseEnchantmentID);
+            WorldPacket.WriteUInt32(item.Flags);
 
-            item.Item.Write(_worldPacket);
+            item.Item.Write(WorldPacket);
 
-            _worldPacket.WriteBits(item.SocketEnchant.Count, 2);
-            _worldPacket.WriteBit(item.Locked);
-            _worldPacket.FlushBits();
+            WorldPacket.WriteBits(item.SocketEnchant.Count, 2);
+            WorldPacket.WriteBit(item.Locked);
+            WorldPacket.FlushBits();
 
             foreach (var socketEnchant in item.SocketEnchant)
-                socketEnchant.Write(_worldPacket);
+                socketEnchant.Write(WorldPacket);
         }
     }
 }

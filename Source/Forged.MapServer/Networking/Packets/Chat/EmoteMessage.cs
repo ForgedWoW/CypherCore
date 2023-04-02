@@ -17,12 +17,12 @@ public class EmoteMessage : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Guid);
-        _worldPacket.WriteUInt32(EmoteID);
-        _worldPacket.WriteInt32(SpellVisualKitIDs.Count);
-        _worldPacket.WriteInt32(SequenceVariation);
+        WorldPacket.WritePackedGuid(Guid);
+        WorldPacket.WriteUInt32(EmoteID);
+        WorldPacket.WriteInt32(SpellVisualKitIDs.Count);
+        WorldPacket.WriteInt32(SequenceVariation);
 
         foreach (var id in SpellVisualKitIDs)
-            _worldPacket.WriteUInt32(id);
+            WorldPacket.WriteUInt32(id);
     }
 }

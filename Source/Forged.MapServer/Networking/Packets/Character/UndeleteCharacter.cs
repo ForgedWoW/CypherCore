@@ -11,7 +11,7 @@ public class UndeleteCharacter : ClientPacket
     public override void Read()
     {
         UndeleteInfo = new CharacterUndeleteInfo();
-        _worldPacket.WriteInt32(UndeleteInfo.ClientToken);
-        _worldPacket.WritePackedGuid(UndeleteInfo.CharacterGuid);
+        WorldPacket.WriteInt32(UndeleteInfo.ClientToken);
+        WorldPacket.WritePackedGuid(UndeleteInfo.CharacterGuid);
     }
 }

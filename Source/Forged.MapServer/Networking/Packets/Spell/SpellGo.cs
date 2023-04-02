@@ -13,7 +13,7 @@ internal class SpellGo : CombatLogServerPacket
 
     public override void Write()
     {
-        Cast.Write(_worldPacket);
+        Cast.Write(WorldPacket);
 
         WriteLogDataBit();
         FlushBits();

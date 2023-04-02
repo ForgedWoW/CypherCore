@@ -13,7 +13,7 @@ internal class MoveSplineDone : ClientPacket
 
     public override void Read()
     {
-        Status = MovementExtensions.ReadMovementInfo(_worldPacket);
-        SplineID = _worldPacket.ReadInt32();
+        Status = MovementExtensions.ReadMovementInfo(WorldPacket);
+        SplineID = WorldPacket.ReadInt32();
     }
 }

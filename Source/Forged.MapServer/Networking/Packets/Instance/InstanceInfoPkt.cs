@@ -13,9 +13,9 @@ internal class InstanceInfoPkt : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(LockList.Count);
+        WorldPacket.WriteInt32(LockList.Count);
 
         foreach (var lockInfos in LockList)
-            lockInfos.Write(_worldPacket);
+            lockInfos.Write(WorldPacket);
     }
 }

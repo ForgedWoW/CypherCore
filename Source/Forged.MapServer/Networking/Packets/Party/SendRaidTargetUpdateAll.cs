@@ -15,14 +15,14 @@ internal class SendRaidTargetUpdateAll : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt8(PartyIndex);
+        WorldPacket.WriteInt8(PartyIndex);
 
-        _worldPacket.WriteInt32(TargetIcons.Count);
+        WorldPacket.WriteInt32(TargetIcons.Count);
 
         foreach (var pair in TargetIcons)
         {
-            _worldPacket.WritePackedGuid(pair.Value);
-            _worldPacket.WriteUInt8(pair.Key);
+            WorldPacket.WritePackedGuid(pair.Value);
+            WorldPacket.WriteUInt8(pair.Key);
         }
     }
 }

@@ -12,6 +12,6 @@ internal class PetAbandon : ClientPacket
 
     public override void Read()
     {
-        Pet = _worldPacket.ReadPackedGuid();
+        Pet = WorldPacket.ReadPackedGuid();
     }
 }

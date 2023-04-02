@@ -13,7 +13,7 @@ internal class InstanceEncounterGainCombatResurrectionCharge : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(InCombatResCount);
-        _worldPacket.WriteUInt32(CombatResChargeRecovery);
+        WorldPacket.WriteInt32(InCombatResCount);
+        WorldPacket.WriteUInt32(CombatResChargeRecovery);
     }
 }

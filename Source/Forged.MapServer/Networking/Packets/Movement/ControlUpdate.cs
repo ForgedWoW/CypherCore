@@ -14,8 +14,8 @@ public class ControlUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Guid);
-        _worldPacket.WriteBit(On);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Guid);
+        WorldPacket.WriteBit(On);
+        WorldPacket.FlushBits();
     }
 }

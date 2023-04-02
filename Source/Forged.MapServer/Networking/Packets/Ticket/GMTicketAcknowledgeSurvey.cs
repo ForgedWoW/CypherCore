@@ -10,6 +10,6 @@ public class GMTicketAcknowledgeSurvey : ClientPacket
 
     public override void Read()
     {
-        CaseID = _worldPacket.ReadInt32();
+        CaseID = WorldPacket.ReadInt32();
     }
 }

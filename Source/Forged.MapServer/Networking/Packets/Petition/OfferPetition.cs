@@ -13,7 +13,7 @@ public class OfferPetition : ClientPacket
 
     public override void Read()
     {
-        ItemGUID = _worldPacket.ReadPackedGuid();
-        TargetPlayer = _worldPacket.ReadPackedGuid();
+        ItemGUID = WorldPacket.ReadPackedGuid();
+        TargetPlayer = WorldPacket.ReadPackedGuid();
     }
 }

@@ -12,6 +12,6 @@ internal class MountResultPacket : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(Result);
+        WorldPacket.WriteUInt32(Result);
     }
 }

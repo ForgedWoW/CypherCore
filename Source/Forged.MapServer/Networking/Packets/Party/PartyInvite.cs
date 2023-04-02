@@ -50,26 +50,26 @@ internal class PartyInvite : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(CanAccept);
-        _worldPacket.WriteBit(MightCRZYou);
-        _worldPacket.WriteBit(IsXRealm);
-        _worldPacket.WriteBit(MustBeBNetFriend);
-        _worldPacket.WriteBit(AllowMultipleRoles);
-        _worldPacket.WriteBit(QuestSessionActive);
-        _worldPacket.WriteBits(InviterName.GetByteCount(), 6);
+        WorldPacket.WriteBit(CanAccept);
+        WorldPacket.WriteBit(MightCRZYou);
+        WorldPacket.WriteBit(IsXRealm);
+        WorldPacket.WriteBit(MustBeBNetFriend);
+        WorldPacket.WriteBit(AllowMultipleRoles);
+        WorldPacket.WriteBit(QuestSessionActive);
+        WorldPacket.WriteBits(InviterName.GetByteCount(), 6);
 
-        InviterRealm.Write(_worldPacket);
+        InviterRealm.Write(WorldPacket);
 
-        _worldPacket.WritePackedGuid(InviterGUID);
-        _worldPacket.WritePackedGuid(InviterBNetAccountId);
-        _worldPacket.WriteUInt16(Unk1);
-        _worldPacket.WriteUInt32(ProposedRoles);
-        _worldPacket.WriteInt32(LfgSlots.Count);
-        _worldPacket.WriteInt32(LfgCompletedMask);
+        WorldPacket.WritePackedGuid(InviterGUID);
+        WorldPacket.WritePackedGuid(InviterBNetAccountId);
+        WorldPacket.WriteUInt16(Unk1);
+        WorldPacket.WriteUInt32(ProposedRoles);
+        WorldPacket.WriteInt32(LfgSlots.Count);
+        WorldPacket.WriteInt32(LfgCompletedMask);
 
-        _worldPacket.WriteString(InviterName);
+        WorldPacket.WriteString(InviterName);
 
         foreach (var LfgSlot in LfgSlots)
-            _worldPacket.WriteInt32(LfgSlot);
+            WorldPacket.WriteInt32(LfgSlot);
     }
 }

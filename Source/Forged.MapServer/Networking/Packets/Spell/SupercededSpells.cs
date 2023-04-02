@@ -13,9 +13,9 @@ public class SupercededSpells : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(ClientLearnedSpellData.Count);
+        WorldPacket.WriteInt32(ClientLearnedSpellData.Count);
 
         foreach (var spell in ClientLearnedSpellData)
-            spell.Write(_worldPacket);
+            spell.Write(WorldPacket);
     }
 }

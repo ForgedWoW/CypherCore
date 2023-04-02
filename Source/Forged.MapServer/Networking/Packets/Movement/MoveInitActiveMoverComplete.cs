@@ -11,6 +11,6 @@ internal class MoveInitActiveMoverComplete : ClientPacket
 
     public override void Read()
     {
-        Ticks = _worldPacket.ReadUInt32();
+        Ticks = WorldPacket.ReadUInt32();
     }
 }

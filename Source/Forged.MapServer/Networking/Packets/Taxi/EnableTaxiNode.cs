@@ -12,6 +12,6 @@ internal class EnableTaxiNode : ClientPacket
 
     public override void Read()
     {
-        Unit = _worldPacket.ReadPackedGuid();
+        Unit = WorldPacket.ReadPackedGuid();
     }
 }

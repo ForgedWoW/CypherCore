@@ -15,12 +15,12 @@ internal class AuctionCancelCommoditiesPurchase : ClientPacket
 
     public override void Read()
     {
-        Auctioneer = _worldPacket.ReadPackedGuid();
+        Auctioneer = WorldPacket.ReadPackedGuid();
 
-        if (_worldPacket.HasBit())
+        if (WorldPacket.HasBit())
         {
             TaintedBy = new AddOnInfo();
-            TaintedBy.Value.Read(_worldPacket);
+            TaintedBy.Value.Read(WorldPacket);
         }
     }
 }

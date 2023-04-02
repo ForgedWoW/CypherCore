@@ -23,17 +23,17 @@ public class TradeUpdated : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8(WhichPlayer);
-        _worldPacket.WriteUInt32(Id);
-        _worldPacket.WriteUInt32(ClientStateIndex);
-        _worldPacket.WriteUInt32(CurrentStateIndex);
-        _worldPacket.WriteUInt64(Gold);
-        _worldPacket.WriteInt32(CurrencyType);
-        _worldPacket.WriteInt32(CurrencyQuantity);
-        _worldPacket.WriteInt32(ProposedEnchantment);
-        _worldPacket.WriteInt32(Items.Count);
+        WorldPacket.WriteUInt8(WhichPlayer);
+        WorldPacket.WriteUInt32(Id);
+        WorldPacket.WriteUInt32(ClientStateIndex);
+        WorldPacket.WriteUInt32(CurrentStateIndex);
+        WorldPacket.WriteUInt64(Gold);
+        WorldPacket.WriteInt32(CurrencyType);
+        WorldPacket.WriteInt32(CurrencyQuantity);
+        WorldPacket.WriteInt32(ProposedEnchantment);
+        WorldPacket.WriteInt32(Items.Count);
 
-        Items.ForEach(item => item.Write(_worldPacket));
+        Items.ForEach(item => item.Write(WorldPacket));
     }
 
     public class TradeItem

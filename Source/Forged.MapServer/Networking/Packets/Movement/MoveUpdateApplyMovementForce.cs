@@ -14,7 +14,7 @@ internal class MoveUpdateApplyMovementForce : ServerPacket
 
     public override void Write()
     {
-        MovementExtensions.WriteMovementInfo(_worldPacket, Status);
-        Force.Write(_worldPacket);
+        MovementExtensions.WriteMovementInfo(WorldPacket, Status);
+        Force.Write(WorldPacket);
     }
 }

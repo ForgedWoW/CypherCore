@@ -13,9 +13,9 @@ public class PurchaseUpdate : ServerPacket
     public List<BpayPurchase> Purchase { get; set; } = new();
     public override void Write()
     {
-        _worldPacket.WriteUInt32((uint)Purchase.Count);
+        WorldPacket.WriteUInt32((uint)Purchase.Count);
 
         foreach (var purchaseData in Purchase)
-            purchaseData.Write(_worldPacket);
+            purchaseData.Write(WorldPacket);
     }
 }

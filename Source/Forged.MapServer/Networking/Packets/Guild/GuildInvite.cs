@@ -27,24 +27,24 @@ public class GuildInvite : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(InviterName.GetByteCount(), 6);
-        _worldPacket.WriteBits(GuildName.GetByteCount(), 7);
-        _worldPacket.WriteBits(OldGuildName.GetByteCount(), 7);
+        WorldPacket.WriteBits(InviterName.GetByteCount(), 6);
+        WorldPacket.WriteBits(GuildName.GetByteCount(), 7);
+        WorldPacket.WriteBits(OldGuildName.GetByteCount(), 7);
 
-        _worldPacket.WriteUInt32(InviterVirtualRealmAddress);
-        _worldPacket.WriteUInt32(GuildVirtualRealmAddress);
-        _worldPacket.WritePackedGuid(GuildGUID);
-        _worldPacket.WriteUInt32(OldGuildVirtualRealmAddress);
-        _worldPacket.WritePackedGuid(OldGuildGUID);
-        _worldPacket.WriteUInt32(EmblemStyle);
-        _worldPacket.WriteUInt32(EmblemColor);
-        _worldPacket.WriteUInt32(BorderStyle);
-        _worldPacket.WriteUInt32(BorderColor);
-        _worldPacket.WriteUInt32(Background);
-        _worldPacket.WriteInt32(AchievementPoints);
+        WorldPacket.WriteUInt32(InviterVirtualRealmAddress);
+        WorldPacket.WriteUInt32(GuildVirtualRealmAddress);
+        WorldPacket.WritePackedGuid(GuildGUID);
+        WorldPacket.WriteUInt32(OldGuildVirtualRealmAddress);
+        WorldPacket.WritePackedGuid(OldGuildGUID);
+        WorldPacket.WriteUInt32(EmblemStyle);
+        WorldPacket.WriteUInt32(EmblemColor);
+        WorldPacket.WriteUInt32(BorderStyle);
+        WorldPacket.WriteUInt32(BorderColor);
+        WorldPacket.WriteUInt32(Background);
+        WorldPacket.WriteInt32(AchievementPoints);
 
-        _worldPacket.WriteString(InviterName);
-        _worldPacket.WriteString(GuildName);
-        _worldPacket.WriteString(OldGuildName);
+        WorldPacket.WriteString(InviterName);
+        WorldPacket.WriteString(GuildName);
+        WorldPacket.WriteString(OldGuildName);
     }
 }

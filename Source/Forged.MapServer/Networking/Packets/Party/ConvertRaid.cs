@@ -10,6 +10,6 @@ internal class ConvertRaid : ClientPacket
 
     public override void Read()
     {
-        Raid = _worldPacket.HasBit();
+        Raid = WorldPacket.HasBit();
     }
 }

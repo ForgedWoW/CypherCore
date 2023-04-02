@@ -15,9 +15,9 @@ public class GuildEventStatusChange : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Guid);
-        _worldPacket.WriteBit(AFK);
-        _worldPacket.WriteBit(DND);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Guid);
+        WorldPacket.WriteBit(AFK);
+        WorldPacket.WriteBit(DND);
+        WorldPacket.FlushBits();
     }
 }

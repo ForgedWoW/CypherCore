@@ -11,7 +11,7 @@ public class SetRaidDifficulty : ClientPacket
 
     public override void Read()
     {
-        DifficultyID = _worldPacket.ReadInt32();
-        Legacy = _worldPacket.ReadUInt8();
+        DifficultyID = WorldPacket.ReadInt32();
+        Legacy = WorldPacket.ReadUInt8();
     }
 }

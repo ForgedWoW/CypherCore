@@ -14,8 +14,8 @@ internal class GuildGetAchievementMembers : ClientPacket
 
     public override void Read()
     {
-        PlayerGUID = _worldPacket.ReadPackedGuid();
-        GuildGUID = _worldPacket.ReadPackedGuid();
-        AchievementID = _worldPacket.ReadUInt32();
+        PlayerGUID = WorldPacket.ReadPackedGuid();
+        GuildGUID = WorldPacket.ReadPackedGuid();
+        AchievementID = WorldPacket.ReadUInt32();
     }
 }

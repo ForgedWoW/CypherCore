@@ -35,10 +35,10 @@ public class DosProtection
         if (maxPacketCounterAllowed == 0)
             return true;
 
-        if (!_PacketThrottlingMap.ContainsKey(packet.GetOpcode()))
-            _PacketThrottlingMap[packet.GetOpcode()] = new PacketCounter();
+        if (!_PacketThrottlingMap.ContainsKey(packet.Opcode))
+            _PacketThrottlingMap[packet.Opcode] = new PacketCounter();
 
-        var packetCounter = _PacketThrottlingMap[packet.GetOpcode()];
+        var packetCounter = _PacketThrottlingMap[packet.Opcode];
 
         if (packetCounter.LastReceiveTime != time)
         {
@@ -55,7 +55,7 @@ public class DosProtection
                            Session.RemoteAddress,
                            Session.Latency,
                            Session.PlayerName,
-                           packet.GetOpcode(),
+                           packet.Opcode,
                            packetCounter.AmountCounter);
 
         switch (_policy)

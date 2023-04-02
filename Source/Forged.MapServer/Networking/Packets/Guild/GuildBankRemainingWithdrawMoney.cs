@@ -12,6 +12,6 @@ public class GuildBankRemainingWithdrawMoney : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt64(RemainingWithdrawMoney);
+        WorldPacket.WriteInt64(RemainingWithdrawMoney);
     }
 }

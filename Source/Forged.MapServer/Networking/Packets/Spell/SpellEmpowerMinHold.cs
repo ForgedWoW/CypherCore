@@ -10,6 +10,6 @@ internal class SpellEmpowerMinHold : ClientPacket
 
     public override void Read()
     {
-        HoldPct = _worldPacket.ReadFloat();
+        HoldPct = WorldPacket.ReadFloat();
     }
 }

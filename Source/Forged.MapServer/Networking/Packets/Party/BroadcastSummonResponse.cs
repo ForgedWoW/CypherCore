@@ -14,8 +14,8 @@ internal class BroadcastSummonResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Target);
-        _worldPacket.WriteBit(Accepted);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(Target);
+        WorldPacket.WriteBit(Accepted);
+        WorldPacket.FlushBits();
     }
 }

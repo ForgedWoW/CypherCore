@@ -10,6 +10,6 @@ public class ChatAddonMessage : ClientPacket
 
     public override void Read()
     {
-        Params.Read(_worldPacket);
+        Params.Read(WorldPacket);
     }
 }

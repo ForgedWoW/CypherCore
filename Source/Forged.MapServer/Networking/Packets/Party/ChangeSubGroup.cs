@@ -14,8 +14,8 @@ internal class ChangeSubGroup : ClientPacket
 
     public override void Read()
     {
-        TargetGUID = _worldPacket.ReadPackedGuid();
-        PartyIndex = _worldPacket.ReadInt8();
-        NewSubGroup = _worldPacket.ReadUInt8();
+        TargetGUID = WorldPacket.ReadPackedGuid();
+        PartyIndex = WorldPacket.ReadInt8();
+        NewSubGroup = WorldPacket.ReadUInt8();
     }
 }

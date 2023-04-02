@@ -16,6 +16,6 @@ public class SpellStart : ServerPacket
 
     public override void Write()
     {
-        Cast.Write(_worldPacket);
+        Cast.Write(WorldPacket);
     }
 }

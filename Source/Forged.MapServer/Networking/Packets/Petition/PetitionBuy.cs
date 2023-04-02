@@ -14,10 +14,10 @@ public class PetitionBuy : ClientPacket
 
     public override void Read()
     {
-        var titleLen = _worldPacket.ReadBits<uint>(7);
+        var titleLen = WorldPacket.ReadBits<uint>(7);
 
-        Unit = _worldPacket.ReadPackedGuid();
-        Unused910 = _worldPacket.ReadUInt32();
-        Title = _worldPacket.ReadString(titleLen);
+        Unit = WorldPacket.ReadPackedGuid();
+        Unused910 = WorldPacket.ReadUInt32();
+        Title = WorldPacket.ReadString(titleLen);
     }
 }

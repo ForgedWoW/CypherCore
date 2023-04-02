@@ -12,6 +12,6 @@ public class CriteriaDeleted : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(CriteriaID);
+        WorldPacket.WriteUInt32(CriteriaID);
     }
 }

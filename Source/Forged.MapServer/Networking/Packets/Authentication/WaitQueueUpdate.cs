@@ -12,6 +12,6 @@ internal class WaitQueueUpdate : ServerPacket
 
     public override void Write()
     {
-        WaitInfo.Write(_worldPacket);
+        WaitInfo.Write(WorldPacket);
     }
 }

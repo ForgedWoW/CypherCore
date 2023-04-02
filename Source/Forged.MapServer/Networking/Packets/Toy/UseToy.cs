@@ -12,6 +12,6 @@ internal class UseToy : ClientPacket
 
     public override void Read()
     {
-        Cast.Read(_worldPacket);
+        Cast.Read(WorldPacket);
     }
 }

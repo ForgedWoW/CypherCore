@@ -15,8 +15,8 @@ public class SpellEmpowerSetStage : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(CastID);
-        _worldPacket.WritePackedGuid(Caster);
-        _worldPacket.Write(Stage);
+        WorldPacket.WritePackedGuid(CastID);
+        WorldPacket.WritePackedGuid(Caster);
+        WorldPacket.Write(Stage);
     }
 }

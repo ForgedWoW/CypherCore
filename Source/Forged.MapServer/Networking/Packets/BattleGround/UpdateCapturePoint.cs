@@ -13,6 +13,6 @@ internal class UpdateCapturePoint : ServerPacket
 
     public override void Write()
     {
-        CapturePointInfo.Write(_worldPacket);
+        CapturePointInfo.Write(WorldPacket);
     }
 }

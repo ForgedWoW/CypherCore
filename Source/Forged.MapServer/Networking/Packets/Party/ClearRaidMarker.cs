@@ -10,6 +10,6 @@ internal class ClearRaidMarker : ClientPacket
 
     public override void Read()
     {
-        MarkerId = _worldPacket.ReadUInt8();
+        MarkerId = WorldPacket.ReadUInt8();
     }
 }

@@ -18,12 +18,12 @@ internal class TotemCreated : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8(Slot);
-        _worldPacket.WritePackedGuid(Totem);
-        _worldPacket.WriteUInt32(Duration);
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteFloat(TimeMod);
-        _worldPacket.WriteBit(CannotDismiss);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt8(Slot);
+        WorldPacket.WritePackedGuid(Totem);
+        WorldPacket.WriteUInt32(Duration);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteFloat(TimeMod);
+        WorldPacket.WriteBit(CannotDismiss);
+        WorldPacket.FlushBits();
     }
 }

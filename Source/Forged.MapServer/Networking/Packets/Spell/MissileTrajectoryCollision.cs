@@ -16,9 +16,9 @@ internal class MissileTrajectoryCollision : ClientPacket
 
     public override void Read()
     {
-        Target = _worldPacket.ReadPackedGuid();
-        SpellID = _worldPacket.ReadUInt32();
-        CastID = _worldPacket.ReadPackedGuid();
-        CollisionPos = _worldPacket.ReadVector3();
+        Target = WorldPacket.ReadPackedGuid();
+        SpellID = WorldPacket.ReadUInt32();
+        CastID = WorldPacket.ReadPackedGuid();
+        CollisionPos = WorldPacket.ReadVector3();
     }
 }

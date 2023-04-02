@@ -15,18 +15,18 @@ public class QueryNPCTextResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(TextID);
-        _worldPacket.WriteBit(Allow);
+        WorldPacket.WriteUInt32(TextID);
+        WorldPacket.WriteBit(Allow);
 
-        _worldPacket.WriteInt32(Allow ? SharedConst.MaxNpcTextOptions * (4 + 4) : 0);
+        WorldPacket.WriteInt32(Allow ? SharedConst.MaxNpcTextOptions * (4 + 4) : 0);
 
         if (Allow)
         {
             for (uint i = 0; i < SharedConst.MaxNpcTextOptions; ++i)
-                _worldPacket.WriteFloat(Probabilities[i]);
+                WorldPacket.WriteFloat(Probabilities[i]);
 
             for (uint i = 0; i < SharedConst.MaxNpcTextOptions; ++i)
-                _worldPacket.WriteUInt32(BroadcastTextID[i]);
+                WorldPacket.WriteUInt32(BroadcastTextID[i]);
         }
     }
 }

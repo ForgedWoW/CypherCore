@@ -14,9 +14,9 @@ public class GuildBankQueryTab : ClientPacket
 
     public override void Read()
     {
-        Banker = _worldPacket.ReadPackedGuid();
-        Tab = _worldPacket.ReadUInt8();
+        Banker = WorldPacket.ReadPackedGuid();
+        Tab = WorldPacket.ReadUInt8();
 
-        FullUpdate = _worldPacket.HasBit();
+        FullUpdate = WorldPacket.HasBit();
     }
 }

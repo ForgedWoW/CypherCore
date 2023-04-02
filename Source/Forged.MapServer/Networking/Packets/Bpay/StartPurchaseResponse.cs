@@ -14,8 +14,8 @@ public class StartPurchaseResponse : ServerPacket
     public uint PurchaseResult { get; set; } = 0;
     public override void Write()
     {
-        _worldPacket.Write(PurchaseID);
-        _worldPacket.Write(PurchaseResult);
-        _worldPacket.Write(ClientToken);
+        WorldPacket.Write(PurchaseID);
+        WorldPacket.Write(PurchaseResult);
+        WorldPacket.Write(ClientToken);
     }
 }

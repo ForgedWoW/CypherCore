@@ -12,6 +12,6 @@ public class GuildOfficerRemoveMember : ClientPacket
 
     public override void Read()
     {
-        Removee = _worldPacket.ReadPackedGuid();
+        Removee = WorldPacket.ReadPackedGuid();
     }
 }

@@ -14,8 +14,8 @@ internal class SwapVoidItem : ClientPacket
 
     public override void Read()
     {
-        Npc = _worldPacket.ReadPackedGuid();
-        VoidItemGuid = _worldPacket.ReadPackedGuid();
-        DstSlot = _worldPacket.ReadUInt32();
+        Npc = WorldPacket.ReadPackedGuid();
+        VoidItemGuid = WorldPacket.ReadPackedGuid();
+        DstSlot = WorldPacket.ReadUInt32();
     }
 }

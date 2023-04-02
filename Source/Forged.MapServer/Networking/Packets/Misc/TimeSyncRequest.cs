@@ -12,6 +12,6 @@ public class TimeSyncRequest : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(SequenceIndex);
+        WorldPacket.WriteUInt32(SequenceIndex);
     }
 }

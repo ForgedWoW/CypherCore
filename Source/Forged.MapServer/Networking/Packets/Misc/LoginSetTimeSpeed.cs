@@ -16,10 +16,10 @@ public class LoginSetTimeSpeed : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedTime(ServerTime);
-        _worldPacket.WritePackedTime(GameTime);
-        _worldPacket.WriteFloat(NewSpeed);
-        _worldPacket.WriteInt32(ServerTimeHolidayOffset);
-        _worldPacket.WriteInt32(GameTimeHolidayOffset);
+        WorldPacket.WritePackedTime(ServerTime);
+        WorldPacket.WritePackedTime(GameTime);
+        WorldPacket.WriteFloat(NewSpeed);
+        WorldPacket.WriteInt32(ServerTimeHolidayOffset);
+        WorldPacket.WriteInt32(GameTimeHolidayOffset);
     }
 }

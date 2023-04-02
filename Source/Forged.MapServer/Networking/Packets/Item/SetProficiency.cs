@@ -13,7 +13,7 @@ public class SetProficiency : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(ProficiencyMask);
-        _worldPacket.WriteUInt8(ProficiencyClass);
+        WorldPacket.WriteUInt32(ProficiencyMask);
+        WorldPacket.WriteUInt8(ProficiencyClass);
     }
 }

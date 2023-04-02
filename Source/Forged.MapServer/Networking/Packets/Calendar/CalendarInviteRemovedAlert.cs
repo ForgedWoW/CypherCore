@@ -15,9 +15,9 @@ internal class CalendarInviteRemovedAlert : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt64(EventID);
-        _worldPacket.WritePackedTime(Date);
-        _worldPacket.WriteUInt32((uint)Flags);
-        _worldPacket.WriteUInt8((byte)Status);
+        WorldPacket.WriteUInt64(EventID);
+        WorldPacket.WritePackedTime(Date);
+        WorldPacket.WriteUInt32((uint)Flags);
+        WorldPacket.WriteUInt8((byte)Status);
     }
 }

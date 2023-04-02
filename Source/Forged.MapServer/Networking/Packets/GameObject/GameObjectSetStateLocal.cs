@@ -14,7 +14,7 @@ internal class GameObjectSetStateLocal : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ObjectGUID);
-        _worldPacket.WriteUInt8(State);
+        WorldPacket.WritePackedGuid(ObjectGUID);
+        WorldPacket.WriteUInt8(State);
     }
 }

@@ -15,16 +15,16 @@ internal class TransmogrifyItems : ClientPacket
 
     public override void Read()
     {
-        var itemsCount = _worldPacket.ReadUInt32();
-        Npc = _worldPacket.ReadPackedGuid();
+        var itemsCount = WorldPacket.ReadUInt32();
+        Npc = WorldPacket.ReadPackedGuid();
 
         for (var i = 0; i < itemsCount; ++i)
         {
             TransmogrifyItem item = new();
-            item.Read(_worldPacket);
+            item.Read(WorldPacket);
             Items[i] = item;
         }
 
-        CurrentSpecOnly = _worldPacket.HasBit();
+        CurrentSpecOnly = WorldPacket.HasBit();
     }
 }

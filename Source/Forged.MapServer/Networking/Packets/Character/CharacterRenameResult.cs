@@ -16,14 +16,14 @@ public class CharacterRenameResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8((byte)Result);
-        _worldPacket.WriteBit(Guid.HasValue);
-        _worldPacket.WriteBits(Name.GetByteCount(), 6);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt8((byte)Result);
+        WorldPacket.WriteBit(Guid.HasValue);
+        WorldPacket.WriteBits(Name.GetByteCount(), 6);
+        WorldPacket.FlushBits();
 
         if (Guid.HasValue)
-            _worldPacket.WritePackedGuid(Guid.Value);
+            WorldPacket.WritePackedGuid(Guid.Value);
 
-        _worldPacket.WriteString(Name);
+        WorldPacket.WriteString(Name);
     }
 }

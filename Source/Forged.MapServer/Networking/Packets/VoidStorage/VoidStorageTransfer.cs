@@ -15,14 +15,14 @@ internal class VoidStorageTransfer : ClientPacket
 
     public override void Read()
     {
-        Npc = _worldPacket.ReadPackedGuid();
-        var DepositCount = _worldPacket.ReadInt32();
-        var WithdrawalCount = _worldPacket.ReadInt32();
+        Npc = WorldPacket.ReadPackedGuid();
+        var DepositCount = WorldPacket.ReadInt32();
+        var WithdrawalCount = WorldPacket.ReadInt32();
 
         for (uint i = 0; i < DepositCount; ++i)
-            Deposits[i] = _worldPacket.ReadPackedGuid();
+            Deposits[i] = WorldPacket.ReadPackedGuid();
 
         for (uint i = 0; i < WithdrawalCount; ++i)
-            Withdrawals[i] = _worldPacket.ReadPackedGuid();
+            Withdrawals[i] = WorldPacket.ReadPackedGuid();
     }
 }

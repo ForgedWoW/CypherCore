@@ -16,9 +16,9 @@ internal class VoidItemSwapResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(VoidItemA);
-        _worldPacket.WriteUInt32(VoidItemSlotA);
-        _worldPacket.WritePackedGuid(VoidItemB);
-        _worldPacket.WriteUInt32(VoidItemSlotB);
+        WorldPacket.WritePackedGuid(VoidItemA);
+        WorldPacket.WriteUInt32(VoidItemSlotA);
+        WorldPacket.WritePackedGuid(VoidItemB);
+        WorldPacket.WriteUInt32(VoidItemSlotB);
     }
 }

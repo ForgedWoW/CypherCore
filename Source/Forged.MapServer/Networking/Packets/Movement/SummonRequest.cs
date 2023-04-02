@@ -27,11 +27,11 @@ internal class SummonRequest : ServerPacket
     }
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(SummonerGUID);
-        _worldPacket.WriteUInt32(SummonerVirtualRealmAddress);
-        _worldPacket.WriteInt32(AreaID);
-        _worldPacket.WriteUInt8((byte)Reason);
-        _worldPacket.WriteBit(SkipStartingArea);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(SummonerGUID);
+        WorldPacket.WriteUInt32(SummonerVirtualRealmAddress);
+        WorldPacket.WriteInt32(AreaID);
+        WorldPacket.WriteUInt8((byte)Reason);
+        WorldPacket.WriteBit(SkipStartingArea);
+        WorldPacket.FlushBits();
     }
 }

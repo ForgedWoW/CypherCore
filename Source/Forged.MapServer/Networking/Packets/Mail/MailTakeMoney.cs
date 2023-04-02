@@ -14,8 +14,8 @@ public class MailTakeMoney : ClientPacket
 
     public override void Read()
     {
-        Mailbox = _worldPacket.ReadPackedGuid();
-        MailID = _worldPacket.ReadUInt64();
-        Money = _worldPacket.ReadUInt64();
+        Mailbox = WorldPacket.ReadPackedGuid();
+        MailID = WorldPacket.ReadUInt64();
+        Money = WorldPacket.ReadUInt64();
     }
 }

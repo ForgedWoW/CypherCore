@@ -16,12 +16,12 @@ public class AuraUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(UpdateAll);
-        _worldPacket.WriteBits(Auras.Count, 9);
+        WorldPacket.WriteBit(UpdateAll);
+        WorldPacket.WriteBits(Auras.Count, 9);
 
         foreach (var aura in Auras)
-            aura.Write(_worldPacket);
+            aura.Write(WorldPacket);
 
-        _worldPacket.WritePackedGuid(UnitGUID);
+        WorldPacket.WritePackedGuid(UnitGUID);
     }
 }

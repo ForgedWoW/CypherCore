@@ -17,11 +17,11 @@ internal class EnvironmentalDamageLog : CombatLogServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(Victim);
-        _worldPacket.WriteUInt8((byte)Type);
-        _worldPacket.WriteInt32(Amount);
-        _worldPacket.WriteInt32(Resisted);
-        _worldPacket.WriteInt32(Absorbed);
+        WorldPacket.WritePackedGuid(Victim);
+        WorldPacket.WriteUInt8((byte)Type);
+        WorldPacket.WriteInt32(Amount);
+        WorldPacket.WriteInt32(Resisted);
+        WorldPacket.WriteInt32(Absorbed);
 
         WriteLogDataBit();
         FlushBits();

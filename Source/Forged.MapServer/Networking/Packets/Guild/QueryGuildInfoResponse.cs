@@ -17,33 +17,33 @@ public class QueryGuildInfoResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(GuildGUID);
-        _worldPacket.WriteBit(HasGuildInfo);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(GuildGUID);
+        WorldPacket.WriteBit(HasGuildInfo);
+        WorldPacket.FlushBits();
 
         if (HasGuildInfo)
         {
-            _worldPacket.WritePackedGuid(Info.GuildGuid);
-            _worldPacket.WriteUInt32(Info.VirtualRealmAddress);
-            _worldPacket.WriteInt32(Info.Ranks.Count);
-            _worldPacket.WriteUInt32(Info.EmblemStyle);
-            _worldPacket.WriteUInt32(Info.EmblemColor);
-            _worldPacket.WriteUInt32(Info.BorderStyle);
-            _worldPacket.WriteUInt32(Info.BorderColor);
-            _worldPacket.WriteUInt32(Info.BackgroundColor);
-            _worldPacket.WriteBits(Info.GuildName.GetByteCount(), 7);
-            _worldPacket.FlushBits();
+            WorldPacket.WritePackedGuid(Info.GuildGuid);
+            WorldPacket.WriteUInt32(Info.VirtualRealmAddress);
+            WorldPacket.WriteInt32(Info.Ranks.Count);
+            WorldPacket.WriteUInt32(Info.EmblemStyle);
+            WorldPacket.WriteUInt32(Info.EmblemColor);
+            WorldPacket.WriteUInt32(Info.BorderStyle);
+            WorldPacket.WriteUInt32(Info.BorderColor);
+            WorldPacket.WriteUInt32(Info.BackgroundColor);
+            WorldPacket.WriteBits(Info.GuildName.GetByteCount(), 7);
+            WorldPacket.FlushBits();
 
             foreach (var rank in Info.Ranks)
             {
-                _worldPacket.WriteUInt32(rank.RankID);
-                _worldPacket.WriteUInt32(rank.RankOrder);
+                WorldPacket.WriteUInt32(rank.RankID);
+                WorldPacket.WriteUInt32(rank.RankOrder);
 
-                _worldPacket.WriteBits(rank.RankName.GetByteCount(), 7);
-                _worldPacket.WriteString(rank.RankName);
+                WorldPacket.WriteBits(rank.RankName.GetByteCount(), 7);
+                WorldPacket.WriteString(rank.RankName);
             }
 
-            _worldPacket.WriteString(Info.GuildName);
+            WorldPacket.WriteString(Info.GuildName);
         }
     }
 

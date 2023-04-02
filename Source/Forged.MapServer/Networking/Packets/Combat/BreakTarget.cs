@@ -13,6 +13,6 @@ internal class BreakTarget : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(UnitGUID);
+        WorldPacket.WritePackedGuid(UnitGUID);
     }
 }

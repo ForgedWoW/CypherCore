@@ -15,8 +15,8 @@ public class DuelRequested : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ArbiterGUID);
-        _worldPacket.WritePackedGuid(RequestedByGUID);
-        _worldPacket.WritePackedGuid(RequestedByWowAccount);
+        WorldPacket.WritePackedGuid(ArbiterGUID);
+        WorldPacket.WritePackedGuid(RequestedByGUID);
+        WorldPacket.WritePackedGuid(RequestedByWowAccount);
     }
 }

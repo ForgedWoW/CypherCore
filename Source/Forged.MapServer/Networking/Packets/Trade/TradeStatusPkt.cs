@@ -23,39 +23,39 @@ public class TradeStatusPkt : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(PartnerIsSameBnetAccount);
-        _worldPacket.WriteBits(Status, 5);
+        WorldPacket.WriteBit(PartnerIsSameBnetAccount);
+        WorldPacket.WriteBits(Status, 5);
 
         switch (Status)
         {
             case TradeStatus.Failed:
-                _worldPacket.WriteBit(FailureForYou);
-                _worldPacket.WriteInt32((int)BagResult);
-                _worldPacket.WriteUInt32(ItemID);
+                WorldPacket.WriteBit(FailureForYou);
+                WorldPacket.WriteInt32((int)BagResult);
+                WorldPacket.WriteUInt32(ItemID);
 
                 break;
             case TradeStatus.Initiated:
-                _worldPacket.WriteUInt32(Id);
+                WorldPacket.WriteUInt32(Id);
 
                 break;
             case TradeStatus.Proposed:
-                _worldPacket.WritePackedGuid(Partner);
-                _worldPacket.WritePackedGuid(PartnerAccount);
+                WorldPacket.WritePackedGuid(Partner);
+                WorldPacket.WritePackedGuid(PartnerAccount);
 
                 break;
             case TradeStatus.WrongRealm:
             case TradeStatus.NotOnTaplist:
-                _worldPacket.WriteUInt8(TradeSlot);
+                WorldPacket.WriteUInt8(TradeSlot);
 
                 break;
             case TradeStatus.NotEnoughCurrency:
             case TradeStatus.CurrencyNotTradable:
-                _worldPacket.WriteInt32(CurrencyType);
-                _worldPacket.WriteInt32(CurrencyQuantity);
+                WorldPacket.WriteInt32(CurrencyType);
+                WorldPacket.WriteInt32(CurrencyQuantity);
 
                 break;
             default:
-                _worldPacket.FlushBits();
+                WorldPacket.FlushBits();
 
                 break;
         }

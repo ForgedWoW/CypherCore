@@ -20,15 +20,15 @@ internal class ResurrectRequest : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WritePackedGuid(ResurrectOffererGUID);
-        _worldPacket.WriteUInt32(ResurrectOffererVirtualRealmAddress);
-        _worldPacket.WriteUInt32(PetNumber);
-        _worldPacket.WriteUInt32(SpellID);
-        _worldPacket.WriteBits(Name.GetByteCount(), 11);
-        _worldPacket.WriteBit(UseTimer);
-        _worldPacket.WriteBit(Sickness);
-        _worldPacket.FlushBits();
+        WorldPacket.WritePackedGuid(ResurrectOffererGUID);
+        WorldPacket.WriteUInt32(ResurrectOffererVirtualRealmAddress);
+        WorldPacket.WriteUInt32(PetNumber);
+        WorldPacket.WriteUInt32(SpellID);
+        WorldPacket.WriteBits(Name.GetByteCount(), 11);
+        WorldPacket.WriteBit(UseTimer);
+        WorldPacket.WriteBit(Sickness);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteString(Name);
+        WorldPacket.WriteString(Name);
     }
 }

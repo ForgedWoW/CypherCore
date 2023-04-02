@@ -13,6 +13,6 @@ internal class ScenarioProgressUpdate : ServerPacket
 
     public override void Write()
     {
-        CriteriaProgress.Write(_worldPacket);
+        CriteriaProgress.Write(WorldPacket);
     }
 }

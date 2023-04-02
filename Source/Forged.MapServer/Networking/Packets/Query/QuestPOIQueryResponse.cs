@@ -14,15 +14,15 @@ public class QuestPOIQueryResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(QuestPOIDataStats.Count);
-        _worldPacket.WriteInt32(QuestPOIDataStats.Count);
+        WorldPacket.WriteInt32(QuestPOIDataStats.Count);
+        WorldPacket.WriteInt32(QuestPOIDataStats.Count);
 
         var useCache = GetDefaultValue("CacheDataQueries", true);
 
         foreach (var questPOIData in QuestPOIDataStats)
             if (useCache)
-                _worldPacket.WriteBytes(questPOIData.QueryDataBuffer);
+                WorldPacket.WriteBytes(questPOIData.QueryDataBuffer);
             else
-                questPOIData.Write(_worldPacket);
+                questPOIData.Write(WorldPacket);
     }
 }

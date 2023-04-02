@@ -25,12 +25,12 @@ public class StartMirrorTimer : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32((int)Timer);
-        _worldPacket.WriteInt32(Value);
-        _worldPacket.WriteInt32(MaxValue);
-        _worldPacket.WriteInt32(Scale);
-        _worldPacket.WriteInt32(SpellID);
-        _worldPacket.WriteBit(Paused);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteInt32((int)Timer);
+        WorldPacket.WriteInt32(Value);
+        WorldPacket.WriteInt32(MaxValue);
+        WorldPacket.WriteInt32(Scale);
+        WorldPacket.WriteInt32(SpellID);
+        WorldPacket.WriteBit(Paused);
+        WorldPacket.FlushBits();
     }
 }

@@ -27,6 +27,6 @@ internal class ChannelCommand : ClientPacket
 
     public override void Read()
     {
-        ChannelName = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(7));
+        ChannelName = WorldPacket.ReadString(WorldPacket.ReadBits<uint>(7));
     }
 }

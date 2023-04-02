@@ -13,7 +13,7 @@ internal class ChatReportIgnored : ClientPacket
 
     public override void Read()
     {
-        IgnoredGUID = _worldPacket.ReadPackedGuid();
-        Reason = _worldPacket.ReadUInt8();
+        IgnoredGUID = WorldPacket.ReadPackedGuid();
+        Reason = WorldPacket.ReadUInt8();
     }
 }

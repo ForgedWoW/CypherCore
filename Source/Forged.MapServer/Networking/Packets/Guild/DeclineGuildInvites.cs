@@ -10,6 +10,6 @@ public class DeclineGuildInvites : ClientPacket
 
     public override void Read()
     {
-        Allow = _worldPacket.HasBit();
+        Allow = WorldPacket.HasBit();
     }
 }

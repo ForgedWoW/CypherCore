@@ -16,6 +16,6 @@ public class PlayMusic : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(SoundKitID);
+        WorldPacket.WriteUInt32(SoundKitID);
     }
 }

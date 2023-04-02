@@ -18,7 +18,7 @@ public class CombatLogServerPacket : ServerPacket
 
     public void FlushBits()
     {
-        _worldPacket.FlushBits();
+        WorldPacket.FlushBits();
     }
 
     public void SetAdvancedCombatLogging(bool value)
@@ -30,12 +30,12 @@ public class CombatLogServerPacket : ServerPacket
     public void WriteLogData()
     {
         if (_includeLogData)
-            LogData.Write(_worldPacket);
+            LogData.Write(WorldPacket);
     }
 
     public void WriteLogDataBit()
     {
-        _worldPacket.WriteBit(_includeLogData);
+        WorldPacket.WriteBit(_includeLogData);
     }
 }
 

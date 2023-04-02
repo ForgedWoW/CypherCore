@@ -10,6 +10,6 @@ internal class PushQuestToParty : ClientPacket
 
     public override void Read()
     {
-        QuestID = _worldPacket.ReadUInt32();
+        QuestID = WorldPacket.ReadUInt32();
     }
 }

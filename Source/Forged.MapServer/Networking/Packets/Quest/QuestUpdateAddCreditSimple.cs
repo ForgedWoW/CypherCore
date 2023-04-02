@@ -14,8 +14,8 @@ internal class QuestUpdateAddCreditSimple : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(QuestID);
-        _worldPacket.WriteInt32(ObjectID);
-        _worldPacket.WriteUInt8((byte)ObjectiveType);
+        WorldPacket.WriteUInt32(QuestID);
+        WorldPacket.WriteInt32(ObjectID);
+        WorldPacket.WriteUInt8((byte)ObjectiveType);
     }
 }

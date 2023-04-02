@@ -15,9 +15,9 @@ internal class GarrisonBuildingRemoved : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32((int)GarrTypeID);
-        _worldPacket.WriteUInt32((uint)Result);
-        _worldPacket.WriteUInt32(GarrPlotInstanceID);
-        _worldPacket.WriteUInt32(GarrBuildingID);
+        WorldPacket.WriteInt32((int)GarrTypeID);
+        WorldPacket.WriteUInt32((uint)Result);
+        WorldPacket.WriteUInt32(GarrPlotInstanceID);
+        WorldPacket.WriteUInt32(GarrBuildingID);
     }
 }

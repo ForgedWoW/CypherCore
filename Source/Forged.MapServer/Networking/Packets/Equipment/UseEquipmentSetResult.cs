@@ -13,7 +13,7 @@ internal class UseEquipmentSetResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt64(GUID);
-        _worldPacket.WriteUInt8(Reason);
+        WorldPacket.WriteUInt64(GUID);
+        WorldPacket.WriteUInt8(Reason);
     }
 }

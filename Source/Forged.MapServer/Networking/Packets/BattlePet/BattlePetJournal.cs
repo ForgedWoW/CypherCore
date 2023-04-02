@@ -16,17 +16,17 @@ internal class BattlePetJournal : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt16(Trap);
-        _worldPacket.WriteInt32(Slots.Count);
-        _worldPacket.WriteInt32(Pets.Count);
-        _worldPacket.WriteBit(HasJournalLock);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt16(Trap);
+        WorldPacket.WriteInt32(Slots.Count);
+        WorldPacket.WriteInt32(Pets.Count);
+        WorldPacket.WriteBit(HasJournalLock);
+        WorldPacket.FlushBits();
 
         foreach (var slot in Slots)
-            slot.Write(_worldPacket);
+            slot.Write(WorldPacket);
 
         foreach (var pet in Pets)
-            pet.Write(_worldPacket);
+            pet.Write(WorldPacket);
     }
 }
 

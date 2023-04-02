@@ -12,7 +12,7 @@ public class MailGetList : ClientPacket
 
     public override void Read()
     {
-        Mailbox = _worldPacket.ReadPackedGuid();
+        Mailbox = WorldPacket.ReadPackedGuid();
     }
 }
 

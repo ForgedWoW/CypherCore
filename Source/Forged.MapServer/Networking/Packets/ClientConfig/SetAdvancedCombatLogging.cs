@@ -10,6 +10,6 @@ internal class SetAdvancedCombatLogging : ClientPacket
 
     public override void Read()
     {
-        Enable = _worldPacket.HasBit();
+        Enable = WorldPacket.HasBit();
     }
 }

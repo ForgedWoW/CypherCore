@@ -12,6 +12,6 @@ internal class ReportPvPPlayerAFK : ClientPacket
 
     public override void Read()
     {
-        Offender = _worldPacket.ReadPackedGuid();
+        Offender = WorldPacket.ReadPackedGuid();
     }
 }

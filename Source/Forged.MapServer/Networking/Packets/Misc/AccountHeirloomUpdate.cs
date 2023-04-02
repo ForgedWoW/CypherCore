@@ -16,19 +16,19 @@ internal class AccountHeirloomUpdate : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBit(IsFullUpdate);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBit(IsFullUpdate);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteInt32(Unk);
+        WorldPacket.WriteInt32(Unk);
 
         // both lists have to have the same size
-        _worldPacket.WriteInt32(Heirlooms.Count);
-        _worldPacket.WriteInt32(Heirlooms.Count);
+        WorldPacket.WriteInt32(Heirlooms.Count);
+        WorldPacket.WriteInt32(Heirlooms.Count);
 
         foreach (var item in Heirlooms)
-            _worldPacket.WriteUInt32(item.Key);
+            WorldPacket.WriteUInt32(item.Key);
 
         foreach (var flags in Heirlooms)
-            _worldPacket.WriteUInt32((uint)flags.Value.Flags);
+            WorldPacket.WriteUInt32((uint)flags.Value.Flags);
     }
 }

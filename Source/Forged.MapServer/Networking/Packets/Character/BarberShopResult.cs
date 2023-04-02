@@ -23,6 +23,6 @@ public class BarberShopResult : ServerPacket
     }
     public override void Write()
     {
-        _worldPacket.WriteInt32((int)Result);
+        WorldPacket.WriteInt32((int)Result);
     }
 }

@@ -17,10 +17,10 @@ public class QueryGameObjectResponse : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(GameObjectID);
-        _worldPacket.WritePackedGuid(Guid);
-        _worldPacket.WriteBit(Allow);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteUInt32(GameObjectID);
+        WorldPacket.WritePackedGuid(Guid);
+        WorldPacket.WriteBit(Allow);
+        WorldPacket.FlushBits();
 
         ByteBuffer statsData = new();
 
@@ -48,9 +48,9 @@ public class QueryGameObjectResponse : ServerPacket
             statsData.WriteUInt32(Stats.ContentTuningId);
         }
 
-        _worldPacket.WriteUInt32(statsData.GetSize());
+        WorldPacket.WriteUInt32(statsData.GetSize());
 
         if (statsData.GetSize() != 0)
-            _worldPacket.WriteBytes(statsData);
+            WorldPacket.WriteBytes(statsData);
     }
 }

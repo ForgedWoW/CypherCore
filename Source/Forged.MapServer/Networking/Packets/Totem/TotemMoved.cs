@@ -15,8 +15,8 @@ internal class TotemMoved : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt8(Slot);
-        _worldPacket.WriteUInt8(NewSlot);
-        _worldPacket.WritePackedGuid(Totem);
+        WorldPacket.WriteUInt8(Slot);
+        WorldPacket.WriteUInt8(NewSlot);
+        WorldPacket.WritePackedGuid(Totem);
     }
 }

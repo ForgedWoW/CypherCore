@@ -13,7 +13,7 @@ public class GameObjUse : ClientPacket
 
     public override void Read()
     {
-        Guid = _worldPacket.ReadPackedGuid();
-        IsSoftInteract = _worldPacket.HasBit();
+        Guid = WorldPacket.ReadPackedGuid();
+        IsSoftInteract = WorldPacket.HasBit();
     }
 }

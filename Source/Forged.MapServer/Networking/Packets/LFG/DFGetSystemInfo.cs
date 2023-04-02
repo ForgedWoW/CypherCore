@@ -11,7 +11,7 @@ internal class DFGetSystemInfo : ClientPacket
 
     public override void Read()
     {
-        Player = _worldPacket.HasBit();
-        PartyIndex = _worldPacket.ReadUInt8();
+        Player = WorldPacket.HasBit();
+        PartyIndex = WorldPacket.ReadUInt8();
     }
 }

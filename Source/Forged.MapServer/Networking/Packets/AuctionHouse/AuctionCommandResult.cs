@@ -33,13 +33,13 @@ internal class AuctionCommandResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteUInt32(AuctionID);
-        _worldPacket.WriteInt32(Command);
-        _worldPacket.WriteInt32(ErrorCode);
-        _worldPacket.WriteInt32(BagResult);
-        _worldPacket.WritePackedGuid(Guid);
-        _worldPacket.WriteUInt64(MinIncrement);
-        _worldPacket.WriteUInt64(Money);
-        _worldPacket.WriteUInt32(DesiredDelay);
+        WorldPacket.WriteUInt32(AuctionID);
+        WorldPacket.WriteInt32(Command);
+        WorldPacket.WriteInt32(ErrorCode);
+        WorldPacket.WriteInt32(BagResult);
+        WorldPacket.WritePackedGuid(Guid);
+        WorldPacket.WriteUInt64(MinIncrement);
+        WorldPacket.WriteUInt64(Money);
+        WorldPacket.WriteUInt32(DesiredDelay);
     }
 }

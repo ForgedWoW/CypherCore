@@ -13,9 +13,9 @@ public class AutoStoreBagItem : ClientPacket
 
     public override void Read()
     {
-        Inv = new InvUpdate(_worldPacket);
-        ContainerSlotB = _worldPacket.ReadUInt8();
-        ContainerSlotA = _worldPacket.ReadUInt8();
-        SlotA = _worldPacket.ReadUInt8();
+        Inv = new InvUpdate(WorldPacket);
+        ContainerSlotB = WorldPacket.ReadUInt8();
+        ContainerSlotA = WorldPacket.ReadUInt8();
+        SlotA = WorldPacket.ReadUInt8();
     }
 }

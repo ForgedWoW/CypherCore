@@ -13,6 +13,6 @@ public class MythicPlusSeasonData : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.Write(SeasonActive);
+        WorldPacket.Write(SeasonActive);
     }
 }

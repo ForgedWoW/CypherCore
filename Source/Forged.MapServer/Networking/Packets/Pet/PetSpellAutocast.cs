@@ -14,8 +14,8 @@ internal class PetSpellAutocast : ClientPacket
 
     public override void Read()
     {
-        PetGUID = _worldPacket.ReadPackedGuid();
-        SpellID = _worldPacket.ReadUInt32();
-        AutocastEnabled = _worldPacket.HasBit();
+        PetGUID = WorldPacket.ReadPackedGuid();
+        SpellID = WorldPacket.ReadUInt32();
+        AutocastEnabled = WorldPacket.HasBit();
     }
 }

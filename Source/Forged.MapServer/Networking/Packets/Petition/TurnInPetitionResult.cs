@@ -12,7 +12,7 @@ public class TurnInPetitionResult : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteBits(Result, 4);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(Result, 4);
+        WorldPacket.FlushBits();
     }
 }

@@ -15,13 +15,13 @@ public class GuildEventTabModified : ServerPacket
 
     public override void Write()
     {
-        _worldPacket.WriteInt32(Tab);
+        WorldPacket.WriteInt32(Tab);
 
-        _worldPacket.WriteBits(Name.GetByteCount(), 7);
-        _worldPacket.WriteBits(Icon.GetByteCount(), 9);
-        _worldPacket.FlushBits();
+        WorldPacket.WriteBits(Name.GetByteCount(), 7);
+        WorldPacket.WriteBits(Icon.GetByteCount(), 9);
+        WorldPacket.FlushBits();
 
-        _worldPacket.WriteString(Name);
-        _worldPacket.WriteString(Icon);
+        WorldPacket.WriteString(Name);
+        WorldPacket.WriteString(Icon);
     }
 }
