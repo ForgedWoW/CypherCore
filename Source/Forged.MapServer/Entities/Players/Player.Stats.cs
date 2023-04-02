@@ -869,7 +869,7 @@ public partial class Player
     {
         SetCanModifyStats(false);
 
-        _ApplyAllAuraStatMods();
+        ApplyAllAuraStatMods();
         _ApplyAllItemMods();
         ApplyAllAzeriteItemMods(true);
 
@@ -884,7 +884,7 @@ public partial class Player
 
         ApplyAllAzeriteItemMods(false);
         _RemoveAllItemMods();
-        _RemoveAllAuraStatMods();
+        RemoveAllAuraStatMods();
 
         SetCanModifyStats(true);
 

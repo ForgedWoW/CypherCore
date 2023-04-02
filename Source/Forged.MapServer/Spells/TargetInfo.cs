@@ -318,7 +318,7 @@ public class TargetInfo : TargetInfoBase
                         effMask.Remove(i);
 
                 if (effMask.Count != 0)
-                    _spellHitTarget._ApplyAura(aurApp, effMask);
+                    _spellHitTarget.ApplyAura(aurApp, effMask);
             }
 
             // Needs to be called after dealing damage/healing to not remove breaking on damage auras
