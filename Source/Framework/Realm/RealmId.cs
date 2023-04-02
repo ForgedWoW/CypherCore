@@ -7,10 +7,6 @@ namespace Framework.Realm;
 
 public struct RealmId : IEquatable<RealmId>
 {
-    public uint Index { get; set; }
-    public byte Region { get; set; }
-    public byte Site { get; set; }
-
     public RealmId(byte region, byte battlegroup, uint index)
     {
         Region = region;
@@ -25,20 +21,9 @@ public struct RealmId : IEquatable<RealmId>
         Index = realmAddress & 0xFFFF;
     }
 
-    public uint GetAddress()
-    {
-        return (uint)((Region << 24) | (Site << 16) | (ushort)Index);
-    }
-
-    public string GetAddressString()
-    {
-        return $"{Region}-{Site}-{Index}";
-    }
-
-    public string GetSubRegionAddress()
-    {
-        return $"{Region}-{Site}-0";
-    }
+    public uint Index { get; set; }
+    public byte Region { get; set; }
+    public byte Site { get; set; }
 
     public override bool Equals(object obj)
     {
@@ -50,6 +35,16 @@ public struct RealmId : IEquatable<RealmId>
         return other.Index == Index;
     }
 
+    public uint GetAddress()
+    {
+        return (uint)((Region << 24) | (Site << 16) | (ushort)Index);
+    }
+
+    public string GetAddressString()
+    {
+        return $"{Region}-{Site}-{Index}";
+    }
+
     public override int GetHashCode()
     {
         return new
@@ -58,5 +53,10 @@ public struct RealmId : IEquatable<RealmId>
             Region,
             Index
         }.GetHashCode();
+    }
+
+    public string GetSubRegionAddress()
+    {
+        return $"{Region}-{Site}-0";
     }
 }

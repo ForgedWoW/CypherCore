@@ -17,14 +17,14 @@ public class EdgeWeightedDigraph
     private readonly LinkedList<DirectedEdge>[] _adjacent;
 
     /// <summary>
-    ///     The number of vertices in the edge-weighted digraph
-    /// </summary>
-    public int NumberOfVertices { get; private set; }
-
-    /// <summary>
     ///     The number of edges in the edge-weighted digraph
     /// </summary>
     public int NumberOfEdges { get; private set; }
+
+    /// <summary>
+    ///     The number of vertices in the edge-weighted digraph
+    /// </summary>
+    public int NumberOfVertices { get; private set; }
 
     /// <summary>
     ///     Constructs an empty edge-weighted digraph with the specified number of vertices and 0 edges

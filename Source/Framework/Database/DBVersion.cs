@@ -7,11 +7,6 @@ namespace Framework.Database;
 
 public struct DBVersion
 {
-    public int Major { get; }
-    public int Minor { get; }
-    public int Build { get; }
-    public bool IsMariaDB { get; }
-
     public DBVersion(int major, int minor, int build, bool isMariaDB)
     {
         Major = major;
@@ -19,6 +14,11 @@ public struct DBVersion
         Build = build;
         IsMariaDB = isMariaDB;
     }
+
+    public int Build { get; }
+    public bool IsMariaDB { get; }
+    public int Major { get; }
+    public int Minor { get; }
 
     public static DBVersion Parse(string versionString)
     {

@@ -11,6 +11,19 @@ public class MultiMapHashSet<TKey, TValue>
 
     private readonly Dictionary<TKey, HashSet<TValue>> _interalStorage = new();
 
+    public int Count
+    {
+        get
+        {
+            var count = 0;
+
+            foreach (var item in _interalStorage)
+                count += item.Value.Count;
+
+            return count;
+        }
+    }
+
     public HashSet<TValue> this[TKey key]
     {
         get
@@ -26,19 +39,6 @@ public class MultiMapHashSet<TKey, TValue>
                 _interalStorage.Add(key, value);
             else
                 _interalStorage[key] = value;
-        }
-    }
-
-    public int Count
-    {
-        get
-        {
-            var count = 0;
-
-            foreach (var item in _interalStorage)
-                count += item.Value.Count;
-
-            return count;
         }
     }
 
@@ -65,20 +65,9 @@ public class MultiMapHashSet<TKey, TValue>
         Add(item.Key, item.Value);
     }
 
-    public bool Remove(TKey key)
+    public void Clear()
     {
-        return _interalStorage.Remove(key);
-    }
-
-
-    public bool Remove(TKey key, TValue value)
-    {
-        return _interalStorage.Remove(key, value);
-    }
-
-    public bool ContainsKey(TKey key)
-    {
-        return _interalStorage.ContainsKey(key);
+        _interalStorage.Clear();
     }
 
     public bool Contains(TKey key, TValue item)
@@ -86,6 +75,16 @@ public class MultiMapHashSet<TKey, TValue>
         if (!_interalStorage.ContainsKey(key)) return false;
 
         return _interalStorage[key].Contains(item);
+    }
+
+    public bool ContainsKey(TKey key)
+    {
+        return _interalStorage.ContainsKey(key);
+    }
+
+    public bool Empty()
+    {
+        return _interalStorage == null || _interalStorage.Count == 0;
     }
 
     public HashSet<TValue> LookupByKey(TKey key)
@@ -106,18 +105,18 @@ public class MultiMapHashSet<TKey, TValue>
         return _emptyList.Cast<TValue>().ToHashSet();
     }
 
+    public bool Remove(TKey key)
+    {
+        return _interalStorage.Remove(key);
+    }
+
+    public bool Remove(TKey key, TValue value)
+    {
+        return _interalStorage.Remove(key, value);
+    }
+
     public bool TryGetValue(TKey key, out HashSet<TValue> value)
     {
         return _interalStorage.TryGetValue(key, out value);
-    }
-
-    public void Clear()
-    {
-        _interalStorage.Clear();
-    }
-
-    public bool Empty()
-    {
-        return _interalStorage == null || _interalStorage.Count == 0;
     }
 }

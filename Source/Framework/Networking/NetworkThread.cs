@@ -11,38 +11,12 @@ namespace Framework.Networking;
 
 public class NetworkThread<TSocketType> where TSocketType : ISocket
 {
-    private readonly List<TSocketType> _sockets = new();
     private readonly List<TSocketType> _newSockets = new();
+    private readonly List<TSocketType> _sockets = new();
     private int _connections;
     private volatile bool _stopped;
 
     private Task _thread;
-
-    public void Stop()
-    {
-        _stopped = true;
-    }
-
-    public bool Start()
-    {
-        if (_thread != null)
-            return false;
-
-        _thread = Task.Run(Run);
-
-        return true;
-    }
-
-    public void Wait()
-    {
-        _thread.Wait();
-        _thread = null;
-    }
-
-    public int GetConnectionCount()
-    {
-        return _connections;
-    }
 
     public virtual void AddSocket(TSocketType sock)
     {
@@ -55,6 +29,38 @@ public class NetworkThread<TSocketType> where TSocketType : ISocket
 
         SocketAdded(sock);
     }
+
+    public int GetConnectionCount()
+    {
+        return _connections;
+    }
+
+    public bool Start()
+    {
+        if (_thread != null)
+            return false;
+
+        _thread = Task.Run(Run);
+
+        return true;
+    }
+
+    public void Stop()
+    {
+        _stopped = true;
+    }
+
+    public void Wait()
+    {
+        _thread.Wait();
+        _thread = null;
+    }
+
+    protected virtual void SocketAdded(TSocketType sock)
+    { }
+
+    protected virtual void SocketRemoved(TSocketType sock)
+    { }
 
     private void AddNewSockets()
     {
@@ -122,8 +128,4 @@ public class NetworkThread<TSocketType> where TSocketType : ISocket
 
         _sockets.Clear();
     }
-
-    protected virtual void SocketAdded(TSocketType sock) { }
-
-    protected virtual void SocketRemoved(TSocketType sock) { }
 }

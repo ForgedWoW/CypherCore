@@ -11,25 +11,9 @@ internal class TaskQueue
 {
     private readonly SortedSet<TaskSchedulerTask> container = new();
 
-	/// <summary>
-	///     Pushes the task in the container
-	/// </summary>
-	/// <param name="task"> </param>
-	public void Push(TaskSchedulerTask task)
+    public void Clear()
     {
-        if (!container.Add(task)) { }
-    }
-
-	/// <summary>
-	///     Pops the task out of the container
-	/// </summary>
-	/// <returns> </returns>
-	public TaskSchedulerTask Pop()
-    {
-        var result = container.First();
-        container.Remove(result);
-
-        return result;
+        container.Clear();
     }
 
     public TaskSchedulerTask First()
@@ -37,14 +21,9 @@ internal class TaskQueue
         return container.First();
     }
 
-    public void Clear()
+    public bool IsEmpty()
     {
-        container.Clear();
-    }
-
-    public void RemoveIf(Predicate<TaskSchedulerTask> filter)
-    {
-        container.RemoveWhere(filter);
+        return container.Empty();
     }
 
     public void ModifyIf(Func<TaskSchedulerTask, bool> filter)
@@ -62,8 +41,29 @@ internal class TaskQueue
             container.Add(task);
     }
 
-    public bool IsEmpty()
+    /// <summary>
+    ///     Pops the task out of the container
+    /// </summary>
+    /// <returns> </returns>
+    public TaskSchedulerTask Pop()
     {
-        return container.Empty();
+        var result = container.First();
+        container.Remove(result);
+
+        return result;
+    }
+
+    /// <summary>
+    ///     Pushes the task in the container
+    /// </summary>
+    /// <param name="task"> </param>
+    public void Push(TaskSchedulerTask task)
+    {
+        if (!container.Add(task)) { }
+    }
+
+    public void RemoveIf(Predicate<TaskSchedulerTask> filter)
+    {
+        container.RemoveWhere(filter);
     }
 }

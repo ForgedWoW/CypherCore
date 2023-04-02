@@ -54,44 +54,6 @@ public class DijkstraShortestPath
         }
     }
 
-    /// <summary>
-    ///     Returns the length of a shortest path from the sourceVertex to the specified destinationVertex
-    /// </summary>
-    /// <param name="destinationVertex"> The destination vertex to find a shortest path to </param>
-    /// <returns> The length of a shortest path from the sourceVertex to the specified destinationVertex or double.PositiveInfinity if no such path exists </returns>
-    public double DistanceTo(int destinationVertex)
-    {
-        return _distanceTo[destinationVertex];
-    }
-
-    /// <summary>
-    ///     Is there a path from the sourceVertex to the specified destinationVertex?
-    /// </summary>
-    /// <param name="destinationVertex"> The destination vertex to see if there is a path to </param>
-    /// <returns> True if there is a path from the sourceVertex to the specified destinationVertex, false otherwise </returns>
-    public bool HasPathTo(int destinationVertex)
-    {
-        return _distanceTo[destinationVertex] < double.PositiveInfinity;
-    }
-
-    /// <summary>
-    ///     Returns an IEnumerable of DirectedEdges representing a shortest path from the sourceVertex to the specified destinationVertex
-    /// </summary>
-    /// <param name="destinationVertex"> The destination vertex to find a shortest path to </param>
-    /// <returns> IEnumerable of DirectedEdges representing a shortest path from the sourceVertex to the specified destinationVertex </returns>
-    public IEnumerable<DirectedEdge> PathTo(int destinationVertex)
-    {
-        if (!HasPathTo(destinationVertex))
-            return null;
-
-        var path = new Stack<DirectedEdge>();
-
-        for (var edge = _edgeTo[destinationVertex]; edge != null; edge = _edgeTo[edge.From])
-            path.Push(edge);
-
-        return path;
-    }
-
     // TODO: This method should be private and should be called from the bottom of the constructor
     /// <summary>
     ///     check optimality conditions:
@@ -142,6 +104,44 @@ public class DijkstraShortestPath
         }
 
         return true;
+    }
+
+    /// <summary>
+    ///     Returns the length of a shortest path from the sourceVertex to the specified destinationVertex
+    /// </summary>
+    /// <param name="destinationVertex"> The destination vertex to find a shortest path to </param>
+    /// <returns> The length of a shortest path from the sourceVertex to the specified destinationVertex or double.PositiveInfinity if no such path exists </returns>
+    public double DistanceTo(int destinationVertex)
+    {
+        return _distanceTo[destinationVertex];
+    }
+
+    /// <summary>
+    ///     Is there a path from the sourceVertex to the specified destinationVertex?
+    /// </summary>
+    /// <param name="destinationVertex"> The destination vertex to see if there is a path to </param>
+    /// <returns> True if there is a path from the sourceVertex to the specified destinationVertex, false otherwise </returns>
+    public bool HasPathTo(int destinationVertex)
+    {
+        return _distanceTo[destinationVertex] < double.PositiveInfinity;
+    }
+
+    /// <summary>
+    ///     Returns an IEnumerable of DirectedEdges representing a shortest path from the sourceVertex to the specified destinationVertex
+    /// </summary>
+    /// <param name="destinationVertex"> The destination vertex to find a shortest path to </param>
+    /// <returns> IEnumerable of DirectedEdges representing a shortest path from the sourceVertex to the specified destinationVertex </returns>
+    public IEnumerable<DirectedEdge> PathTo(int destinationVertex)
+    {
+        if (!HasPathTo(destinationVertex))
+            return null;
+
+        var path = new Stack<DirectedEdge>();
+
+        for (var edge = _edgeTo[destinationVertex]; edge != null; edge = _edgeTo[edge.From])
+            path.Push(edge);
+
+        return path;
     }
 
     private void Relax(DirectedEdge edge)

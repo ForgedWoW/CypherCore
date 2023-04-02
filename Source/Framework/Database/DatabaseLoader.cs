@@ -13,14 +13,14 @@ namespace Framework.Database;
 
 public class DatabaseLoader
 {
+    private readonly bool _autoSetup;
     private readonly IConfiguration _configuration;
     private readonly ILogger _logger;
-    private readonly bool _autoSetup;
-    private readonly DatabaseTypeFlags _updateFlags;
     private readonly List<Func<bool>> _open = new();
     private readonly List<Func<bool>> _populate = new();
-    private readonly List<Func<bool>> _update = new();
     private readonly List<Func<bool>> _prepare = new();
+    private readonly List<Func<bool>> _update = new();
+    private readonly DatabaseTypeFlags _updateFlags;
 
     public DatabaseLoader(DatabaseTypeFlags defaultUpdateMask, IConfiguration configuration, ILogger logger)
     {
@@ -177,6 +177,16 @@ public class DatabaseLoader
         return Process(_open);
     }
 
+    private bool PopulateDatabases()
+    {
+        return Process(_populate);
+    }
+
+    private bool PrepareStatements()
+    {
+        return Process(_prepare);
+    }
+
     // Processes the elements of the given stack until a predicate returned false.
     private bool Process(List<Func<bool>> list)
     {
@@ -191,18 +201,8 @@ public class DatabaseLoader
         return true;
     }
 
-    private bool PopulateDatabases()
-    {
-        return Process(_populate);
-    }
-
     private bool UpdateDatabases()
     {
         return Process(_update);
-    }
-
-    private bool PrepareStatements()
-    {
-        return Process(_prepare);
     }
 }

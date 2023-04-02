@@ -5,7 +5,10 @@ namespace Framework.Constants;
 
 public struct BattlefieldIds
 {
-    public const uint WG = 1;      // Wintergrasp battle
-    public const uint TB = 21;     // Tol Barad
-    public const uint Ashran = 24; // Ashran
+    public const uint Ashran = 24;
+    public const uint TB = 21;
+
+    public const uint WG = 1; // Wintergrasp battle
+    // Tol Barad
+    // Ashran
 }

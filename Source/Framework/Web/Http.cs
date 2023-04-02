@@ -10,27 +10,27 @@ using System.Text;
 
 namespace Framework.Web;
 
-public class HttpHeader
-{
-    public string Method { get; set; }
-    public string Path { get; set; }
-    public string Type { get; set; }
-    public string Host { get; set; }
-    public string DeviceId { get; set; }
-    public string ContentType { get; set; }
-    public int ContentLength { get; set; }
-    public string AcceptLanguage { get; set; }
-    public string Accept { get; set; }
-    public string UserAgent { get; set; }
-    public string Content { get; set; }
-}
-
 public enum HttpCode
 {
     Ok = 200,
     BadRequest = 400,
     NotFound = 404,
     InternalServerError = 500
+}
+
+public class HttpHeader
+{
+    public string Accept { get; set; }
+    public string AcceptLanguage { get; set; }
+    public string Content { get; set; }
+    public int ContentLength { get; set; }
+    public string ContentType { get; set; }
+    public string DeviceId { get; set; }
+    public string Host { get; set; }
+    public string Method { get; set; }
+    public string Path { get; set; }
+    public string Type { get; set; }
+    public string UserAgent { get; set; }
 }
 
 public class HttpHelper

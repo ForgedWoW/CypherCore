@@ -41,6 +41,11 @@ public class DepthFirstSearch
      * < V
      * }
      */
+    public int Count()
+    {
+        return count;
+    }
+
     public bool Marked(int v)
     {
         //validateVertex(v);
@@ -51,10 +56,6 @@ public class DepthFirstSearch
      * Returns the number of vertices connected to the source vertex {@code s}.
      * @return the number of vertices connected to the source vertex {@code s}
      */
-    public int Count()
-    {
-        return count;
-    }
 
     // depth first search from v
     private void dfs(EdgeWeightedDigraph G, uint v, Action<uint> action)

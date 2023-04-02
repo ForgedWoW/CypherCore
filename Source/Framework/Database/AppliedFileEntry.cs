@@ -5,8 +5,8 @@ namespace Framework.Database;
 
 public class AppliedFileEntry
 {
-    public string Name;
     public string Hash;
+    public string Name;
     public State State;
     public ulong Timestamp;
 

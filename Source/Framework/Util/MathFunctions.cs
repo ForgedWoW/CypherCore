@@ -10,37 +10,62 @@ using Framework.GameMath;
 public static class MathFunctions
 {
     public const float E = 2.71828f;
+    public const float EPSILON = 4.76837158203125E-7f;
     public const float LOG10_E = 0.434294f;
     public const float LOG2_E = 1.4427f;
     public const float PI = 3.14159f;
     public const float PI_OVER2 = 1.5708f;
     public const float PI_OVER4 = 0.785398f;
     public const float TWO_PI = 6.28319f;
-    public const float EPSILON = 4.76837158203125E-7f;
 
-    public static float wrap(float t, float lo, float hi)
+    public static float AddPct(ref float value, double pct)
     {
-        if ((t >= lo) && (t < hi))
-            return t;
-
-        var interval = hi - lo;
-
-        return (float)(t - interval * Math.Floor((t - lo) / interval));
+        return value += (float)CalculatePct(value, pct);
     }
 
-    public static void Swap<T>(ref T lhs, ref T rhs)
+    public static uint AddPct(ref uint value, double pct)
     {
-        (lhs, rhs) = (rhs, lhs);
+        return value += CalculatePct(value, pct);
     }
 
-    public static float Lerp(float a, float b, float f)
+    public static int AddPct(ref int value, double pct)
     {
-        return a + (b - a) * f;
+        return value += CalculatePct(value, pct);
     }
 
-    public static float DegToRad(float degrees)
+    public static long AddPct(ref long value, double pct)
     {
-        return degrees * (2.0f * PI / 360.0f);
+        return value += CalculatePct(value, pct);
+    }
+
+    public static double AddPct(ref double value, double pct)
+    {
+        return value += CalculatePct(value, pct);
+    }
+
+    public static double AddPct(double value, double pct)
+    {
+        return value += CalculatePct(value, pct);
+    }
+
+    public static long AddPct(ref long value, float pct)
+    {
+        return value += (long)CalculatePct(value, pct);
+    }
+
+    public static int AddPct(ref int value, float pct)
+    {
+        return value += CalculatePct(value, pct);
+    }
+
+    public static uint AddPct(ref uint value, float pct)
+    {
+        return value += CalculatePct(value, pct);
+    }
+
+    public static float AddPct(ref float value, float pct)
+    {
+        return value += CalculatePct(value, pct);
     }
 
     public static double ApplyPct(double Base, double pct)
@@ -73,55 +98,20 @@ public static class MathFunctions
         return Base = CalculatePct(Base, pct);
     }
 
-    public static float AddPct(ref float value, double pct)
+    public static void ApplyPercentModFloatVar(ref double value, double val, bool apply)
     {
-        return value += (float)CalculatePct(value, pct);
+        if (val == -100.0f) // prevent set var to zero
+            val = -99.99f;
+
+        value *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
     }
 
-    public static uint AddPct(ref uint value, double pct)
+    public static void ApplyPercentModFloatVar(ref float value, float val, bool apply)
     {
-        return value += CalculatePct(value, pct);
-    }
+        if (val == -100.0f) // prevent set var to zero
+            val = -99.99f;
 
-    public static int AddPct(ref int value, double pct)
-    {
-        return value += CalculatePct(value, pct);
-    }
-
-    public static long AddPct(ref long value, double pct)
-    {
-        return value += CalculatePct(value, pct);
-    }
-
-    public static double AddPct(ref double value, double pct)
-    {
-        return value += CalculatePct(value, pct);
-    }
-
-    public static double AddPct(double value, double pct)
-    {
-        return value += CalculatePct(value, pct);
-    }
-
-
-    public static long AddPct(ref long value, float pct)
-    {
-        return value += (long)CalculatePct(value, pct);
-    }
-
-    public static int AddPct(ref int value, float pct)
-    {
-        return value += CalculatePct(value, pct);
-    }
-
-    public static uint AddPct(ref uint value, float pct)
-    {
-        return value += CalculatePct(value, pct);
-    }
-
-    public static float AddPct(ref float value, float pct)
-    {
-        return value += CalculatePct(value, pct);
+        value *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
     }
 
     public static int CalculatePct(int value, double pct)
@@ -184,6 +174,61 @@ public static class MathFunctions
         return (long)(value * (pct / 100.0f));
     }
 
+    public static bool CompareValues(ComparisionType type, uint val1, uint val2)
+    {
+        switch (type)
+        {
+            case ComparisionType.EQ:
+                return val1 == val2;
+
+            case ComparisionType.High:
+                return val1 > val2;
+
+            case ComparisionType.Low:
+                return val1 < val2;
+
+            case ComparisionType.HighEQ:
+                return val1 >= val2;
+
+            case ComparisionType.LowEQ:
+                return val1 <= val2;
+
+            default:
+                // incorrect parameter
+                return false;
+        }
+    }
+
+    public static bool CompareValues(ComparisionType type, float val1, float val2)
+    {
+        switch (type)
+        {
+            case ComparisionType.EQ:
+                return val1 == val2;
+
+            case ComparisionType.High:
+                return val1 > val2;
+
+            case ComparisionType.Low:
+                return val1 < val2;
+
+            case ComparisionType.HighEQ:
+                return val1 >= val2;
+
+            case ComparisionType.LowEQ:
+                return val1 <= val2;
+
+            default:
+                // incorrect parameter
+                return false;
+        }
+    }
+
+    public static float DegToRad(float degrees)
+    {
+        return degrees * (2.0f * PI / 360.0f);
+    }
+
     public static float GetPctOf(float value, float max)
     {
         return (value / max) * 100.0f;
@@ -197,156 +242,6 @@ public static class MathFunctions
     public static int GetPctOf(int value, int max)
     {
         return (int)((value / max) * 100.0f);
-    }
-
-
-    public static int RoundToInterval(ref int num, dynamic floor, dynamic ceil)
-    {
-        return num = (int)Math.Min(Math.Max(num, floor), ceil);
-    }
-
-    public static uint RoundToInterval(ref uint num, dynamic floor, dynamic ceil)
-    {
-        return num = Math.Min(Math.Max(num, floor), ceil);
-    }
-
-    public static float RoundToInterval(ref float num, dynamic floor, dynamic ceil)
-    {
-        return num = Math.Min(Math.Max(num, floor), ceil);
-    }
-
-    public static double RoundToInterval(ref double num, dynamic floor, dynamic ceil)
-    {
-        return num = Math.Min(Math.Max(num, floor), ceil);
-    }
-
-    public static void ApplyPercentModFloatVar(ref double value, double val, bool apply)
-    {
-        if (val == -100.0f) // prevent set var to zero
-            val = -99.99f;
-
-        value *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
-    }
-
-    public static void ApplyPercentModFloatVar(ref float value, float val, bool apply)
-    {
-        if (val == -100.0f) // prevent set var to zero
-            val = -99.99f;
-
-        value *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
-    }
-
-    public static bool CompareValues(ComparisionType type, uint val1, uint val2)
-    {
-        switch (type)
-        {
-            case ComparisionType.EQ:
-                return val1 == val2;
-            case ComparisionType.High:
-                return val1 > val2;
-            case ComparisionType.Low:
-                return val1 < val2;
-            case ComparisionType.HighEQ:
-                return val1 >= val2;
-            case ComparisionType.LowEQ:
-                return val1 <= val2;
-            default:
-                // incorrect parameter
-                return false;
-        }
-    }
-
-    public static bool CompareValues(ComparisionType type, float val1, float val2)
-    {
-        switch (type)
-        {
-            case ComparisionType.EQ:
-                return val1 == val2;
-            case ComparisionType.High:
-                return val1 > val2;
-            case ComparisionType.Low:
-                return val1 < val2;
-            case ComparisionType.HighEQ:
-                return val1 >= val2;
-            case ComparisionType.LowEQ:
-                return val1 <= val2;
-            default:
-                // incorrect parameter
-                return false;
-        }
-    }
-
-    public static ulong MakePair64(uint l, uint h)
-    {
-        return (ulong)l | ((ulong)h << 32);
-    }
-
-    public static uint Pair64_HiPart(ulong x)
-    {
-        return (uint)((x >> 32) & 0x00000000FFFFFFFF);
-    }
-
-    public static uint Pair64_LoPart(ulong x)
-    {
-        return (uint)(x & 0x00000000FFFFFFFF);
-    }
-
-    public static ushort Pair32_HiPart(uint x)
-    {
-        return (ushort)((x >> 16) & 0x0000FFFF);
-    }
-
-    public static ushort Pair32_LoPart(uint x)
-    {
-        return (ushort)(x & 0x0000FFFF);
-    }
-
-    public static uint MakePair32(uint l, uint h)
-    {
-        return (ushort)l | (h << 16);
-    }
-
-    public static ushort MakePair16(uint l, uint h)
-    {
-        return (ushort)((byte)l | (ushort)h << 8);
-    }
-
-    public static double Variance(this IEnumerable<uint> source)
-    {
-        var n = 0;
-        double mean = 0;
-        double M2 = 0;
-
-        foreach (var x in source)
-        {
-            n = n + 1;
-            var delta = x - mean;
-            mean = mean + delta / n;
-            M2 += delta * (x - mean);
-        }
-
-        return M2 / (n - 1);
-    }
-
-    //3d math
-    public static Box toWorldSpace(Matrix4x4 rotation, Vector3 translation, Box box)
-    {
-        if (!box.isFinite())
-            return box;
-
-        var outBox = box;
-
-        outBox._center = new Vector3(rotation.M11 * box._center.GetAt(0) + rotation.M12 * box._center.GetAt(1) + rotation.M13 * box._center.GetAt(2) + translation.GetAt(0),
-                                     rotation.M21 * box._center.GetAt(0) + rotation.M22 * box._center.GetAt(1) + rotation.M23 * box._center.GetAt(2) + translation.GetAt(1),
-                                     rotation.M31 * box._center.GetAt(0) + rotation.M32 * box._center.GetAt(1) + rotation.M33 * box._center.GetAt(2) + translation.GetAt(2));
-
-        for (var i = 0; i < 3; ++i)
-            outBox._edgeVector[i] = rotation.Multiply(box._edgeVector[i]);
-
-        outBox._area = box._area;
-        outBox._volume = box._volume;
-
-        return box;
     }
 
     public static Matrix4x4 Inverse(this Matrix4x4 elt)
@@ -412,6 +307,78 @@ public static class MathFunctions
         return true;
     }
 
+    public static float Lerp(float a, float b, float f)
+    {
+        return a + (b - a) * f;
+    }
+
+    public static ushort MakePair16(uint l, uint h)
+    {
+        return (ushort)((byte)l | (ushort)h << 8);
+    }
+
+    public static uint MakePair32(uint l, uint h)
+    {
+        return (ushort)l | (h << 16);
+    }
+
+    public static ulong MakePair64(uint l, uint h)
+    {
+        return (ulong)l | ((ulong)h << 32);
+    }
+
+    public static Vector3 Multiply(this Matrix4x4 elt, Vector3 v)
+    {
+        return new Vector3(elt.M11 * v.GetAt(0) + elt.M12 * v.GetAt(1) + elt.M13 * v.GetAt(2),
+                           elt.M21 * v.GetAt(0) + elt.M22 * v.GetAt(1) + elt.M23 * v.GetAt(2),
+                           elt.M31 * v.GetAt(0) + elt.M32 * v.GetAt(1) + elt.M33 * v.GetAt(2));
+    }
+
+    public static ushort Pair32_HiPart(uint x)
+    {
+        return (ushort)((x >> 16) & 0x0000FFFF);
+    }
+
+    public static ushort Pair32_LoPart(uint x)
+    {
+        return (ushort)(x & 0x0000FFFF);
+    }
+
+    public static uint Pair64_HiPart(ulong x)
+    {
+        return (uint)((x >> 32) & 0x00000000FFFFFFFF);
+    }
+
+    public static uint Pair64_LoPart(ulong x)
+    {
+        return (uint)(x & 0x00000000FFFFFFFF);
+    }
+
+    public static int RoundToInterval(ref int num, dynamic floor, dynamic ceil)
+    {
+        return num = (int)Math.Min(Math.Max(num, floor), ceil);
+    }
+
+    public static uint RoundToInterval(ref uint num, dynamic floor, dynamic ceil)
+    {
+        return num = Math.Min(Math.Max(num, floor), ceil);
+    }
+
+    public static float RoundToInterval(ref float num, dynamic floor, dynamic ceil)
+    {
+        return num = Math.Min(Math.Max(num, floor), ceil);
+    }
+
+    public static double RoundToInterval(ref double num, dynamic floor, dynamic ceil)
+    {
+        return num = Math.Min(Math.Max(num, floor), ceil);
+    }
+
+    public static void Swap<T>(ref T lhs, ref T rhs)
+    {
+        (lhs, rhs) = (rhs, lhs);
+    }
+
     public static Matrix4x4 ToMatrix(this Quaternion _q)
     {
         // Implementation from Watt and Watt, pg 362
@@ -449,11 +416,52 @@ public static class MathFunctions
                              1.0f);
     }
 
-    public static Vector3 Multiply(this Matrix4x4 elt, Vector3 v)
+    //3d math
+    public static Box toWorldSpace(Matrix4x4 rotation, Vector3 translation, Box box)
     {
-        return new Vector3(elt.M11 * v.GetAt(0) + elt.M12 * v.GetAt(1) + elt.M13 * v.GetAt(2),
-                           elt.M21 * v.GetAt(0) + elt.M22 * v.GetAt(1) + elt.M23 * v.GetAt(2),
-                           elt.M31 * v.GetAt(0) + elt.M32 * v.GetAt(1) + elt.M33 * v.GetAt(2));
+        if (!box.isFinite())
+            return box;
+
+        var outBox = box;
+
+        outBox._center = new Vector3(rotation.M11 * box._center.GetAt(0) + rotation.M12 * box._center.GetAt(1) + rotation.M13 * box._center.GetAt(2) + translation.GetAt(0),
+                                     rotation.M21 * box._center.GetAt(0) + rotation.M22 * box._center.GetAt(1) + rotation.M23 * box._center.GetAt(2) + translation.GetAt(1),
+                                     rotation.M31 * box._center.GetAt(0) + rotation.M32 * box._center.GetAt(1) + rotation.M33 * box._center.GetAt(2) + translation.GetAt(2));
+
+        for (var i = 0; i < 3; ++i)
+            outBox._edgeVector[i] = rotation.Multiply(box._edgeVector[i]);
+
+        outBox._area = box._area;
+        outBox._volume = box._volume;
+
+        return box;
+    }
+
+    public static double Variance(this IEnumerable<uint> source)
+    {
+        var n = 0;
+        double mean = 0;
+        double M2 = 0;
+
+        foreach (var x in source)
+        {
+            n = n + 1;
+            var delta = x - mean;
+            mean = mean + delta / n;
+            M2 += delta * (x - mean);
+        }
+
+        return M2 / (n - 1);
+    }
+
+    public static float wrap(float t, float lo, float hi)
+    {
+        if ((t >= lo) && (t < hi))
+            return t;
+
+        var interval = hi - lo;
+
+        return (float)(t - interval * Math.Floor((t - lo) / interval));
     }
 
     private static double eps(double a, double b)
@@ -465,7 +473,6 @@ public static class MathFunctions
 
         return 0.0000005f * aa;
     }
-
 
     private static double eps(float a, float b)
     {
@@ -479,37 +486,37 @@ public static class MathFunctions
 
     #region Clamp
 
-	/// <summary>
-	///     Clamp a <paramref name="value" /> to <paramref name="calmpedValue" /> if it is withon the <paramref name="tolerance" /> range.
-	/// </summary>
-	/// <param name="value"> The value to clamp. </param>
-	/// <param name="calmpedValue"> The clamped value. </param>
-	/// <param name="tolerance"> The tolerance value. </param>
-	/// <returns>
-	///     Returns the clamped value.
-	///     result = (tolerance > Abs(value-calmpedValue)) ? calmpedValue : value;
-	/// </returns>
-	public static float Clamp(float value, float calmpedValue, float tolerance)
+    /// <summary>
+    ///     Clamp a <paramref name="value" /> to <paramref name="calmpedValue" /> if it is withon the <paramref name="tolerance" /> range.
+    /// </summary>
+    /// <param name="value"> The value to clamp. </param>
+    /// <param name="calmpedValue"> The clamped value. </param>
+    /// <param name="tolerance"> The tolerance value. </param>
+    /// <returns>
+    ///     Returns the clamped value.
+    ///     result = (tolerance > Abs(value-calmpedValue)) ? calmpedValue : value;
+    /// </returns>
+    public static float Clamp(float value, float calmpedValue, float tolerance)
     {
         return (tolerance > Math.Abs(value - calmpedValue)) ? calmpedValue : value;
     }
 
-	/// <summary>
-	///     Clamp a <paramref name="value" /> to <paramref name="calmpedValue" /> using the default tolerance value.
-	/// </summary>
-	/// <param name="value"> The value to clamp. </param>
-	/// <param name="calmpedValue"> The clamped value. </param>
-	/// <returns>
-	///     Returns the clamped value.
-	///     result = (EpsilonF > Abs(value-calmpedValue)) ? calmpedValue : value;
-	/// </returns>
-	/// <remarks> <see cref="EPSILON" /> is used for tolerance. </remarks>
-	public static float Clamp(float value, float calmpedValue)
+    /// <summary>
+    ///     Clamp a <paramref name="value" /> to <paramref name="calmpedValue" /> using the default tolerance value.
+    /// </summary>
+    /// <param name="value"> The value to clamp. </param>
+    /// <param name="calmpedValue"> The clamped value. </param>
+    /// <returns>
+    ///     Returns the clamped value.
+    ///     result = (EpsilonF > Abs(value-calmpedValue)) ? calmpedValue : value;
+    /// </returns>
+    /// <remarks> <see cref="EPSILON" /> is used for tolerance. </remarks>
+    public static float Clamp(float value, float calmpedValue)
     {
         return (EPSILON > Math.Abs(value - calmpedValue)) ? calmpedValue : value;
     }
 
-    #endregion
+    #endregion Clamp
 
     #region Fuzzy
 
@@ -523,19 +530,14 @@ public static class MathFunctions
         return (a == b) || (Math.Abs(a - b) <= eps(a, b));
     }
 
+    public static bool fuzzyGe(float a, float b)
+    {
+        return a > b - eps(a, b);
+    }
+
     public static bool fuzzyGt(float a, float b)
     {
         return a > b + eps(a, b);
-    }
-
-    public static bool fuzzyLt(float a, float b)
-    {
-        return a < b - eps(a, b);
-    }
-
-    public static bool fuzzyNe(float a, float b)
-    {
-        return !fuzzyEq(a, b);
     }
 
     public static bool fuzzyLe(float a, float b)
@@ -548,10 +550,15 @@ public static class MathFunctions
         return a < b + eps(a, b);
     }
 
-    public static bool fuzzyGe(float a, float b)
+    public static bool fuzzyLt(float a, float b)
     {
-        return a > b - eps(a, b);
+        return a < b - eps(a, b);
     }
 
-    #endregion
+    public static bool fuzzyNe(float a, float b)
+    {
+        return !fuzzyEq(a, b);
+    }
+
+    #endregion Fuzzy
 }

@@ -12,9 +12,9 @@ namespace Framework.Database;
 internal class DatabaseWorker<T>
 {
     private readonly bool _cancelationToken;
-    private readonly AutoResetEvent _resetEvent = new(false);
-    private readonly ConcurrentQueue<(ISqlOperation, Action<bool>)> _queue = new();
     private readonly MySqlBase<T> _mySqlBase;
+    private readonly ConcurrentQueue<(ISqlOperation, Action<bool>)> _queue = new();
+    private readonly AutoResetEvent _resetEvent = new(false);
 
     public DatabaseWorker(MySqlBase<T> mySqlBase)
     {

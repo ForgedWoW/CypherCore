@@ -22,88 +22,88 @@ public struct Ray : ICloneable
 
     private static Vector3 _inf = new(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
 
-    private Vector3 _origin;
     private Vector3 _direction;
+    private Vector3 _origin;
 
-    #endregion
+    #endregion Private Fields
 
     #region Constructors
 
-	/// <summary>
-	///     Initializes a new instance of the <see cref="Ray" /> class using given origin and direction vectors.
-	/// </summary>
-	/// <param name="origin"> Ray's origin point. </param>
-	/// <param name="direction"> Ray's direction vector. </param>
-	public Ray(Vector3 origin, Vector3 direction)
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="Ray" /> class using given origin and direction vectors.
+    /// </summary>
+    /// <param name="origin"> Ray's origin point. </param>
+    /// <param name="direction"> Ray's direction vector. </param>
+    public Ray(Vector3 origin, Vector3 direction)
     {
         _origin = origin;
         _direction = direction;
     }
 
-	/// <summary>
-	///     Initializes a new instance of the <see cref="Ray" /> class using given ray.
-	/// </summary>
-	/// <param name="ray"> A <see cref="Ray" /> instance to assign values from. </param>
-	public Ray(Ray ray)
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="Ray" /> class using given ray.
+    /// </summary>
+    /// <param name="ray"> A <see cref="Ray" /> instance to assign values from. </param>
+    public Ray(Ray ray)
     {
         _origin = ray.Origin;
         _direction = ray.Direction;
     }
 
-    #endregion
+    #endregion Constructors
 
     #region Public Properties
 
-	/// <summary>
-	///     Gets or sets the ray's origin.
-	/// </summary>
-	public Vector3 Origin
-    {
-        get { return _origin; }
-        set { _origin = value; }
-    }
-
-	/// <summary>
-	///     Gets or sets the ray's direction vector.
-	/// </summary>
-	public Vector3 Direction
+    /// <summary>
+    ///     Gets or sets the ray's direction vector.
+    /// </summary>
+    public Vector3 Direction
     {
         get { return _direction; }
         set { _direction = value; }
     }
 
-    #endregion
+    /// <summary>
+    ///     Gets or sets the ray's origin.
+    /// </summary>
+    public Vector3 Origin
+    {
+        get { return _origin; }
+        set { _origin = value; }
+    }
+
+    #endregion Public Properties
 
     #region ICloneable Members
 
-	/// <summary>
-	///     Creates an exact copy of this <see cref="Ray" /> object.
-	/// </summary>
-	/// <returns> The <see cref="Ray" /> object this method creates, cast as an object. </returns>
-	object ICloneable.Clone()
+    /// <summary>
+    ///     Creates an exact copy of this <see cref="Ray" /> object.
+    /// </summary>
+    /// <returns> The <see cref="Ray" /> object this method creates, cast as an object. </returns>
+    object ICloneable.Clone()
     {
         return new Ray(this);
     }
 
-	/// <summary>
-	///     Creates an exact copy of this <see cref="Ray" /> object.
-	/// </summary>
-	/// <returns> The <see cref="Ray" /> object this method creates. </returns>
-	public Ray Clone()
+    /// <summary>
+    ///     Creates an exact copy of this <see cref="Ray" /> object.
+    /// </summary>
+    /// <returns> The <see cref="Ray" /> object this method creates. </returns>
+    public Ray Clone()
     {
         return new Ray(this);
     }
 
-    #endregion
+    #endregion ICloneable Members
 
     #region Public Static Parse Methods
 
-	/// <summary>
-	///     Converts the specified string to its <see cref="Ray" /> equivalent.
-	/// </summary>
-	/// <param name="s"> A string representation of a <see cref="Ray" /> </param>
-	/// <returns> A <see cref="Ray" /> that represents the vector specified by the <paramref name="s" /> parameter. </returns>
-	public static Ray Parse(string s)
+    /// <summary>
+    ///     Converts the specified string to its <see cref="Ray" /> equivalent.
+    /// </summary>
+    /// <param name="s"> A string representation of a <see cref="Ray" /> </param>
+    /// <returns> A <see cref="Ray" /> that represents the vector specified by the <paramref name="s" /> parameter. </returns>
+    public static Ray Parse(string s)
     {
         Regex r = new(@"\((?<origin>\([^\)]*\)), (?<direction>\([^\)]*\))\)", RegexOptions.None);
         var m = r.Match(s);
@@ -115,40 +115,31 @@ public struct Ray : ICloneable
             throw new Exception("Unsuccessful Match.");
     }
 
-    #endregion
+    #endregion Public Static Parse Methods
 
     #region Public Methods
 
-	/// <summary>
-	///     Gets a point on the ray.
-	/// </summary>
-	/// <param name="t"> </param>
-	/// <returns> </returns>
-	public Vector3 GetPointOnRay(float t)
+    /// <summary>
+    ///     Gets a point on the ray.
+    /// </summary>
+    /// <param name="t"> </param>
+    /// <returns> </returns>
+    public Vector3 GetPointOnRay(float t)
     {
         return (Origin + Direction * t);
     }
 
-    #endregion
+    #endregion Public Methods
 
     #region Overrides
 
-	/// <summary>
-	///     Get the hashcode for this instance.
-	/// </summary>
-	/// <returns> Returns the hash code for this vector instance. </returns>
-	public override int GetHashCode()
-    {
-        return _origin.GetHashCode() ^ _direction.GetHashCode();
-    }
-
-	/// <summary>
-	///     Returns a value indicating whether this instance is equal to
-	///     the specified object.
-	/// </summary>
-	/// <param name="obj"> An object to compare to this instance. </param>
-	/// <returns> <see langword="true" /> if <paramref name="obj" /> is a <see cref="Vector3" /> and has the same values as this instance; otherwise, <see langword="false" />. </returns>
-	public override bool Equals(object obj)
+    /// <summary>
+    ///     Returns a value indicating whether this instance is equal to
+    ///     the specified object.
+    /// </summary>
+    /// <param name="obj"> An object to compare to this instance. </param>
+    /// <returns> <see langword="true" /> if <paramref name="obj" /> is a <see cref="Vector3" /> and has the same values as this instance; otherwise, <see langword="false" />. </returns>
+    public override bool Equals(object obj)
     {
         if (obj is Ray)
         {
@@ -160,42 +151,51 @@ public struct Ray : ICloneable
         return false;
     }
 
-	/// <summary>
-	///     Returns a string representation of this object.
-	/// </summary>
-	/// <returns> A string representation of this object. </returns>
-	public override string ToString()
+    /// <summary>
+    ///     Get the hashcode for this instance.
+    /// </summary>
+    /// <returns> Returns the hash code for this vector instance. </returns>
+    public override int GetHashCode()
+    {
+        return _origin.GetHashCode() ^ _direction.GetHashCode();
+    }
+
+    /// <summary>
+    ///     Returns a string representation of this object.
+    /// </summary>
+    /// <returns> A string representation of this object. </returns>
+    public override string ToString()
     {
         return $"({_origin}, {_direction})";
     }
 
-    #endregion
+    #endregion Overrides
 
     #region Comparison Operators
 
-	/// <summary>
-	///     Tests whether two specified rays are equal.
-	/// </summary>
-	/// <param name="a"> The first of two rays to compare. </param>
-	/// <param name="b"> The second of two rays to compare. </param>
-	/// <returns> <see langword="true" /> if the two rays are equal; otherwise, <see langword="false" />. </returns>
-	public static bool operator ==(Ray a, Ray b)
-    {
-        return ValueType.Equals(a, b);
-    }
-
-	/// <summary>
-	///     Tests whether two specified rays are not equal.
-	/// </summary>
-	/// <param name="a"> The first of two rays to compare. </param>
-	/// <param name="b"> The second of two rays to compare. </param>
-	/// <returns> <see langword="true" /> if the two rays are not equal; otherwise, <see langword="false" />. </returns>
-	public static bool operator !=(Ray a, Ray b)
+    /// <summary>
+    ///     Tests whether two specified rays are not equal.
+    /// </summary>
+    /// <param name="a"> The first of two rays to compare. </param>
+    /// <param name="b"> The second of two rays to compare. </param>
+    /// <returns> <see langword="true" /> if the two rays are not equal; otherwise, <see langword="false" />. </returns>
+    public static bool operator !=(Ray a, Ray b)
     {
         return !ValueType.Equals(a, b);
     }
 
-    #endregion
+    /// <summary>
+    ///     Tests whether two specified rays are equal.
+    /// </summary>
+    /// <param name="a"> The first of two rays to compare. </param>
+    /// <param name="b"> The second of two rays to compare. </param>
+    /// <returns> <see langword="true" /> if the two rays are equal; otherwise, <see langword="false" />. </returns>
+    public static bool operator ==(Ray a, Ray b)
+    {
+        return ValueType.Equals(a, b);
+    }
+
+    #endregion Comparison Operators
 
     public Vector3 intersection(Plane plane)
     {
@@ -229,7 +229,3 @@ public struct Ray : ICloneable
         return Vector3.Divide(Vector3.One, Direction);
     }
 }
-
-#region RayConverter class
-
-#endregion

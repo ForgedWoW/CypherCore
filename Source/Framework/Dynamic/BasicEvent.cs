@@ -10,17 +10,25 @@ public class BasicEvent
 
     private AbortState m_abortState; // set by externals when the event is aborted, aborted events don't execute
 
+    public bool IsAborted => m_abortState == AbortState.Aborted;
+    public bool IsAbortScheduled => m_abortState == AbortState.Scheduled;
     public virtual bool IsDeletable => true;
 
     public bool IsRunning => m_abortState == AbortState.Running;
 
-    public bool IsAbortScheduled => m_abortState == AbortState.Scheduled;
-
-    public bool IsAborted => m_abortState == AbortState.Aborted;
-
     public BasicEvent()
     {
         m_abortState = AbortState.Running;
+    }
+
+    public virtual void Abort(ulong e_time) { }
+
+    // this method executes when the event is triggered
+    // return false if event does not want to be deleted
+    // e_time is execution time, p_time is update interval
+    public virtual bool Execute(ulong etime, uint pTime)
+    {
+        return true;
     }
 
     public void ScheduleAbort()
@@ -33,13 +41,5 @@ public class BasicEvent
         m_abortState = AbortState.Aborted;
     }
 
-    // this method executes when the event is triggered
-    // return false if event does not want to be deleted
-    // e_time is execution time, p_time is update interval
-    public virtual bool Execute(ulong etime, uint pTime)
-    {
-        return true;
-    }
-
-    public virtual void Abort(ulong e_time) { } // this method executes when the event is aborted
+    // this method executes when the event is aborted
 }

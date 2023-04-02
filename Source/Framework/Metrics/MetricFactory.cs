@@ -8,9 +8,8 @@ namespace Framework.Metrics;
 public class MetricFactory
 {
     private readonly uint _logEvery;
-    private readonly bool _recordlessThanOnems;
-
     private readonly Dictionary<string, MeteredMetric> _meteredMetrics = new();
+    private readonly bool _recordlessThanOnems;
 
     public MetricFactory(uint logEvery, bool recordlessThanOnems)
     {

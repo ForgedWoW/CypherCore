@@ -14,9 +14,7 @@ public static class ConfigEx
         var section = config as IConfigurationSection;
 
         foreach (var k in keys)
-        {
             section = section?.GetSection(k);
-        }
 
         var value = section?.Value;
 

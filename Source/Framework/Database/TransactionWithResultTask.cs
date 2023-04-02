@@ -8,6 +8,7 @@ namespace Framework.Database;
 public class TransactionWithResultTask : TransactionTask
 {
     public bool? Result { get; private set; } = null;
+
     public TransactionWithResultTask(SQLTransaction trans) : base(trans) { }
 
     public override bool Execute<T>(MySqlBase<T> mySqlBase)

@@ -8,7 +8,6 @@ namespace Framework.Web;
 [DataContract]
 public class RealmListUpdate
 {
-    [DataMember(Name = "update")] public RealmEntry Update { get; set; } = new();
-
     [DataMember(Name = "deleting")] public bool Deleting { get; set; }
+    [DataMember(Name = "update")] public RealmEntry Update { get; set; } = new();
 }

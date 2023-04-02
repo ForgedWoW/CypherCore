@@ -10,8 +10,54 @@ namespace Framework.Networking;
 
 public class AsyncAcceptor
 {
-    private TcpListener _listener;
     private volatile bool _closed;
+    private TcpListener _listener;
+
+    public async void AsyncAccept<T>() where T : ISocket
+    {
+        try
+        {
+            var socket = await _listener.AcceptSocketAsync();
+
+            if (socket != null)
+            {
+                var newSocket = (T)Activator.CreateInstance(typeof(T), socket);
+                newSocket.Accept();
+
+                if (!_closed)
+                    AsyncAccept<T>();
+            }
+        }
+        catch (ObjectDisposedException) { }
+    }
+
+    public async void AsyncAcceptSocket(SocketAcceptDelegate mgrHandler)
+    {
+        try
+        {
+            var _socket = await _listener.AcceptSocketAsync();
+
+            if (_socket != null)
+            {
+                mgrHandler(_socket);
+
+                if (!_closed)
+                    AsyncAcceptSocket(mgrHandler);
+            }
+        }
+        catch (ObjectDisposedException ex)
+        {
+            Log.Logger.Error(ex, "");
+        }
+    }
+
+    public void Close()
+    {
+        if (_closed)
+            return;
+
+        _closed = true;
+    }
 
     public bool Start(string ip, int port)
     {
@@ -35,51 +81,5 @@ public class AsyncAcceptor
         }
 
         return true;
-    }
-
-    public async void AsyncAcceptSocket(SocketAcceptDelegate mgrHandler)
-    {
-        try
-        {
-            var _socket = await _listener.AcceptSocketAsync();
-
-            if (_socket != null)
-            {
-                mgrHandler(_socket);
-
-                if (!_closed)
-                    AsyncAcceptSocket(mgrHandler);
-            }
-        }
-        catch (ObjectDisposedException ex)
-        {
-            Log.Logger.Error(ex, "");
-        }
-    }
-
-    public async void AsyncAccept<T>() where T : ISocket
-    {
-        try
-        {
-            var socket = await _listener.AcceptSocketAsync();
-
-            if (socket != null)
-            {
-                var newSocket = (T)Activator.CreateInstance(typeof(T), socket);
-                newSocket.Accept();
-
-                if (!_closed)
-                    AsyncAccept<T>();
-            }
-        }
-        catch (ObjectDisposedException) { }
-    }
-
-    public void Close()
-    {
-        if (_closed)
-            return;
-
-        _closed = true;
     }
 }

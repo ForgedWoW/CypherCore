@@ -44,6 +44,11 @@ public class Array<T> : List<T>
         Fill(defaultFillValue);
     }
 
+    public static implicit operator T[](Array<T> array)
+    {
+        return array.ToArray();
+    }
+
     public void Fill(T value)
     {
         for (var i = 0; i < _limit; ++i)
@@ -53,10 +58,5 @@ public class Array<T> : List<T>
     public int GetLimit()
     {
         return _limit;
-    }
-
-    public static implicit operator T[](Array<T> array)
-    {
-        return array.ToArray();
     }
 }

@@ -10,8 +10,25 @@ namespace Framework.Networking;
 public class SocketManager<TSocketType> where TSocketType : ISocket
 {
     public AsyncAcceptor Acceptor;
-    private NetworkThread<TSocketType>[] _threads;
     private int _threadCount;
+    private NetworkThread<TSocketType>[] _threads;
+
+    public virtual void OnSocketOpen(Socket sock)
+    {
+        try
+        {
+            var newSocket = (TSocketType)Activator.CreateInstance(typeof(TSocketType), sock);
+            newSocket.Accept();
+            var thread = _threads[SelectThreadWithMinConnections()];
+
+            if (thread != null)
+                thread.AddSocket(newSocket);
+        }
+        catch (Exception err)
+        {
+            Log.Logger.Error(err, "");
+        }
+    }
 
     public virtual bool StartNetwork(string bindIp, int port, int threadCount = 1)
     {
@@ -56,30 +73,6 @@ public class SocketManager<TSocketType> where TSocketType : ISocket
         _threadCount = 0;
     }
 
-    public virtual void OnSocketOpen(Socket sock)
-    {
-        try
-        {
-            var newSocket = (TSocketType)Activator.CreateInstance(typeof(TSocketType), sock);
-            newSocket.Accept();
-            var thread = _threads[SelectThreadWithMinConnections()];
-
-            if (thread != null)
-                thread.AddSocket(newSocket);
-        }
-        catch (Exception err)
-        {
-            Log.Logger.Error(err, "");
-        }
-    }
-
-    private void Wait()
-    {
-        if (_threadCount != 0)
-            for (var i = 0; i < _threadCount; ++i)
-                _threads[i].Wait();
-    }
-
     private uint SelectThreadWithMinConnections()
     {
         uint min = 0;
@@ -89,5 +82,12 @@ public class SocketManager<TSocketType> where TSocketType : ISocket
                 min = i;
 
         return min;
+    }
+
+    private void Wait()
+    {
+        if (_threadCount != 0)
+            for (var i = 0; i < _threadCount; ++i)
+                _threads[i].Wait();
     }
 }

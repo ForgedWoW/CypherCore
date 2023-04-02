@@ -5,22 +5,27 @@ namespace System.Collections;
 
 public class BitSet : ICollection, ICloneable
 {
-    // XPerY=n means that n Xs can be stored in 1 Y. 
-    private const int BitsPerInt32 = 32;
-    private const int BytesPerInt32 = 4;
     private const int BitsPerByte = 8;
 
+    // XPerY=n means that n Xs can be stored in 1 Y.
+    private const int BitsPerInt32 = 32;
+
+    private const int BytesPerInt32 = 4;
     private const int ShrinkThreshold = 256;
 
     private uint[] _mArray;
     private int _mLength;
-    private int _version;
-
     [NonSerialized] private object _syncRoot;
+    private int _version;
 
     public int Count
     {
         get { return _mLength; }
+    }
+
+    public bool IsSynchronized
+    {
+        get { return false; }
     }
 
     public object SyncRoot
@@ -34,15 +39,9 @@ public class BitSet : ICollection, ICloneable
         }
     }
 
-    public bool IsSynchronized
+    public bool IsReadOnly
     {
         get { return false; }
-    }
-
-    public bool this[int index]
-    {
-        get { return Get(index); }
-        set { Set(index, value); }
     }
 
     public int Length
@@ -81,9 +80,10 @@ public class BitSet : ICollection, ICloneable
         }
     }
 
-    public bool IsReadOnly
+    public bool this[int index]
     {
-        get { return false; }
+        get { return Get(index); }
+        set { Set(index, value); }
     }
 
     public BitSet(int length, bool defaultValue = false)
@@ -191,12 +191,69 @@ public class BitSet : ICollection, ICloneable
         return new BitArrayEnumeratorSimple(this);
     }
 
+    public BitSet And(BitSet value)
+    {
+        if (value == null)
+            throw new ArgumentNullException("value");
+
+        if (Length != value.Length)
+            throw new ArgumentException();
+
+        var ints = GetArrayLength(_mLength, BitsPerInt32);
+
+        for (var i = 0; i < ints; i++)
+            _mArray[i] &= value._mArray[i];
+
+        _version++;
+
+        return this;
+    }
+
+    public bool Any()
+    {
+        for (var i = 0; i < Length; ++i)
+            if (Get(i))
+                return true;
+
+        return false;
+    }
+
     public bool Get(int index)
     {
         if (index < 0 || index >= Length)
             throw new ArgumentOutOfRangeException("index");
 
         return (Convert.ToInt64(_mArray[index / 32]) & (1 << (index % 32))) != 0;
+    }
+
+    public BitSet Not()
+    {
+        var ints = GetArrayLength(_mLength, BitsPerInt32);
+
+        for (var i = 0; i < ints; i++)
+            _mArray[i] = ~_mArray[i];
+
+        _version++;
+
+        return this;
+    }
+
+    public BitSet Or(BitSet value)
+    {
+        if (value == null)
+            throw new ArgumentNullException("value");
+
+        if (Length != value.Length)
+            throw new ArgumentException();
+
+        var ints = GetArrayLength(_mLength, BitsPerInt32);
+
+        for (var i = 0; i < ints; i++)
+            _mArray[i] |= value._mArray[i];
+
+        _version++;
+
+        return this;
     }
 
     public void Set(int index, bool value)
@@ -223,42 +280,6 @@ public class BitSet : ICollection, ICloneable
         _version++;
     }
 
-    public BitSet And(BitSet value)
-    {
-        if (value == null)
-            throw new ArgumentNullException("value");
-
-        if (Length != value.Length)
-            throw new ArgumentException();
-
-        var ints = GetArrayLength(_mLength, BitsPerInt32);
-
-        for (var i = 0; i < ints; i++)
-            _mArray[i] &= value._mArray[i];
-
-        _version++;
-
-        return this;
-    }
-
-    public BitSet Or(BitSet value)
-    {
-        if (value == null)
-            throw new ArgumentNullException("value");
-
-        if (Length != value.Length)
-            throw new ArgumentException();
-
-        var ints = GetArrayLength(_mLength, BitsPerInt32);
-
-        for (var i = 0; i < ints; i++)
-            _mArray[i] |= value._mArray[i];
-
-        _version++;
-
-        return this;
-    }
-
     public BitSet Xor(BitSet value)
     {
         if (value == null)
@@ -277,27 +298,6 @@ public class BitSet : ICollection, ICloneable
         return this;
     }
 
-    public BitSet Not()
-    {
-        var ints = GetArrayLength(_mLength, BitsPerInt32);
-
-        for (var i = 0; i < ints; i++)
-            _mArray[i] = ~_mArray[i];
-
-        _version++;
-
-        return this;
-    }
-
-    public bool Any()
-    {
-        for (var i = 0; i < Length; ++i)
-            if (Get(i))
-                return true;
-
-        return false;
-    }
-
     private static int GetArrayLength(int n, int div)
     {
         if (div <= 0)
@@ -311,8 +311,8 @@ public class BitSet : ICollection, ICloneable
     {
         private readonly BitSet _bitarray;
         private readonly int _version;
-        private int _index;
         private bool _currentElement;
+        private int _index;
 
         public virtual object Current
         {

@@ -27,166 +27,9 @@ public abstract class MySqlBase<T>
         _configuration = configuration;
     }
 
-    public MySqlErrorCode Initialize(MySqlConnectionInfo connectionInfo)
+    public static void EscapeString(ref string str)
     {
-        _connectionInfo = connectionInfo;
-        _updater = new DatabaseUpdater<T>(this, _configuration);
-        _worker = new DatabaseWorker<T>(this);
-
-        try
-        {
-            using (var connection = _connectionInfo.GetConnection())
-            {
-                connection.Open();
-
-                version = DBVersion.Parse(connection.ServerVersion);
-                Log.Logger.Information($"Connected to DB: {_connectionInfo.Database} Server: {(version.IsMariaDB ? "MariaDB" : "MySQL")} Ver: {connection.ServerVersion}");
-
-                return MySqlErrorCode.None;
-            }
-        }
-        catch (MySqlException ex)
-        {
-            return HandleMySQLException(ex);
-        }
-    }
-
-    public bool DirectExecute(string sql, params object[] args)
-    {
-        return DirectExecute(new PreparedStatement(string.Format(sql, args)));
-    }
-
-    public bool DirectExecute(PreparedStatement stmt)
-    {
-        try
-        {
-            using (var Connection = _connectionInfo.GetConnection())
-            {
-                Connection.Open();
-
-                using (var cmd = Connection.CreateCommand())
-                {
-                    cmd.CommandText = stmt.CommandText;
-
-                    foreach (var parameter in stmt.Parameters)
-                        cmd.Parameters.AddWithValue("@" + parameter.Key, parameter.Value);
-
-                    cmd.ExecuteNonQuery();
-
-                    return true;
-                }
-            }
-        }
-        catch (MySqlException ex)
-        {
-            HandleMySQLException(ex, stmt.CommandText, stmt.Parameters);
-
-            return false;
-        }
-    }
-
-    public void Execute(string sql, params object[] args)
-    {
-        Execute(new PreparedStatement(string.Format(sql, args)));
-    }
-
-    public void Execute(PreparedStatement stmt)
-    {
-        PreparedStatementTask task = new(stmt);
-        _worker.QueueQuery(task);
-    }
-
-    public void ExecuteOrAppend(SQLTransaction trans, PreparedStatement stmt)
-    {
-        if (trans == null)
-            Execute(stmt);
-        else
-            trans.Append(stmt);
-    }
-
-    public SQLResult Query(string sql, params object[] args)
-    {
-        return Query(new PreparedStatement(string.Format(sql, args)));
-    }
-
-    public SQLResult Query(PreparedStatement stmt)
-    {
-        MySqlException sqlEx = null;
-        var retryCount = 0;
-
-        while (retryCount < 5)
-        {
-            try
-            {
-                var Connection = _connectionInfo.GetConnection();
-                Connection.Open();
-
-                var cmd = Connection.CreateCommand();
-                cmd.CommandText = stmt.CommandText;
-
-                foreach (var parameter in stmt.Parameters)
-                    cmd.Parameters.AddWithValue("@" + parameter.Key, parameter.Value);
-
-                return new SQLResult(cmd.ExecuteReader(System.Data.CommandBehavior.CloseConnection));
-            }
-            catch (MySqlException ex)
-            {
-                HandleMySQLException(ex, stmt.CommandText, stmt.Parameters);
-            }
-
-            retryCount++;
-            System.Threading.Thread.Sleep(10);
-        }
-
-        if (sqlEx != null)
-            throw sqlEx;
-
-        throw new Exception($"Error processing statement `{stmt.CommandText}` with parameters: {string.Join(',', stmt.Parameters)}");
-    }
-
-
-    public QueryCallback AsyncQuery(PreparedStatement stmt)
-    {
-        PreparedStatementTask task = new(stmt, true);
-        // Store future result before enqueueing - task might get already processed and deleted before returning from this method
-        var callback = new QueryCallback(task, _worker.QueueQuery);
-        _worker.QueueQuery(task, callback.QueryProcessed);
-
-        return callback;
-    }
-
-    public SQLQueryHolderCallback<R> DelayQueryHolder<R>(SQLQueryHolder<R> holder)
-    {
-        SQLQueryHolderTask<R> task = new(holder);
-        // Store future result before enqueueing - task might get already processed and deleted before returning from this method
-        var callback = new SQLQueryHolderCallback<R>(task);
-        _worker.QueueQuery(task, callback.QueryExecuted);
-
-        return callback;
-    }
-
-    public void LoadPreparedStatements()
-    {
-        PreparedStatements();
-    }
-
-    public void PrepareStatement(T statement, string sql)
-    {
-        StringBuilder sb = new();
-        var index = 0;
-
-        for (var i = 0; i < sql.Length; i++)
-            if (sql[i].Equals('?'))
-                sb.Append("@" + index++);
-            else
-                sb.Append(sql[i]);
-
-        _preparedQueries[statement] = sb.ToString();
-    }
-
-    public PreparedStatement GetPreparedStatement(T statement)
-    {
-        return new PreparedStatement(_preparedQueries[statement]);
+        str = MySqlHelper.EscapeString(str);
     }
 
     public void ApplyFile(string path, bool useDatabase = true)
@@ -276,16 +119,6 @@ public abstract class MySqlBase<T>
         }
     }
 
-    public static void EscapeString(ref string str)
-    {
-        str = MySqlHelper.EscapeString(str);
-    }
-
-    public void CommitTransaction(SQLTransaction transaction)
-    {
-        _worker.QueueQuery(new TransactionTask(transaction));
-    }
-
     public TransactionCallback AsyncCommitTransaction(SQLTransaction transaction)
     {
         TransactionWithResultTask task = new(transaction);
@@ -293,6 +126,31 @@ public abstract class MySqlBase<T>
         _worker.QueueQuery(task, cb.QueryExecuted);
 
         return cb;
+    }
+
+    public QueryCallback AsyncQuery(PreparedStatement stmt)
+    {
+        PreparedStatementTask task = new(stmt, true);
+        // Store future result before enqueueing - task might get already processed and deleted before returning from this method
+        var callback = new QueryCallback(task, _worker.QueueQuery);
+        _worker.QueueQuery(task, callback.QueryProcessed);
+
+        return callback;
+    }
+
+    public void CommitTransaction(SQLTransaction transaction)
+    {
+        _worker.QueueQuery(new TransactionTask(transaction));
+    }
+
+    public SQLQueryHolderCallback<R> DelayQueryHolder<R>(SQLQueryHolder<R> holder)
+    {
+        SQLQueryHolderTask<R> task = new(holder);
+        // Store future result before enqueueing - task might get already processed and deleted before returning from this method
+        var callback = new SQLQueryHolderCallback<R>(task);
+        _worker.QueueQuery(task, callback.QueryExecuted);
+
+        return callback;
     }
 
     public MySqlErrorCode DirectCommitTransaction(SQLTransaction transaction)
@@ -345,9 +203,96 @@ public abstract class MySqlBase<T>
         return sqlEx;
     }
 
+    public bool DirectExecute(string sql, params object[] args)
+    {
+        return DirectExecute(new PreparedStatement(string.Format(sql, args)));
+    }
+
+    public bool DirectExecute(PreparedStatement stmt)
+    {
+        try
+        {
+            using (var Connection = _connectionInfo.GetConnection())
+            {
+                Connection.Open();
+
+                using (var cmd = Connection.CreateCommand())
+                {
+                    cmd.CommandText = stmt.CommandText;
+
+                    foreach (var parameter in stmt.Parameters)
+                        cmd.Parameters.AddWithValue("@" + parameter.Key, parameter.Value);
+
+                    cmd.ExecuteNonQuery();
+
+                    return true;
+                }
+            }
+        }
+        catch (MySqlException ex)
+        {
+            HandleMySQLException(ex, stmt.CommandText, stmt.Parameters);
+
+            return false;
+        }
+    }
+
+    public void Execute(string sql, params object[] args)
+    {
+        Execute(new PreparedStatement(string.Format(sql, args)));
+    }
+
+    public void Execute(PreparedStatement stmt)
+    {
+        PreparedStatementTask task = new(stmt);
+        _worker.QueueQuery(task);
+    }
+
+    public void ExecuteOrAppend(SQLTransaction trans, PreparedStatement stmt)
+    {
+        if (trans == null)
+            Execute(stmt);
+        else
+            trans.Append(stmt);
+    }
+
+    public string GetDatabaseName()
+    {
+        return _connectionInfo.Database;
+    }
+
+    public PreparedStatement GetPreparedStatement(T statement)
+    {
+        return new PreparedStatement(_preparedQueries[statement]);
+    }
+
     public DatabaseUpdater<T> GetUpdater()
     {
         return _updater;
+    }
+
+    public MySqlErrorCode Initialize(MySqlConnectionInfo connectionInfo)
+    {
+        _connectionInfo = connectionInfo;
+        _updater = new DatabaseUpdater<T>(this, _configuration);
+        _worker = new DatabaseWorker<T>(this);
+
+        try
+        {
+            using (var connection = _connectionInfo.GetConnection())
+            {
+                connection.Open();
+
+                version = DBVersion.Parse(connection.ServerVersion);
+                Log.Logger.Information($"Connected to DB: {_connectionInfo.Database} Server: {(version.IsMariaDB ? "MariaDB" : "MySQL")} Ver: {connection.ServerVersion}");
+
+                return MySqlErrorCode.None;
+            }
+        }
+        catch (MySqlException ex)
+        {
+            return HandleMySQLException(ex);
+        }
     }
 
     public bool IsAutoUpdateEnabled(DatabaseTypeFlags updateMask)
@@ -356,10 +301,13 @@ public abstract class MySqlBase<T>
         {
             case "LoginDatabase":
                 return updateMask.HasAnyFlag(DatabaseTypeFlags.Login);
+
             case "CharacterDatabase":
                 return updateMask.HasAnyFlag(DatabaseTypeFlags.Character);
+
             case "WorldDatabase":
                 return updateMask.HasAnyFlag(DatabaseTypeFlags.World);
+
             case "HotfixDatabase":
                 return updateMask.HasAnyFlag(DatabaseTypeFlags.Hotfix);
         }
@@ -367,12 +315,66 @@ public abstract class MySqlBase<T>
         return false;
     }
 
-    public string GetDatabaseName()
+    public void LoadPreparedStatements()
     {
-        return _connectionInfo.Database;
+        PreparedStatements();
     }
 
     public abstract void PreparedStatements();
+
+    public void PrepareStatement(T statement, string sql)
+    {
+        StringBuilder sb = new();
+        var index = 0;
+
+        for (var i = 0; i < sql.Length; i++)
+            if (sql[i].Equals('?'))
+                sb.Append("@" + index++);
+            else
+                sb.Append(sql[i]);
+
+        _preparedQueries[statement] = sb.ToString();
+    }
+
+    public SQLResult Query(string sql, params object[] args)
+    {
+        return Query(new PreparedStatement(string.Format(sql, args)));
+    }
+
+    public SQLResult Query(PreparedStatement stmt)
+    {
+        MySqlException sqlEx = null;
+        var retryCount = 0;
+
+        while (retryCount < 5)
+        {
+            try
+            {
+                var Connection = _connectionInfo.GetConnection();
+                Connection.Open();
+
+                var cmd = Connection.CreateCommand();
+                cmd.CommandText = stmt.CommandText;
+
+                foreach (var parameter in stmt.Parameters)
+                    cmd.Parameters.AddWithValue("@" + parameter.Key, parameter.Value);
+
+                return new SQLResult(cmd.ExecuteReader(System.Data.CommandBehavior.CloseConnection));
+            }
+            catch (MySqlException ex)
+            {
+                HandleMySQLException(ex, stmt.CommandText, stmt.Parameters);
+            }
+
+            retryCount++;
+            System.Threading.Thread.Sleep(10);
+        }
+
+        if (sqlEx != null)
+            throw sqlEx;
+
+        throw new Exception($"Error processing statement `{stmt.CommandText}` with parameters: {string.Join(',', stmt.Parameters)}");
+    }
 
     private MySqlErrorCode HandleMySQLException(MySqlException ex, string query = "", Dictionary<int, object> parameters = null)
     {
@@ -400,6 +402,7 @@ public abstract class MySqlBase<T>
                 Log.Logger.Error("Your database structure is not up to date. Please make sure you've executed all queries in the sql/updates folders.");
 
                 break;
+
             case MySqlErrorCode.ParseError:
                 Log.Logger.Error("Error while parsing SQL. Core fix required.");
 

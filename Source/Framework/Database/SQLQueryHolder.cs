@@ -10,6 +10,14 @@ public class SQLQueryHolder<T>
     public Dictionary<T, PreparedStatement> m_queries = new();
     private readonly Dictionary<T, SQLResult> _results = new();
 
+    public SQLResult GetResult(T index)
+    {
+        if (!_results.TryGetValue(index, out var result))
+            return new SQLResult();
+
+        return result;
+    }
+
     public void SetQuery(T index, string sql, params object[] args)
     {
         SetQuery(index, new PreparedStatement(string.Format(sql, args)));
@@ -23,13 +31,5 @@ public class SQLQueryHolder<T>
     public void SetResult(T index, SQLResult result)
     {
         _results[index] = result;
-    }
-
-    public SQLResult GetResult(T index)
-    {
-        if (!_results.TryGetValue(index, out var result))
-            return new SQLResult();
-
-        return result;
     }
 }

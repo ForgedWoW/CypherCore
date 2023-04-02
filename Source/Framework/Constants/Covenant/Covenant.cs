@@ -6,7 +6,7 @@ namespace Framework.Constants;
 public static class Covenant
 {
     public const sbyte Kyrian = 1;
-    public const sbyte Venthyr = 2;
-    public const sbyte NightFae = 3;
     public const sbyte Necrolord = 4;
+    public const sbyte NightFae = 3;
+    public const sbyte Venthyr = 2;
 }

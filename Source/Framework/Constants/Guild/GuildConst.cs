@@ -5,25 +5,21 @@ namespace Framework.Constants;
 
 public class GuildConst
 {
-    public const int MaxBankTabs = 8;
-    public const int MaxBankSlots = 98;
+    public const int BankLogMaxRecords = 25;
     public const int BankMoneyLogsTab = 100;
-
-    public const ulong MoneyLimit = 100000000000;
-    public const uint WithdrawMoneyUnlimited = 0xFFFFFFFF;
-    public const int WithdrawSlotUnlimited = -1;
-    public const uint EventLogGuidUndefined = 0xFFFFFFFF;
-
     public const uint ChallengesTypes = 6;
     public const uint CharterItemId = 5863;
-
-    public const int RankNone = 0xFF;
-    public const int MinRanks = 5;
-    public const int MaxRanks = 10;
-
-    public const int BankLogMaxRecords = 25;
+    public const uint EventLogGuidUndefined = 0xFFFFFFFF;
     public const int EventLogMaxRecords = 100;
+    public const int MaxBankSlots = 98;
+    public const int MaxBankTabs = 8;
+    public const int MaxRanks = 10;
+    public const int MinRanks = 5;
+    public const ulong MoneyLimit = 100000000000;
     public const int NewsLogMaxRecords = 250;
+    public const int RankNone = 0xFF;
+    public const uint WithdrawMoneyUnlimited = 0xFFFFFFFF;
+    public const int WithdrawSlotUnlimited = -1;
 
     public static int[] ChallengeGoldReward =
     {
@@ -40,9 +36,8 @@ public class GuildConst
         0, 7, 1, 3, 0, 3
     };
 
+    public static uint MasterDethroneInactiveDays = 90;
     public static uint MinNewsItemLevel = 353;
 
     public static byte OldMaxLevel = 25;
-
-    public static uint MasterDethroneInactiveDays = 90;
 }

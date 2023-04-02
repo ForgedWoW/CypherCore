@@ -35,14 +35,6 @@ public sealed class ConcurrentMultiMap<TKey, TValue>
         }
     }
 
-    public void AddUnique(TKey key, TValue value)
-    {
-        lock (_interalStorage)
-        {
-            _interalStorage.AddUniqueToList(key, value);
-        }
-    }
-
     public void AddRange(TKey key, IEnumerable<TValue> valueList)
     {
         lock (_interalStorage)
@@ -55,6 +47,59 @@ public sealed class ConcurrentMultiMap<TKey, TValue>
 
             val.AddRange(valueList);
         }
+    }
+
+    public void AddUnique(TKey key, TValue value)
+    {
+        lock (_interalStorage)
+        {
+            _interalStorage.AddUniqueToList(key, value);
+        }
+    }
+
+    public void Clear()
+    {
+        lock (_interalStorage)
+        {
+            _interalStorage.Clear();
+        }
+    }
+
+    public bool Contains(TKey key, TValue item)
+    {
+        lock (_interalStorage)
+        {
+            if (!_interalStorage.ContainsKey(key)) return false;
+
+            return _interalStorage[key].Contains(item);
+        }
+    }
+
+    public bool ContainsKey(TKey key)
+    {
+        lock (_interalStorage)
+        {
+            return _interalStorage.ContainsKey(key);
+        }
+    }
+
+    public bool Empty()
+    {
+        lock (_interalStorage)
+        {
+            return _interalStorage == null || _interalStorage.Count == 0;
+        }
+    }
+
+    public List<TValue> LookupByKey(TKey key)
+    {
+        lock (_interalStorage)
+        {
+            if (_interalStorage.TryGetValue(key, out var values))
+                return values;
+        }
+
+        return _emptyList;
     }
 
     public bool Remove(TKey key)
@@ -73,56 +118,11 @@ public sealed class ConcurrentMultiMap<TKey, TValue>
         }
     }
 
-    public bool ContainsKey(TKey key)
-    {
-        lock (_interalStorage)
-        {
-            return _interalStorage.ContainsKey(key);
-        }
-    }
-
-    public bool Contains(TKey key, TValue item)
-    {
-        lock (_interalStorage)
-        {
-            if (!_interalStorage.ContainsKey(key)) return false;
-
-            return _interalStorage[key].Contains(item);
-        }
-    }
-
-    public List<TValue> LookupByKey(TKey key)
-    {
-        lock (_interalStorage)
-        {
-            if (_interalStorage.TryGetValue(key, out var values))
-                return values;
-        }
-
-        return _emptyList;
-    }
-
     public bool TryGetValue(TKey key, out List<TValue> value)
     {
         lock (_interalStorage)
         {
             return _interalStorage.TryGetValue(key, out value);
-        }
-    }
-
-    public void Clear()
-    {
-        lock (_interalStorage)
-        {
-            _interalStorage.Clear();
-        }
-    }
-
-    public bool Empty()
-    {
-        lock (_interalStorage)
-        {
-            return _interalStorage == null || _interalStorage.Count == 0;
         }
     }
 }

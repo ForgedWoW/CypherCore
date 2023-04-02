@@ -25,28 +25,6 @@ public class QueryCallback : ISqlCallback
         return _callbacks.Count > 0 && _next == null;
     }
 
-    public QueryCallback WithCallback(Action<SQLResult> callback)
-    {
-        return WithChainingCallback((queryCallback, result) => callback(result));
-    }
-
-    public QueryCallback WithCallback<T>(Action<T, SQLResult> callback, T obj)
-    {
-        return WithChainingCallback((queryCallback, result) => callback(obj, result));
-    }
-
-    public QueryCallback WithChainingCallback(Action<QueryCallback, SQLResult> callback)
-    {
-        _callbacks.Enqueue(callback);
-
-        return this;
-    }
-
-    public void SetNextQuery(QueryCallback next)
-    {
-        _next = next;
-    }
-
     public void QueryProcessed(bool success)
     {
         if (success)
@@ -69,5 +47,27 @@ public class QueryCallback : ISqlCallback
             _next = null;
             _callbacks.Clear();
         }
+    }
+
+    public void SetNextQuery(QueryCallback next)
+    {
+        _next = next;
+    }
+
+    public QueryCallback WithCallback(Action<SQLResult> callback)
+    {
+        return WithChainingCallback((queryCallback, result) => callback(result));
+    }
+
+    public QueryCallback WithCallback<T>(Action<T, SQLResult> callback, T obj)
+    {
+        return WithChainingCallback((queryCallback, result) => callback(obj, result));
+    }
+
+    public QueryCallback WithChainingCallback(Action<QueryCallback, SQLResult> callback)
+    {
+        _callbacks.Enqueue(callback);
+
+        return this;
     }
 }

@@ -15,8 +15,8 @@ namespace Framework.Database;
 
 public class DatabaseUpdater<T>
 {
-    private readonly MySqlBase<T> _database;
     private readonly IConfiguration _configuration;
+    private readonly MySqlBase<T> _database;
 
     public DatabaseUpdater(MySqlBase<T> database, IConfiguration configuration)
     {
@@ -42,14 +42,17 @@ public class DatabaseUpdater<T>
                 fileName = @"/sql/base/auth_database.sql";
 
                 break;
+
             case "CharacterDatabase":
                 fileName = @"/sql/base/characters_database.sql";
 
                 break;
+
             case "WorldDatabase":
                 fileName = @"/sql/TDB_full_world_1005.23021_2023_02_03.sql";
 
                 break;
+
             case "HotfixDatabase":
                 fileName = @"/sql/TDB_full_hotfixes_1005.23021_2023_02_03.sql";
 
@@ -257,9 +260,14 @@ public class DatabaseUpdater<T>
         return true;
     }
 
-    private string GetSourceDirectory()
+    private void Apply(string query)
     {
-        return _configuration.GetDefaultValue("Updates.SourcePath", "../../../");
+        _database.Execute(query);
+    }
+
+    private void ApplyFile(string path)
+    {
+        _database.ApplyFile(path);
     }
 
     private uint ApplyTimedFile(string path)
@@ -274,40 +282,13 @@ public class DatabaseUpdater<T>
         return Time.GetMSTimeDiffToNow(oldMSTime);
     }
 
-    private void ApplyFile(string path)
+    private string CalculateHash(string fileName)
     {
-        _database.ApplyFile(path);
-    }
-
-    private void Apply(string query)
-    {
-        _database.Execute(query);
-    }
-
-    private void UpdateEntry(AppliedFileEntry entry, uint speed)
-    {
-        var update = $"REPLACE INTO `updates` (`name`, `hash`, `state`, `speed`) VALUES (\"{entry.Name}\", \"{entry.Hash}\", \'{entry.State}\', {speed})";
-
-        // Update database
-        Apply(update);
-    }
-
-    private void RenameEntry(string from, string to)
-    {
-        // Delete target if it exists
+        using (var sha1 = SHA1.Create())
         {
-            var update = $"DELETE FROM `updates` WHERE `name`=\"{to}\"";
+            var text = File.ReadAllText(fileName).Replace("\r", "");
 
-            // Update database
-            Apply(update);
-        }
-
-        // Rename
-        {
-            var update = $"UPDATE `updates` SET `name`=\"{to}\" WHERE `name`=\"{from}\"";
-
-            // Update database
-            Apply(update);
+            return sha1.ComputeHash(Encoding.UTF8.GetBytes(text)).ToHexString();
         }
     }
 
@@ -328,14 +309,6 @@ public class DatabaseUpdater<T>
         }
 
         update += ")";
-
-        // Update database
-        Apply(update);
-    }
-
-    private void UpdateState(string name, State state)
-    {
-        var update = $"UPDATE `updates` SET `state`=\'{state}\' WHERE `name`=\"{name}\"";
 
         // Update database
         Apply(update);
@@ -372,7 +345,6 @@ public class DatabaseUpdater<T>
             Log.Logger.Debug($"Added applied file \"{path}\" from remote.");
         } while (result.NextRow());
 
-
         var moreFiles = _configuration.GetDefaultValue($"Updates.{_database.GetType().Name}.Path", "");
 
         if (!string.IsNullOrEmpty(moreFiles) && Directory.Exists(moreFiles))
@@ -380,24 +352,6 @@ public class DatabaseUpdater<T>
                 fileList.Add(file);
 
         return fileList;
-    }
-
-    private Dictionary<string, AppliedFileEntry> ReceiveAppliedFiles()
-    {
-        Dictionary<string, AppliedFileEntry> map = new();
-
-        var result = _database.Query("SELECT `name`, `hash`, `state`, UNIX_TIMESTAMP(`timestamp`) FROM `updates` ORDER BY `name` ASC");
-
-        if (result.IsEmpty())
-            return map;
-
-        do
-        {
-            AppliedFileEntry entry = new(result.Read<string>(0), result.Read<string>(1), result.Read<string>(2).ToEnum<State>(), result.Read<ulong>(3));
-            map.Add(entry.Name, entry);
-        } while (result.NextRow());
-
-        return map;
     }
 
     private IEnumerable<FileEntry> GetFilesFromDirectory(string directory, State state)
@@ -426,13 +380,61 @@ public class DatabaseUpdater<T>
         }
     }
 
-    private string CalculateHash(string fileName)
+    private string GetSourceDirectory()
     {
-        using (var sha1 = SHA1.Create())
-        {
-            var text = File.ReadAllText(fileName).Replace("\r", "");
+        return _configuration.GetDefaultValue("Updates.SourcePath", "../../../");
+    }
 
-            return sha1.ComputeHash(Encoding.UTF8.GetBytes(text)).ToHexString();
+    private Dictionary<string, AppliedFileEntry> ReceiveAppliedFiles()
+    {
+        Dictionary<string, AppliedFileEntry> map = new();
+
+        var result = _database.Query("SELECT `name`, `hash`, `state`, UNIX_TIMESTAMP(`timestamp`) FROM `updates` ORDER BY `name` ASC");
+
+        if (result.IsEmpty())
+            return map;
+
+        do
+        {
+            AppliedFileEntry entry = new(result.Read<string>(0), result.Read<string>(1), result.Read<string>(2).ToEnum<State>(), result.Read<ulong>(3));
+            map.Add(entry.Name, entry);
+        } while (result.NextRow());
+
+        return map;
+    }
+
+    private void RenameEntry(string from, string to)
+    {
+        // Delete target if it exists
+        {
+            var update = $"DELETE FROM `updates` WHERE `name`=\"{to}\"";
+
+            // Update database
+            Apply(update);
         }
+
+        // Rename
+        {
+            var update = $"UPDATE `updates` SET `name`=\"{to}\" WHERE `name`=\"{from}\"";
+
+            // Update database
+            Apply(update);
+        }
+    }
+
+    private void UpdateEntry(AppliedFileEntry entry, uint speed)
+    {
+        var update = $"REPLACE INTO `updates` (`name`, `hash`, `state`, `speed`) VALUES (\"{entry.Name}\", \"{entry.Hash}\", \'{entry.State}\', {speed})";
+
+        // Update database
+        Apply(update);
+    }
+
+    private void UpdateState(string name, State state)
+    {
+        var update = $"UPDATE `updates` SET `state`=\'{state}\' WHERE `name`=\"{name}\"";
+
+        // Update database
+        Apply(update);
     }
 }

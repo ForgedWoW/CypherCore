@@ -10,12 +10,13 @@ namespace Framework.Networking;
 
 public abstract class SocketBase : ISocket, IDisposable
 {
-    public delegate void SocketReadCallback(SocketAsyncEventArgs args);
+    private readonly SocketAsyncEventArgs _receiveSocketAsyncEventArgs;
+
+    private readonly SocketAsyncEventArgs _receiveSocketAsyncEventArgsWithCallback;
+
+    private readonly IPEndPoint _remoteIpEndPoint;
 
     private readonly Socket _socket;
-    private readonly IPEndPoint _remoteIpEndPoint;
-    private readonly SocketAsyncEventArgs _receiveSocketAsyncEventArgsWithCallback;
-    private readonly SocketAsyncEventArgs _receiveSocketAsyncEventArgs;
 
     protected SocketBase(Socket socket)
     {
@@ -30,16 +31,39 @@ public abstract class SocketBase : ISocket, IDisposable
         _receiveSocketAsyncEventArgs.Completed += (_, args) => ProcessReadAsync(args);
     }
 
-    public virtual void Dispose()
-    {
-        _socket.Dispose();
-    }
+    public delegate void SocketReadCallback(SocketAsyncEventArgs args);
 
     public abstract void Accept();
 
-    public virtual bool Update()
+    public void AsyncRead()
     {
-        return IsOpen();
+        if (!IsOpen())
+            return;
+
+        _receiveSocketAsyncEventArgs.SetBuffer(0, 0x4000);
+
+        if (!_socket.ReceiveAsync(_receiveSocketAsyncEventArgs))
+            ProcessReadAsync(_receiveSocketAsyncEventArgs);
+    }
+
+    public void AsyncReadWithCallback(SocketReadCallback callback)
+    {
+        if (!IsOpen())
+            return;
+
+        _receiveSocketAsyncEventArgsWithCallback.Completed += (_, args) => callback(args);
+        _receiveSocketAsyncEventArgsWithCallback.SetBuffer(0, 0x4000);
+
+        if (!_socket.ReceiveAsync(_receiveSocketAsyncEventArgsWithCallback))
+            callback(_receiveSocketAsyncEventArgsWithCallback);
+    }
+
+    public void AsyncWrite(byte[] data)
+    {
+        if (!IsOpen())
+            return;
+
+        _socket.Send(data);
     }
 
     public void CloseSocket()
@@ -60,9 +84,9 @@ public abstract class SocketBase : ISocket, IDisposable
         OnClose();
     }
 
-    public bool IsOpen()
+    public virtual void Dispose()
     {
-        return _socket.Connected;
+        _socket.Dispose();
     }
 
     public IPEndPoint GetRemoteIpAddress()
@@ -70,37 +94,9 @@ public abstract class SocketBase : ISocket, IDisposable
         return _remoteIpEndPoint;
     }
 
-    public void AsyncReadWithCallback(SocketReadCallback callback)
+    public bool IsOpen()
     {
-        if (!IsOpen())
-            return;
-
-        _receiveSocketAsyncEventArgsWithCallback.Completed += (_, args) => callback(args);
-        _receiveSocketAsyncEventArgsWithCallback.SetBuffer(0, 0x4000);
-
-        if (!_socket.ReceiveAsync(_receiveSocketAsyncEventArgsWithCallback))
-            callback(_receiveSocketAsyncEventArgsWithCallback);
-    }
-
-    public void AsyncRead()
-    {
-        if (!IsOpen())
-            return;
-
-        _receiveSocketAsyncEventArgs.SetBuffer(0, 0x4000);
-
-        if (!_socket.ReceiveAsync(_receiveSocketAsyncEventArgs))
-            ProcessReadAsync(_receiveSocketAsyncEventArgs);
-    }
-
-    public abstract void ReadHandler(SocketAsyncEventArgs args);
-
-    public void AsyncWrite(byte[] data)
-    {
-        if (!IsOpen())
-            return;
-
-        _socket.Send(data);
+        return _socket.Connected;
     }
 
     public virtual void OnClose()
@@ -108,9 +104,16 @@ public abstract class SocketBase : ISocket, IDisposable
         Dispose();
     }
 
+    public abstract void ReadHandler(SocketAsyncEventArgs args);
+
     public void SetNoDelay(bool enable)
     {
         _socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, enable);
+    }
+
+    public virtual bool Update()
+    {
+        return IsOpen();
     }
 
     private void ProcessReadAsync(SocketAsyncEventArgs args)

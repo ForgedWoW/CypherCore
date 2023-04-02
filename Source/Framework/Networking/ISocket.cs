@@ -6,7 +6,10 @@ namespace Framework.Networking;
 public interface ISocket
 {
     void Accept();
-    bool Update();
-    bool IsOpen();
+
     void CloseSocket();
+
+    bool IsOpen();
+
+    bool Update();
 }

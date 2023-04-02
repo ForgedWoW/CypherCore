@@ -11,8 +11,8 @@ namespace Framework.Threading;
 
 public class LimitedThreadTaskManager
 {
-    private readonly AutoResetEvent _mapUpdateComplete = new(false);
     private readonly ExecutionDataflowBlockOptions _blockOptions;
+    private readonly AutoResetEvent _mapUpdateComplete = new(false);
     private readonly List<Action> _staged = new();
     private ActionBlock<Action> _actionBlock;
     private CancellationTokenSource _cancellationToken;
@@ -42,10 +42,46 @@ public class LimitedThreadTaskManager
         _actionBlock.Complete();
     }
 
-	/// <summary>
-	///     Blocks thread and waits for all scheduled tasks to complete
-	/// </summary>
-	public void Wait()
+    /// <summary>
+    ///     Schedules all work queued
+    /// </summary>
+    public void ExecuteStaged()
+    {
+        lock (_staged)
+        {
+            foreach (var a in _staged)
+                Schedule(a);
+
+            _staged.Clear();
+        }
+    }
+
+    /// <summary>
+    ///     Queues an action to be worked on. Use <see cref="Wait" /> to wait for all actions to complete.
+    ///     Scheduled actions start as soon as there is a thread available.
+    /// </summary>
+    /// <param name="a"> </param>
+    public void Schedule(Action a)
+    {
+        _actionBlock.Post(a);
+    }
+
+    /// <summary>
+    ///     Staged actions will not execute until <see cref="Wait" /> or <see cref="ExecuteStaged" /> is called.
+    /// </summary>
+    /// <param name="a"> </param>
+    public void Stage(Action a)
+    {
+        lock (_staged)
+        {
+            _staged.Add(a);
+        }
+    }
+
+    /// <summary>
+    ///     Blocks thread and waits for all scheduled tasks to complete
+    /// </summary>
+    public void Wait()
     {
         try
         {
@@ -75,43 +111,6 @@ public class LimitedThreadTaskManager
             _cancellationToken = new CancellationTokenSource();
             _blockOptions.CancellationToken = _cancellationToken.Token;
             _actionBlock = new ActionBlock<Action>(ProcessTask, _blockOptions);
-        }
-    }
-
-	/// <summary>
-	///     Queues an action to be worked on. Use <see cref="Wait" /> to wait for all actions to complete.
-	///     Scheduled actions start as soon as there is a thread available.
-	/// </summary>
-	/// <param name="a"> </param>
-	public void Schedule(Action a)
-    {
-        _actionBlock.Post(a);
-    }
-
-
-	/// <summary>
-	///     Staged actions will not execute until <see cref="Wait" /> or <see cref="ExecuteStaged" /> is called.
-	/// </summary>
-	/// <param name="a"> </param>
-	public void Stage(Action a)
-    {
-        lock (_staged)
-        {
-            _staged.Add(a);
-        }
-    }
-
-	/// <summary>
-	///     Schedules all work queued
-	/// </summary>
-	public void ExecuteStaged()
-    {
-        lock (_staged)
-        {
-            foreach (var a in _staged)
-                Schedule(a);
-
-            _staged.Clear();
         }
     }
 

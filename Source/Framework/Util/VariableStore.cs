@@ -9,6 +9,11 @@ public class VariableStore
 {
     private readonly Dictionary<string, object> _variables = new();
 
+    public bool Exist(string key)
+    {
+        return _variables.ContainsKey(key);
+    }
+
     public T GetValue<T>(string key, T defaultValue)
     {
         lock (_variables)
@@ -20,21 +25,16 @@ public class VariableStore
         return defaultValue;
     }
 
+    public void Remove(string key)
+    {
+        _variables.Remove(key);
+    }
+
     public void Set<T>(string key, T objectVal)
     {
         lock (_variables)
         {
             _variables[key] = objectVal;
         }
-    }
-
-    public bool Exist(string key)
-    {
-        return _variables.ContainsKey(key);
-    }
-
-    public void Remove(string key)
-    {
-        _variables.Remove(key);
     }
 }

@@ -5,9 +5,9 @@ namespace Framework.Constants;
 
 public struct QuestSlotOffsets
 {
-    public const int Id = 0;
-    public const int State = 1;
     public const int Counts = 2;
-    public const int Time = 14;
+    public const int Id = 0;
     public const int Max = 16;
+    public const int State = 1;
+    public const int Time = 14;
 }

@@ -13,9 +13,15 @@ public class LinkedListElement
         INext = IPrev = null;
     }
 
-    public bool IsInList()
+    public void Delink()
     {
-        return (INext != null && IPrev != null);
+        if (!IsInList())
+            return;
+
+        INext.IPrev = IPrev;
+        IPrev.INext = INext;
+        INext = null;
+        IPrev = null;
     }
 
     public LinkedListElement GetNextElement()
@@ -28,15 +34,12 @@ public class LinkedListElement
         return HasPrev() ? IPrev : null;
     }
 
-    public void Delink()
+    public void InsertAfter(LinkedListElement pElem)
     {
-        if (!IsInList())
-            return;
-
-        INext.IPrev = IPrev;
-        IPrev.INext = INext;
-        INext = null;
-        IPrev = null;
+        pElem.IPrev = this;
+        pElem.INext = INext;
+        INext.IPrev = pElem;
+        INext = pElem;
     }
 
     public void InsertBefore(LinkedListElement pElem)
@@ -47,12 +50,9 @@ public class LinkedListElement
         IPrev = pElem;
     }
 
-    public void InsertAfter(LinkedListElement pElem)
+    public bool IsInList()
     {
-        pElem.IPrev = this;
-        pElem.INext = INext;
-        INext.IPrev = pElem;
-        INext = pElem;
+        return (INext != null && IPrev != null);
     }
 
     private bool HasNext()
@@ -86,9 +86,9 @@ public class LinkedListHead
         _iLast.IPrev = _iFirst;
     }
 
-    public bool IsEmpty()
+    public void DecSize()
     {
-        return (!_iFirst.INext.IsInList());
+        --_iSize;
     }
 
     public LinkedListElement GetFirstElement()
@@ -99,16 +99,6 @@ public class LinkedListHead
     public LinkedListElement GetLastElement()
     {
         return (IsEmpty() ? null : _iLast.IPrev);
-    }
-
-    public void InsertFirst(LinkedListElement pElem)
-    {
-        _iFirst.InsertAfter(pElem);
-    }
-
-    public void InsertLast(LinkedListElement pElem)
-    {
-        _iLast.InsertBefore(pElem);
     }
 
     public uint GetSize()
@@ -137,8 +127,18 @@ public class LinkedListHead
         ++_iSize;
     }
 
-    public void DecSize()
+    public void InsertFirst(LinkedListElement pElem)
     {
-        --_iSize;
+        _iFirst.InsertAfter(pElem);
+    }
+
+    public void InsertLast(LinkedListElement pElem)
+    {
+        _iLast.InsertBefore(pElem);
+    }
+
+    public bool IsEmpty()
+    {
+        return (!_iFirst.INext.IsInList());
     }
 }

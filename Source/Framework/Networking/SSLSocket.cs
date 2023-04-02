@@ -15,8 +15,8 @@ namespace Framework.Networking;
 public abstract class SSLSocket : ISocket, IDisposable
 {
     internal SslStream Stream;
-    private readonly Socket _socket;
     private readonly IPEndPoint _remoteEndPoint;
+    private readonly Socket _socket;
     private byte[] _receiveBuffer;
 
     protected SSLSocket(Socket socket)
@@ -28,40 +28,23 @@ public abstract class SSLSocket : ISocket, IDisposable
         Stream = new SslStream(new NetworkStream(socket), false);
     }
 
-    public virtual void Dispose()
-    {
-        _receiveBuffer = null;
-        Stream.Dispose();
-    }
-
     public abstract void Accept();
 
-    public virtual bool Update()
-    {
-        return _socket.Connected;
-    }
-
-    public void CloseSocket()
+    public async Task AsyncHandshake(X509Certificate2 certificate)
     {
         try
         {
-            _socket.Shutdown(SocketShutdown.Both);
-            _socket.Close();
+            await Stream.AuthenticateAsServerAsync(certificate, false, SslProtocols.Tls12, false);
         }
         catch (Exception ex)
         {
-            Log.Logger.Debug($"WorldSocket.CloseSocket: {GetRemoteIpEndPoint()} errored when shutting down socket: {ex.Message}");
+            Log.Logger.Error(ex, "");
+            CloseSocket();
+
+            return;
         }
-    }
 
-    public bool IsOpen()
-    {
-        return _socket.Connected;
-    }
-
-    public IPEndPoint GetRemoteIpEndPoint()
-    {
-        return _remoteEndPoint;
+        await AsyncRead();
     }
 
     public async Task AsyncRead()
@@ -88,25 +71,6 @@ public abstract class SSLSocket : ISocket, IDisposable
         }
     }
 
-    public async Task AsyncHandshake(X509Certificate2 certificate)
-    {
-        try
-        {
-            await Stream.AuthenticateAsServerAsync(certificate, false, SslProtocols.Tls12, false);
-        }
-        catch (Exception ex)
-        {
-            Log.Logger.Error(ex, "");
-            CloseSocket();
-
-            return;
-        }
-
-        await AsyncRead();
-    }
-
-    public abstract void ReadHandler(byte[] data, int receivedLength);
-
     public async Task AsyncWrite(byte[] data)
     {
         if (!IsOpen())
@@ -122,13 +86,49 @@ public abstract class SSLSocket : ISocket, IDisposable
         }
     }
 
+    public void CloseSocket()
+    {
+        try
+        {
+            _socket.Shutdown(SocketShutdown.Both);
+            _socket.Close();
+        }
+        catch (Exception ex)
+        {
+            Log.Logger.Debug($"WorldSocket.CloseSocket: {GetRemoteIpEndPoint()} errored when shutting down socket: {ex.Message}");
+        }
+    }
+
+    public virtual void Dispose()
+    {
+        _receiveBuffer = null;
+        Stream.Dispose();
+    }
+
+    public IPEndPoint GetRemoteIpEndPoint()
+    {
+        return _remoteEndPoint;
+    }
+
+    public bool IsOpen()
+    {
+        return _socket.Connected;
+    }
+
     public virtual void OnClose()
     {
         Dispose();
     }
 
+    public abstract void ReadHandler(byte[] data, int receivedLength);
+
     public void SetNoDelay(bool enable)
     {
         _socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, enable);
+    }
+
+    public virtual bool Update()
+    {
+        return _socket.Connected;
     }
 }

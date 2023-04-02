@@ -15,6 +15,11 @@ public class PreparedStatement
         CommandText = commandText;
     }
 
+    public void AddNull(int index)
+    {
+        Parameters.Add(index, null);
+    }
+
     public void AddValue(int index, sbyte value)
     {
         Parameters.Add(index, value);
@@ -78,11 +83,6 @@ public class PreparedStatement
     public void AddValue(int index, bool value)
     {
         Parameters.Add(index, value);
-    }
-
-    public void AddNull(int index)
-    {
-        Parameters.Add(index, null);
     }
 
     public void Clear()

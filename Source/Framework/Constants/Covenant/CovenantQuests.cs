@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public static class CovenantQuests
 {
-    public const uint ChoosingYourPurpose_fromOribos = 62000;
     public const uint ChoosingYourPurpose_fromNathria = 57878;
+    public const uint ChoosingYourPurpose_fromOribos = 62000;
 }

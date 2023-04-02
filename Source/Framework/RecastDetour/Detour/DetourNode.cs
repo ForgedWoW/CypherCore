@@ -214,8 +214,8 @@ public partial class Detour
     {
         private readonly dtNode[] m_heap;
         private readonly int m_capacity;
-        private int m_size;
         private readonly object _lock = new();
+        private int m_size;
 
         public dtNodeQueue(int n)
         {

@@ -5,8 +5,9 @@ namespace Framework.Database;
 
 public class PreparedStatementTask : ISqlOperation
 {
-    private readonly PreparedStatement m_stmt;
     private readonly bool _needsResult;
+    private readonly PreparedStatement m_stmt;
+
     public SQLResult Result { get; private set; }
 
     public PreparedStatementTask(PreparedStatement stmt, bool needsResult = false)

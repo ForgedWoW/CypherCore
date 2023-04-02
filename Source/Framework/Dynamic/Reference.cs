@@ -7,21 +7,30 @@ namespace Framework.Dynamic
 {
     public class Reference<TO, FROM> : LinkedListElement where TO : class where FROM : class
     {
-        TO _RefTo;
-        FROM _RefFrom;
-
-        // Tell our refTo (target) object that we have a link
-        public virtual void TargetObjectBuildLink() { }
-
-        // Tell our refTo (taget) object, that the link is cut
-        public virtual void TargetObjectDestroyLink() { }
-
-        // Tell our refFrom (source) object, that the link is cut (Target destroyed)
-        public virtual void SourceObjectDestroyLink() { }
+        private FROM _RefFrom;
+        private TO _RefTo;
 
         public Reference()
         {
             _RefTo = null; _RefFrom = null;
+        }
+
+        public FROM Source => _RefFrom;
+
+        public TO Target => _RefTo;
+
+        // Link is invalid due to destruction of referenced target object. Call comes from the refTo object
+        // Tell our refFrom object, that the link is cut
+        public void Invalidate()                                   // the iRefFrom MUST remain!!
+        {
+            SourceObjectDestroyLink();
+            Delink();
+            _RefTo = null;
+        }
+
+        public bool IsValid()                                // Only check the iRefTo
+        {
+            return _RefTo != null;
         }
 
         // Create new link
@@ -40,6 +49,24 @@ namespace Framework.Dynamic
             }
         }
 
+        public Reference<TO, FROM> Next()
+        { return ((Reference<TO, FROM>)GetNextElement()); }
+
+        public Reference<TO, FROM> Prev()
+        { return ((Reference<TO, FROM>)GetPrevElement()); }
+
+        // Tell our refFrom (source) object, that the link is cut (Target destroyed)
+        public virtual void SourceObjectDestroyLink()
+        { }
+
+        // Tell our refTo (target) object that we have a link
+        public virtual void TargetObjectBuildLink()
+        { }
+
+        // Tell our refTo (taget) object, that the link is cut
+        public virtual void TargetObjectDestroyLink()
+        { }
+
         // We don't need the reference anymore. Call comes from the refFrom object
         // Tell our refTo object, that the link is cut
         public void Unlink()
@@ -49,25 +76,5 @@ namespace Framework.Dynamic
             _RefTo = null;
             _RefFrom = null;
         }
-
-        // Link is invalid due to destruction of referenced target object. Call comes from the refTo object
-        // Tell our refFrom object, that the link is cut
-        public void Invalidate()                                   // the iRefFrom MUST remain!!
-        {
-            SourceObjectDestroyLink();
-            Delink();
-            _RefTo = null;
-        }
-
-        public bool IsValid()                                // Only check the iRefTo
-        {
-            return _RefTo != null;
-        }
-
-        public Reference<TO, FROM> Next() { return ((Reference<TO, FROM>)GetNextElement()); }
-        public Reference<TO, FROM> Prev() { return ((Reference<TO, FROM>)GetPrevElement()); }
-
-        public TO Target => _RefTo;
-        public FROM Source => _RefFrom;
     }
 }

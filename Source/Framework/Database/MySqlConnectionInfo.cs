@@ -7,13 +7,13 @@ namespace Framework.Database;
 
 public class MySqlConnectionInfo
 {
-    public string Host;
-    public string PortOrSocket;
-    public bool UseSSL;
-    public string Username;
-    public string Password;
     public string Database;
+    public string Host;
+    public string Password;
     public int Poolsize;
+    public string PortOrSocket;
+    public string Username;
+    public bool UseSSL;
 
     public MySqlConnection GetConnection()
     {

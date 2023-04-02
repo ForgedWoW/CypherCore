@@ -15,12 +15,12 @@ public class TaskScheduler
     // Success handle type
     public delegate void success_t();
 
-    // The Task Queue which contains all task objects.
-    private readonly TaskQueue _task_holder;
-
     // Contains all asynchronous tasks which will be invoked at
     // the next update tick.
     private readonly List<Action> _asyncHolder;
+
+    // The Task Queue which contains all task objects.
+    private readonly TaskQueue _task_holder;
 
     // The current time point (now)
     private DateTime _now;
@@ -43,100 +43,11 @@ public class TaskScheduler
         _predicate = predicate;
     }
 
-	/// <summary>
-	///     Sets a validator which is asked if tasks are allowed to be executed.
-	/// </summary>
-	/// <param name="predicate"> </param>
-	/// <returns> </returns>
-	public TaskScheduler SetValidator(predicate_t predicate)
-    {
-        _predicate = predicate;
-
-        return this;
-    }
-
-	/// <summary>
-	///     Update the scheduler to the current time.
-	///     Calls the optional callback on successfully finish.
-	/// </summary>
-	/// <returns> </returns>
-	public TaskScheduler Update(success_t callback = null)
-    {
-        _now = DateTime.Now;
-        Dispatch(callback);
-
-        return this;
-    }
-
-	/// <summary>
-	///     Update the scheduler with a difftime in ms.
-	///     Calls the optional callback on successfully finish.
-	/// </summary>
-	/// <param name="milliseconds"> </param>
-	/// <param name="callback"> </param>
-	/// <returns> </returns>
-	public TaskScheduler Update(uint milliseconds, success_t callback = null)
-    {
-        return Update(TimeSpan.FromMilliseconds(milliseconds), callback);
-    }
-
     public TaskScheduler Async(Action callable)
     {
         _asyncHolder.Add(callable);
 
         return this;
-    }
-
-	/// <summary>
-	///     Schedule an event with a fixed rate.
-	///     Never call this from within a task context! Use TaskContext.Schedule instead!
-	/// </summary>
-	/// <param name="time"> </param>
-	/// <param name="task"> </param>
-	/// <returns> </returns>
-	public TaskScheduler Schedule(TimeSpan time, Action<TaskContext> task)
-    {
-        return ScheduleAt(_now, time, task);
-    }
-
-	/// <summary>
-	///     Schedule an event with a fixed rate.
-	///     Never call this from within a task context! Use TaskContext.Schedule instead!
-	/// </summary>
-	/// <param name="time"> </param>
-	/// <param name="group"> </param>
-	/// <param name="task"> </param>
-	/// <returns> </returns>
-	public TaskScheduler Schedule(TimeSpan time, uint group, Action<TaskContext> task)
-    {
-        return ScheduleAt(_now, time, group, task);
-    }
-
-	/// <summary>
-	///     Schedule an event with a randomized rate between min and max rate.
-	///     Never call this from within a task context! Use TaskContext.Schedule instead!
-	/// </summary>
-	/// <param name="min"> </param>
-	/// <param name="max"> </param>
-	/// <param name="task"> </param>
-	/// <returns> </returns>
-	public TaskScheduler Schedule(TimeSpan min, TimeSpan max, Action<TaskContext> task)
-    {
-        return Schedule(RandomHelper.RandTime(min, max), task);
-    }
-
-	/// <summary>
-	///     Schedule an event with a fixed rate.
-	///     Never call this from within a task context! Use TaskContext.Schedule instead!
-	/// </summary>
-	/// <param name="min"> </param>
-	/// <param name="max"> </param>
-	/// <param name="group"> </param>
-	/// <param name="task"> </param>
-	/// <returns> </returns>
-	public TaskScheduler Schedule(TimeSpan min, TimeSpan max, uint group, Action<TaskContext> task)
-    {
-        return Schedule(RandomHelper.RandTime(min, max), group, task);
     }
 
     public TaskScheduler CancelAll()
@@ -162,12 +73,12 @@ public class TaskScheduler
         return this;
     }
 
-	/// <summary>
-	///     Delays all tasks with the given duration.
-	/// </summary>
-	/// <param name="duration"> </param>
-	/// <returns> </returns>
-	public TaskScheduler DelayAll(TimeSpan duration)
+    /// <summary>
+    ///     Delays all tasks with the given duration.
+    /// </summary>
+    /// <param name="duration"> </param>
+    /// <returns> </returns>
+    public TaskScheduler DelayAll(TimeSpan duration)
     {
         _task_holder.ModifyIf(task =>
         {
@@ -179,24 +90,24 @@ public class TaskScheduler
         return this;
     }
 
-	/// <summary>
-	///     Delays all tasks with a random duration between min and max.
-	/// </summary>
-	/// <param name="min"> </param>
-	/// <param name="max"> </param>
-	/// <returns> </returns>
-	public TaskScheduler DelayAll(TimeSpan min, TimeSpan max)
+    /// <summary>
+    ///     Delays all tasks with a random duration between min and max.
+    /// </summary>
+    /// <param name="min"> </param>
+    /// <param name="max"> </param>
+    /// <returns> </returns>
+    public TaskScheduler DelayAll(TimeSpan min, TimeSpan max)
     {
         return DelayAll(RandomHelper.RandTime(min, max));
     }
 
-	/// <summary>
-	///     Delays all tasks of a group with the given duration.
-	/// </summary>
-	/// <param name="group"> </param>
-	/// <param name="duration"> </param>
-	/// <returns> </returns>
-	public TaskScheduler DelayGroup(uint group, TimeSpan duration)
+    /// <summary>
+    ///     Delays all tasks of a group with the given duration.
+    /// </summary>
+    /// <param name="group"> </param>
+    /// <param name="duration"> </param>
+    /// <returns> </returns>
+    public TaskScheduler DelayGroup(uint group, TimeSpan duration)
     {
         _task_holder.ModifyIf(task =>
         {
@@ -215,24 +126,24 @@ public class TaskScheduler
         return this;
     }
 
-	/// <summary>
-	///     Delays all tasks of a group with a random duration between min and max.
-	/// </summary>
-	/// <param name="group"> </param>
-	/// <param name="min"> </param>
-	/// <param name="max"> </param>
-	/// <returns> </returns>
-	public TaskScheduler DelayGroup(uint group, TimeSpan min, TimeSpan max)
+    /// <summary>
+    ///     Delays all tasks of a group with a random duration between min and max.
+    /// </summary>
+    /// <param name="group"> </param>
+    /// <param name="min"> </param>
+    /// <param name="max"> </param>
+    /// <returns> </returns>
+    public TaskScheduler DelayGroup(uint group, TimeSpan min, TimeSpan max)
     {
         return DelayGroup(group, RandomHelper.RandTime(min, max));
     }
 
-	/// <summary>
-	///     Reschedule all tasks with a given duration.
-	/// </summary>
-	/// <param name="duration"> </param>
-	/// <returns> </returns>
-	public TaskScheduler RescheduleAll(TimeSpan duration)
+    /// <summary>
+    ///     Reschedule all tasks with a given duration.
+    /// </summary>
+    /// <param name="duration"> </param>
+    /// <returns> </returns>
+    public TaskScheduler RescheduleAll(TimeSpan duration)
     {
         var end = _now + duration;
 
@@ -246,24 +157,24 @@ public class TaskScheduler
         return this;
     }
 
-	/// <summary>
-	///     Reschedule all tasks with a random duration between min and max.
-	/// </summary>
-	/// <param name="min"> </param>
-	/// <param name="max"> </param>
-	/// <returns> </returns>
-	public TaskScheduler RescheduleAll(TimeSpan min, TimeSpan max)
+    /// <summary>
+    ///     Reschedule all tasks with a random duration between min and max.
+    /// </summary>
+    /// <param name="min"> </param>
+    /// <param name="max"> </param>
+    /// <returns> </returns>
+    public TaskScheduler RescheduleAll(TimeSpan min, TimeSpan max)
     {
         return RescheduleAll(RandomHelper.RandTime(min, max));
     }
 
-	/// <summary>
-	///     Reschedule all tasks of a group with the given duration.
-	/// </summary>
-	/// <param name="group"> </param>
-	/// <param name="duration"> </param>
-	/// <returns> </returns>
-	public TaskScheduler RescheduleGroup(uint group, TimeSpan duration)
+    /// <summary>
+    ///     Reschedule all tasks of a group with the given duration.
+    /// </summary>
+    /// <param name="group"> </param>
+    /// <param name="duration"> </param>
+    /// <returns> </returns>
+    public TaskScheduler RescheduleGroup(uint group, TimeSpan duration)
     {
         var end = _now + duration;
 
@@ -284,16 +195,105 @@ public class TaskScheduler
         return this;
     }
 
-	/// <summary>
-	///     Reschedule all tasks of a group with a random duration between min and max.
-	/// </summary>
-	/// <param name="group"> </param>
-	/// <param name="min"> </param>
-	/// <param name="max"> </param>
-	/// <returns> </returns>
-	public TaskScheduler RescheduleGroup(uint group, TimeSpan min, TimeSpan max)
+    /// <summary>
+    ///     Reschedule all tasks of a group with a random duration between min and max.
+    /// </summary>
+    /// <param name="group"> </param>
+    /// <param name="min"> </param>
+    /// <param name="max"> </param>
+    /// <returns> </returns>
+    public TaskScheduler RescheduleGroup(uint group, TimeSpan min, TimeSpan max)
     {
         return RescheduleGroup(group, RandomHelper.RandTime(min, max));
+    }
+
+    /// <summary>
+    ///     Schedule an event with a fixed rate.
+    ///     Never call this from within a task context! Use TaskContext.Schedule instead!
+    /// </summary>
+    /// <param name="time"> </param>
+    /// <param name="task"> </param>
+    /// <returns> </returns>
+    public TaskScheduler Schedule(TimeSpan time, Action<TaskContext> task)
+    {
+        return ScheduleAt(_now, time, task);
+    }
+
+    /// <summary>
+    ///     Schedule an event with a fixed rate.
+    ///     Never call this from within a task context! Use TaskContext.Schedule instead!
+    /// </summary>
+    /// <param name="time"> </param>
+    /// <param name="group"> </param>
+    /// <param name="task"> </param>
+    /// <returns> </returns>
+    public TaskScheduler Schedule(TimeSpan time, uint group, Action<TaskContext> task)
+    {
+        return ScheduleAt(_now, time, group, task);
+    }
+
+    /// <summary>
+    ///     Schedule an event with a randomized rate between min and max rate.
+    ///     Never call this from within a task context! Use TaskContext.Schedule instead!
+    /// </summary>
+    /// <param name="min"> </param>
+    /// <param name="max"> </param>
+    /// <param name="task"> </param>
+    /// <returns> </returns>
+    public TaskScheduler Schedule(TimeSpan min, TimeSpan max, Action<TaskContext> task)
+    {
+        return Schedule(RandomHelper.RandTime(min, max), task);
+    }
+
+    /// <summary>
+    ///     Schedule an event with a fixed rate.
+    ///     Never call this from within a task context! Use TaskContext.Schedule instead!
+    /// </summary>
+    /// <param name="min"> </param>
+    /// <param name="max"> </param>
+    /// <param name="group"> </param>
+    /// <param name="task"> </param>
+    /// <returns> </returns>
+    public TaskScheduler Schedule(TimeSpan min, TimeSpan max, uint group, Action<TaskContext> task)
+    {
+        return Schedule(RandomHelper.RandTime(min, max), group, task);
+    }
+
+    /// <summary>
+    ///     Sets a validator which is asked if tasks are allowed to be executed.
+    /// </summary>
+    /// <param name="predicate"> </param>
+    /// <returns> </returns>
+    public TaskScheduler SetValidator(predicate_t predicate)
+    {
+        _predicate = predicate;
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Update the scheduler to the current time.
+    ///     Calls the optional callback on successfully finish.
+    /// </summary>
+    /// <returns> </returns>
+    public TaskScheduler Update(success_t callback = null)
+    {
+        _now = DateTime.Now;
+        Dispatch(callback);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Update the scheduler with a difftime in ms.
+    ///     Calls the optional callback on successfully finish.
+    /// </summary>
+    /// <param name="milliseconds"> </param>
+    /// <param name="callback"> </param>
+    /// <returns> </returns>
+    public TaskScheduler Update(uint milliseconds, success_t callback = null)
+    {
+        return Update(TimeSpan.FromMilliseconds(milliseconds), callback);
     }
 
     internal TaskScheduler InsertTask(TaskSchedulerTask task)
@@ -308,42 +308,32 @@ public class TaskScheduler
         return InsertTask(new TaskSchedulerTask(end + time, time, task));
     }
 
-	/// <summary>
-	///     Schedule an event with a fixed rate.
-	///     Never call this from within a task context! Use TaskContext.schedule instead!
-	/// </summary>
-	/// <param name="end"> </param>
-	/// <param name="time"> </param>
-	/// <param name="group"> </param>
-	/// <param name="task"> </param>
-	/// <returns> </returns>
-	internal TaskScheduler ScheduleAt(DateTime end, TimeSpan time, uint group, Action<TaskContext> task)
+    /// <summary>
+    ///     Schedule an event with a fixed rate.
+    ///     Never call this from within a task context! Use TaskContext.schedule instead!
+    /// </summary>
+    /// <param name="end"> </param>
+    /// <param name="time"> </param>
+    /// <param name="group"> </param>
+    /// <param name="task"> </param>
+    /// <returns> </returns>
+    internal TaskScheduler ScheduleAt(DateTime end, TimeSpan time, uint group, Action<TaskContext> task)
     {
         return InsertTask(new TaskSchedulerTask(end + time, time, group, 0, task));
     }
 
-	/// <summary>
-	///     Clears the validator which is asked if tasks are allowed to be executed.
-	/// </summary>
-	/// <returns> </returns>
-	private TaskScheduler ClearValidator()
+    private static bool EmptyValidator()
     {
-        _predicate = EmptyValidator;
-
-        return this;
+        return true;
     }
 
-	/// <summary>
-	///     Update the scheduler with a difftime.
-	///     Calls the optional callback on successfully finish.
-	/// </summary>
-	/// <param name="difftime"> </param>
-	/// <param name="callback"> </param>
-	/// <returns> </returns>
-	private TaskScheduler Update(TimeSpan difftime, success_t callback = null)
+    /// <summary>
+    ///     Clears the validator which is asked if tasks are allowed to be executed.
+    /// </summary>
+    /// <returns> </returns>
+    private TaskScheduler ClearValidator()
     {
-        _now += difftime;
-        Dispatch(callback);
+        _predicate = EmptyValidator;
 
         return this;
     }
@@ -385,8 +375,18 @@ public class TaskScheduler
         callback?.Invoke();
     }
 
-    private static bool EmptyValidator()
+    /// <summary>
+    ///     Update the scheduler with a difftime.
+    ///     Calls the optional callback on successfully finish.
+    /// </summary>
+    /// <param name="difftime"> </param>
+    /// <param name="callback"> </param>
+    /// <returns> </returns>
+    private TaskScheduler Update(TimeSpan difftime, success_t callback = null)
     {
-        return true;
+        _now += difftime;
+        Dispatch(callback);
+
+        return this;
     }
 }

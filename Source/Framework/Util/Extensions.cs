@@ -15,71 +15,6 @@ namespace System;
 
 public static class Extensions
 {
-    public static bool HasAnyFlag<T>(this T value, T flag) where T : struct
-    {
-        var lValue = Convert.ToInt64(value);
-        var lFlag = Convert.ToInt64(flag);
-
-        return (lValue & lFlag) != 0;
-    }
-
-    public static string ToHexString(this byte[] byteArray, bool reverse = false)
-    {
-        if (reverse)
-            return byteArray.Reverse().Aggregate("", (current, b) => current + b.ToString("X2"));
-        else
-            return byteArray.Aggregate("", (current, b) => current + b.ToString("X2"));
-    }
-
-    public static byte[] ToByteArray(this string str)
-    {
-        str = str.Replace(" ", string.Empty);
-
-        var res = new byte[str.Length / 2];
-
-        for (var i = 0; i < res.Length; ++i)
-        {
-            var temp = string.Concat(str[i * 2], str[i * 2 + 1]);
-            res[i] = Convert.ToByte(temp, 16);
-        }
-
-        return res;
-    }
-
-    public static byte[] ToByteArray(this string value, char separator)
-    {
-        return Array.ConvertAll(value.Split(separator), byte.Parse);
-    }
-
-    public static byte[] GenerateRandomKey(this byte[] s, int length)
-    {
-        var random = new Random((int)((uint)(Guid.NewGuid().GetHashCode() ^ 1 >> 89 << 2 ^ 42)).LeftRotate(13));
-        var key = new byte[length];
-
-        for (var i = 0; i < length; i++)
-        {
-            int randValue;
-
-            do
-            {
-                randValue = (int)((uint)random.Next(0xFF)).LeftRotate(1) ^ i;
-            } while (randValue > 0xFF && randValue <= 0);
-
-            key[i] = (byte)randValue;
-        }
-
-        return key;
-    }
-
-    public static bool Compare(this byte[] b, byte[] b2)
-    {
-        for (var i = 0; i < b2.Length; i++)
-            if (b[i] != b2[i])
-                return false;
-
-        return true;
-    }
-
     public static byte[] Combine(this byte[] data, params byte[][] pData)
     {
         var combined = data;
@@ -112,31 +47,13 @@ public static class Extensions
         return combined;
     }
 
-    public static void Swap<T>(ref T left, ref T right)
+    public static bool Compare(this byte[] b, byte[] b2)
     {
-        var temp = left;
-        left = right;
-        right = temp;
-    }
+        for (var i = 0; i < b2.Length; i++)
+            if (b[i] != b2[i])
+                return false;
 
-    public static uint[] SerializeObject<T>(this T obj)
-    {
-        //if (obj.GetType()<StructLayoutAttribute>() == null)
-        //return null;
-
-        var size = Marshal.SizeOf(typeof(T));
-        var ptr = Marshal.AllocHGlobal(size);
-        var array = new byte[size];
-
-        Marshal.StructureToPtr(obj, ptr, true);
-        Marshal.Copy(ptr, array, 0, size);
-
-        Marshal.FreeHGlobal(ptr);
-
-        var result = new uint[size / 4];
-        Buffer.BlockCopy(array, 0, result, 0, array.Length);
-
-        return result;
+        return true;
     }
 
     public static List<T> DeserializeObjects<T>(this ICollection<uint> data)
@@ -166,40 +83,92 @@ public static class Extensions
         return list;
     }
 
+    public static Vector3 direction(this Vector3 vector)
+    {
+        var lenSquared = vector.LengthSquared();
+        var invSqrt = 1.0f / MathF.Sqrt(lenSquared);
+
+        return new Vector3(vector.X * invSqrt, vector.Y * invSqrt, vector.Z * invSqrt);
+    }
+
+    public static Vector3 directionOrZero(this Vector3 vector)
+    {
+        var mag = vector.LengthSquared();
+
+        if (mag < 0.0000001f)
+            return Vector3.Zero;
+        else if (mag < 1.00001f && mag > 0.99999f)
+            return vector;
+        else
+            return vector * (1.0f / mag);
+    }
+
+    public static bool EqualsAny<T>(this T item, params T[] array)
+    {
+        return array.Contains(item);
+    }
+
+    public static Matrix4x4 fromEulerAnglesZYX(float fYAngle, float fPAngle, float fRAngle)
+    {
+        var fCos = MathF.Cos(fYAngle);
+        var fSin = MathF.Sin(fYAngle);
+        Matrix4x4 kZMat = new(fCos, -fSin, 0.0f, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+
+        fCos = MathF.Cos(fPAngle);
+        fSin = MathF.Sin(fPAngle);
+        Matrix4x4 kYMat = new(fCos, 0.0f, fSin, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -fSin, 0.0f, fCos, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+
+        fCos = MathF.Cos(fRAngle);
+        fSin = MathF.Sin(fRAngle);
+        Matrix4x4 kXMat = new(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, fCos, -fSin, 0.0f, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+
+        return kZMat * (kYMat * kXMat);
+    }
+
+    public static byte[] GenerateRandomKey(this byte[] s, int length)
+    {
+        var random = new Random((int)((uint)(Guid.NewGuid().GetHashCode() ^ 1 >> 89 << 2 ^ 42)).LeftRotate(13));
+        var key = new byte[length];
+
+        for (var i = 0; i < length; i++)
+        {
+            int randValue;
+
+            do
+            {
+                randValue = (int)((uint)random.Next(0xFF)).LeftRotate(1) ^ i;
+            } while (randValue > 0xFF && randValue <= 0);
+
+            key[i] = (byte)randValue;
+        }
+
+        return key;
+    }
+
     public static float GetAt(this Vector3 vector, long index)
     {
         switch (index)
         {
             case 0:
                 return vector.X;
+
             case 1:
                 return vector.Y;
+
             case 2:
                 return vector.Z;
+
             default:
                 throw new IndexOutOfRangeException();
         }
     }
 
-    public static void SetAt(this ref Vector3 vector, float value, long index)
+    public static bool HasAnyFlag<T>(this T value, T flag) where T : struct
     {
-        switch (index)
-        {
-            case 0:
-                vector.X = value;
+        var lValue = Convert.ToInt64(value);
+        var lFlag = Convert.ToInt64(flag);
 
-                break;
-            case 1:
-                vector.Y = value;
-
-                break;
-            case 2:
-                vector.Z = value;
-
-                break;
-            default:
-                throw new IndexOutOfRangeException();
-        }
+        return (lValue & lFlag) != 0;
     }
 
     public static int primaryAxis(this Vector3 vector)
@@ -228,24 +197,75 @@ public static class Extensions
         return a;
     }
 
-    public static Vector3 direction(this Vector3 vector)
+    public static uint[] SerializeObject<T>(this T obj)
     {
-        var lenSquared = vector.LengthSquared();
-        var invSqrt = 1.0f / MathF.Sqrt(lenSquared);
+        //if (obj.GetType()<StructLayoutAttribute>() == null)
+        //return null;
 
-        return new Vector3(vector.X * invSqrt, vector.Y * invSqrt, vector.Z * invSqrt);
+        var size = Marshal.SizeOf(typeof(T));
+        var ptr = Marshal.AllocHGlobal(size);
+        var array = new byte[size];
+
+        Marshal.StructureToPtr(obj, ptr, true);
+        Marshal.Copy(ptr, array, 0, size);
+
+        Marshal.FreeHGlobal(ptr);
+
+        var result = new uint[size / 4];
+        Buffer.BlockCopy(array, 0, result, 0, array.Length);
+
+        return result;
     }
 
-    public static Vector3 directionOrZero(this Vector3 vector)
+    public static void SetAt(this ref Vector3 vector, float value, long index)
     {
-        var mag = vector.LengthSquared();
+        switch (index)
+        {
+            case 0:
+                vector.X = value;
 
-        if (mag < 0.0000001f)
-            return Vector3.Zero;
-        else if (mag < 1.00001f && mag > 0.99999f)
-            return vector;
-        else
-            return vector * (1.0f / mag);
+                break;
+
+            case 1:
+                vector.Y = value;
+
+                break;
+
+            case 2:
+                vector.Z = value;
+
+                break;
+
+            default:
+                throw new IndexOutOfRangeException();
+        }
+    }
+
+    public static void Swap<T>(ref T left, ref T right)
+    {
+        var temp = left;
+        left = right;
+        right = temp;
+    }
+
+    public static byte[] ToByteArray(this string str)
+    {
+        str = str.Replace(" ", string.Empty);
+
+        var res = new byte[str.Length / 2];
+
+        for (var i = 0; i < res.Length; ++i)
+        {
+            var temp = string.Concat(str[i * 2], str[i * 2 + 1]);
+            res[i] = Convert.ToByte(temp, 16);
+        }
+
+        return res;
+    }
+
+    public static byte[] ToByteArray(this string value, char separator)
+    {
+        return Array.ConvertAll(value.Split(separator), byte.Parse);
     }
 
     public static void toEulerAnglesZYX(this Quaternion quaternion, out float z, out float y, out float x)
@@ -281,26 +301,12 @@ public static class Extensions
         }
     }
 
-    public static Matrix4x4 fromEulerAnglesZYX(float fYAngle, float fPAngle, float fRAngle)
+    public static string ToHexString(this byte[] byteArray, bool reverse = false)
     {
-        var fCos = MathF.Cos(fYAngle);
-        var fSin = MathF.Sin(fYAngle);
-        Matrix4x4 kZMat = new(fCos, -fSin, 0.0f, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-
-        fCos = MathF.Cos(fPAngle);
-        fSin = MathF.Sin(fPAngle);
-        Matrix4x4 kYMat = new(fCos, 0.0f, fSin, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -fSin, 0.0f, fCos, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-
-        fCos = MathF.Cos(fRAngle);
-        fSin = MathF.Sin(fRAngle);
-        Matrix4x4 kXMat = new(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, fCos, -fSin, 0.0f, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-
-        return kZMat * (kYMat * kXMat);
-    }
-
-    public static bool EqualsAny<T>(this T item, params T[] array)
-    {
-        return array.Contains(item);
+        if (reverse)
+            return byteArray.Reverse().Aggregate("", (current, b) => current + b.ToString("X2"));
+        else
+            return byteArray.Aggregate("", (current, b) => current + b.ToString("X2"));
     }
 
     private static uint LeftRotate(this uint value, int shiftCount)
@@ -309,19 +315,6 @@ public static class Extensions
     }
 
     #region Strings
-
-    public static bool IsEmpty(this string str)
-    {
-        return string.IsNullOrEmpty(str);
-    }
-
-    public static T ToEnum<T>(this string str) where T : struct
-    {
-        if (!Enum.TryParse(str, out T value))
-            return default;
-
-        return value;
-    }
 
     public static string ConvertFormatSyntax(this string str)
     {
@@ -333,17 +326,13 @@ public static class Extensions
         return result;
     }
 
-    public static bool Like(this string toSearch, string toFind)
+    public static int FindFirstNotOf(this string source, string chars, int pos)
     {
-        if (toSearch == null || toFind == null)
-            return false;
+        for (var i = pos; i < source.Length; i++)
+            if (chars.IndexOf(source[i]) == -1)
+                return i;
 
-        return toSearch.ToLower().Contains(toFind.ToLower());
-    }
-
-    public static bool IsNumber(this string str)
-    {
-        return double.TryParse(str, out var value);
+        return -1;
     }
 
     public static int GetByteCount(this string str)
@@ -352,6 +341,22 @@ public static class Extensions
             return 0;
 
         return Encoding.UTF8.GetByteCount(str);
+    }
+
+    public static bool isBasicLatinCharacter(char wchar)
+    {
+        if (wchar >= 'a' && wchar <= 'z') // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
+            return true;
+
+        if (wchar >= 'A' && wchar <= 'Z') // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
+            return true;
+
+        return false;
+    }
+
+    public static bool IsEmpty(this string str)
+    {
+        return string.IsNullOrEmpty(str);
     }
 
     public static bool isExtendedLatinCharacter(char wchar)
@@ -383,15 +388,17 @@ public static class Extensions
         return false;
     }
 
-    public static bool isBasicLatinCharacter(char wchar)
+    public static bool IsNumber(this string str)
     {
-        if (wchar >= 'a' && wchar <= 'z') // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
-            return true;
+        return double.TryParse(str, out var value);
+    }
 
-        if (wchar >= 'A' && wchar <= 'Z') // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
-            return true;
+    public static bool Like(this string toSearch, string toFind)
+    {
+        if (toSearch == null || toFind == null)
+            return false;
 
-        return false;
+        return toSearch.ToLower().Contains(toFind.ToLower());
     }
 
     public static Vector3 ParseVector3(this string value)
@@ -405,6 +412,14 @@ public static class Extensions
                                float.Parse(m.Result("${z}")));
         else
             throw new Exception("Unsuccessful Match.");
+    }
+
+    public static T ToEnum<T>(this string str) where T : struct
+    {
+        if (!Enum.TryParse(str, out T value))
+            return default;
+
+        return value;
     }
 
     public static (string token, string tail) Tokenize(this string args)
@@ -430,18 +445,33 @@ public static class Extensions
         return (token, tail);
     }
 
-    public static int FindFirstNotOf(this string source, string chars, int pos)
-    {
-        for (var i = pos; i < source.Length; i++)
-            if (chars.IndexOf(source[i]) == -1)
-                return i;
-
-        return -1;
-    }
-
-    #endregion
+    #endregion Strings
 
     #region BinaryReader
+
+    public static T Read<T>(this BinaryReader reader) where T : struct
+    {
+        var result = reader.ReadBytes(Unsafe.SizeOf<T>());
+
+        return Unsafe.ReadUnaligned<T>(ref result[0]);
+    }
+
+    public static T[] ReadArray<T>(this BinaryReader reader, uint size) where T : struct
+    {
+        var numBytes = Unsafe.SizeOf<T>() * (int)size;
+
+        var source = reader.ReadBytes(numBytes);
+
+        var result = new T[source.Length / Unsafe.SizeOf<T>()];
+
+        if (source.Length > 0)
+            unsafe
+            {
+                Unsafe.CopyBlockUnaligned(Unsafe.AsPointer(ref result[0]), Unsafe.AsPointer(ref source[0]), (uint)source.Length);
+            }
+
+        return result;
+    }
 
     public static string ReadCString(this BinaryReader reader)
     {
@@ -466,29 +496,5 @@ public static class Extensions
         return new string(reader.ReadChars(count));
     }
 
-    public static T[] ReadArray<T>(this BinaryReader reader, uint size) where T : struct
-    {
-        var numBytes = Unsafe.SizeOf<T>() * (int)size;
-
-        var source = reader.ReadBytes(numBytes);
-
-        var result = new T[source.Length / Unsafe.SizeOf<T>()];
-
-        if (source.Length > 0)
-            unsafe
-            {
-                Unsafe.CopyBlockUnaligned(Unsafe.AsPointer(ref result[0]), Unsafe.AsPointer(ref source[0]), (uint)source.Length);
-            }
-
-        return result;
-    }
-
-    public static T Read<T>(this BinaryReader reader) where T : struct
-    {
-        var result = reader.ReadBytes(Unsafe.SizeOf<T>());
-
-        return Unsafe.ReadUnaligned<T>(ref result[0]);
-    }
-
-    #endregion
+    #endregion BinaryReader
 }

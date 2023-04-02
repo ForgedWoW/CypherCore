@@ -12,41 +12,21 @@ public class BoxedValue<T> : IEquatable<BoxedValue<T>>,
                              IEqualityComparer<BoxedValue<T>>,
                              IEqualityComparer<T> where T : struct
 {
-    public T Value { get; set; }
-
     public BoxedValue(T value)
     {
         Value = value;
     }
 
-    public bool Equals(BoxedValue<T> x, BoxedValue<T> y)
+    public T Value { get; set; }
+
+    public static implicit operator bool(BoxedValue<T> boxedValue)
     {
-        return x.Value.Equals(y.Value);
+        return Convert.ToBoolean(boxedValue.Value);
     }
 
-    public int GetHashCode([DisallowNull] BoxedValue<T> obj)
+    public static implicit operator double(BoxedValue<T> boxedValue)
     {
-        return obj.Value.GetHashCode();
-    }
-
-    public bool Equals(T x, T y)
-    {
-        return x.Equals(y);
-    }
-
-    public int GetHashCode([DisallowNull] T obj)
-    {
-        return obj.GetHashCode();
-    }
-
-    public bool Equals(BoxedValue<T> other)
-    {
-        return Value.Equals(other.Value);
-    }
-
-    public bool Equals(T other)
-    {
-        return Value.Equals(other);
+        return Convert.ToDouble(boxedValue.Value);
     }
 
     public static implicit operator int(BoxedValue<T> boxedValue)
@@ -59,14 +39,9 @@ public class BoxedValue<T> : IEquatable<BoxedValue<T>>,
         return Convert.ToUInt32(boxedValue.Value);
     }
 
-    public static implicit operator bool(BoxedValue<T> boxedValue)
+    public static bool operator !=(BoxedValue<T> x, BoxedValue<T> y)
     {
-        return Convert.ToBoolean(boxedValue.Value);
-    }
-
-    public static implicit operator double(BoxedValue<T> boxedValue)
-    {
-        return Convert.ToDouble(boxedValue.Value);
+        return !x.Equals(y);
     }
 
     public static bool operator ==(BoxedValue<T> x, BoxedValue<T> y)
@@ -74,14 +49,39 @@ public class BoxedValue<T> : IEquatable<BoxedValue<T>>,
         return x.Equals(y);
     }
 
-    public static bool operator !=(BoxedValue<T> x, BoxedValue<T> y)
+    public bool Equals(BoxedValue<T> x, BoxedValue<T> y)
     {
-        return !x.Equals(y);
+        return x.Value.Equals(y.Value);
+    }
+
+    public bool Equals(T x, T y)
+    {
+        return x.Equals(y);
+    }
+
+    public bool Equals(BoxedValue<T> other)
+    {
+        return Value.Equals(other.Value);
+    }
+
+    public bool Equals(T other)
+    {
+        return Value.Equals(other);
     }
 
     public override bool Equals(object obj)
     {
         return Equals(obj as BoxedValue<T>);
+    }
+
+    public int GetHashCode([DisallowNull] BoxedValue<T> obj)
+    {
+        return obj.Value.GetHashCode();
+    }
+
+    public int GetHashCode([DisallowNull] T obj)
+    {
+        return obj.GetHashCode();
     }
 
     public override int GetHashCode()

@@ -8,16 +8,6 @@ namespace Framework.GameMath;
 
 internal class CollisionDetection
 {
-    public static float collisionTimeForMovingPointFixedAABox(Vector3 origin, Vector3 dir, AxisAlignedBox box, ref Vector3 location, out bool Inside)
-    {
-        var normal = Vector3.Zero;
-
-        if (collisionLocationForMovingPointFixedAABox(origin, dir, box, ref location, out Inside, ref normal))
-            return Vector3.Distance(location, origin);
-        else
-            return float.PositiveInfinity;
-    }
-
     public static bool collisionLocationForMovingPointFixedAABox(Vector3 origin, Vector3 dir, AxisAlignedBox box, ref Vector3 location, out bool Inside, ref Vector3 normal)
     {
         Inside = true;
@@ -85,5 +75,15 @@ internal class CollisionDetection
         normal.SetAt((float)((dir.GetAt(WhichPlane) > 0) ? -1.0 : 1.0), WhichPlane);
 
         return true;
+    }
+
+    public static float collisionTimeForMovingPointFixedAABox(Vector3 origin, Vector3 dir, AxisAlignedBox box, ref Vector3 location, out bool Inside)
+    {
+        var normal = Vector3.Zero;
+
+        if (collisionLocationForMovingPointFixedAABox(origin, dir, box, ref location, out Inside, ref normal))
+            return Vector3.Distance(location, origin);
+        else
+            return float.PositiveInfinity;
     }
 }

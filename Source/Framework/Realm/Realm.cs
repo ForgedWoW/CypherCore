@@ -9,19 +9,19 @@ using Framework.Realm;
 
 public class Realm : IEquatable<Realm>
 {
-    public RealmId Id;
+    public AccountTypes AllowedSecurityLevel;
     public uint Build;
     public IPAddress ExternalAddress;
+    public RealmFlags Flags;
+    public RealmId Id;
     public IPAddress LocalAddress;
     public IPAddress LocalSubnetMask;
-    public ushort Port;
     public string Name;
     public string NormalizedName;
-    public byte Type;
-    public RealmFlags Flags;
-    public byte Timezone;
-    public AccountTypes AllowedSecurityLevel;
     public float PopulationLevel;
+    public ushort Port;
+    public byte Timezone;
+    public byte Type;
 
     private readonly uint[] ConfigIdByType =
     {
@@ -33,11 +33,9 @@ public class Realm : IEquatable<Realm>
         return other.ExternalAddress.Equals(ExternalAddress) && other.LocalAddress.Equals(LocalAddress) && other.LocalSubnetMask.Equals(LocalSubnetMask) && other.Port == Port && other.Name == Name && other.Type == Type && other.Flags == Flags && other.Timezone == Timezone && other.AllowedSecurityLevel == AllowedSecurityLevel && other.PopulationLevel == PopulationLevel;
     }
 
-    public void SetName(string name)
+    public override bool Equals(object obj)
     {
-        Name = name;
-        NormalizedName = name;
-        NormalizedName = NormalizedName.Replace(" ", "");
+        return obj != null && obj is Realm && Equals((Realm)obj);
     }
 
     public IPEndPoint GetAddressForClient(IPAddress clientAddr)
@@ -74,11 +72,6 @@ public class Realm : IEquatable<Realm>
         return ConfigIdByType[Type];
     }
 
-    public override bool Equals(object obj)
-    {
-        return obj != null && obj is Realm && Equals((Realm)obj);
-    }
-
     public override int GetHashCode()
     {
         return new
@@ -94,5 +87,12 @@ public class Realm : IEquatable<Realm>
             AllowedSecurityLevel,
             PopulationLevel
         }.GetHashCode();
+    }
+
+    public void SetName(string name)
+    {
+        Name = name;
+        NormalizedName = name;
+        NormalizedName = NormalizedName.Replace(" ", "");
     }
 }

@@ -10,15 +10,15 @@ namespace Framework.Metrics;
 public class MeteredMetric : IDisposable
 {
     public ConsoleColor MetricColor = ConsoleColor.Magenta;
-    private readonly Stopwatch _stopwatch = new();
+    private readonly bool _log;
     private readonly uint _logEvery;
     private readonly string _name;
     private readonly bool _recordlessThanOnems;
-    private readonly bool _log;
+    private readonly Stopwatch _stopwatch = new();
     private uint _loops = 0;
-    private TimeSpan _total = TimeSpan.Zero;
     private TimeSpan _max = TimeSpan.Zero;
     private TimeSpan _min = TimeSpan.MaxValue;
+    private TimeSpan _total = TimeSpan.Zero;
 
     public MeteredMetric(string name, uint logEveryXmarks = 1, bool recordlessThanOnems = true, bool log = false)
     {

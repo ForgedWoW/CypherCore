@@ -8,9 +8,9 @@ namespace Framework.GameMath;
 
 public class Box
 {
-    public Vector3[] _edgeVector = new Vector3[3];
-    public Vector3 _center;
     public float _area;
+    public Vector3 _center;
+    public Vector3[] _edgeVector = new Vector3[3];
     public float _volume;
 
     public Box(Vector3 min, Vector3 max)
@@ -30,7 +30,6 @@ public class Box
                 // If the extent is infinite along an axis, make the center zero to avoid NaNs
                 _center.SetAt(0.0f, i);
             }
-
 
         if (finiteExtent)
             _volume = bounds.X * bounds.Y * bounds.Z;

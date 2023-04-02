@@ -8,7 +8,6 @@ namespace Framework.Web;
 [DataContract]
 public class RealmCharacterCountEntry
 {
-    [DataMember(Name = "wowRealmAddress")] public int WowRealmAddress { get; set; }
-
     [DataMember(Name = "count")] public int Count { get; set; }
+    [DataMember(Name = "wowRealmAddress")] public int WowRealmAddress { get; set; }
 }

@@ -9,16 +9,16 @@ public class LoopSafeSortedDictionary<TKey, TVal> : SortedDictionary<TKey, TVal>
 {
     private readonly List<TKey> _removeCache = new();
 
-    public void QueueRemove(TKey key)
-    {
-        _removeCache.Add(key);
-    }
-
     public void ExecuteRemove()
     {
         foreach (var kvp in _removeCache)
             Remove(kvp);
 
         _removeCache.Clear();
+    }
+
+    public void QueueRemove(TKey key)
+    {
+        _removeCache.Add(key);
     }
 }

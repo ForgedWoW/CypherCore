@@ -13,11 +13,6 @@ public static class DBExecutableUtil
 {
     private static string _mysqlExecutablePath;
 
-    public static string GetMySQLExecutable()
-    {
-        return _mysqlExecutablePath;
-    }
-
     public static bool CheckExecutable(IConfiguration configuration)
     {
         var mysqlExePath = configuration.GetDefaultValue("MySQLExecutable", "");
@@ -33,5 +28,10 @@ public static class DBExecutableUtil
         _mysqlExecutablePath = mysqlExePath;
 
         return true;
+    }
+
+    public static string GetMySQLExecutable()
+    {
+        return _mysqlExecutablePath;
     }
 }

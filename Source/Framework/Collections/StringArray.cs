@@ -10,6 +10,8 @@ public class StringArray
 {
     private string[] _str;
 
+    public int Length => _str != null ? _str.Length : 0;
+
     public string this[int index]
     {
         get
@@ -21,8 +23,6 @@ public class StringArray
         }
         set { _str[index] = value; }
     }
-
-    public int Length => _str != null ? _str.Length : 0;
 
     public StringArray(int size)
     {

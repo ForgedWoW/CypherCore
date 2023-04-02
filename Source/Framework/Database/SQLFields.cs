@@ -14,6 +14,11 @@ public class SQLFields
         _currentRow = row;
     }
 
+    public bool IsNull(int column)
+    {
+        return _currentRow[column] == DBNull.Value;
+    }
+
     public T Read<T>(int column)
     {
         var value = _currentRow[column];
@@ -35,10 +40,5 @@ public class SQLFields
             values[c] = Read<T>(startIndex + c);
 
         return values;
-    }
-
-    public bool IsNull(int column)
-    {
-        return _currentRow[column] == DBNull.Value;
     }
 }

@@ -7,12 +7,14 @@ using dtPolyRef = System.UInt64;
 
 public static partial class Detour
 {
-    /// Tile flags used for various functions and fields.
-    /// For an example, see dtNavMesh::addTile().
-    public enum dtTileFlags
+    /// Flags representing the type of a navigation mesh polygon.
+    public enum dtPolyTypes
     {
-        /// The navigation mesh owns the tile memory and is responsible for freeing it.
-        DT_TILE_FREE_DATA = 0x01,
+        /// The polygon is a standard convex polygon that is part of the surface of the mesh.
+        DT_POLYTYPE_GROUND = 0,
+
+        /// The polygon is an off-mesh connection consisting of two vertices.
+        DT_POLYTYPE_OFFMESH_CONNECTION = 1,
     };
 
     /// Vertex flags returned by dtNavMeshQuery::findStraightPath.
@@ -30,30 +32,29 @@ public static partial class Detour
         DT_STRAIGHTPATH_ALL_CROSSINGS = 0x02,  //< Add a vertex at every polygon edge crossing.
     };
 
-    /// Flags representing the type of a navigation mesh polygon.
-    public enum dtPolyTypes
+    /// Tile flags used for various functions and fields.
+    /// For an example, see dtNavMesh::addTile().
+    public enum dtTileFlags
     {
-        /// The polygon is a standard convex polygon that is part of the surface of the mesh.
-        DT_POLYTYPE_GROUND = 0,
-
-        /// The polygon is an off-mesh connection consisting of two vertices.
-        DT_POLYTYPE_OFFMESH_CONNECTION = 1,
+        /// The navigation mesh owns the tile memory and is responsible for freeing it.
+        DT_TILE_FREE_DATA = 0x01,
     };
 
-    /// The maximum number of vertices per navigation polygon.
+    /// A flag that indicates that an entity links to an external entity.
+    /// (E.g. A polygon edge is a portal that links to another polygon.)
+    public const ushort DT_EXT_LINK = 0x8000;
+
+    /// The maximum number of user defined area ids.
     // @ingroup detour
-    public const int DT_VERTS_PER_POLYGON = 6;
+    public const int DT_MAX_AREAS = 64;
 
     // @{
     // @name Tile Serialization Constants
     /// These constants are used to detect whether a navigation tile's data
     /// and state format is compatible with the current build.
-    /// 
+    ///
     /// A magic number used to detect compatibility of navigation tile data.
     public const int DT_NAVMESH_MAGIC = 'D' << 24 | 'N' << 16 | 'A' << 8 | 'V';
-
-    /// A version number used to detect compatibility of navigation tile data.
-    public const int DT_NAVMESH_VERSION = 7;
 
     /// A magic number used to detect the compatibility of navigation tile states.
     public const int DT_NAVMESH_STATE_MAGIC = 'D' << 24 | 'N' << 16 | 'M' << 8 | 'S';
@@ -61,106 +62,48 @@ public static partial class Detour
     /// A version number used to detect compatibility of navigation tile states.
     public const int DT_NAVMESH_STATE_VERSION = 1;
 
+    /// A version number used to detect compatibility of navigation tile data.
+    public const int DT_NAVMESH_VERSION = 7;
+
     // @}
-
-    /// A flag that indicates that an entity links to an external entity.
-    /// (E.g. A polygon edge is a portal that links to another polygon.)
-    public const ushort DT_EXT_LINK = 0x8000;
-
     /// A value that indicates the entity does not link to anything.
     public const uint DT_NULL_LINK = 0xffffffff;
 
     /// A flag that indicates that an off-mesh connection can be traversed in both directions. (Is bidirectional.)
     public const uint DT_OFFMESH_CON_BIDIR = 1;
 
-    /// The maximum number of user defined area ids.
+    /// The maximum number of vertices per navigation polygon.
     // @ingroup detour
-    public const int DT_MAX_AREAS = 64;
+    public const int DT_VERTS_PER_POLYGON = 6;
 
     private const ushort MESH_NULL_IDX = 0xffff;
 
-    /// Get flags for edge in detail triangle.
-    /// @param	triFlags[in]		The flags for the triangle (last component of detail vertices above).
-    /// @param	edgeIndex[in]		The index of the first vertex of the edge. For instance, if 0,
-    /// returns flags for edge AB.
-    public static int dtGetDetailTriEdgeFlags(byte triFlags, int edgeIndex)
+    public static byte classifyOffMeshPoint(float[] pt, int ptStart, float[] bmin, float[] bmax)
     {
-        return (triFlags >> (edgeIndex * 2)) & 0x3;
-    }
+        const byte XP = 1 << 0;
+        const byte ZP = 1 << 1;
+        const byte XM = 1 << 2;
+        const byte ZM = 1 << 3;
 
-    public static int longestAxis(ushort x, ushort y, ushort z)
-    {
-        var axis = 0;
-        var maxVal = x;
+        byte outcode = 0;
+        outcode |= (pt[ptStart + 0] >= bmax[0]) ? XP : (byte)0;
+        outcode |= (pt[ptStart + 2] >= bmax[2]) ? ZP : (byte)0;
+        outcode |= (pt[ptStart + 0] < bmin[0]) ? XM : (byte)0;
+        outcode |= (pt[ptStart + 2] < bmin[2]) ? ZM : (byte)0;
 
-        if (y > maxVal)
+        switch (outcode)
         {
-            axis = 1;
-            maxVal = y;
+            case XP:      return 0;
+            case XP | ZP: return 1;
+            case ZP:      return 2;
+            case XM | ZP: return 3;
+            case XM:      return 4;
+            case XM | ZM: return 5;
+            case ZM:      return 6;
+            case XP | ZM: return 7;
         }
 
-        if (z > maxVal)
-        {
-            axis = 2;
-            maxVal = z;
-        }
-
-        return axis;
-    }
-
-    public static void subdivide(BVItem[] items, int nitems, int imin, int imax, ref int curNode, dtBVNode[] nodes)
-    {
-        var inum = imax - imin;
-        var icur = curNode;
-
-        var node = nodes[curNode++];
-
-        if (inum == 1)
-        {
-            // Leaf
-            node.bmin[0] = items[imin].bmin[0];
-            node.bmin[1] = items[imin].bmin[1];
-            node.bmin[2] = items[imin].bmin[2];
-
-            node.bmax[0] = items[imin].bmax[0];
-            node.bmax[1] = items[imin].bmax[1];
-            node.bmax[2] = items[imin].bmax[2];
-
-            node.i = items[imin].i;
-        }
-        else
-        {
-            // Split
-            calcExtends(items, nitems, imin, imax, node.bmin, node.bmax);
-
-            var axis = longestAxis((ushort)(node.bmax[0] - node.bmin[0]),
-                                   (ushort)(node.bmax[1] - node.bmin[1]),
-                                   (ushort)(node.bmax[2] - node.bmin[2]));
-
-            if (axis == 0)
-                // Sort along x-axis
-                //qsort(items+imin, inum, sizeof(BVItem), compareItemX);
-                Array.Sort(items, imin, inum, new BVItemCompareX());
-            else if (axis == 1)
-                // Sort along y-axis
-                //qsort(items+imin, inum, sizeof(BVItem), compareItemY);
-                Array.Sort(items, imin, inum, new BVItemCompareY());
-            else
-                // Sort along z-axis
-                //qsort(items+imin, inum, sizeof(BVItem), compareItemZ);
-                Array.Sort(items, imin, inum, new BVItemCompareZ());
-
-            var isplit = imin + inum / 2;
-
-            // Left
-            subdivide(items, nitems, imin, isplit, ref curNode, nodes);
-            // Right
-            subdivide(items, nitems, isplit, imax, ref curNode, nodes);
-
-            var iescape = curNode - icur;
-            // Negative index means escape.
-            node.i = -iescape;
-        }
+        return 0xff;
     }
 
     public static int createBVTree(dtNavMeshCreateParams createParams, dtBVNode[] nodes, int nnodes)
@@ -240,38 +183,8 @@ public static partial class Detour
         return curNode;
     }
 
-    public static byte classifyOffMeshPoint(float[] pt, int ptStart, float[] bmin, float[] bmax)
-    {
-        const byte XP = 1 << 0;
-        const byte ZP = 1 << 1;
-        const byte XM = 1 << 2;
-        const byte ZM = 1 << 3;
-
-        byte outcode = 0;
-        outcode |= (pt[ptStart + 0] >= bmax[0]) ? XP : (byte)0;
-        outcode |= (pt[ptStart + 2] >= bmax[2]) ? ZP : (byte)0;
-        outcode |= (pt[ptStart + 0] < bmin[0]) ? XM : (byte)0;
-        outcode |= (pt[ptStart + 2] < bmin[2]) ? ZM : (byte)0;
-
-        switch (outcode)
-        {
-            case XP:      return 0;
-            case XP | ZP: return 1;
-            case ZP:      return 2;
-            case XM | ZP: return 3;
-            case XM:      return 4;
-            case XM | ZM: return 5;
-            case ZM:      return 6;
-            case XP | ZM: return 7;
-        }
-
-        return 0xff;
-    }
-
-    // TODO: Better error handling.
-
     // @par
-    /// 
+    ///
     /// The output data array is allocated using the detour allocator (dtAlloc()).  The method
     /// used to free the memory will be determined by how the tile is added to the navigation
     /// mesh.
@@ -464,11 +377,11 @@ public static partial class Detour
 	    const int detailTrisSize = dtAlign4(sizeof(byte)*4*detailTriCount);
 	    const int bvTreeSize = createParams.buildBvTree ? dtAlign4(sizeof(dtBVNode)*createParams.polyCount*2) : 0;
 	    const int offMeshConsSize = dtAlign4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
-	
+
 	    const int dataSize = headerSize + vertsSize + polysSize + linksSize +
 						     detailMeshesSize + detailVertsSize + detailTrisSize +
 						     bvTreeSize + offMeshConsSize;
-						 
+
 	    byte* data = (byte*)dtAlloc(sizeof(byte)*dataSize, DT_ALLOC_PERM);
 	    if (!data)
 	    {
@@ -476,8 +389,6 @@ public static partial class Detour
 		    return false;
 	    }
 	    memset(data, 0, dataSize);
-	    
-        
 
 	    byte* d = data;
 	    dtMeshHeader* header = (dtMeshHeader*)d; d += headerSize;
@@ -759,6 +670,91 @@ public static partial class Detour
         return true;
     }
 
+    /// Get flags for edge in detail triangle.
+    /// @param	triFlags[in]		The flags for the triangle (last component of detail vertices above).
+    /// @param	edgeIndex[in]		The index of the first vertex of the edge. For instance, if 0,
+    /// returns flags for edge AB.
+    public static int dtGetDetailTriEdgeFlags(byte triFlags, int edgeIndex)
+    {
+        return (triFlags >> (edgeIndex * 2)) & 0x3;
+    }
+
+    public static int longestAxis(ushort x, ushort y, ushort z)
+    {
+        var axis = 0;
+        var maxVal = x;
+
+        if (y > maxVal)
+        {
+            axis = 1;
+            maxVal = y;
+        }
+
+        if (z > maxVal)
+        {
+            axis = 2;
+            maxVal = z;
+        }
+
+        return axis;
+    }
+
+    public static void subdivide(BVItem[] items, int nitems, int imin, int imax, ref int curNode, dtBVNode[] nodes)
+    {
+        var inum = imax - imin;
+        var icur = curNode;
+
+        var node = nodes[curNode++];
+
+        if (inum == 1)
+        {
+            // Leaf
+            node.bmin[0] = items[imin].bmin[0];
+            node.bmin[1] = items[imin].bmin[1];
+            node.bmin[2] = items[imin].bmin[2];
+
+            node.bmax[0] = items[imin].bmax[0];
+            node.bmax[1] = items[imin].bmax[1];
+            node.bmax[2] = items[imin].bmax[2];
+
+            node.i = items[imin].i;
+        }
+        else
+        {
+            // Split
+            calcExtends(items, nitems, imin, imax, node.bmin, node.bmax);
+
+            var axis = longestAxis((ushort)(node.bmax[0] - node.bmin[0]),
+                                   (ushort)(node.bmax[1] - node.bmin[1]),
+                                   (ushort)(node.bmax[2] - node.bmin[2]));
+
+            if (axis == 0)
+                // Sort along x-axis
+                //qsort(items+imin, inum, sizeof(BVItem), compareItemX);
+                Array.Sort(items, imin, inum, new BVItemCompareX());
+            else if (axis == 1)
+                // Sort along y-axis
+                //qsort(items+imin, inum, sizeof(BVItem), compareItemY);
+                Array.Sort(items, imin, inum, new BVItemCompareY());
+            else
+                // Sort along z-axis
+                //qsort(items+imin, inum, sizeof(BVItem), compareItemZ);
+                Array.Sort(items, imin, inum, new BVItemCompareZ());
+
+            var isplit = imin + inum / 2;
+
+            // Left
+            subdivide(items, nitems, imin, isplit, ref curNode, nodes);
+            // Right
+            subdivide(items, nitems, isplit, imax, ref curNode, nodes);
+
+            var iescape = curNode - icur;
+            // Negative index means escape.
+            node.i = -iescape;
+        }
+    }
+
+    // TODO: Better error handling.
     private static void calcExtends(BVItem[] items, int nitems, int imin, int imax, ushort[] bmin, ushort[] bmax)
     {
         bmin[0] = items[imin].bmin[0];
@@ -783,6 +779,11 @@ public static partial class Detour
         }
     }
 
+    private enum dtDetailTriEdgeFlags
+    {
+        DT_DETAIL_EDGE_BOUNDARY = 0x01, ///< Detail triangle edge is part of the poly boundary
+    };
+
     /// Options for dtNavMeshQuery::initSlicedFindPath and updateSlicedFindPath
     private enum dtFindPathOptions
     {
@@ -795,197 +796,68 @@ public static partial class Detour
         DT_RAYCAST_USE_COSTS = 0x01, ///< Raycast should calculate movement cost along the ray and fill RaycastHit::cost
     };
 
-    private enum dtDetailTriEdgeFlags
+    public class BVItem
     {
-        DT_DETAIL_EDGE_BOUNDARY = 0x01, ///< Detail triangle edge is part of the poly boundary
+        public ushort[] bmax = new ushort[3];
+        public ushort[] bmin = new ushort[3];
+        public int i;
     };
 
-
-    /// Defines a polyogn within a dtMeshTile object.
-    // @ingroup detour
-    public class dtPoly
+    //public static int compareItemX(const void* va, const void* vb)
+    public class BVItemCompareX : IComparer<BVItem>
     {
-        /// Index to first link in linked list. (Or #DT_NULL_LINK if there is no link.)
-        public uint firstLink;
-
-        // The indices of the polygon's vertices.
-        // The actual vertices are located in dtMeshTile::verts.
-        public ushort[] verts = new ushort[DT_VERTS_PER_POLYGON];
-
-        // Packed data representing neighbor polygons references and flags for each edge.
-        public ushort[] neis = new ushort[DT_VERTS_PER_POLYGON];
-
-        /// The user defined polygon flags.
-        public ushort flags;
-
-        /// The number of vertices in the polygon.
-        public byte vertCount;
-
-        /// The bit packed area id and polygon type.
-        // @note Use the structure's set and get methods to acess this value.
-        public byte areaAndtype;
-
-        public int FromBytes(byte[] array, int start)
+        // Compares by Height, Length, and Width.
+        public int Compare(BVItem a, BVItem b)
         {
-            firstLink = BitConverter.ToUInt32(array, start);
-            start += sizeof(uint);
+            if (a.bmin[0] < b.bmin[0])
+                return -1;
 
-            for (var i = 0; i < DT_VERTS_PER_POLYGON; ++i)
-            {
-                verts[i] = BitConverter.ToUInt16(array, start);
-                start += sizeof(ushort);
-            }
+            if (a.bmin[0] > b.bmin[0])
+                return 1;
 
-            for (var i = 0; i < DT_VERTS_PER_POLYGON; ++i)
-            {
-                neis[i] = BitConverter.ToUInt16(array, start);
-                start += sizeof(ushort);
-            }
-
-            flags = BitConverter.ToUInt16(array, start);
-            start += sizeof(ushort);
-            vertCount = array[start];
-            start += sizeof(byte);
-            areaAndtype = array[start];
-            start += sizeof(byte);
-
-            return start;
+            return 0;
         }
+    }
 
-        public byte[] ToBytes()
-        {
-            List<byte> bytes = new();
-
-            bytes.AddRange(BitConverter.GetBytes(firstLink));
-
-            for (var i = 0; i < DT_VERTS_PER_POLYGON; ++i)
-                bytes.AddRange(BitConverter.GetBytes(verts[i]));
-
-            for (var i = 0; i < DT_VERTS_PER_POLYGON; ++i)
-                bytes.AddRange(BitConverter.GetBytes(neis[i]));
-
-            bytes.AddRange(BitConverter.GetBytes(flags));
-            bytes.Add(vertCount);
-            bytes.Add(areaAndtype);
-
-            return bytes.ToArray();
-        }
-
-        /// Sets the user defined area id. [Limit: &lt; #DT_MAX_AREAS]
-        public void setArea(byte a)
-        {
-            //Bitwise operators are done on ints in C#
-            areaAndtype = (byte)(((int)areaAndtype & 0xc0) | ((int)a & 0x3f));
-        }
-
-        /// Sets the polygon type. (See: #dtPolyTypes.)
-        public void setType(byte t)
-        {
-            areaAndtype = (byte)(((int)areaAndtype & 0x3f) | (t << 6));
-        }
-
-        /// Gets the user defined area id.
-        public byte getArea()
-        {
-            return (byte)((int)areaAndtype & 0x3f);
-        }
-
-        /// Gets the polygon type. (See: #dtPolyTypes)
-        public byte getType()
-        {
-            return (byte)((int)areaAndtype >> 6);
-        }
-    };
-
-    /// Defines the location of detail sub-mesh data within a dtMeshTile.
-    public class dtPolyDetail
+    //static int compareItemY(const void* va, const void* vb)
+    public class BVItemCompareY : IComparer<BVItem>
     {
-        public uint vertBase;  //< The offset of the vertices in the dtMeshTile::detailVerts array.
-        public uint triBase;   //< The offset of the triangles in the dtMeshTile::detailTris array.
-        public byte vertCount; //< The number of vertices in the sub-mesh.
-        public byte triCount;  //< The number of triangles in the sub-mesh.
-
-        public int FromBytes(byte[] array, int start)
+        public int Compare(BVItem a, BVItem b)
         {
-            vertBase = BitConverter.ToUInt32(array, start);
-            start += sizeof(uint);
-            triBase = BitConverter.ToUInt32(array, start);
-            start += sizeof(uint);
-            vertCount = array[start];
-            start += sizeof(byte);
-            triCount = array[start];
-            start += sizeof(byte);
-            start += sizeof(ushort); //two byte padding
+            if (a.bmin[1] < b.bmin[1])
+                return -1;
 
-            return start;
+            if (a.bmin[1] > b.bmin[1])
+                return 1;
+
+            return 0;
         }
+    }
 
-        public byte[] ToBytes()
-        {
-            List<byte> bytes = new();
-
-            bytes.AddRange(BitConverter.GetBytes(vertBase));
-            bytes.AddRange(BitConverter.GetBytes(triBase));
-            bytes.Add(vertCount);
-            bytes.Add(triCount);
-
-            return bytes.ToArray();
-        }
-    };
-
-    /// Defines a link between polygons.
-    // @note This structure is rarely if ever used by the end user.
-    // @see dtMeshTile
-    public class dtLink
+    public class BVItemCompareZ : IComparer<BVItem>
     {
-        public ulong polyRef; //< Neighbour reference. (The neighbor that is linked to.)
-        public uint next;     //< Index of the next link.
-        public byte edge;     //< Index of the polygon edge that owns this link.
-        public byte side;     //< If a boundary link, defines on which side the link is.
-        public byte bmin;     //< If a boundary link, defines the minimum sub-edge area.
-        public byte bmax;     //< If a boundary link, defines the maximum sub-edge area.
-
-        public int FromBytes(byte[] array, int start)
+        public int Compare(BVItem a, BVItem b)
         {
-            polyRef = BitConverter.ToUInt64(array, start);
-            start += sizeof(ulong);
-            next = BitConverter.ToUInt32(array, start);
-            start += sizeof(uint);
-            edge = array[start];
-            start += sizeof(byte);
-            side = array[start];
-            start += sizeof(byte);
-            bmin = array[start];
-            start += sizeof(byte);
-            bmax = array[start];
-            start += sizeof(byte);
+            if (a.bmin[2] < b.bmin[2])
+                return -1;
 
-            return start;
+            if (a.bmin[2] > b.bmin[2])
+                return 1;
+
+            return 0;
         }
-
-        public byte[] ToBytes()
-        {
-            List<byte> bytes = new();
-
-            bytes.AddRange(BitConverter.GetBytes(polyRef));
-            bytes.AddRange(BitConverter.GetBytes(next));
-            bytes.Add(edge);
-            bytes.Add(side);
-            bytes.Add(bmin);
-            bytes.Add(bmax);
-
-            return bytes.ToArray();
-        }
-    };
+    }
 
     /// Bounding volume node.
     // @note This structure is rarely if ever used by the end user.
     // @see dtMeshTile
     public class dtBVNode
     {
+        public ushort[] bmax = new ushort[3];
         public ushort[] bmin = new ushort[3]; //< Minimum bounds of the node's AABB. [(x, y, z)]
-        public ushort[] bmax = new ushort[3]; //< Maximum bounds of the node's AABB. [(x, y, z)]
-        public int i;                         //< The node's index. (Negative for escape sequence.)
+
+        //< Maximum bounds of the node's AABB. [(x, y, z)]
+        public int i; //< The node's index. (Negative for escape sequence.)
 
         public int FromBytes(byte[] array, int start)
         {
@@ -1023,49 +895,38 @@ public static partial class Detour
         }
     };
 
-    /// Defines an navigation mesh off-mesh connection within a dtMeshTile object.
-    /// An off-mesh connection is a user defined traversable connection made up to two vertices.
-    public class dtOffMeshConnection
+    /// Defines a link between polygons.
+    // @note This structure is rarely if ever used by the end user.
+    // @see dtMeshTile
+    public class dtLink
     {
-        /// The endpoints of the connection. [(ax, ay, az, bx, by, bz)]
-        public float[] pos = new float[6];
+        public byte bmax;
+        public byte bmin;
+        public byte edge;
+        public uint next;
+        public ulong polyRef; //< Neighbour reference. (The neighbor that is linked to.)
 
-        /// The radius of the endpoints. [Limit: >= 0]
-        public float rad;
+        //< Index of the next link.
+        //< Index of the polygon edge that owns this link.
+        public byte side; //< If a boundary link, defines on which side the link is.
 
-        /// The polygon reference of the connection within the tile.
-        public ushort poly;
-
-        /// Link flags. 
-        // @note These are not the connection's user defined flags. Those are assigned via the 
-        /// connection's dtPoly definition. These are link flags used for internal purposes.
-        public byte flags;
-
-        /// End point side.
-        public byte side;
-
-        /// The id of the offmesh connection. (User assigned when the navigation mesh is built.)
-        public uint userId;
-
+        //< If a boundary link, defines the minimum sub-edge area.
+        //< If a boundary link, defines the maximum sub-edge area.
 
         public int FromBytes(byte[] array, int start)
         {
-            for (var i = 0; i < 6; ++i)
-            {
-                pos[i] = BitConverter.ToSingle(array, start);
-                start += sizeof(float);
-            }
-
-            rad = BitConverter.ToSingle(array, start);
-            start += sizeof(float);
-            poly = BitConverter.ToUInt16(array, start);
-            start += sizeof(ushort);
-            flags = array[start];
-            ++start;
-            side = array[start];
-            ++start;
-            userId = BitConverter.ToUInt32(array, start);
+            polyRef = BitConverter.ToUInt64(array, start);
+            start += sizeof(ulong);
+            next = BitConverter.ToUInt32(array, start);
             start += sizeof(uint);
+            edge = array[start];
+            start += sizeof(byte);
+            side = array[start];
+            start += sizeof(byte);
+            bmin = array[start];
+            start += sizeof(byte);
+            bmax = array[start];
+            start += sizeof(byte);
 
             return start;
         }
@@ -1074,51 +935,73 @@ public static partial class Detour
         {
             List<byte> bytes = new();
 
-            for (var i = 0; i < 6; ++i)
-                bytes.AddRange(BitConverter.GetBytes(pos[i]));
-
-            bytes.AddRange(BitConverter.GetBytes(rad));
-            bytes.AddRange(BitConverter.GetBytes(poly));
-            bytes.Add(flags);
+            bytes.AddRange(BitConverter.GetBytes(polyRef));
+            bytes.AddRange(BitConverter.GetBytes(next));
+            bytes.Add(edge);
             bytes.Add(side);
-            bytes.AddRange(BitConverter.GetBytes(userId));
+            bytes.Add(bmin);
+            bytes.Add(bmax);
 
             return bytes.ToArray();
         }
     };
 
-
     /// Provides high level information related to a dtMeshTile object.
     // @ingroup detour
     public class dtMeshHeader
     {
-        public int magic;           //< Tile magic number. (Used to identify the data format.)
-        public int version;         //< Tile data format version number.
-        public int x;               //< The x-position of the tile within the dtNavMesh tile grid. (x, y, layer)
-        public int y;               //< The y-position of the tile within the dtNavMesh tile grid. (x, y, layer)
-        public int layer;           //< The layer of the tile within the dtNavMesh tile grid. (x, y, layer)
-        public uint userId;         //< The user defined id of the tile.
-        public int polyCount;       //< The number of polygons in the tile.
-        public int vertCount;       //< The number of vertices in the tile.
-        public int maxLinkCount;    //< The number of allocated links.
-        public int detailMeshCount; //< The number of sub-meshes in the detail mesh.
-
-        /// The number of unique vertices in the detail mesh. (In addition to the polygon vertices.)
-        public int detailVertCount;
-
-        public int detailTriCount;          //< The number of triangles in the detail mesh.
-        public int bvNodeCount;             //< The number of bounding volume nodes. (Zero if bounding volumes are disabled.)
-        public int offMeshConCount;         //< The number of off-mesh connections.
-        public int offMeshBase;             //< The index of the first polygon which is an off-mesh connection.
-        public float walkableHeight;        //< The height of the agents using the tile.
-        public float walkableRadius;        //< The radius of the agents using the tile.
-        public float walkableClimb;         //< The maximum climb height of the agents using the tile.
-        public float[] bmin = new float[3]; //< The minimum bounds of the tile's AABB. [(x, y, z)]
-        public float[] bmax = new float[3]; //< The maximum bounds of the tile's AABB. [(x, y, z)]
+        public float[] bmax = new float[3];
+        public float[] bmin = new float[3];
+        public int bvNodeCount;
 
         /// The bounding volume quantization factor.
         public float bvQuantFactor;
 
+        public int detailMeshCount;
+        public int detailTriCount;
+
+        /// The number of unique vertices in the detail mesh. (In addition to the polygon vertices.)
+        public int detailVertCount;
+
+        public int layer;
+        public int magic; //< Tile magic number. (Used to identify the data format.)
+        public int maxLinkCount;
+        public int offMeshBase;
+
+        //< The number of allocated links.
+        //< The number of sub-meshes in the detail mesh.
+        //< The number of triangles in the detail mesh.
+        //< The number of bounding volume nodes. (Zero if bounding volumes are disabled.)
+        public int offMeshConCount;
+
+        public int polyCount;
+
+        //< The layer of the tile within the dtNavMesh tile grid. (x, y, layer)
+        public uint userId;
+
+        public int version; //< Tile data format version number.
+
+        //< The user defined id of the tile.
+        //< The number of polygons in the tile.
+        public int vertCount;
+
+        public float walkableClimb;
+
+        //< The number of vertices in the tile.
+        //< The number of off-mesh connections.
+        //< The index of the first polygon which is an off-mesh connection.
+        public float walkableHeight;
+
+        //< The height of the agents using the tile.
+        public float walkableRadius;
+
+        public int x; //< The x-position of the tile within the dtNavMesh tile grid. (x, y, layer)
+        public int y; //< The y-position of the tile within the dtNavMesh tile grid. (x, y, layer)
+
+        //< The radius of the agents using the tile.
+        //< The maximum climb height of the agents using the tile.
+        //< The minimum bounds of the tile's AABB. [(x, y, z)]
+        //< The maximum bounds of the tile's AABB. [(x, y, z)]
         public int FromBytes(byte[] array, int start)
         {
             magic = BitConverter.ToInt32(array, start);
@@ -1215,28 +1098,427 @@ public static partial class Detour
         }
     };
 
-
-    public class dtRawTileData
+    public class dtMeshTile
     {
-        public dtMeshHeader header;         //< The tile header.
-        public dtPoly[] polys;              //< The tile polygons. [Size: dtMeshHeader::polyCount]
-        public float[] verts;               //< The tile vertices. [Size: dtMeshHeader::vertCount]
-        public dtLink[] links;              //< The tile links. [Size: dtMeshHeader::maxLinkCount]
-        public dtPolyDetail[] detailMeshes; //< The tile's detail sub-meshes. [Size: dtMeshHeader::detailMeshCount]
-
-        /// The detail mesh's unique vertices. [(x, y, z) * dtMeshHeader::detailVertCount]
-        public float[] detailVerts;
-
-        /// The detail mesh's triangles. [(vertA, vertB, vertC) * dtMeshHeader::detailTriCount]
-        public byte[] detailTris;
-
         /// The tile bounding volume nodes. [Size: dtMeshHeader::bvNodeCount]
         /// (Will be null if bounding volumes are disabled.)
         public dtBVNode[] bvTree;
 
-        public dtOffMeshConnection[] offMeshCons; //< The tile off-mesh connections. [Size: dtMeshHeader::offMeshConCount]
+        public dtRawTileData data;
 
-        public int flags; //< Tile flags. (See: #dtTileFlags)
+        //< The tile data. (Not directly accessed under normal situations.)
+        public int dataSize;
+
+        public dtPolyDetail[] detailMeshes;
+
+        /// The detail mesh's triangles. [(vertA, vertB, vertC, triFlags) * dtMeshHeader::detailTriCount].
+        /// See dtDetailTriEdgeFlags and dtGetDetailTriEdgeFlags.
+        public byte[] detailTris;
+
+        /// The detail mesh's unique vertices. [(x, y, z) * dtMeshHeader::detailVertCount]
+        public float[] detailVerts;
+
+        //< Size of the tile data.
+        public int flags;
+
+        public dtMeshHeader header;
+        public dtLink[] links;
+        public uint linksFreeList;
+
+        //< Tile flags. (See: #dtTileFlags)
+        public dtMeshTile next;
+
+        //< The tile links. [Size: dtMeshHeader::maxLinkCount]
+        //< The tile's detail sub-meshes. [Size: dtMeshHeader::detailMeshCount]
+        public dtOffMeshConnection[] offMeshCons;
+
+        //< Index to the next free link.
+        //< The tile header.
+        public dtPoly[] polys;
+
+        public uint salt; //< Counter describing modifications to the tile.
+
+        //< The tile polygons. [Size: dtMeshHeader::polyCount]
+        public float[] verts; //< The tile vertices. [Size: dtMeshHeader::vertCount]
+
+        //< The tile off-mesh connections. [Size: dtMeshHeader::offMeshConCount]
+
+        //< The next free tile, or the next tile in the spatial grid.
+    };
+
+    public class dtNavMeshCreateParams
+    {
+        // @name Polygon Mesh Attributes
+        // Used to create the base navigation graph.
+        // See #rcPolyMesh for details related to these attributes.
+        // @{
+        public float[] bmax = new float[3];
+
+        public float[] bmin = new float[3];
+
+        /// True if a bounding volume tree should be built for the tile.
+        // @note The BVTree is not normally needed for layered navigation meshes.
+        public bool buildBvTree;
+
+        public float ch;
+        public float cs;
+        public uint[] detailMeshes;
+        public int detailTriCount;
+        public byte[] detailTris;
+
+        //< The height detail sub-mesh data. [Size: 4 * #polyCount]
+        public float[] detailVerts;
+
+        //< The detail mesh vertices. [Size: 3 * #detailVertsCount] [Unit: wu]
+        public int detailVertsCount;
+
+        public int nvp;
+
+        // User defined area ids assigned to the off-mesh connections. [Size: #offMeshConCount]
+        public byte[] offMeshConAreas;
+
+        // The number of off-mesh connections. [Limit: >= 0]
+        public int offMeshConCount;
+
+        // The permitted travel direction of the off-mesh connections. [Size: #offMeshConCount]
+        //
+        // 0 = Travel only from endpoint A to endpoint B.<br/>
+        // #DT_OFFMESH_CON_BIDIR = Bidirectional travel.
+        public byte[] offMeshConDir;
+
+        // User defined flags assigned to the off-mesh connections. [Size: #offMeshConCount]
+        public ushort[] offMeshConFlags;
+
+        // Off-mesh connection radii. [Size: #offMeshConCount] [Unit: wu]
+        public float[] offMeshConRad;
+
+        // The user defined ids of the off-mesh connection. [Size: #offMeshConCount]
+        public uint[] offMeshConUserID;
+
+        // Off-mesh connection vertices. [(ax, ay, az, bx, by, bz) * #offMeshConCount] [Unit: wu]
+        public float[] offMeshConVerts;
+
+        public byte[] polyAreas;
+
+        //< The user defined area ids assigned to each polygon. [Size: #polyCount]
+        public int polyCount;
+
+        public ushort[] polyFlags;
+        public ushort[] polys;
+        public int tileLayer;
+        public int tileX;
+
+        //< The tile's x-grid location within the multi-tile destination mesh. (Along the x-axis.)
+        public int tileY;
+
+        public uint userId;
+        public int vertCount;
+
+        public ushort[] verts; //< The polygon mesh vertices. [(x, y, z) * #vertCount] [Unit: vx]
+        //< The number vertices in the polygon mesh. [Limit: >= 3]
+        //< The polygon data. [Size: #polyCount * 2 * #nvp]
+        //< The user defined flags assigned to each polygon. [Size: #polyCount]
+        //< Number of polygons in the mesh. [Limit: >= 1]
+        //< Number maximum number of vertices per polygon. [Limit: >= 3]
+
+        // @}
+        // @name Height Detail Attributes (Optional)
+        // See #rcPolyMeshDetail for details related to these attributes.
+        // @{
+        //< The number of vertices in the detail mesh.
+        //< The detail mesh triangles. [Size: 4 * #detailTriCount]
+        //< The number of triangles in the detail mesh.
+
+        // @}
+        // @name Off-Mesh Connections Attributes (Optional)
+        // Used to define a custom point-to-point edge within the navigation graph, an
+        // off-mesh connection is a user defined traversable connection made up to two vertices,
+        // at least one of which resides within a navigation mesh polygon.
+        // @{
+        // @}
+        // @name Tile Attributes
+        // @note The tile grid/layer data can be left at zero if the destination is a single tile mesh.
+        // @{
+        //< The user defined id of the tile.
+        //< The tile's y-grid location within the multi-tile desitation mesh. (Along the z-axis.)
+        //< The tile's layer within the layered destination mesh. [Limit: >= 0] (Along the y-axis.)
+        //< The minimum bounds of the tile. [(x, y, z)] [Unit: wu]
+        //< The maximum bounds of the tile. [(x, y, z)] [Unit: wu]
+
+        // @}
+        // @name General Configuration Attributes
+        // @{
+        public float walkableClimb;
+
+        public float walkableHeight; //< The agent height. [Unit: wu]
+
+        public float walkableRadius; //< The agent radius. [Unit: wu]
+        //< The agent maximum traversable ledge. (Up/Down) [Unit: wu]
+        //< The xz-plane cell size of the polygon mesh. [Limit: > 0] [Unit: wu]
+        //< The y-axis cell height of the polygon mesh. [Limit: > 0] [Unit: wu]
+        // @}
+    }
+
+    /// Configuration parameters used to define multi-tile navigation meshes.
+    /// The values are used to allocate space during the initialization of a navigation mesh.
+    // @see dtNavMesh::init()
+    // @ingroup detour
+    public class dtNavMeshParams
+    {
+        public int maxPolys;
+        public int maxTiles;
+        public float[] orig = new float[3]; //< The world space origin of the navigation mesh's tile space. [(x, y, z)]
+        public float tileHeight;
+
+        public float tileWidth; //< The width of each tile. (Along the x-axis.)
+        //< The height of each tile. (Along the z-axis.)
+        //< The maximum number of tiles the navigation mesh can contain.
+        //< The maximum number of polygons each tile can contain.
+
+        ///
+        public dtNavMeshParams Clone()
+        {
+            dtNavMeshParams copy = new();
+
+            for (var i = 0; i < orig.Length; ++i)
+                copy.orig[i] = orig[i];
+
+            copy.tileWidth = tileWidth;
+            copy.tileHeight = tileHeight;
+            copy.maxTiles = maxTiles;
+            copy.maxPolys = maxPolys;
+
+            return copy;
+        }
+    };
+
+    /// Defines an navigation mesh off-mesh connection within a dtMeshTile object.
+    /// An off-mesh connection is a user defined traversable connection made up to two vertices.
+    public class dtOffMeshConnection
+    {
+        /// Link flags.
+        // @note These are not the connection's user defined flags. Those are assigned via the
+        /// connection's dtPoly definition. These are link flags used for internal purposes.
+        public byte flags;
+
+        /// The polygon reference of the connection within the tile.
+        public ushort poly;
+
+        /// The endpoints of the connection. [(ax, ay, az, bx, by, bz)]
+        public float[] pos = new float[6];
+
+        /// The radius of the endpoints. [Limit: >= 0]
+        public float rad;
+
+        /// End point side.
+        public byte side;
+
+        /// The id of the offmesh connection. (User assigned when the navigation mesh is built.)
+        public uint userId;
+
+        public int FromBytes(byte[] array, int start)
+        {
+            for (var i = 0; i < 6; ++i)
+            {
+                pos[i] = BitConverter.ToSingle(array, start);
+                start += sizeof(float);
+            }
+
+            rad = BitConverter.ToSingle(array, start);
+            start += sizeof(float);
+            poly = BitConverter.ToUInt16(array, start);
+            start += sizeof(ushort);
+            flags = array[start];
+            ++start;
+            side = array[start];
+            ++start;
+            userId = BitConverter.ToUInt32(array, start);
+            start += sizeof(uint);
+
+            return start;
+        }
+
+        public byte[] ToBytes()
+        {
+            List<byte> bytes = new();
+
+            for (var i = 0; i < 6; ++i)
+                bytes.AddRange(BitConverter.GetBytes(pos[i]));
+
+            bytes.AddRange(BitConverter.GetBytes(rad));
+            bytes.AddRange(BitConverter.GetBytes(poly));
+            bytes.Add(flags);
+            bytes.Add(side);
+            bytes.AddRange(BitConverter.GetBytes(userId));
+
+            return bytes.ToArray();
+        }
+    };
+
+    /// Defines a polyogn within a dtMeshTile object.
+    // @ingroup detour
+    public class dtPoly
+    {
+        /// The bit packed area id and polygon type.
+        // @note Use the structure's set and get methods to acess this value.
+        public byte areaAndtype;
+
+        /// Index to first link in linked list. (Or #DT_NULL_LINK if there is no link.)
+        public uint firstLink;
+
+        /// The user defined polygon flags.
+        public ushort flags;
+
+        // Packed data representing neighbor polygons references and flags for each edge.
+        public ushort[] neis = new ushort[DT_VERTS_PER_POLYGON];
+
+        /// The number of vertices in the polygon.
+        public byte vertCount;
+
+        // The indices of the polygon's vertices.
+        // The actual vertices are located in dtMeshTile::verts.
+        public ushort[] verts = new ushort[DT_VERTS_PER_POLYGON];
+
+        public int FromBytes(byte[] array, int start)
+        {
+            firstLink = BitConverter.ToUInt32(array, start);
+            start += sizeof(uint);
+
+            for (var i = 0; i < DT_VERTS_PER_POLYGON; ++i)
+            {
+                verts[i] = BitConverter.ToUInt16(array, start);
+                start += sizeof(ushort);
+            }
+
+            for (var i = 0; i < DT_VERTS_PER_POLYGON; ++i)
+            {
+                neis[i] = BitConverter.ToUInt16(array, start);
+                start += sizeof(ushort);
+            }
+
+            flags = BitConverter.ToUInt16(array, start);
+            start += sizeof(ushort);
+            vertCount = array[start];
+            start += sizeof(byte);
+            areaAndtype = array[start];
+            start += sizeof(byte);
+
+            return start;
+        }
+
+        /// Gets the user defined area id.
+        public byte getArea()
+        {
+            return (byte)((int)areaAndtype & 0x3f);
+        }
+
+        /// Gets the polygon type. (See: #dtPolyTypes)
+        public byte getType()
+        {
+            return (byte)((int)areaAndtype >> 6);
+        }
+
+        /// Sets the user defined area id. [Limit: &lt; #DT_MAX_AREAS]
+        public void setArea(byte a)
+        {
+            //Bitwise operators are done on ints in C#
+            areaAndtype = (byte)(((int)areaAndtype & 0xc0) | ((int)a & 0x3f));
+        }
+
+        /// Sets the polygon type. (See: #dtPolyTypes.)
+        public void setType(byte t)
+        {
+            areaAndtype = (byte)(((int)areaAndtype & 0x3f) | (t << 6));
+        }
+
+        public byte[] ToBytes()
+        {
+            List<byte> bytes = new();
+
+            bytes.AddRange(BitConverter.GetBytes(firstLink));
+
+            for (var i = 0; i < DT_VERTS_PER_POLYGON; ++i)
+                bytes.AddRange(BitConverter.GetBytes(verts[i]));
+
+            for (var i = 0; i < DT_VERTS_PER_POLYGON; ++i)
+                bytes.AddRange(BitConverter.GetBytes(neis[i]));
+
+            bytes.AddRange(BitConverter.GetBytes(flags));
+            bytes.Add(vertCount);
+            bytes.Add(areaAndtype);
+
+            return bytes.ToArray();
+        }
+    };
+
+    /// Defines the location of detail sub-mesh data within a dtMeshTile.
+    public class dtPolyDetail
+    {
+        public uint triBase;
+        public byte triCount;
+        public uint vertBase; //< The offset of the vertices in the dtMeshTile::detailVerts array.
+
+        //< The offset of the triangles in the dtMeshTile::detailTris array.
+        public byte vertCount; //< The number of vertices in the sub-mesh.
+
+        //< The number of triangles in the sub-mesh.
+
+        public int FromBytes(byte[] array, int start)
+        {
+            vertBase = BitConverter.ToUInt32(array, start);
+            start += sizeof(uint);
+            triBase = BitConverter.ToUInt32(array, start);
+            start += sizeof(uint);
+            vertCount = array[start];
+            start += sizeof(byte);
+            triCount = array[start];
+            start += sizeof(byte);
+            start += sizeof(ushort); //two byte padding
+
+            return start;
+        }
+
+        public byte[] ToBytes()
+        {
+            List<byte> bytes = new();
+
+            bytes.AddRange(BitConverter.GetBytes(vertBase));
+            bytes.AddRange(BitConverter.GetBytes(triBase));
+            bytes.Add(vertCount);
+            bytes.Add(triCount);
+
+            return bytes.ToArray();
+        }
+    };
+
+    public class dtRawTileData
+    {
+        /// The tile bounding volume nodes. [Size: dtMeshHeader::bvNodeCount]
+        /// (Will be null if bounding volumes are disabled.)
+        public dtBVNode[] bvTree;
+
+        public dtPolyDetail[] detailMeshes;
+
+        /// The detail mesh's triangles. [(vertA, vertB, vertC) * dtMeshHeader::detailTriCount]
+        public byte[] detailTris;
+
+        /// The detail mesh's unique vertices. [(x, y, z) * dtMeshHeader::detailVertCount]
+        public float[] detailVerts;
+
+        public int flags;
+        public dtMeshHeader header; //< The tile header.
+        public dtLink[] links;
+
+        //< The tile links. [Size: dtMeshHeader::maxLinkCount]
+        //< The tile's detail sub-meshes. [Size: dtMeshHeader::detailMeshCount]
+        public dtOffMeshConnection[] offMeshCons;
+
+        public dtPoly[] polys; //< The tile polygons. [Size: dtMeshHeader::polyCount]
+
+        public float[] verts; //< The tile vertices. [Size: dtMeshHeader::vertCount]
+        //< The tile off-mesh connections. [Size: dtMeshHeader::offMeshConCount]
+
+        //< Tile flags. (See: #dtTileFlags)
 
         public int FromBytes(byte[] array, int start)
         {
@@ -1353,7 +1635,7 @@ public static partial class Detour
 
     /// Defines a navigation mesh tile.
     // @ingroup detour
-    /* 
+    /*
     @struct dtMeshTile
     @par
 
@@ -1362,238 +1644,42 @@ public static partial class Detour
     Some tile content is optional.  For example, a tile may not contain any
     off-mesh connections.  In this case the associated pointer will be null.
 
-    If a detail mesh exists it will share vertices with the base polygon mesh.  
+    If a detail mesh exists it will share vertices with the base polygon mesh.
     Only the vertices unique to the detail mesh will be stored in #detailVerts.
 
     @warning Tiles returned by a dtNavMesh object are not guarenteed to be populated.
     For example: The tile at a location might not have been loaded yet, or may have been removed.
-    In this case, pointers will be null.  So if in doubt, check the polygon count in the 
+    In this case, pointers will be null.  So if in doubt, check the polygon count in the
     tile's header to determine if a tile has polygons defined.
 
     @var float dtOffMeshConnection::pos[6]
     @par
 
-    For a properly built navigation mesh, vertex A will always be within the bounds of the mesh. 
+    For a properly built navigation mesh, vertex A will always be within the bounds of the mesh.
     Vertex B is not required to be within the bounds of the mesh.
 
     */
-    public class dtMeshTile
-    {
-        public uint salt; //< Counter describing modifications to the tile.
-
-        public uint linksFreeList;          //< Index to the next free link.
-        public dtMeshHeader header;         //< The tile header.
-        public dtPoly[] polys;              //< The tile polygons. [Size: dtMeshHeader::polyCount]
-        public float[] verts;               //< The tile vertices. [Size: dtMeshHeader::vertCount]
-        public dtLink[] links;              //< The tile links. [Size: dtMeshHeader::maxLinkCount]
-        public dtPolyDetail[] detailMeshes; //< The tile's detail sub-meshes. [Size: dtMeshHeader::detailMeshCount]
-
-        /// The detail mesh's unique vertices. [(x, y, z) * dtMeshHeader::detailVertCount]
-        public float[] detailVerts;
-
-        /// The detail mesh's triangles. [(vertA, vertB, vertC, triFlags) * dtMeshHeader::detailTriCount].
-        /// See dtDetailTriEdgeFlags and dtGetDetailTriEdgeFlags.
-        public byte[] detailTris;
-
-        /// The tile bounding volume nodes. [Size: dtMeshHeader::bvNodeCount]
-        /// (Will be null if bounding volumes are disabled.)
-        public dtBVNode[] bvTree;
-
-        public dtOffMeshConnection[] offMeshCons; //< The tile off-mesh connections. [Size: dtMeshHeader::offMeshConCount]
-
-        public dtRawTileData data; //< The tile data. (Not directly accessed under normal situations.)
-        public int dataSize;       //< Size of the tile data.
-        public int flags;          //< Tile flags. (See: #dtTileFlags)
-        public dtMeshTile next;    //< The next free tile, or the next tile in the spatial grid.
-    };
-
-    /// Configuration parameters used to define multi-tile navigation meshes.
-    /// The values are used to allocate space during the initialization of a navigation mesh.
-    // @see dtNavMesh::init()
-    // @ingroup detour
-    public class dtNavMeshParams
-    {
-        public float[] orig = new float[3]; //< The world space origin of the navigation mesh's tile space. [(x, y, z)]
-        public float tileWidth;             //< The width of each tile. (Along the x-axis.)
-        public float tileHeight;            //< The height of each tile. (Along the z-axis.)
-        public int maxTiles;                //< The maximum number of tiles the navigation mesh can contain.
-        public int maxPolys;                //< The maximum number of polygons each tile can contain.
-
-        ///
-        public dtNavMeshParams Clone()
-        {
-            dtNavMeshParams copy = new();
-
-            for (var i = 0; i < orig.Length; ++i)
-                copy.orig[i] = orig[i];
-
-            copy.tileWidth = tileWidth;
-            copy.tileHeight = tileHeight;
-            copy.maxTiles = maxTiles;
-            copy.maxPolys = maxPolys;
-
-            return copy;
-        }
-    };
-
     /// Represents the source data used to build an navigation mesh tile.
     // @ingroup detour
     /**
      * @struct dtNavMeshCreateParams
      * @par
-     * 
+     *
      * This structure is used to marshal data between the Recast mesh generation pipeline and Detour navigation components.
-     * 
+     *
      * See the rcPolyMesh and rcPolyMeshDetail documentation for detailed information related to mesh structure.
-     * 
-     * Units are usually in voxels (vx) or world units (wu). The units for voxels, grid size, and cell size 
+     *
+     * Units are usually in voxels (vx) or world units (wu). The units for voxels, grid size, and cell size
      * are all based on the values of #cs and #ch.
-     * 
-     * The standard navigation mesh build process is to create tile data using dtCreateNavMeshData, then add the tile 
+     *
+     * The standard navigation mesh build process is to create tile data using dtCreateNavMeshData, then add the tile
      * to a navigation mesh using either the dtNavMesh single tile
      * <tt> init() </tt>
      * function or the dtNavMesh::addTile()
      * function.
-     * 
+     *
      * @see dtCreateNavMeshData
      */
-    public class dtNavMeshCreateParams
-    {
-        // @name Polygon Mesh Attributes
-        // Used to create the base navigation graph.
-        // See #rcPolyMesh for details related to these attributes.
-        // @{
-
-        public ushort[] verts;     //< The polygon mesh vertices. [(x, y, z) * #vertCount] [Unit: vx]
-        public int vertCount;      //< The number vertices in the polygon mesh. [Limit: >= 3]
-        public ushort[] polys;     //< The polygon data. [Size: #polyCount * 2 * #nvp]
-        public ushort[] polyFlags; //< The user defined flags assigned to each polygon. [Size: #polyCount]
-        public byte[] polyAreas;   //< The user defined area ids assigned to each polygon. [Size: #polyCount]
-        public int polyCount;      //< Number of polygons in the mesh. [Limit: >= 1]
-        public int nvp;            //< Number maximum number of vertices per polygon. [Limit: >= 3]
-
-        // @}
-        // @name Height Detail Attributes (Optional)
-        // See #rcPolyMeshDetail for details related to these attributes.
-        // @{
-
-        public uint[] detailMeshes;  //< The height detail sub-mesh data. [Size: 4 * #polyCount]
-        public float[] detailVerts;  //< The detail mesh vertices. [Size: 3 * #detailVertsCount] [Unit: wu]
-        public int detailVertsCount; //< The number of vertices in the detail mesh.
-        public byte[] detailTris;    //< The detail mesh triangles. [Size: 4 * #detailTriCount]
-        public int detailTriCount;   //< The number of triangles in the detail mesh.
-
-        // @}
-        // @name Off-Mesh Connections Attributes (Optional)
-        // Used to define a custom point-to-point edge within the navigation graph, an 
-        // off-mesh connection is a user defined traversable connection made up to two vertices, 
-        // at least one of which resides within a navigation mesh polygon.
-        // @{
-
-        // Off-mesh connection vertices. [(ax, ay, az, bx, by, bz) * #offMeshConCount] [Unit: wu]
-        public float[] offMeshConVerts;
-
-        // Off-mesh connection radii. [Size: #offMeshConCount] [Unit: wu]
-        public float[] offMeshConRad;
-
-        // User defined flags assigned to the off-mesh connections. [Size: #offMeshConCount]
-        public ushort[] offMeshConFlags;
-
-        // User defined area ids assigned to the off-mesh connections. [Size: #offMeshConCount]
-        public byte[] offMeshConAreas;
-
-        // The permitted travel direction of the off-mesh connections. [Size: #offMeshConCount]
-        //
-        // 0 = Travel only from endpoint A to endpoint B.<br/>
-        // #DT_OFFMESH_CON_BIDIR = Bidirectional travel.
-        public byte[] offMeshConDir;
-
-        // The user defined ids of the off-mesh connection. [Size: #offMeshConCount]
-        public uint[] offMeshConUserID;
-
-        // The number of off-mesh connections. [Limit: >= 0]
-        public int offMeshConCount;
-
-        // @}
-        // @name Tile Attributes
-        // @note The tile grid/layer data can be left at zero if the destination is a single tile mesh.
-        // @{
-
-        public uint userId;                 //< The user defined id of the tile.
-        public int tileX;                   //< The tile's x-grid location within the multi-tile destination mesh. (Along the x-axis.)
-        public int tileY;                   //< The tile's y-grid location within the multi-tile desitation mesh. (Along the z-axis.)
-        public int tileLayer;               //< The tile's layer within the layered destination mesh. [Limit: >= 0] (Along the y-axis.)
-        public float[] bmin = new float[3]; //< The minimum bounds of the tile. [(x, y, z)] [Unit: wu]
-        public float[] bmax = new float[3]; //< The maximum bounds of the tile. [(x, y, z)] [Unit: wu]
-
-        // @}
-        // @name General Configuration Attributes
-        // @{
-
-        public float walkableHeight; //< The agent height. [Unit: wu]
-        public float walkableRadius; //< The agent radius. [Unit: wu]
-        public float walkableClimb;  //< The agent maximum traversable ledge. (Up/Down) [Unit: wu]
-        public float cs;             //< The xz-plane cell size of the polygon mesh. [Limit: > 0] [Unit: wu]
-        public float ch;             //< The y-axis cell height of the polygon mesh. [Limit: > 0] [Unit: wu]
-
-        /// True if a bounding volume tree should be built for the tile.
-        // @note The BVTree is not normally needed for layered navigation meshes.
-        public bool buildBvTree;
-
-        // @}
-    }
-
-    public class BVItem
-    {
-        public ushort[] bmin = new ushort[3];
-        public ushort[] bmax = new ushort[3];
-        public int i;
-    };
-
-    //public static int compareItemX(const void* va, const void* vb)
-    public class BVItemCompareX : IComparer<BVItem>
-    {
-        // Compares by Height, Length, and Width. 
-        public int Compare(BVItem a, BVItem b)
-        {
-            if (a.bmin[0] < b.bmin[0])
-                return -1;
-
-            if (a.bmin[0] > b.bmin[0])
-                return 1;
-
-            return 0;
-        }
-    }
-
-    //static int compareItemY(const void* va, const void* vb)
-    public class BVItemCompareY : IComparer<BVItem>
-    {
-        public int Compare(BVItem a, BVItem b)
-        {
-            if (a.bmin[1] < b.bmin[1])
-                return -1;
-
-            if (a.bmin[1] > b.bmin[1])
-                return 1;
-
-            return 0;
-        }
-    }
-
-    public class BVItemCompareZ : IComparer<BVItem>
-    {
-        public int Compare(BVItem a, BVItem b)
-        {
-            if (a.bmin[2] < b.bmin[2])
-                return -1;
-
-            if (a.bmin[2] > b.bmin[2])
-                return 1;
-
-            return 0;
-        }
-    }
     /*
     /// Swaps the endianess of the tile data's header (#dtMeshHeader).
     ///  @param[in,out]	data		The tile data array.
@@ -1601,18 +1687,18 @@ public static partial class Detour
     bool dtNavMeshHeaderSwapEndian(byte* data, const int dataSize)
     {
 	    dtMeshHeader* header = (dtMeshHeader*)data;
-	
+
 	    int swappedMagic = DT_NAVMESH_MAGIC;
 	    int swappedVersion = DT_NAVMESH_VERSION;
 	    dtSwapEndian(&swappedMagic);
 	    dtSwapEndian(&swappedVersion);
-	
+
 	    if ((header.magic != DT_NAVMESH_MAGIC || header.version != DT_NAVMESH_VERSION) &&
 		    (header.magic != swappedMagic || header.version != swappedVersion))
 	    {
 		    return false;
 	    }
-		
+
 	    dtSwapEndian(&header.magic);
 	    dtSwapEndian(&header.version);
 	    dtSwapEndian(&header.x);
@@ -1646,9 +1732,9 @@ public static partial class Detour
     */
     // @par
     //
-    // @warning This function assumes that the header is in the correct endianess already. 
-    // Call #dtNavMeshHeaderSwapEndian() first on the data if the data is expected to be in wrong endianess 
-    // to start with. Call #dtNavMeshHeaderSwapEndian() after the data has been swapped if converting from 
+    // @warning This function assumes that the header is in the correct endianess already.
+    // Call #dtNavMeshHeaderSwapEndian() first on the data if the data is expected to be in wrong endianess
+    // to start with. Call #dtNavMeshHeaderSwapEndian() after the data has been swapped if converting from
     // native to foreign endianess.
     // Swaps endianess of the tile data.
     //  @param[in,out]	data		The tile data array.
@@ -1662,7 +1748,7 @@ public static partial class Detour
 		    return false;
 	    if (header.version != DT_NAVMESH_VERSION)
 		    return false;
-	
+
 	    // Patch header pointers.
 	    const int headerSize = dtAlign4(sizeof(dtMeshHeader));
 	    const int vertsSize = dtAlign4(sizeof(float)*3*header.vertCount);
@@ -1673,20 +1759,20 @@ public static partial class Detour
 	    const int detailTrisSize = dtAlign4(sizeof(byte)*4*header.detailTriCount);
 	    const int bvtreeSize = dtAlign4(sizeof(dtBVNode)*header.bvNodeCount);
 	    const int offMeshLinksSize = dtAlign4(sizeof(dtOffMeshConnection)*header.offMeshConCount);
-	
+
 	    byte* d = data + headerSize;
 	    float* verts = (float*)d; d += vertsSize;
 	    dtPoly* polys = (dtPoly*)d; d += polysSize;
 	    //dtLink* links = (dtLink*)d;
       d += linksSize;
-      
+
 	    dtPolyDetail* detailMeshes = (dtPolyDetail*)d; d += detailMeshesSize;
 	    float* detailVerts = (float*)d; d += detailVertsSize;
-	    //byte* detailTris = (byte*)d; 
+	    //byte* detailTris = (byte*)d;
     d += detailTrisSize;
 	    dtBVNode* bvTree = (dtBVNode*)d; d += bvtreeSize;
 	    dtOffMeshConnection* offMeshCons = (dtOffMeshConnection*)d; d += offMeshLinksSize;
-	
+
 	    // Vertices
 	    for (int i = 0; i < header.vertCount*3; ++i)
 	    {
@@ -1715,7 +1801,7 @@ public static partial class Detour
 		    dtSwapEndian(&pd.vertBase);
 		    dtSwapEndian(&pd.triBase);
 	    }
-	
+
 	    // Detail verts
 	    for (int i = 0; i < header.detailVertCount*3; ++i)
 	    {
@@ -1743,7 +1829,7 @@ public static partial class Detour
 		    dtSwapEndian(&con.rad);
 		    dtSwapEndian(&con.poly);
 	    }
-	
+
 	    return true;
     }
      * */

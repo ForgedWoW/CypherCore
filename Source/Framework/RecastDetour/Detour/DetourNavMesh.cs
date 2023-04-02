@@ -203,17 +203,17 @@ public static partial class Detour
     public class dtNavMesh
     {
         private readonly float[] m_orig = new float[3]; //< Origin of the tile (0,0)
-        private dtNavMeshParams m_params;               //< Current initialization params. TODO: do not store this info twice.
-        private float m_tileWidth, m_tileHeight;        //< Dimensions of each tile.
-        private int m_maxTiles;                         //< Max number of tiles.
-        private int m_tileLutSize;                      //< Tile hash lookup size (must be pot).
-        private int m_tileLutMask;                      //< Tile hash lookup mask.
+        private readonly object _meshLock = new();
+        private dtNavMeshParams m_params;        //< Current initialization params. TODO: do not store this info twice.
+        private float m_tileWidth, m_tileHeight; //< Dimensions of each tile.
+        private int m_maxTiles;                  //< Max number of tiles.
+        private int m_tileLutSize;               //< Tile hash lookup size (must be pot).
+        private int m_tileLutMask;               //< Tile hash lookup mask.
 
         //dtMeshTile**
         private dtMeshTile[] m_posLookup; //< Tile hash lookup.
         private dtMeshTile m_nextFree;    //< Freelist of tiles.
         private dtMeshTile[] m_tiles;     //< List of tiles.
-        private readonly object _meshLock = new();
 
         public dtNavMesh()
         {

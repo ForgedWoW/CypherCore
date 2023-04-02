@@ -10,11 +10,6 @@ namespace Framework.Serialization;
 
 public class Json
 {
-    public static string CreateString<T>(T dataObject)
-    {
-        return Encoding.UTF8.GetString(CreateArray(dataObject));
-    }
-
     public static byte[] CreateArray<T>(T dataObject)
     {
         var serializer = new DataContractJsonSerializer(typeof(T));
@@ -65,6 +60,11 @@ public class Json
     }
 
     public static object CreateObject(byte[] jsonData, Type type) => CreateObject(new MemoryStream(jsonData), type);
+
+    public static string CreateString<T>(T dataObject)
+    {
+        return Encoding.UTF8.GetString(CreateArray(dataObject));
+    }
 
     // Used for protobuf json strings.
     public static byte[] Deflate<T>(string name, T data)

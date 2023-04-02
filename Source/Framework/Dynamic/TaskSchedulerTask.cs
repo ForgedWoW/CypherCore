@@ -7,8 +7,8 @@ namespace Framework.Dynamic;
 
 public class TaskSchedulerTask : IComparable<TaskSchedulerTask>
 {
-    internal DateTime _end;
     internal TimeSpan _duration;
+    internal DateTime _end;
     internal uint? _group;
     internal uint _repeated;
     internal Action<TaskContext> _task;
@@ -34,12 +34,12 @@ public class TaskSchedulerTask : IComparable<TaskSchedulerTask>
         return _end.CompareTo(other._end);
     }
 
-	/// <summary>
-	///     Returns true if the task is in the given group
-	/// </summary>
-	/// <param name="group"> </param>
-	/// <returns> </returns>
-	public bool IsInGroup(uint group)
+    /// <summary>
+    ///     Returns true if the task is in the given group
+    /// </summary>
+    /// <param name="group"> </param>
+    /// <returns> </returns>
+    public bool IsInGroup(uint group)
     {
         return _group.HasValue && _group == group;
     }

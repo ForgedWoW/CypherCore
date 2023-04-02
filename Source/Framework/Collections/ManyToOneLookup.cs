@@ -9,16 +9,11 @@ namespace Framework.Collections;
 
 public class ManyToOneLookup<TKey, TValue>
 {
-    private readonly Dictionary<TValue, ulong> _values;
-    private readonly Dictionary<ulong, TValue> _valuesMap = new();
     private readonly MultiMap<TKey, ulong> _keys;
     private readonly MultiMap<ulong, TKey> _keysMap = new();
+    private readonly Dictionary<TValue, ulong> _values;
+    private readonly Dictionary<ulong, TValue> _valuesMap = new();
     private ulong _index;
-
-    public IEnumerable<TValue> Values
-    {
-        get { return _values.Keys; }
-    }
 
     public IEnumerable<TKey> Keys
     {
@@ -33,6 +28,11 @@ public class ManyToOneLookup<TKey, TValue>
                 if (_valuesMap.TryGetValue(key.Key, out var val))
                     yield return new KeyValuePair<TKey, TValue>(key.Value, val);
         }
+    }
+
+    public IEnumerable<TValue> Values
+    {
+        get { return _values.Keys; }
     }
 
     public IEnumerable<TValue> this[TKey key]
@@ -99,6 +99,24 @@ public class ManyToOneLookup<TKey, TValue>
         }
     }
 
+    public void Clear()
+    {
+        _values.Clear();
+        _keys.Clear();
+        _keysMap.Clear();
+        _valuesMap.Clear();
+    }
+
+    public bool Contains(TValue value)
+    {
+        return _values.ContainsKey(value);
+    }
+
+    public bool Contains(TKey key)
+    {
+        return _keys.ContainsKey(key);
+    }
+
     public void Remove(TKey key)
     {
         if (_keys.TryGetValue(key, out var indexes)) // check if we have this key known, get all known value indexs
@@ -154,23 +172,5 @@ public class ManyToOneLookup<TKey, TValue>
                     values.Add(val);
 
         return values.Any();
-    }
-
-    public bool Contains(TValue value)
-    {
-        return _values.ContainsKey(value);
-    }
-
-    public bool Contains(TKey key)
-    {
-        return _keys.ContainsKey(key);
-    }
-
-    public void Clear()
-    {
-        _values.Clear();
-        _keys.Clear();
-        _keysMap.Clear();
-        _valuesMap.Clear();
     }
 }

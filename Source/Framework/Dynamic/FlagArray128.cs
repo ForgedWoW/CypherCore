@@ -21,32 +21,22 @@ public class FlagArray128 : FlagsArray<uint>
         _storage[3] = parts[3];
     }
 
-    public bool IsEqual(params uint[] parts)
-    {
-        for (var i = 0; i < _storage.Length; ++i)
-            if (_storage[i] == parts[i])
-                return false;
-
-        return true;
-    }
-
-    public bool HasFlag(params uint[] parts)
-    {
-        return (_storage[0] & parts[0] || _storage[1] & parts[1] || _storage[2] & parts[2] || _storage[3] & parts[3]);
-    }
-
-    public void Set(params uint[] parts)
-    {
-        for (var i = 0; i < parts.Length; ++i)
-            _storage[i] = parts[i];
-    }
-
     public static FlagArray128 operator &(FlagArray128 left, FlagArray128 right)
     {
         FlagArray128 fl = new();
 
         for (var i = 0; i < left._storage.Length; ++i)
             fl[i] = left._storage[i] & right._storage[i];
+
+        return fl;
+    }
+
+    public static FlagArray128 operator ^(FlagArray128 left, FlagArray128 right)
+    {
+        FlagArray128 fl = new();
+
+        for (var i = 0; i < left._storage.Length; ++i)
+            fl[i] = left._storage[i] ^ right._storage[i];
 
         return fl;
     }
@@ -61,13 +51,23 @@ public class FlagArray128 : FlagsArray<uint>
         return fl;
     }
 
-    public static FlagArray128 operator ^(FlagArray128 left, FlagArray128 right)
+    public bool HasFlag(params uint[] parts)
     {
-        FlagArray128 fl = new();
+        return (_storage[0] & parts[0] || _storage[1] & parts[1] || _storage[2] & parts[2] || _storage[3] & parts[3]);
+    }
 
-        for (var i = 0; i < left._storage.Length; ++i)
-            fl[i] = left._storage[i] ^ right._storage[i];
+    public bool IsEqual(params uint[] parts)
+    {
+        for (var i = 0; i < _storage.Length; ++i)
+            if (_storage[i] == parts[i])
+                return false;
 
-        return fl;
+        return true;
+    }
+
+    public void Set(params uint[] parts)
+    {
+        for (var i = 0; i < parts.Length; ++i)
+            _storage[i] = parts[i];
     }
 }

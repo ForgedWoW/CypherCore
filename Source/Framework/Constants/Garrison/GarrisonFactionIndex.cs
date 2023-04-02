@@ -5,6 +5,6 @@ namespace Framework.Constants;
 
 public struct GarrisonFactionIndex
 {
-    public const uint Horde = 0;
     public const uint Alliance = 1;
+    public const uint Horde = 0;
 }

@@ -16,8 +16,8 @@ using Serilog;
 
 public class RealmManager
 {
-    private readonly LoginDatabase _loginDatabase;
     private readonly List<RealmBuildInfo> _builds = new();
+    private readonly LoginDatabase _loginDatabase;
     private readonly ConcurrentDictionary<RealmId, Realm> _realms = new();
     private readonly List<string> _subRegions = new();
     private Timer _updateTimer;
@@ -27,26 +27,9 @@ public class RealmManager
         _loginDatabase = loginDatabase;
     }
 
-    public void Initialize(int updateInterval)
-    {
-        _updateTimer = new Timer(TimeSpan.FromSeconds(updateInterval).TotalMilliseconds);
-        _updateTimer.Elapsed += UpdateRealms;
-
-        LoadBuildInfo();
-
-        UpdateRealms(null, null);
-
-        _updateTimer.Start();
-    }
-
     public void Close()
     {
         _updateTimer.Close();
-    }
-
-    public Realm GetRealm(RealmId id)
-    {
-        return _realms.LookupByKey(id);
     }
 
     public RealmBuildInfo GetBuildInfo(uint build)
@@ -65,14 +48,9 @@ public class RealmManager
         return buildInfo != null ? (buildInfo.MajorVersion * 10000 + buildInfo.MinorVersion * 100 + buildInfo.BugfixVersion) : 0;
     }
 
-    public void WriteSubRegions(Bgs.Protocol.GameUtilities.V1.GetAllValuesForAttributeResponse response)
+    public Realm GetRealm(RealmId id)
     {
-        foreach (var subRegion in GetSubRegions())
-        {
-            var variant = new Bgs.Protocol.Variant();
-            variant.StringValue = subRegion;
-            response.AttributeValue.Add(variant);
-        }
+        return _realms.LookupByKey(id);
     }
 
     public byte[] GetRealmEntryJSON(RealmId id, uint build)
@@ -172,6 +150,23 @@ public class RealmManager
         return Json.Deflate("JSONRealmListUpdates", realmList);
     }
 
+    public ICollection<Realm> GetRealms()
+    {
+        return _realms.Values;
+    }
+
+    public void Initialize(int updateInterval)
+    {
+        _updateTimer = new Timer(TimeSpan.FromSeconds(updateInterval).TotalMilliseconds);
+        _updateTimer.Elapsed += UpdateRealms;
+
+        LoadBuildInfo();
+
+        UpdateRealms(null, null);
+
+        _updateTimer.Start();
+    }
+
     public BattlenetRpcErrorCode JoinRealm(uint realmAddress, uint build, IPAddress clientAddress, byte[] clientSecret, Locale locale, string os, string accountName, Bgs.Protocol.GameUtilities.V1.ClientResponse response)
     {
         var realm = GetRealm(new RealmId(realmAddress));
@@ -228,9 +223,19 @@ public class RealmManager
         return BattlenetRpcErrorCode.UtilServerUnknownRealm;
     }
 
-    public ICollection<Realm> GetRealms()
+    public void WriteSubRegions(Bgs.Protocol.GameUtilities.V1.GetAllValuesForAttributeResponse response)
     {
-        return _realms.Values;
+        foreach (var subRegion in GetSubRegions())
+        {
+            var variant = new Bgs.Protocol.Variant();
+            variant.StringValue = subRegion;
+            response.AttributeValue.Add(variant);
+        }
+    }
+
+    private List<string> GetSubRegions()
+    {
+        return _subRegions;
     }
 
     private void LoadBuildInfo()
@@ -334,10 +339,5 @@ public class RealmManager
 
         foreach (var pair in existingRealms)
             Log.Logger.Information("Removed realm \"{0}\".", pair.Value);
-    }
-
-    private List<string> GetSubRegions()
-    {
-        return _subRegions;
     }
 }

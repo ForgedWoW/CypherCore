@@ -24,6 +24,37 @@ public class SQLResult
         NextRow();
     }
 
+    public int GetFieldCount()
+    {
+        return _reader.FieldCount;
+    }
+
+    public SQLFields GetFields()
+    {
+        var values = new object[_reader.FieldCount];
+        _reader.GetValues(values);
+
+        return new SQLFields(values);
+    }
+
+    public bool IsNull(int column)
+    {
+        return _reader.IsDBNull(column);
+    }
+
+    public bool NextRow()
+    {
+        if (_reader == null)
+            return false;
+
+        if (_reader.Read())
+            return true;
+
+        _reader.Close();
+
+        return false;
+    }
+
     public T Read<T>(int column)
     {
         if (_reader.IsDBNull(column))
@@ -109,37 +140,6 @@ public class SQLResult
             values[c] = Read<T>(startIndex + c);
 
         return values;
-    }
-
-    public bool IsNull(int column)
-    {
-        return _reader.IsDBNull(column);
-    }
-
-    public int GetFieldCount()
-    {
-        return _reader.FieldCount;
-    }
-
-    public SQLFields GetFields()
-    {
-        var values = new object[_reader.FieldCount];
-        _reader.GetValues(values);
-
-        return new SQLFields(values);
-    }
-
-    public bool NextRow()
-    {
-        if (_reader == null)
-            return false;
-
-        if (_reader.Read())
-            return true;
-
-        _reader.Close();
-
-        return false;
     }
 
     ~SQLResult()

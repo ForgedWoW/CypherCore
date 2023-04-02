@@ -15,19 +15,14 @@ public class FlaggedArray32<T> where T : struct
         m_values = new int[4 * arraysize];
     }
 
-    public uint GetFlags()
-    {
-        return m_flags;
-    }
-
-    public bool HasFlag(T flag)
-    {
-        return (m_flags & 1 << Convert.ToInt32(flag)) != 0;
-    }
-
     public void AddFlag(T flag)
     {
         m_flags |= (dynamic)(1 << Convert.ToInt32(flag));
+    }
+
+    public void AddValue(T flag, object value)
+    {
+        m_values[Convert.ToInt32(flag)] += Convert.ToInt32(value);
     }
 
     public void DelFlag(T flag)
@@ -35,18 +30,23 @@ public class FlaggedArray32<T> where T : struct
         m_flags &= ~(dynamic)(1 << Convert.ToInt32(flag));
     }
 
+    public uint GetFlags()
+    {
+        return m_flags;
+    }
+
     public int GetValue(T flag)
     {
         return m_values[Convert.ToInt32(flag)];
     }
 
+    public bool HasFlag(T flag)
+    {
+        return (m_flags & 1 << Convert.ToInt32(flag)) != 0;
+    }
+
     public void SetValue(T flag, object value)
     {
         m_values[Convert.ToInt32(flag)] = Convert.ToInt32(value);
-    }
-
-    public void AddValue(T flag, object value)
-    {
-        m_values[Convert.ToInt32(flag)] += Convert.ToInt32(value);
     }
 }

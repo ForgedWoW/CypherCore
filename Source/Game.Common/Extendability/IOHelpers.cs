@@ -13,6 +13,63 @@ public static class IOHelpers
 {
     private static readonly Dictionary<string, List<Assembly>> _loadedAssemblies = new();
 
+    /// <summary>
+    ///     Compares the values of 2 objects
+    /// </summary>
+    /// <returns> if types are equal and have the same property values </returns>
+    public static bool AreObjectsEqual(object obj1, object obj2)
+    {
+        if (obj1 == null || obj2 == null)
+            return obj1 == obj2;
+
+        var type = obj1.GetType();
+
+        if (type != obj2.GetType())
+            return false;
+
+        var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        foreach (var property in properties)
+        {
+            var value1 = property.GetValue(obj1);
+            var value2 = property.GetValue(obj2);
+
+            if (!Equals(value1, value2))
+                return false;
+        }
+
+        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+
+        foreach (var field in fields)
+        {
+            var value1 = field.GetValue(obj1);
+            var value2 = field.GetValue(obj2);
+
+            if (!Equals(value1, value2))
+                return false;
+        }
+
+        return true;
+    }
+
+    public static bool AreObjectsNotEqual(object obj1, object obj2)
+    {
+        return !AreObjectsEqual(obj1, obj2);
+    }
+
+    public static bool DoesTypeSupportInterface(Type type, Type inter)
+    {
+        if (type == inter) return false;
+
+        if (inter.IsAssignableFrom(type))
+            return true;
+
+        if (type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == inter))
+            return true;
+
+        return type.GetInterfaces().Any(i => i == inter);
+    }
+
     public static List<Assembly> GetAllAssembliesInDir(string path, bool loadGameAssembly = true)
     {
         var assemblies = _loadedAssemblies.LookupByKey(path);
@@ -56,62 +113,5 @@ public static class IOHelpers
             foreach (var type in assembly.GetTypes())
                 if (DoesTypeSupportInterface(type, typeof(T)))
                     yield return (T)Activator.CreateInstance(type);
-    }
-
-    public static bool DoesTypeSupportInterface(Type type, Type inter)
-    {
-        if (type == inter) return false;
-
-        if (inter.IsAssignableFrom(type))
-            return true;
-
-        if (type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == inter))
-            return true;
-
-        return type.GetInterfaces().Any(i => i == inter);
-    }
-
-    public static bool AreObjectsNotEqual(object obj1, object obj2)
-    {
-        return !AreObjectsEqual(obj1, obj2);
-    }
-
-	/// <summary>
-	///     Compares the values of 2 objects
-	/// </summary>
-	/// <returns> if types are equal and have the same property values </returns>
-	public static bool AreObjectsEqual(object obj1, object obj2)
-    {
-        if (obj1 == null || obj2 == null)
-            return obj1 == obj2;
-
-        var type = obj1.GetType();
-
-        if (type != obj2.GetType())
-            return false;
-
-        var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-        foreach (var property in properties)
-        {
-            var value1 = property.GetValue(obj1);
-            var value2 = property.GetValue(obj2);
-
-            if (!Equals(value1, value2))
-                return false;
-        }
-
-        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-
-        foreach (var field in fields)
-        {
-            var value1 = field.GetValue(obj1);
-            var value2 = field.GetValue(obj2);
-
-            if (!Equals(value1, value2))
-                return false;
-        }
-
-        return true;
     }
 }
