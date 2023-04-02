@@ -74,7 +74,7 @@ public class RotateMovementGenerator : MovementGenerator
             return false;
 
         var angle = owner.Location.Orientation;
-        angle += diff * MathFunctions.TwoPi / _maxDuration * (_direction == RotateDirection.Left ? 1.0f : -1.0f);
+        angle += diff * MathFunctions.TWO_PI / _maxDuration * (_direction == RotateDirection.Left ? 1.0f : -1.0f);
         angle = Math.Clamp(angle, 0.0f, MathF.PI * 2);
 
         MoveSplineInit init = new(owner);

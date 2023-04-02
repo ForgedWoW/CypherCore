@@ -69,19 +69,15 @@ public class Spline<T>
     {
         var i = _indexLo;
         Array.Resize(ref _lengths, _indexHi + 1);
-        T prevLength;
-        T newLength;
 
         while (i < _indexHi)
         {
-            newLength = (dynamic)cacher.Invoke(this, i);
+            T newLength = (dynamic)cacher.Invoke(this, i);
 
             if ((dynamic)newLength < 0) // todo fix me this is a ulgy hack.
                 newLength = (dynamic)(Type.GetTypeCode(typeof(T)) == TypeCode.Int32 ? int.MaxValue : double.MaxValue);
 
             _lengths[++i] = newLength;
-
-            prevLength = newLength;
         }
     }
 
@@ -253,11 +249,8 @@ public class Spline<T>
                 break;
 
             case EvaluationMode.Bezier3Unused:
-                InitBezier3(controls, count, _cyclic, 0);
+                InitBezier3(controls, count);
 
-                break;
-
-            default:
                 break;
         }
     }
@@ -267,7 +260,7 @@ public class Spline<T>
         initializer.Initialize(ref MMode, ref _cyclic, ref _points, ref _indexLo, ref _indexHi);
     }
 
-    private void InitBezier3(Span<Vector3> controls, int count, bool cyclic, int cyclicPoint)
+    private void InitBezier3(Span<Vector3> controls, int count)
     {
         var c = (int)(count / 3u * 3u);
         var t = (int)(c / 3u);
@@ -312,24 +305,6 @@ public class Spline<T>
         _indexHi = highIndex + (cyclic ? 1 : 0);
     }
 
-    private void InitLinear(Vector3[] controls, int count, bool cyclic, int cyclicPoint)
-    {
-        var realSize = count + 1;
-
-        Array.Resize(ref _points, realSize);
-        Array.Copy(controls, _points, count);
-
-        // first and last two indexes are space for special 'virtual points'
-        // these points are required for proper C_Evaluate and C_Evaluate_Derivative methtod work
-        if (cyclic)
-            _points[count] = controls[cyclicPoint];
-        else
-            _points[count] = controls[count - 1];
-
-        _indexLo = 0;
-        _indexHi = cyclic ? count : (count - 1);
-    }
-
     #endregion Init
 
     #region EvaluateDerivative
@@ -339,7 +314,7 @@ public class Spline<T>
         switch (MMode)
         {
             case EvaluationMode.Linear:
-                EvaluateDerivativeLinear(idx, u, out hermite);
+                EvaluateDerivativeLinear(idx, out hermite);
 
                 break;
 
@@ -373,7 +348,7 @@ public class Spline<T>
         C_Evaluate_Derivative(span[(index - 1)..], t, SCatmullRomCoeffs, out result);
     }
 
-    private void EvaluateDerivativeLinear(int index, float t, out Vector3 result)
+    private void EvaluateDerivativeLinear(int index, out Vector3 result)
     {
         result = _points[index + 1] - _points[index];
     }

@@ -8,6 +8,7 @@ using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Events;
+using Forged.MapServer.Movement;
 using Forged.MapServer.Pools;
 using Forged.MapServer.World;
 using Framework.Constants;
@@ -214,6 +215,7 @@ public partial class Creature
 
     public VendorItemData VendorItems => ObjectManager.GetNpcVendorItemList(Entry);
     public float WanderDistance { get; set; }
+    public WaypointManager WaypointManager { get; }
     public uint WaypointPath { get; private set; }
     public WorldDatabase WorldDatabase { get; }
     public WorldManager WorldManager { get; }

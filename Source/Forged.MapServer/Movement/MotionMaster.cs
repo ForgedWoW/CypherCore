@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Forged.MapServer.AI;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
@@ -25,6 +24,12 @@ public class MotionMaster
     private static readonly IdleMovementGenerator StaticIdleMovement = new();
     private static uint _splineId;
 
+    public MotionMaster(Unit unit)
+    {
+        Owner = unit;
+        Flags = MotionMasterFlags.InitializationPending;
+    }
+
     public static uint SplineId => _splineId++;
 
     private MultiMap<uint, MovementGenerator> BaseUnitStatesMap { get; } = new();
@@ -33,12 +38,6 @@ public class MotionMaster
     private MotionMasterFlags Flags { get; set; }
     private SortedSet<MovementGenerator> Generators { get; } = new(new MovementGeneratorComparator());
     private Unit Owner { get; }
-
-    public MotionMaster(Unit unit)
-    {
-        Owner = unit;
-        Flags = MotionMasterFlags.InitializationPending;
-    }
 
     public static MovementGenerator GetIdleMovementGenerator()
     {
@@ -112,9 +111,6 @@ public class MotionMaster
             case MovementSlot.Active:
                 DirectClear();
 
-                break;
-
-            default:
                 break;
         }
     }
@@ -274,9 +270,6 @@ public class MotionMaster
                 }
 
                 break;
-
-            default:
-                break;
         }
 
         return movement;
@@ -354,9 +347,6 @@ public class MotionMaster
                 }
 
                 break;
-
-            default:
-                break;
         }
 
         return value;
@@ -410,7 +400,7 @@ public class MotionMaster
             return;
         }
 
-        var chain = Global.ScriptMgr.GetSplineChain(owner, (byte)dbChainId);
+        var chain = Owner.ScriptManager.GetSplineChain(owner, (byte)dbChainId);
 
         if (chain.Empty())
         {
@@ -458,7 +448,7 @@ public class MotionMaster
         init.Launch();
     }
 
-    public void MoveChase(Unit target, float dist, float angle = 0.0f)
+    public void MoveChase(Unit target, float dist, float angle)
     {
         MoveChase(target, new ChaseRange(dist), new ChaseAngle(angle));
     }
@@ -534,16 +524,16 @@ public class MotionMaster
         else
         {
             // We are already close enough. We just need to turn toward the target without changing position.
-            var initializer = (MoveSplineInit init) =>
+            void Initializer(MoveSplineInit init)
             {
                 init.MoveTo(Owner.Location.X, Owner.Location.Y, Owner.Location.Z);
-                var refreshedTarget = Global.ObjAccessor.GetUnit(Owner, target.GUID);
+                var refreshedTarget = Owner.ObjectAccessor.GetUnit(Owner, target.GUID);
 
                 if (refreshedTarget != null)
                     init.SetFacing(refreshedTarget);
-            };
+            }
 
-            Add(new GenericMovementGenerator(initializer, MovementGeneratorType.Effect, id));
+            Add(new GenericMovementGenerator(Initializer, MovementGeneratorType.Effect, id));
         }
     }
 
@@ -853,7 +843,7 @@ public class MotionMaster
             creature.CastStop();
             creature.DoNotReacquireSpellFocusTarget();
             creature.ReactState = ReactStates.Passive;
-            Add(new AssistanceMovementGenerator(EventId.AssistMove, x, y, z));
+            Add(new AssistanceMovementGenerator(EventId.AssistMove, x, y, z, Owner.Configuration));
         }
         else
         {
@@ -892,16 +882,16 @@ public class MotionMaster
 
     public void MoveTakeoff(uint id, Position pos, float? velocity = null)
     {
-        var initializer = (MoveSplineInit init) =>
+        void Initializer(MoveSplineInit init)
         {
             init.MoveTo(pos, false);
             init.SetAnimation(AnimTier.Hover);
 
             if (velocity.HasValue)
                 init.SetVelocity(velocity.Value);
-        };
+        }
 
-        Add(new GenericMovementGenerator(initializer, MovementGeneratorType.Effect, id));
+        Add(new GenericMovementGenerator(Initializer, MovementGeneratorType.Effect, id));
     }
 
     public void MoveTargetedHome()
@@ -929,12 +919,15 @@ public class MotionMaster
     {
         if (Owner.IsTypeId(TypeId.Player))
         {
-            if (path < CliDB.TaxiPathNodesByPath.Count)
+            if (path < Owner.CliDB.TaxiPathNodesByPath.Count)
             {
                 Log.Logger.Debug($"MotionMaster::MoveTaxiFlight: {Owner.GUID} taxi to Path Id: {path} (node {pathnode})");
 
                 // Only one FLIGHT_MOTION_TYPE is allowed
                 var hasExisting = HasMovementGenerator(gen => gen.GetMovementGeneratorType() == MovementGeneratorType.Flight);
+
+                if (hasExisting)
+                    return;
 
                 FlightPathMovementGenerator movement = new();
                 movement.LoadPath(Owner.AsPlayer);
@@ -993,9 +986,6 @@ public class MotionMaster
                 }
 
                 break;
-
-            default:
-                break;
         }
     }
 
@@ -1034,9 +1024,6 @@ public class MotionMaster
                     }
                 }
 
-                break;
-
-            default:
                 break;
         }
     }
@@ -1353,17 +1340,5 @@ public class MotionMaster
         while (DelayedActions.Count != 0)
             if (DelayedActions.TryDequeue(out var action) && action != null)
                 action.Resolve();
-    }
-
-    private void ResumeSplineChain(SplineChainResumeInfo info)
-    {
-        if (info.Empty())
-        {
-            Log.Logger.Error("MotionMaster.ResumeSplineChain: unit with entry {0} tried to resume a spline chain from empty info.", Owner.Entry);
-
-            return;
-        }
-
-        Add(new SplineChainMovementGenerator(info));
     }
 }

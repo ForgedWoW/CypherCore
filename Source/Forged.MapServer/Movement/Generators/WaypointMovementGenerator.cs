@@ -73,7 +73,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
             if (_pathId == 0)
                 _pathId = owner.WaypointPath;
 
-            _path = Global.WaypointMgr.GetPath(_pathId);
+            _path = owner.WaypointManager.GetPath(_pathId);
         }
 
         if (_path == null)
@@ -257,19 +257,12 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
         return true;
     }
 
-    private void MovementInform(Creature owner)
-    {
-        var ai = owner.AI;
-
-        ai?.MovementInform(MovementGeneratorType.Waypoint, (uint)_currentNode);
-    }
-
     private void OnArrived(Creature owner)
     {
         if (_path == null || _path.Nodes.Empty())
             return;
 
-        var waypoint = _path.Nodes.ElementAt((int)_currentNode);
+        var waypoint = _path.Nodes.ElementAt(_currentNode);
 
         if (waypoint.Delay != 0)
         {

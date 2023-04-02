@@ -58,7 +58,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
             // when client side flight end early in comparison server side
             owner.StopMoving();
             // When the player reaches the last flight point, teleport to destination taxi node location
-            var node = CliDB.TaxiNodesStorage.LookupByKey(taxiNodeId);
+            var node = owner.CliDB.TaxiNodesStorage.LookupByKey(taxiNodeId);
 
             if (node != null)
             {
@@ -100,7 +100,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
         // Providing a starting vertex since the taxi paths do not provide such
         init.Path().Add(new Vector3(owner.Location.X, owner.Location.Y, owner.Location.Z));
 
-        for (var i = (int)currentNodeId; i != (uint)end; ++i)
+        for (var i = (int)currentNodeId; i != end; ++i)
         {
             Vector3 vertice = new(_path[i].Loc.X, _path[i].Loc.Y, _path[i].Loc.Z);
             init.Path().Add(vertice);
@@ -205,12 +205,12 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 
         for (int src = 0, dst = 1; dst < taxi.Count; src = dst++)
         {
-            Global.ObjectMgr.GetTaxiPath(taxi[src], taxi[dst], out var path, out var cost);
+            player.ObjectManager.GetTaxiPath(taxi[src], taxi[dst], out var path, out var cost);
 
-            if (path >= CliDB.TaxiPathNodesByPath.Keys.Max())
+            if (path >= player.CliDB.TaxiPathNodesByPath.Keys.Max())
                 return;
 
-            var nodes = CliDB.TaxiPathNodesByPath[path];
+            var nodes = player.CliDB.TaxiPathNodesByPath[path];
 
             if (!nodes.Empty())
             {

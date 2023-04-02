@@ -5,6 +5,6 @@ namespace Forged.MapServer.Movement;
 
 public class AnimTierTransition
 {
-    public byte AnimTier;
-    public uint TierTransitionId;
+    public byte AnimTier { get; set; }
+    public uint TierTransitionId { get; set; }
 }

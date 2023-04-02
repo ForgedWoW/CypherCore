@@ -37,22 +37,22 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
     {
         AddFlag(MovementGeneratorFlags.Finalized);
 
-        if (active)
-        {
-            if (owner.IsPlayer)
-            {
-                owner.RemoveUnitFlag(UnitFlags.Fleeing);
-                owner.ClearUnitState(UnitState.FleeingMove);
-                owner.StopMoving();
-            }
-            else
-            {
-                owner.RemoveUnitFlag(UnitFlags.Fleeing);
-                owner.ClearUnitState(UnitState.FleeingMove);
+        if (!active)
+            return;
 
-                if (owner.Victim != null)
-                    owner.SetTarget(owner.Victim.GUID);
-            }
+        if (owner.IsPlayer)
+        {
+            owner.RemoveUnitFlag(UnitFlags.Fleeing);
+            owner.ClearUnitState(UnitState.FleeingMove);
+            owner.StopMoving();
+        }
+        else
+        {
+            owner.RemoveUnitFlag(UnitFlags.Fleeing);
+            owner.ClearUnitState(UnitState.FleeingMove);
+
+            if (owner.Victim != null)
+                owner.SetTarget(owner.Victim.GUID);
         }
     }
 
@@ -118,16 +118,13 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
     private void GetPoint(T owner, Position position)
     {
         float casterDistance, casterAngle;
-        var fleeTarget = Global.ObjAccessor.GetUnit(owner, _fleeTargetGUID);
+        var fleeTarget = owner.ObjectAccessor.GetUnit(owner, _fleeTargetGUID);
 
         if (fleeTarget != null)
         {
-            casterDistance = fleeTarget.GetDistance(owner);
+            casterDistance = fleeTarget.Location.GetDistance(owner);
 
-            if (casterDistance > 0.2f)
-                casterAngle = fleeTarget.Location.GetAbsoluteAngle(owner.Location);
-            else
-                casterAngle = RandomHelper.FRand(0.0f, 2.0f * MathF.PI);
+            casterAngle = casterDistance > 0.2f ? fleeTarget.Location.GetAbsoluteAngle(owner.Location) : RandomHelper.FRand(0.0f, 2.0f * MathF.PI);
         }
         else
         {

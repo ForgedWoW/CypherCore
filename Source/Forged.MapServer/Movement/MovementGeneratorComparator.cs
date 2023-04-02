@@ -10,6 +10,9 @@ internal class MovementGeneratorComparator : IComparer<MovementGenerator>
 {
     public int Compare(MovementGenerator a, MovementGenerator b)
     {
+        if (a == null || b == null)
+            return 0;
+
         if (a.Equals(b))
             return 0;
 

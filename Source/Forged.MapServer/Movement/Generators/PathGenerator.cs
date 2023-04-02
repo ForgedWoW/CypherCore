@@ -44,10 +44,10 @@ public class PathGenerator
 
         var mapId = PhasingHandler.GetTerrainMapId(_source.Location.PhaseShift, _source.Location.MapId, _source.Location.Map.Terrain, _source.Location.X, _source.Location.Y);
 
-        if (Global.DisableMgr.IsPathfindingEnabled(_source.Location.MapId))
+        if (owner.DisableManager.IsPathfindingEnabled(_source.Location.MapId))
         {
-            _navMesh = Global.MMapMgr.GetNavMesh(mapId);
-            _navMeshQuery = Global.MMapMgr.GetNavMeshQuery(mapId, _source.InstanceId);
+            _navMesh = owner.MMapManager.GetNavMesh(mapId);
+            _navMeshQuery = owner.MMapManager.GetNavMeshQuery(mapId, _source.InstanceId);
         }
 
         CreateFilter();
@@ -924,7 +924,7 @@ public class PathGenerator
         {
             var found = false;
 
-            for (var j = (int)nvisited - 1; j >= 0; --j)
+            for (var j = nvisited - 1; j >= 0; --j)
                 if (path[i] == visited[j])
                 {
                     furthestPath = i;

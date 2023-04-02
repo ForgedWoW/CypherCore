@@ -103,7 +103,7 @@ public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T :
             RemoveFlag(MovementGeneratorFlags.Transitory);
 
             Position destination = new(_reference);
-            var distance = (float)(4.0f * RandomHelper.FRand(0.0f, 1.0f) - 2.0f);
+            var distance = 4.0f * RandomHelper.FRand(0.0f, 1.0f) - 2.0f;
             var angle = RandomHelper.FRand(0.0f, 1.0f) * MathF.PI * 2.0f;
             owner.MovePositionToFirstCollision(destination, distance, angle);
 

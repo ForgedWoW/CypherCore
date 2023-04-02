@@ -51,6 +51,7 @@ public abstract class WorldObject : IDisposable
     private NotifyFlags _notifyFlags;
     private bool _objectUpdated;
     private ObjectGuid _privateObjectOwner;
+
     public WorldObject(bool isWorldObject, ClassFactory classFactory)
     {
         SpellFactory = classFactory.Resolve<SpellFactory>(new PositionalParameter(0, this));
@@ -58,6 +59,8 @@ public abstract class WorldObject : IDisposable
         _name = "";
         IsPermanentWorldObject = isWorldObject;
         ClassFactory = classFactory;
+        DisableManager = classFactory.Resolve<DisableManager>();
+        MMapManager = classFactory.Resolve<MMapManager>();
         VMapManager = classFactory.Resolve<VMapManager>();
         SpellManager = classFactory.Resolve<SpellManager>();
         ObjectManager = classFactory.Resolve<GameObjectManager>();
@@ -95,6 +98,7 @@ public abstract class WorldObject : IDisposable
     public SceneObject AsSceneObject => this as SceneObject;
     public Unit AsUnit => this as Unit;
     public BattleFieldManager BattleFieldManager { get; }
+
     public virtual Unit CharmerOrOwner
     {
         get
@@ -111,6 +115,7 @@ public abstract class WorldObject : IDisposable
     }
 
     public virtual ObjectGuid CharmerOrOwnerGUID => OwnerGUID;
+
     public ObjectGuid CharmerOrOwnerOrOwnGUID
     {
         get
@@ -128,6 +133,8 @@ public abstract class WorldObject : IDisposable
     public virtual float CombatReach => SharedConst.DefaultPlayerCombatReach;
     public ConditionManager ConditionManager { get; }
     public IConfiguration Configuration { get; }
+    public DisableManager DisableManager { get; }
+
     public uint Entry
     {
         get => ObjectData.EntryId;
@@ -136,6 +143,7 @@ public abstract class WorldObject : IDisposable
 
     public EventSystem Events { get; set; } = new();
     public virtual uint Faction { get; set; }
+
     public float GridActivationRange
     {
         get
@@ -159,6 +167,7 @@ public abstract class WorldObject : IDisposable
     public bool IsDestroyedObject { get; private set; }
     public bool IsDynObject => ObjectTypeId == TypeId.DynamicObject;
     public bool IsGameObject => ObjectTypeId == TypeId.GameObject;
+
     public bool IsInWorldPvpZone
     {
         get
@@ -169,6 +178,7 @@ public abstract class WorldObject : IDisposable
                 case 5095: // Tol Barad
                 case 6941: // Ashran
                     return true;
+
                 default:
                     return false;
             }
@@ -183,11 +193,13 @@ public abstract class WorldObject : IDisposable
     public uint LastUsedScriptID { get; set; }
     public WorldLocation Location { get; set; }
     public virtual ushort MeleeAnimKitId => 0;
+    public MMapManager MMapManager { get; }
     public virtual ushort MovementAnimKitId => 0;
     public MovementInfo MovementInfo { get; set; }
     public ObjectAccessor ObjectAccessor { get; }
     public ObjectFieldData ObjectData { get; set; }
     public GameObjectManager ObjectManager { get; }
+
     public virtual float ObjectScale
     {
         get => ObjectData.Scale;
@@ -198,6 +210,7 @@ public abstract class WorldObject : IDisposable
     public OutdoorPvPManager OutdoorPvPManager { get; }
     public virtual ObjectGuid OwnerGUID => default;
     public virtual Unit OwnerUnit => ObjectAccessor.GetUnit(this, OwnerGUID);
+
     public ObjectGuid PrivateObjectOwner
     {
         get => _privateObjectOwner;
@@ -207,6 +220,7 @@ public abstract class WorldObject : IDisposable
     public Scenario Scenario => !Location.IsInWorld ? null : Location.Map.ToInstanceMap?.InstanceScenario;
     public SpellFactory SpellFactory { get; }
     public SpellManager SpellManager { get; }
+
     public Player SpellModOwner
     {
         get
@@ -246,6 +260,7 @@ public abstract class WorldObject : IDisposable
     public WorldObjectCombat WorldObjectCombat { get; }
     public ZoneScript ZoneScript { get; set; }
     protected TypeId ObjectTypeId { get; set; }
+
     public static implicit operator bool(WorldObject obj)
     {
         return obj != null;
@@ -984,6 +999,7 @@ public abstract class WorldObject : IDisposable
         if (_objectUpdated)
             Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
     }
+
     public void DoWithSuppressingObjectUpdates(Action action)
     {
         var wasUpdatedBeforeAction = _objectUpdated;
@@ -1239,7 +1255,6 @@ public abstract class WorldObject : IDisposable
         if (!(groundZ <= MapConst.InvalidHeight))
             return;
 
-
         if (!TryGetAsUnit(out var unit))
             return;
 
@@ -1304,6 +1319,7 @@ public abstract class WorldObject : IDisposable
         Location.IsInWorld = false;
         ClearUpdateMask(true);
     }
+
     public void RemoveUpdateFieldFlagValue<T>(IUpdateField<T> updateField, T flag)
     {
         //static_assert(std::is_integral < T >::value, "SetUpdateFieldFlagValue must be used with integral types");
@@ -1375,6 +1391,7 @@ public abstract class WorldObject : IDisposable
         upd.BuildPacket(out var packet);
         player.SendPacket(packet);
     }
+
     public void SetActive(bool on)
     {
         if (IsActive == on)
@@ -1463,6 +1480,7 @@ public abstract class WorldObject : IDisposable
             AddToObjectUpdateIfNeeded();
         }
     }
+
     public void SetWorldObject(bool on)
     {
         if (!Location.IsInWorld)
@@ -1683,6 +1701,7 @@ public abstract class WorldObject : IDisposable
     {
         Events.Update(diff);
     }
+
     public virtual void UpdateObjectVisibility(bool force = true)
     {
         //updates object's visibility for nearby players

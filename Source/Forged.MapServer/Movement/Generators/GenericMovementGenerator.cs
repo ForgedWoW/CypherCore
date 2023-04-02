@@ -95,7 +95,7 @@ internal class GenericMovementGenerator : MovementGenerator
     private void MovementInform(Unit owner)
     {
         if (_arrivalSpellId != 0)
-            owner.SpellFactory.CastSpell(Global.ObjAccessor.GetUnit(owner, _arrivalSpellTargetGuid), _arrivalSpellId, true);
+            owner.SpellFactory.CastSpell(owner.ObjectAccessor.GetUnit(owner, _arrivalSpellTargetGuid), _arrivalSpellId, true);
 
         var creature = owner.AsCreature;
 

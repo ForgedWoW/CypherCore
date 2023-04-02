@@ -18,6 +18,7 @@ using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.Movement;
 using Forged.MapServer.Networking.Packets.Combat;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Phasing;
@@ -33,10 +34,13 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public partial class Creature : Unit
 {
-    public Creature(ClassFactory classFactory) : this(false, classFactory) { }
+    public Creature(ClassFactory classFactory) : this(false, classFactory)
+    {
+    }
 
     public Creature(bool worldObject, ClassFactory classFactory) : base(worldObject, classFactory)
     {
+        WaypointManager = classFactory.Resolve<WaypointManager>();
         WorldManager = classFactory.Resolve<WorldManager>();
         PoolManager = classFactory.Resolve<PoolManager>();
         WorldDatabase = classFactory.Resolve<WorldDatabase>();
@@ -425,14 +429,17 @@ public partial class Creature : Unit
                 player.PlayerTalkClass.SendGossipMenu(7616, GUID);
 
                 break;
+
             case BattlegroundTypeId.WS:
                 player.PlayerTalkClass.SendGossipMenu(7599, GUID);
 
                 break;
+
             case BattlegroundTypeId.AB:
                 player.PlayerTalkClass.SendGossipMenu(7642, GUID);
 
                 break;
+
             case BattlegroundTypeId.EY:
             case BattlegroundTypeId.NA:
             case BattlegroundTypeId.BE:
@@ -554,18 +561,22 @@ public partial class Creature : Unit
                 CorpseDelay = Configuration.GetDefaultValue("Corpse.Decay.RARE", 300u);
 
                 break;
+
             case CreatureEliteType.Elite:
                 CorpseDelay = Configuration.GetDefaultValue("Corpse.Decay.ELITE", 300u);
 
                 break;
+
             case CreatureEliteType.RareElite:
                 CorpseDelay = Configuration.GetDefaultValue("Corpse.Decay.RAREELITE", 300u);
 
                 break;
+
             case CreatureEliteType.WorldBoss:
                 CorpseDelay = Configuration.GetDefaultValue("Corpse.Decay.WORLDBOSS", 3600u);
 
                 break;
+
             default:
                 CorpseDelay = Configuration.GetDefaultValue("Corpse.Decay.NORMAL", 60u);
 
@@ -865,14 +876,19 @@ public partial class Creature : Unit
         {
             case CreatureEliteType.Normal:
                 return Configuration.GetDefaultValue("Rate.Creature.Normal.HP", 1.0f);
+
             case CreatureEliteType.Elite:
                 return Configuration.GetDefaultValue("Rate.Creature.Elite.Elite.HP", 1.0f);
+
             case CreatureEliteType.RareElite:
                 return Configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.HP", 1.0f);
+
             case CreatureEliteType.WorldBoss:
                 return Configuration.GetDefaultValue("Rate.Creature.Elite.WORLDBOSS.HP", 1.0f);
+
             case CreatureEliteType.Rare:
                 return Configuration.GetDefaultValue("Rate.Creature.Elite.RARE.HP", 1.0f);
+
             default:
                 return Configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.HP", 1.0f);
         }
@@ -1050,14 +1066,19 @@ public partial class Creature : Unit
         {
             case CreatureEliteType.Normal:
                 return Configuration.GetDefaultValue("Rate.Creature.Normal.SpellDamage", 1.0f);
+
             case CreatureEliteType.Elite:
                 return Configuration.GetDefaultValue("Rate.Creature.Elite.Elite.SpellDamage", 1.0f);
+
             case CreatureEliteType.RareElite:
                 return Configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.SpellDamage", 1.0f);
+
             case CreatureEliteType.WorldBoss:
                 return Configuration.GetDefaultValue("Rate.Creature.Elite.WORLDBOSS.SpellDamage", 1.0f);
+
             case CreatureEliteType.Rare:
                 return Configuration.GetDefaultValue("Rate.Creature.Elite.RARE.SpellDamage", 1.0f);
+
             default:
                 return Configuration.GetDefaultValue("Rate.Creature.Elite.Elite.SpellDamage", 1.0f);
         }
@@ -1769,6 +1790,7 @@ public partial class Creature : Unit
                 Log.Logger.Error(ex);
             }
     }
+
     public void RemoveLootMode(LootModes lootMode)
     {
         _lootMode &= ~lootMode;
@@ -2570,6 +2592,7 @@ public partial class Creature : Unit
 
         Formation.LeaderStartedMoving();
     }
+
     public void StartPickPocketRefillTimer()
     {
         _pickpocketLootRestore = GameTime.CurrentTime + Configuration.GetDefaultValue("Creature.PickPocketRefillDelay", 10 * Time.MINUTE);
@@ -2595,6 +2618,7 @@ public partial class Creature : Unit
                 Log.Logger.Error($"Creature ({GUID}) in wrong state: {DeathState}");
 
                 break;
+
             case DeathState.Dead:
             {
                 if (!RespawnCompatibilityMode)
@@ -2672,6 +2696,7 @@ public partial class Creature : Unit
                 }
 
                 break;
+
             case DeathState.Alive:
                 base.Update(diff);
 
@@ -2912,6 +2937,7 @@ public partial class Creature : Unit
 
         return true;
     }
+
     public void UpdateLevelDependantStats()
     {
         var cInfo = Template;
@@ -2966,6 +2992,7 @@ public partial class Creature : Unit
         var armor = GetBaseArmorForLevel(level);
         SetStatFlatModifier(UnitMods.Armor, UnitModifierFlatType.Base, armor);
     }
+
     public void UpdateMovementFlags()
     {
         // Do not update movement flags if creature is controlled by a player (charm/vehicle)
@@ -3006,6 +3033,7 @@ public partial class Creature : Unit
 
         SetSwim(CanSwim && Location.IsInWater);
     }
+
     public uint UpdateVendorItemCurrentCount(VendorItem vItem, uint usedCount)
     {
         if (vItem.Maxcount == 0)
@@ -3038,6 +3066,7 @@ public partial class Creature : Unit
 
         return vCount.Count;
     }
+
     private bool CreateFromProto(ulong guidlow, uint entry, CreatureData data = null, uint vehId = 0)
     {
         Location.SetZoneScript();
@@ -3197,6 +3226,7 @@ public partial class Creature : Unit
 
         ModifyHealth(addvalue);
     }
+
     private void SelectWildBattlePetLevel()
     {
         if (IsWildBattlePet)

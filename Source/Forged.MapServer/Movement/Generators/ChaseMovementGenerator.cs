@@ -147,8 +147,6 @@ internal class ChaseMovementGenerator : MovementGenerator
             }
         }
 
-        var isEvading = false;
-
         // if we're done moving, we want to clean up
         if (owner.HasUnitState(UnitState.ChaseMove) && owner.MoveSpline.Finalized())
         {
@@ -214,8 +212,7 @@ internal class ChaseMovementGenerator : MovementGenerator
 
                 if (!success || _path.GetPathType().HasAnyFlag(PathType.NoPath))
                 {
-                    if (cOwner)
-                        cOwner.SetCannotReachTarget(true);
+                    cOwner?.SetCannotReachTarget(true);
 
                     owner.StopMoving();
 
@@ -225,14 +222,11 @@ internal class ChaseMovementGenerator : MovementGenerator
                 if (shortenPath)
                     _path.ShortenPathUntilDist(target.Location, maxTarget);
 
-                if (cOwner)
-                    cOwner.SetCannotReachTarget(false);
-
-                cOwner.SetCannotReachTarget(false);
+                cOwner?.SetCannotReachTarget(false);
 
                 var walk = false;
 
-                if (cOwner && !cOwner.IsPet)
+                if (cOwner is { IsPet: false })
                     switch (cOwner.MovementTemplate.GetChase())
                     {
                         case CreatureChaseMovementType.CanWalk:
@@ -243,9 +237,6 @@ internal class ChaseMovementGenerator : MovementGenerator
                         case CreatureChaseMovementType.AlwaysWalk:
                             walk = true;
 
-                            break;
-
-                        default:
                             break;
                     }
 

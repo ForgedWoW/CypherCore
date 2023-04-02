@@ -22,12 +22,10 @@ public class TransportPathTransform
     {
         var pos = new Position(input);
 
-        if (_transformForTransport)
-        {
-            var transport = _owner.DirectTransport;
+        if (!_transformForTransport)
+            return pos;
 
-            transport?.CalculatePassengerOffset(pos);
-        }
+        _owner.DirectTransport?.CalculatePassengerOffset(pos);
 
         return pos;
     }

@@ -203,10 +203,7 @@ public class SplineChainMovementGenerator : MovementGenerator
 
         if (owner.MoveSpline.Finalized())
         {
-            if (_nextIndex < _chainSize)
-                return new SplineChainResumeInfo(_id, _chain, _walk, _nextIndex, 0, 1u);
-            else
-                return new SplineChainResumeInfo();
+            return _nextIndex < _chainSize ? new SplineChainResumeInfo(_id, _chain, _walk, _nextIndex, 0, 1u) : new SplineChainResumeInfo();
         }
 
         return new SplineChainResumeInfo(_id, _chain, _walk, (byte)(_nextIndex - 1), (byte)owner.MoveSpline.CurrentSplineIdx(), _msToNext);
@@ -241,7 +238,7 @@ public class SplineChainMovementGenerator : MovementGenerator
         if (actualDuration != thisLink.ExpectedDuration)
         {
             Log.Logger.Debug($"SplineChainMovementGenerator::SendSplineFor: sent spline on index: {index}, duration: {actualDuration} ms. Expected duration: {thisLink.ExpectedDuration} ms (delta {actualDuration - thisLink.ExpectedDuration} ms). Adjusting. ({owner.GUID})");
-            duration = (uint)((double)actualDuration / (double)thisLink.ExpectedDuration * duration);
+            duration = (uint)(actualDuration / (double)thisLink.ExpectedDuration * duration);
         }
         else
         {
